@@ -1,0 +1,25 @@
+sudo: required
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_install:
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+
+script:
+  - docker-compose up -d --build
+  - docker-compose exec golang go test -coverprofile=coverage.txt -cover -v ./
+
+after_success:
+  - docker-compose exec golang goveralls -coverprofile=coverage.txt -covermode=count -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+env:
+  global:
+    - COMPOSE_VERSION: 1.25.4
+    - secure: "a6jn+GGeve4w5SyE+E6ms7cEvUmvQcdWP9CndeQS3HSr0oMjG2GaEpIBoNYYJrMz2sg0xOejMYZalJXKqSbvQs+HKFdfC4DQb1BP/SkBgkBeGgeP+bRjzkhXzgB/G2t4/xo0c+h9tnhZMqwoLGyYiFC2cj4J4eII9G9+bDUQHXbGLuPywG/GZjpXrlzfIPRNary9RVfnHh5Z7y9jRRAS+LXxjT6QQzheHkVe+mztHwaNtx1H7e+l0sZbJhQ9jz8F3cTkHMhXDTVg6jVxjoRXMB09dZxG39+j+KAzRLjoFOnVUHRoPxPkXJPHxgh3cjhK1cgDpjPRYGLgYsIJ2yknzmW+OlkB1+LGhCBsYPsasSfsg9omhAY1Beuq2cbjsg2RYW+uXXYkobvXeHqA2SmFSfa8R8svEjCcQSl7ssz67UvuBNCyqFV0ac/XTNxpPlUS/lllwf0iIxCZBWKprHVKqC/ub/M6KQr2QKJk4upNQOYnwVomsbek9Wtv5cNHqY3lzL2O7bAqq092V7SaYxoqXYaMbvA9RxpLMgo6Bj3J4UTuOTjq5coAmkl/Lezd9zD2Zei83xlgup+hfdZkVIWYi3elPAJqcPaz3e8etY/ZFEa3P3uPR5h8g5Uo6BrK/GNdahf4lquZyfoCea1O5WzYoxzkPLdspttmjw93Hqzas+Q="
