@@ -1,0 +1,33 @@
+{
+    "id": 1,
+    "projectId": 1,
+    "name": "Home",
+    "content": "test",
+    "tags": [
+        {
+            "id": 12,
+            "name": "議事録"
+        }
+    ],
+    "attachments": [],
+    "sharedFiles": [],
+    "stars": [],
+    "createdUser": {
+        "id": 1,
+        "userId": "admin",
+        "name": "admin",
+        "roleType": 1,
+        "lang": "ja",
+        "mailAddress": "eguchi@nulab.example"
+    },
+    "created": "2012-07-23T06:09:48Z",
+    "updatedUser": {
+        "id": 1,
+        "userId": "admin",
+        "name": "admin",
+        "roleType": 1,
+        "lang": "ja",
+        "mailAddress": "eguchi@nulab.example"
+    },
+    "updated": "2012-07-23T06:09:48Z"
+}

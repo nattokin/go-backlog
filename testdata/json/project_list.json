@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "projectKey": "TEST",
+        "name": "test",
+        "chartEnabled": false,
+        "subtaskingEnabled": false,
+        "projectLeaderCanEditProjectLeader": false,
+        "textFormattingRule": "markdown",
+        "archived": false
+    },
+    {
+        "id": 2,
+        "projectKey": "TEST2",
+        "name": "test2",
+        "chartEnabled": true,
+        "subtaskingEnabled": false,
+        "projectLeaderCanEditProjectLeader": true,
+        "textFormattingRule": "markdown",
+        "archived": false
+    },
+    {
+        "id": 3,
+        "projectKey": "TEST3",
+        "name": "test3",
+        "chartEnabled": false,
+        "subtaskingEnabled": false,
+        "projectLeaderCanEditProjectLeader": false,
+        "textFormattingRule": "markdown",
+        "archived": false
+    }
+]

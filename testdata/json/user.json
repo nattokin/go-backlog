@@ -1,0 +1,8 @@
+{
+    "id": 1,
+    "userId": "admin",
+    "name": "admin",
+    "roleType": 1,
+    "lang": "ja",
+    "mailAddress": "eguchi@nulab.example"
+}
