@@ -12,8 +12,7 @@ func main() {
 	baseURL := "BACKLOG_BASE_URL"
 	// The tokun for request to Backlog API.
 	token := "BACKLOG_TOKEN"
-	// Create Backlog API client.
-	token := "BACKLOG_TOKEN"
+
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)

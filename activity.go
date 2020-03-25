@@ -130,7 +130,7 @@ func newProjectActivityService(cm *clientMethod) *ProjectActivityService {
 
 // List returns a list of activities in the project.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(projectIDOrKey string, options ...ActivityOption) ([]*Activity, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -153,7 +153,7 @@ func newSpaceActivityService(cm *clientMethod) *SpaceActivityService {
 
 // List returns a list of activities in your space.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-recent-updates
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
 	return s.getList(spath, options...)
@@ -172,7 +172,7 @@ func newUserActivityService(cm *clientMethod) *UserActivityService {
 
 // List returns a list of user activities.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-recent-updates
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *UserActivityService) List(id int, options ...ActivityOption) ([]*Activity, error) {
 	spath := "users/" + strconv.Itoa(id) + "/activities"
 	return s.getList(spath, options...)
