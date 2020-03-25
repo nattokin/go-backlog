@@ -3,7 +3,7 @@ go-backlog
 [![GoDoc](https://godoc.org/github.com/nattokin/go-backlog?status.svg)](https://godoc.org/github.com/nattokin/go-backlog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nattokin/go-backlog)](https://goreportcard.com/report/github.com/nattokin/go-backlog)
 [![Build Status](https://travis-ci.org/nattokin/go-backlog.svg?branch=master)](https://travis-ci.org/nattokin/go-backlog)
-[![Coverage Status](https://coveralls.io/repos/github/nattokin/go-backlog/badge.svg?branch=%28HEAD+detached+at+FETCH_HEAD%29)](https://coveralls.io/github/nattokin/go-backlog)
+[![codecov](https://codecov.io/gh/nattokin/go-backlog/branch/master/graph/badge.svg)](https://codecov.io/gh/nattokin/go-backlog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [Go](https://golang.org) client library for [Nulab Backlog](https://nulab-inc.com)
@@ -13,6 +13,10 @@ go-backlog
 - You can request each API endpoint using the Backlog API client created from the API base URL and token.
 - Converts API response to a corresponding structure.
 - Structures are provided for all endpoints and responses.
+
+## Requirements
+
+- Go >= 1.11
 
 ## Installation
 
