@@ -99,7 +99,7 @@ func newProjectService(cm *clientMethod) *ProjectService {
 
 // Joined returns all of joining projects.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) Joined() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("all", "false")
@@ -110,7 +110,7 @@ func (s *ProjectService) Joined() ([]*Project, error) {
 // All returns all of projects. This is limited to admin.
 // If you are not an admin, only joining projects returned.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("all", "true")
@@ -120,7 +120,7 @@ func (s *ProjectService) All() ([]*Project, error) {
 
 // Archived returns all of joining projects archived.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) Archived() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("archived", "true")
@@ -132,7 +132,7 @@ func (s *ProjectService) Archived() ([]*Project, error) {
 // AllArchived returns all of projects archived.
 // If you are not an admin, only joining projects returned.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) AllArchived() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("archived", "true")
@@ -144,7 +144,7 @@ func (s *ProjectService) AllArchived() ([]*Project, error) {
 // Unarchived returns all of joining projects unarchived.
 // If you are not an admin, only joining projects returned.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) Unarchived() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("archived", "false")
@@ -156,7 +156,7 @@ func (s *ProjectService) Unarchived() ([]*Project, error) {
 // AllUnarchived returns all of projects unarchived.
 // If you are not an admin, only joining projects returned.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) AllUnarchived() ([]*Project, error) {
 	params := newRequestParams()
 	params.Set("archived", "false")
@@ -182,7 +182,7 @@ func (s *ProjectService) getList(params *requestParams) ([]*Project, error) {
 
 // One returns one of the projects searched by ID or key.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project
 func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 	spath := "projects/" + projectIDOrKey
 	resp, err := s.clientMethod.Get(spath, nil)
@@ -201,7 +201,7 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 
 // Create creates a new project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/add-project
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Project, error) {
 	if key == "" {
 		return nil, errors.New("key must not be empty")
@@ -245,7 +245,7 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 
 // Update updates a project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/update-project
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(projectIDOrKey string, options ...ProjectOption) (*Project, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -275,7 +275,7 @@ func (s *ProjectService) Update(projectIDOrKey string, options ...ProjectOption)
 
 // Delete deletes a project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/delete-project
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -297,7 +297,7 @@ func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 
 // // Icon returns icon image of the project.
 // //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-icon
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-icon
 // func (s *ProjectService) Icon(projectIDOrKey string) (io.ReadCloser, error) {
 // 	if projectIDOrKey == "" {
 // 		return nil, errors.New("must not be empty")

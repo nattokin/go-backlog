@@ -19,13 +19,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Get a Wiki by ID of the Wiki.
-	// You get struct where represented the Wiki.
 	r, err := c.Wiki.One(12345)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	// Response
 	fmt.Printf("%#v\n", r)
 }

@@ -9,28 +9,23 @@ import (
 
 func main() {
 	// The base URL of Backlog API.
-	baseURL := "https://zucc-hicc.backlog.com"
+	baseURL := "BACKLOG_BASE_URL"
 	// The tokun for request to Backlog API.
-	token := "ftNsagLfrnSu9CleBraKl4rTdEcJ1CbYjZTtejBIu9D3wkCIhkxgmVdnfIMtqKKw"
-
+	token := "BACKLOG_TOKEN"
 	// Create Backlog API client.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	// ID or Key of the project.
-	projectIDOrKey := "API"
-	// projectIDOrKey := "ProjectKey"
+	projectIDOrKey := "PROJECTKEY"
+	// or
+	// projectIDOrKey := "1234"
 
-	// Get all Wikis by ID or Key of the project.
-	// You get slice of Wiki.
 	r, err := c.Wiki.All(projectIDOrKey)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	// Out put
 	for _, w := range r {
 		fmt.Printf("%#v\n", w)
 	}
