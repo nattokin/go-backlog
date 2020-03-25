@@ -67,14 +67,14 @@ func (*wikiOptionService) WithMailNotify() wikiOption {
 
 // All Wiki in project is gotten.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) All(projectIDOrKey string) ([]*Wiki, error) {
 	return s.Search(projectIDOrKey, "")
 }
 
 // Search returns wikis by keyword from within the project.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
 	params := newRequestParams()
 	params.Set("projectIDOrKey", projectIDOrKey)
@@ -97,7 +97,7 @@ func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
 
 // Count returns the number of wikis in the project.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/count-wiki-page
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 	params := newRequestParams()
 	params.Set("projectIDOrKey", projectIDOrKey)
@@ -117,7 +117,7 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 
 // One returns one of the wiki by ID.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-wiki-page
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
 	spath := "wikis/" + strconv.Itoa(wikiID)
 	resp, err := s.clientMethod.Get(spath, nil)
@@ -136,7 +136,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 
 // Create creates a new Wiki for the project.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/add-wiki-page
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, mailNotify bool) (*Wiki, error) {
 	if mailNotify {
 		return s.create(projectID, name, content, s.option.WithMailNotify())
@@ -181,7 +181,7 @@ func (s *WikiService) create(projectID int, name, content string, options ...wik
 
 // Update a wiki.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/update-wiki-page
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, name, content string, mailNotify bool) (*Wiki, error) {
 	options := []wikiOption{}
 	if name != "" {
@@ -225,7 +225,7 @@ func (s *WikiService) update(wikiID int, options ...wikiOption) (*Wiki, error) {
 
 // Delete a wiki by ID.
 //
-// Backlog API docs: developer.nulab.com/docs/backlog/api/2/delete-wiki-page
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, mailNotify bool) (*Wiki, error) {
 	if mailNotify {
 		return s.delete(wikiID, s.option.WithMailNotify())
