@@ -18,6 +18,9 @@ script:
 
 after_success:
   - docker-compose exec golang goveralls -coverprofile=coverage.txt -covermode=count -service=travis-ci -repotoken $COVERALLS_TOKEN
+  - curl -s https://codecov.io/bash > codecov.bash
+  - docker-compose exec golang cat coverage.txt > coverage.txt
+  - bash codecov.bash -f coverage.txt
 
 env:
   global:
