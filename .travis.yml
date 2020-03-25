@@ -5,10 +5,11 @@ services:
 env:
   - global:
     - COMPOSE_VERSION: 1.25.4
-  - GO_VERSION=1.11
-  - GO_VERSION=1.12
-  - GO_VERSION=1.13
-  - GO_VERSION=1.14
+  - local:
+    - GO_VERSION=1.11
+    - GO_VERSION=1.12
+    - GO_VERSION=1.13
+    - GO_VERSION=1.14
 
 addons:
   apt:
