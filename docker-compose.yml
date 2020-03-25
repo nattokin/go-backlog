@@ -1,12 +1,38 @@
 version: '3'
 services:
-  golang:
-    container_name: golang_container
-    build: ./docker/golang
+  golang1.11:
+    container_name: golang1.11
+    build: ./docker/golang1.11
     tty: true
     environment:
       - GO111MODULE=on
     volumes:
       - ./:/go/src/github.com/nattokin/go-backlog
     working_dir: /go/src/github.com/nattokin/go-backlog
-
+  golang1.12:
+    container_name: golang1.12
+    build: ./docker/golang1.12
+    tty: true
+    environment:
+      - GO111MODULE=on
+    volumes:
+      - ./:/go/src/github.com/nattokin/go-backlog
+    working_dir: /go/src/github.com/nattokin/go-backlog
+    golang1.13:
+      container_name: golang1.13
+      build: ./docker/golang1.13
+      tty: true
+      environment:
+        - GO111MODULE=on
+      volumes:
+        - ./:/go/src/github.com/nattokin/go-backlog
+      working_dir: /go/src/github.com/nattokin/go-backlog
+      golang1.14:
+    container_name: golang1.14
+    build: ./docker/golang1.14
+    tty: true
+    environment:
+      - GO111MODULE=on
+    volumes:
+      - ./:/go/src/github.com/nattokin/go-backlog
+    working_dir: /go/src/github.com/nattokin/go-backlog
