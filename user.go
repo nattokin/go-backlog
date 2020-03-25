@@ -161,7 +161,7 @@ func newUserService(cm *clientMethod) *UserService {
 
 // All returns all users in your space.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-user-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-user-list
 func (s *UserService) All() ([]*User, error) {
 	spath := "users"
 	return s.getList(spath, nil)
@@ -169,7 +169,7 @@ func (s *UserService) All() ([]*User, error) {
 
 // One returns a user in your space.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-user
 func (s *UserService) One(id int) (*User, error) {
 	if id < 1 {
 		return nil, errors.New("id must be greater than 1")
@@ -181,18 +181,18 @@ func (s *UserService) One(id int) (*User, error) {
 
 // Own returns your own user.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-own-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-own-user
 func (s *UserService) Own() (*User, error) {
 	spath := "users/myself"
 	return s.get(spath)
 }
 
 // ToDo: func (s *UserService) Icon()
-// https://developer.nulab.com/docs/backlog/api/2/get-user-icon
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-user-icon
 
 // Add adds a user to your space.
 //
-// https://developer.nulab.com/docs/backlog/api/2/add-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserService) Add(userID, password, name, mailAddress string, roleType int) (*User, error) {
 	if userID == "" {
 		return nil, errors.New("userID must not be empty")
@@ -223,7 +223,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType i
 
 // Update updates a user in your space.
 //
-// https://developer.nulab.com/docs/backlog/api/2/update-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, options ...UserOption) (*User, error) {
 	if id < 1 {
 		return nil, errors.New("id must be greater than 1")
@@ -243,7 +243,7 @@ func (s *UserService) Update(id int, options ...UserOption) (*User, error) {
 
 // Delete deletes a user from your space.
 //
-// https://developer.nulab.com/docs/backlog/api/2/delete-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/delete-user
 func (s *UserService) Delete(id int) (*User, error) {
 	if id < 1 {
 		return nil, errors.New("id must be greater than 1")
@@ -266,7 +266,7 @@ func newProjectUserService(cm *clientMethod) *ProjectUserService {
 
 // All returns all users in the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -281,7 +281,7 @@ func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool
 
 // Add adds a user to the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/add-project-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/add-project-user
 func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -299,7 +299,7 @@ func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, erro
 
 // Delete deletes a user from the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/delete-project-user
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/delete-project-user
 func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -317,7 +317,7 @@ func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, e
 
 // AddAdmin adds a admin user to the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -335,7 +335,7 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 
 // AdminAll returns all of admin users in the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
@@ -347,7 +347,7 @@ func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
 
 // DeleteAdmin deletes a admin user from the project.
 //
-// https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
+// Backlog API docs: developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*User, error) {
 	if projectIDOrKey == "" {
 		return nil, errors.New("projectIDOrKey must not be empty")
