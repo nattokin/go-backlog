@@ -14,10 +14,9 @@ before_install:
 
 script:
   - docker-compose up -d --build
-  - docker-compose exec golang go test -coverprofile=coverage.txt -cover -v ./
+  - docker-compose exec golang go test -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
-  - docker-compose exec golang goveralls -coverprofile=coverage.txt -covermode=count -service=travis-ci -repotoken $COVERALLS_TOKEN
   - curl -s https://codecov.io/bash > codecov.bash
   - docker-compose exec golang cat coverage.txt > coverage.txt
   - bash codecov.bash -f coverage.txt
@@ -25,4 +24,3 @@ after_success:
 env:
   global:
     - COMPOSE_VERSION: 1.25.4
-    - secure: "ZaEYZqIBLUL4yEvjofkYrPXh4U7wqclAvzkCPJI1A+x1M9y0DcfK2CjOe2ZrMN04PSfbxiYbTUQ2y5U0Dlg7O6rMMJE1HbXmsuA/X5hU0e8402aLUCMl/n3+fp/q7Wz5XHmB8BbNqe6Z55roHhLcSWekPDUG5I1pQzyq+zzmMaj/2Ei3C7tUWYHpCTa35su7832luJ1P2nure95ZziVzRYOtXzfUp15y39No52sl0kkeOHniRLUEmWAHh/q/OtuXhuckEkXEQwaKDcSn/aPQj6VOHD+ehbUGQMaf9TzJFxltFZThIghobnqGVmTeoxweCsCsdaCmnVxOxkTC1rsJtdAvWlZCC9KZ50zU82YgLsQSbpUv/0SYMLiScyhEO4RDknrZz0F3o6001Jbh7uFBNNPnXYiKCqFwtUlYbze8lAagZZphYds0F2w2Pzt5wLu+rw8jVAuzRo7CIYuy3UTjH+uuWXbtW3zTH5KxY0+/OuP2tPd+US9R8w0vxoRJZO3zmCf/WullXrPuCHPOh17bej/d2uq0ClOjB3suoR7hR46KyAVGk0KPbKBXcIxUF8Y/x8Ab2An0mU8Xt1CAMtTVlsVH8zVWwouJq5NAR2w79suztTvFjYZz7E5tmN+0+RioDrRem30zy9UwO7JVrSzqaZRSAOZwvlnjySCWtuxUARw="
