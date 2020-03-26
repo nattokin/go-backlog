@@ -6,6 +6,7 @@ services:
 env:
   global:
     - COMPOSE_VERSION=1.25.4
+    - GO111MODULE=on
 
 addons:
   apt:
@@ -23,6 +24,9 @@ script:
   - docker-compose exec golang1.12 go test
   - docker-compose exec golang1.13 go test
   - docker-compose exec golang1.14 go test -race -coverprofile=coverage.txt -covermode=atomic
+  - diff <(docker-compose exec golang goimports -d .) <(printf "")
+  - diff <(docker-compose exec golang golint ./...) <(printf "")
+  - diff <(docker-compose exec golang gofmt -d .) <(printf "")
 
 after_success:
   - curl -s https://codecov.io/bash > codecov.bash

@@ -20,13 +20,13 @@ func main() {
 	}
 
 	// You get all attachments of the Wiki.
-	r, err := c.Wiki.Attachment.All(12345)
+	r, err := c.Wiki.Attachment.List(12345)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Response
-	for _, a := range *r {
+	for _, a := range r {
 		fmt.Printf("%#v\n", a)
 	}
 }
