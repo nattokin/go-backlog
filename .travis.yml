@@ -1,10 +1,11 @@
 sudo: required
+language: go
 services:
   - docker
 
 env:
-  - global:
-    - COMPOSE_VERSION: 1.25.4
+  global:
+    - COMPOSE_VERSION=1.25.4
 
 addons:
   apt:
@@ -12,10 +13,10 @@ addons:
       - docker-ce
 
 before_install:
- - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
- - chmod +x docker-compose
- - sudo mv docker-compose /usr/local/bin
- - docker-compose up -d --build
+  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose up -d --build
 
 script:
   - docker-compose exec golang1.11 go test
@@ -27,4 +28,3 @@ after_success:
   - curl -s https://codecov.io/bash > codecov.bash
   - docker-compose exec golang1.14 cat coverage.txt > coverage.txt
   - bash codecov.bash -f coverage.txt
-
