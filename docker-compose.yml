@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   golang1.11:
     container_name: golang1.11
@@ -30,6 +30,15 @@ services:
   golang1.14:
     container_name: golang1.14
     build: ./docker/golang1.14
+    tty: true
+    environment:
+      - GO111MODULE=on
+    volumes:
+      - ./:/go/src/github.com/nattokin/go-backlog
+    working_dir: /go/src/github.com/nattokin/go-backlog
+  golang:
+    container_name: golang
+    build: ./docker/golang
     tty: true
     environment:
       - GO111MODULE=on
