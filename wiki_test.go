@@ -143,10 +143,9 @@ func TestWikiService_One(t *testing.T) {
 	defer bj.Close()
 
 	want := struct {
-		spath          string
-		projectIDOrKey string
-		id             int
-		name           string
+		spath string
+		id    int
+		name  string
 	}{
 		spath: "wikis/" + strconv.Itoa(wikiID),
 		id:    wikiID,
