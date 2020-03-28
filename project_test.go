@@ -11,6 +11,12 @@ import (
 )
 
 func TestProjectService_Joined(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -25,14 +31,27 @@ func TestProjectService_Joined(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.Joined()
+	project, err := ps.Joined()
+	assert.Nil(t, project)
+	assert.Error(t, err)
 }
 
 func TestProjectService_All(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -47,14 +66,27 @@ func TestProjectService_All(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.All()
+	projects, err := ps.All()
+	assert.Nil(t, projects)
+	assert.Error(t, err)
 }
 
 func TestProjectService_Archived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -69,14 +101,28 @@ func TestProjectService_Archived(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.Archived()
+	projects, err := ps.Archived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
 }
 
 func TestProjectService_AllArchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -91,14 +137,28 @@ func TestProjectService_AllArchived(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.AllArchived()
+	projects, err := ps.AllArchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
 }
 
 func TestProjectService_Unarchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -113,14 +173,28 @@ func TestProjectService_Unarchived(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.Unarchived()
+	projects, err := ps.Unarchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
 }
 
 func TestProjectService_AllUnarchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	want := struct {
 		spath    string
 		all      string
@@ -135,11 +209,19 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
-			return nil, errors.New("error")
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
 		},
 	}
 	ps := backlog.ExportNewProjectService(cm)
-	ps.AllUnarchived()
+	projects, err := ps.AllUnarchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
 }
 
 func TestProjectService_GetList(t *testing.T) {
@@ -176,6 +258,17 @@ func TestProjectService_GetList(t *testing.T) {
 		assert.Equal(t, want.idList[i], projects[i].ID)
 		assert.Equal(t, want.nameList[i], projects[i].Name)
 	}
+}
+
+func TestProjectService_GetList_clientError(t *testing.T) {
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			return nil, errors.New("error")
+		},
+	}
+	ps := backlog.ExportNewProjectService(cm)
+	_, err := ps.Joined()
+	assert.Error(t, err)
 }
 
 func TestProjectService_One(t *testing.T) {
@@ -221,6 +314,29 @@ func TestProjectService_One_clientError(t *testing.T) {
 	}
 	ps := backlog.ExportNewProjectService(cm)
 	_, err := ps.One("TEST")
+	assert.Error(t, err)
+}
+
+func TestProjectService_One_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	ps := backlog.ExportNewProjectService(cm)
+	project, err := ps.One("TEST")
+
+	assert.Nil(t, project)
 	assert.Error(t, err)
 }
 
@@ -584,6 +700,29 @@ func TestProjectService_Create_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestProjectService_Create_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	ps := backlog.ExportNewProjectService(cm)
+	project, err := ps.Create("TEST", "test")
+
+	assert.Nil(t, project)
+	assert.Error(t, err)
+}
+
 func TestProjectService_Update(t *testing.T) {
 	projectIDOrKey := "TEST"
 	bj, err := os.Open("testdata/json/project.json")
@@ -889,6 +1028,29 @@ func TestProjectService_Update_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestProjectService_Update_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	ps := backlog.ExportNewProjectService(cm)
+	project, err := ps.Update("TEST")
+
+	assert.Nil(t, project)
+	assert.Error(t, err)
+}
+
 func TestProjectService_Delete_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -976,5 +1138,28 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 	}
 	ps := backlog.ExportNewProjectService(cm)
 	_, err := ps.Delete("TEST")
+	assert.Error(t, err)
+}
+
+func TestProjectService_Delete_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	ps := backlog.ExportNewProjectService(cm)
+	project, err := ps.Delete("TEST")
+
+	assert.Nil(t, project)
 	assert.Error(t, err)
 }
