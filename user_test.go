@@ -198,29 +198,29 @@ func TestUserService_One(t *testing.T) {
 		spath string
 	}
 	cases := map[string]struct {
-		id       int
-		hasError bool
-		want     want
+		id        int
+		wantError bool
+		want      want
 	}{
 		"id_1": {
-			id:       1,
-			hasError: false,
+			id:        1,
+			wantError: false,
 			want: want{
 				spath: "users/1",
 			},
 		},
 		"id_100": {
-			id:       100,
-			hasError: false,
+			id:        100,
+			wantError: false,
 			want: want{
 				spath: "users/100",
 			},
 		},
 
 		"id_0": {
-			id:       0,
-			hasError: true,
-			want:     want{},
+			id:        0,
+			wantError: true,
+			want:      want{},
 		},
 	}
 	for n, tc := range cases {
@@ -228,7 +228,7 @@ func TestUserService_One(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -268,7 +268,7 @@ func TestUserService_Add(t *testing.T) {
 		name        string
 		mailAddress string
 		roleType    int
-		hasError    bool
+		wantError   bool
 	}{
 		"no_error": {
 			userID:      "testid",
@@ -276,7 +276,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    2,
-			hasError:    false,
+			wantError:   false,
 		},
 		"userID_empty": {
 			userID:      "",
@@ -284,7 +284,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    1,
-			hasError:    true,
+			wantError:   true,
 		},
 		"password_empty": {
 			userID:      "testid",
@@ -292,7 +292,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    1,
-			hasError:    true,
+			wantError:   true,
 		},
 		"name_empty": {
 			userID:      "testid",
@@ -300,7 +300,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "",
 			mailAddress: "test@test.com",
 			roleType:    1,
-			hasError:    true,
+			wantError:   true,
 		},
 		"mailAddress_empty": {
 			userID:      "testid",
@@ -308,7 +308,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "",
 			roleType:    1,
-			hasError:    true,
+			wantError:   true,
 		},
 		"roleType_0": {
 			userID:      "testid",
@@ -316,7 +316,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    0,
-			hasError:    true,
+			wantError:   true,
 		},
 		"roleType_1": {
 			userID:      "testid",
@@ -324,7 +324,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    1,
-			hasError:    false,
+			wantError:   false,
 		},
 		"roleType_6": {
 			userID:      "testid",
@@ -332,7 +332,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    6,
-			hasError:    false,
+			wantError:   false,
 		},
 		"roleType_7": {
 			userID:      "testid",
@@ -340,7 +340,7 @@ func TestUserService_Add(t *testing.T) {
 			name:        "testname",
 			mailAddress: "test@test.com",
 			roleType:    7,
-			hasError:    true,
+			wantError:   true,
 		},
 	}
 	for n, tc := range cases {
@@ -348,7 +348,7 @@ func TestUserService_Add(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Post must never be called")
 					} else {
 						assert.Equal(t, wantSpath, spath)
@@ -378,29 +378,29 @@ func TestUserService_Update(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		id       int
-		options  []backlog.UserOption
-		hasError bool
-		want     options
+		id        int
+		options   []backlog.UserOption
+		wantError bool
+		want      options
 	}{
 		"no-option": {
-			id:       1,
-			options:  []backlog.UserOption{},
-			hasError: false,
-			want:     options{},
+			id:        1,
+			options:   []backlog.UserOption{},
+			wantError: false,
+			want:      options{},
 		},
 		"id_0": {
-			id:       0,
-			options:  []backlog.UserOption{},
-			hasError: true,
-			want:     options{},
+			id:        0,
+			options:   []backlog.UserOption{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-password": {
 			id: 2,
 			options: []backlog.UserOption{
 				uos.WithPassword("testpasword"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				password: "testpasword",
 			},
@@ -410,15 +410,15 @@ func TestUserService_Update(t *testing.T) {
 			options: []backlog.UserOption{
 				uos.WithPassword(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-name": {
 			id: 4,
 			options: []backlog.UserOption{
 				uos.WithName("testname"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				name: "testname",
 			},
@@ -428,15 +428,15 @@ func TestUserService_Update(t *testing.T) {
 			options: []backlog.UserOption{
 				uos.WithName(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-mailAddress": {
 			id: 6,
 			options: []backlog.UserOption{
 				uos.WithMailAddress("test@test.com"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				mailAddress: "test@test.com",
 			},
@@ -446,23 +446,23 @@ func TestUserService_Update(t *testing.T) {
 			options: []backlog.UserOption{
 				uos.WithMailAddress(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-roleType_0": {
 			id: 8,
 			options: []backlog.UserOption{
 				uos.WithRoleType(0),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-roleType_1": {
 			id: 9,
 			options: []backlog.UserOption{
 				uos.WithRoleType(1),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				roleType: "1",
 			},
@@ -472,7 +472,7 @@ func TestUserService_Update(t *testing.T) {
 			options: []backlog.UserOption{
 				uos.WithRoleType(6),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				roleType: "6",
 			},
@@ -482,8 +482,8 @@ func TestUserService_Update(t *testing.T) {
 			options: []backlog.UserOption{
 				uos.WithRoleType(7),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"multi-option": {
 			id: 1,
@@ -493,7 +493,7 @@ func TestUserService_Update(t *testing.T) {
 				uos.WithMailAddress("test1@test.com"),
 				uos.WithRoleType(1),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				password:    "testpasword1",
 				name:        "testname1",
@@ -507,7 +507,7 @@ func TestUserService_Update(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Patch must never be called")
 					} else {
 						assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
@@ -532,29 +532,29 @@ func TestUserService_Delete(t *testing.T) {
 		spath string
 	}
 	cases := map[string]struct {
-		id       int
-		hasError bool
-		want     want
+		id        int
+		wantError bool
+		want      want
 	}{
 		"id_1": {
-			id:       1,
-			hasError: false,
+			id:        1,
+			wantError: false,
 			want: want{
 				spath: "users/1",
 			},
 		},
 		"id_100": {
-			id:       100,
-			hasError: false,
+			id:        100,
+			wantError: false,
 			want: want{
 				spath: "users/100",
 			},
 		},
 
 		"id_0": {
-			id:       0,
-			hasError: true,
-			want:     want{},
+			id:        0,
+			wantError: true,
+			want:      want{},
 		},
 	}
 	for n, tc := range cases {
@@ -562,7 +562,7 @@ func TestUserService_Delete(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -585,13 +585,13 @@ func TestProjectUserService_All(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey      string
 		excludeGroupMembers bool
-		hasError            bool
+		wantError           bool
 		want                want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey:      "TEST",
 			excludeGroupMembers: false,
-			hasError:            false,
+			wantError:           false,
 			want: want{
 				spath:               "projects/TEST/users",
 				excludeGroupMembers: "false",
@@ -600,7 +600,7 @@ func TestProjectUserService_All(t *testing.T) {
 		"projectIDOrKey_number": {
 			projectIDOrKey:      "1234",
 			excludeGroupMembers: false,
-			hasError:            false,
+			wantError:           false,
 			want: want{
 				spath:               "projects/1234/users",
 				excludeGroupMembers: "false",
@@ -609,13 +609,13 @@ func TestProjectUserService_All(t *testing.T) {
 		"projectIDOrKey_empty": {
 			projectIDOrKey:      "",
 			excludeGroupMembers: false,
-			hasError:            true,
+			wantError:           true,
 			want:                want{},
 		},
 		"excludeGroupMembers_true": {
 			projectIDOrKey:      "TEST2",
 			excludeGroupMembers: true,
-			hasError:            false,
+			wantError:           false,
 			want: want{
 				spath:               "projects/TEST2/users",
 				excludeGroupMembers: "true",
@@ -624,7 +624,7 @@ func TestProjectUserService_All(t *testing.T) {
 		"excludeGroupMembers_false": {
 			projectIDOrKey:      "TEST3",
 			excludeGroupMembers: false,
-			hasError:            false,
+			wantError:           false,
 			want: want{
 				spath:               "projects/TEST3/users",
 				excludeGroupMembers: "false",
@@ -636,7 +636,7 @@ func TestProjectUserService_All(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -659,13 +659,13 @@ func TestProjectUserService_Add(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		userID         int
-		hasError       bool
+		wantError      bool
 		want           want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST/users",
 				userID: "1",
@@ -674,7 +674,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/1234/users",
 				userID: "1",
@@ -683,19 +683,19 @@ func TestProjectUserService_Add(t *testing.T) {
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
 			userID:         1,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_0": {
 			projectIDOrKey: "TEST1",
 			userID:         0,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_1": {
 			projectIDOrKey: "TEST2",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST2/users",
 				userID: "1",
@@ -707,7 +707,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Post must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -729,13 +729,13 @@ func TestProjectUserService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		userID         int
-		hasError       bool
+		wantError      bool
 		want           want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST/users",
 				userID: "1",
@@ -744,7 +744,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/1234/users",
 				userID: "1",
@@ -753,19 +753,19 @@ func TestProjectUserService_Delete(t *testing.T) {
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
 			userID:         1,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_0": {
 			projectIDOrKey: "TEST1",
 			userID:         0,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_1": {
 			projectIDOrKey: "TEST2",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST2/users",
 				userID: "1",
@@ -777,7 +777,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -799,13 +799,13 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		userID         int
-		hasError       bool
+		wantError      bool
 		want           want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST/administrators",
 				userID: "1",
@@ -814,7 +814,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/1234/administrators",
 				userID: "1",
@@ -823,19 +823,19 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
 			userID:         1,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_0": {
 			projectIDOrKey: "TEST1",
 			userID:         0,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_1": {
 			projectIDOrKey: "TEST2",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST2/administrators",
 				userID: "1",
@@ -847,7 +847,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Post must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -867,26 +867,26 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	}
 	cases := map[string]struct {
 		projectIDOrKey string
-		hasError       bool
+		wantError      bool
 		want           want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath: "projects/TEST/administrators",
 			},
 		},
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath: "projects/1234/administrators",
 			},
 		},
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 	}
@@ -895,7 +895,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
@@ -917,13 +917,13 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		userID         int
-		hasError       bool
+		wantError      bool
 		want           want
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST/administrators",
 				userID: "1",
@@ -932,7 +932,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/1234/administrators",
 				userID: "1",
@@ -941,19 +941,19 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
 			userID:         1,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_0": {
 			projectIDOrKey: "TEST1",
 			userID:         0,
-			hasError:       true,
+			wantError:      true,
 			want:           want{},
 		},
 		"userID_1": {
 			projectIDOrKey: "TEST2",
 			userID:         1,
-			hasError:       false,
+			wantError:      false,
 			want: want{
 				spath:  "projects/TEST2/administrators",
 				userID: "1",
@@ -965,7 +965,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			cm := &backlog.ExportClientMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					if tc.hasError {
+					if tc.wantError {
 						t.Error("clientMethod.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
