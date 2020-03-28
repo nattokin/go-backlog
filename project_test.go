@@ -271,17 +271,17 @@ func TestProjectService_Create_param(t *testing.T) {
 		textFormattingRule                string
 	}
 	cases := map[string]struct {
-		key      string
-		name     string
-		options  []backlog.ProjectOption
-		hasError bool
-		want     options
+		key       string
+		name      string
+		options   []backlog.ProjectOption
+		wantError bool
+		want      options
 	}{
 		"no-option": {
-			key:      "TEST",
-			name:     "test",
-			options:  []backlog.ProjectOption{},
-			hasError: false,
+			key:       "TEST",
+			name:      "test",
+			options:   []backlog.ProjectOption{},
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -290,18 +290,18 @@ func TestProjectService_Create_param(t *testing.T) {
 			},
 		},
 		"key_empty": {
-			key:      "",
-			name:     "test",
-			options:  []backlog.ProjectOption{},
-			hasError: true,
-			want:     options{},
+			key:       "",
+			name:      "test",
+			options:   []backlog.ProjectOption{},
+			wantError: true,
+			want:      options{},
 		},
 		"name_empty": {
-			key:      "TEST",
-			name:     "",
-			options:  []backlog.ProjectOption{},
-			hasError: true,
-			want:     options{},
+			key:       "TEST",
+			name:      "",
+			options:   []backlog.ProjectOption{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-chartEnabled_true": {
 			key:  "TEST",
@@ -309,7 +309,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithChartEnabled(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "true",
 				subtaskingEnabled:                 "false",
@@ -323,7 +323,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithChartEnabled(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -337,7 +337,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithSubtaskingEnabled(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "true",
@@ -351,7 +351,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithSubtaskingEnabled(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -365,7 +365,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithProjectLeaderCanEditProjectLeader(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -379,7 +379,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithProjectLeaderCanEditProjectLeader(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -393,7 +393,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule(backlog.FormatBacklog),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -407,7 +407,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -421,8 +421,8 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule("error"),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"multi-option-1": {
 			key:  "TEST",
@@ -433,7 +433,7 @@ func TestProjectService_Create_param(t *testing.T) {
 				pos.WithProjectLeaderCanEditProjectLeader(true),
 				pos.WithTextFormattingRule(backlog.FormatBacklog),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "true",
 				subtaskingEnabled:                 "true",
@@ -450,7 +450,7 @@ func TestProjectService_Create_param(t *testing.T) {
 				pos.WithProjectLeaderCanEditProjectLeader(false),
 				pos.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -464,7 +464,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithKey("OPTION"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -478,7 +478,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithName("option"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -492,8 +492,8 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithKey(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"invalid-option-name_empty": {
 			key:  "TEST",
@@ -501,8 +501,8 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithName(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"invalid-option-archived_true": {
 			key:  "TEST",
@@ -510,7 +510,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithArchived(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -524,7 +524,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithArchived(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled:                      "false",
 				subtaskingEnabled:                 "false",
@@ -564,7 +564,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			}
 			ps := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Create(tc.key, tc.name, tc.options...); tc.hasError {
+			if _, err := ps.Create(tc.key, tc.name, tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -630,25 +630,25 @@ func TestProjectService_Update_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		options        []backlog.ProjectOption
-		hasError       bool
+		wantError      bool
 		want           options
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
 			options:        []backlog.ProjectOption{},
-			hasError:       false,
+			wantError:      false,
 			want:           options{},
 		},
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
 			options:        []backlog.ProjectOption{},
-			hasError:       false,
+			wantError:      false,
 			want:           options{},
 		},
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
 			options:        []backlog.ProjectOption{},
-			hasError:       true,
+			wantError:      true,
 			want:           options{},
 		},
 		"option-key": {
@@ -656,7 +656,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithKey("TEST1"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				key: "TEST1",
 			},
@@ -666,7 +666,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithName("test1"),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				name: "test1",
 			},
@@ -676,23 +676,23 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithKey(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-name_empty": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
 				pos.WithName(""),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"option-chartEnabled_true": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
 				pos.WithChartEnabled(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled: "true",
 			},
@@ -702,7 +702,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithChartEnabled(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				chartEnabled: "false",
 			},
@@ -712,7 +712,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithSubtaskingEnabled(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				subtaskingEnabled: "true",
 			},
@@ -722,7 +722,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithSubtaskingEnabled(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				subtaskingEnabled: "false",
 			},
@@ -732,7 +732,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithProjectLeaderCanEditProjectLeader(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				projectLeaderCanEditProjectLeader: "true",
 			},
@@ -742,7 +742,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithProjectLeaderCanEditProjectLeader(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				projectLeaderCanEditProjectLeader: "false",
 			},
@@ -752,7 +752,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule(backlog.FormatBacklog),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				textFormattingRule: backlog.FormatBacklog,
 			},
@@ -762,7 +762,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				textFormattingRule: backlog.FormatMarkdown,
 			},
@@ -772,8 +772,8 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithTextFormattingRule("error"),
 			},
-			hasError: true,
-			want:     options{},
+			wantError: true,
+			want:      options{},
 		},
 		"multi-option-1": {
 			projectIDOrKey: "TEST",
@@ -786,7 +786,7 @@ func TestProjectService_Update_param(t *testing.T) {
 				pos.WithTextFormattingRule(backlog.FormatBacklog),
 				pos.WithArchived(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				key:                               "TEST1",
 				name:                              "test1",
@@ -808,7 +808,7 @@ func TestProjectService_Update_param(t *testing.T) {
 				pos.WithTextFormattingRule(backlog.FormatMarkdown),
 				pos.WithArchived(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				key:                               "TEST2",
 				name:                              "test2",
@@ -824,7 +824,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithArchived(true),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				archived: "true",
 			},
@@ -834,7 +834,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			options: []backlog.ProjectOption{
 				pos.WithArchived(false),
 			},
-			hasError: false,
+			wantError: false,
 			want: options{
 				archived: "false",
 			},
@@ -869,7 +869,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			}
 			ps := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Update(tc.projectIDOrKey, tc.options...); tc.hasError {
+			if _, err := ps.Update(tc.projectIDOrKey, tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -892,19 +892,19 @@ func TestProjectService_Update_clientError(t *testing.T) {
 func TestProjectService_Delete_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		hasError       bool
+		wantError      bool
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: "TEST",
-			hasError:       false,
+			wantError:      false,
 		},
 		"projectIDOrKey_number": {
 			projectIDOrKey: "1234",
-			hasError:       false,
+			wantError:      false,
 		},
 		"projectIDOrKey_empty": {
 			projectIDOrKey: "",
-			hasError:       true,
+			wantError:      true,
 		},
 	}
 	for n, tc := range cases {
@@ -927,7 +927,7 @@ func TestProjectService_Delete_param(t *testing.T) {
 			}
 			ps := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Delete(tc.projectIDOrKey); tc.hasError {
+			if _, err := ps.Delete(tc.projectIDOrKey); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
