@@ -30,20 +30,23 @@ var (
 )
 
 var (
-	ExportNewActivityService    = newActivityService
-	ExportNewCategoryService    = newCategoryService
-	ExportNewCustomFieldService = newCustomFieldService
-	ExportNewIssueService       = newIssueService
-	ExportNewPriorityService    = newPriorityService
-	ExportNewProjectService     = newProjectService
-	ExportNewProjectUserService = newProjectUserService
-	ExportNewPullRequestService = newPullRequestService
-	ExportNewResolutionService  = newResolutionService
-	ExportNewSpaceService       = newSpaceService
-	ExportNewStatusService      = newStatusService
-	ExportNewUserService        = newUserService
-	ExportNewVersionService     = newVersionService
-	ExportNewWikiService        = newWikiService
+	ExportNewActivityService        = newActivityService
+	ExportNewCategoryService        = newCategoryService
+	ExportNewCustomFieldService     = newCustomFieldService
+	ExportNewIssueService           = newIssueService
+	ExportNewPriorityService        = newPriorityService
+	ExportNewProjectService         = newProjectService
+	ExportNewProjectActivityService = newProjectActivityService
+	ExportNewProjectUserService     = newProjectUserService
+	ExportNewPullRequestService     = newPullRequestService
+	ExportNewResolutionService      = newResolutionService
+	ExportNewSpaceService           = newSpaceService
+	ExportNewSpaceActivityService   = newSpaceActivityService
+	ExportNewStatusService          = newStatusService
+	ExportNewUserService            = newUserService
+	ExportNewUserActivityService    = newUserActivityService
+	ExportNewVersionService         = newVersionService
+	ExportNewWikiService            = newWikiService
 )
 
 var (
@@ -77,4 +80,8 @@ func (c *Client) ExportSetToken(token string) {
 
 func (r *response) ExportGetHTTPResponse() *http.Response {
 	return r.Response
+}
+
+func (p *requestParams) ExportURLValues() *url.Values {
+	return p.Values
 }

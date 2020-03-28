@@ -25,29 +25,29 @@ func TestNewClientError(t *testing.T) {
 
 func TestNewClient(t *testing.T) {
 	cases := map[string]struct {
-		url      string
-		token    string
-		hasError bool
+		url       string
+		token     string
+		wantError bool
 	}{
 		"no-error": {
-			url:      "https://test.backlog.com",
-			token:    "test",
-			hasError: false,
+			url:       "https://test.backlog.com",
+			token:     "test",
+			wantError: false,
 		},
 		"url-token-empty": {
-			url:      "",
-			token:    "",
-			hasError: true,
+			url:       "",
+			token:     "",
+			wantError: true,
 		},
 		"url-empty": {
-			url:      "",
-			token:    "test",
-			hasError: true,
+			url:       "",
+			token:     "test",
+			wantError: true,
 		},
 		"token-empty": {
-			url:      "https://test.backlog.com",
-			token:    "",
-			hasError: true,
+			url:       "https://test.backlog.com",
+			token:     "",
+			wantError: true,
 		},
 	}
 
@@ -57,10 +57,10 @@ func TestNewClient(t *testing.T) {
 			c, err := backlog.NewClient(tc.url, tc.token)
 
 			switch {
-			case tc.hasError:
+			case tc.wantError:
 				assert.Error(t, err)
 				assert.Nil(t, c)
-			case !tc.hasError:
+			case !tc.wantError:
 				assert.Nil(t, err)
 				assert.NotNil(t, c)
 			}
@@ -80,74 +80,74 @@ func TestClient_NewReqest(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	cases := map[string]struct {
-		method   string
-		spath    string
-		params   *backlog.ExportRequestParams
-		body     io.Reader
-		hasError bool
+		method    string
+		spath     string
+		params    *backlog.ExportRequestParams
+		body      io.Reader
+		wantError bool
 	}{
 		"method-get": {
-			method:   http.MethodGet,
-			spath:    "get",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: false,
+			method:    http.MethodGet,
+			spath:     "get",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: false,
 		},
 		"method-post": {
-			method:   http.MethodPost,
-			spath:    "post",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: false,
+			method:    http.MethodPost,
+			spath:     "post",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: false,
 		},
 		"method-patch": {
-			method:   http.MethodPatch,
-			spath:    "patch",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: false,
+			method:    http.MethodPatch,
+			spath:     "patch",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: false,
 		},
 		"method-delete": {
-			method:   http.MethodDelete,
-			spath:    "delete",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: false,
+			method:    http.MethodDelete,
+			spath:     "delete",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: false,
 		},
 		"method-empty": {
-			method:   "",
-			spath:    "nothing",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: false,
+			method:    "",
+			spath:     "nothing",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: false,
 		},
 		"method-eroor": {
-			method:   "@error",
-			spath:    "nothing",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: true,
+			method:    "@error",
+			spath:     "nothing",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: true,
 		},
 		"spath-empty": {
-			method:   http.MethodGet,
-			spath:    "",
-			params:   backlog.ExportNewRequestParams(),
-			body:     reader,
-			hasError: true,
+			method:    http.MethodGet,
+			spath:     "",
+			params:    backlog.ExportNewRequestParams(),
+			body:      reader,
+			wantError: true,
 		},
 		"params-empty": {
-			method:   http.MethodGet,
-			spath:    "test",
-			params:   nil,
-			body:     reader,
-			hasError: false,
+			method:    http.MethodGet,
+			spath:     "test",
+			params:    nil,
+			body:      reader,
+			wantError: false,
 		},
 		"body-empty": {
-			method:   http.MethodGet,
-			spath:    "test",
-			params:   backlog.ExportNewRequestParams(),
-			body:     nil,
-			hasError: false,
+			method:    http.MethodGet,
+			spath:     "test",
+			params:    backlog.ExportNewRequestParams(),
+			body:      nil,
+			wantError: false,
 		},
 	}
 
@@ -157,10 +157,10 @@ func TestClient_NewReqest(t *testing.T) {
 			request, err := backlog.ExportClientNewReqest(c, tc.method, tc.spath, tc.params, tc.body)
 
 			switch {
-			case tc.hasError:
+			case tc.wantError:
 				assert.Error(t, err)
 				assert.Nil(t, request)
-			case !tc.hasError:
+			case !tc.wantError:
 				assert.Nil(t, err)
 				assert.NotNil(t, request)
 			}
@@ -542,23 +542,23 @@ func TestClient_Uploade_emptyFileName(t *testing.T) {
 func TestCeckResponseError(t *testing.T) {
 	cases := map[string]struct {
 		statusCode int
-		hasError   bool
+		wantError  bool
 	}{
 		"199": {
 			statusCode: 199,
-			hasError:   true,
+			wantError:  true,
 		},
 		"200": {
 			statusCode: 200,
-			hasError:   false,
+			wantError:  false,
 		},
 		"299": {
 			statusCode: 299,
-			hasError:   false,
+			wantError:  false,
 		},
 		"300": {
 			statusCode: 300,
-			hasError:   true,
+			wantError:  true,
 		},
 	}
 	for n, tc := range cases {
@@ -574,11 +574,11 @@ func TestCeckResponseError(t *testing.T) {
 				Error: &backlog.APIResponseError{},
 			}
 			r, err := backlog.ExportCeckResponseError(resp)
-			if tc.hasError {
+			if tc.wantError {
 				assert.NotNil(t, err)
 			}
 
-			if !tc.hasError {
+			if !tc.wantError {
 				assert.Equal(t, resp, r)
 			}
 		})

@@ -232,42 +232,42 @@ func TestWikiService_Create_param(t *testing.T) {
 		name       string
 		content    string
 		mailNotify bool
-		hasError   bool
+		wantError  bool
 	}{
 		"no_error_1": {
 			projectID:  1,
 			name:       "Test",
 			content:    "test",
 			mailNotify: false,
-			hasError:   false,
+			wantError:  false,
 		},
 		"no_error_2": {
 			projectID:  100,
 			name:       "Test Name",
 			content:    "test content",
 			mailNotify: true,
-			hasError:   false,
+			wantError:  false,
 		},
 		"projectId_zero": {
 			projectID:  0,
 			name:       "Test",
 			content:    "test",
 			mailNotify: false,
-			hasError:   true,
+			wantError:  true,
 		},
 		"name_empty": {
 			projectID:  1,
 			name:       "",
 			content:    "test",
 			mailNotify: false,
-			hasError:   true,
+			wantError:  true,
 		},
 		"content_empty": {
 			projectID:  1,
 			name:       "Test",
 			content:    "",
 			mailNotify: false,
-			hasError:   true,
+			wantError:  true,
 		},
 	}
 
@@ -291,7 +291,7 @@ func TestWikiService_Create_param(t *testing.T) {
 			}
 			ws := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Create(tc.projectID, tc.name, tc.content, tc.mailNotify); tc.hasError {
+			if _, err := ws.Create(tc.projectID, tc.name, tc.content, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -363,42 +363,42 @@ func TestWikiService_Update_param(t *testing.T) {
 		name       string
 		content    string
 		mailNotify bool
-		hasError   bool
+		wantError  bool
 	}{
 		"no_error_1": {
 			wikiID:     1,
 			name:       "Test",
 			content:    "test",
 			mailNotify: false,
-			hasError:   false,
+			wantError:  false,
 		},
 		"no_error_2": {
 			wikiID:     100,
 			name:       "Test Name",
 			content:    "test content",
 			mailNotify: true,
-			hasError:   false,
+			wantError:  false,
 		},
 		"wikiId_zero": {
 			wikiID:     0,
 			name:       "Test",
 			content:    "test",
 			mailNotify: false,
-			hasError:   true,
+			wantError:  true,
 		},
 		"name_empty": {
 			wikiID:     1,
 			name:       "",
 			content:    "test",
 			mailNotify: false,
-			hasError:   false,
+			wantError:  false,
 		},
 		"content_empty": {
 			wikiID:     1,
 			name:       "Test",
 			content:    "",
 			mailNotify: false,
-			hasError:   false,
+			wantError:  false,
 		},
 	}
 
@@ -422,7 +422,7 @@ func TestWikiService_Update_param(t *testing.T) {
 			}
 			ws := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Update(tc.wikiID, tc.name, tc.content, tc.mailNotify); tc.hasError {
+			if _, err := ws.Update(tc.wikiID, tc.name, tc.content, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -482,22 +482,22 @@ func TestWikiService_Delete_param(t *testing.T) {
 	cases := map[string]struct {
 		wikiID     int
 		mailNotify bool
-		hasError   bool
+		wantError  bool
 	}{
 		"mailNotify_false": {
 			wikiID:     1,
 			mailNotify: false,
-			hasError:   false,
+			wantError:  false,
 		},
 		"mailNotify_true": {
 			wikiID:     100,
 			mailNotify: true,
-			hasError:   false,
+			wantError:  false,
 		},
 		"wikiId_zero": {
 			wikiID:     0,
 			mailNotify: false,
-			hasError:   true,
+			wantError:  true,
 		},
 	}
 
@@ -521,7 +521,7 @@ func TestWikiService_Delete_param(t *testing.T) {
 			}
 			ws := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Delete(tc.wikiID, tc.mailNotify); tc.hasError {
+			if _, err := ws.Delete(tc.wikiID, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)

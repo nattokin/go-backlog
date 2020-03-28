@@ -14,10 +14,10 @@ type ActivityOptionService struct {
 // ActivityOption is type of functional option for ActivityService.
 type ActivityOption func(p *requestParams) error
 
-// WithActivityTypeID returns option. the option sets `activityTypeId` for user.
-func (*UserOptionService) WithActivityTypeID(typeIDs []int) ProjectOption {
+// WithActivityTypeIDs returns option. the option sets `activityTypeId` for user.
+func (*ActivityOptionService) WithActivityTypeIDs(typeIDs []int) ActivityOption {
 	return func(p *requestParams) error {
-		for id := range typeIDs {
+		for _, id := range typeIDs {
 			if id < 1 || 26 < id {
 				return errors.New("activityTypeId must be between 1 and 26")
 			}
@@ -28,7 +28,7 @@ func (*UserOptionService) WithActivityTypeID(typeIDs []int) ProjectOption {
 }
 
 // WithMinID returns option. the option sets `minId` for user.
-func (*UserOptionService) WithMinID(minID int) ProjectOption {
+func (*ActivityOptionService) WithMinID(minID int) ActivityOption {
 	return func(p *requestParams) error {
 		if minID < 1 {
 			return errors.New("minId must be greater than 1")
@@ -38,19 +38,19 @@ func (*UserOptionService) WithMinID(minID int) ProjectOption {
 	}
 }
 
-// WithMaxID returns option. the option sets `maxcId` for user.
-func (*UserOptionService) WithMaxID(maxID int) ProjectOption {
+// WithMaxID returns option. the option sets `maxId` for user.
+func (*ActivityOptionService) WithMaxID(maxID int) ActivityOption {
 	return func(p *requestParams) error {
 		if maxID < 1 {
-			return errors.New("maxcId must be greater than 1")
+			return errors.New("maxId must be greater than 1")
 		}
-		p.Set("maxcId", strconv.Itoa(maxID))
+		p.Set("maxId", strconv.Itoa(maxID))
 		return nil
 	}
 }
 
 // WithCount returns option. the option sets `count` for user.
-func (*UserOptionService) WithCount(count int) ProjectOption {
+func (*ActivityOptionService) WithCount(count int) ActivityOption {
 	return func(p *requestParams) error {
 		if count < 1 || 100 < count {
 			return errors.New("count must be between 1 and 100")
@@ -61,7 +61,7 @@ func (*UserOptionService) WithCount(count int) ProjectOption {
 }
 
 // WithOrder returns option. the option sets `order` for user.
-func (*UserOptionService) WithOrder(order string) ProjectOption {
+func (*ActivityOptionService) WithOrder(order string) ActivityOption {
 	return func(p *requestParams) error {
 		if order != OrderAsc && order != OrderDesc {
 			return fmt.Errorf("order must be only '%s' or '%s'", OrderAsc, OrderDesc)
@@ -174,6 +174,10 @@ func newUserActivityService(cm *clientMethod) *UserActivityService {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *UserActivityService) List(id int, options ...ActivityOption) ([]*Activity, error) {
+	if id < 1 {
+		return nil, errors.New("id must be greater than 1")
+	}
+
 	spath := "users/" + strconv.Itoa(id) + "/activities"
 	return s.getList(spath, options...)
 }
