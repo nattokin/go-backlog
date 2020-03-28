@@ -1,5 +1,11 @@
 sudo: required
 language: go
+
+branches:
+  only:
+  - master
+  - "@^release/.*@"
+
 services:
   - docker
 
