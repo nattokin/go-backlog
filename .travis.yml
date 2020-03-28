@@ -1,20 +1,30 @@
 sudo: required
 language: go
+
+branches:
+  only:
+  - master
+  - "@^release/.*@"
+
 services:
   - docker
-env:
-  global:
-    - COMPOSE_VERSION=1.25.4
-    - GO111MODULE=on
+
 addons:
   apt:
     packages:
       - docker-ce
+
+env:
+  global:
+    - COMPOSE_VERSION=1.25.4
+    - GO111MODULE=on
+
 before_install:
   - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - docker-compose up -d --build
+
 script:
   - docker-compose exec golang1.11 go test
   - docker-compose exec golang1.12 go test
@@ -28,6 +38,7 @@ after_success:
   - curl -s https://codecov.io/bash > codecov.bash
   - echo "$(docker-compose exec golang1.14 cat coverage.txt)" > coverage.txt
   - bash codecov.bash -f coverage.txt
+
 notifications:
   slack:
-    secure: H/vFgRgJA69OT0nXToHf6cFwZTX0EQa0AAiuPOE8E112peYlSruqPa2aRNTMjep4umiyU3YZPrSVv7sPbuwbiHNDUqTjCkKqDGOPDJNRUIeLm6EzQLPLS5Ug754Q3hhNqQq+ErJP2L25hNZ+EIhbe2uvqxCXm/9/+8DZsL7idEX5R/r3Cu9OorRyzM+ghOAXhmSMSOkVKhttb7D3e+kwVEnQxSZU4gzT8RC9YZgjR8KJdGnoNXNnRQKwZ4IyIo+Mqh+7oK17ggm3pQoyVa4lptHK1/PJMaY0lnAnpsj5Mq9TV5E4aNldrbHlqfpb2TNu04URuGr82hi3B4GAasMiwzT1KzIWuB6hTxDhjMcZe14ieEqvvhn9KON1QZOic9N0zg5O+egv8SZpFSn7Khk2bJLo9uImuTcUPaRl+VhrdMx7IEIg9zJQ7P7P2P38vLHxZJRle5B74OF+2386LF/XpR5D9MALLlPPDB7T1zKqICCFUnVTljk6Qfl40geQcvQzx8R+NOJFUglFvLk+xJXDuTfT1fNeFXzobCKeF48oqGfJLLkxrcDmwEmM997bOaNDmZLrECg32GEydyArUtMTtfkKMHup14zf0ParXo3THJ0qrEjzxy0VPCtQjj72RkMllpTNZSU097bicII4H236ucDiZearekm8Lap5mOnKQTY=
+    secure: "Q+6bYCMUZibm2ZqcDJ8xItuVVFigF6QhLt+VsZc7LvYeW/yO8eiMvzFHQW8aUoyegsinvGBJX0swk+v0/lN+tiHSrkEyc/FtjrjFMqA4m8RTLGXze6akbFklDvkGwndE7VifC77R665jt8f6jMOlAKT8PYBpViuP+RYf44IHZzvc9ZUkhFyqfB1CQqcYotLKaLp6UFeazmKqtdVI11Bh13AckA6ksHnArOhoZMQmqpMm29jW6w7LP6rchatG8canFCLuBwY7TBrU6oX8Jf9qaZzJ65DdUKalDwyDlISicphWlCoakOt8ykRMss7y0BI0wbEcIXQoUy8wn07i36lAP42U4y3WhAiQUTGF1LC9KO0a9qCBiKdB9oK1HFMh+Yplf9sq8U0+B5W6w49TcYntRjV+u0TL1IJI3pf3fT96YQ9ajH540RID34OXr3kCtj23Fs02U2vNnykJrfNkp8ALvT9iQ053b4z4BRddLuLC43Z9Iwl0lgdoo7tBHxJQrG3ev4glAu8wbCxCrYfl6MhKafhy+AGqy1Vauqok0BmvIkQXkvMWDMzDtjb8jIuiZB0WZ3we+fvC4fsEZ+3KQ0IOUrQHFDFjwPc8HJ8wm7Gr2QGCUawrudzwc20CokHOHM/TViA8dcoJlHVWDqnBAf25Ra0ybwQFMjhYtujfdDD3i8s="
