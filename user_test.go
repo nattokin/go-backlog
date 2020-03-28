@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBaseUserService_Get(t *testing.T) {
+func TestUserService_One_getUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
@@ -41,7 +41,7 @@ func TestBaseUserService_Get(t *testing.T) {
 	assert.Equal(t, roleType, user.RoleType)
 }
 
-func TestBaseUserService_GetList(t *testing.T) {
+func TestProjectUserService_All_getUserList(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
@@ -73,7 +73,7 @@ func TestBaseUserService_GetList(t *testing.T) {
 	assert.Equal(t, roleType, users[0].RoleType)
 }
 
-func TestBaseUserService_Post(t *testing.T) {
+func TestUserService_Add_addUser(t *testing.T) {
 	userID := "admin"
 	password := "password"
 	name := "admin"
@@ -107,7 +107,7 @@ func TestBaseUserService_Post(t *testing.T) {
 	assert.Equal(t, roleType, user.RoleType)
 }
 
-func TestBaseUserService_Delete(t *testing.T) {
+func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
@@ -139,7 +139,7 @@ func TestBaseUserService_Delete(t *testing.T) {
 	assert.Equal(t, roleType, users.RoleType)
 }
 
-func TestBaseUserService_Patch(t *testing.T) {
+func TestUserService_Update_updateUser(t *testing.T) {
 	id := 1
 	userID := "admin"
 	password := "password"

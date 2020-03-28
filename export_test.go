@@ -51,7 +51,6 @@ var (
 
 var (
 	ExportNewBaseActivityService = newBaseActivityService
-	ExportNewBaseUserService     = newBaseUserService
 )
 
 func (c *Client) ExportURL() *url.URL {
