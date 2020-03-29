@@ -8,13 +8,8 @@ type IssueService struct {
 }
 
 func newIssueService(cm *clientMethod) *IssueService {
-	as := &IssueAttachmentService{
-		AttachmentService: &AttachmentService{
-			clientMethod: cm,
-		},
-	}
 	return &IssueService{
 		clientMethod: cm,
-		Attachment:   as,
+		Attachment:   newIssueAttachmentService(cm),
 	}
 }
