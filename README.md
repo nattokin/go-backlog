@@ -6,7 +6,7 @@ go-backlog
 [![codecov](https://codecov.io/gh/nattokin/go-backlog/branch/master/graph/badge.svg)](https://codecov.io/gh/nattokin/go-backlog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[Go](https://golang.org) client library for [Nulab Backlog](https://nulab-inc.com)
+[Go](https://golang.org) client library for [Nulab Backlog API](https://developer.nulab.com/docs/backlog)
 
 ## Feature
 
