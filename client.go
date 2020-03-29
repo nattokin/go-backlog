@@ -68,12 +68,18 @@ type requestParams struct {
 	*url.Values
 }
 
+type clientGet func(spath string, params *requestParams) (*response, error)
+type clientPost func(spath string, params *requestParams) (*response, error)
+type clientPatch func(spath string, params *requestParams) (*response, error)
+type clientDelete func(spath string, params *requestParams) (*response, error)
+type clientUploade func(spath, fPath, fName string) (*response, error)
+
 type clientMethod struct {
-	Get     func(spath string, params *requestParams) (*response, error)
-	Post    func(spath string, params *requestParams) (*response, error)
-	Patch   func(spath string, params *requestParams) (*response, error)
-	Delete  func(spath string, params *requestParams) (*response, error)
-	Uploade func(spath, fPath, fName string) (*response, error)
+	Get     clientGet
+	Post    clientPost
+	Patch   clientPatch
+	Delete  clientDelete
+	Uploade clientUploade
 }
 
 // NewClient creates a new Backlog API Client.

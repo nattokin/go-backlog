@@ -143,8 +143,9 @@ func TestWikiService_Count_clientError(t *testing.T) {
 		},
 	}
 	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.Count(projectIDOrKey)
+	count, err := ws.Count(projectIDOrKey)
 	assert.Error(t, err)
+	assert.Zero(t, count)
 }
 
 func TestWikiService_Count_invaliedJson(t *testing.T) {
@@ -212,7 +213,8 @@ func TestWikiService_One_clientError(t *testing.T) {
 		},
 	}
 	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.One(1)
+	wiki, err := ws.One(1)
+	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
 

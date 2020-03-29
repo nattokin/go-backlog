@@ -49,11 +49,6 @@ var (
 	ExportNewWikiService            = newWikiService
 )
 
-var (
-	ExportNewBaseActivityService = newBaseActivityService
-	ExportNewBaseUserService     = newBaseUserService
-)
-
 func (c *Client) ExportURL() *url.URL {
 	return c.url
 }
