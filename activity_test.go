@@ -40,6 +40,28 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	pas.List(projectIDOrKey)
 }
 
+func TestProjectActivityService_List_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	pas := backlog.ExportNewProjectActivityService(cm)
+	projects, err := pas.List("TEST")
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
 func TestSpaceActivityService_List(t *testing.T) {
 	want := struct {
 		spath string
