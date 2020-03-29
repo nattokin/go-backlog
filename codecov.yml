@@ -5,7 +5,6 @@ coverage:
   status:
     project: on
     patch: off
-    changes:
   notify:
     slack:
       default:
