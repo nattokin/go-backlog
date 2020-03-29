@@ -8,8 +8,7 @@ coverage:
   notify:
     slack:
       default:
-        url:
-          secret: ox7tGKsKmyVniBTMo2SO3xs3TbVpRC+Gbzj6TS2bQ4JxHcrY0XMOPfmjfA94uqKO1DYfshhcCxg7MPzzCjJvaItxWaTeaqF7E/QrGG0NMRPW+aBTzfpGcYsS5bVFhCz007bZzG94AFayYRPK/u6xsy/Tg83NgBCSZNwXmySaryg=
+        url: secret:y/1ITSom9yLhw8dxCilpBQvo1HdNN0XiNhshDuB0vW7353LoFtQloQGEdkjPUwae8DT7fgxzCLXPfdUdjaJ7jLx3jQgz/wXguQn7to9fDW/loQEAsUh9l+IWFc0mCZoFKyxOucnLNuR7mQxkawaajPZhp7GcMfgcM2aNT5qa4P8=
 
 comment:
   layout: "reach, diff, flags, files"
