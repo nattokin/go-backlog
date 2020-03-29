@@ -190,7 +190,31 @@ func TestUserService_All(t *testing.T) {
 		},
 	}
 	us := backlog.ExportNewUserService(cm)
-	us.All()
+	users, err := us.All()
+	assert.Nil(t, users)
+	assert.Error(t, err)
+}
+
+func TestUserService_All_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	us := backlog.ExportNewUserService(cm)
+	users, err := us.All()
+	assert.Nil(t, users)
+	assert.Error(t, err)
 }
 
 func TestUserService_One(t *testing.T) {
@@ -257,7 +281,31 @@ func TestUserService_Own(t *testing.T) {
 		},
 	}
 	us := backlog.ExportNewUserService(cm)
-	us.Own()
+	user, err := us.Own()
+	assert.Nil(t, user)
+	assert.Error(t, err)
+}
+
+func TestUserService_Own_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	us := backlog.ExportNewUserService(cm)
+	user, err := us.Own()
+	assert.Nil(t, user)
+	assert.Error(t, err)
 }
 
 func TestUserService_Add(t *testing.T) {
@@ -362,11 +410,33 @@ func TestUserService_Add(t *testing.T) {
 				},
 			}
 			us := backlog.ExportNewUserService(cm)
-
-			_, err := us.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
+			user, err := us.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
+			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
 	}
+}
+
+func TestUserService_Add_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	us := backlog.ExportNewUserService(cm)
+	user, err := us.Add("userid", "password", "name", "mailAdress", 1)
+	assert.Nil(t, user)
+	assert.Error(t, err)
 }
 
 func TestUserService_Update(t *testing.T) {
@@ -521,10 +591,33 @@ func TestUserService_Update(t *testing.T) {
 			}
 			us := backlog.ExportNewUserService(cm)
 
-			_, err := us.Update(tc.id, tc.options...)
+			user, err := us.Update(tc.id, tc.options...)
+			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
 	}
+}
+
+func TestUserService_Update_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	us := backlog.ExportNewUserService(cm)
+	user, err := us.Update(1234)
+	assert.Nil(t, user)
+	assert.Error(t, err)
 }
 
 func TestUserService_Delete(t *testing.T) {
@@ -572,9 +665,33 @@ func TestUserService_Delete(t *testing.T) {
 				},
 			}
 			us := backlog.ExportNewUserService(cm)
-			us.Delete(tc.id)
+			user, err := us.Delete(tc.id)
+			assert.Nil(t, user)
+			assert.Error(t, err)
 		})
 	}
+}
+
+func TestUserService_Delete_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	us := backlog.ExportNewUserService(cm)
+	user, err := us.Delete(1234)
+	assert.Nil(t, user)
+	assert.Error(t, err)
 }
 
 func TestProjectUserService_All(t *testing.T) {
