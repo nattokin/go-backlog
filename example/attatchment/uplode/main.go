@@ -19,9 +19,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fPath := "/path/to/test.txt"
-	fName := "name.txt"
-	r, err := c.Wiki.Attachment.Uploade(fPath, fName)
+	fpath := "/path/to/test.txt"
+	fname := "name.txt"
+	r, err := c.Wiki.Attachment.Uploade(fpath, fname)
 	if err != nil {
 		fmt.Println(err)
 	}

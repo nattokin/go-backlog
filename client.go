@@ -72,7 +72,7 @@ type clientGet func(spath string, params *requestParams) (*response, error)
 type clientPost func(spath string, params *requestParams) (*response, error)
 type clientPatch func(spath string, params *requestParams) (*response, error)
 type clientDelete func(spath string, params *requestParams) (*response, error)
-type clientUploade func(spath, fPath, fName string) (*response, error)
+type clientUploade func(spath, fpath, fname string) (*response, error)
 
 type clientMethod struct {
 	Get     clientGet
@@ -112,8 +112,8 @@ func NewClient(baseURL, token string) (*Client, error) {
 		Delete: func(spath string, params *requestParams) (*response, error) {
 			return c.delete(spath, params)
 		},
-		Uploade: func(spath, fPath, fName string) (*response, error) {
-			return c.uploade(spath, fPath, fName)
+		Uploade: func(spath, fpath, fname string) (*response, error) {
+			return c.uploade(spath, fpath, fname)
 		},
 	}
 
@@ -232,21 +232,21 @@ func (c *Client) delete(spath string, params *requestParams) (*response, error) 
 
 // Uploade file method used http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) uploade(spath, fPath, fName string) (*response, error) {
-	if fPath == "" || fName == "" {
+func (c *Client) uploade(spath, fpath, fname string) (*response, error) {
+	if fpath == "" || fname == "" {
 		return nil, newClientError("file's path and name is required")
 	}
 
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 
-	f, err := os.Open(fPath)
+	f, err := os.Open(fpath)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	fw, err := w.CreateFormFile("file", fName)
+	fw, err := w.CreateFormFile("file", fname)
 	if err != nil {
 		return nil, err
 	}
