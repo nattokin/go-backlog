@@ -110,9 +110,9 @@ func TestUserActivityService_List_invaliedID(t *testing.T) {
 func TestBaseActivityService_GetList(t *testing.T) {
 	aos := &backlog.ActivityOptionService{}
 	type want struct {
-		activityTypeId []string
-		minId          []string
-		maxId          []string
+		activityTypeID []string
+		minID          []string
+		maxID          []string
 		count          []string
 		order          []string
 	}
@@ -125,9 +125,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			options:   []backlog.ActivityOption{},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -145,9 +145,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: []string{"1"},
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: []string{"1"},
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -158,9 +158,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: []string{"26"},
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: []string{"26"},
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -181,12 +181,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: []string{
+				activityTypeID: []string{
 					"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
 					"14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
 				},
-				minId: nil,
-				maxId: nil,
+				minID: nil,
+				maxID: nil,
 				count: nil,
 				order: nil,
 			},
@@ -204,9 +204,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -217,9 +217,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: []string{"1", "1"},
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: []string{"1", "1"},
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -237,9 +237,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          []string{"1"},
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          []string{"1"},
+				maxID:          nil,
 				count:          nil,
 				order:          nil,
 			},
@@ -257,9 +257,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          []string{"1"},
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          []string{"1"},
 				count:          nil,
 				order:          nil,
 			},
@@ -277,9 +277,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          []string{"1"},
 				order:          nil,
 			},
@@ -290,9 +290,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          []string{"100"},
 				order:          nil,
 			},
@@ -310,9 +310,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          []string{backlog.OrderAsc},
 			},
@@ -323,9 +323,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: nil,
-				minId:          nil,
-				maxId:          nil,
+				activityTypeID: nil,
+				minID:          nil,
+				maxID:          nil,
 				count:          nil,
 				order:          []string{backlog.OrderDesc},
 			},
@@ -354,9 +354,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 			wantError: false,
 			want: want{
-				activityTypeId: []string{"1", "2"},
-				minId:          []string{"1"},
-				maxId:          []string{"100"},
+				activityTypeID: []string{"1", "2"},
+				minID:          []string{"1"},
+				maxID:          []string{"100"},
 				count:          []string{"20"},
 				order:          []string{backlog.OrderAsc},
 			},
@@ -376,9 +376,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					// Check options.
 					v := *params.ExportURLValues()
-					assert.Equal(t, tc.want.activityTypeId, v["activityTypeId[]"])
-					assert.Equal(t, tc.want.minId, v["minId"])
-					assert.Equal(t, tc.want.maxId, v["maxId"])
+					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
+					assert.Equal(t, tc.want.minID, v["minId"])
+					assert.Equal(t, tc.want.maxID, v["maxId"])
 					assert.Equal(t, tc.want.count, v["count"])
 					assert.Equal(t, tc.want.order, v["order"])
 

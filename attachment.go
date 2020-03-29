@@ -10,14 +10,20 @@ type AttachmentService struct {
 	clientMethod *clientMethod
 }
 
+func newAttachmentService(cm *clientMethod) *AttachmentService {
+	return &AttachmentService{
+		clientMethod: cm,
+	}
+}
+
 // Uploade uploads a any file to the space.
 //
 // File's path and name are must not empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *AttachmentService) Uploade(fPath, fName string) (*Attachment, error) {
+func (s *AttachmentService) Uploade(fpath, fname string) (*Attachment, error) {
 	spath := "space/attachment"
-	resp, err := s.clientMethod.Uploade(spath, fPath, fName)
+	resp, err := s.clientMethod.Uploade(spath, fpath, fname)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +72,13 @@ type WikiAttachmentService struct {
 	*AttachmentService
 }
 
+func newWikiAttachmentService(cm *clientMethod) *WikiAttachmentService {
+	return &WikiAttachmentService{
+		AttachmentService: newAttachmentService(cm),
+	}
+
+}
+
 // Attach attachs files uploaded to space to the wiki.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
@@ -110,6 +123,12 @@ type IssueAttachmentService struct {
 	*AttachmentService
 }
 
+func newIssueAttachmentService(cm *clientMethod) *IssueAttachmentService {
+	return &IssueAttachmentService{
+		AttachmentService: newAttachmentService(cm),
+	}
+}
+
 // List returns a list of all attachments in the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
@@ -131,6 +150,12 @@ type PullRequestAttachmentService struct {
 	*AttachmentService
 }
 
+func newPullRequestAttachmentService(cm *clientMethod) *PullRequestAttachmentService {
+	return &PullRequestAttachmentService{
+		AttachmentService: newAttachmentService(cm),
+	}
+}
+
 // List returns a list of all attachments in the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
@@ -142,7 +167,7 @@ func (s *PullRequestAttachmentService) List(projectIDOrKey, repoIDOrName string,
 // Remove removes a file attached to the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
-func (s *PullRequestAttachmentService) Remove(projectIDOrKey, repoIDOrName string, prNumber int) (*Attachment, error) {
-	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments"
+func (s *PullRequestAttachmentService) Remove(projectIDOrKey, repoIDOrName string, prNumber int, attachmentID int) (*Attachment, error) {
+	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.clientMethod.Delete, spath)
 }

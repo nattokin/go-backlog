@@ -30,23 +30,27 @@ var (
 )
 
 var (
-	ExportNewActivityService        = newActivityService
-	ExportNewCategoryService        = newCategoryService
-	ExportNewCustomFieldService     = newCustomFieldService
-	ExportNewIssueService           = newIssueService
-	ExportNewPriorityService        = newPriorityService
-	ExportNewProjectService         = newProjectService
-	ExportNewProjectActivityService = newProjectActivityService
-	ExportNewProjectUserService     = newProjectUserService
-	ExportNewPullRequestService     = newPullRequestService
-	ExportNewResolutionService      = newResolutionService
-	ExportNewSpaceService           = newSpaceService
-	ExportNewSpaceActivityService   = newSpaceActivityService
-	ExportNewStatusService          = newStatusService
-	ExportNewUserService            = newUserService
-	ExportNewUserActivityService    = newUserActivityService
-	ExportNewVersionService         = newVersionService
-	ExportNewWikiService            = newWikiService
+	ExportNewActivityService              = newActivityService
+	ExportNewAttachmentService            = newAttachmentService
+	ExportNewCategoryService              = newCategoryService
+	ExportNewCustomFieldService           = newCustomFieldService
+	ExportNewIssueService                 = newIssueService
+	ExportNewIssueAttachmentService       = newIssueAttachmentService
+	ExportNewPriorityService              = newPriorityService
+	ExportNewProjectService               = newProjectService
+	ExportNewProjectActivityService       = newProjectActivityService
+	ExportNewProjectUserService           = newProjectUserService
+	ExportNewPullRequestService           = newPullRequestService
+	ExportNewPullRequestAttachmentService = newPullRequestAttachmentService
+	ExportNewResolutionService            = newResolutionService
+	ExportNewSpaceService                 = newSpaceService
+	ExportNewSpaceActivityService         = newSpaceActivityService
+	ExportNewStatusService                = newStatusService
+	ExportNewUserService                  = newUserService
+	ExportNewUserActivityService          = newUserActivityService
+	ExportNewVersionService               = newVersionService
+	ExportNewWikiService                  = newWikiService
+	ExportNewWikiAttachmentService        = newWikiAttachmentService
 )
 
 func (c *Client) ExportURL() *url.URL {

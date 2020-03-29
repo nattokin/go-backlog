@@ -1,0 +1,14 @@
+{
+    "id": 8,
+    "name": "IMG0088.png",
+    "size": 5563,
+    "createdUser": {
+        "id": 1,
+        "userId": "admin",
+        "name": "admin",
+        "roleType": 1,
+        "lang": "ja",
+        "mailAddress": "eguchi@nulab.example"
+    },
+    "created": "2014-10-28T09:24:43Z"
+}
