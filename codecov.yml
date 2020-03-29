@@ -1,0 +1,25 @@
+coverage:
+  precision: 2
+  round: down
+  range: "80...100"
+  status:
+    project: on
+    patch: off
+    changes:
+  notify:
+    slack:
+      default:
+        url:
+          secret: ox7tGKsKmyVniBTMo2SO3xs3TbVpRC+Gbzj6TS2bQ4JxHcrY0XMOPfmjfA94uqKO1DYfshhcCxg7MPzzCjJvaItxWaTeaqF7E/QrGG0NMRPW+aBTzfpGcYsS5bVFhCz007bZzG94AFayYRPK/u6xsy/Tg83NgBCSZNwXmySaryg=
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: true
+  branches:
+    - master
+    - release/*
+
+ignore:
+  - "exxample"
+  - "testdata"
