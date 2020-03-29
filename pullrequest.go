@@ -9,7 +9,7 @@ type PullRequestService struct {
 
 func newPullRequestService(cm *clientMethod) *PullRequestService {
 	as := &PullRequestAttachmentService{
-		baseAttachmentService: &baseAttachmentService{
+		AttachmentService: &AttachmentService{
 			clientMethod: cm,
 		},
 	}

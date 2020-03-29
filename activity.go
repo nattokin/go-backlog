@@ -71,20 +71,7 @@ func (*ActivityOptionService) WithOrder(order string) ActivityOption {
 	}
 }
 
-type baseActivityService struct {
-	clientMethod *clientMethod
-
-	Option *ActivityOptionService
-}
-
-func newBaseActivityService(cm *clientMethod) *baseActivityService {
-	return &baseActivityService{
-		clientMethod: cm,
-		Option:       &ActivityOptionService{},
-	}
-}
-
-func (s *baseActivityService) getList(spath string, options ...ActivityOption) ([]*Activity, error) {
+func getActivityList(get clientGet, spath string, options ...ActivityOption) ([]*Activity, error) {
 	params := newRequestParams()
 	for _, option := range options {
 		if err := option(params); err != nil {
@@ -92,7 +79,7 @@ func (s *baseActivityService) getList(spath string, options ...ActivityOption) (
 		}
 	}
 
-	resp, err := s.clientMethod.Get(spath, params)
+	resp, err := get(spath, params)
 	if err != nil {
 		return nil, err
 	}
@@ -108,23 +95,23 @@ func (s *baseActivityService) getList(spath string, options ...ActivityOption) (
 
 // ActivityService has methods for Activitys.
 type ActivityService struct {
-	*baseActivityService
+	clientMethod *clientMethod
 }
 
 func newActivityService(cm *clientMethod) *ActivityService {
 	return &ActivityService{
-		baseActivityService: newBaseActivityService(cm),
+		clientMethod: cm,
 	}
 }
 
 // ProjectActivityService has methods for activitys of the project.
 type ProjectActivityService struct {
-	*baseActivityService
+	clientMethod *clientMethod
 }
 
 func newProjectActivityService(cm *clientMethod) *ProjectActivityService {
 	return &ProjectActivityService{
-		baseActivityService: newBaseActivityService(cm),
+		clientMethod: cm,
 	}
 }
 
@@ -137,17 +124,17 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 	}
 
 	spath := "projects/" + projectIDOrKey + "/activities"
-	return s.getList(spath, options...)
+	return getActivityList(s.clientMethod.Get, spath, options...)
 }
 
 // SpaceActivityService has methods for activitys in your space.
 type SpaceActivityService struct {
-	*baseActivityService
+	clientMethod *clientMethod
 }
 
 func newSpaceActivityService(cm *clientMethod) *SpaceActivityService {
 	return &SpaceActivityService{
-		baseActivityService: newBaseActivityService(cm),
+		clientMethod: cm,
 	}
 }
 
@@ -156,17 +143,17 @@ func newSpaceActivityService(cm *clientMethod) *SpaceActivityService {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
-	return s.getList(spath, options...)
+	return getActivityList(s.clientMethod.Get, spath, options...)
 }
 
 // UserActivityService has methods for user activitys.
 type UserActivityService struct {
-	*baseActivityService
+	clientMethod *clientMethod
 }
 
 func newUserActivityService(cm *clientMethod) *UserActivityService {
 	return &UserActivityService{
-		baseActivityService: newBaseActivityService(cm),
+		clientMethod: cm,
 	}
 }
 
@@ -179,5 +166,5 @@ func (s *UserActivityService) List(id int, options ...ActivityOption) ([]*Activi
 	}
 
 	spath := "users/" + strconv.Itoa(id) + "/activities"
-	return s.getList(spath, options...)
+	return getActivityList(s.clientMethod.Get, spath, options...)
 }

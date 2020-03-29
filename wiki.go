@@ -17,7 +17,7 @@ type WikiService struct {
 
 func newWikiService(cm *clientMethod) *WikiService {
 	as := &WikiAttachmentService{
-		baseAttachmentService: &baseAttachmentService{
+		AttachmentService: &AttachmentService{
 			clientMethod: cm,
 		},
 	}
