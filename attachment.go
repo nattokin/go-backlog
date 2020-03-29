@@ -21,9 +21,9 @@ func newAttachmentService(cm *clientMethod) *AttachmentService {
 // File's path and name are must not empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *AttachmentService) Uploade(fPath, fName string) (*Attachment, error) {
+func (s *AttachmentService) Uploade(fpath, fname string) (*Attachment, error) {
 	spath := "space/attachment"
-	resp, err := s.clientMethod.Uploade(spath, fPath, fName)
+	resp, err := s.clientMethod.Uploade(spath, fpath, fname)
 	if err != nil {
 		return nil, err
 	}
