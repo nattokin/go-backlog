@@ -24,8 +24,8 @@ func TestProjectActivityService_List(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	pas := backlog.ExportNewProjectActivityService(cm)
-	pas.List(projectIDOrKey)
+	s := backlog.ExportNewProjectActivityService(cm)
+	s.List(projectIDOrKey)
 }
 
 func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
@@ -36,8 +36,8 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	pas := backlog.ExportNewProjectActivityService(cm)
-	pas.List(projectIDOrKey)
+	s := backlog.ExportNewProjectActivityService(cm)
+	s.List(projectIDOrKey)
 }
 
 func TestProjectActivityService_List_invaliedJson(t *testing.T) {
@@ -56,8 +56,8 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	pas := backlog.ExportNewProjectActivityService(cm)
-	projects, err := pas.List("TEST")
+	s := backlog.ExportNewProjectActivityService(cm)
+	projects, err := s.List("TEST")
 	assert.Nil(t, projects)
 	assert.Error(t, err)
 }
@@ -74,8 +74,8 @@ func TestSpaceActivityService_List(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	sas := backlog.ExportNewSpaceActivityService(cm)
-	sas.List()
+	s := backlog.ExportNewSpaceActivityService(cm)
+	s.List()
 }
 
 func TestUserActivityService_List(t *testing.T) {
@@ -91,8 +91,8 @@ func TestUserActivityService_List(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	uas := backlog.ExportNewUserActivityService(cm)
-	uas.List(id)
+	s := backlog.ExportNewUserActivityService(cm)
+	s.List(id)
 }
 
 func TestUserActivityService_List_invaliedID(t *testing.T) {
@@ -103,8 +103,8 @@ func TestUserActivityService_List_invaliedID(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	uas := backlog.ExportNewUserActivityService(cm)
-	uas.List(id)
+	s := backlog.ExportNewUserActivityService(cm)
+	s.List(id)
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {
@@ -389,9 +389,9 @@ func TestBaseActivityService_GetList(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ps := backlog.ExportNewSpaceActivityService(cm)
+			s := backlog.ExportNewSpaceActivityService(cm)
 
-			if _, err := ps.List(tc.options...); tc.wantError {
+			if _, err := s.List(tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
