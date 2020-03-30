@@ -72,7 +72,7 @@ func (s *WikiService) All(projectIDOrKey string) ([]*Wiki, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
 	params := newRequestParams()
-	params.Set("projectIDOrKey", projectIDOrKey)
+	params.Set("projectIdOrKey", projectIDOrKey)
 	if keyword != "" {
 		params.Set("keyword", keyword)
 	}
@@ -95,7 +95,7 @@ func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 	params := newRequestParams()
-	params.Set("projectIDOrKey", projectIDOrKey)
+	params.Set("projectIdOrKey", projectIDOrKey)
 	resp, err := s.clientMethod.Get("wikis/count", params)
 	if err != nil {
 		return 0, err

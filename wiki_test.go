@@ -33,7 +33,7 @@ func TestWikiService_All(t *testing.T) {
 	cm := &backlog.ExportClientMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.projectIDOrKey, params.Get("projectIDOrKey"))
+			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
 			assert.Equal(t, want.keyword, params.Get("keyword"))
 
 			resp := &http.Response{
@@ -74,7 +74,7 @@ func TestWikiService_Search(t *testing.T) {
 	cm := &backlog.ExportClientMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.projectIDOrKey, params.Get("projectIDOrKey"))
+			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
 			assert.Equal(t, want.keyword, params.Get("keyword"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -121,7 +121,7 @@ func TestWikiService_Count(t *testing.T) {
 	cm := &backlog.ExportClientMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.projectIDOrKey, params.Get("projectIDOrKey"))
+			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       body,
