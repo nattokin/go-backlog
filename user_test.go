@@ -32,8 +32,8 @@ func TestUserService_One_getUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.One(1)
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.One(1)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
 	assert.Equal(t, name, user.Name)
@@ -64,8 +64,8 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	pus := backlog.ExportNewProjectUserService(cm)
-	users, err := pus.All(projectIDOrKey, excludeGroupMembers)
+	s := backlog.ExportNewProjectUserService(cm)
+	users, err := s.All(projectIDOrKey, excludeGroupMembers)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, users[0].UserID)
 	assert.Equal(t, name, users[0].Name)
@@ -98,8 +98,8 @@ func TestUserService_Add_addUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Add(userID, password, name, mailAddress, roleType)
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Add(userID, password, name, mailAddress, roleType)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
 	assert.Equal(t, name, user.Name)
@@ -130,8 +130,8 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	pus := backlog.ExportNewProjectUserService(cm)
-	users, err := pus.Delete(projectIDOrKey, id)
+	s := backlog.ExportNewProjectUserService(cm)
+	users, err := s.Delete(projectIDOrKey, id)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, users.UserID)
 	assert.Equal(t, name, users.Name)
@@ -165,9 +165,9 @@ func TestUserService_Update_updateUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Update(
-		id, us.Option.WithPassword(password), us.Option.WithName(name), us.Option.WithMailAddress(mailAddress), us.Option.WithRoleType(roleType),
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Update(
+		id, s.Option.WithPassword(password), s.Option.WithName(name), s.Option.WithMailAddress(mailAddress), s.Option.WithRoleType(roleType),
 	)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -189,8 +189,8 @@ func TestUserService_All(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	users, err := us.All()
+	s := backlog.ExportNewUserService(cm)
+	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
 }
@@ -211,8 +211,8 @@ func TestUserService_All_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	users, err := us.All()
+	s := backlog.ExportNewUserService(cm)
+	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
 }
@@ -261,8 +261,8 @@ func TestUserService_One(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			us := backlog.ExportNewUserService(cm)
-			us.One(tc.id)
+			s := backlog.ExportNewUserService(cm)
+			s.One(tc.id)
 		})
 	}
 }
@@ -280,8 +280,8 @@ func TestUserService_Own(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Own()
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
@@ -302,8 +302,8 @@ func TestUserService_Own_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Own()
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
@@ -409,8 +409,8 @@ func TestUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			us := backlog.ExportNewUserService(cm)
-			user, err := us.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
+			s := backlog.ExportNewUserService(cm)
+			user, err := s.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
@@ -433,14 +433,14 @@ func TestUserService_Add_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Add("userid", "password", "name", "mailAdress", 1)
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Add("userid", "password", "name", "mailAdress", 1)
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
 
 func TestUserService_Update(t *testing.T) {
-	uos := &backlog.UserOptionService{}
+	ops := &backlog.UserOptionService{}
 	type options struct {
 		password    string
 		name        string
@@ -468,7 +468,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-password": {
 			id: 2,
 			options: []backlog.UserOption{
-				uos.WithPassword("testpasword"),
+				ops.WithPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -478,7 +478,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-password_empty": {
 			id: 3,
 			options: []backlog.UserOption{
-				uos.WithPassword(""),
+				ops.WithPassword(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -486,7 +486,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-name": {
 			id: 4,
 			options: []backlog.UserOption{
-				uos.WithName("testname"),
+				ops.WithName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -496,7 +496,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-name_empty": {
 			id: 5,
 			options: []backlog.UserOption{
-				uos.WithName(""),
+				ops.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -504,7 +504,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-mailAddress": {
 			id: 6,
 			options: []backlog.UserOption{
-				uos.WithMailAddress("test@test.com"),
+				ops.WithMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -514,7 +514,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-mailAddress_empty": {
 			id: 7,
 			options: []backlog.UserOption{
-				uos.WithMailAddress(""),
+				ops.WithMailAddress(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -522,7 +522,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_0": {
 			id: 8,
 			options: []backlog.UserOption{
-				uos.WithRoleType(0),
+				ops.WithRoleType(0),
 			},
 			wantError: true,
 			want:      options{},
@@ -530,7 +530,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_1": {
 			id: 9,
 			options: []backlog.UserOption{
-				uos.WithRoleType(1),
+				ops.WithRoleType(1),
 			},
 			wantError: false,
 			want: options{
@@ -540,7 +540,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_6": {
 			id: 10,
 			options: []backlog.UserOption{
-				uos.WithRoleType(6),
+				ops.WithRoleType(6),
 			},
 			wantError: false,
 			want: options{
@@ -550,7 +550,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_7": {
 			id: 11,
 			options: []backlog.UserOption{
-				uos.WithRoleType(7),
+				ops.WithRoleType(7),
 			},
 			wantError: true,
 			want:      options{},
@@ -558,10 +558,10 @@ func TestUserService_Update(t *testing.T) {
 		"multi-option": {
 			id: 1,
 			options: []backlog.UserOption{
-				uos.WithPassword("testpasword1"),
-				uos.WithName("testname1"),
-				uos.WithMailAddress("test1@test.com"),
-				uos.WithRoleType(1),
+				ops.WithPassword("testpasword1"),
+				ops.WithName("testname1"),
+				ops.WithMailAddress("test1@test.com"),
+				ops.WithRoleType(1),
 			},
 			wantError: false,
 			want: options{
@@ -589,9 +589,9 @@ func TestUserService_Update(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			us := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(cm)
 
-			user, err := us.Update(tc.id, tc.options...)
+			user, err := s.Update(tc.id, tc.options...)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
@@ -614,8 +614,8 @@ func TestUserService_Update_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Update(1234)
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Update(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
@@ -664,8 +664,8 @@ func TestUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			us := backlog.ExportNewUserService(cm)
-			user, err := us.Delete(tc.id)
+			s := backlog.ExportNewUserService(cm)
+			user, err := s.Delete(tc.id)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
@@ -688,8 +688,8 @@ func TestUserService_Delete_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	us := backlog.ExportNewUserService(cm)
-	user, err := us.Delete(1234)
+	s := backlog.ExportNewUserService(cm)
+	user, err := s.Delete(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
@@ -762,8 +762,8 @@ func TestProjectUserService_All(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.All(tc.projectIDOrKey, tc.excludeGroupMembers)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.All(tc.projectIDOrKey, tc.excludeGroupMembers)
 		})
 	}
 }
@@ -833,8 +833,8 @@ func TestProjectUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.Add(tc.projectIDOrKey, tc.userID)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.Add(tc.projectIDOrKey, tc.userID)
 		})
 	}
 }
@@ -903,8 +903,8 @@ func TestProjectUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.Delete(tc.projectIDOrKey, tc.userID)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.Delete(tc.projectIDOrKey, tc.userID)
 		})
 	}
 }
@@ -973,8 +973,8 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.AddAdmin(tc.projectIDOrKey, tc.userID)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.AddAdmin(tc.projectIDOrKey, tc.userID)
 		})
 	}
 }
@@ -1021,8 +1021,8 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.AdminAll(tc.projectIDOrKey)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.AdminAll(tc.projectIDOrKey)
 		})
 	}
 }
@@ -1091,8 +1091,8 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			pus := backlog.ExportNewProjectUserService(cm)
-			pus.DeleteAdmin(tc.projectIDOrKey, tc.userID)
+			s := backlog.ExportNewProjectUserService(cm)
+			s.DeleteAdmin(tc.projectIDOrKey, tc.userID)
 		})
 	}
 }
