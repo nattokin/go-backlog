@@ -39,8 +39,8 @@ func TestProjectService_Joined(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Joined()
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Joined()
 	assert.Nil(t, project)
 	assert.Error(t, err)
 }
@@ -74,8 +74,8 @@ func TestProjectService_All(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.All()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.All()
 	assert.Nil(t, projects)
 	assert.Error(t, err)
 }
@@ -109,8 +109,8 @@ func TestProjectService_Archived(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.Archived()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.Archived()
 
 	assert.Nil(t, projects)
 	assert.Error(t, err)
@@ -145,8 +145,8 @@ func TestProjectService_AllArchived(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.AllArchived()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.AllArchived()
 
 	assert.Nil(t, projects)
 	assert.Error(t, err)
@@ -181,8 +181,8 @@ func TestProjectService_Unarchived(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.Unarchived()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.Unarchived()
 
 	assert.Nil(t, projects)
 	assert.Error(t, err)
@@ -217,8 +217,8 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.AllUnarchived()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.AllUnarchived()
 
 	assert.Nil(t, projects)
 	assert.Error(t, err)
@@ -249,8 +249,8 @@ func TestProjectService_GetList(t *testing.T) {
 		},
 	}
 
-	ps := backlog.ExportNewProjectService(cm)
-	projects, err := ps.Joined()
+	s := backlog.ExportNewProjectService(cm)
+	projects, err := s.Joined()
 	assert.Nil(t, err)
 	count := len(projects)
 	assert.Equal(t, len(want.idList), count)
@@ -266,8 +266,8 @@ func TestProjectService_GetList_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	_, err := ps.Joined()
+	s := backlog.ExportNewProjectService(cm)
+	_, err := s.Joined()
 	assert.Error(t, err)
 }
 
@@ -299,8 +299,8 @@ func TestProjectService_One(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.One(projectKey)
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.One(projectKey)
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
@@ -312,8 +312,8 @@ func TestProjectService_One_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	_, err := ps.One("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	_, err := s.One("TEST")
 	assert.Error(t, err)
 }
 
@@ -333,8 +333,8 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.One("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.One("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -371,15 +371,15 @@ func TestProjectService_Create(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Create(key, name)
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Create(key, name)
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
 }
 
 func TestProjectService_Create_param(t *testing.T) {
-	pos := &backlog.ProjectOptionService{}
+	ops := &backlog.ProjectOptionService{}
 	type options struct {
 		chartEnabled                      string
 		subtaskingEnabled                 string
@@ -423,7 +423,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(true),
+				ops.WithChartEnabled(true),
 			},
 			wantError: false,
 			want: options{
@@ -437,7 +437,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(false),
+				ops.WithChartEnabled(false),
 			},
 			wantError: false,
 			want: options{
@@ -451,7 +451,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithSubtaskingEnabled(true),
+				ops.WithSubtaskingEnabled(true),
 			},
 			wantError: false,
 			want: options{
@@ -465,7 +465,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithSubtaskingEnabled(false),
+				ops.WithSubtaskingEnabled(false),
 			},
 			wantError: false,
 			want: options{
@@ -479,7 +479,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithProjectLeaderCanEditProjectLeader(true),
+				ops.WithProjectLeaderCanEditProjectLeader(true),
 			},
 			wantError: false,
 			want: options{
@@ -493,7 +493,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithProjectLeaderCanEditProjectLeader(false),
+				ops.WithProjectLeaderCanEditProjectLeader(false),
 			},
 			wantError: false,
 			want: options{
@@ -507,7 +507,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule(backlog.FormatBacklog),
+				ops.WithTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -521,7 +521,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule(backlog.FormatMarkdown),
+				ops.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
 			wantError: false,
 			want: options{
@@ -535,7 +535,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule("error"),
+				ops.WithTextFormattingRule("error"),
 			},
 			wantError: true,
 			want:      options{},
@@ -544,10 +544,10 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(true),
-				pos.WithSubtaskingEnabled(true),
-				pos.WithProjectLeaderCanEditProjectLeader(true),
-				pos.WithTextFormattingRule(backlog.FormatBacklog),
+				ops.WithChartEnabled(true),
+				ops.WithSubtaskingEnabled(true),
+				ops.WithProjectLeaderCanEditProjectLeader(true),
+				ops.WithTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -561,10 +561,10 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(false),
-				pos.WithSubtaskingEnabled(false),
-				pos.WithProjectLeaderCanEditProjectLeader(false),
-				pos.WithTextFormattingRule(backlog.FormatMarkdown),
+				ops.WithChartEnabled(false),
+				ops.WithSubtaskingEnabled(false),
+				ops.WithProjectLeaderCanEditProjectLeader(false),
+				ops.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
 			wantError: false,
 			want: options{
@@ -578,7 +578,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithKey("OPTION"),
+				ops.WithKey("OPTION"),
 			},
 			wantError: false,
 			want: options{
@@ -592,7 +592,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithName("option"),
+				ops.WithName("option"),
 			},
 			wantError: false,
 			want: options{
@@ -606,7 +606,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithKey(""),
+				ops.WithKey(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -615,7 +615,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithName(""),
+				ops.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -624,7 +624,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithArchived(true),
+				ops.WithArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -638,7 +638,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 			options: []backlog.ProjectOption{
-				pos.WithArchived(false),
+				ops.WithArchived(false),
 			},
 			wantError: false,
 			want: options{
@@ -678,9 +678,9 @@ func TestProjectService_Create_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ps := backlog.ExportNewProjectService(cm)
+			s := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Create(tc.key, tc.name, tc.options...); tc.wantError {
+			if _, err := s.Create(tc.key, tc.name, tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -695,8 +695,8 @@ func TestProjectService_Create_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	_, err := ps.Create("TEST", "test")
+	s := backlog.ExportNewProjectService(cm)
+	_, err := s.Create("TEST", "test")
 	assert.Error(t, err)
 }
 
@@ -716,8 +716,8 @@ func TestProjectService_Create_invalidJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Create("TEST", "test")
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Create("TEST", "test")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -749,14 +749,14 @@ func TestProjectService_Update(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Update(projectIDOrKey)
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Update(projectIDOrKey)
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
 
 func TestProjectService_Update_param(t *testing.T) {
-	pos := &backlog.ProjectOptionService{}
+	ops := &backlog.ProjectOptionService{}
 	type options struct {
 		key                               string
 		name                              string
@@ -793,7 +793,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-key": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithKey("TEST1"),
+				ops.WithKey("TEST1"),
 			},
 			wantError: false,
 			want: options{
@@ -803,7 +803,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-name": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithName("test1"),
+				ops.WithName("test1"),
 			},
 			wantError: false,
 			want: options{
@@ -813,7 +813,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-key_empty": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithKey(""),
+				ops.WithKey(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -821,7 +821,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-name_empty": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithName(""),
+				ops.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -829,7 +829,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-chartEnabled_true": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(true),
+				ops.WithChartEnabled(true),
 			},
 			wantError: false,
 			want: options{
@@ -839,7 +839,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-chartEnabled_false": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithChartEnabled(false),
+				ops.WithChartEnabled(false),
 			},
 			wantError: false,
 			want: options{
@@ -849,7 +849,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-subtaskingEnabled_true": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithSubtaskingEnabled(true),
+				ops.WithSubtaskingEnabled(true),
 			},
 			wantError: false,
 			want: options{
@@ -859,7 +859,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-subtaskingEnabled_false": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithSubtaskingEnabled(false),
+				ops.WithSubtaskingEnabled(false),
 			},
 			wantError: false,
 			want: options{
@@ -869,7 +869,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-projectLeaderCanEditProjectLeader_true": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithProjectLeaderCanEditProjectLeader(true),
+				ops.WithProjectLeaderCanEditProjectLeader(true),
 			},
 			wantError: false,
 			want: options{
@@ -879,7 +879,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-projectLeaderCanEditProjectLeader_false": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithProjectLeaderCanEditProjectLeader(false),
+				ops.WithProjectLeaderCanEditProjectLeader(false),
 			},
 			wantError: false,
 			want: options{
@@ -889,7 +889,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-textFormattingRule_backlog": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule(backlog.FormatBacklog),
+				ops.WithTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -899,7 +899,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-textFormattingRule_markdown": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule(backlog.FormatMarkdown),
+				ops.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
 			wantError: false,
 			want: options{
@@ -909,7 +909,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-textFormattingRule_error": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithTextFormattingRule("error"),
+				ops.WithTextFormattingRule("error"),
 			},
 			wantError: true,
 			want:      options{},
@@ -917,13 +917,13 @@ func TestProjectService_Update_param(t *testing.T) {
 		"multi-option-1": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithKey("TEST1"),
-				pos.WithName("test1"),
-				pos.WithChartEnabled(true),
-				pos.WithSubtaskingEnabled(true),
-				pos.WithProjectLeaderCanEditProjectLeader(true),
-				pos.WithTextFormattingRule(backlog.FormatBacklog),
-				pos.WithArchived(true),
+				ops.WithKey("TEST1"),
+				ops.WithName("test1"),
+				ops.WithChartEnabled(true),
+				ops.WithSubtaskingEnabled(true),
+				ops.WithProjectLeaderCanEditProjectLeader(true),
+				ops.WithTextFormattingRule(backlog.FormatBacklog),
+				ops.WithArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -939,13 +939,13 @@ func TestProjectService_Update_param(t *testing.T) {
 		"multi-option-2": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithKey("TEST2"),
-				pos.WithName("test2"),
-				pos.WithChartEnabled(false),
-				pos.WithSubtaskingEnabled(false),
-				pos.WithProjectLeaderCanEditProjectLeader(false),
-				pos.WithTextFormattingRule(backlog.FormatMarkdown),
-				pos.WithArchived(false),
+				ops.WithKey("TEST2"),
+				ops.WithName("test2"),
+				ops.WithChartEnabled(false),
+				ops.WithSubtaskingEnabled(false),
+				ops.WithProjectLeaderCanEditProjectLeader(false),
+				ops.WithTextFormattingRule(backlog.FormatMarkdown),
+				ops.WithArchived(false),
 			},
 			wantError: false,
 			want: options{
@@ -961,7 +961,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-archived_true": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithArchived(true),
+				ops.WithArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -971,7 +971,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		"option-archived_false": {
 			projectIDOrKey: "TEST",
 			options: []backlog.ProjectOption{
-				pos.WithArchived(false),
+				ops.WithArchived(false),
 			},
 			wantError: false,
 			want: options{
@@ -1006,9 +1006,9 @@ func TestProjectService_Update_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ps := backlog.ExportNewProjectService(cm)
+			s := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Update(tc.projectIDOrKey, tc.options...); tc.wantError {
+			if _, err := s.Update(tc.projectIDOrKey, tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -1023,8 +1023,8 @@ func TestProjectService_Update_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	_, err := ps.Update("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	_, err := s.Update("TEST")
 	assert.Error(t, err)
 }
 
@@ -1044,8 +1044,8 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Update("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Update("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -1087,9 +1087,9 @@ func TestProjectService_Delete_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ps := backlog.ExportNewProjectService(cm)
+			s := backlog.ExportNewProjectService(cm)
 
-			if _, err := ps.Delete(tc.projectIDOrKey); tc.wantError {
+			if _, err := s.Delete(tc.projectIDOrKey); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -1124,8 +1124,8 @@ func TestProjectService_Delete(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Delete(projectIDOrKey)
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Delete(projectIDOrKey)
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
@@ -1136,8 +1136,8 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	_, err := ps.Delete("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	_, err := s.Delete("TEST")
 	assert.Error(t, err)
 }
 
@@ -1157,8 +1157,8 @@ func TestProjectService_Delete_invalidJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ps := backlog.ExportNewProjectService(cm)
-	project, err := ps.Delete("TEST")
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.Delete("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)

@@ -43,8 +43,8 @@ func TestWikiService_All(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wikis, err := ws.All(projectIDOrKey)
+	s := backlog.ExportNewWikiService(cm)
+	wikis, err := s.All(projectIDOrKey)
 	assert.Nil(t, wikis)
 	assert.Error(t, err)
 }
@@ -83,8 +83,8 @@ func TestWikiService_Search(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wikis, err := ws.Search(projectIDOrKey, keyword)
+	s := backlog.ExportNewWikiService(cm)
+	wikis, err := s.Search(projectIDOrKey, keyword)
 	assert.Nil(t, err)
 	count := len(wikis)
 	assert.Equal(t, len(want.idList), count)
@@ -101,8 +101,8 @@ func TestWikiService_Search_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.All(projectIDOrKey)
+	s := backlog.ExportNewWikiService(cm)
+	_, err := s.All(projectIDOrKey)
 	assert.Error(t, err)
 }
 
@@ -129,8 +129,8 @@ func TestWikiService_Count(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	count, err := ws.Count(projectIDOrKey)
+	s := backlog.ExportNewWikiService(cm)
+	count, err := s.Count(projectIDOrKey)
 	assert.Nil(t, err)
 	assert.Equal(t, want.count, count)
 }
@@ -142,8 +142,8 @@ func TestWikiService_Count_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	count, err := ws.Count(projectIDOrKey)
+	s := backlog.ExportNewWikiService(cm)
+	count, err := s.Count(projectIDOrKey)
 	assert.Error(t, err)
 	assert.Zero(t, count)
 }
@@ -165,8 +165,8 @@ func TestWikiService_Count_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	count, err := ws.Count("TEST")
+	s := backlog.ExportNewWikiService(cm)
+	count, err := s.Count("TEST")
 	assert.Zero(t, count)
 	assert.Error(t, err)
 }
@@ -199,8 +199,8 @@ func TestWikiService_One(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.One(wikiID)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.One(wikiID)
 	assert.Nil(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -212,8 +212,8 @@ func TestWikiService_One_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.One(1)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.One(1)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -235,8 +235,8 @@ func TestWikiService_One_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.One(1)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.One(1)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -279,8 +279,8 @@ func TestWikiService_Create(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Create(projectIDOrKey, name, content, mailNotify)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Create(projectIDOrKey, name, content, mailNotify)
 	assert.Nil(t, err)
 	assert.Equal(t, want.projectIDOrKey, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -350,9 +350,9 @@ func TestWikiService_Create_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ws := backlog.ExportNewWikiService(cm)
+			s := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Create(tc.projectID, tc.name, tc.content, tc.mailNotify); tc.wantError {
+			if _, err := s.Create(tc.projectID, tc.name, tc.content, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -367,8 +367,8 @@ func TestWikiService_Create_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.Create(1, "name", "test", false)
+	s := backlog.ExportNewWikiService(cm)
+	_, err := s.Create(1, "name", "test", false)
 	assert.Error(t, err)
 }
 
@@ -389,8 +389,8 @@ func TestWikiService_Create_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Create(1, "name", "test", false)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Create(1, "name", "test", false)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -433,8 +433,8 @@ func TestWikiService_Update(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Update(id, name, content, mailNotify)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Update(id, name, content, mailNotify)
 	assert.Nil(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -504,9 +504,9 @@ func TestWikiService_Update_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ws := backlog.ExportNewWikiService(cm)
+			s := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Update(tc.wikiID, tc.name, tc.content, tc.mailNotify); tc.wantError {
+			if _, err := s.Update(tc.wikiID, tc.name, tc.content, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -521,8 +521,8 @@ func TestWikiService_Update_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.Update(1, "name", "test", false)
+	s := backlog.ExportNewWikiService(cm)
+	_, err := s.Update(1, "name", "test", false)
 	assert.Error(t, err)
 }
 
@@ -543,8 +543,8 @@ func TestWikiService_Update_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Update(1, "name", "test", false)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Update(1, "name", "test", false)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -579,8 +579,8 @@ func TestWikiService_Delete(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Delete(id, mailNotify)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Delete(id, mailNotify)
 	assert.Nil(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 }
@@ -626,9 +626,9 @@ func TestWikiService_Delete_param(t *testing.T) {
 					return backlog.ExportNewResponse(resp), nil
 				},
 			}
-			ws := backlog.ExportNewWikiService(cm)
+			s := backlog.ExportNewWikiService(cm)
 
-			if _, err := ws.Delete(tc.wikiID, tc.mailNotify); tc.wantError {
+			if _, err := s.Delete(tc.wikiID, tc.mailNotify); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -643,8 +643,8 @@ func TestWikiService_Delete_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	_, err := ws.Delete(1, false)
+	s := backlog.ExportNewWikiService(cm)
+	_, err := s.Delete(1, false)
 	assert.Error(t, err)
 }
 
@@ -665,8 +665,8 @@ func TestWikiService_Delete_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	ws := backlog.ExportNewWikiService(cm)
-	wiki, err := ws.Delete(1, false)
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Delete(1, false)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
