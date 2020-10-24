@@ -7,10 +7,6 @@ import (
 	"strconv"
 )
 
-// ActivityOptionService has methods to make functional option for ActivityService.
-type ActivityOptionService struct {
-}
-
 // ActivityOption is type of functional option for ActivityService.
 type ActivityOption func(p *requestParams) error
 
@@ -93,28 +89,6 @@ func getActivityList(get clientGet, spath string, options ...ActivityOption) ([]
 	return v, nil
 }
 
-// ActivityService has methods for Activitys.
-type ActivityService struct {
-	clientMethod *clientMethod
-}
-
-func newActivityService(cm *clientMethod) *ActivityService {
-	return &ActivityService{
-		clientMethod: cm,
-	}
-}
-
-// ProjectActivityService has methods for activitys of the project.
-type ProjectActivityService struct {
-	clientMethod *clientMethod
-}
-
-func newProjectActivityService(cm *clientMethod) *ProjectActivityService {
-	return &ProjectActivityService{
-		clientMethod: cm,
-	}
-}
-
 // List returns a list of activities in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
@@ -127,34 +101,12 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 	return getActivityList(s.clientMethod.Get, spath, options...)
 }
 
-// SpaceActivityService has methods for activitys in your space.
-type SpaceActivityService struct {
-	clientMethod *clientMethod
-}
-
-func newSpaceActivityService(cm *clientMethod) *SpaceActivityService {
-	return &SpaceActivityService{
-		clientMethod: cm,
-	}
-}
-
 // List returns a list of activities in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
 	return getActivityList(s.clientMethod.Get, spath, options...)
-}
-
-// UserActivityService has methods for user activitys.
-type UserActivityService struct {
-	clientMethod *clientMethod
-}
-
-func newUserActivityService(cm *clientMethod) *UserActivityService {
-	return &UserActivityService{
-		clientMethod: cm,
-	}
 }
 
 // List returns a list of user activities.
