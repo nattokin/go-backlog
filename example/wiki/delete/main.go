@@ -21,7 +21,7 @@ func main() {
 
 	// Delete a Wiki by ID of the Wiki.
 	// You get struct where represented the Wiki deleted.
-	r, err := c.Wiki.Delete(1234, false)
+	r, err := c.Wiki.Delete(1234)
 	if err != nil {
 		log.Fatalln(err)
 	}

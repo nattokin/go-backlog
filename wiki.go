@@ -7,11 +7,11 @@ import (
 	"strconv"
 )
 
-// wikiOption is type of functional option for WikiService.
-type wikiOption func(p *requestParams) error
+// WikiOption is type of functional option for WikiService.
+type WikiOption func(p *requestParams) error
 
 // WithName returns option. the option sets `name` for wiki.
-func (*wikiOptionService) WithName(name string) wikiOption {
+func (*WikiOptionService) WithName(name string) WikiOption {
 	return func(p *requestParams) error {
 		if name == "" {
 			return errors.New("[*wikiOptionService.WithName] name must not be empty")
@@ -22,7 +22,7 @@ func (*wikiOptionService) WithName(name string) wikiOption {
 }
 
 // WithContent returns option. the option sets `content` for wiki.
-func (*wikiOptionService) WithContent(content string) wikiOption {
+func (*WikiOptionService) WithContent(content string) WikiOption {
 	return func(p *requestParams) error {
 		if content == "" {
 			return errors.New("[*wikiOptionService.WithContent] content must not be empty")
@@ -33,7 +33,7 @@ func (*wikiOptionService) WithContent(content string) wikiOption {
 }
 
 // WithMailNotify returns option. the option sets `mailNotify` true for wiki.
-func (*wikiOptionService) WithMailNotify() wikiOption {
+func (*WikiOptionService) WithMailNotify() WikiOption {
 	return func(p *requestParams) error {
 		p.Set("mailNotify", "true")
 		return nil
@@ -112,14 +112,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 // Create creates a new Wiki for the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, mailNotify bool) (*Wiki, error) {
-	if mailNotify {
-		return s.create(projectID, name, content, s.option.WithMailNotify())
-	}
-	return s.create(projectID, name, content)
-}
-
-func (s *WikiService) create(projectID int, name, content string, options ...wikiOption) (*Wiki, error) {
+func (s *WikiService) Create(projectID int, name, content string, options ...WikiOption) (*Wiki, error) {
 	if projectID == 0 {
 		return nil, errors.New("projectID must not be zero")
 	}
@@ -157,23 +150,13 @@ func (s *WikiService) create(projectID int, name, content string, options ...wik
 // Update a wiki.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(wikiID int, name, content string, mailNotify bool) (*Wiki, error) {
-	options := []wikiOption{}
-	if name != "" {
-		options = append(options, s.option.WithName(name))
-	}
-	if content != "" {
-		options = append(options, s.option.WithContent(content))
-	}
-	if mailNotify {
-		options = append(options, s.option.WithMailNotify())
-	}
-	return s.update(wikiID, options...)
-}
-
-func (s *WikiService) update(wikiID int, options ...wikiOption) (*Wiki, error) {
+func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 	if wikiID <= 0 {
 		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	}
+
+	if options == nil {
+		return nil, errors.New("requires one or more options")
 	}
 
 	params := newRequestParams()
@@ -201,14 +184,7 @@ func (s *WikiService) update(wikiID int, options ...wikiOption) (*Wiki, error) {
 // Delete a wiki by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, mailNotify bool) (*Wiki, error) {
-	if mailNotify {
-		return s.delete(wikiID, s.option.WithMailNotify())
-	}
-	return s.delete(wikiID)
-}
-
-func (s *WikiService) delete(wikiID int, options ...wikiOption) (*Wiki, error) {
+func (s *WikiService) Delete(wikiID int, options ...WikiOption) (*Wiki, error) {
 	if wikiID <= 0 {
 		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
 	}
