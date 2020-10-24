@@ -155,6 +155,10 @@ func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
 	}
 
+	if options == nil {
+		return nil, errors.New("requires one or more options")
+	}
+
 	params := newRequestParams()
 	for _, option := range options {
 		if err := option(params); err != nil {

@@ -76,6 +76,7 @@ func TestWikiService_Search(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
 			assert.Equal(t, want.keyword, params.Get("keyword"))
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -122,6 +123,7 @@ func TestWikiService_Count(t *testing.T) {
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       body,
@@ -157,7 +159,6 @@ func TestWikiService_Count_invaliedJson(t *testing.T) {
 
 	cm := &backlog.ExportClientMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -192,6 +193,7 @@ func TestWikiService_One(t *testing.T) {
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -227,7 +229,6 @@ func TestWikiService_One_invaliedJson(t *testing.T) {
 
 	cm := &backlog.ExportClientMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -271,6 +272,7 @@ func TestWikiService_Create(t *testing.T) {
 			assert.Equal(t, want.name, params.Get("name"))
 			assert.Equal(t, want.content, params.Get("content"))
 			assert.Equal(t, want.mailNotify, params.Get("mailNotify"))
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -405,7 +407,10 @@ func TestWikiService_Create_option_error(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewWikiService(cm)
-	wiki, err := s.Create(1, "name", "content", s.Option.WithName(""))
+	error_option := func(p *backlog.ExportRequestParams) error {
+		return errors.New("error")
+	}
+	wiki, err := s.Create(1, "name", "content", error_option)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -440,6 +445,7 @@ func TestWikiService_Update(t *testing.T) {
 			assert.Equal(t, want.name, params.Get("name"))
 			assert.Equal(t, want.content, params.Get("content"))
 			assert.Equal(t, want.mailNotify, params.Get("mailNotify"))
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -545,7 +551,6 @@ func TestWikiService_Update_invaliedJson(t *testing.T) {
 
 	cm := &backlog.ExportClientMethod{
 		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -555,6 +560,28 @@ func TestWikiService_Update_invaliedJson(t *testing.T) {
 	}
 	s := backlog.ExportNewWikiService(cm)
 	wiki, err := s.Update(1, s.Option.WithName("name"))
+	assert.Nil(t, wiki)
+	assert.Error(t, err)
+}
+
+func TestWikiService_Update_option_required(t *testing.T) {
+	bj, err := os.Open("testdata/json/wiki/update-wiki-page.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	s := backlog.ExportNewWikiService(cm)
+	wiki, err := s.Update(1)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -581,6 +608,7 @@ func TestWikiService_Delete(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			assert.NotNil(t, params)
 			assert.Equal(t, want.mailNotify, params.Get("mailNotify"))
+
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -663,7 +691,6 @@ func TestWikiService_Delete_invaliedJson(t *testing.T) {
 
 	cm := &backlog.ExportClientMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -694,7 +721,10 @@ func TestWikiService_Delete_option_error(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewWikiService(cm)
-	wiki, err := s.Delete(1, s.Option.WithName(""))
+	error_option := func(p *backlog.ExportRequestParams) error {
+		return errors.New("error")
+	}
+	wiki, err := s.Delete(1, error_option)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
