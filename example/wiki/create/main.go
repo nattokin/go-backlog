@@ -21,7 +21,7 @@ func main() {
 
 	// Create a new Wiki by ID of the project.
 	// You get struct where represented the Wiki created.
-	r, err := c.Wiki.Create(12345, "name", "content", false)
+	r, err := c.Wiki.Create(12345, "name", "content")
 	if err != nil {
 		log.Fatalln(err)
 	}
