@@ -7,26 +7,6 @@ import (
 	"strconv"
 )
 
-// WikiService has methods for Wiki.
-type WikiService struct {
-	clientMethod *clientMethod
-
-	Attachment *WikiAttachmentService
-	option     *wikiOptionService
-}
-
-func newWikiService(cm *clientMethod) *WikiService {
-	return &WikiService{
-		clientMethod: cm,
-		Attachment:   newWikiAttachmentService(cm),
-		option:       &wikiOptionService{},
-	}
-}
-
-// wikiOptionService has methods to make functional option for WikiService.
-type wikiOptionService struct {
-}
-
 // wikiOption is type of functional option for WikiService.
 type wikiOption func(p *requestParams) error
 

@@ -6,10 +6,6 @@ import (
 	"strconv"
 )
 
-// UserOptionService has methods to make functional option for UserService.
-type UserOptionService struct {
-}
-
 // UserOption is type of functional option for UserService.
 type UserOption func(p *requestParams) error
 
@@ -133,22 +129,6 @@ func deleteUser(delete clientDelete, spath string, params *requestParams) (*User
 	return &v, nil
 }
 
-// UserService has methods for user
-type UserService struct {
-	clientMethod *clientMethod
-
-	Activity *UserActivityService
-	Option   *UserOptionService
-}
-
-func newUserService(cm *clientMethod) *UserService {
-	return &UserService{
-		clientMethod: cm,
-		Activity:     newUserActivityService(cm),
-		Option:       &UserOptionService{},
-	}
-}
-
 // All returns all users in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
@@ -241,17 +221,6 @@ func (s *UserService) Delete(id int) (*User, error) {
 
 	spath := "users/" + strconv.Itoa(id)
 	return deleteUser(s.clientMethod.Delete, spath, nil)
-}
-
-// ProjectUserService has methods for user of project.
-type ProjectUserService struct {
-	clientMethod *clientMethod
-}
-
-func newProjectUserService(cm *clientMethod) *ProjectUserService {
-	return &ProjectUserService{
-		clientMethod: cm,
-	}
 }
 
 // All returns all users in the project.
