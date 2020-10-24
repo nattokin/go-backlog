@@ -18,7 +18,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.Update(1234, "changed name", "changed content", false)
+	r, err := c.Wiki.Update(1234, c.Wiki.Option.WithName("changed name"), c.Wiki.Option.WithContent("changed content"))
 	if err != nil {
 		log.Fatalln(err)
 	}
