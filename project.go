@@ -7,10 +7,6 @@ import (
 	"strconv"
 )
 
-// ProjectOptionService has methods to make functional option for ProjectService.
-type ProjectOptionService struct {
-}
-
 // ProjectOption is type of functional option for ProjectService.
 type ProjectOption func(p *requestParams) error
 
@@ -76,24 +72,6 @@ func (*ProjectOptionService) WithArchived(archived bool) ProjectOption {
 	return func(p *requestParams) error {
 		p.Set("archived", strconv.FormatBool(archived))
 		return nil
-	}
-}
-
-// ProjectService has methods for Project.
-type ProjectService struct {
-	clientMethod *clientMethod
-
-	Activity *ProjectActivityService
-	User     *ProjectUserService
-	Option   *ProjectOptionService
-}
-
-func newProjectService(cm *clientMethod) *ProjectService {
-	return &ProjectService{
-		clientMethod: cm,
-		Activity:     newProjectActivityService(cm),
-		User:         newProjectUserService(cm),
-		Option:       &ProjectOptionService{},
 	}
 }
 

@@ -5,17 +5,6 @@ import (
 	"strconv"
 )
 
-// AttachmentService hs methods for attachment.
-type AttachmentService struct {
-	clientMethod *clientMethod
-}
-
-func newAttachmentService(cm *clientMethod) *AttachmentService {
-	return &AttachmentService{
-		clientMethod: cm,
-	}
-}
-
 // Uploade uploads a any file to the space.
 //
 // File's path and name are must not empty.
@@ -67,18 +56,6 @@ func removeAttachment(delete clientDelete, spath string) (*Attachment, error) {
 	return &v, nil
 }
 
-// WikiAttachmentService hs methods for attachment file of wiki.
-type WikiAttachmentService struct {
-	*AttachmentService
-}
-
-func newWikiAttachmentService(cm *clientMethod) *WikiAttachmentService {
-	return &WikiAttachmentService{
-		AttachmentService: newAttachmentService(cm),
-	}
-
-}
-
 // Attach attachs files uploaded to space to the wiki.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
@@ -118,17 +95,6 @@ func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, e
 	return removeAttachment(s.clientMethod.Delete, spath)
 }
 
-// IssueAttachmentService hs methods for attachment file of issue.
-type IssueAttachmentService struct {
-	*AttachmentService
-}
-
-func newIssueAttachmentService(cm *clientMethod) *IssueAttachmentService {
-	return &IssueAttachmentService{
-		AttachmentService: newAttachmentService(cm),
-	}
-}
-
 // List returns a list of all attachments in the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
@@ -143,17 +109,6 @@ func (s *IssueAttachmentService) List(issueIDOrKey string) ([]*Attachment, error
 func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (*Attachment, error) {
 	spath := "issues/" + issueIDOrKey + "/attachments/" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.clientMethod.Delete, spath)
-}
-
-// PullRequestAttachmentService hs methods for attachment file of pull request.
-type PullRequestAttachmentService struct {
-	*AttachmentService
-}
-
-func newPullRequestAttachmentService(cm *clientMethod) *PullRequestAttachmentService {
-	return &PullRequestAttachmentService{
-		AttachmentService: newAttachmentService(cm),
-	}
 }
 
 // List returns a list of all attachments in the pull request.
