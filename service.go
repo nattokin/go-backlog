@@ -222,14 +222,14 @@ type WikiService struct {
 	clientMethod *clientMethod
 
 	Attachment *WikiAttachmentService
-	option     *wikiOptionService
+	Option     *WikiOptionService
 }
 
 func newWikiService(cm *clientMethod) *WikiService {
 	return &WikiService{
 		clientMethod: cm,
 		Attachment:   newWikiAttachmentService(cm),
-		option:       &wikiOptionService{},
+		Option:       &WikiOptionService{},
 	}
 }
 
@@ -245,8 +245,8 @@ func newWikiAttachmentService(cm *clientMethod) *WikiAttachmentService {
 
 }
 
-// wikiOptionService has methods to make functional option for WikiService.
-type wikiOptionService struct {
+// WikiOptionService has methods to make functional option for WikiService.
+type WikiOptionService struct {
 }
 
 // PullRequestService has methods for Issue.
