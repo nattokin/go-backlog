@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 
 	backlog "github.com/nattokin/go-backlog"
@@ -271,7 +272,7 @@ func TestProjectService_GetList_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestProjectService_One(t *testing.T) {
+func TestProjectService_One_key(t *testing.T) {
 	projectKey := "TEST"
 	bj, err := os.Open("testdata/json/project.json")
 	if err != nil {
@@ -300,10 +301,67 @@ func TestProjectService_One(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.One(projectKey)
+	project, err := s.One(backlog.ProjectKey(projectKey))
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
+}
+
+func TestProjectService_One_id(t *testing.T) {
+	projectID := 1
+	bj, err := os.Open("testdata/json/project.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath string
+		id    int
+		name  string
+	}{
+		spath: "projects/" + strconv.Itoa(projectID),
+		id:    projectID,
+		name:  "test",
+	}
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Nil(t, params)
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.One(backlog.ProjectID(projectID))
+	assert.Nil(t, err)
+	assert.Equal(t, want.id, project.ID)
+	assert.Equal(t, want.name, project.Name)
+}
+
+func TestProjectService_One_key_error(t *testing.T) {
+	bj, err := os.Open("testdata/json/project.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	cm := &backlog.ExportClientMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return backlog.ExportNewResponse(resp), nil
+		},
+	}
+	s := backlog.ExportNewProjectService(cm)
+	project, err := s.One(backlog.ProjectKey(""))
+	assert.Nil(t, project)
+	assert.Error(t, err)
 }
 
 func TestProjectService_One_clientError(t *testing.T) {
@@ -313,7 +371,7 @@ func TestProjectService_One_clientError(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	_, err := s.One("TEST")
+	_, err := s.One(backlog.ProjectKey("TEST"))
 	assert.Error(t, err)
 }
 
@@ -334,7 +392,7 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.One("TEST")
+	project, err := s.One(backlog.ProjectKey("TEST"))
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -724,7 +782,7 @@ func TestProjectService_Create_invalidJson(t *testing.T) {
 }
 
 func TestProjectService_Update(t *testing.T) {
-	projectIDOrKey := "TEST"
+	projectKey := "TEST"
 	bj, err := os.Open("testdata/json/project.json")
 	if err != nil {
 		t.Fatal(err)
@@ -735,8 +793,8 @@ func TestProjectService_Update(t *testing.T) {
 		spath string
 		key   string
 	}{
-		spath: "projects/" + projectIDOrKey,
-		key:   projectIDOrKey,
+		spath: "projects/" + projectKey,
+		key:   projectKey,
 	}
 	cm := &backlog.ExportClientMethod{
 		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
@@ -750,7 +808,7 @@ func TestProjectService_Update(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.Update(projectIDOrKey)
+	project, err := s.Update(backlog.ProjectKey((projectKey)))
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
@@ -767,31 +825,37 @@ func TestProjectService_Update_param(t *testing.T) {
 		archived                          string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
+		projectIDOrKey backlog.ProjectIDOrKeyGetter
 		options        []backlog.ProjectOption
 		wantError      bool
 		want           options
 	}{
 		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options:        []backlog.ProjectOption{},
 			wantError:      false,
 			want:           options{},
 		},
 		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
+			projectIDOrKey: backlog.ProjectID(1234),
 			options:        []backlog.ProjectOption{},
 			wantError:      false,
 			want:           options{},
 		},
 		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
+			projectIDOrKey: backlog.ProjectKey(""),
+			options:        []backlog.ProjectOption{},
+			wantError:      true,
+			want:           options{},
+		},
+		"projectIDOrKey_zero": {
+			projectIDOrKey: backlog.ProjectID(0),
 			options:        []backlog.ProjectOption{},
 			wantError:      true,
 			want:           options{},
 		},
 		"option-key": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithKey("TEST1"),
 			},
@@ -801,7 +865,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-name": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithName("test1"),
 			},
@@ -811,7 +875,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-key_empty": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithKey(""),
 			},
@@ -819,7 +883,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			want:      options{},
 		},
 		"option-name_empty": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithName(""),
 			},
@@ -827,7 +891,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			want:      options{},
 		},
 		"option-chartEnabled_true": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithChartEnabled(true),
 			},
@@ -837,7 +901,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-chartEnabled_false": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithChartEnabled(false),
 			},
@@ -847,7 +911,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-subtaskingEnabled_true": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithSubtaskingEnabled(true),
 			},
@@ -857,7 +921,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-subtaskingEnabled_false": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithSubtaskingEnabled(false),
 			},
@@ -867,7 +931,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-projectLeaderCanEditProjectLeader_true": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithProjectLeaderCanEditProjectLeader(true),
 			},
@@ -877,7 +941,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-projectLeaderCanEditProjectLeader_false": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithProjectLeaderCanEditProjectLeader(false),
 			},
@@ -887,7 +951,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-textFormattingRule_backlog": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithTextFormattingRule(backlog.FormatBacklog),
 			},
@@ -897,7 +961,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-textFormattingRule_markdown": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
@@ -907,7 +971,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-textFormattingRule_error": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithTextFormattingRule("error"),
 			},
@@ -915,7 +979,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			want:      options{},
 		},
 		"multi-option-1": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithKey("TEST1"),
 				ops.WithName("test1"),
@@ -937,7 +1001,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"multi-option-2": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithKey("TEST2"),
 				ops.WithName("test2"),
@@ -959,7 +1023,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-archived_true": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithArchived(true),
 			},
@@ -969,7 +1033,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			},
 		},
 		"option-archived_false": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			options: []backlog.ProjectOption{
 				ops.WithArchived(false),
 			},
@@ -1024,7 +1088,7 @@ func TestProjectService_Update_clientError(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	_, err := s.Update("TEST")
+	_, err := s.Update(backlog.ProjectKey("TEST"))
 	assert.Error(t, err)
 }
 
@@ -1045,7 +1109,7 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.Update("TEST")
+	project, err := s.Update(backlog.ProjectKey("TEST"))
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -1053,19 +1117,23 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 
 func TestProjectService_Delete_param(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
+		projectIDOrKey backlog.ProjectIDOrKeyGetter
 		wantError      bool
 	}{
 		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
+			projectIDOrKey: backlog.ProjectKey("TEST"),
 			wantError:      false,
 		},
 		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
+			projectIDOrKey: backlog.ProjectID(1234),
 			wantError:      false,
 		},
 		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
+			projectIDOrKey: backlog.ProjectKey(""),
+			wantError:      true,
+		},
+		"projectIDOrKey_zero": {
+			projectIDOrKey: backlog.ProjectID(0),
 			wantError:      true,
 		},
 	}
@@ -1099,7 +1167,7 @@ func TestProjectService_Delete_param(t *testing.T) {
 }
 
 func TestProjectService_Delete(t *testing.T) {
-	projectIDOrKey := "TEST"
+	projectKey := "TEST"
 	bj, err := os.Open("testdata/json/project.json")
 	if err != nil {
 		t.Fatal(err)
@@ -1110,8 +1178,8 @@ func TestProjectService_Delete(t *testing.T) {
 		spath string
 		key   string
 	}{
-		spath: "projects/" + projectIDOrKey,
-		key:   projectIDOrKey,
+		spath: "projects/" + projectKey,
+		key:   projectKey,
 	}
 	cm := &backlog.ExportClientMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
@@ -1125,7 +1193,7 @@ func TestProjectService_Delete(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.Delete(projectIDOrKey)
+	project, err := s.Delete(backlog.ProjectKey(projectKey))
 	assert.Nil(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
@@ -1137,7 +1205,7 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	_, err := s.Delete("TEST")
+	_, err := s.Delete(backlog.ProjectKey("TEST"))
 	assert.Error(t, err)
 }
 
@@ -1158,7 +1226,7 @@ func TestProjectService_Delete_invalidJson(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewProjectService(cm)
-	project, err := s.Delete("TEST")
+	project, err := s.Delete(backlog.ProjectKey("TEST"))
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
