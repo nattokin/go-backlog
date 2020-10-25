@@ -24,7 +24,7 @@ func main() {
 	stdin := bufio.NewScanner(os.Stdin)
 
 	// Scan project name.
-	projectIDOrKey := scanner(stdin, "project name:")
+	projectKey := scanner(stdin, "project name:")
 
 	// Get all Wikis in the project.
 	c, err := backlog.NewClient(baseURL, token)
@@ -32,7 +32,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.All(projectIDOrKey)
+	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
 	if err != nil {
 		log.Fatalln(err)
 	}
