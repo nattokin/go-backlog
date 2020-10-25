@@ -43,15 +43,19 @@ func (*WikiOptionService) WithMailNotify() WikiOption {
 // All Wiki in project is gotten.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(projectIDOrKey string) ([]*Wiki, error) {
-	return s.Search(projectIDOrKey, "")
+func (s *WikiService) All(target ProjectIDOrKeyGetter) ([]*Wiki, error) {
+	return s.Search(target, "")
 }
 
 // Search returns wikis by keyword from within the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
+func (s *WikiService) Search(target ProjectIDOrKeyGetter, keyword string) ([]*Wiki, error) {
 	params := newRequestParams()
+	projectIDOrKey, err := target.getProjectIDOrKey()
+	if err != nil {
+		return nil, err
+	}
 	params.Set("projectIdOrKey", projectIDOrKey)
 	if keyword != "" {
 		params.Set("keyword", keyword)
@@ -73,8 +77,12 @@ func (s *WikiService) Search(projectIDOrKey, keyword string) ([]*Wiki, error) {
 // Count returns the number of wikis in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
-func (s *WikiService) Count(projectIDOrKey string) (int, error) {
+func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 	params := newRequestParams()
+	projectIDOrKey, err := target.getProjectIDOrKey()
+	if err != nil {
+		return 0, err
+	}
 	params.Set("projectIdOrKey", projectIDOrKey)
 	resp, err := s.clientMethod.Get("wikis/count", params)
 	if err != nil {
