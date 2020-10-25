@@ -327,7 +327,7 @@ func TestWikiService_Create(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewWikiService(cm)
-	wiki, err := s.Create(projectID, name, content, s.Option.WithMailNotify())
+	wiki, err := s.Create(projectID, name, content, s.Option.WithMailNotify(true))
 	assert.Nil(t, err)
 	assert.Equal(t, want.projectID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -501,7 +501,7 @@ func TestWikiService_Update(t *testing.T) {
 	}
 	s := backlog.ExportNewWikiService(cm)
 	option := s.Option
-	wiki, err := s.Update(id, option.WithName(name), option.WithContent(content), option.WithMailNotify())
+	wiki, err := s.Update(id, option.WithName(name), option.WithContent(content), option.WithMailNotify(true))
 	assert.Nil(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -663,7 +663,7 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewWikiService(cm)
-	wiki, err := s.Delete(id, s.Option.WithMailNotify())
+	wiki, err := s.Delete(id, s.Option.WithMailNotify(true))
 	assert.Nil(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 }

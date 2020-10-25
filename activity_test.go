@@ -374,7 +374,6 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 			cm := &backlog.ExportClientMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					// Check options.
 					v := *params.ExportURLValues()
 					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
 					assert.Equal(t, tc.want.minID, v["minId"])
