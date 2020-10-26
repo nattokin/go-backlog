@@ -9,7 +9,7 @@ import (
 )
 
 func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
-	s := backlog.ExportNewActivityService(nil).Option
+	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
 		typeIDs   []int
@@ -73,7 +73,7 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithActivityTypeIDs(tc.typeIDs)
+			option := o.WithActivityTypeIDs(tc.typeIDs)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -88,7 +88,7 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 }
 
 func TestActivityOptionService_WithMinID(t *testing.T) {
-	s := backlog.ExportNewActivityService(nil).Option
+	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
 		minID     int
@@ -110,7 +110,7 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithMinID(tc.minID)
+			option := o.WithMinID(tc.minID)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -124,7 +124,7 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 }
 
 func TestActivityOptionService_WithMaxID(t *testing.T) {
-	s := backlog.ExportNewActivityService(nil).Option
+	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
 		maxID     int
@@ -146,7 +146,7 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithMaxID(tc.maxID)
+			option := o.WithMaxID(tc.maxID)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -160,7 +160,7 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 }
 
 func TestActivityOptionService_WithCount(t *testing.T) {
-	s := backlog.ExportNewActivityService(nil).Option
+	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
 		count     int
@@ -190,7 +190,7 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithCount(tc.count)
+			option := o.WithCount(tc.count)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -204,7 +204,7 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 }
 
 func TestActivityOptionService_WithOrder(t *testing.T) {
-	s := backlog.ExportNewActivityService(nil).Option
+	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
 		order     string
@@ -230,7 +230,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithOrder(tc.order)
+			option := o.WithOrder(tc.order)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -244,7 +244,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 }
 
 func TestProjectOptionService_WithKey(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		key       string
@@ -262,7 +262,7 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithKey(tc.key)
+			option := o.WithKey(tc.key)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -276,7 +276,7 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 }
 
 func TestProjectOptionService_WithName(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		name      string
@@ -294,7 +294,7 @@ func TestProjectOptionService_WithName(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithName(tc.name)
+			option := o.WithName(tc.name)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -308,7 +308,7 @@ func TestProjectOptionService_WithName(t *testing.T) {
 }
 
 func TestProjectOptionService_WithChartEnabled(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		enabeld bool
@@ -323,7 +323,7 @@ func TestProjectOptionService_WithChartEnabled(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithChartEnabled(tc.enabeld)
+			option := o.WithChartEnabled(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
 			assert.Nil(t, err)
@@ -333,7 +333,7 @@ func TestProjectOptionService_WithChartEnabled(t *testing.T) {
 }
 
 func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		enabeld bool
@@ -348,7 +348,7 @@ func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithSubtaskingEnabled(tc.enabeld)
+			option := o.WithSubtaskingEnabled(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
 			assert.Nil(t, err)
@@ -358,7 +358,7 @@ func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
 }
 
 func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		enabeld bool
@@ -373,7 +373,7 @@ func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithProjectLeaderCanEditProjectLeader(tc.enabeld)
+			option := o.WithProjectLeaderCanEditProjectLeader(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
 			assert.Nil(t, err)
@@ -383,8 +383,8 @@ func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T
 }
 
 func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
-	// TODO
+	o := backlog.ProjectOptionService{}
+
 	cases := map[string]struct {
 		format    string
 		wantError bool
@@ -409,7 +409,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithTextFormattingRule(tc.format)
+			option := o.WithTextFormattingRule(tc.format)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -423,7 +423,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 }
 
 func TestProjectOptionService_WithArchived(t *testing.T) {
-	s := backlog.ExportNewProjectService(nil).Option
+	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
 		archived bool
@@ -438,7 +438,7 @@ func TestProjectOptionService_WithArchived(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithArchived(tc.archived)
+			option := o.WithArchived(tc.archived)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
 			assert.Nil(t, err)
@@ -447,8 +447,24 @@ func TestProjectOptionService_WithArchived(t *testing.T) {
 	}
 }
 
+func TestUserOptionService_WithPassword(t *testing.T) {
+	// TODO
+}
+
+func TestUserOptionService_WithName(t *testing.T) {
+	// TODO
+}
+
+func TestUserOptionService_withMailAddress(t *testing.T) {
+	// TODO
+}
+
+func TestUserOptionService_WithRoleType(t *testing.T) {
+	// TODO
+}
+
 func TestWikiOptionService_WithName(t *testing.T) {
-	s := backlog.ExportNewWikiService(nil).Option
+	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
 		name      string
@@ -466,7 +482,7 @@ func TestWikiOptionService_WithName(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithName(tc.name)
+			option := o.WithName(tc.name)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -480,7 +496,7 @@ func TestWikiOptionService_WithName(t *testing.T) {
 }
 
 func TestWikiOptionService_WithContent(t *testing.T) {
-	s := backlog.ExportNewWikiService(nil).Option
+	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
 		content   string
@@ -498,7 +514,7 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithContent(tc.content)
+			option := o.WithContent(tc.content)
 			params := backlog.ExportNewRequestParams()
 
 			if err := option(params); tc.wantError {
@@ -512,7 +528,7 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 }
 
 func TestWikiOptionService_WithMailNotify(t *testing.T) {
-	s := backlog.ExportNewWikiService(nil).Option
+	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
 		enabeld bool
@@ -527,7 +543,7 @@ func TestWikiOptionService_WithMailNotify(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := s.WithMailNotify(tc.enabeld)
+			option := o.WithMailNotify(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
 			assert.Nil(t, err)

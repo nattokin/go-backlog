@@ -491,7 +491,7 @@ func TestProjectService_Create_param(t *testing.T) {
 }
 
 func TestProjectService_Create_option(t *testing.T) {
-	ops := &backlog.ProjectOptionService{}
+	o := &backlog.ProjectOptionService{}
 	type options struct {
 		chartEnabled                      string
 		subtaskingEnabled                 string
@@ -515,10 +515,10 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"option-1": {
 			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(true),
-				ops.WithSubtaskingEnabled(true),
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -530,10 +530,10 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"option-2": {
 			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule(backlog.FormatMarkdown),
 			},
 			wantError: false,
 			want: options{
@@ -545,10 +545,10 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"option-error": {
 			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule("invalid"),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule("invalid"),
 			},
 			wantError: true,
 			want:      options{},
@@ -706,7 +706,7 @@ func TestProjectService_Update_param(t *testing.T) {
 }
 
 func TestProjectService_Update_option(t *testing.T) {
-	ops := &backlog.ProjectOptionService{}
+	o := &backlog.ProjectOptionService{}
 	type options struct {
 		key                               string
 		name                              string
@@ -723,13 +723,13 @@ func TestProjectService_Update_option(t *testing.T) {
 	}{
 		"option-1": {
 			options: []backlog.ProjectOption{
-				ops.WithKey("TEST1"),
-				ops.WithName("test1"),
-				ops.WithChartEnabled(true),
-				ops.WithSubtaskingEnabled(true),
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
-				ops.WithArchived(true),
+				o.WithKey("TEST1"),
+				o.WithName("test1"),
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(backlog.FormatBacklog),
+				o.WithArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -744,13 +744,13 @@ func TestProjectService_Update_option(t *testing.T) {
 		},
 		"option-2": {
 			options: []backlog.ProjectOption{
-				ops.WithKey("TEST2"),
-				ops.WithName("test2"),
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
-				ops.WithArchived(false),
+				o.WithKey("TEST2"),
+				o.WithName("test2"),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule(backlog.FormatMarkdown),
+				o.WithArchived(false),
 			},
 			wantError: false,
 			want: options{
@@ -765,13 +765,13 @@ func TestProjectService_Update_option(t *testing.T) {
 		},
 		"option-error": {
 			options: []backlog.ProjectOption{
-				ops.WithKey(""),
-				ops.WithName(""),
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule("invalid"),
-				ops.WithArchived(false),
+				o.WithKey(""),
+				o.WithName(""),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule("invalid"),
+				o.WithArchived(false),
 			},
 			wantError: true,
 			want:      options{},
