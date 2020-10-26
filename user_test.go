@@ -166,8 +166,9 @@ func TestUserService_Update_updateUser(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewUserService(cm)
+	o := s.Option
 	user, err := s.Update(
-		id, s.Option.WithPassword(password), s.Option.WithName(name), s.Option.WithMailAddress(mailAddress), s.Option.WithRoleType(roleType),
+		id, o.WithPassword(password), o.WithName(name), o.WithMailAddress(mailAddress), o.WithRoleType(roleType),
 	)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -440,7 +441,8 @@ func TestUserService_Add_invaliedJson(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	ops := &backlog.UserOptionService{}
+	o := &backlog.UserOptionService{}
+
 	type options struct {
 		password    string
 		name        string
@@ -468,7 +470,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-password": {
 			id: 2,
 			options: []backlog.UserOption{
-				ops.WithPassword("testpasword"),
+				o.WithPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -478,7 +480,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-password_empty": {
 			id: 3,
 			options: []backlog.UserOption{
-				ops.WithPassword(""),
+				o.WithPassword(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -486,7 +488,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-name": {
 			id: 4,
 			options: []backlog.UserOption{
-				ops.WithName("testname"),
+				o.WithName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -496,7 +498,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-name_empty": {
 			id: 5,
 			options: []backlog.UserOption{
-				ops.WithName(""),
+				o.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -504,7 +506,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-mailAddress": {
 			id: 6,
 			options: []backlog.UserOption{
-				ops.WithMailAddress("test@test.com"),
+				o.WithMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -514,7 +516,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-mailAddress_empty": {
 			id: 7,
 			options: []backlog.UserOption{
-				ops.WithMailAddress(""),
+				o.WithMailAddress(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -522,7 +524,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_0": {
 			id: 8,
 			options: []backlog.UserOption{
-				ops.WithRoleType(0),
+				o.WithRoleType(0),
 			},
 			wantError: true,
 			want:      options{},
@@ -530,7 +532,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_1": {
 			id: 9,
 			options: []backlog.UserOption{
-				ops.WithRoleType(1),
+				o.WithRoleType(1),
 			},
 			wantError: false,
 			want: options{
@@ -540,7 +542,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_6": {
 			id: 10,
 			options: []backlog.UserOption{
-				ops.WithRoleType(6),
+				o.WithRoleType(6),
 			},
 			wantError: false,
 			want: options{
@@ -550,7 +552,7 @@ func TestUserService_Update(t *testing.T) {
 		"option-roleType_7": {
 			id: 11,
 			options: []backlog.UserOption{
-				ops.WithRoleType(7),
+				o.WithRoleType(7),
 			},
 			wantError: true,
 			want:      options{},
@@ -558,10 +560,10 @@ func TestUserService_Update(t *testing.T) {
 		"multi-option": {
 			id: 1,
 			options: []backlog.UserOption{
-				ops.WithPassword("testpasword1"),
-				ops.WithName("testname1"),
-				ops.WithMailAddress("test1@test.com"),
-				ops.WithRoleType(1),
+				o.WithPassword("testpasword1"),
+				o.WithName("testname1"),
+				o.WithMailAddress("test1@test.com"),
+				o.WithRoleType(1),
 			},
 			wantError: false,
 			want: options{

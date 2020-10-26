@@ -74,6 +74,17 @@ func withName(name string) option {
 	}
 }
 
+func withMailAddress(mailAddress string) option {
+	// ToDo: validate mailAddress
+	return func(p *requestParams) error {
+		if mailAddress == "" {
+			return errors.New("mailAddress must not be empty")
+		}
+		p.Set("mailAddress", mailAddress)
+		return nil
+	}
+}
+
 func withMailNotify(enabeld bool) option {
 	return func(p *requestParams) error {
 		p.Set("mailNotify", strconv.FormatBool(enabeld))
@@ -111,9 +122,29 @@ func withOrder(order string) option {
 	}
 }
 
+func withPassword(password string) option {
+	return func(p *requestParams) error {
+		if password == "" {
+			return errors.New("password must not be empty")
+		}
+		p.Set("password", password)
+		return nil
+	}
+}
+
 func withProjectLeaderCanEditProjectLeader(enabeld bool) option {
 	return func(p *requestParams) error {
 		p.Set("projectLeaderCanEditProjectLeader", strconv.FormatBool(enabeld))
+		return nil
+	}
+}
+
+func withRoleType(roleType int) option {
+	return func(p *requestParams) error {
+		if roleType < 1 || 6 < roleType {
+			return errors.New("roleType must be between 1 and 7")
+		}
+		p.Add("roleType", strconv.Itoa(roleType))
 		return nil
 	}
 }
@@ -136,7 +167,7 @@ func withTextFormattingRule(format string) option {
 }
 
 // ActivityOption is type of functional option for ActivityService.
-type ActivityOption func(p *requestParams) error
+type ActivityOption option
 
 // WithActivityTypeIDs returns option. the option sets `activityTypeId` for user.
 func (*ActivityOptionService) WithActivityTypeIDs(typeIDs []int) ActivityOption {
@@ -199,6 +230,29 @@ func (*ProjectOptionService) WithTextFormattingRule(format string) ProjectOption
 // WithArchived returns option. the option sets `archived` for project.
 func (*ProjectOptionService) WithArchived(archived bool) ProjectOption {
 	return ProjectOption(withArchived(archived))
+}
+
+// UserOption is type of functional option for UserService.
+type UserOption option
+
+// WithPassword returns option. the option sets `password` for user.
+func (*UserOptionService) WithPassword(password string) UserOption {
+	return UserOption(withPassword(password))
+}
+
+// WithName returns option. the option sets `password` for user.
+func (*UserOptionService) WithName(name string) UserOption {
+	return UserOption(withName(name))
+}
+
+// WithMailAddress returns option. the option sets `mailAddress` for user.
+func (*UserOptionService) WithMailAddress(mailAddress string) UserOption {
+	return UserOption(withMailAddress(mailAddress))
+}
+
+// WithRoleType returns option. the option sets `roleType` for user.
+func (*UserOptionService) WithRoleType(roleType int) UserOption {
+	return UserOption(withRoleType(roleType))
 }
 
 // WikiOption is type of functional option for WikiService.

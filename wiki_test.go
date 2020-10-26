@@ -614,9 +614,8 @@ func TestWikiService_Update_param(t *testing.T) {
 				},
 			}
 			s := backlog.ExportNewWikiService(cm)
-
-			option := s.Option
-			if _, err := s.Update(tc.wikiID, option.WithName(tc.name), option.WithContent(tc.content)); tc.wantError {
+			o := s.Option
+			if _, err := s.Update(tc.wikiID, o.WithName(tc.name), o.WithContent(tc.content)); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
