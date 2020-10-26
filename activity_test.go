@@ -111,10 +111,10 @@ func TestBaseActivityService_GetList(t *testing.T) {
 	aos := &backlog.ActivityOptionService{}
 	type want struct {
 		activityTypeID []string
-		minID          []string
-		maxID          []string
-		count          []string
-		order          []string
+		minID          string
+		maxID          string
+		count          string
+		order          string
 	}
 	cases := map[string]struct {
 		options   []backlog.ActivityOption
@@ -126,218 +126,106 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
+				minID:          "",
+				maxID:          "",
+				count:          "",
+				order:          "",
 			},
 		},
-		"WithActivityTypeIDs_[0]": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{0}),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithActivityTypeIDs_[1]": {
+		"WithActivityTypeIDs_valid": {
 			options: []backlog.ActivityOption{
 				aos.WithActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: []string{"1"},
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
+				minID:          "",
+				maxID:          "",
+				count:          "",
+				order:          "",
 			},
 		},
-		"WithActivityTypeIDs_[26]": {
+		"WithActivityTypeIDs_invalid": {
 			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{26}),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: []string{"26"},
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
-			},
-		},
-		"WithActivityTypeIDs_[27]": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{27}),
+				aos.WithActivityTypeIDs([]int{0}),
 			},
 			wantError: true,
 			want:      want{},
 		},
-		"WithActivityTypeIDs_[1...26]": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{
-					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-					14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-				}),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: []string{
-					"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
-					"14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
-				},
-				minID: nil,
-				maxID: nil,
-				count: nil,
-				order: nil,
-			},
-		},
-		"WithActivityTypeIDs_[0,1]": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{0, 1}),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithActivityTypeIDs_empty": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{}),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
-			},
-		},
-		"WithActivityTypeIDs_[1,1]": {
-			options: []backlog.ActivityOption{
-				aos.WithActivityTypeIDs([]int{1, 1}),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: []string{"1", "1"},
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
-			},
-		},
-		"WithMinID_0": {
-			options: []backlog.ActivityOption{
-				aos.WithMinID(0),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithMinID_1": {
+		"WithMinID_valid": {
 			options: []backlog.ActivityOption{
 				aos.WithMinID(1),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
-				minID:          []string{"1"},
-				maxID:          nil,
-				count:          nil,
-				order:          nil,
+				minID:          "1",
+				maxID:          "",
+				count:          "",
+				order:          "",
 			},
 		},
-		"WithMaxID_0": {
+		"WithMinID_invalid": {
 			options: []backlog.ActivityOption{
-				aos.WithMaxID(0),
+				aos.WithMinID(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
-		"WithMaxID_1": {
+		"WithMaxID_valid": {
 			options: []backlog.ActivityOption{
 				aos.WithMaxID(1),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
-				minID:          nil,
-				maxID:          []string{"1"},
-				count:          nil,
-				order:          nil,
+				minID:          "",
+				maxID:          "1",
+				count:          "",
+				order:          "",
 			},
 		},
-		"WithCount_0": {
+		"WithMaxID_invalid": {
 			options: []backlog.ActivityOption{
-				aos.WithCount(0),
+				aos.WithMaxID(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
-		"WithCount_1": {
+		"WithCount_valid": {
 			options: []backlog.ActivityOption{
 				aos.WithCount(1),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          []string{"1"},
-				order:          nil,
+				minID:          "",
+				maxID:          "",
+				count:          "1",
+				order:          "",
 			},
 		},
-		"WithCount_100": {
+		"WithCount_invalid": {
 			options: []backlog.ActivityOption{
-				aos.WithCount(100),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          []string{"100"},
-				order:          nil,
-			},
-		},
-		"WithCount_101": {
-			options: []backlog.ActivityOption{
-				aos.WithCount(101),
+				aos.WithCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
-		"WithOrder_asc": {
+		"WithOrder_valid": {
 			options: []backlog.ActivityOption{
 				aos.WithOrder(backlog.OrderAsc),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          []string{backlog.OrderAsc},
+				minID:          "",
+				maxID:          "",
+				count:          "",
+				order:          backlog.OrderAsc,
 			},
 		},
-		"WithOrder_desc": {
-			options: []backlog.ActivityOption{
-				aos.WithOrder(backlog.OrderDesc),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          nil,
-				maxID:          nil,
-				count:          nil,
-				order:          []string{backlog.OrderDesc},
-			},
-		},
-		"WithOrder_empty": {
-			options: []backlog.ActivityOption{
-				aos.WithOrder(""),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithOrder_invalied": {
+		"WithOrder_invalid": {
 			options: []backlog.ActivityOption{
 				aos.WithOrder("test"),
 			},
@@ -355,14 +243,13 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			wantError: false,
 			want: want{
 				activityTypeID: []string{"1", "2"},
-				minID:          []string{"1"},
-				maxID:          []string{"100"},
-				count:          []string{"20"},
-				order:          []string{backlog.OrderAsc},
+				minID:          "1",
+				maxID:          "100",
+				count:          "20",
+				order:          backlog.OrderAsc,
 			},
 		},
 	}
-
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -376,10 +263,10 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					v := *params.ExportURLValues()
 					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
-					assert.Equal(t, tc.want.minID, v["minId"])
-					assert.Equal(t, tc.want.maxID, v["maxId"])
-					assert.Equal(t, tc.want.count, v["count"])
-					assert.Equal(t, tc.want.order, v["order"])
+					assert.Equal(t, tc.want.minID, params.Get("minId"))
+					assert.Equal(t, tc.want.maxID, params.Get("maxId"))
+					assert.Equal(t, tc.want.count, params.Get("count"))
+					assert.Equal(t, tc.want.order, params.Get("order"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
