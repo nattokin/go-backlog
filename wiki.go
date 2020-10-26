@@ -69,6 +69,10 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
+	if wikiID <= 0 {
+		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	}
+
 	spath := "wikis/" + strconv.Itoa(wikiID)
 	resp, err := s.clientMethod.Get(spath, nil)
 	if err != nil {

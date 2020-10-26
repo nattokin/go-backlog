@@ -8,6 +8,52 @@ import (
 
 type option func(p *requestParams) error
 
+func withActivityTypeIDs(typeIDs []int) option {
+	return func(p *requestParams) error {
+		for _, id := range typeIDs {
+			if id < 1 || 26 < id {
+				return errors.New("activityTypeId must be between 1 and 26")
+			}
+			p.Add("activityTypeId[]", strconv.Itoa(id))
+		}
+		return nil
+	}
+}
+
+func withArchived(archived bool) option {
+	return func(p *requestParams) error {
+		p.Set("archived", strconv.FormatBool(archived))
+		return nil
+	}
+}
+
+func withChartEnabled(enabeld bool) option {
+	return func(p *requestParams) error {
+		p.Set("chartEnabled", strconv.FormatBool(enabeld))
+		return nil
+	}
+}
+
+func withContent(content string) option {
+	return func(p *requestParams) error {
+		if content == "" {
+			return errors.New("content must not be empty")
+		}
+		p.Set("content", content)
+		return nil
+	}
+}
+
+func withCount(count int) option {
+	return func(p *requestParams) error {
+		if count < 1 || 100 < count {
+			return errors.New("count must be between 1 and 100")
+		}
+		p.Set("count", strconv.Itoa(count))
+		return nil
+	}
+}
+
 func withKey(key string) option {
 	return func(p *requestParams) error {
 		if key == "" {
@@ -28,16 +74,6 @@ func withName(name string) option {
 	}
 }
 
-func withContent(content string) option {
-	return func(p *requestParams) error {
-		if content == "" {
-			return errors.New("content must not be empty")
-		}
-		p.Set("content", content)
-		return nil
-	}
-}
-
 func withMailNotify(enabeld bool) option {
 	return func(p *requestParams) error {
 		p.Set("mailNotify", strconv.FormatBool(enabeld))
@@ -45,16 +81,32 @@ func withMailNotify(enabeld bool) option {
 	}
 }
 
-func withChartEnabled(enabeld bool) option {
+func withMaxID(maxID int) option {
 	return func(p *requestParams) error {
-		p.Set("chartEnabled", strconv.FormatBool(enabeld))
+		if maxID < 1 {
+			return errors.New("maxId must be greater than 1")
+		}
+		p.Set("maxId", strconv.Itoa(maxID))
 		return nil
 	}
 }
 
-func withSubtaskingEnabled(enabeld bool) option {
+func withMinID(minID int) option {
 	return func(p *requestParams) error {
-		p.Set("subtaskingEnabled", strconv.FormatBool(enabeld))
+		if minID < 1 {
+			return errors.New("minId must be greater than 1")
+		}
+		p.Set("minId", strconv.Itoa(minID))
+		return nil
+	}
+}
+
+func withOrder(order string) option {
+	return func(p *requestParams) error {
+		if order != OrderAsc && order != OrderDesc {
+			return fmt.Errorf("order must be only '%s' or '%s'", OrderAsc, OrderDesc)
+		}
+		p.Set("order", order)
 		return nil
 	}
 }
@@ -62,6 +114,13 @@ func withSubtaskingEnabled(enabeld bool) option {
 func withProjectLeaderCanEditProjectLeader(enabeld bool) option {
 	return func(p *requestParams) error {
 		p.Set("projectLeaderCanEditProjectLeader", strconv.FormatBool(enabeld))
+		return nil
+	}
+}
+
+func withSubtaskingEnabled(enabeld bool) option {
+	return func(p *requestParams) error {
+		p.Set("subtaskingEnabled", strconv.FormatBool(enabeld))
 		return nil
 	}
 }
@@ -76,11 +135,32 @@ func withTextFormattingRule(format string) option {
 	}
 }
 
-func withArchived(archived bool) option {
-	return func(p *requestParams) error {
-		p.Set("archived", strconv.FormatBool(archived))
-		return nil
-	}
+// ActivityOption is type of functional option for ActivityService.
+type ActivityOption func(p *requestParams) error
+
+// WithActivityTypeIDs returns option. the option sets `activityTypeId` for user.
+func (*ActivityOptionService) WithActivityTypeIDs(typeIDs []int) ActivityOption {
+	return ActivityOption(withActivityTypeIDs(typeIDs))
+}
+
+// WithMinID returns option. the option sets `minId` for user.
+func (*ActivityOptionService) WithMinID(minID int) ActivityOption {
+	return ActivityOption(withMinID(minID))
+}
+
+// WithMaxID returns option. the option sets `maxId` for user.
+func (*ActivityOptionService) WithMaxID(maxID int) ActivityOption {
+	return ActivityOption(withMaxID(maxID))
+}
+
+// WithCount returns option. the option sets `count` for user.
+func (*ActivityOptionService) WithCount(count int) ActivityOption {
+	return ActivityOption(withCount(count))
+}
+
+// WithOrder returns option. the option sets `order` for user.
+func (*ActivityOptionService) WithOrder(order string) ActivityOption {
+	return ActivityOption(withOrder(order))
 }
 
 // ProjectOption is type of functional option for ProjectService.
