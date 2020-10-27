@@ -448,19 +448,161 @@ func TestProjectOptionService_WithArchived(t *testing.T) {
 }
 
 func TestUserOptionService_WithPassword(t *testing.T) {
-	// TODO
+	o := backlog.UserOptionService{}
+
+	cases := map[string]struct {
+		password  string
+		wantError bool
+	}{
+		"valid-1": {
+			password:  "password",
+			wantError: false,
+		},
+		"valid-2": {
+			password:  "@password#1234",
+			wantError: false,
+		},
+		"empty": {
+			password:  "",
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithPassword(tc.password)
+			params := backlog.ExportNewRequestParams()
+
+			if err := option(params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.password, params.Get("password"))
+			}
+		})
+	}
 }
 
 func TestUserOptionService_WithName(t *testing.T) {
-	// TODO
+	o := backlog.UserOptionService{}
+
+	cases := map[string]struct {
+		name      string
+		wantError bool
+	}{
+		"valid": {
+			name:      "test",
+			wantError: false,
+		},
+		"empty": {
+			name:      "",
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithName(tc.name)
+			params := backlog.ExportNewRequestParams()
+
+			if err := option(params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.name, params.Get("name"))
+			}
+		})
+	}
 }
 
 func TestUserOptionService_withMailAddress(t *testing.T) {
-	// TODO
+	o := backlog.UserOptionService{}
+
+	cases := map[string]struct {
+		mailAddress string
+		wantError   bool
+	}{
+		"valid-1": {
+			mailAddress: "mail@test.com",
+			wantError:   false,
+		},
+		"valid-2": {
+			mailAddress: "mail_test@test.com",
+			wantError:   false,
+		},
+		"valid-3": {
+			mailAddress: "mail-test@test.com",
+			wantError:   false,
+		},
+		// TODO
+		// "inalid": {
+		// 	mailAddress:  "test",
+		// 	wantError: true,
+		// },
+		"empty": {
+			mailAddress: "",
+			wantError:   true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithMailAddress(tc.mailAddress)
+			params := backlog.ExportNewRequestParams()
+
+			if err := option(params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.mailAddress, params.Get("mailAddress"))
+			}
+		})
+	}
 }
 
 func TestUserOptionService_WithRoleType(t *testing.T) {
-	// TODO
+	o := backlog.UserOptionService{}
+
+	cases := map[string]struct {
+		roleType backlog.ExportRole
+		want     string
+	}{
+		"RoleAdministrator": {
+			roleType: backlog.RoleAdministrator,
+			want:     "1",
+		},
+		"RoleNormalUser": {
+			roleType: backlog.RoleNormalUser,
+			want:     "2",
+		},
+		"RoleReporter": {
+			roleType: backlog.RoleReporter,
+			want:     "3",
+		},
+		"Viewer": {
+			roleType: backlog.RoleViewer,
+			want:     "4",
+		},
+		"RoleGuestReporter": {
+			roleType: backlog.RoleGuestReporter,
+			want:     "5",
+		},
+		"RoleGuestViewer": {
+			roleType: backlog.RoleGuestViewer,
+			want:     "6",
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithRoleType(tc.roleType)
+			params := backlog.ExportNewRequestParams()
+
+			err := option(params)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.want, params.Get("roleType"))
+		})
+	}
 }
 
 func TestWikiOptionService_WithName(t *testing.T) {

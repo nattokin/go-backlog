@@ -115,7 +115,7 @@ func (s *UserService) Own() (*User, error) {
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(userID, password, name, mailAddress string, roleType int) (*User, error) {
+func (s *UserService) Add(userID, password, name, mailAddress string, roleType role) (*User, error) {
 	if userID == "" {
 		return nil, errors.New("userID must not be empty")
 	}
@@ -128,16 +128,13 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType i
 	if mailAddress == "" {
 		return nil, errors.New("mailAddress must not be empty")
 	}
-	if roleType < 1 || 6 < roleType {
-		return nil, errors.New("roleType must be between 1 and 7")
-	}
 
 	params := newRequestParams()
 	params.Add("userId", userID)
 	params.Add("password", password)
 	params.Add("name", name)
 	params.Add("mailAddress", mailAddress)
-	params.Add("roleType", strconv.Itoa(roleType))
+	params.Add("roleType", strconv.Itoa(int(roleType)))
 
 	spath := "users"
 	return addUser(s.clientMethod.Post, spath, params)

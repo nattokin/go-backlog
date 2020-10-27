@@ -139,12 +139,9 @@ func withProjectLeaderCanEditProjectLeader(enabeld bool) option {
 	}
 }
 
-func withRoleType(roleType int) option {
+func withRoleType(roleType role) option {
 	return func(p *requestParams) error {
-		if roleType < 1 || 6 < roleType {
-			return errors.New("roleType must be between 1 and 7")
-		}
-		p.Add("roleType", strconv.Itoa(roleType))
+		p.Add("roleType", strconv.Itoa(int(roleType)))
 		return nil
 	}
 }
@@ -251,7 +248,7 @@ func (*UserOptionService) WithMailAddress(mailAddress string) UserOption {
 }
 
 // WithRoleType returns option. the option sets `roleType` for user.
-func (*UserOptionService) WithRoleType(roleType int) UserOption {
+func (*UserOptionService) WithRoleType(roleType role) UserOption {
 	return UserOption(withRoleType(roleType))
 }
 
