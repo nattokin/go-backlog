@@ -141,6 +141,9 @@ func withProjectLeaderCanEditProjectLeader(enabeld bool) option {
 
 func withRoleType(roleType role) option {
 	return func(p *requestParams) error {
+		if roleType < 1 || 6 < roleType {
+			return errors.New("roleType must be between 1 and 7")
+		}
 		p.Add("roleType", strconv.Itoa(int(roleType)))
 		return nil
 	}
@@ -153,12 +156,12 @@ func withSubtaskingEnabled(enabeld bool) option {
 	}
 }
 
-func withTextFormattingRule(format string) option {
+func withTextFormattingRule(format format) option {
 	return func(p *requestParams) error {
 		if format != FormatBacklog && format != FormatMarkdown {
 			return fmt.Errorf("format must be only '%s' or '%s'", FormatBacklog, FormatMarkdown)
 		}
-		p.Set("textFormattingRule", format)
+		p.Set("textFormattingRule", string(format))
 		return nil
 	}
 }
@@ -220,7 +223,7 @@ func (*ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabeld bool)
 }
 
 // WithTextFormattingRule returns option. the option sets `textFormattingRule` for project.
-func (*ProjectOptionService) WithTextFormattingRule(format string) ProjectOption {
+func (*ProjectOptionService) WithTextFormattingRule(format format) ProjectOption {
 	return ProjectOption(withTextFormattingRule(format))
 }
 

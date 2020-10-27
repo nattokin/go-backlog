@@ -150,12 +150,6 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 
 	params := newRequestParams()
 
-	// Set default options.
-	params.Set("chartEnabled", "false")
-	params.Set("subtaskingEnabled", "false")
-	params.Set("projectLeaderCanEditProjectLeader", "false")
-	params.Set("textFormattingRule", FormatMarkdown)
-
 	for _, option := range options {
 		if err := option(params); err != nil {
 			return nil, err

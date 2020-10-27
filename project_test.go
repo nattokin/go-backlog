@@ -507,13 +507,13 @@ func TestProjectService_Create_option(t *testing.T) {
 			options:   []backlog.ProjectOption{},
 			wantError: false,
 			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
+				chartEnabled:                      "",
+				subtaskingEnabled:                 "",
+				projectLeaderCanEditProjectLeader: "",
+				textFormattingRule:                "",
 			},
 		},
-		"option-1": {
+		"valid": {
 			options: []backlog.ProjectOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
@@ -525,25 +525,10 @@ func TestProjectService_Create_option(t *testing.T) {
 				chartEnabled:                      "true",
 				subtaskingEnabled:                 "true",
 				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                backlog.FormatBacklog,
+				textFormattingRule:                "backlog",
 			},
 		},
-		"option-2": {
-			options: []backlog.ProjectOption{
-				o.WithChartEnabled(false),
-				o.WithSubtaskingEnabled(false),
-				o.WithProjectLeaderCanEditProjectLeader(false),
-				o.WithTextFormattingRule(backlog.FormatMarkdown),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-error": {
+		"invalid": {
 			options: []backlog.ProjectOption{
 				o.WithChartEnabled(false),
 				o.WithSubtaskingEnabled(false),
@@ -568,7 +553,7 @@ func TestProjectService_Create_option(t *testing.T) {
 					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
 					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
 					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, tc.want.textFormattingRule, params.Get("textFormattingRule"))
+					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -713,7 +698,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		chartEnabled                      string
 		subtaskingEnabled                 string
 		projectLeaderCanEditProjectLeader string
-		textFormattingRule                string
+		textFormattingRule                backlog.ExportFormat
 		archived                          string
 	}
 	cases := map[string]struct {
@@ -793,7 +778,7 @@ func TestProjectService_Update_option(t *testing.T) {
 					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
 					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
 					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, tc.want.textFormattingRule, params.Get("textFormattingRule"))
+					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
 					assert.Equal(t, tc.want.archived, params.Get("archived"))
 
 					resp := &http.Response{

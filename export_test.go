@@ -6,7 +6,8 @@ import (
 )
 
 type (
-	ExportRole = role
+	ExportRole   = role
+	ExportFormat = format
 )
 
 type (

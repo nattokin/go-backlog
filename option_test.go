@@ -386,7 +386,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
-		format    string
+		format    backlog.ExportFormat
 		wantError bool
 	}{
 		"backlog": {
@@ -416,7 +416,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.format, params.Get("textFormattingRule"))
+				assert.Equal(t, string(tc.format), params.Get("textFormattingRule"))
 			}
 		})
 	}
@@ -564,32 +564,49 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 	o := backlog.UserOptionService{}
 
 	cases := map[string]struct {
-		roleType backlog.ExportRole
-		want     string
+		roleType  backlog.ExportRole
+		want      string
+		wantError bool
 	}{
 		"RoleAdministrator": {
-			roleType: backlog.RoleAdministrator,
-			want:     "1",
+			roleType:  backlog.RoleAdministrator,
+			want:      "1",
+			wantError: false,
 		},
 		"RoleNormalUser": {
-			roleType: backlog.RoleNormalUser,
-			want:     "2",
+			roleType:  backlog.RoleNormalUser,
+			want:      "2",
+			wantError: false,
 		},
 		"RoleReporter": {
-			roleType: backlog.RoleReporter,
-			want:     "3",
+			roleType:  backlog.RoleReporter,
+			want:      "3",
+			wantError: false,
 		},
 		"Viewer": {
-			roleType: backlog.RoleViewer,
-			want:     "4",
+			roleType:  backlog.RoleViewer,
+			want:      "4",
+			wantError: false,
 		},
 		"RoleGuestReporter": {
-			roleType: backlog.RoleGuestReporter,
-			want:     "5",
+			roleType:  backlog.RoleGuestReporter,
+			want:      "5",
+			wantError: false,
 		},
 		"RoleGuestViewer": {
-			roleType: backlog.RoleGuestViewer,
-			want:     "6",
+			roleType:  backlog.RoleGuestViewer,
+			want:      "6",
+			wantError: false,
+		},
+		"invalid-1": {
+			roleType:  0,
+			want:      "6",
+			wantError: true,
+		},
+		"invalid-2": {
+			roleType:  -1,
+			want:      "6",
+			wantError: true,
 		},
 	}
 	for n, tc := range cases {
@@ -598,9 +615,12 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 			option := o.WithRoleType(tc.roleType)
 			params := backlog.ExportNewRequestParams()
 
-			err := option(params)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.want, params.Get("roleType"))
+			if err := option(params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.want, params.Get("roleType"))
+			}
 		})
 	}
 }

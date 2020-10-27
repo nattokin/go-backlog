@@ -213,7 +213,7 @@ type Project struct {
 	ChartEnabled                      bool   `json:"chartEnabled,omitempty"`
 	SubtaskingEnabled                 bool   `json:"subtaskingEnabled,omitempty"`
 	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
-	TextFormattingRule                string `json:"textFormattingRule,omitempty"`
+	TextFormattingRule                format `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
@@ -286,7 +286,7 @@ type Space struct {
 	Lang               string    `json:"lang,omitempty"`
 	Timezone           string    `json:"timezone,omitempty"`
 	ReportSendTime     string    `json:"reportSendTime,omitempty"`
-	TextFormattingRule string    `json:"textFormattingRule,omitempty"`
+	TextFormattingRule format    `json:"textFormattingRule,omitempty"`
 	Created            time.Time `json:"created,omitempty"`
 	Updated            time.Time `json:"updated,omitempty"`
 }
@@ -403,4 +403,38 @@ type WikiHistory struct {
 	Content     string    `json:"content,omitempty"`
 	CreatedUser *User     `json:"createdUser,omitempty"`
 	Created     time.Time `json:"created,omitempty"`
+}
+
+type format string
+
+func (f format) String() string {
+	switch f {
+	case FormatMarkdown:
+		return "Markdown"
+	case FormatBacklog:
+		return "Backlog"
+	default:
+		return "unknown"
+	}
+}
+
+type role int
+
+func (r role) String() string {
+	switch r {
+	case RoleAdministrator:
+		return "Administrator"
+	case RoleNormalUser:
+		return "NormalUser"
+	case RoleReporter:
+		return "Reporter"
+	case RoleViewer:
+		return "Viewer"
+	case RoleGuestReporter:
+		return "RoleGuestReporter"
+	case RoleGuestViewer:
+		return "RoleGuestViewer"
+	default:
+		return "unknown"
+	}
 }
