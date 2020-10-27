@@ -8,8 +8,8 @@ const (
 
 // Fomat of Backlog wiki
 const (
-	FormatMarkdown = "markdown"
-	FormatBacklog  = "backlog"
+	FormatMarkdown format = "markdown"
+	FormatBacklog  format = "backlog"
 )
 
 // Role type
@@ -22,24 +22,3 @@ const (
 	RoleGuestReporter
 	RoleGuestViewer
 )
-
-type role int
-
-func (r role) String() string {
-	switch r {
-	case RoleAdministrator:
-		return "Administrator"
-	case RoleNormalUser:
-		return "NormalUser"
-	case RoleReporter:
-		return "Reporter"
-	case RoleViewer:
-		return "Viewer"
-	case RoleGuestReporter:
-		return "RoleGuestReporter"
-	case RoleGuestViewer:
-		return "RoleGuestViewer"
-	default:
-		return "unknown"
-	}
-}
