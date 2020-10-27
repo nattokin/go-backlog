@@ -431,9 +431,9 @@ func (r role) String() string {
 	case RoleViewer:
 		return "Viewer"
 	case RoleGuestReporter:
-		return "RoleGuestReporter"
+		return "GuestReporter"
 	case RoleGuestViewer:
-		return "RoleGuestViewer"
+		return "GuestViewer"
 	default:
 		return "unknown"
 	}

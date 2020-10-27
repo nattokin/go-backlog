@@ -159,7 +159,7 @@ func withSubtaskingEnabled(enabeld bool) option {
 func withTextFormattingRule(format format) option {
 	return func(p *requestParams) error {
 		if format != FormatBacklog && format != FormatMarkdown {
-			return fmt.Errorf("format must be only '%s' or '%s'", FormatBacklog, FormatMarkdown)
+			return fmt.Errorf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
 		}
 		p.Set("textFormattingRule", string(format))
 		return nil

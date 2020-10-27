@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -19,11 +19,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.Delete(1234)
+	// ID or Key of the project.
+	projectID := 12345
+	// projectKey := "ProjectKey"
+
+	// Get count of how many Wiki in project.
+	count, err := c.Wiki.Count(backlog.ProjectID(projectID))
+	// count, err := c.Wiki.Count(backlog.ProjectKey(projectKey))
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Response
-	fmt.Printf("%#v\n", r)
+	// Output the number of count.
+	fmt.Printf("%d\n", count)
 }

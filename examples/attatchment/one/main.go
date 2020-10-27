@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -19,11 +19,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fpath := "/path/to/test.txt"
-	fname := "name.txt"
-	r, err := c.Wiki.Attachment.Uploade(fpath, fname)
+	r, err := c.Wiki.One(12345)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln(err)
 	}
 
 	// Response
