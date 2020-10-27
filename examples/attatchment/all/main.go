@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -13,14 +13,20 @@ func main() {
 	// The tokun for request to Backlog API.
 	token := "BACKLOG_TOKEN"
 
+	// Create Backlog API client.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.Update(1234, c.Wiki.Option.WithName("changed name"), c.Wiki.Option.WithContent("changed content"))
+	// You get all attachments of the Wiki.
+	r, err := c.Wiki.Attachment.List(12345)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Printf("%#v\n", r)
+
+	// Response
+	for _, a := range r {
+		fmt.Printf("%#v\n", a)
+	}
 }

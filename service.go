@@ -39,11 +39,13 @@ func newAttachmentService(cm *clientMethod) *AttachmentService {
 // ActivityService has methods for Activitys.
 type ActivityService struct {
 	clientMethod *clientMethod
+	Option       *ActivityOptionService
 }
 
 func newActivityService(cm *clientMethod) *ActivityService {
 	return &ActivityService{
 		clientMethod: cm,
+		Option:       &ActivityOptionService{},
 	}
 }
 

@@ -7,39 +7,6 @@ import (
 	"strconv"
 )
 
-// WikiOption is type of functional option for WikiService.
-type WikiOption func(p *requestParams) error
-
-// WithName returns option. the option sets `name` for wiki.
-func (*WikiOptionService) WithName(name string) WikiOption {
-	return func(p *requestParams) error {
-		if name == "" {
-			return errors.New("[*wikiOptionService.WithName] name must not be empty")
-		}
-		p.Set("name", name)
-		return nil
-	}
-}
-
-// WithContent returns option. the option sets `content` for wiki.
-func (*WikiOptionService) WithContent(content string) WikiOption {
-	return func(p *requestParams) error {
-		if content == "" {
-			return errors.New("[*wikiOptionService.WithContent] content must not be empty")
-		}
-		p.Set("content", content)
-		return nil
-	}
-}
-
-// WithMailNotify returns option. the option sets `mailNotify` true for wiki.
-func (*WikiOptionService) WithMailNotify() WikiOption {
-	return func(p *requestParams) error {
-		p.Set("mailNotify", "true")
-		return nil
-	}
-}
-
 // All Wiki in project is gotten.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
@@ -102,6 +69,10 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
+	if wikiID <= 0 {
+		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	}
+
 	spath := "wikis/" + strconv.Itoa(wikiID)
 	resp, err := s.clientMethod.Get(spath, nil)
 	if err != nil {

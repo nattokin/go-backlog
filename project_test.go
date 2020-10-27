@@ -437,274 +437,25 @@ func TestProjectService_Create(t *testing.T) {
 }
 
 func TestProjectService_Create_param(t *testing.T) {
-	ops := &backlog.ProjectOptionService{}
-	type options struct {
-		chartEnabled                      string
-		subtaskingEnabled                 string
-		projectLeaderCanEditProjectLeader string
-		textFormattingRule                string
-	}
 	cases := map[string]struct {
 		key       string
 		name      string
-		options   []backlog.ProjectOption
 		wantError bool
-		want      options
 	}{
 		"no-option": {
 			key:       "TEST",
 			name:      "test",
-			options:   []backlog.ProjectOption{},
 			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
 		},
 		"key_empty": {
 			key:       "",
 			name:      "test",
-			options:   []backlog.ProjectOption{},
 			wantError: true,
-			want:      options{},
 		},
 		"name_empty": {
 			key:       "TEST",
 			name:      "",
-			options:   []backlog.ProjectOption{},
 			wantError: true,
-			want:      options{},
-		},
-		"option-chartEnabled_true": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(true),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "true",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-chartEnabled_false": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(false),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-subtaskingEnabled_true": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithSubtaskingEnabled(true),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "true",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-subtaskingEnabled_false": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithSubtaskingEnabled(false),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-projectLeaderCanEditProjectLeader_true": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-projectLeaderCanEditProjectLeader_false": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-textFormattingRule_backlog": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatBacklog,
-			},
-		},
-		"option-textFormattingRule_markdown": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"option-textFormattingRule_error": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule("error"),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"multi-option-1": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(true),
-				ops.WithSubtaskingEnabled(true),
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "true",
-				subtaskingEnabled:                 "true",
-				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                backlog.FormatBacklog,
-			},
-		},
-		"multi-option-2": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"invalid-option-key": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithKey("OPTION"),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"invalid-option-name": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithName("option"),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"invalid-option-key_empty": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithKey(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"invalid-option-name_empty": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithName(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"invalid-option-archived_true": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithArchived(true),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
-		},
-		"invalid-option-archived_false": {
-			key:  "TEST",
-			name: "test",
-			options: []backlog.ProjectOption{
-				ops.WithArchived(false),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-			},
 		},
 	}
 	for n, tc := range cases {
@@ -718,16 +469,8 @@ func TestProjectService_Create_param(t *testing.T) {
 
 			cm := &backlog.ExportClientMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					// Check options.
-					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
-					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
-					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, tc.want.textFormattingRule, params.Get("textFormattingRule"))
-
-					// Check that invalid options are disabled.
 					assert.Equal(t, tc.key, params.Get("key"))
 					assert.Equal(t, tc.name, params.Get("name"))
-					assert.Empty(t, params.Get("archived"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -738,7 +481,90 @@ func TestProjectService_Create_param(t *testing.T) {
 			}
 			s := backlog.ExportNewProjectService(cm)
 
-			if _, err := s.Create(tc.key, tc.name, tc.options...); tc.wantError {
+			if _, err := s.Create(tc.key, tc.name); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+		})
+	}
+}
+
+func TestProjectService_Create_option(t *testing.T) {
+	o := &backlog.ProjectOptionService{}
+	type options struct {
+		chartEnabled                      string
+		subtaskingEnabled                 string
+		projectLeaderCanEditProjectLeader string
+		textFormattingRule                string
+	}
+	cases := map[string]struct {
+		options   []backlog.ProjectOption
+		wantError bool
+		want      options
+	}{
+		"no-option": {
+			options:   []backlog.ProjectOption{},
+			wantError: false,
+			want: options{
+				chartEnabled:                      "",
+				subtaskingEnabled:                 "",
+				projectLeaderCanEditProjectLeader: "",
+				textFormattingRule:                "",
+			},
+		},
+		"valid": {
+			options: []backlog.ProjectOption{
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(backlog.FormatBacklog),
+			},
+			wantError: false,
+			want: options{
+				chartEnabled:                      "true",
+				subtaskingEnabled:                 "true",
+				projectLeaderCanEditProjectLeader: "true",
+				textFormattingRule:                "backlog",
+			},
+		},
+		"invalid": {
+			options: []backlog.ProjectOption{
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule("invalid"),
+			},
+			wantError: true,
+			want:      options{},
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/project.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			cm := &backlog.ExportClientMethod{
+				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
+					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
+					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
+					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
+
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return backlog.ExportNewResponse(resp), nil
+				},
+			}
+			s := backlog.ExportNewProjectService(cm)
+
+			if _, err := s.Create("TEST", "test", tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
@@ -790,11 +616,11 @@ func TestProjectService_Update(t *testing.T) {
 	defer bj.Close()
 
 	want := struct {
-		spath string
-		key   string
+		spath      string
+		projectKey string
 	}{
-		spath: "projects/" + projectKey,
-		key:   projectKey,
+		spath:      "projects/" + projectKey,
+		projectKey: projectKey,
 	}
 	cm := &backlog.ExportClientMethod{
 		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
@@ -810,237 +636,29 @@ func TestProjectService_Update(t *testing.T) {
 	s := backlog.ExportNewProjectService(cm)
 	project, err := s.Update(backlog.ProjectKey((projectKey)))
 	assert.Nil(t, err)
-	assert.Equal(t, want.key, project.ProjectKey)
+	assert.Equal(t, want.projectKey, project.ProjectKey)
 }
 
 func TestProjectService_Update_param(t *testing.T) {
-	ops := &backlog.ProjectOptionService{}
-	type options struct {
-		key                               string
-		name                              string
-		chartEnabled                      string
-		subtaskingEnabled                 string
-		projectLeaderCanEditProjectLeader string
-		textFormattingRule                string
-		archived                          string
-	}
 	cases := map[string]struct {
 		projectIDOrKey backlog.ProjectIDOrKeyGetter
-		options        []backlog.ProjectOption
 		wantError      bool
-		want           options
 	}{
 		"projectIDOrKey_string": {
 			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options:        []backlog.ProjectOption{},
 			wantError:      false,
-			want:           options{},
 		},
 		"projectIDOrKey_number": {
 			projectIDOrKey: backlog.ProjectID(1234),
-			options:        []backlog.ProjectOption{},
 			wantError:      false,
-			want:           options{},
 		},
 		"projectIDOrKey_empty": {
 			projectIDOrKey: backlog.ProjectKey(""),
-			options:        []backlog.ProjectOption{},
 			wantError:      true,
-			want:           options{},
 		},
 		"projectIDOrKey_zero": {
 			projectIDOrKey: backlog.ProjectID(0),
-			options:        []backlog.ProjectOption{},
 			wantError:      true,
-			want:           options{},
-		},
-		"option-key": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithKey("TEST1"),
-			},
-			wantError: false,
-			want: options{
-				key: "TEST1",
-			},
-		},
-		"option-name": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithName("test1"),
-			},
-			wantError: false,
-			want: options{
-				name: "test1",
-			},
-		},
-		"option-key_empty": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithKey(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"option-name_empty": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithName(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"option-chartEnabled_true": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(true),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled: "true",
-			},
-		},
-		"option-chartEnabled_false": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithChartEnabled(false),
-			},
-			wantError: false,
-			want: options{
-				chartEnabled: "false",
-			},
-		},
-		"option-subtaskingEnabled_true": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithSubtaskingEnabled(true),
-			},
-			wantError: false,
-			want: options{
-				subtaskingEnabled: "true",
-			},
-		},
-		"option-subtaskingEnabled_false": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithSubtaskingEnabled(false),
-			},
-			wantError: false,
-			want: options{
-				subtaskingEnabled: "false",
-			},
-		},
-		"option-projectLeaderCanEditProjectLeader_true": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-			},
-			wantError: false,
-			want: options{
-				projectLeaderCanEditProjectLeader: "true",
-			},
-		},
-		"option-projectLeaderCanEditProjectLeader_false": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-			},
-			wantError: false,
-			want: options{
-				projectLeaderCanEditProjectLeader: "false",
-			},
-		},
-		"option-textFormattingRule_backlog": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
-			},
-			wantError: false,
-			want: options{
-				textFormattingRule: backlog.FormatBacklog,
-			},
-		},
-		"option-textFormattingRule_markdown": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
-			},
-			wantError: false,
-			want: options{
-				textFormattingRule: backlog.FormatMarkdown,
-			},
-		},
-		"option-textFormattingRule_error": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithTextFormattingRule("error"),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"multi-option-1": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithKey("TEST1"),
-				ops.WithName("test1"),
-				ops.WithChartEnabled(true),
-				ops.WithSubtaskingEnabled(true),
-				ops.WithProjectLeaderCanEditProjectLeader(true),
-				ops.WithTextFormattingRule(backlog.FormatBacklog),
-				ops.WithArchived(true),
-			},
-			wantError: false,
-			want: options{
-				key:                               "TEST1",
-				name:                              "test1",
-				chartEnabled:                      "true",
-				subtaskingEnabled:                 "true",
-				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                backlog.FormatBacklog,
-				archived:                          "true",
-			},
-		},
-		"multi-option-2": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithKey("TEST2"),
-				ops.WithName("test2"),
-				ops.WithChartEnabled(false),
-				ops.WithSubtaskingEnabled(false),
-				ops.WithProjectLeaderCanEditProjectLeader(false),
-				ops.WithTextFormattingRule(backlog.FormatMarkdown),
-				ops.WithArchived(false),
-			},
-			wantError: false,
-			want: options{
-				key:                               "TEST2",
-				name:                              "test2",
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-				archived:                          "false",
-			},
-		},
-		"option-archived_true": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithArchived(true),
-			},
-			wantError: false,
-			want: options{
-				archived: "true",
-			},
-		},
-		"option-archived_false": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
-			options: []backlog.ProjectOption{
-				ops.WithArchived(false),
-			},
-			wantError: false,
-			want: options{
-				archived: "false",
-			},
 		},
 	}
 	for n, tc := range cases {
@@ -1054,13 +672,113 @@ func TestProjectService_Update_param(t *testing.T) {
 
 			cm := &backlog.ExportClientMethod{
 				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-					// Check options.
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return backlog.ExportNewResponse(resp), nil
+				},
+			}
+			s := backlog.ExportNewProjectService(cm)
+
+			if _, err := s.Update(tc.projectIDOrKey); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+		})
+	}
+}
+
+func TestProjectService_Update_option(t *testing.T) {
+	o := &backlog.ProjectOptionService{}
+	type options struct {
+		key                               string
+		name                              string
+		chartEnabled                      string
+		subtaskingEnabled                 string
+		projectLeaderCanEditProjectLeader string
+		textFormattingRule                backlog.ExportFormat
+		archived                          string
+	}
+	cases := map[string]struct {
+		options   []backlog.ProjectOption
+		wantError bool
+		want      options
+	}{
+		"option-1": {
+			options: []backlog.ProjectOption{
+				o.WithKey("TEST1"),
+				o.WithName("test1"),
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(backlog.FormatBacklog),
+				o.WithArchived(true),
+			},
+			wantError: false,
+			want: options{
+				key:                               "TEST1",
+				name:                              "test1",
+				chartEnabled:                      "true",
+				subtaskingEnabled:                 "true",
+				projectLeaderCanEditProjectLeader: "true",
+				textFormattingRule:                backlog.FormatBacklog,
+				archived:                          "true",
+			},
+		},
+		"option-2": {
+			options: []backlog.ProjectOption{
+				o.WithKey("TEST2"),
+				o.WithName("test2"),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule(backlog.FormatMarkdown),
+				o.WithArchived(false),
+			},
+			wantError: false,
+			want: options{
+				key:                               "TEST2",
+				name:                              "test2",
+				chartEnabled:                      "false",
+				subtaskingEnabled:                 "false",
+				projectLeaderCanEditProjectLeader: "false",
+				textFormattingRule:                backlog.FormatMarkdown,
+				archived:                          "false",
+			},
+		},
+		"option-error": {
+			options: []backlog.ProjectOption{
+				o.WithKey(""),
+				o.WithName(""),
+				o.WithChartEnabled(false),
+				o.WithSubtaskingEnabled(false),
+				o.WithProjectLeaderCanEditProjectLeader(false),
+				o.WithTextFormattingRule("invalid"),
+				o.WithArchived(false),
+			},
+			wantError: true,
+			want:      options{},
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/project.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			cm := &backlog.ExportClientMethod{
+				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					assert.Equal(t, tc.want.key, params.Get("key"))
 					assert.Equal(t, tc.want.name, params.Get("name"))
 					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
 					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
 					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, tc.want.textFormattingRule, params.Get("textFormattingRule"))
+					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
 					assert.Equal(t, tc.want.archived, params.Get("archived"))
 
 					resp := &http.Response{
@@ -1072,7 +790,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			}
 			s := backlog.ExportNewProjectService(cm)
 
-			if _, err := s.Update(tc.projectIDOrKey, tc.options...); tc.wantError {
+			if _, err := s.Update(backlog.ProjectKey("TEST"), tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)

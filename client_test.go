@@ -573,12 +573,10 @@ func TestCeckResponseError(t *testing.T) {
 				},
 				Error: &backlog.APIResponseError{},
 			}
-			r, err := backlog.ExportCeckResponseError(resp)
-			if tc.wantError {
-				assert.NotNil(t, err)
-			}
 
-			if !tc.wantError {
+			if r, err := backlog.ExportCeckResponseError(resp); tc.wantError {
+				assert.NotNil(t, err)
+			} else {
 				assert.Equal(t, resp, r)
 			}
 		})
