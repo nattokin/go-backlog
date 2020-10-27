@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+// AttachmentService hs methods for attachment.
+type AttachmentService struct {
+	method *method
+}
+
 // Uploade uploads a any file to the space.
 //
 // File's path and name are must not empty.
@@ -54,6 +59,11 @@ func removeAttachment(delete clientDelete, spath string) (*Attachment, error) {
 	}
 
 	return &v, nil
+}
+
+// WikiAttachmentService hs methods for attachment file of wiki.
+type WikiAttachmentService struct {
+	*AttachmentService
 }
 
 // Attach attachs files uploaded to space to the wiki.
@@ -109,6 +119,11 @@ func (s *IssueAttachmentService) List(issueIDOrKey string) ([]*Attachment, error
 func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (*Attachment, error) {
 	spath := "issues/" + issueIDOrKey + "/attachments/" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.method.Delete, spath)
+}
+
+// PullRequestAttachmentService hs methods for attachment file of pull request.
+type PullRequestAttachmentService struct {
+	*AttachmentService
 }
 
 // List returns a list of all attachments in the pull request.

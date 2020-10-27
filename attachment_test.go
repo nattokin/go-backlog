@@ -37,7 +37,8 @@ func TestAttachmentService_Uploade(t *testing.T) {
 		name:  "test.txt",
 		size:  8857,
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.AttachmentService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.fpath, fpath)
@@ -48,8 +49,7 @@ func TestAttachmentService_Uploade(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewAttachmentService(m)
+	})
 	attachment, err := s.Uploade(fpath, fname)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachment) {
@@ -60,12 +60,12 @@ func TestAttachmentService_Uploade(t *testing.T) {
 }
 
 func TestAttachmentService_Uploade_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.AttachmentService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewAttachmentService(m)
+	})
 	attachement, err := s.Uploade("fpath", "fname")
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
@@ -78,7 +78,8 @@ func TestAttachmentService_Uploade_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.AttachmentService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -86,8 +87,7 @@ func TestAttachmentService_Uploade_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewAttachmentService(m)
+	})
 	attachement, err := s.Uploade("fpath", "fname")
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
@@ -115,7 +115,8 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			v := *params.ExportURLValues()
@@ -126,8 +127,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.Attach(wikiID, []int{2})
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -140,12 +140,13 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.Attach(1234, []int{2})
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -158,7 +159,9 @@ func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -166,8 +169,7 @@ func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.Attach(1234, []int{2})
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -195,7 +197,9 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -204,8 +208,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.List(wikiID)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -218,12 +221,13 @@ func TestWikiAttachmentService_List(t *testing.T) {
 }
 
 func TestWikiAttachmentService_List_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.List(1234)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -236,7 +240,9 @@ func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -244,8 +250,7 @@ func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.List(1234)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -274,7 +279,9 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		size:    5563,
 		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -283,8 +290,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachments, err := s.Remove(wikiID, attachmentID)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -297,12 +303,13 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachment, err := s.Remove(1234, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -315,7 +322,9 @@ func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.WikiAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
+
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -323,8 +332,7 @@ func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewWikiAttachmentService(m)
+	})
 	attachment, err := s.Remove(1234, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -352,7 +360,8 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -361,8 +370,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachments, err := s.List(issueIDOrKey)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -375,12 +383,12 @@ func TestIssueAttachmentService_List(t *testing.T) {
 }
 
 func TestIssueAttachmentService_List_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -393,7 +401,8 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -401,8 +410,7 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -431,7 +439,9 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		size:    5563,
 		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -440,8 +450,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachments, err := s.Remove(issueIDOrKey, attachmentID)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -454,12 +463,12 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 }
 
 func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -472,7 +481,8 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.IssueAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -480,8 +490,7 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewIssueAttachmentService(m)
+	})
 	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -511,7 +520,8 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -520,8 +530,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachments, err := s.List(projectIDOrKey, repoIDOrName, prNumber)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -534,12 +543,12 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -552,7 +561,8 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -560,8 +570,7 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -592,7 +601,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		size:    5563,
 		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
 	}
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
@@ -601,8 +611,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachments, err := s.Remove(projectIDOrKey, repoIDOrName, prNumber, attachmentID)
 	assert.Nil(t, err)
 	if assert.NotNil(t, attachments) {
@@ -615,12 +624,12 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -633,7 +642,8 @@ func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	m := &backlog.ExportMethod{
+	s := &backlog.PullRequestAttachmentService{AttachmentService: &backlog.AttachmentService{}}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -641,8 +651,7 @@ func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewPullRequestAttachmentService(m)
+	})
 	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)

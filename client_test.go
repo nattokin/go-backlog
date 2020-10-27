@@ -259,7 +259,7 @@ func TestClient_Do_errorResponse(t *testing.T) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
 
-	apiErrors := backlog.APIResponseError{
+	apiErrors := &backlog.APIResponseError{
 		Errors: []*backlog.Error{
 			{
 				Message:  "No project.",

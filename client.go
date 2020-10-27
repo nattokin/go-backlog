@@ -36,19 +36,10 @@ type Client struct {
 	httpClient *http.Client
 	token      string
 
-	Activity    *ActivityService
-	Category    *CategoryService
-	CustomField *CustomFieldService
-	Issue       *IssueService
-	Priority    *PriorityService
-	Project     *ProjectService
-	PullRequest *PullRequestService
-	Resolution  *ResolutionService
-	Space       *SpaceService
-	Status      *StatusService
-	User        *UserService
-	Version     *VersionService
-	Wiki        *WikiService
+	Activity *ActivityService
+	Project  *ProjectService
+	User     *UserService
+	Wiki     *WikiService
 }
 
 // Response represents Backlog API response.
@@ -117,19 +108,36 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	c.Activity = newActivityService(m)
-	c.Category = newCategoryService(m)
-	c.CustomField = newCustomFieldService(m)
-	c.Issue = newIssueService(m)
-	c.Priority = newPriorityService(m)
-	c.Project = newProjectService(m)
-	c.PullRequest = newPullRequestService(m)
-	c.Resolution = newResolutionService(m)
-	c.Space = newSpaceService(m)
-	c.Status = newStatusService(m)
-	c.User = newUserService(m)
-	c.Version = newVersionService(m)
-	c.Wiki = newWikiService(m)
+	c.Activity = &ActivityService{
+		method: m,
+		Option: &ActivityOptionService{},
+	}
+	c.Project = &ProjectService{
+		method: m,
+		Activity: &ProjectActivityService{
+			method: m,
+		},
+		User: &ProjectUserService{
+			method: m,
+		},
+		Option: &ProjectOptionService{},
+	}
+	c.User = &UserService{
+		method: m,
+		Activity: &UserActivityService{
+			method: m,
+		},
+		Option: &UserOptionService{},
+	}
+	c.Wiki = &WikiService{
+		method: m,
+		Attachment: &WikiAttachmentService{
+			AttachmentService: &AttachmentService{
+				method: m,
+			},
+		},
+		Option: &WikiOptionService{},
+	}
 
 	return c, nil
 }

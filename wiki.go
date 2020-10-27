@@ -7,6 +7,14 @@ import (
 	"strconv"
 )
 
+// WikiService has methods for Wiki.
+type WikiService struct {
+	method *method
+
+	Attachment *WikiAttachmentService
+	Option     *WikiOptionService
+}
+
 // All Wiki in project is gotten.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
