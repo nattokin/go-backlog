@@ -81,6 +81,14 @@ func deleteUser(delete clientDelete, spath string, params *requestParams) (*User
 	return &v, nil
 }
 
+// UserService has methods for user
+type UserService struct {
+	method *method
+
+	Activity *UserActivityService
+	Option   *UserOptionService
+}
+
 // All returns all users in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
@@ -170,6 +178,11 @@ func (s *UserService) Delete(id int) (*User, error) {
 
 	spath := "users/" + strconv.Itoa(id)
 	return deleteUser(s.method.Delete, spath, nil)
+}
+
+// ProjectUserService has methods for user of project.
+type ProjectUserService struct {
+	method *method
 }
 
 // All returns all users in the project.

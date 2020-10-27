@@ -31,6 +31,15 @@ func (k ProjectKey) getProjectIDOrKey() (string, error) {
 	return string(k), nil
 }
 
+// ProjectService has methods for Project.
+type ProjectService struct {
+	method *method
+
+	Activity *ProjectActivityService
+	User     *ProjectUserService
+	Option   *ProjectOptionService
+}
+
 // Joined returns all of joining projects.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list

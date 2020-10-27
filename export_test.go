@@ -35,30 +35,6 @@ var (
 	ExportCeckResponseError = checkResponseError
 )
 
-var (
-	ExportNewActivityService              = newActivityService
-	ExportNewAttachmentService            = newAttachmentService
-	ExportNewCategoryService              = newCategoryService
-	ExportNewCustomFieldService           = newCustomFieldService
-	ExportNewIssueService                 = newIssueService
-	ExportNewIssueAttachmentService       = newIssueAttachmentService
-	ExportNewPriorityService              = newPriorityService
-	ExportNewProjectService               = newProjectService
-	ExportNewProjectActivityService       = newProjectActivityService
-	ExportNewProjectUserService           = newProjectUserService
-	ExportNewPullRequestService           = newPullRequestService
-	ExportNewPullRequestAttachmentService = newPullRequestAttachmentService
-	ExportNewResolutionService            = newResolutionService
-	ExportNewSpaceService                 = newSpaceService
-	ExportNewSpaceActivityService         = newSpaceActivityService
-	ExportNewStatusService                = newStatusService
-	ExportNewUserService                  = newUserService
-	ExportNewUserActivityService          = newUserActivityService
-	ExportNewVersionService               = newVersionService
-	ExportNewWikiService                  = newWikiService
-	ExportNewWikiAttachmentService        = newWikiAttachmentService
-)
-
 func (c *Client) ExportURL() *url.URL {
 	return c.url
 }
@@ -89,4 +65,88 @@ func (r *response) ExportGetHTTPResponse() *http.Response {
 
 func (p *requestParams) ExportURLValues() *url.Values {
 	return p.Values
+}
+
+func (s *ActivityService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *AttachmentService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *CategoryService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *CustomFieldService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *IssueService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *IssueAttachmentService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *PriorityService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *ProjectService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *ProjectActivityService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *ProjectUserService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *PullRequestService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *PullRequestAttachmentService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *ResolutionService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *SpaceService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *SpaceActivityService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *StatusService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *UserService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *UserActivityService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *VersionService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *WikiService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+func (s *WikiAttachmentService) ExportSetMethod(m *method) {
+	s.method = m
 }

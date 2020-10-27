@@ -169,6 +169,10 @@ func withTextFormattingRule(format format) option {
 // ActivityOption is type of functional option for ActivityService.
 type ActivityOption option
 
+// ActivityOptionService has methods to make functional option for ActivityService.
+type ActivityOptionService struct {
+}
+
 // WithActivityTypeIDs returns option. the option sets `activityTypeId` for user.
 func (*ActivityOptionService) WithActivityTypeIDs(typeIDs []int) ActivityOption {
 	return ActivityOption(withActivityTypeIDs(typeIDs))
@@ -196,6 +200,10 @@ func (*ActivityOptionService) WithOrder(order order) ActivityOption {
 
 // ProjectOption is type of functional option for ProjectService.
 type ProjectOption option
+
+// ProjectOptionService has methods to make functional option for ProjectService.
+type ProjectOptionService struct {
+}
 
 // WithKey returns option. the option sets `key` for project.
 func (*ProjectOptionService) WithKey(key string) ProjectOption {
@@ -235,6 +243,10 @@ func (*ProjectOptionService) WithArchived(archived bool) ProjectOption {
 // UserOption is type of functional option for UserService.
 type UserOption option
 
+// UserOptionService has methods to make functional option for UserService.
+type UserOptionService struct {
+}
+
 // WithPassword returns option. the option sets `password` for user.
 func (*UserOptionService) WithPassword(password string) UserOption {
 	return UserOption(withPassword(password))
@@ -257,6 +269,10 @@ func (*UserOptionService) WithRoleType(roleType role) UserOption {
 
 // WikiOption is type of functional option for WikiService.
 type WikiOption option
+
+// WikiOptionService has methods to make functional option for WikiService.
+type WikiOptionService struct {
+}
 
 // WithName returns option. the option sets `name` for wiki.
 func (*WikiOptionService) WithName(name string) WikiOption {
