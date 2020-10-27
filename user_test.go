@@ -20,7 +20,7 @@ func TestUserService_One_getUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, "users/1", spath)
 			assert.Nil(t, params)
@@ -32,7 +32,7 @@ func TestUserService_One_getUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.One(1)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -53,7 +53,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, "projects/"+projectIDOrKey+"/users", spath)
 			assert.Equal(t, strconv.FormatBool(excludeGroupMembers), params.Get("excludeGroupMembers"))
@@ -64,7 +64,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewProjectUserService(cm)
+	s := backlog.ExportNewProjectUserService(m)
 	users, err := s.All(projectIDOrKey, excludeGroupMembers)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, users[0].UserID)
@@ -83,7 +83,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, "users", spath)
 			assert.Equal(t, userID, params.Get("userId"))
@@ -98,7 +98,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Add(userID, password, name, mailAddress, roleType)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -119,7 +119,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, "projects/"+projectIDOrKey+"/users", spath)
 			assert.Equal(t, strconv.Itoa(id), params.Get("userId"))
@@ -130,7 +130,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewProjectUserService(cm)
+	s := backlog.ExportNewProjectUserService(m)
 	users, err := s.Delete(projectIDOrKey, id)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, users.UserID)
@@ -150,7 +150,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, "users/"+strconv.Itoa(id), spath)
 			assert.Equal(t, name, params.Get("name"))
@@ -165,7 +165,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	o := s.Option
 	user, err := s.Update(
 		id, o.WithPassword(password), o.WithName(name), o.WithMailAddress(mailAddress), o.WithRoleType(roleType),
@@ -183,14 +183,14 @@ func TestUserService_All(t *testing.T) {
 	}{
 		spath: "users",
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			return nil, errors.New("error")
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
@@ -203,7 +203,7 @@ func TestUserService_All_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -212,7 +212,7 @@ func TestUserService_All_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
@@ -251,10 +251,10 @@ func TestUserService_One(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Get must never be called")
+						t.Error("s.method.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Nil(t, params)
@@ -262,7 +262,7 @@ func TestUserService_One(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(m)
 			s.One(tc.id)
 		})
 	}
@@ -274,14 +274,14 @@ func TestUserService_Own(t *testing.T) {
 	}{
 		spath: "users/myself",
 	}
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			return nil, errors.New("error")
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -294,7 +294,7 @@ func TestUserService_Own_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -303,7 +303,7 @@ func TestUserService_Own_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -363,10 +363,10 @@ func TestUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Post must never be called")
+						t.Error("s.method.Post must never be called")
 					} else {
 						assert.Equal(t, wantSpath, spath)
 						assert.Equal(t, tc.userID, params.Get("userId"))
@@ -378,7 +378,7 @@ func TestUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(m)
 			user, err := s.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
 			assert.Nil(t, user)
 			assert.Error(t, err)
@@ -393,7 +393,7 @@ func TestUserService_Add_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -402,7 +402,7 @@ func TestUserService_Add_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Add("userid", "password", "name", "mailAdress", 1)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -425,17 +425,17 @@ func TestUserService_Update(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Patch must never be called")
+						t.Error("s.method.Patch must never be called")
 					} else {
 						assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
 					}
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(m)
 
 			user, err := s.Update(tc.id)
 			assert.Nil(t, user)
@@ -540,10 +540,10 @@ func TestUserService_Update_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Patch must never be called")
+						t.Error("s.method.Patch must never be called")
 					} else {
 						assert.Equal(t, "users/"+strconv.Itoa(id), spath)
 						assert.Equal(t, tc.want.password, params.Get("password"))
@@ -554,7 +554,7 @@ func TestUserService_Update_option(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(m)
 
 			user, err := s.Update(id, tc.options...)
 			assert.Nil(t, user)
@@ -570,7 +570,7 @@ func TestUserService_Update_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -579,7 +579,7 @@ func TestUserService_Update_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Update(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -618,10 +618,10 @@ func TestUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Delete must never be called")
+						t.Error("s.method.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Nil(t, params)
@@ -629,7 +629,7 @@ func TestUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewUserService(cm)
+			s := backlog.ExportNewUserService(m)
 			user, err := s.Delete(tc.id)
 			assert.Nil(t, user)
 			assert.Error(t, err)
@@ -644,7 +644,7 @@ func TestUserService_Delete_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	m := &backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -653,7 +653,7 @@ func TestUserService_Delete_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	}
-	s := backlog.ExportNewUserService(cm)
+	s := backlog.ExportNewUserService(m)
 	user, err := s.Delete(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -716,10 +716,10 @@ func TestProjectUserService_All(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Get must never be called")
+						t.Error("s.method.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Equal(t, tc.want.excludeGroupMembers, params.Get("excludeGroupMembers"))
@@ -727,7 +727,7 @@ func TestProjectUserService_All(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.All(tc.projectIDOrKey, tc.excludeGroupMembers)
 		})
 	}
@@ -787,10 +787,10 @@ func TestProjectUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Post must never be called")
+						t.Error("s.method.Post must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Equal(t, tc.want.userID, params.Get("userId"))
@@ -798,7 +798,7 @@ func TestProjectUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.Add(tc.projectIDOrKey, tc.userID)
 		})
 	}
@@ -857,10 +857,10 @@ func TestProjectUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Delete must never be called")
+						t.Error("s.method.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Equal(t, tc.want.userID, params.Get("userId"))
@@ -868,7 +868,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.Delete(tc.projectIDOrKey, tc.userID)
 		})
 	}
@@ -927,10 +927,10 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Post must never be called")
+						t.Error("s.method.Post must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Equal(t, tc.want.userID, params.Get("userId"))
@@ -938,7 +938,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.AddAdmin(tc.projectIDOrKey, tc.userID)
 		})
 	}
@@ -975,10 +975,10 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Get must never be called")
+						t.Error("s.method.Get must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Nil(t, params)
@@ -986,7 +986,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.AdminAll(tc.projectIDOrKey)
 		})
 	}
@@ -1045,10 +1045,10 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			cm := &backlog.ExportClientMethod{
+			m := &backlog.ExportMethod{
 				Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					if tc.wantError {
-						t.Error("clientMethod.Delete must never be called")
+						t.Error("s.method.Delete must never be called")
 					} else {
 						assert.Equal(t, tc.want.spath, spath)
 						assert.Equal(t, tc.want.userID, params.Get("userId"))
@@ -1056,7 +1056,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			}
-			s := backlog.ExportNewProjectUserService(cm)
+			s := backlog.ExportNewProjectUserService(m)
 			s.DeleteAdmin(tc.projectIDOrKey, tc.userID)
 		})
 	}

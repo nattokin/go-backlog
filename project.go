@@ -100,7 +100,7 @@ func (s *ProjectService) AllUnarchived() ([]*Project, error) {
 }
 
 func (s *ProjectService) getList(params *requestParams) ([]*Project, error) {
-	resp, err := s.clientMethod.Get("projects", params)
+	resp, err := s.method.Get("projects", params)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (s *ProjectService) One(target ProjectIDOrKeyGetter) (*Project, error) {
 		return nil, err
 	}
 	spath := "projects/" + projectIDOrKey
-	resp, err := s.clientMethod.Get(spath, nil)
+	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 	params.Set("name", name)
 	params.Del("archived")
 
-	resp, err := s.clientMethod.Post("projects", params)
+	resp, err := s.method.Post("projects", params)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...ProjectO
 	}
 
 	spath := "projects/" + projectIDOrKey
-	resp, err := s.clientMethod.Patch(spath, params)
+	resp, err := s.method.Patch(spath, params)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (s *ProjectService) Delete(target ProjectIDOrKeyGetter) (*Project, error) {
 		return nil, err
 	}
 	spath := "projects/" + projectIDOrKey
-	resp, err := s.clientMethod.Delete(spath, newRequestParams())
+	resp, err := s.method.Delete(spath, newRequestParams())
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (s *ProjectService) Delete(target ProjectIDOrKeyGetter) (*Project, error) {
 // 		return nil, err
 // 	}
 // 	spath := "projects/" + projectIDOrKey + "/image"
-// 	resp, err := s.clientMethod.Get(spath, nil)
+// 	resp, err := s.method.Get(spath, nil)
 // 	if err != nil {
 // 		return nil, err
 // 	}

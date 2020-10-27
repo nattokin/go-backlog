@@ -2,50 +2,50 @@ package backlog
 
 // SpaceService has methods for Space.
 type SpaceService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Activity *SpaceActivityService
 }
 
-func newSpaceService(cm *clientMethod) *SpaceService {
+func newSpaceService(m *method) *SpaceService {
 	return &SpaceService{
-		clientMethod: cm,
-		Activity:     newSpaceActivityService(cm),
+		method:   m,
+		Activity: newSpaceActivityService(m),
 	}
 }
 
 // SpaceActivityService has methods for activitys in your space.
 type SpaceActivityService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newSpaceActivityService(cm *clientMethod) *SpaceActivityService {
+func newSpaceActivityService(m *method) *SpaceActivityService {
 	return &SpaceActivityService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // AttachmentService hs methods for attachment.
 type AttachmentService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newAttachmentService(cm *clientMethod) *AttachmentService {
+func newAttachmentService(m *method) *AttachmentService {
 	return &AttachmentService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // ActivityService has methods for Activitys.
 type ActivityService struct {
-	clientMethod *clientMethod
-	Option       *ActivityOptionService
+	method *method
+	Option *ActivityOptionService
 }
 
-func newActivityService(cm *clientMethod) *ActivityService {
+func newActivityService(m *method) *ActivityService {
 	return &ActivityService{
-		clientMethod: cm,
-		Option:       &ActivityOptionService{},
+		method: m,
+		Option: &ActivityOptionService{},
 	}
 }
 
@@ -55,70 +55,70 @@ type ActivityOptionService struct {
 
 // CategoryService has methods for Category.
 type CategoryService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newCategoryService(cm *clientMethod) *CategoryService {
+func newCategoryService(m *method) *CategoryService {
 	return &CategoryService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // CustomFieldService has methods for CustomField.
 type CustomFieldService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newCustomFieldService(cm *clientMethod) *CustomFieldService {
+func newCustomFieldService(m *method) *CustomFieldService {
 	return &CustomFieldService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // VersionService has methods for Version.
 type VersionService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newVersionService(cm *clientMethod) *VersionService {
+func newVersionService(m *method) *VersionService {
 	return &VersionService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // PriorityService has methods for Priority.
 type PriorityService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newPriorityService(cm *clientMethod) *PriorityService {
+func newPriorityService(m *method) *PriorityService {
 	return &PriorityService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // ResolutionService has methods for Resolution.
 type ResolutionService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newResolutionService(cm *clientMethod) *ResolutionService {
+func newResolutionService(m *method) *ResolutionService {
 	return &ResolutionService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // IssueService has methods for Issue.
 type IssueService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Attachment *IssueAttachmentService
 }
 
-func newIssueService(cm *clientMethod) *IssueService {
+func newIssueService(m *method) *IssueService {
 	return &IssueService{
-		clientMethod: cm,
-		Attachment:   newIssueAttachmentService(cm),
+		method:     m,
+		Attachment: newIssueAttachmentService(m),
 	}
 }
 
@@ -127,47 +127,47 @@ type IssueAttachmentService struct {
 	*AttachmentService
 }
 
-func newIssueAttachmentService(cm *clientMethod) *IssueAttachmentService {
+func newIssueAttachmentService(m *method) *IssueAttachmentService {
 	return &IssueAttachmentService{
-		AttachmentService: newAttachmentService(cm),
+		AttachmentService: newAttachmentService(m),
 	}
 }
 
 // StatusService has methods for Status.
 type StatusService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newStatusService(cm *clientMethod) *StatusService {
+func newStatusService(m *method) *StatusService {
 	return &StatusService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // UserService has methods for user
 type UserService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Activity *UserActivityService
 	Option   *UserOptionService
 }
 
-func newUserService(cm *clientMethod) *UserService {
+func newUserService(m *method) *UserService {
 	return &UserService{
-		clientMethod: cm,
-		Activity:     newUserActivityService(cm),
-		Option:       &UserOptionService{},
+		method:   m,
+		Activity: newUserActivityService(m),
+		Option:   &UserOptionService{},
 	}
 }
 
 // UserActivityService has methods for user activitys.
 type UserActivityService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newUserActivityService(cm *clientMethod) *UserActivityService {
+func newUserActivityService(m *method) *UserActivityService {
 	return &UserActivityService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
@@ -177,41 +177,41 @@ type UserOptionService struct {
 
 // ProjectService has methods for Project.
 type ProjectService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Activity *ProjectActivityService
 	User     *ProjectUserService
 	Option   *ProjectOptionService
 }
 
-func newProjectService(cm *clientMethod) *ProjectService {
+func newProjectService(m *method) *ProjectService {
 	return &ProjectService{
-		clientMethod: cm,
-		Activity:     newProjectActivityService(cm),
-		User:         newProjectUserService(cm),
-		Option:       &ProjectOptionService{},
+		method:   m,
+		Activity: newProjectActivityService(m),
+		User:     newProjectUserService(m),
+		Option:   &ProjectOptionService{},
 	}
 }
 
 // ProjectActivityService has methods for activitys of the project.
 type ProjectActivityService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newProjectActivityService(cm *clientMethod) *ProjectActivityService {
+func newProjectActivityService(m *method) *ProjectActivityService {
 	return &ProjectActivityService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
-	clientMethod *clientMethod
+	method *method
 }
 
-func newProjectUserService(cm *clientMethod) *ProjectUserService {
+func newProjectUserService(m *method) *ProjectUserService {
 	return &ProjectUserService{
-		clientMethod: cm,
+		method: m,
 	}
 }
 
@@ -221,17 +221,17 @@ type ProjectOptionService struct {
 
 // WikiService has methods for Wiki.
 type WikiService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Attachment *WikiAttachmentService
 	Option     *WikiOptionService
 }
 
-func newWikiService(cm *clientMethod) *WikiService {
+func newWikiService(m *method) *WikiService {
 	return &WikiService{
-		clientMethod: cm,
-		Attachment:   newWikiAttachmentService(cm),
-		Option:       &WikiOptionService{},
+		method:     m,
+		Attachment: newWikiAttachmentService(m),
+		Option:     &WikiOptionService{},
 	}
 }
 
@@ -240,9 +240,9 @@ type WikiAttachmentService struct {
 	*AttachmentService
 }
 
-func newWikiAttachmentService(cm *clientMethod) *WikiAttachmentService {
+func newWikiAttachmentService(m *method) *WikiAttachmentService {
 	return &WikiAttachmentService{
-		AttachmentService: newAttachmentService(cm),
+		AttachmentService: newAttachmentService(m),
 	}
 
 }
@@ -253,15 +253,15 @@ type WikiOptionService struct {
 
 // PullRequestService has methods for Issue.
 type PullRequestService struct {
-	clientMethod *clientMethod
+	method *method
 
 	Attachment *PullRequestAttachmentService
 }
 
-func newPullRequestService(cm *clientMethod) *PullRequestService {
+func newPullRequestService(m *method) *PullRequestService {
 	return &PullRequestService{
-		clientMethod: cm,
-		Attachment:   newPullRequestAttachmentService(cm),
+		method:     m,
+		Attachment: newPullRequestAttachmentService(m),
 	}
 }
 
@@ -270,8 +270,8 @@ type PullRequestAttachmentService struct {
 	*AttachmentService
 }
 
-func newPullRequestAttachmentService(cm *clientMethod) *PullRequestAttachmentService {
+func newPullRequestAttachmentService(m *method) *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
-		AttachmentService: newAttachmentService(cm),
+		AttachmentService: newAttachmentService(m),
 	}
 }

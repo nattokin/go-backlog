@@ -86,7 +86,7 @@ func deleteUser(delete clientDelete, spath string, params *requestParams) (*User
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
 func (s *UserService) All() ([]*User, error) {
 	spath := "users"
-	return getUserList(s.clientMethod.Get, spath, nil)
+	return getUserList(s.method.Get, spath, nil)
 }
 
 // One returns a user in your space.
@@ -98,7 +98,7 @@ func (s *UserService) One(id int) (*User, error) {
 	}
 
 	spath := "users/" + strconv.Itoa(id)
-	return getUser(s.clientMethod.Get, spath)
+	return getUser(s.method.Get, spath)
 }
 
 // Own returns your own user.
@@ -106,7 +106,7 @@ func (s *UserService) One(id int) (*User, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
 func (s *UserService) Own() (*User, error) {
 	spath := "users/myself"
-	return getUser(s.clientMethod.Get, spath)
+	return getUser(s.method.Get, spath)
 }
 
 // ToDo: func (s *UserService) Icon()
@@ -137,7 +137,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 	params.Add("roleType", strconv.Itoa(int(roleType)))
 
 	spath := "users"
-	return addUser(s.clientMethod.Post, spath, params)
+	return addUser(s.method.Post, spath, params)
 }
 
 // Update updates a user in your space.
@@ -157,7 +157,7 @@ func (s *UserService) Update(id int, options ...UserOption) (*User, error) {
 		}
 	}
 
-	return updateUser(s.clientMethod.Patch, spath, params)
+	return updateUser(s.method.Patch, spath, params)
 }
 
 // Delete deletes a user from your space.
@@ -169,7 +169,7 @@ func (s *UserService) Delete(id int) (*User, error) {
 	}
 
 	spath := "users/" + strconv.Itoa(id)
-	return deleteUser(s.clientMethod.Delete, spath, nil)
+	return deleteUser(s.method.Delete, spath, nil)
 }
 
 // All returns all users in the project.
@@ -184,7 +184,7 @@ func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool
 	params.Add("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := "projects/" + projectIDOrKey + "/users"
-	return getUserList(s.clientMethod.Get, spath, params)
+	return getUserList(s.method.Get, spath, params)
 }
 
 // Add adds a user to the project.
@@ -202,7 +202,7 @@ func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, erro
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/users"
-	return addUser(s.clientMethod.Post, spath, params)
+	return addUser(s.method.Post, spath, params)
 }
 
 // Delete deletes a user from the project.
@@ -220,7 +220,7 @@ func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, e
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/users"
-	return deleteUser(s.clientMethod.Delete, spath, params)
+	return deleteUser(s.method.Delete, spath, params)
 }
 
 // AddAdmin adds a admin user to the project.
@@ -238,7 +238,7 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/administrators"
-	return addUser(s.clientMethod.Post, spath, params)
+	return addUser(s.method.Post, spath, params)
 }
 
 // AdminAll returns all of admin users in the project.
@@ -250,7 +250,7 @@ func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
 	}
 
 	spath := "projects/" + projectIDOrKey + "/administrators"
-	return getUserList(s.clientMethod.Get, spath, nil)
+	return getUserList(s.method.Get, spath, nil)
 }
 
 // DeleteAdmin deletes a admin user from the project.
@@ -268,5 +268,5 @@ func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*Us
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/administrators"
-	return deleteUser(s.clientMethod.Delete, spath, params)
+	return deleteUser(s.method.Delete, spath, params)
 }
