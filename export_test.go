@@ -6,6 +6,10 @@ import (
 )
 
 type (
+	ExportRole = role
+)
+
+type (
 	ExportClientMethod  = clientMethod
 	ExportRequestParams = requestParams
 	ExportRequest       = request
