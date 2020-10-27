@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -19,14 +19,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// You get all attachments of the Wiki.
-	r, err := c.Wiki.Attachment.List(12345)
+	fpath := "/path/to/test.txt"
+	fname := "name.txt"
+	r, err := c.Wiki.Attachment.Uploade(fpath, fname)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 	}
 
 	// Response
-	for _, a := range r {
-		fmt.Printf("%#v\n", a)
-	}
+	fmt.Printf("%#v\n", r)
 }

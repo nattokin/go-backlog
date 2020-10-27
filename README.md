@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -67,7 +67,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -81,11 +81,13 @@ func main() {
 		log.Fatalln(err)
 	}
 	// ID or Key of the project.
-	projectIDOrKey := "PROJECTKEY"
+	projectKey := "PROJECTKEY"
 	// or
-	// projectIDOrKey := "1234"
+	// projectID := 1234
 
-	r, err := c.Wiki.All(projectIDOrKey)
+	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
+	// r, err := c.Wiki.All(backlog.ProjectID(projectID))
+
 	if err != nil {
 		log.Fatalln(err)
 	}
