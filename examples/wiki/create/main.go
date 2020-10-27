@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -19,14 +19,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	attachmentIDs := []int{0123, 0124, 0125}
-
-	// Attach uploded files to Wiki.
-	r, err := c.Wiki.Attachment.Attach(12345, attachmentIDs)
+	// Create a new Wiki by ID of the project.
+	// You get struct where represented the Wiki created.
+	r, err := c.Wiki.Create(12345, "name", "content")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Response
+	// Output result.
 	fmt.Printf("%#v\n", r)
 }

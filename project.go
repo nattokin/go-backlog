@@ -3,7 +3,6 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -30,74 +29,6 @@ func (k ProjectKey) getProjectIDOrKey() (string, error) {
 		return "", errors.New("key must not be empty")
 	}
 	return string(k), nil
-}
-
-// ProjectOption is type of functional option for ProjectService.
-type ProjectOption func(p *requestParams) error
-
-// WithKey returns option. the option sets `key` for project.
-func (*ProjectOptionService) WithKey(key string) ProjectOption {
-	return func(p *requestParams) error {
-		if key == "" {
-			return errors.New("key must not be empty")
-		}
-		p.Set("key", key)
-		return nil
-	}
-}
-
-// WithName returns option. the option sets `name` for project.
-func (*ProjectOptionService) WithName(name string) ProjectOption {
-	return func(p *requestParams) error {
-		if name == "" {
-			return errors.New("name must not be empty")
-		}
-		p.Set("name", name)
-		return nil
-	}
-}
-
-// WithChartEnabled returns option. the option sets `chartEnabled` for project.
-func (*ProjectOptionService) WithChartEnabled(enabeld bool) ProjectOption {
-	return func(p *requestParams) error {
-		p.Set("chartEnabled", strconv.FormatBool(enabeld))
-		return nil
-	}
-}
-
-// WithSubtaskingEnabled returns option. the option sets `subtaskingEnabled` for project.
-func (*ProjectOptionService) WithSubtaskingEnabled(enabeld bool) ProjectOption {
-	return func(p *requestParams) error {
-		p.Set("subtaskingEnabled", strconv.FormatBool(enabeld))
-		return nil
-	}
-}
-
-// WithProjectLeaderCanEditProjectLeader returns option. the option sets `projectLeaderCanEditProjectLeader` for project.
-func (*ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabeld bool) ProjectOption {
-	return func(p *requestParams) error {
-		p.Set("projectLeaderCanEditProjectLeader", strconv.FormatBool(enabeld))
-		return nil
-	}
-}
-
-// WithTextFormattingRule returns option. the option sets `textFormattingRule` for project.
-func (*ProjectOptionService) WithTextFormattingRule(format string) ProjectOption {
-	return func(p *requestParams) error {
-		if format != FormatBacklog && format != FormatMarkdown {
-			return fmt.Errorf("format must be only '%s' or '%s'", FormatBacklog, FormatMarkdown)
-		}
-		p.Set("textFormattingRule", format)
-		return nil
-	}
-}
-
-// WithArchived returns option. the option sets `archived` for project.
-func (*ProjectOptionService) WithArchived(archived bool) ProjectOption {
-	return func(p *requestParams) error {
-		p.Set("archived", strconv.FormatBool(archived))
-		return nil
-	}
 }
 
 // Joined returns all of joining projects.
@@ -218,12 +149,6 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 	}
 
 	params := newRequestParams()
-
-	// Set default options.
-	params.Set("chartEnabled", "false")
-	params.Set("subtaskingEnabled", "false")
-	params.Set("projectLeaderCanEditProjectLeader", "false")
-	params.Set("textFormattingRule", FormatMarkdown)
 
 	for _, option := range options {
 		if err := option(params); err != nil {

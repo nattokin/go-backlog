@@ -213,7 +213,7 @@ type Project struct {
 	ChartEnabled                      bool   `json:"chartEnabled,omitempty"`
 	SubtaskingEnabled                 bool   `json:"subtaskingEnabled,omitempty"`
 	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
-	TextFormattingRule                string `json:"textFormattingRule,omitempty"`
+	TextFormattingRule                format `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
@@ -286,7 +286,7 @@ type Space struct {
 	Lang               string    `json:"lang,omitempty"`
 	Timezone           string    `json:"timezone,omitempty"`
 	ReportSendTime     string    `json:"reportSendTime,omitempty"`
-	TextFormattingRule string    `json:"textFormattingRule,omitempty"`
+	TextFormattingRule format    `json:"textFormattingRule,omitempty"`
 	Created            time.Time `json:"created,omitempty"`
 	Updated            time.Time `json:"updated,omitempty"`
 }
@@ -336,7 +336,7 @@ type User struct {
 	ID          int    `json:"id,omitempty"`
 	UserID      string `json:"userId,omitempty"`
 	Name        string `json:"name,omitempty"`
-	RoleType    int    `json:"roleType,omitempty"`
+	RoleType    role   `json:"roleType,omitempty"`
 	Lang        string `json:"lang,omitempty"`
 	MailAddress string `json:"mailAddress,omitempty"`
 }
@@ -403,4 +403,51 @@ type WikiHistory struct {
 	Content     string    `json:"content,omitempty"`
 	CreatedUser *User     `json:"createdUser,omitempty"`
 	Created     time.Time `json:"created,omitempty"`
+}
+
+type format string
+
+func (f format) String() string {
+	switch f {
+	case FormatMarkdown:
+		return "Markdown"
+	case FormatBacklog:
+		return "Backlog"
+	default:
+		return "unknown"
+	}
+}
+
+type order string
+
+func (o order) String() string {
+	switch o {
+	case OrderAsc:
+		return "Asc"
+	case OrderDesc:
+		return "Desc"
+	default:
+		return "unknown"
+	}
+}
+
+type role int
+
+func (r role) String() string {
+	switch r {
+	case RoleAdministrator:
+		return "Administrator"
+	case RoleNormalUser:
+		return "NormalUser"
+	case RoleReporter:
+		return "Reporter"
+	case RoleViewer:
+		return "Viewer"
+	case RoleGuestReporter:
+		return "GuestReporter"
+	case RoleGuestViewer:
+		return "GuestViewer"
+	default:
+		return "unknown"
+	}
 }

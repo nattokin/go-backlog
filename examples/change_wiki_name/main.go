@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {

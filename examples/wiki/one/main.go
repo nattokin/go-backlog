@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -23,7 +23,5 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	// Response
 	fmt.Printf("%#v\n", r)
 }

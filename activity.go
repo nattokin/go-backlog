@@ -3,69 +3,8 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 )
-
-// ActivityOption is type of functional option for ActivityService.
-type ActivityOption func(p *requestParams) error
-
-// WithActivityTypeIDs returns option. the option sets `activityTypeId` for user.
-func (*ActivityOptionService) WithActivityTypeIDs(typeIDs []int) ActivityOption {
-	return func(p *requestParams) error {
-		for _, id := range typeIDs {
-			if id < 1 || 26 < id {
-				return errors.New("activityTypeId must be between 1 and 26")
-			}
-			p.Add("activityTypeId[]", strconv.Itoa(id))
-		}
-		return nil
-	}
-}
-
-// WithMinID returns option. the option sets `minId` for user.
-func (*ActivityOptionService) WithMinID(minID int) ActivityOption {
-	return func(p *requestParams) error {
-		if minID < 1 {
-			return errors.New("minId must be greater than 1")
-		}
-		p.Set("minId", strconv.Itoa(minID))
-		return nil
-	}
-}
-
-// WithMaxID returns option. the option sets `maxId` for user.
-func (*ActivityOptionService) WithMaxID(maxID int) ActivityOption {
-	return func(p *requestParams) error {
-		if maxID < 1 {
-			return errors.New("maxId must be greater than 1")
-		}
-		p.Set("maxId", strconv.Itoa(maxID))
-		return nil
-	}
-}
-
-// WithCount returns option. the option sets `count` for user.
-func (*ActivityOptionService) WithCount(count int) ActivityOption {
-	return func(p *requestParams) error {
-		if count < 1 || 100 < count {
-			return errors.New("count must be between 1 and 100")
-		}
-		p.Set("count", strconv.Itoa(count))
-		return nil
-	}
-}
-
-// WithOrder returns option. the option sets `order` for user.
-func (*ActivityOptionService) WithOrder(order string) ActivityOption {
-	return func(p *requestParams) error {
-		if order != OrderAsc && order != OrderDesc {
-			return fmt.Errorf("order must be only '%s' or '%s'", OrderAsc, OrderDesc)
-		}
-		p.Set("order", order)
-		return nil
-	}
-}
 
 func getActivityList(get clientGet, spath string, options ...ActivityOption) ([]*Activity, error) {
 	params := newRequestParams()

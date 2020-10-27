@@ -15,7 +15,7 @@ func TestUserService_One_getUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := 1
+	roleType := backlog.RoleAdministrator
 	bj, err := os.Open("testdata/json/user.json")
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := 1
+	roleType := backlog.RoleAdministrator
 
 	projectIDOrKey := "TEST"
 	excludeGroupMembers := false
@@ -78,7 +78,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := 1
+	roleType := backlog.RoleAdministrator
 	bj, err := os.Open("testdata/json/user.json")
 	if err != nil {
 		t.Fatal(err)
@@ -90,7 +90,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 			assert.Equal(t, password, params.Get("password"))
 			assert.Equal(t, name, params.Get("name"))
 			assert.Equal(t, mailAddress, params.Get("mailAddress"))
-			assert.Equal(t, strconv.Itoa(roleType), params.Get("roleType"))
+			assert.Equal(t, strconv.Itoa(int(roleType)), params.Get("roleType"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -111,7 +111,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := 1
+	roleType := backlog.RoleAdministrator
 
 	projectIDOrKey := "TEST"
 	id := 1
@@ -145,7 +145,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := 1
+	roleType := backlog.RoleAdministrator
 	bj, err := os.Open("testdata/json/user.json")
 	if err != nil {
 		t.Fatal(err)
@@ -157,7 +157,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 			assert.Equal(t, password, params.Get("password"))
 			assert.Equal(t, name, params.Get("name"))
 			assert.Equal(t, mailAddress, params.Get("mailAddress"))
-			assert.Equal(t, strconv.Itoa(roleType), params.Get("roleType"))
+			assert.Equal(t, strconv.Itoa(int(roleType)), params.Get("roleType"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -166,8 +166,9 @@ func TestUserService_Update_updateUser(t *testing.T) {
 		},
 	}
 	s := backlog.ExportNewUserService(cm)
+	o := s.Option
 	user, err := s.Update(
-		id, s.Option.WithPassword(password), s.Option.WithName(name), s.Option.WithMailAddress(mailAddress), s.Option.WithRoleType(roleType),
+		id, o.WithPassword(password), o.WithName(name), o.WithMailAddress(mailAddress), o.WithRoleType(roleType),
 	)
 	assert.Nil(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -315,7 +316,7 @@ func TestUserService_Add(t *testing.T) {
 		password    string
 		name        string
 		mailAddress string
-		roleType    int
+		roleType    backlog.ExportRole
 		wantError   bool
 	}{
 		"no_error": {
@@ -323,7 +324,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    2,
+			roleType:    backlog.RoleAdministrator,
 			wantError:   false,
 		},
 		"userID_empty": {
@@ -331,7 +332,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    1,
+			roleType:    backlog.RoleAdministrator,
 			wantError:   true,
 		},
 		"password_empty": {
@@ -339,7 +340,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    1,
+			roleType:    backlog.RoleAdministrator,
 			wantError:   true,
 		},
 		"name_empty": {
@@ -347,7 +348,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "",
 			mailAddress: "test@test.com",
-			roleType:    1,
+			roleType:    backlog.RoleAdministrator,
 			wantError:   true,
 		},
 		"mailAddress_empty": {
@@ -355,39 +356,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "",
-			roleType:    1,
-			wantError:   true,
-		},
-		"roleType_0": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
-			roleType:    0,
-			wantError:   true,
-		},
-		"roleType_1": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
-			roleType:    1,
-			wantError:   false,
-		},
-		"roleType_6": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
-			roleType:    6,
-			wantError:   false,
-		},
-		"roleType_7": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
-			roleType:    7,
+			roleType:    backlog.RoleAdministrator,
 			wantError:   true,
 		},
 	}
@@ -404,7 +373,7 @@ func TestUserService_Add(t *testing.T) {
 						assert.Equal(t, tc.password, params.Get("password"))
 						assert.Equal(t, tc.name, params.Get("name"))
 						assert.Equal(t, tc.mailAddress, params.Get("mailAddress"))
-						assert.Equal(t, strconv.Itoa(tc.roleType), params.Get("roleType"))
+						assert.Equal(t, strconv.Itoa(int(tc.roleType)), params.Get("roleType"))
 					}
 					return nil, errors.New("error")
 				},
@@ -440,7 +409,45 @@ func TestUserService_Add_invaliedJson(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	ops := &backlog.UserOptionService{}
+	cases := map[string]struct {
+		id        int
+		wantError bool
+	}{
+		"valid": {
+			id:        1,
+			wantError: false,
+		},
+		"invalid": {
+			id:        0,
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			cm := &backlog.ExportClientMethod{
+				Patch: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+					if tc.wantError {
+						t.Error("clientMethod.Patch must never be called")
+					} else {
+						assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
+					}
+					return nil, errors.New("error")
+				},
+			}
+			s := backlog.ExportNewUserService(cm)
+
+			user, err := s.Update(tc.id)
+			assert.Nil(t, user)
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestUserService_Update_option(t *testing.T) {
+	o := &backlog.UserOptionService{}
+	id := 1
+
 	type options struct {
 		password    string
 		name        string
@@ -448,27 +455,18 @@ func TestUserService_Update(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		id        int
 		options   []backlog.UserOption
 		wantError bool
 		want      options
 	}{
 		"no-option": {
-			id:        1,
 			options:   []backlog.UserOption{},
 			wantError: false,
 			want:      options{},
 		},
-		"id_0": {
-			id:        0,
-			options:   []backlog.UserOption{},
-			wantError: true,
-			want:      options{},
-		},
 		"option-password": {
-			id: 2,
 			options: []backlog.UserOption{
-				ops.WithPassword("testpasword"),
+				o.WithPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -476,17 +474,15 @@ func TestUserService_Update(t *testing.T) {
 			},
 		},
 		"option-password_empty": {
-			id: 3,
 			options: []backlog.UserOption{
-				ops.WithPassword(""),
+				o.WithPassword(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"option-name": {
-			id: 4,
 			options: []backlog.UserOption{
-				ops.WithName("testname"),
+				o.WithName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -494,17 +490,15 @@ func TestUserService_Update(t *testing.T) {
 			},
 		},
 		"option-name_empty": {
-			id: 5,
 			options: []backlog.UserOption{
-				ops.WithName(""),
+				o.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"option-mailAddress": {
-			id: 6,
 			options: []backlog.UserOption{
-				ops.WithMailAddress("test@test.com"),
+				o.WithMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -512,56 +506,27 @@ func TestUserService_Update(t *testing.T) {
 			},
 		},
 		"option-mailAddress_empty": {
-			id: 7,
 			options: []backlog.UserOption{
-				ops.WithMailAddress(""),
+				o.WithMailAddress(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
-		"option-roleType_0": {
-			id: 8,
+		"option-roleType_Administrator": {
 			options: []backlog.UserOption{
-				ops.WithRoleType(0),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"option-roleType_1": {
-			id: 9,
-			options: []backlog.UserOption{
-				ops.WithRoleType(1),
+				o.WithRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
 				roleType: "1",
 			},
 		},
-		"option-roleType_6": {
-			id: 10,
-			options: []backlog.UserOption{
-				ops.WithRoleType(6),
-			},
-			wantError: false,
-			want: options{
-				roleType: "6",
-			},
-		},
-		"option-roleType_7": {
-			id: 11,
-			options: []backlog.UserOption{
-				ops.WithRoleType(7),
-			},
-			wantError: true,
-			want:      options{},
-		},
 		"multi-option": {
-			id: 1,
 			options: []backlog.UserOption{
-				ops.WithPassword("testpasword1"),
-				ops.WithName("testname1"),
-				ops.WithMailAddress("test1@test.com"),
-				ops.WithRoleType(1),
+				o.WithPassword("testpasword1"),
+				o.WithName("testname1"),
+				o.WithMailAddress("test1@test.com"),
+				o.WithRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -580,7 +545,7 @@ func TestUserService_Update(t *testing.T) {
 					if tc.wantError {
 						t.Error("clientMethod.Patch must never be called")
 					} else {
-						assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
+						assert.Equal(t, "users/"+strconv.Itoa(id), spath)
 						assert.Equal(t, tc.want.password, params.Get("password"))
 						assert.Equal(t, tc.want.name, params.Get("name"))
 						assert.Equal(t, tc.want.mailAddress, params.Get("mailAddress"))
@@ -591,7 +556,7 @@ func TestUserService_Update(t *testing.T) {
 			}
 			s := backlog.ExportNewUserService(cm)
 
-			user, err := s.Update(tc.id, tc.options...)
+			user, err := s.Update(id, tc.options...)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})

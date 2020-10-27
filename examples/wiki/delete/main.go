@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 func main() {
@@ -12,23 +12,20 @@ func main() {
 	baseURL := "BACKLOG_BASE_URL"
 	// The tokun for request to Backlog API.
 	token := "BACKLOG_TOKEN"
+
 	// Create Backlog API client.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// ID or Key of the project.
-	projectKey := "PROJECTKEY"
-	// or
-	// projectID := 1234
 
-	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
-	// r, err := c.Wiki.All(backlog.ProjectID(projectID))
-
+	// Delete a Wiki by ID of the Wiki.
+	// You get struct where represented the Wiki deleted.
+	r, err := c.Wiki.Delete(1234)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for _, w := range r {
-		fmt.Printf("%#v\n", w)
-	}
+
+	// Response
+	fmt.Printf("%#v\n", r)
 }

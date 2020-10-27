@@ -6,54 +6,6 @@ import (
 	"strconv"
 )
 
-// UserOption is type of functional option for UserService.
-type UserOption func(p *requestParams) error
-
-// WithPassword returns option. the option sets `password` for user.
-func (*UserOptionService) WithPassword(password string) UserOption {
-	return func(p *requestParams) error {
-		if password == "" {
-			return errors.New("password must not be empty")
-		}
-		p.Set("password", password)
-		return nil
-	}
-}
-
-// WithName returns option. the option sets `password` for user.
-func (*UserOptionService) WithName(name string) UserOption {
-	return func(p *requestParams) error {
-		if name == "" {
-			return errors.New("name must not be empty")
-		}
-		p.Set("name", name)
-		return nil
-	}
-}
-
-// WithMailAddress returns option. the option sets `mailAddress` for user.
-func (*UserOptionService) WithMailAddress(mailAddress string) UserOption {
-	// ToDo: validate mailAddress
-	return func(p *requestParams) error {
-		if mailAddress == "" {
-			return errors.New("mailAddress must not be empty")
-		}
-		p.Set("mailAddress", mailAddress)
-		return nil
-	}
-}
-
-// WithRoleType returns option. the option sets `roleType` for user.
-func (*UserOptionService) WithRoleType(roleType int) UserOption {
-	return func(p *requestParams) error {
-		if roleType < 1 || 6 < roleType {
-			return errors.New("roleType must be between 1 and 7")
-		}
-		p.Add("roleType", strconv.Itoa(roleType))
-		return nil
-	}
-}
-
 func getUser(get clientGet, spath string) (*User, error) {
 	resp, err := get(spath, nil)
 	if err != nil {
@@ -163,7 +115,7 @@ func (s *UserService) Own() (*User, error) {
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(userID, password, name, mailAddress string, roleType int) (*User, error) {
+func (s *UserService) Add(userID, password, name, mailAddress string, roleType role) (*User, error) {
 	if userID == "" {
 		return nil, errors.New("userID must not be empty")
 	}
@@ -176,16 +128,13 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType i
 	if mailAddress == "" {
 		return nil, errors.New("mailAddress must not be empty")
 	}
-	if roleType < 1 || 6 < roleType {
-		return nil, errors.New("roleType must be between 1 and 7")
-	}
 
 	params := newRequestParams()
 	params.Add("userId", userID)
 	params.Add("password", password)
 	params.Add("name", name)
 	params.Add("mailAddress", mailAddress)
-	params.Add("roleType", strconv.Itoa(roleType))
+	params.Add("roleType", strconv.Itoa(int(roleType)))
 
 	spath := "users"
 	return addUser(s.clientMethod.Post, spath, params)
