@@ -74,7 +74,7 @@ type clientPatch func(spath string, params *requestParams) (*response, error)
 type clientDelete func(spath string, params *requestParams) (*response, error)
 type clientUploade func(spath, fpath, fname string) (*response, error)
 
-type clientMethod struct {
+type method struct {
 	Get     clientGet
 	Post    clientPost
 	Patch   clientPatch
@@ -99,7 +99,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 		token:      token,
 	}
 
-	cm := &clientMethod{
+	m := &method{
 		Get: func(spath string, params *requestParams) (*response, error) {
 			return c.get(spath, params)
 		},
@@ -117,19 +117,19 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	c.Activity = newActivityService(cm)
-	c.Category = newCategoryService(cm)
-	c.CustomField = newCustomFieldService(cm)
-	c.Issue = newIssueService(cm)
-	c.Priority = newPriorityService(cm)
-	c.Project = newProjectService(cm)
-	c.PullRequest = newPullRequestService(cm)
-	c.Resolution = newResolutionService(cm)
-	c.Space = newSpaceService(cm)
-	c.Status = newStatusService(cm)
-	c.User = newUserService(cm)
-	c.Version = newVersionService(cm)
-	c.Wiki = newWikiService(cm)
+	c.Activity = newActivityService(m)
+	c.Category = newCategoryService(m)
+	c.CustomField = newCustomFieldService(m)
+	c.Issue = newIssueService(m)
+	c.Priority = newPriorityService(m)
+	c.Project = newProjectService(m)
+	c.PullRequest = newPullRequestService(m)
+	c.Resolution = newResolutionService(m)
+	c.Space = newSpaceService(m)
+	c.Status = newStatusService(m)
+	c.User = newUserService(m)
+	c.Version = newVersionService(m)
+	c.Wiki = newWikiService(m)
 
 	return c, nil
 }

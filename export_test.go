@@ -12,7 +12,7 @@ type (
 )
 
 type (
-	ExportClientMethod  = clientMethod
+	ExportMethod        = method
 	ExportRequestParams = requestParams
 	ExportRequest       = request
 	ExportResponse      = response

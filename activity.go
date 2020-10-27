@@ -37,7 +37,7 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 	}
 
 	spath := "projects/" + projectIDOrKey + "/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
 }
 
 // List returns a list of activities in your space.
@@ -45,7 +45,7 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
 }
 
 // List returns a list of user activities.
@@ -57,5 +57,5 @@ func (s *UserActivityService) List(id int, options ...ActivityOption) ([]*Activi
 	}
 
 	spath := "users/" + strconv.Itoa(id) + "/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
 }
