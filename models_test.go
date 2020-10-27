@@ -33,6 +33,32 @@ func TestFormat_String(t *testing.T) {
 	}
 }
 
+func TestOrder_String(t *testing.T) {
+	cases := map[string]struct {
+		format backlog.ExportOrder
+		want   string
+	}{
+		"Markdown": {
+			format: backlog.OrderAsc,
+			want:   "Asc",
+		},
+		"Backlog": {
+			format: backlog.OrderDesc,
+			want:   "Desc",
+		},
+		"unknown": {
+			format: backlog.ExportOrder("test"),
+			want:   "unknown",
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			assert.Equal(t, tc.format.String(), tc.want)
+		})
+	}
+}
+
 func TestRole_String(t *testing.T) {
 	cases := map[string]struct {
 		roleType backlog.ExportRole

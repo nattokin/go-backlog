@@ -418,6 +418,19 @@ func (f format) String() string {
 	}
 }
 
+type order string
+
+func (o order) String() string {
+	switch o {
+	case OrderAsc:
+		return "Asc"
+	case OrderDesc:
+		return "Desc"
+	default:
+		return "unknown"
+	}
+}
+
 type role int
 
 func (r role) String() string {

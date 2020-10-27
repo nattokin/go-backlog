@@ -7,6 +7,7 @@ import (
 
 type (
 	ExportRole   = role
+	ExportOrder  = order
 	ExportFormat = format
 )
 
