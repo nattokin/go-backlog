@@ -2,8 +2,8 @@ package backlog
 
 // Order type
 const (
-	OrderAsc  = "asc"
-	OrderDesc = "desc"
+	OrderAsc  order = "asc"
+	OrderDesc order = "desc"
 )
 
 // Fomat of Backlog wiki

@@ -222,7 +222,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				minID:          "",
 				maxID:          "",
 				count:          "",
-				order:          backlog.OrderAsc,
+				order:          "asc",
 			},
 		},
 		"WithOrder_invalid": {
@@ -246,7 +246,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				minID:          "1",
 				maxID:          "100",
 				count:          "20",
-				order:          backlog.OrderAsc,
+				order:          "asc",
 			},
 		},
 	}

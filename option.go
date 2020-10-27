@@ -112,12 +112,12 @@ func withMinID(minID int) option {
 	}
 }
 
-func withOrder(order string) option {
+func withOrder(order order) option {
 	return func(p *requestParams) error {
 		if order != OrderAsc && order != OrderDesc {
-			return fmt.Errorf("order must be only '%s' or '%s'", OrderAsc, OrderDesc)
+			return fmt.Errorf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
 		}
-		p.Set("order", order)
+		p.Set("order", string(order))
 		return nil
 	}
 }
@@ -190,7 +190,7 @@ func (*ActivityOptionService) WithCount(count int) ActivityOption {
 }
 
 // WithOrder returns option. the option sets `order` for user.
-func (*ActivityOptionService) WithOrder(order string) ActivityOption {
+func (*ActivityOptionService) WithOrder(order order) ActivityOption {
 	return ActivityOption(withOrder(order))
 }
 

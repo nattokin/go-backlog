@@ -207,7 +207,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
-		order     string
+		order     backlog.ExportOrder
 		wantError bool
 	}{
 		"asc": {
@@ -237,7 +237,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.order, params.Get("order"))
+				assert.Equal(t, string(tc.order), params.Get("order"))
 			}
 		})
 	}
