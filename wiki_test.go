@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -87,7 +87,7 @@ func TestWikiService_Search(t *testing.T) {
 		},
 	})
 	wikis, err := s.Search(backlog.ProjectID(projectID), keyword)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	count := len(wikis)
 	assert.Equal(t, len(want.idList), count)
 	for i := 0; i < count; i++ {
@@ -160,7 +160,7 @@ func TestWikiService_Count(t *testing.T) {
 		},
 	})
 	count, err := s.Count(backlog.ProjectKey(projectKey))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.count, count)
 }
 func TestWikiService_Count_param_error(t *testing.T) {
@@ -257,7 +257,7 @@ func TestWikiService_One(t *testing.T) {
 		},
 	})
 	wiki, err := s.One(wikiID)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.wikiID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 }
@@ -304,7 +304,7 @@ func TestWikiService_One_param(t *testing.T) {
 			if wiki, err := s.One(tc.wikiID); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, 1, wiki.ID)
 			}
 		})
@@ -388,7 +388,7 @@ func TestWikiService_Create(t *testing.T) {
 		},
 	})
 	wiki, err := s.Create(projectID, name, content, s.Option.WithMailNotify(true))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.projectID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 	assert.Equal(t, want.content, wiki.Content)
@@ -458,7 +458,7 @@ func TestWikiService_Create_param(t *testing.T) {
 			if _, err := s.Create(tc.projectID, tc.name, tc.content); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -567,7 +567,7 @@ func TestWikiService_Update(t *testing.T) {
 	})
 	option := s.Option
 	wiki, err := s.Update(id, option.WithName(name), option.WithContent(content), option.WithMailNotify(true))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 	assert.Equal(t, want.content, wiki.Content)
@@ -636,7 +636,7 @@ func TestWikiService_Update_param(t *testing.T) {
 			if _, err := s.Update(tc.wikiID, o.WithName(tc.name), o.WithContent(tc.content)); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -733,7 +733,7 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 	})
 	wiki, err := s.Delete(id, s.Option.WithMailNotify(true))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 }
 
@@ -781,7 +781,7 @@ func TestWikiService_Delete_param(t *testing.T) {
 			if _, err := s.Delete(tc.wikiID); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}

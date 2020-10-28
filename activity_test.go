@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -280,7 +280,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			if _, err := s.List(tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}

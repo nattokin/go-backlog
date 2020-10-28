@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -251,7 +251,7 @@ func TestProjectService_GetList(t *testing.T) {
 		},
 	})
 	projects, err := s.Joined()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	count := len(projects)
 	assert.Equal(t, len(want.idList), count)
 	for i := 0; i < count; i++ {
@@ -301,7 +301,7 @@ func TestProjectService_One_key(t *testing.T) {
 		},
 	})
 	project, err := s.One(backlog.ProjectKey(projectKey))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
 }
@@ -336,7 +336,7 @@ func TestProjectService_One_id(t *testing.T) {
 		},
 	})
 	project, err := s.One(backlog.ProjectID(projectID))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.id, project.ID)
 	assert.Equal(t, want.name, project.Name)
 }
@@ -430,7 +430,7 @@ func TestProjectService_Create(t *testing.T) {
 		},
 	})
 	project, err := s.Create(key, name)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
 }
@@ -483,7 +483,7 @@ func TestProjectService_Create_param(t *testing.T) {
 			if _, err := s.Create(tc.key, tc.name); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -566,7 +566,7 @@ func TestProjectService_Create_option(t *testing.T) {
 			if _, err := s.Create("TEST", "test", tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -634,7 +634,7 @@ func TestProjectService_Update(t *testing.T) {
 		},
 	})
 	project, err := s.Update(backlog.ProjectKey((projectKey)))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.projectKey, project.ProjectKey)
 }
 
@@ -683,7 +683,7 @@ func TestProjectService_Update_param(t *testing.T) {
 			if _, err := s.Update(tc.projectIDOrKey); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -792,7 +792,7 @@ func TestProjectService_Update_option(t *testing.T) {
 			if _, err := s.Update(backlog.ProjectKey("TEST"), tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -877,7 +877,7 @@ func TestProjectService_Delete_param(t *testing.T) {
 			if _, err := s.Delete(tc.projectIDOrKey); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -911,7 +911,7 @@ func TestProjectService_Delete(t *testing.T) {
 		},
 	})
 	project, err := s.Delete(backlog.ProjectKey(projectKey))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
 

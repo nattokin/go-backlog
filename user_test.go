@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,7 +34,7 @@ func TestUserService_One_getUser(t *testing.T) {
 		},
 	})
 	user, err := s.One(1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
 	assert.Equal(t, name, user.Name)
 	assert.Equal(t, mailAddress, user.MailAddress)
@@ -66,7 +66,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 		},
 	})
 	users, err := s.All(projectIDOrKey, excludeGroupMembers)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, userID, users[0].UserID)
 	assert.Equal(t, name, users[0].Name)
 	assert.Equal(t, mailAddress, users[0].MailAddress)
@@ -100,7 +100,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 		},
 	})
 	user, err := s.Add(userID, password, name, mailAddress, roleType)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
 	assert.Equal(t, name, user.Name)
 	assert.Equal(t, mailAddress, user.MailAddress)
@@ -132,7 +132,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 		},
 	})
 	users, err := s.Delete(projectIDOrKey, id)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, userID, users.UserID)
 	assert.Equal(t, name, users.Name)
 	assert.Equal(t, mailAddress, users.MailAddress)
@@ -170,7 +170,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	user, err := s.Update(
 		id, o.WithPassword(password), o.WithName(name), o.WithMailAddress(mailAddress), o.WithRoleType(roleType),
 	)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
 	assert.Equal(t, name, user.Name)
 	assert.Equal(t, mailAddress, user.MailAddress)
