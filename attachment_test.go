@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,7 +51,7 @@ func TestAttachmentService_Uploade(t *testing.T) {
 		},
 	})
 	attachment, err := s.Uploade(fpath, fname)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachment) {
 		assert.Equal(t, want.id, attachment.ID)
 		assert.Equal(t, want.name, attachment.Name)
@@ -129,7 +129,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		},
 	})
 	attachments, err := s.Attach(wikiID, []int{2})
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
 		assert.Equal(t, want.name, attachments[0].Name)
@@ -210,7 +210,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		},
 	})
 	attachments, err := s.List(wikiID)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
 		assert.Equal(t, want.name, attachments[0].Name)
@@ -292,7 +292,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		},
 	})
 	attachments, err := s.Remove(wikiID, attachmentID)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments.ID)
 		assert.Equal(t, want.name, attachments.Name)
@@ -372,7 +372,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		},
 	})
 	attachments, err := s.List(issueIDOrKey)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
 		assert.Equal(t, want.name, attachments[0].Name)
@@ -452,7 +452,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		},
 	})
 	attachments, err := s.Remove(issueIDOrKey, attachmentID)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments.ID)
 		assert.Equal(t, want.name, attachments.Name)
@@ -532,7 +532,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		},
 	})
 	attachments, err := s.List(projectIDOrKey, repoIDOrName, prNumber)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
 		assert.Equal(t, want.name, attachments[0].Name)
@@ -613,7 +613,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		},
 	})
 	attachments, err := s.Remove(projectIDOrKey, repoIDOrName, prNumber, attachmentID)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments.ID)
 		assert.Equal(t, want.name, attachments.Name)

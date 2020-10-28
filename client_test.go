@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -61,7 +61,7 @@ func TestNewClient(t *testing.T) {
 				assert.Error(t, err)
 				assert.Nil(t, c)
 			case !tc.wantError:
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.NotNil(t, c)
 			}
 
@@ -161,7 +161,7 @@ func TestClient_NewReqest(t *testing.T) {
 				assert.Error(t, err)
 				assert.Nil(t, request)
 			case !tc.wantError:
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.NotNil(t, request)
 			}
 		})
@@ -221,7 +221,7 @@ func TestClient_Do(t *testing.T) {
 	)
 
 	res, err := backlog.ExportClientDo(c, req)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	defer res.Body.Close()
 
@@ -513,7 +513,7 @@ func TestClient_Uploade(t *testing.T) {
 	c.ExportSetHTTPClient(httpClient)
 
 	res, err := backlog.ExportClientUploade(c, spath, fpath, "fname")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
 }
