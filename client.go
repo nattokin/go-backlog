@@ -36,19 +36,10 @@ type Client struct {
 	httpClient *http.Client
 	token      string
 
-	Activity    *ActivityService
-	Category    *CategoryService
-	CustomField *CustomFieldService
-	Issue       *IssueService
-	Priority    *PriorityService
-	Project     *ProjectService
-	PullRequest *PullRequestService
-	Resolution  *ResolutionService
-	Space       *SpaceService
-	Status      *StatusService
-	User        *UserService
-	Version     *VersionService
-	Wiki        *WikiService
+	Activity *ActivityService
+	Project  *ProjectService
+	User     *UserService
+	Wiki     *WikiService
 }
 
 // Response represents Backlog API response.
@@ -74,7 +65,7 @@ type clientPatch func(spath string, params *requestParams) (*response, error)
 type clientDelete func(spath string, params *requestParams) (*response, error)
 type clientUploade func(spath, fpath, fname string) (*response, error)
 
-type clientMethod struct {
+type method struct {
 	Get     clientGet
 	Post    clientPost
 	Patch   clientPatch
@@ -99,7 +90,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 		token:      token,
 	}
 
-	cm := &clientMethod{
+	m := &method{
 		Get: func(spath string, params *requestParams) (*response, error) {
 			return c.get(spath, params)
 		},
@@ -117,19 +108,36 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	c.Activity = newActivityService(cm)
-	c.Category = newCategoryService(cm)
-	c.CustomField = newCustomFieldService(cm)
-	c.Issue = newIssueService(cm)
-	c.Priority = newPriorityService(cm)
-	c.Project = newProjectService(cm)
-	c.PullRequest = newPullRequestService(cm)
-	c.Resolution = newResolutionService(cm)
-	c.Space = newSpaceService(cm)
-	c.Status = newStatusService(cm)
-	c.User = newUserService(cm)
-	c.Version = newVersionService(cm)
-	c.Wiki = newWikiService(cm)
+	c.Activity = &ActivityService{
+		method: m,
+		Option: &ActivityOptionService{},
+	}
+	c.Project = &ProjectService{
+		method: m,
+		Activity: &ProjectActivityService{
+			method: m,
+		},
+		User: &ProjectUserService{
+			method: m,
+		},
+		Option: &ProjectOptionService{},
+	}
+	c.User = &UserService{
+		method: m,
+		Activity: &UserActivityService{
+			method: m,
+		},
+		Option: &UserOptionService{},
+	}
+	c.Wiki = &WikiService{
+		method: m,
+		Attachment: &WikiAttachmentService{
+			AttachmentService: &AttachmentService{
+				method: m,
+			},
+		},
+		Option: &WikiOptionService{},
+	}
 
 	return c, nil
 }

@@ -7,6 +7,14 @@ import (
 	"strconv"
 )
 
+// WikiService has methods for Wiki.
+type WikiService struct {
+	method *method
+
+	Attachment *WikiAttachmentService
+	Option     *WikiOptionService
+}
+
 // All Wiki in project is gotten.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
@@ -27,7 +35,7 @@ func (s *WikiService) Search(target ProjectIDOrKeyGetter, keyword string) ([]*Wi
 	if keyword != "" {
 		params.Set("keyword", keyword)
 	}
-	resp, err := s.clientMethod.Get("wikis", params)
+	resp, err := s.method.Get("wikis", params)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +59,7 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 		return 0, err
 	}
 	params.Set("projectIdOrKey", projectIDOrKey)
-	resp, err := s.clientMethod.Get("wikis/count", params)
+	resp, err := s.method.Get("wikis/count", params)
 	if err != nil {
 		return 0, err
 	}
@@ -74,7 +82,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID)
-	resp, err := s.clientMethod.Get(spath, nil)
+	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +120,7 @@ func (s *WikiService) Create(projectID int, name, content string, options ...Wik
 		}
 	}
 
-	resp, err := s.clientMethod.Post("wikis", params)
+	resp, err := s.method.Post("wikis", params)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +154,7 @@ func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID)
-	resp, err := s.clientMethod.Patch(spath, params)
+	resp, err := s.method.Patch(spath, params)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +183,7 @@ func (s *WikiService) Delete(wikiID int, options ...WikiOption) (*Wiki, error) {
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID)
-	resp, err := s.clientMethod.Delete(spath, params)
+	resp, err := s.method.Delete(spath, params)
 	if err != nil {
 		return nil, err
 	}

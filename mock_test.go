@@ -3,7 +3,7 @@ package backlog_test
 import (
 	"net/http"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 type RoundTripFunc func(req *http.Request) (*http.Response, error)

@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -79,7 +79,7 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				v := *params.ExportURLValues()
 				assert.Equal(t, tc.want, v["activityTypeId[]"])
 			}
@@ -116,7 +116,7 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.minID), params.Get("minId"))
 			}
 		})
@@ -152,7 +152,7 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.maxID), params.Get("maxId"))
 			}
 		})
@@ -196,7 +196,7 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.count), params.Get("count"))
 			}
 		})
@@ -236,7 +236,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, string(tc.order), params.Get("order"))
 			}
 		})
@@ -268,7 +268,7 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.key, params.Get("key"))
 			}
 		})
@@ -300,7 +300,7 @@ func TestProjectOptionService_WithName(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.name, params.Get("name"))
 			}
 		})
@@ -326,7 +326,7 @@ func TestProjectOptionService_WithChartEnabled(t *testing.T) {
 			option := o.WithChartEnabled(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("chartEnabled"))
 		})
 	}
@@ -351,7 +351,7 @@ func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
 			option := o.WithSubtaskingEnabled(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("subtaskingEnabled"))
 		})
 	}
@@ -376,7 +376,7 @@ func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T
 			option := o.WithProjectLeaderCanEditProjectLeader(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("projectLeaderCanEditProjectLeader"))
 		})
 	}
@@ -415,7 +415,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, string(tc.format), params.Get("textFormattingRule"))
 			}
 		})
@@ -441,7 +441,7 @@ func TestProjectOptionService_WithArchived(t *testing.T) {
 			option := o.WithArchived(tc.archived)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.archived), params.Get("archived"))
 		})
 	}
@@ -476,7 +476,7 @@ func TestUserOptionService_WithPassword(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.password, params.Get("password"))
 			}
 		})
@@ -508,7 +508,7 @@ func TestUserOptionService_WithName(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.name, params.Get("name"))
 			}
 		})
@@ -553,7 +553,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.mailAddress, params.Get("mailAddress"))
 			}
 		})
@@ -618,7 +618,7 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.want, params.Get("roleType"))
 			}
 		})
@@ -650,7 +650,7 @@ func TestWikiOptionService_WithName(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.name, params.Get("name"))
 			}
 		})
@@ -682,7 +682,7 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 			if err := option(params); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tc.content, params.Get("content"))
 			}
 		})
@@ -708,7 +708,7 @@ func TestWikiOptionService_WithMailNotify(t *testing.T) {
 			option := o.WithMailNotify(tc.enabeld)
 			params := backlog.ExportNewRequestParams()
 			err := option(params)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("mailNotify"))
 		})
 	}

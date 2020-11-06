@@ -3,7 +3,7 @@ package backlog_test
 import (
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
