@@ -8,6 +8,34 @@ on:
 
 jobs:
 
+  lint:
+    name: 'lint'
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.15
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.15'
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Install goimpirts
+      run: go get golang.org/x/tools/cmd/goimports
+
+    - name: Install golint
+      run: go get golang.org/x/lint/golint
+
+    - name: Run goimports
+      run: diff <(goimports -d .) <(printf "")
+
+    - name: Run golint
+      run: diff <(golint ./...) <(printf "")
+
+    - name: Run golint
+      run: diff <(gofmt -d .) <(printf "")
+
   go1_11:
     name: '1.11'
     runs-on: ubuntu-latest
