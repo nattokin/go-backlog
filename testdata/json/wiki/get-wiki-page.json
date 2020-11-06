@@ -8,6 +8,38 @@
             "name": "議事録"
         }
     ],
+    "stars": [
+        { 
+            "id":75, 
+            "comment":null, 
+            "url": "https://xx.backlogtool.com/view/BLG-1", 
+            "title": "[BLG-1] first issue | Show issue - Backlog", 
+            "presenter":{ 
+                "id":1, 
+                "userId": "admin", 
+                "name":"admin", 
+                "roleType":1, 
+                "lang":"ja", 
+                "mailAddress":"eguchi@nulab.example" 
+            }, 
+            "created":"2014-01-23T10:55:19Z" 
+        },
+        { 
+            "id":76, 
+            "comment":"ok", 
+            "url": "https://xx.backlogtool.com/view/BLG-1", 
+            "title": "[BLG-1] first issue | Show issue - Backlog", 
+            "presenter":{ 
+                "id":1, 
+                "userId": "admin", 
+                "name":"admin", 
+                "roleType":1, 
+                "lang":"ja", 
+                "mailAddress":"eguchi@nulab.example" 
+            }, 
+            "created":"2014-01-23T10:55:19Z" 
+        }
+    ],
     "createdUser": {
         "id": 1,
         "userId": "admin",
