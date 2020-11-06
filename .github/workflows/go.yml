@@ -131,8 +131,8 @@ jobs:
     - name: Test
       run: go test -v . -race -coverprofile=coverage.txt -covermode=atomic
 
-    - name: Install CodeCov
-      run: curl -s https://codecov.io/bash > codecov.bash
-
-    - name: Run CodeCov
-      run: codecov.bash && bash codecov.bash -f coverage.txt
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.txt
