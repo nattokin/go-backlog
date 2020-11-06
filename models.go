@@ -300,7 +300,7 @@ type SpaceNotification struct {
 // Star represents any Star.
 type Star struct {
 	ID        int       `json:"id,omitempty"`
-	Comment   *Comment  `json:"comment,omitempty"`
+	Comment   string    `json:"comment,omitempty"`
 	URL       string    `json:"url,omitempty"`
 	Title     string    `json:"title,omitempty"`
 	Presenter *User     `json:"presenter,omitempty"`
