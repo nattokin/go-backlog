@@ -6,6 +6,12 @@ import (
 	"strconv"
 )
 
+// ActivityService has methods for Activitys.
+type ActivityService struct {
+	method *method
+	Option *ActivityOptionService
+}
+
 func getActivityList(get clientGet, spath string, options ...ActivityOption) ([]*Activity, error) {
 	params := newRequestParams()
 	for _, option := range options {
@@ -28,6 +34,11 @@ func getActivityList(get clientGet, spath string, options ...ActivityOption) ([]
 	return v, nil
 }
 
+// ProjectActivityService has methods for activitys of the project.
+type ProjectActivityService struct {
+	method *method
+}
+
 // List returns a list of activities in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
@@ -37,7 +48,7 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 	}
 
 	spath := "projects/" + projectIDOrKey + "/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
 }
 
 // List returns a list of activities in your space.
@@ -45,7 +56,12 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...Activity
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
+}
+
+// UserActivityService has methods for user activitys.
+type UserActivityService struct {
+	method *method
 }
 
 // List returns a list of user activities.
@@ -57,5 +73,5 @@ func (s *UserActivityService) List(id int, options ...ActivityOption) ([]*Activi
 	}
 
 	spath := "users/" + strconv.Itoa(id) + "/activities"
-	return getActivityList(s.clientMethod.Get, spath, options...)
+	return getActivityList(s.method.Get, spath, options...)
 }

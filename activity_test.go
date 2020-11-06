@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,25 +18,25 @@ func TestProjectActivityService_List(t *testing.T) {
 	}{
 		spath: "projects/" + projectIDOrKey + "/activities",
 	}
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.ProjectActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewProjectActivityService(cm)
+	})
 	s.List(projectIDOrKey)
 }
 
 func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	projectIDOrKey := ""
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.ProjectActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-			t.Error("clientMethod.Get must never be called")
+			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewProjectActivityService(cm)
+	})
 	s.List(projectIDOrKey)
 }
 
@@ -47,7 +47,8 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 	}
 	defer bj.Close()
 
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.ProjectActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -55,8 +56,7 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 			}
 			return backlog.ExportNewResponse(resp), nil
 		},
-	}
-	s := backlog.ExportNewProjectActivityService(cm)
+	})
 	projects, err := s.List("TEST")
 	assert.Nil(t, projects)
 	assert.Error(t, err)
@@ -68,13 +68,13 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}{
 		spath: "space/activities",
 	}
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.SpaceActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewSpaceActivityService(cm)
+	})
 	s.List()
 }
 
@@ -85,25 +85,25 @@ func TestUserActivityService_List(t *testing.T) {
 	}{
 		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.UserActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewUserActivityService(cm)
+	})
 	s.List(id)
 }
 
 func TestUserActivityService_List_invaliedID(t *testing.T) {
 	id := 0
-	cm := &backlog.ExportClientMethod{
+	s := &backlog.UserActivityService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-			t.Error("clientMethod.Get must never be called")
+			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
-	}
-	s := backlog.ExportNewUserActivityService(cm)
+	})
 	s.List(id)
 }
 
@@ -259,7 +259,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			}
 			defer bj.Close()
 
-			cm := &backlog.ExportClientMethod{
+			s := &backlog.SpaceActivityService{}
+			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
 					v := *params.ExportURLValues()
 					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
@@ -274,13 +275,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 					}
 					return backlog.ExportNewResponse(resp), nil
 				},
-			}
-			s := backlog.ExportNewSpaceActivityService(cm)
+			})
 
 			if _, err := s.List(tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}
