@@ -1,0 +1,14 @@
+name: GoReport
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  go_report:
+    name: Refresh go report
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: creekorful/goreportcard-action@v1.0
