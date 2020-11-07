@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Refresh go report
-      if: ${{ github.event_name == 'push' }}
-      uses: creekorful/goreportcard-action@v1.0
-
     - name: Set up Go 1.15
       uses: actions/setup-go@v2
       with:
