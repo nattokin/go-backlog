@@ -2,7 +2,7 @@ go-backlog
 ====
 [![GoDoc](https://godoc.org/github.com/nattokin/go-backlog?status.svg)](https://godoc.org/github.com/nattokin/go-backlog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nattokin/go-backlog)](https://goreportcard.com/report/github.com/nattokin/go-backlog)
-[![Build Status](https://travis-ci.org/nattokin/go-backlog.svg?branch=master)](https://travis-ci.org/nattokin/go-backlog)
+[![Test](https://github.com/nattokin/go-backlog/workflows/Test/badge.svg)](https://github.com/nattokin/go-backlog/actions?query=workflow%3ATest+branch%3Amaster)
 [![codecov](https://codecov.io/gh/nattokin/go-backlog/branch/master/graph/badge.svg)](https://codecov.io/gh/nattokin/go-backlog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
