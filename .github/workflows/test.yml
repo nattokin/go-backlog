@@ -1,4 +1,4 @@
-name: Go
+name: Test
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
       run: diff <(gofmt -d .) <(printf "")
 
   go1_11:
-    name: '1.11'
+    name: go:1.11
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -57,7 +57,7 @@ jobs:
       run: go test -v .
 
   go1_12:
-    name: '1.12'
+    name: go:1.12
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -77,7 +77,7 @@ jobs:
       run: go test -v .
 
   go1_13:
-    name: '1.13'
+    name: go:1.13
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -97,7 +97,7 @@ jobs:
       run: go test -v .
 
   go1_14:
-    name: '1.14'
+    name: go:1.14
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +117,7 @@ jobs:
       run: go test -v .
 
   go1_15:
-    name: '1.15'
+    name: go:1.15
     needs: lint
     runs-on: ubuntu-latest
     steps:
