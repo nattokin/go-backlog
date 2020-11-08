@@ -18,6 +18,6 @@ comment:
     - master
 
 ignore:
-  - "docker"
-  - "exxamples"
-  - "testdata"
+  - "./docker/"
+  - "./exxamples/"
+  - "./testdata/"
