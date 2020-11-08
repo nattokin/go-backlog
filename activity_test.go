@@ -12,11 +12,11 @@ import (
 )
 
 func TestProjectActivityService_List(t *testing.T) {
-	projectIDOrKey := "TEST"
+	projectKey := "TEST"
 	want := struct {
 		spath string
 	}{
-		spath: "projects/" + projectIDOrKey + "/activities",
+		spath: "projects/" + projectKey + "/activities",
 	}
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
@@ -25,11 +25,11 @@ func TestProjectActivityService_List(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	s.List(projectIDOrKey)
+	s.List(backlog.ProjectKey(projectKey))
 }
 
 func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
-	projectIDOrKey := ""
+	projectKey := ""
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
@@ -37,7 +37,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	s.List(projectIDOrKey)
+	s.List(backlog.ProjectKey(projectKey))
 }
 
 func TestProjectActivityService_List_invaliedJson(t *testing.T) {
@@ -57,7 +57,7 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	})
-	projects, err := s.List("TEST")
+	projects, err := s.List(backlog.ProjectKey("TEST"))
 	assert.Nil(t, projects)
 	assert.Error(t, err)
 }
