@@ -307,7 +307,7 @@ func TestProjectService_One_key(t *testing.T) {
 }
 
 func TestProjectService_One_id(t *testing.T) {
-	projectID := 1
+	projectID := 6
 	bj, err := os.Open("testdata/json/project.json")
 	if err != nil {
 		t.Fatal(err)

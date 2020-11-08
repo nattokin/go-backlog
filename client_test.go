@@ -136,7 +136,7 @@ func TestNewClient_projectActivity(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity.json")
+	bj, err := os.Open("testdata/json/activity_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +163,7 @@ func TestNewClient_spaceActivity(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity.json")
+	bj, err := os.Open("testdata/json/activity_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +191,7 @@ func TestNewClient_spaceAttachment(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/upload_attachment.json")
+	bj, err := os.Open("testdata/json/attachment_upload.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +246,7 @@ func TestNewClient_userActivity(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity.json")
+	bj, err := os.Open("testdata/json/activity_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,12 +270,12 @@ func TestNewClient_userActivity(t *testing.T) {
 
 func TestNewClient_wiki(t *testing.T) {
 	projectID := 1
-	name := "Home"
-	content := "test"
+	name := "Minimum Wiki Page"
+	content := "This is a minimal wiki page."
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/wiki/add-wiki-page.json")
+	bj, err := os.Open("testdata/json/wiki_minimum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
