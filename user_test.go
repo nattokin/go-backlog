@@ -47,7 +47,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
 
-	projectIDOrKey := "TEST"
+	projectKey := "TEST"
 	excludeGroupMembers := false
 	bj, err := os.Open("testdata/json/user_list.json")
 	if err != nil {
@@ -56,7 +56,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	s := &backlog.ProjectUserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-			assert.Equal(t, "projects/"+projectIDOrKey+"/users", spath)
+			assert.Equal(t, "projects/"+projectKey+"/users", spath)
 			assert.Equal(t, strconv.FormatBool(excludeGroupMembers), params.Get("excludeGroupMembers"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -65,7 +65,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	})
-	users, err := s.All(projectIDOrKey, excludeGroupMembers)
+	users, err := s.All(backlog.ProjectKey(projectKey), excludeGroupMembers)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users[0].UserID)
 	assert.Equal(t, name, users[0].Name)
@@ -113,7 +113,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
 
-	projectIDOrKey := "TEST"
+	projectKey := "TEST"
 	id := 1
 	bj, err := os.Open("testdata/json/user.json")
 	if err != nil {
@@ -122,7 +122,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	s := &backlog.ProjectUserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
-			assert.Equal(t, "projects/"+projectIDOrKey+"/users", spath)
+			assert.Equal(t, "projects/"+projectKey+"/users", spath)
 			assert.Equal(t, strconv.Itoa(id), params.Get("userId"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -131,7 +131,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	})
-	users, err := s.Delete(projectIDOrKey, id)
+	users, err := s.Delete(backlog.ProjectKey(projectKey), id)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users.UserID)
 	assert.Equal(t, name, users.Name)
@@ -664,13 +664,13 @@ func TestProjectUserService_All(t *testing.T) {
 		excludeGroupMembers string
 	}
 	cases := map[string]struct {
-		projectIDOrKey      string
+		projectKey          string
 		excludeGroupMembers bool
 		wantError           bool
 		want                want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey:      "TEST",
+		"projectKey_valid": {
+			projectKey:          "TEST",
 			excludeGroupMembers: false,
 			wantError:           false,
 			want: want{
@@ -678,23 +678,14 @@ func TestProjectUserService_All(t *testing.T) {
 				excludeGroupMembers: "false",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey:      "1234",
-			excludeGroupMembers: false,
-			wantError:           false,
-			want: want{
-				spath:               "projects/1234/users",
-				excludeGroupMembers: "false",
-			},
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey:      "",
+		"projectKey_empty": {
+			projectKey:          "",
 			excludeGroupMembers: false,
 			wantError:           true,
 			want:                want{},
 		},
 		"excludeGroupMembers_true": {
-			projectIDOrKey:      "TEST2",
+			projectKey:          "TEST2",
 			excludeGroupMembers: true,
 			wantError:           false,
 			want: want{
@@ -703,7 +694,7 @@ func TestProjectUserService_All(t *testing.T) {
 			},
 		},
 		"excludeGroupMembers_false": {
-			projectIDOrKey:      "TEST3",
+			projectKey:          "TEST3",
 			excludeGroupMembers: false,
 			wantError:           false,
 			want: want{
@@ -727,7 +718,7 @@ func TestProjectUserService_All(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.All(tc.projectIDOrKey, tc.excludeGroupMembers)
+			s.All(backlog.ProjectKey(tc.projectKey), tc.excludeGroupMembers)
 		})
 	}
 }
@@ -738,45 +729,36 @@ func TestProjectUserService_Add(t *testing.T) {
 		userID string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
-		userID         int
-		wantError      bool
-		want           want
+		projectKey string
+		userID     int
+		wantError  bool
+		want       want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
-			userID:         1,
-			wantError:      false,
+		"projectKey_valid": {
+			projectKey: "TEST",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST/users",
 				userID: "1",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			userID:         1,
-			wantError:      false,
-			want: want{
-				spath:  "projects/1234/users",
-				userID: "1",
-			},
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			userID:         1,
-			wantError:      true,
-			want:           want{},
+		"projectKey_empty": {
+			projectKey: "",
+			userID:     1,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_0": {
-			projectIDOrKey: "TEST1",
-			userID:         0,
-			wantError:      true,
-			want:           want{},
+			projectKey: "TEST1",
+			userID:     0,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_1": {
-			projectIDOrKey: "TEST2",
-			userID:         1,
-			wantError:      false,
+			projectKey: "TEST2",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST2/users",
 				userID: "1",
@@ -798,7 +780,7 @@ func TestProjectUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.Add(tc.projectIDOrKey, tc.userID)
+			s.Add(backlog.ProjectKey(tc.projectKey), tc.userID)
 		})
 	}
 }
@@ -808,45 +790,45 @@ func TestProjectUserService_Delete(t *testing.T) {
 		userID string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
-		userID         int
-		wantError      bool
-		want           want
+		projectKey string
+		userID     int
+		wantError  bool
+		want       want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
-			userID:         1,
-			wantError:      false,
+		"projectKey_string": {
+			projectKey: "TEST",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST/users",
 				userID: "1",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			userID:         1,
-			wantError:      false,
+		"projectKey_number": {
+			projectKey: "1234",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/1234/users",
 				userID: "1",
 			},
 		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			userID:         1,
-			wantError:      true,
-			want:           want{},
+		"projectKey_empty": {
+			projectKey: "",
+			userID:     1,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_0": {
-			projectIDOrKey: "TEST1",
-			userID:         0,
-			wantError:      true,
-			want:           want{},
+			projectKey: "TEST1",
+			userID:     0,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_1": {
-			projectIDOrKey: "TEST2",
-			userID:         1,
-			wantError:      false,
+			projectKey: "TEST2",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST2/users",
 				userID: "1",
@@ -868,7 +850,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.Delete(tc.projectIDOrKey, tc.userID)
+			s.Delete(backlog.ProjectKey(tc.projectKey), tc.userID)
 		})
 	}
 }
@@ -878,45 +860,36 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		userID string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
-		userID         int
-		wantError      bool
-		want           want
+		projectKey string
+		userID     int
+		wantError  bool
+		want       want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
-			userID:         1,
-			wantError:      false,
+		"projectKey_valid": {
+			projectKey: "TEST",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST/administrators",
 				userID: "1",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			userID:         1,
-			wantError:      false,
-			want: want{
-				spath:  "projects/1234/administrators",
-				userID: "1",
-			},
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			userID:         1,
-			wantError:      true,
-			want:           want{},
+		"projectKey_empty": {
+			projectKey: "",
+			userID:     1,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_0": {
-			projectIDOrKey: "TEST1",
-			userID:         0,
-			wantError:      true,
-			want:           want{},
+			projectKey: "TEST1",
+			userID:     0,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_1": {
-			projectIDOrKey: "TEST2",
-			userID:         1,
-			wantError:      false,
+			projectKey: "TEST2",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST2/administrators",
 				userID: "1",
@@ -938,7 +911,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.AddAdmin(tc.projectIDOrKey, tc.userID)
+			s.AddAdmin(backlog.ProjectKey(tc.projectKey), tc.userID)
 		})
 	}
 }
@@ -947,28 +920,21 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		spath string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
-		wantError      bool
-		want           want
+		projectKey string
+		wantError  bool
+		want       want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
-			wantError:      false,
+		"projectKey_valid": {
+			projectKey: "TEST",
+			wantError:  false,
 			want: want{
 				spath: "projects/TEST/administrators",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			wantError:      false,
-			want: want{
-				spath: "projects/1234/administrators",
-			},
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			wantError:      true,
-			want:           want{},
+		"projectKey_empty": {
+			projectKey: "",
+			wantError:  true,
+			want:       want{},
 		},
 	}
 	for n, tc := range cases {
@@ -986,7 +952,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.AdminAll(tc.projectIDOrKey)
+			s.AdminAll(backlog.ProjectKey(tc.projectKey))
 		})
 	}
 }
@@ -996,45 +962,36 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		userID string
 	}
 	cases := map[string]struct {
-		projectIDOrKey string
-		userID         int
-		wantError      bool
-		want           want
+		projectKey string
+		userID     int
+		wantError  bool
+		want       want
 	}{
-		"projectIDOrKey_string": {
-			projectIDOrKey: "TEST",
-			userID:         1,
-			wantError:      false,
+		"projectKey_valid": {
+			projectKey: "TEST",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST/administrators",
 				userID: "1",
 			},
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			userID:         1,
-			wantError:      false,
-			want: want{
-				spath:  "projects/1234/administrators",
-				userID: "1",
-			},
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			userID:         1,
-			wantError:      true,
-			want:           want{},
+		"projectKey_empty": {
+			projectKey: "",
+			userID:     1,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_0": {
-			projectIDOrKey: "TEST1",
-			userID:         0,
-			wantError:      true,
-			want:           want{},
+			projectKey: "TEST1",
+			userID:     0,
+			wantError:  true,
+			want:       want{},
 		},
 		"userID_1": {
-			projectIDOrKey: "TEST2",
-			userID:         1,
-			wantError:      false,
+			projectKey: "TEST2",
+			userID:     1,
+			wantError:  false,
 			want: want{
 				spath:  "projects/TEST2/administrators",
 				userID: "1",
@@ -1056,7 +1013,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.DeleteAdmin(tc.projectIDOrKey, tc.userID)
+			s.DeleteAdmin(backlog.ProjectKey(tc.projectKey), tc.userID)
 		})
 	}
 }

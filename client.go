@@ -36,10 +36,12 @@ type Client struct {
 	httpClient *http.Client
 	token      string
 
-	Activity *ActivityService
-	Project  *ProjectService
-	User     *UserService
-	Wiki     *WikiService
+	Issue       *IssueService
+	Project     *ProjectService
+	PullRequest *PullRequestService
+	Space       *SpaceService
+	User        *UserService
+	Wiki        *WikiService
 }
 
 // Response represents Backlog API response.
@@ -108,33 +110,53 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	c.Activity = &ActivityService{
+	activityOptionService := &ActivityOptionService{}
+
+	c.Issue = &IssueService{
 		method: m,
-		Option: &ActivityOptionService{},
+		Attachment: &IssueAttachmentService{
+			method: m,
+		},
 	}
 	c.Project = &ProjectService{
 		method: m,
 		Activity: &ProjectActivityService{
 			method: m,
+			Option: activityOptionService,
 		},
 		User: &ProjectUserService{
 			method: m,
 		},
 		Option: &ProjectOptionService{},
 	}
+	c.PullRequest = &PullRequestService{
+		method: m,
+		Attachment: &PullRequestAttachmentService{
+			method: m,
+		},
+	}
+	c.Space = &SpaceService{
+		method: m,
+		Activity: &SpaceActivityService{
+			method: m,
+			Option: activityOptionService,
+		},
+		Attachment: &SpaceAttachmentService{
+			method: m,
+		},
+	}
 	c.User = &UserService{
 		method: m,
 		Activity: &UserActivityService{
 			method: m,
+			Option: activityOptionService,
 		},
 		Option: &UserOptionService{},
 	}
 	c.Wiki = &WikiService{
 		method: m,
 		Attachment: &WikiAttachmentService{
-			AttachmentService: &AttachmentService{
-				method: m,
-			},
+			method: m,
 		},
 		Option: &WikiOptionService{},
 	}

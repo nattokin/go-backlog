@@ -4,10 +4,6 @@ package backlog
 type SpaceService struct {
 	method *method
 
-	Activity *SpaceActivityService
-}
-
-// SpaceActivityService has methods for activitys in your space.
-type SpaceActivityService struct {
-	method *method
+	Activity   *SpaceActivityService
+	Attachment *SpaceAttachmentService
 }
