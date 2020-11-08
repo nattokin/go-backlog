@@ -1,17 +1,17 @@
 {
-    "id": 1,
-    "projectId": 1,
-    "name": "Home",
-    "content": "test",
+    "id": 34,
+    "projectId": 56,
+    "name": "Maximum Wiki Page",
+    "content": "This is a muximal wiki page.",
     "tags": [
         {
             "id": 12,
-            "name": "議事録"
+            "name": "proceedings"
         }
     ],
     "attachments": [
         {
-            "id": 1,
+            "id": 23,
             "name": "test.json",
             "size": 8857,
             "createdUser": {
@@ -29,8 +29,8 @@
         {
             "id": 454403,
             "type": "file",
-            "dir": "/ユーザアイコン/",
-            "name": "01_サラリーマン.png",
+            "dir": "/icon/",
+            "name": "01_buz.png",
             "size": 2735,
             "createdUser": {
                 "id": 5686,
@@ -52,7 +52,38 @@
             "updated": "2009-03-03T16:57:47Z"
         }
     ],
-    "stars": [],
+    "stars": [
+        { 
+            "id":75, 
+            "comment":null, 
+            "url": "https://xx.backlogtool.com/view/BLG-1", 
+            "title": "[BLG-1] first issue | Show issue - Backlog", 
+            "presenter":{ 
+                "id":1, 
+                "userId": "admin", 
+                "name":"admin", 
+                "roleType":1, 
+                "lang":"ja", 
+                "mailAddress":"eguchi@nulab.example" 
+            }, 
+            "created":"2014-01-23T10:55:19Z" 
+        },
+        { 
+            "id":76, 
+            "comment":"ok", 
+            "url": "https://xx.backlogtool.com/view/BLG-1", 
+            "title": "[BLG-1] first issue | Show issue - Backlog", 
+            "presenter":{ 
+                "id":1, 
+                "userId": "admin", 
+                "name":"admin", 
+                "roleType":1, 
+                "lang":"ja", 
+                "mailAddress":"eguchi@nulab.example" 
+            }, 
+            "created":"2014-01-23T10:55:19Z" 
+        }
+    ],
     "createdUser": {
         "id": 1,
         "userId": "admin",
