@@ -253,7 +253,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/activity.json")
+			bj, err := os.Open("testdata/json/activity_list.json")
 			if err != nil {
 				t.Fatal(err)
 			}

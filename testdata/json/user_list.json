@@ -6,5 +6,29 @@
         "roleType": 1, 
         "lang": "ja", 
         "mailAddress": "eguchi@nulab.example" 
+    },
+    { 
+        "id": 2, 
+        "userId": "normal_user", 
+        "name": "normal_user", 
+        "roleType": 2, 
+        "lang": "ja", 
+        "mailAddress": "sato@nulab.example" 
+    },
+    { 
+        "id": 3, 
+        "userId": "reporter", 
+        "name": "reporter", 
+        "roleType": 3, 
+        "lang": "ja", 
+        "mailAddress": "yamada@nulab.example" 
+    },
+    { 
+        "id": 4, 
+        "userId": "viewer", 
+        "name": "viewer", 
+        "roleType": 4, 
+        "lang": "ja", 
+        "mailAddress": "tanaka@nulab.example" 
     }
 ] 

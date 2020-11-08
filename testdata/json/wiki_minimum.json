@@ -1,12 +1,12 @@
 {
-    "id": 1,
-    "projectId": 1,
-    "name": "Home",
-    "content": "test",
+    "id": 34,
+    "projectId": 56,
+    "name": "Minimum Wiki Page",
+    "content": "This is a minimal wiki page.",
     "tags": [
         {
             "id": 12,
-            "name": "議事録"
+            "name": "proceedings"
         }
     ],
     "attachments": [],
