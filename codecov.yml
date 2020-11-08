@@ -16,8 +16,8 @@ comment:
   require_changes: true
   branches:
     - master
-    - release/*
 
 ignore:
-  - "exxample"
+  - "docker"
+  - "exxamples"
   - "testdata"
