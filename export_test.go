@@ -67,11 +67,7 @@ func (p *requestParams) ExportURLValues() *url.Values {
 	return p.Values
 }
 
-func (s *ActivityService) ExportSetMethod(m *method) {
-	s.method = m
-}
-
-func (s *AttachmentService) ExportSetMethod(m *method) {
+func (s *SpaceAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
 }
 

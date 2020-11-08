@@ -5,8 +5,8 @@ import (
 	"strconv"
 )
 
-// AttachmentService hs methods for attachment.
-type AttachmentService struct {
+// SpaceAttachmentService hs methods for attachment.
+type SpaceAttachmentService struct {
 	method *method
 }
 
@@ -15,7 +15,7 @@ type AttachmentService struct {
 // File's path and name are must not empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *AttachmentService) Uploade(fpath, fname string) (*Attachment, error) {
+func (s *SpaceAttachmentService) Uploade(fpath, fname string) (*Attachment, error) {
 	spath := "space/attachment"
 	resp, err := s.method.Uploade(spath, fpath, fname)
 	if err != nil {
@@ -63,7 +63,7 @@ func removeAttachment(delete clientDelete, spath string) (*Attachment, error) {
 
 // WikiAttachmentService hs methods for attachment file of wiki.
 type WikiAttachmentService struct {
-	*AttachmentService
+	method *method
 }
 
 // Attach attachs files uploaded to space to the wiki.
@@ -105,6 +105,11 @@ func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, e
 	return removeAttachment(s.method.Delete, spath)
 }
 
+// IssueAttachmentService hs methods for attachment file of issue.
+type IssueAttachmentService struct {
+	method *method
+}
+
 // List returns a list of all attachments in the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
@@ -123,7 +128,7 @@ func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (
 
 // PullRequestAttachmentService hs methods for attachment file of pull request.
 type PullRequestAttachmentService struct {
-	*AttachmentService
+	method *method
 }
 
 // List returns a list of all attachments in the pull request.

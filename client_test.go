@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -73,6 +74,227 @@ func TestNewClient(t *testing.T) {
 			assert.Equal(t, tc.token, c.ExportToken())
 		})
 	}
+}
+
+func TestNewClient_project(t *testing.T) {
+	key := "TEST"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/project.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	project, err := c.Project.Update(backlog.ProjectKey(key), c.Project.Option.WithArchived(false))
+	assert.NoError(t, err)
+	assert.NotNil(t, project)
+	assert.Equal(t, key, project.ProjectKey)
+}
+
+func TestNewClient_projectUser(t *testing.T) {
+	projectKey := "TEST"
+	userID := 1
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/user.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	user, err := c.Project.User.Delete(backlog.ProjectKey(projectKey), userID)
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+	assert.Equal(t, userID, user.ID)
+}
+
+func TestNewClient_projectActivity(t *testing.T) {
+	projectKey := "SUB"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/activity.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	activities, err := c.Project.Activity.List(backlog.ProjectKey(projectKey), c.Project.Activity.Option.WithCount(1))
+	assert.NoError(t, err)
+	assert.NotNil(t, activities)
+	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
+}
+
+func TestNewClient_spaceActivity(t *testing.T) {
+	projectKey := "SUB"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/activity.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	activities, err := c.Space.Activity.List(c.Space.Activity.Option.WithCount(1))
+	assert.NoError(t, err)
+	assert.NotNil(t, activities)
+	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
+}
+
+func TestNewClient_spaceAttachment(t *testing.T) {
+	fpath := "testdata/testfile"
+	fname := "test.txt"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/upload_attachment.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	attachment, err := c.Space.Attachment.Uploade(fpath, fname)
+	assert.NoError(t, err)
+	assert.NotNil(t, attachment)
+	assert.Equal(t, fname, attachment.Name)
+}
+
+func TestNewClient_user(t *testing.T) {
+	userID := 1
+	userName := "admin"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/user.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	user, err := c.User.Update(userID, c.User.Option.WithName(userName))
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+	assert.Equal(t, userName, user.Name)
+}
+
+func TestNewClient_userActivity(t *testing.T) {
+	userID := 1
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/activity.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	activities, err := c.User.Activity.List(userID, c.User.Activity.Option.WithCount(1))
+	assert.NoError(t, err)
+	assert.NotNil(t, activities)
+	assert.Equal(t, userID, activities[0].CreatedUser.ID)
+}
+
+func TestNewClient_wiki(t *testing.T) {
+	projectID := 1
+	name := "Home"
+	content := "test"
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+	bj, err := os.Open("testdata/json/wiki/add-wiki-page.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     header,
+			Body:       bj,
+		}
+
+		return resp, nil
+	})
+	c.ExportSetHTTPClient(httpClient)
+
+	wiki, err := c.Wiki.Create(projectID, name, content, c.Wiki.Option.WithMailNotify(false))
+	assert.NoError(t, err)
+	assert.NotNil(t, wiki)
+	assert.Equal(t, name, wiki.Name)
 }
 
 func TestClient_NewReqest(t *testing.T) {
