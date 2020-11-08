@@ -52,7 +52,7 @@ func TestWikiService_All(t *testing.T) {
 func TestWikiService_Search(t *testing.T) {
 	projectID := 103
 	keyword := "test"
-	bj, err := os.Open("testdata/json/wiki/get-wiki-page-list.json")
+	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestWikiService_Search(t *testing.T) {
 	}
 }
 func TestWikiService_Search_param_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki/get-wiki-page-list.json")
+	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestWikiService_Count(t *testing.T) {
 	assert.Equal(t, want.count, count)
 }
 func TestWikiService_Count_param_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki/get-wiki-page-list.json")
+	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,8 +226,8 @@ func TestWikiService_Count_invaliedJson(t *testing.T) {
 }
 
 func TestWikiService_One(t *testing.T) {
-	wikiID := 1
-	bj, err := os.Open("testdata/json/wiki/get-wiki-page.json")
+	wikiID := 34
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +240,7 @@ func TestWikiService_One(t *testing.T) {
 	}{
 		spath:  "wikis/" + strconv.Itoa(wikiID),
 		wikiID: wikiID,
-		name:   "test1",
+		name:   "Maximum Wiki Page",
 	}
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
@@ -283,7 +283,7 @@ func TestWikiService_One_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki/get-wiki-page.json")
+			bj, err := os.Open("testdata/json/wiki_maximum.json")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -305,7 +305,7 @@ func TestWikiService_One_param(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, 1, wiki.ID)
+				assert.Equal(t, 34, wiki.ID)
 			}
 		})
 	}
@@ -348,23 +348,24 @@ func TestWikiService_One_invaliedJson(t *testing.T) {
 }
 
 func TestWikiService_Create(t *testing.T) {
-	projectID := 1
-	name := "Home"
-	content := "test"
-	bj, err := os.Open("testdata/json/wiki/add-wiki-page.json")
+	projectID := 56
+	wikiID := 34
+	name := "Minimum Wiki Page"
+	content := "This is a minimal wiki page."
+	bj, err := os.Open("testdata/json/wiki_minimum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer bj.Close()
 
 	want := struct {
-		projectID  int
+		wikiID     int
 		spath      string
 		name       string
 		content    string
 		mailNotify string
 	}{
-		projectID:  projectID,
+		wikiID:     wikiID,
 		spath:      "wikis",
 		name:       name,
 		content:    content,
@@ -389,7 +390,7 @@ func TestWikiService_Create(t *testing.T) {
 	})
 	wiki, err := s.Create(projectID, name, content, s.Option.WithMailNotify(true))
 	assert.NoError(t, err)
-	assert.Equal(t, want.projectID, wiki.ID)
+	assert.Equal(t, want.wikiID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 	assert.Equal(t, want.content, wiki.Content)
 }
@@ -437,7 +438,7 @@ func TestWikiService_Create_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki/add-wiki-page.json")
+			bj, err := os.Open("testdata/json/wiki_minimum.json")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -500,7 +501,7 @@ func TestWikiService_Create_invaliedJson(t *testing.T) {
 }
 
 func TestWikiService_Create_option_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki/add-wiki-page.json")
+	bj, err := os.Open("testdata/json/wiki_minimum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -526,10 +527,10 @@ func TestWikiService_Create_option_error(t *testing.T) {
 }
 
 func TestWikiService_Update(t *testing.T) {
-	id := 1
-	name := "Home"
-	content := "test"
-	bj, err := os.Open("testdata/json/wiki/update-wiki-page.json")
+	id := 34
+	name := "Maximum Wiki Page"
+	content := "This is a muximal wiki page."
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -615,7 +616,7 @@ func TestWikiService_Update_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki/update-wiki-page.json")
+			bj, err := os.Open("testdata/json/wiki_maximum.json")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -678,7 +679,7 @@ func TestWikiService_Update_invaliedJson(t *testing.T) {
 }
 
 func TestWikiService_Update_option_required(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki/update-wiki-page.json")
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -701,8 +702,8 @@ func TestWikiService_Update_option_required(t *testing.T) {
 }
 
 func TestWikiService_Delete(t *testing.T) {
-	id := 1
-	bj, err := os.Open("testdata/json/wiki/delete-wiki-page.json")
+	id := 34
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -760,7 +761,7 @@ func TestWikiService_Delete_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki/delete-wiki-page.json")
+			bj, err := os.Open("testdata/json/wiki_maximum.json")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -823,7 +824,7 @@ func TestWikiService_Delete_invaliedJson(t *testing.T) {
 }
 
 func TestWikiService_Delete_option_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki/delete-wiki-page.json")
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
 		t.Fatal(err)
 	}

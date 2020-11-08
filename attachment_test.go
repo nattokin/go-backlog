@@ -13,7 +13,7 @@ import (
 )
 
 func TestSpaceAttachmentService_Uploade(t *testing.T) {
-	bj, err := os.Open("testdata/json/upload_attachment.json")
+	bj, err := os.Open("testdata/json/attachment_upload.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 	}{
 		spath:   "wikis/" + strconv.Itoa(wikiID) + "/attachments",
 		id:      2,
-		name:    "Duke.png",
+		name:    "A.png",
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
@@ -193,7 +193,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	}{
 		spath:   "wikis/" + strconv.Itoa(wikiID) + "/attachments",
 		id:      2,
-		name:    "Duke.png",
+		name:    "A.png",
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
@@ -356,7 +356,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	}{
 		spath:   "issues/" + issueIDOrKey + "/attachments",
 		id:      2,
-		name:    "Duke.png",
+		name:    "A.png",
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
@@ -516,7 +516,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 	}{
 		spath:   "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments",
 		id:      2,
-		name:    "Duke.png",
+		name:    "A.png",
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
