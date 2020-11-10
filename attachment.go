@@ -10,14 +10,14 @@ type SpaceAttachmentService struct {
 	method *method
 }
 
-// Uploade uploads a any file to the space.
+// Upload uploads a any file to the space.
 //
 // File's path and name are must not empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *SpaceAttachmentService) Uploade(fpath, fname string) (*Attachment, error) {
+func (s *SpaceAttachmentService) Upload(fpath, fname string) (*Attachment, error) {
 	spath := "space/attachment"
-	resp, err := s.method.Uploade(spath, fpath, fname)
+	resp, err := s.method.Upload(spath, fpath, fname)
 	if err != nil {
 		return nil, err
 	}
