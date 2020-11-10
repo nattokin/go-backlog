@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSpaceAttachmentService_Uploade(t *testing.T) {
+func TestSpaceAttachmentService_Upload(t *testing.T) {
 	bj, err := os.Open("testdata/json/attachment_upload.json")
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ func TestSpaceAttachmentService_Uploade(t *testing.T) {
 	}
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.fpath, fpath)
 			assert.Equal(t, want.fname, fname)
@@ -50,7 +50,7 @@ func TestSpaceAttachmentService_Uploade(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	})
-	attachment, err := s.Uploade(fpath, fname)
+	attachment, err := s.Upload(fpath, fname)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachment) {
 		assert.Equal(t, want.id, attachment.ID)
@@ -59,19 +59,19 @@ func TestSpaceAttachmentService_Uploade(t *testing.T) {
 	}
 }
 
-func TestSpaceAttachmentService_Uploade_clientError(t *testing.T) {
+func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			return nil, errors.New("error")
 		},
 	})
-	attachement, err := s.Uploade("fpath", "fname")
+	attachement, err := s.Upload("fpath", "fname")
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
 }
 
-func TestSpaceAttachmentService_Uploade_invalidJson(t *testing.T) {
+func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
 	bj, err := os.Open("testdata/json/invalied.json")
 	if err != nil {
 		t.Fatal(err)
@@ -80,7 +80,7 @@ func TestSpaceAttachmentService_Uploade_invalidJson(t *testing.T) {
 
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Uploade: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -88,7 +88,7 @@ func TestSpaceAttachmentService_Uploade_invalidJson(t *testing.T) {
 			return backlog.ExportNewResponse(resp), nil
 		},
 	})
-	attachement, err := s.Uploade("fpath", "fname")
+	attachement, err := s.Upload("fpath", "fname")
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
 }
