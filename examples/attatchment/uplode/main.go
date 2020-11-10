@@ -21,7 +21,7 @@ func main() {
 
 	fpath := "/path/to/test.txt"
 	fname := "name.txt"
-	r, err := c.Wiki.Attachment.Uploade(fpath, fname)
+	r, err := c.Wiki.Attachment.Upload(fpath, fname)
 	if err != nil {
 		fmt.Println(err)
 	}

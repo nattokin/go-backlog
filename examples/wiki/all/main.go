@@ -19,10 +19,8 @@ func main() {
 	}
 	// ID or Key of the project.
 	projectKey := "PROJECTKEY"
-	// or
-	// projectID := 1234
-
 	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
+	// projectID := 1234
 	// r, err := c.Wiki.All(backlog.ProjectID(projectID))
 
 	if err != nil {

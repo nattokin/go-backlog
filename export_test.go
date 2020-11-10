@@ -25,7 +25,7 @@ var (
 	ExportClientPost      = (*Client).post
 	ExportClientPatch     = (*Client).patch
 	ExportClientDelete    = (*Client).delete
-	ExportClientUploade   = (*Client).uploade
+	ExportClientUpload    = (*Client).upload
 )
 
 var (

@@ -65,14 +65,14 @@ type clientGet func(spath string, params *requestParams) (*response, error)
 type clientPost func(spath string, params *requestParams) (*response, error)
 type clientPatch func(spath string, params *requestParams) (*response, error)
 type clientDelete func(spath string, params *requestParams) (*response, error)
-type clientUploade func(spath, fpath, fname string) (*response, error)
+type clientUpload func(spath, fpath, fname string) (*response, error)
 
 type method struct {
-	Get     clientGet
-	Post    clientPost
-	Patch   clientPatch
-	Delete  clientDelete
-	Uploade clientUploade
+	Get    clientGet
+	Post   clientPost
+	Patch  clientPatch
+	Delete clientDelete
+	Upload clientUpload
 }
 
 // NewClient creates a new Backlog API Client.
@@ -105,8 +105,8 @@ func NewClient(baseURL, token string) (*Client, error) {
 		Delete: func(spath string, params *requestParams) (*response, error) {
 			return c.delete(spath, params)
 		},
-		Uploade: func(spath, fpath, fname string) (*response, error) {
-			return c.uploade(spath, fpath, fname)
+		Upload: func(spath, fpath, fname string) (*response, error) {
+			return c.upload(spath, fpath, fname)
 		},
 	}
 
@@ -260,9 +260,9 @@ func (c *Client) delete(spath string, params *requestParams) (*response, error) 
 	return c.do(req)
 }
 
-// Uploade file method used http reqest.
+// Upload file method used http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) uploade(spath, fpath, fname string) (*response, error) {
+func (c *Client) upload(spath, fpath, fname string) (*response, error) {
 	if fpath == "" || fname == "" {
 		return nil, newClientError("file's path and name is required")
 	}

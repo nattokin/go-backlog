@@ -207,7 +207,7 @@ func TestNewClient_spaceAttachment(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	attachment, err := c.Space.Attachment.Uploade(fpath, fname)
+	attachment, err := c.Space.Attachment.Upload(fpath, fname)
 	assert.NoError(t, err)
 	assert.NotNil(t, attachment)
 	assert.Equal(t, fname, attachment.Name)
@@ -705,7 +705,7 @@ func TestClient_Delete_newRequestError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestClient_Uploade(t *testing.T) {
+func TestClient_Upload(t *testing.T) {
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
@@ -734,30 +734,30 @@ func TestClient_Uploade(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	res, err := backlog.ExportClientUploade(c, spath, fpath, "fname")
+	res, err := backlog.ExportClientUpload(c, spath, fpath, "fname")
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
 }
 
-func TestClient_Uploade_newRequestError(t *testing.T) {
+func TestClient_Upload_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUploade(c, "", "testdata/testfile", "fname")
+	_, err := backlog.ExportClientUpload(c, "", "testdata/testfile", "fname")
 	assert.NotNil(t, err)
 }
 
-func TestClient_Uploade_emptyFilePath(t *testing.T) {
+func TestClient_Upload_emptyFilePath(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUploade(c, "spath", "", "fname")
+	_, err := backlog.ExportClientUpload(c, "spath", "", "fname")
 	assert.Error(t, err, "file's path and name is required")
 }
 
-func TestClient_Uploade_emptyFileName(t *testing.T) {
+func TestClient_Upload_emptyFileName(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUploade(c, "spath", "fpath", "")
+	_, err := backlog.ExportClientUpload(c, "spath", "fpath", "")
 	assert.Error(t, err, "file's path and name is required")
 }
 
