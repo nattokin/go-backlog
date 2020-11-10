@@ -82,10 +82,8 @@ func main() {
 	}
 	// ID or Key of the project.
 	projectKey := "PROJECTKEY"
-	// or
-	// projectID := 1234
-
 	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
+	// projectID := 1234
 	// r, err := c.Wiki.All(backlog.ProjectID(projectID))
 
 	if err != nil {
@@ -99,15 +97,15 @@ func main() {
 
 ## Supported API endpoints
 
-### (*Client).Space
+### Client.Space.[Activity](https://godoc.org/github.com/nattokin/go-backlog#SpaceActivityService)
 
 - [Get Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-recent-updates) - Returns recent updates in your space.
 
-### (*Client).Attachment
+### Client.Space.[Attachment](https://godoc.org/github.com/nattokin/go-backlog#SpaceAttachmentService)
 
 - [Post Attachment File](https://developer.nulab-inc.com/docs/backlog/api/2/post-attachment-file/) - Posts an attachment file for issue or wiki. Returns id of the attachment file.
 
-### (*Client).User
+### Client.[User](https://godoc.org/github.com/nattokin/go-backlog#UserService)
 
 - [Get User List](https://developer.nulab.com/docs/backlog/api/2/get-user-list) - Returns list of users in your space.
 - [Get User](https://developer.nulab.com/docs/backlog/api/2/get-user) - Returns information about user.
@@ -116,10 +114,10 @@ func main() {
 - [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes user from the space. You can’t use this API at backlog.com space.
 - [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns own information about user.
 
-### (*Client).User.Activity
+### Client.User.[Activity](https://godoc.org/github.com/nattokin/go-backlog#UserActivityService)
 - [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns user’s recent updates.
 
-### (*Client).Project
+### Client.[Project](https://godoc.org/github.com/nattokin/go-backlog#ProjectService)
 
 - [Get Project List](https://developer.nulab.com/docs/backlog/api/2/get-project-list) - Returns list of projects.
 - [Add Project](https://developer.nulab.com/docs/backlog/api/2/add-project) - Adds new project.
@@ -127,11 +125,11 @@ func main() {
 - [Update Project](https://developer.nulab.com/docs/backlog/api/2/update-project) - Updates information about project.
 - [Delete Project](https://developer.nulab.com/docs/backlog/api/2/delete-project) - Deletes project.
 
-###  (*Client).Project.Activity
+### Client.Project.[Activity](https://godoc.org/github.com/nattokin/go-backlog#ProjectActivityService)
 
 - [Get Project Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates) - Returns recent update in the project.
 
-### (*Client).Project.User
+### Client.Project.[User](https://godoc.org/github.com/nattokin/go-backlog#ProjectUserService)
 
 - [Add Project User](https://developer.nulab.com/docs/backlog/api/2/add-project-user) - Adds user to list of project members.
 - [Get Project User List](https://developer.nulab.com/docs/backlog/api/2/get-project-user-list) - Returns list of project members.
@@ -140,7 +138,7 @@ func main() {
 - [Get List of Project Administrators](https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators) - Returns list of users who has Project Administrator role.
 - [Delete Project Administrator](https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator) - Removes Project Administrator role from user.
 
-### (*Client).Wiki
+### Client.[Wiki](https://godoc.org/github.com/nattokin/go-backlog#WikiService)
 
 - [Get Wiki Page List](https://developer.nulab-inc.com/docs/backlog/api/2/get-wiki-page-list/) - Returns list of Wiki pages.
 - [Get Wiki Page Tag List](https://developer.nulab-inc.com/docs/backlog/api/2/get-wiki-page-tag-list/) - Returns list of tags that are used in the project.
@@ -149,7 +147,7 @@ func main() {
 - [Add Wiki Page](https://developer.nulab-inc.com/docs/backlog/api/2/add-wiki-page/) - Adds new Wiki page.
 - [Delete Wiki Page](https://developer.nulab-inc.com/docs/backlog/api/2/delete-wiki-page/) - Deletes Wiki page.
 
-### (*Client).Wiki.Attachment
+### Client.Wiki.[Attachment](https://godoc.org/github.com/nattokin/go-backlog#WikiAttachmentService)
 
 - [Get List of Wiki attachments](https://developer.nulab-inc.com/docs/backlog/api/2/get-list-of-wiki-attachments/) - Gets list of files attached to Wiki.
 - [Attach File to Wiki](https://developer.nulab-inc.com/docs/backlog/api/2/attach-file-to-wiki/) - Attaches file to Wiki
