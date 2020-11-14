@@ -35,6 +35,7 @@ type Client struct {
 	url        *url.URL
 	httpClient *http.Client
 	token      string
+	wrapper    *wrapper
 
 	Issue       *IssueService
 	Project     *ProjectService
@@ -63,6 +64,20 @@ type method struct {
 	Upload clientUpload
 }
 
+type wrapper struct {
+	CreateFormFile func(w *multipart.Writer, fname string) (io.Writer, error)
+	Copy           func(dst io.Writer, src io.Reader) error
+}
+
+func createFormFile(w *multipart.Writer, fname string) (io.Writer, error) {
+	return w.CreateFormFile("file", fname)
+}
+
+func copy(dst io.Writer, src io.Reader) error {
+	_, err := io.Copy(dst, src)
+	return err
+}
+
 // NewClient creates a new Backlog API Client.
 func NewClient(baseURL, token string) (*Client, error) {
 	if len(token) == 0 {
@@ -78,6 +93,10 @@ func NewClient(baseURL, token string) (*Client, error) {
 		url:        parsedURL,
 		httpClient: http.DefaultClient,
 		token:      token,
+		wrapper: &wrapper{
+			CreateFormFile: createFormFile,
+			Copy:           copy,
+		},
 	}
 
 	m := &method{
@@ -249,12 +268,13 @@ func (c *Client) delete(spath string, params *requestParams) (*http.Response, er
 // Upload file method used http reqest.
 // It creates new http reqest and do and return Response.
 func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
-	if fpath == "" || fname == "" {
-		return nil, newClientError("file's path and name is required")
+	if fname == "" {
+		return nil, newClientError("fname is required")
 	}
 
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
+	w.Close()
 
 	f, err := os.Open(fpath)
 	if err != nil {
@@ -262,14 +282,13 @@ func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 	}
 	defer f.Close()
 
-	fw, err := w.CreateFormFile("file", fname)
+	fw, err := c.wrapper.CreateFormFile(w, fname)
 	if err != nil {
 		return nil, err
 	}
-	if _, err = io.Copy(fw, f); err != nil {
+	if err = c.wrapper.Copy(fw, f); err != nil {
 		return nil, err
 	}
-	w.Close()
 
 	req, err := c.newReqest(http.MethodPost, spath, nil, &buf)
 	if err != nil {
