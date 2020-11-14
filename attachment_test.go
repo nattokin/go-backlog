@@ -39,7 +39,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	}
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.fpath, fpath)
 			assert.Equal(t, want.fname, fname)
@@ -47,7 +47,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachment, err := s.Upload(fpath, fname)
@@ -62,7 +62,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -80,12 +80,12 @@ func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
 
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*backlog.ExportResponse, error) {
+		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachement, err := s.Upload("fpath", "fname")
@@ -117,7 +117,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 	}
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			v := *params.ExportURLValues()
 			assert.Equal(t, []string{"2"}, v["attachmentId[]"])
@@ -125,7 +125,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.Attach(wikiID, []int{2})
@@ -143,7 +143,7 @@ func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -162,12 +162,12 @@ func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Post: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.Attach(1234, []int{2})
@@ -200,13 +200,13 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List(wikiID)
@@ -224,7 +224,7 @@ func TestWikiAttachmentService_List_clientError(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -243,12 +243,12 @@ func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List(1234)
@@ -282,13 +282,13 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.Remove(wikiID, attachmentID)
@@ -306,7 +306,7 @@ func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -325,12 +325,12 @@ func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachment, err := s.Remove(1234, 8)
@@ -362,13 +362,13 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	}
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List(issueIDOrKey)
@@ -385,7 +385,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 func TestIssueAttachmentService_List_clientError(t *testing.T) {
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -403,12 +403,12 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List("1234")
@@ -442,13 +442,13 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.Remove(issueIDOrKey, attachmentID)
@@ -465,7 +465,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -483,12 +483,12 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachment, err := s.Remove("1234", 8)
@@ -522,13 +522,13 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 	}
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List(projectIDOrKey, repoIDOrName, prNumber)
@@ -545,7 +545,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -563,12 +563,12 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.List("1234", "test", 10)
@@ -603,13 +603,13 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 	}
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachments, err := s.Remove(projectIDOrKey, repoIDOrName, prNumber, attachmentID)
@@ -626,7 +626,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -644,12 +644,12 @@ func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
 
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*backlog.ExportResponse, error) {
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
 			}
-			return backlog.ExportNewResponse(resp), nil
+			return resp, nil
 		},
 	})
 	attachment, err := s.Remove("1234", "test", 10, 8)
