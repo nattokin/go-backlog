@@ -184,7 +184,7 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	return checkResponseError(resp)
+	return checkResponse(resp)
 }
 
 // Get method of http reqest.
@@ -287,7 +287,7 @@ func newRequestParams() *requestParams {
 }
 
 // Check HTTP status code. If it has errors, return error.
-func checkResponseError(r *http.Response) (*http.Response, error) {
+func checkResponse(r *http.Response) (*http.Response, error) {
 	if sc := r.StatusCode; 200 <= sc && sc <= 299 {
 		return r, nil
 	}

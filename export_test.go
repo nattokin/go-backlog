@@ -27,9 +27,9 @@ var (
 )
 
 var (
-	ExportNewClientError    = newClientError
-	ExportNewRequestParams  = newRequestParams
-	ExportCeckResponseError = checkResponseError
+	ExportNewClientError   = newClientError
+	ExportNewRequestParams = newRequestParams
+	ExportCeckResponse     = checkResponse
 )
 
 func (c *Client) ExportURL() *url.URL {
