@@ -14,6 +14,7 @@ type (
 type (
 	ExportMethod        = method
 	ExportRequestParams = requestParams
+	ExportWrapper       = wrapper
 )
 
 var (
@@ -30,6 +31,8 @@ var (
 	ExportNewClientError   = newClientError
 	ExportNewRequestParams = newRequestParams
 	ExportCeckResponse     = checkResponse
+	ExportCreateFormFile   = createFormFile
+	ExportCopy             = copy
 )
 
 func (c *Client) ExportURL() *url.URL {
@@ -54,6 +57,10 @@ func (c *Client) ExportToken() string {
 
 func (c *Client) ExportSetToken(token string) {
 	c.token = token
+}
+
+func (c *Client) ExportSetWrapper(wrapper *wrapper) {
+	c.wrapper = wrapper
 }
 
 func (p *requestParams) ExportURLValues() *url.Values {
