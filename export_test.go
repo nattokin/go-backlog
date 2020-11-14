@@ -14,8 +14,6 @@ type (
 type (
 	ExportMethod        = method
 	ExportRequestParams = requestParams
-	ExportRequest       = request
-	ExportResponse      = response
 )
 
 var (
@@ -29,10 +27,9 @@ var (
 )
 
 var (
-	ExportNewClientError    = newClientError
-	ExportNewRequestParams  = newRequestParams
-	ExportNewResponse       = newResponse
-	ExportCeckResponseError = checkResponseError
+	ExportNewClientError   = newClientError
+	ExportNewRequestParams = newRequestParams
+	ExportCeckResponse     = checkResponse
 )
 
 func (c *Client) ExportURL() *url.URL {
@@ -57,10 +54,6 @@ func (c *Client) ExportToken() string {
 
 func (c *Client) ExportSetToken(token string) {
 	c.token = token
-}
-
-func (r *response) ExportGetHTTPResponse() *http.Response {
-	return r.Response
 }
 
 func (p *requestParams) ExportURLValues() *url.Values {

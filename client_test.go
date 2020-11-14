@@ -540,7 +540,7 @@ func TestClient_Get(t *testing.T) {
 	c.ExportSetHTTPClient(httpClient)
 
 	res, _ := backlog.ExportClientGet(c, spath, nil)
-	statusCode := res.ExportGetHTTPResponse().StatusCode
+	statusCode := res.StatusCode
 	assert.Equal(t, http.StatusOK, statusCode)
 }
 
@@ -576,7 +576,7 @@ func TestClient_Post(t *testing.T) {
 	c.ExportSetHTTPClient(httpClient)
 
 	res, _ := backlog.ExportClientPost(c, spath, nil)
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Post_newRequestError(t *testing.T) {
@@ -618,7 +618,7 @@ func TestClient_Patch(t *testing.T) {
 	params.Set("key", "value")
 
 	res, _ := backlog.ExportClientPatch(c, spath, params)
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Patch_emptyParams(t *testing.T) {
@@ -635,7 +635,7 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 	c.ExportSetHTTPClient(httpClient)
 
 	res, _ := backlog.ExportClientPatch(c, spath, nil)
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Patch_newRequestError(t *testing.T) {
@@ -678,7 +678,7 @@ func TestClient_Delete(t *testing.T) {
 	params.Set("key", "value")
 
 	res, _ := backlog.ExportClientDelete(c, spath, params)
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Delete_emptyParams(t *testing.T) {
@@ -695,7 +695,7 @@ func TestClient_Delete_emptyParams(t *testing.T) {
 	c.ExportSetHTTPClient(httpClient)
 
 	res, _ := backlog.ExportClientDelete(c, spath, nil)
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Delete_newRequestError(t *testing.T) {
@@ -737,7 +737,7 @@ func TestClient_Upload(t *testing.T) {
 	res, err := backlog.ExportClientUpload(c, spath, fpath, "fname")
 	assert.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, res.ExportGetHTTPResponse().StatusCode)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Upload_newRequestError(t *testing.T) {
@@ -751,17 +751,24 @@ func TestClient_Upload_emptyFilePath(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	_, err := backlog.ExportClientUpload(c, "spath", "", "fname")
-	assert.Error(t, err, "file's path and name is required")
+	assert.Error(t, err)
+}
+
+func TestClient_Upload_invalidFilePath(t *testing.T) {
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+
+	_, err := backlog.ExportClientUpload(c, "spath", "invalid", "fname")
+	assert.IsType(t, &os.PathError{}, err)
 }
 
 func TestClient_Upload_emptyFileName(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	_, err := backlog.ExportClientUpload(c, "spath", "fpath", "")
-	assert.Error(t, err, "file's path and name is required")
+	assert.Error(t, err)
 }
 
-func TestCeckResponseError(t *testing.T) {
+func TestCeckResponse(t *testing.T) {
 	cases := map[string]struct {
 		statusCode int
 		wantError  bool
@@ -788,15 +795,12 @@ func TestCeckResponseError(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			body := ioutil.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
 
-			resp := &backlog.ExportResponse{
-				Response: &http.Response{
-					StatusCode: tc.statusCode,
-					Body:       body,
-				},
-				Error: &backlog.APIResponseError{},
+			resp := &http.Response{
+				StatusCode: tc.statusCode,
+				Body:       body,
 			}
 
-			if r, err := backlog.ExportCeckResponseError(resp); tc.wantError {
+			if r, err := backlog.ExportCeckResponse(resp); tc.wantError {
 				assert.NotNil(t, err)
 			} else {
 				assert.Equal(t, resp, r)
@@ -805,30 +809,24 @@ func TestCeckResponseError(t *testing.T) {
 	}
 }
 
-func TestCeckResponseError_emptyBody(t *testing.T) {
-	resp := &backlog.ExportResponse{
-		Response: &http.Response{
-			StatusCode: http.StatusBadRequest,
-			Body:       nil,
-		},
-		Error: &backlog.APIResponseError{},
+func TestCeckResponse_emptyBody(t *testing.T) {
+	resp := &http.Response{
+		StatusCode: http.StatusBadRequest,
+		Body:       nil,
 	}
-	_, err := backlog.ExportCeckResponseError(resp)
+	_, err := backlog.ExportCeckResponse(resp)
 	assert.Error(t, err, "response body is empty")
 }
 
-func TestCeckResponseError_invalidJSON(t *testing.T) {
+func TestCeckResponse_invalidJSON(t *testing.T) {
 	body := ioutil.NopCloser(bytes.NewReader([]byte(`{{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
 
-	resp := &backlog.ExportResponse{
-		Response: &http.Response{
-			StatusCode: http.StatusBadRequest,
-			Body:       body,
-		},
-		Error: &backlog.APIResponseError{},
+	resp := &http.Response{
+		StatusCode: http.StatusBadRequest,
+		Body:       body,
 	}
 	want := &json.SyntaxError{}
-	if _, err := backlog.ExportCeckResponseError(resp); err == nil {
+	if _, err := backlog.ExportCeckResponse(resp); err == nil {
 		assert.NotNil(t, err)
 	} else {
 		assert.Equal(t, reflect.TypeOf(want), reflect.TypeOf(err))
