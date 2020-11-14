@@ -100,13 +100,6 @@ type DiskUsageProject struct {
 	ProjectID int `json:"projectId,omitempty"`
 }
 
-// Error represents one of Backlog API response errors.
-type Error struct {
-	Message  string `json:"message,omitempty"`
-	Code     int    `json:"code,omitempty"`
-	MoreInfo string `json:"moreInfo,omitempty"`
-}
-
 // Licence represents licence of space.
 type Licence struct {
 	Active                            bool      `json:"active,omitempty"`

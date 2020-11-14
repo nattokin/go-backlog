@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -837,7 +836,7 @@ func TestCeckResponse_emptyBody(t *testing.T) {
 		Body:       nil,
 	}
 	_, err := backlog.ExportCeckResponse(resp)
-	assert.Error(t, err, "response body is empty")
+	assert.Error(t, err)
 }
 
 func TestCeckResponse_invalidJSON(t *testing.T) {
@@ -848,9 +847,7 @@ func TestCeckResponse_invalidJSON(t *testing.T) {
 		Body:       body,
 	}
 	want := &json.SyntaxError{}
-	if _, err := backlog.ExportCeckResponse(resp); err == nil {
-		assert.NotNil(t, err)
-	} else {
-		assert.Equal(t, reflect.TypeOf(want), reflect.TypeOf(err))
-	}
+
+	_, err := backlog.ExportCeckResponse(resp)
+	assert.IsType(t, want, err)
 }
