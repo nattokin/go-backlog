@@ -6,10 +6,10 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -711,13 +711,11 @@ func TestClient_Upload(t *testing.T) {
 	spath := "spath"
 	fpath := "testdata/testfile"
 	want := struct {
-		method      string
-		url         string
-		contentType string
+		method string
+		url    string
 	}{
-		method:      http.MethodPost,
-		url:         baseURL + "/api/v2/" + spath + "?apiKey=" + apiKey,
-		contentType: "multipart/form-data",
+		method: http.MethodPost,
+		url:    baseURL + "/api/v2/" + spath + "?apiKey=" + apiKey,
 	}
 
 	c, _ := backlog.NewClient(baseURL, apiKey)
@@ -727,14 +725,12 @@ func TestClient_Upload(t *testing.T) {
 		assert.Equal(t, want.url, req.URL.String())
 
 		contentType := req.Header.Get("Content-Type")
-		if strings.Index(contentType, want.contentType) != 0 {
-			t.Errorf("want: %s, got: %s", want.contentType, contentType)
-		}
+		assert.Regexp(t, "^multipart/form-data; boundary=", contentType)
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	res, err := backlog.ExportClientUpload(c, spath, fpath, "fname")
+	res, err := backlog.ExportClientUpload(c, spath, fpath, "filename")
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -743,28 +739,54 @@ func TestClient_Upload(t *testing.T) {
 func TestClient_Upload_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "", "testdata/testfile", "fname")
-	assert.NotNil(t, err)
+	_, err := backlog.ExportClientUpload(c, "", "testdata/testfile", "filename")
+	assert.Error(t, err)
 }
 
 func TestClient_Upload_emptyFilePath(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "spath", "", "fname")
-	assert.Error(t, err)
+	_, err := backlog.ExportClientUpload(c, "spath", "", "filename")
+	assert.IsType(t, &os.PathError{}, err)
 }
 
 func TestClient_Upload_invalidFilePath(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "spath", "invalid", "fname")
+	_, err := backlog.ExportClientUpload(c, "spath", "invalid", "filename")
 	assert.IsType(t, &os.PathError{}, err)
 }
 
 func TestClient_Upload_emptyFileName(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "spath", "fpath", "")
+	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "")
+	assert.Error(t, err)
+}
+
+func TestClient_Upload_createFormFileError(t *testing.T) {
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	c.ExportSetWrapper(&backlog.ExportWrapper{
+		CreateFormFile: func(w *multipart.Writer, fname string) (io.Writer, error) {
+			return nil, errors.New("")
+		},
+		Copy: backlog.ExportCopy,
+	})
+
+	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "filename")
+	assert.Error(t, err)
+}
+
+func TestClient_Upload_copyError(t *testing.T) {
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	c.ExportSetWrapper(&backlog.ExportWrapper{
+		CreateFormFile: backlog.ExportCreateFormFile,
+		Copy: func(dst io.Writer, src io.Reader) error {
+			return errors.New("")
+		},
+	})
+
+	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "filename")
 	assert.Error(t, err)
 }
 
