@@ -44,28 +44,16 @@ type Client struct {
 	Wiki        *WikiService
 }
 
-// Response represents Backlog API response.
-// It wraps http.Response.
-type response struct {
-	*http.Response
-	Error *APIResponseError
-}
-
-// Request wraps http.Request.
-type request struct {
-	*http.Request
-}
-
 // RequestParams wraps url.Values.
 type requestParams struct {
 	*url.Values
 }
 
-type clientGet func(spath string, params *requestParams) (*response, error)
-type clientPost func(spath string, params *requestParams) (*response, error)
-type clientPatch func(spath string, params *requestParams) (*response, error)
-type clientDelete func(spath string, params *requestParams) (*response, error)
-type clientUpload func(spath, fpath, fname string) (*response, error)
+type clientGet func(spath string, params *requestParams) (*http.Response, error)
+type clientPost func(spath string, params *requestParams) (*http.Response, error)
+type clientPatch func(spath string, params *requestParams) (*http.Response, error)
+type clientDelete func(spath string, params *requestParams) (*http.Response, error)
+type clientUpload func(spath, fpath, fname string) (*http.Response, error)
 
 type method struct {
 	Get    clientGet
@@ -93,19 +81,19 @@ func NewClient(baseURL, token string) (*Client, error) {
 	}
 
 	m := &method{
-		Get: func(spath string, params *requestParams) (*response, error) {
+		Get: func(spath string, params *requestParams) (*http.Response, error) {
 			return c.get(spath, params)
 		},
-		Post: func(spath string, params *requestParams) (*response, error) {
+		Post: func(spath string, params *requestParams) (*http.Response, error) {
 			return c.post(spath, params)
 		},
-		Patch: func(spath string, params *requestParams) (*response, error) {
+		Patch: func(spath string, params *requestParams) (*http.Response, error) {
 			return c.patch(spath, params)
 		},
-		Delete: func(spath string, params *requestParams) (*response, error) {
+		Delete: func(spath string, params *requestParams) (*http.Response, error) {
 			return c.delete(spath, params)
 		},
-		Upload: func(spath, fpath, fname string) (*response, error) {
+		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			return c.upload(spath, fpath, fname)
 		},
 	}
@@ -165,7 +153,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // Creates new request.
-func (c *Client) newReqest(method, spath string, params *requestParams, body io.Reader) (*request, error) {
+func (c *Client) newReqest(method, spath string, params *requestParams, body io.Reader) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not empty")
 	}
@@ -186,24 +174,22 @@ func (c *Client) newReqest(method, spath string, params *requestParams, body io.
 
 	req.Header.Set("Accept", "application/json")
 
-	return &request{Request: req}, nil
+	return req, nil
 }
 
 // Do http request, and return Response.
-func (c *Client) do(req *request) (*response, error) {
-	resp, err := c.httpClient.Do(req.Request)
+func (c *Client) do(req *http.Request) (*http.Response, error) {
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	r := newResponse(resp)
-
-	return checkResponseError(r)
+	return checkResponseError(resp)
 }
 
 // Get method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) get(spath string, params *requestParams) (*response, error) {
+func (c *Client) get(spath string, params *requestParams) (*http.Response, error) {
 	req, err := c.newReqest(http.MethodGet, spath, params, nil)
 	if err != nil {
 		return nil, err
@@ -214,7 +200,7 @@ func (c *Client) get(spath string, params *requestParams) (*response, error) {
 
 // Post method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) post(spath string, params *requestParams) (*response, error) {
+func (c *Client) post(spath string, params *requestParams) (*http.Response, error) {
 	if params == nil {
 		params = newRequestParams()
 	}
@@ -230,7 +216,7 @@ func (c *Client) post(spath string, params *requestParams) (*response, error) {
 
 // Patch method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) patch(spath string, params *requestParams) (*response, error) {
+func (c *Client) patch(spath string, params *requestParams) (*http.Response, error) {
 	if params == nil {
 		params = newRequestParams()
 	}
@@ -246,7 +232,7 @@ func (c *Client) patch(spath string, params *requestParams) (*response, error) {
 
 // Delete method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) delete(spath string, params *requestParams) (*response, error) {
+func (c *Client) delete(spath string, params *requestParams) (*http.Response, error) {
 	if params == nil {
 		params = newRequestParams()
 	}
@@ -262,7 +248,7 @@ func (c *Client) delete(spath string, params *requestParams) (*response, error) 
 
 // Upload file method used http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) upload(spath, fpath, fname string) (*response, error) {
+func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 	if fpath == "" || fname == "" {
 		return nil, newClientError("file's path and name is required")
 	}
@@ -300,18 +286,8 @@ func newRequestParams() *requestParams {
 	return &requestParams{&url.Values{}}
 }
 
-// Creates new Response.
-func newResponse(resp *http.Response) *response {
-	r := &response{
-		Response: resp,
-		Error:    &APIResponseError{},
-	}
-
-	return r
-}
-
 // Check HTTP status code. If it has errors, return error.
-func checkResponseError(r *response) (*response, error) {
+func checkResponseError(r *http.Response) (*http.Response, error) {
 	if sc := r.StatusCode; 200 <= sc && sc <= 299 {
 		return r, nil
 	}
@@ -321,9 +297,10 @@ func checkResponseError(r *response) (*response, error) {
 	}
 	defer r.Body.Close()
 
-	if err := json.NewDecoder(r.Body).Decode(r.Error); err != nil {
+	e := &APIResponseError{}
+	if err := json.NewDecoder(r.Body).Decode(e); err != nil {
 		return nil, err
 	}
 
-	return nil, r.Error
+	return nil, e
 }
