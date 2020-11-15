@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 )
 
@@ -93,6 +94,10 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
 func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
+	if wikiID <= 0 {
+		return nil, errors.New("wikiID must be greater than 0")
+	}
+
 	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments"
 	return listAttachments(s.method.Get, spath)
 }
@@ -101,6 +106,13 @@ func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
 func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, error) {
+	if wikiID <= 0 {
+		return nil, errors.New("wikiID must be greater than 0")
+	}
+	if attachmentID <= 0 {
+		return nil, errors.New("attachmentID must be greater than 0")
+	}
+
 	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments/" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.method.Delete, spath)
 }
@@ -113,7 +125,12 @@ type IssueAttachmentService struct {
 // List returns a list of all attachments in the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
-func (s *IssueAttachmentService) List(issueIDOrKey string) ([]*Attachment, error) {
+func (s *IssueAttachmentService) List(target IssueIDOrKeyGetter) ([]*Attachment, error) {
+	issueIDOrKey, err := target.getIssueIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+
 	spath := "issues/" + issueIDOrKey + "/attachments"
 	return listAttachments(s.method.Get, spath)
 }
@@ -121,7 +138,15 @@ func (s *IssueAttachmentService) List(issueIDOrKey string) ([]*Attachment, error
 // Remove removes a file attached to the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment
-func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (*Attachment, error) {
+func (s *IssueAttachmentService) Remove(target IssueIDOrKeyGetter, attachmentID int) (*Attachment, error) {
+	issueIDOrKey, err := target.getIssueIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+	if attachmentID <= 0 {
+		return nil, errors.New("attachmentID must be greater than 0")
+	}
+
 	spath := "issues/" + issueIDOrKey + "/attachments/" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.method.Delete, spath)
 }
@@ -134,7 +159,19 @@ type PullRequestAttachmentService struct {
 // List returns a list of all attachments in the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
-func (s *PullRequestAttachmentService) List(projectIDOrKey, repoIDOrName string, prNumber int) ([]*Attachment, error) {
+func (s *PullRequestAttachmentService) List(targetProject ProjectIDOrKeyGetter, targetRepository RepositoryIDOrKeyGetter, prNumber int) ([]*Attachment, error) {
+	projectIDOrKey, err := targetProject.getProjectIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+	repoIDOrName, err := targetRepository.getRepositoryIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+	if prNumber <= 0 {
+		return nil, errors.New("prNumber must be greater than 0")
+	}
+
 	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments"
 	return listAttachments(s.method.Get, spath)
 }
@@ -142,7 +179,22 @@ func (s *PullRequestAttachmentService) List(projectIDOrKey, repoIDOrName string,
 // Remove removes a file attached to the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
-func (s *PullRequestAttachmentService) Remove(projectIDOrKey, repoIDOrName string, prNumber int, attachmentID int) (*Attachment, error) {
+func (s *PullRequestAttachmentService) Remove(targetProject ProjectIDOrKeyGetter, targetRepository RepositoryIDOrKeyGetter, prNumber int, attachmentID int) (*Attachment, error) {
+	projectIDOrKey, err := targetProject.getProjectIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+	repoIDOrName, err := targetRepository.getRepositoryIDOrKey()
+	if err != nil {
+		return nil, err
+	}
+	if prNumber <= 0 {
+		return nil, errors.New("prNumber must be greater than 0")
+	}
+	if attachmentID <= 0 {
+		return nil, errors.New("attachmentID must be greater than 0")
+	}
+
 	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments" + strconv.Itoa(attachmentID)
 	return removeAttachment(s.method.Delete, spath)
 }
