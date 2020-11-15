@@ -23,6 +23,9 @@ func main() {
 	// projectID := 1234
 	// r, err := c.Wiki.All(backlog.ProjectID(projectID))
 
+	// Search with keyword
+	// r, err := c.Wiki.All(backlog.ProjectKey(projectKey), c.Wiki.Option.WithKeyword("keyword"))
+
 	if err != nil {
 		log.Fatalln(err)
 	}

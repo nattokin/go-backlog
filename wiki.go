@@ -16,25 +16,23 @@ type WikiService struct {
 }
 
 // All Wiki in project is gotten.
-//
+// Options:
+// - WithKeyword: Search by some keyword.
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(target ProjectIDOrKeyGetter) ([]*Wiki, error) {
-	return s.Search(target, "")
-}
-
-// Search returns wikis by keyword from within the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) Search(target ProjectIDOrKeyGetter, keyword string) ([]*Wiki, error) {
-	params := newRequestParams()
+func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...WikiOption) ([]*Wiki, error) {
 	projectIDOrKey, err := target.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
+
+	params := newRequestParams()
 	params.Set("projectIdOrKey", projectIDOrKey)
-	if keyword != "" {
-		params.Set("keyword", keyword)
+	for _, option := range options {
+		if err := option(params); err != nil {
+			return nil, err
+		}
 	}
+
 	resp, err := s.method.Get("wikis", params)
 	if err != nil {
 		return nil, err
