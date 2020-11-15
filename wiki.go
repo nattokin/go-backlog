@@ -77,8 +77,8 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
-	if wikiID <= 0 {
-		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	if wikiID < 1 {
+		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID)
@@ -100,14 +100,14 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...WikiOption) (*Wiki, error) {
-	if projectID == 0 {
-		return nil, errors.New("projectID must not be zero")
+	if projectID < 1 {
+		return nil, fmt.Errorf("projectID must not be less than 1")
 	}
 	if name == "" {
-		return nil, errors.New("name is requierd")
+		return nil, errors.New("name must not be empty")
 	}
 	if content == "" {
-		return nil, errors.New("content is requierd")
+		return nil, errors.New("content must not be empty")
 	}
 	params := newRequestParams()
 	params.Set("projectId", strconv.Itoa(projectID))
@@ -138,8 +138,8 @@ func (s *WikiService) Create(projectID int, name, content string, options ...Wik
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
-	if wikiID <= 0 {
-		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	if wikiID < 1 {
+		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
 
 	if options == nil {
@@ -172,8 +172,8 @@ func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, options ...WikiOption) (*Wiki, error) {
-	if wikiID <= 0 {
-		return nil, fmt.Errorf("wikiID must be 1 or more: %d", wikiID)
+	if wikiID < 1 {
+		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
 	params := newRequestParams()
 	for _, option := range options {

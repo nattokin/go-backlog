@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Activity represents
+// Activity represents a activity.
 type Activity struct {
 	ID            int              `json:"id,omitempty"`
 	Project       *Project         `json:"project,omitempty"`
@@ -14,7 +14,7 @@ type Activity struct {
 	CreatedUser   *User            `json:"createdUser,omitempty"`
 }
 
-// ActivityContent represents content of Backlog activity.
+// ActivityContent represents content of Activity.
 type ActivityContent struct {
 	ID          int      `json:"id,omitempty"`
 	KeyID       int      `json:"key_id,omitempty"`
@@ -23,7 +23,7 @@ type ActivityContent struct {
 	Comment     *Comment `json:"comment,omitempty"`
 }
 
-// Attachment represents one of attachments.
+// Attachment represents a attachment.
 type Attachment struct {
 	ID          int       `json:"id,omitempty"`
 	Name        string    `json:"name,omitempty"`
@@ -32,21 +32,21 @@ type Attachment struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
-// Category represents category of Backlog.
+// Category represents a category.
 type Category []struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// ChangeLog reprements one of ChangeLogs.
+// ChangeLog reprements the changelog.
 type ChangeLog struct {
 	Field         string `json:"field,omitempty"`
 	NewValue      string `json:"newValue,omitempty"`
 	OriginalValue string `json:"originalValue,omitempty"`
 }
 
-// Comment reprements comment of Backlog.
+// Comment reprements any one comment.
 type Comment struct {
 	ID            int             `json:"id,omitempty"`
 	Content       string          `json:"content,omitempty"`
@@ -58,7 +58,7 @@ type Comment struct {
 	Notifications []*Notification `json:"notifications,omitempty"`
 }
 
-// CustomField represents custom field of Backlog.
+// CustomField represents a custom field.
 type CustomField struct {
 	ID                     int                `json:"id,omitempty"`
 	TypeID                 int                `json:"typeId,omitempty"`
@@ -100,7 +100,7 @@ type DiskUsageProject struct {
 	ProjectID int `json:"projectId,omitempty"`
 }
 
-// Licence represents licence of space.
+// Licence represents licence.
 type Licence struct {
 	Active                            bool      `json:"active,omitempty"`
 	AttachmentLimit                   int       `json:"attachmentLimit,omitempty"`
@@ -137,7 +137,7 @@ type Licence struct {
 	WikiAttachmentNumLimit            int       `json:"wikiAttachmentNumLimit,omitempty"`
 }
 
-// Notification represents notification of Backlog.
+// Notification represents some notification.
 type Notification struct {
 	ID                  int          `json:"id,omitempty"`
 	AlreadyRead         bool         `json:"alreadyRead,omitempty"`
@@ -152,7 +152,7 @@ type Notification struct {
 	Created             time.Time    `json:"created,omitempty"`
 }
 
-// Issue represents Backlog Issue.
+// Issue represents a issue of Backlog.
 type Issue struct {
 	ID             int            `json:"id,omitempty"`
 	ProjectID      int            `json:"projectId,omitempty"`
@@ -192,13 +192,13 @@ type IssueType struct {
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// Priority represents priority of Backlog.
+// Priority represents a priority.
 type Priority struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// Project represents Backlog Project.
+// Project represents a project of Backlog.
 type Project struct {
 	ID                                int    `json:"id,omitempty"`
 	ProjectKey                        string `json:"projectKey,omitempty"`
@@ -252,13 +252,13 @@ type Repository struct {
 	Updated      time.Time `json:"updated,omitempty"`
 }
 
-// Resolution represents
+// Resolution represents a resolushon.
 type Resolution struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// SharedFile represents one of SharedFiles.
+// SharedFile represents a shared file.
 type SharedFile struct {
 	ID          int       `json:"id,omitempty"`
 	Type        string    `json:"type,omitempty"`
@@ -271,7 +271,7 @@ type SharedFile struct {
 	Updated     time.Time `json:"updated,omitempty"`
 }
 
-// Space represents Space of Backlog.
+// Space represents space of Backlog.
 type Space struct {
 	SpaceKey           string    `json:"spaceKey,omitempty"`
 	Name               string    `json:"name,omitempty"`
