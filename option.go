@@ -64,6 +64,13 @@ func withKey(key string) option {
 	}
 }
 
+func withKeyword(keyword string) option {
+	return func(p *requestParams) error {
+		p.Set("keyword", keyword)
+		return nil
+	}
+}
+
 func withName(name string) option {
 	return func(p *requestParams) error {
 		if name == "" {
@@ -166,10 +173,10 @@ func withTextFormattingRule(format format) option {
 	}
 }
 
-// ActivityOption is type of functional option for ActivityService.
+// ActivityOption is type of option for ActivityService.
 type ActivityOption option
 
-// ActivityOptionService has methods to make functional option for ActivityService.
+// ActivityOptionService has methods to make option for ActivityService.
 type ActivityOptionService struct {
 }
 
@@ -198,10 +205,10 @@ func (*ActivityOptionService) WithOrder(order order) ActivityOption {
 	return ActivityOption(withOrder(order))
 }
 
-// ProjectOption is type of functional option for ProjectService.
+// ProjectOption is type of option for ProjectService.
 type ProjectOption option
 
-// ProjectOptionService has methods to make functional option for ProjectService.
+// ProjectOptionService has methods to make option for ProjectService.
 type ProjectOptionService struct {
 }
 
@@ -240,10 +247,10 @@ func (*ProjectOptionService) WithArchived(archived bool) ProjectOption {
 	return ProjectOption(withArchived(archived))
 }
 
-// UserOption is type of functional option for UserService.
+// UserOption is type of option for UserService.
 type UserOption option
 
-// UserOptionService has methods to make functional option for UserService.
+// UserOptionService has methods to make option for UserService.
 type UserOptionService struct {
 }
 
@@ -267,11 +274,16 @@ func (*UserOptionService) WithRoleType(roleType role) UserOption {
 	return UserOption(withRoleType(roleType))
 }
 
-// WikiOption is type of functional option for WikiService.
+// WikiOption is type of option for WikiService.
 type WikiOption option
 
-// WikiOptionService has methods to make functional option for WikiService.
+// WikiOptionService has methods to make option for WikiService.
 type WikiOptionService struct {
+}
+
+// WithKeyword returns option. the option sets `keyword` for wiki.
+func (*WikiOptionService) WithKeyword(keyword string) WikiOption {
+	return WikiOption(withKeyword(keyword))
 }
 
 // WithName returns option. the option sets `name` for wiki.
