@@ -94,8 +94,8 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
 func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
-	if wikiID <= 0 {
-		return nil, errors.New("wikiID must be greater than 0")
+	if wikiID < 1 {
+		return nil, errors.New("wikiID must not be less than 1")
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments"
@@ -106,11 +106,11 @@ func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
 func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, error) {
-	if wikiID <= 0 {
-		return nil, errors.New("wikiID must be greater than 0")
+	if wikiID < 1 {
+		return nil, errors.New("wikiID must not be less than 1")
 	}
-	if attachmentID <= 0 {
-		return nil, errors.New("attachmentID must be greater than 0")
+	if attachmentID < 1 {
+		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
 	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments/" + strconv.Itoa(attachmentID)
@@ -143,8 +143,8 @@ func (s *IssueAttachmentService) Remove(target IssueIDOrKeyGetter, attachmentID 
 	if err != nil {
 		return nil, err
 	}
-	if attachmentID <= 0 {
-		return nil, errors.New("attachmentID must be greater than 0")
+	if attachmentID < 1 {
+		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
 	spath := "issues/" + issueIDOrKey + "/attachments/" + strconv.Itoa(attachmentID)
@@ -168,8 +168,8 @@ func (s *PullRequestAttachmentService) List(targetProject ProjectIDOrKeyGetter, 
 	if err != nil {
 		return nil, err
 	}
-	if prNumber <= 0 {
-		return nil, errors.New("prNumber must be greater than 0")
+	if prNumber < 1 {
+		return nil, errors.New("prNumber must not be less than 1")
 	}
 
 	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments"
@@ -188,11 +188,11 @@ func (s *PullRequestAttachmentService) Remove(targetProject ProjectIDOrKeyGetter
 	if err != nil {
 		return nil, err
 	}
-	if prNumber <= 0 {
-		return nil, errors.New("prNumber must be greater than 0")
+	if prNumber < 1 {
+		return nil, errors.New("prNumber must not be less than 1")
 	}
-	if attachmentID <= 0 {
-		return nil, errors.New("attachmentID must be greater than 0")
+	if attachmentID < 1 {
+		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
 	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments" + strconv.Itoa(attachmentID)
