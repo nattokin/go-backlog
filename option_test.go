@@ -625,6 +625,31 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 	}
 }
 
+func TestWikiOptionService_WithKeyword(t *testing.T) {
+	o := backlog.WikiOptionService{}
+
+	cases := map[string]struct {
+		keyword string
+	}{
+		"valid": {
+			keyword: "test",
+		},
+		"empty": {
+			keyword: "",
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithKeyword(tc.keyword)
+			params := backlog.ExportNewRequestParams()
+			err := option(params)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.keyword, params.Get("keyword"))
+		})
+	}
+}
+
 func TestWikiOptionService_WithName(t *testing.T) {
 	o := backlog.WikiOptionService{}
 

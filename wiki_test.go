@@ -14,44 +14,7 @@ import (
 )
 
 func TestWikiService_All(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	projectKey := "test"
-	want := struct {
-		spath          string
-		projectIDOrKey string
-		keyword        string
-	}{
-		spath:          "wikis",
-		projectIDOrKey: projectKey,
-		keyword:        "",
-	}
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.projectIDOrKey, params.Get("projectIdOrKey"))
-			assert.Equal(t, want.keyword, params.Get("keyword"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	wikis, err := s.All(backlog.ProjectKey(projectKey))
-	assert.Nil(t, wikis)
-	assert.Error(t, err)
-}
-
-func TestWikiService_Search(t *testing.T) {
 	projectID := 103
-	keyword := "test"
 	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
@@ -61,13 +24,11 @@ func TestWikiService_Search(t *testing.T) {
 	want := struct {
 		spath     string
 		projectID int
-		keyword   string
 		idList    []int
 		nameList  []string
 	}{
 		spath:     "wikis",
 		projectID: projectID,
-		keyword:   keyword,
 		idList:    []int{112, 115},
 		nameList:  []string{"test1", "test2"},
 	}
@@ -76,7 +37,6 @@ func TestWikiService_Search(t *testing.T) {
 		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, strconv.Itoa(want.projectID), params.Get("projectIdOrKey"))
-			assert.Equal(t, want.keyword, params.Get("keyword"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -85,7 +45,7 @@ func TestWikiService_Search(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wikis, err := s.Search(backlog.ProjectID(projectID), keyword)
+	wikis, err := s.All(backlog.ProjectID(projectID))
 	assert.NoError(t, err)
 	count := len(wikis)
 	assert.Equal(t, len(want.idList), count)
@@ -94,7 +54,74 @@ func TestWikiService_Search(t *testing.T) {
 		assert.Equal(t, want.nameList[i], wikis[i].Name)
 	}
 }
-func TestWikiService_Search_param_error(t *testing.T) {
+
+func TestWikiService_All_param(t *testing.T) {
+	s := &backlog.WikiService{}
+	o := s.Option
+	cases := map[string]struct {
+		projectIdOrKey backlog.ProjectIDOrKeyGetter
+		keywordOption  backlog.WikiOption
+		content        string
+		mailNotify     bool
+		wantError      bool
+	}{
+		"valid-1": {
+			projectIdOrKey: backlog.ProjectID(1),
+			keywordOption:  o.WithKeyword("test"),
+			wantError:      false,
+		},
+		"valid-2": {
+			projectIdOrKey: backlog.ProjectKey("TEST"),
+			keywordOption:  o.WithKeyword(""),
+			wantError:      false,
+		},
+		"invalid-ProjectID": {
+			projectIdOrKey: backlog.ProjectID(0),
+			keywordOption:  o.WithKeyword("test"),
+			wantError:      true,
+		},
+		"invalid-ProjectKey": {
+			projectIdOrKey: backlog.ProjectKey(""),
+			keywordOption:  o.WithKeyword("test"),
+			wantError:      true,
+		},
+		"invalid-option": {
+			projectIdOrKey: backlog.ProjectKey("TEST"),
+			keywordOption:  o.WithName(""),
+			wantError:      true,
+		},
+	}
+
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/wiki_list.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			s.ExportSetMethod(&backlog.ExportMethod{
+				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return resp, nil
+				},
+			})
+
+			if wikis, err := s.All(tc.projectIdOrKey, tc.keywordOption); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Len(t, wikis, 2)
+			}
+		})
+	}
+}
+
+func TestWikiService_All_param_error(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
@@ -111,15 +138,15 @@ func TestWikiService_Search_param_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wikis, err := s.Search(backlog.ProjectID(0), "test")
+	wikis, err := s.All(backlog.ProjectID(0))
 	assert.Error(t, err)
 	assert.Nil(t, wikis)
-	wikis, err = s.Search(backlog.ProjectKey(""), "test")
+	wikis, err = s.All(backlog.ProjectKey(""))
 	assert.Error(t, err)
 	assert.Nil(t, wikis)
 }
 
-func TestWikiService_Search_clientError(t *testing.T) {
+func TestWikiService_All_clientError(t *testing.T) {
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
@@ -127,6 +154,27 @@ func TestWikiService_Search_clientError(t *testing.T) {
 		},
 	})
 	_, err := s.All(backlog.ProjectKey("TEST"))
+	assert.Error(t, err)
+}
+
+func TestWikiService_All_invaliedJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	s := &backlog.WikiService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	_, err = s.All(backlog.ProjectKey("TEST"))
 	assert.Error(t, err)
 }
 
@@ -254,6 +302,12 @@ func TestWikiService_One(t *testing.T) {
 	assert.Equal(t, want.name, wiki.Name)
 }
 func TestWikiService_One_param(t *testing.T) {
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
 	cases := map[string]struct {
 		wikiID    int
 		wantError bool
@@ -275,12 +329,6 @@ func TestWikiService_One_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki_maximum.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
-
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
