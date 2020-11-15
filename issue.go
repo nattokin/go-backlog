@@ -17,8 +17,8 @@ type IssueID int
 type IssueKey string
 
 func (i IssueID) getIssueIDOrKey() (string, error) {
-	if i <= 0 {
-		return "", errors.New("id must be greater than 0")
+	if i < 1 {
+		return "", errors.New("id must not be less than 1")
 	}
 	return strconv.Itoa(int(i)), nil
 }
