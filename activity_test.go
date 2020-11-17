@@ -117,12 +117,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		order          string
 	}
 	cases := map[string]struct {
-		options   []backlog.ActivityOption
+		options   []*backlog.ActivityOption
 		wantError bool
 		want      want
 	}{
 		"NoOption": {
-			options:   []backlog.ActivityOption{},
+			options:   []*backlog.ActivityOption{},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
@@ -133,7 +133,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithActivityTypeIDs_valid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
@@ -146,14 +146,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithActivityTypeIDs_invalid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithActivityTypeIDs([]int{0}),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"WithMinID_valid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithMinID(1),
 			},
 			wantError: false,
@@ -166,14 +166,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithMinID_invalid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithMinID(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"WithMaxID_valid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithMaxID(1),
 			},
 			wantError: false,
@@ -186,14 +186,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithMaxID_invalid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithMaxID(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"WithCount_valid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithCount(1),
 			},
 			wantError: false,
@@ -206,14 +206,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithCount_invalid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"WithOrder_valid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithOrder(backlog.OrderAsc),
 			},
 			wantError: false,
@@ -226,14 +226,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithOrder_invalid": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithOrder("test"),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"MultipleOptions": {
-			options: []backlog.ActivityOption{
+			options: []*backlog.ActivityOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(100),

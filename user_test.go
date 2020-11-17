@@ -454,17 +454,17 @@ func TestUserService_Update_option(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		options   []backlog.UserOption
+		options   []*backlog.UserOption
 		wantError bool
 		want      options
 	}{
 		"no-option": {
-			options:   []backlog.UserOption{},
+			options:   []*backlog.UserOption{},
 			wantError: false,
 			want:      options{},
 		},
 		"option-password": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithPassword("testpasword"),
 			},
 			wantError: false,
@@ -473,14 +473,14 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"option-password_empty": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithPassword(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"option-name": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithName("testname"),
 			},
 			wantError: false,
@@ -489,14 +489,14 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"option-name_empty": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithName(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"option-mailAddress": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithMailAddress("test@test.com"),
 			},
 			wantError: false,
@@ -505,14 +505,14 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"option-mailAddress_empty": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithMailAddress(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"option-roleType_Administrator": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
@@ -521,7 +521,7 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"multi-option": {
-			options: []backlog.UserOption{
+			options: []*backlog.UserOption{
 				o.WithPassword("testpasword1"),
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),

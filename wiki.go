@@ -16,22 +16,31 @@ type WikiService struct {
 }
 
 // All Wiki in project is gotten.
+//
 // Options:
-// - WithKeyword: Search by some keyword.
+//  - WithKeyword: Search by some keyword.
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...WikiOption) ([]*Wiki, error) {
+func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*WikiOption) ([]*Wiki, error) {
 	projectIDOrKey, err := target.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
 
-	params := newRequestParams()
-	params.Set("projectIdOrKey", projectIDOrKey)
+	validOptions := []optionType{optionKeyword}
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
+
+	params := newRequestParams()
+	for _, option := range options {
+		if err := option.set(params); err != nil {
+			return nil, err
+		}
+	}
+	params.Set("projectIdOrKey", projectIDOrKey)
 
 	resp, err := s.method.Get("wikis", params)
 	if err != nil {
@@ -51,12 +60,14 @@ func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...WikiOption) ([
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
-	params := newRequestParams()
 	projectIDOrKey, err := target.getProjectIDOrKey()
 	if err != nil {
 		return 0, err
 	}
+
+	params := newRequestParams()
 	params.Set("projectIdOrKey", projectIDOrKey)
+
 	resp, err := s.method.Get("wikis/count", params)
 	if err != nil {
 		return 0, err
@@ -96,8 +107,11 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 
 // Create creates a new Wiki for the project.
 //
+// Options:
+//  - WithMailNotify
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, options ...WikiOption) (*Wiki, error) {
+func (s *WikiService) Create(projectID int, name, content string, options ...*WikiOption) (*Wiki, error) {
 	if projectID < 1 {
 		return nil, fmt.Errorf("projectID must not be less than 1")
 	}
@@ -107,16 +121,23 @@ func (s *WikiService) Create(projectID int, name, content string, options ...Wik
 	if content == "" {
 		return nil, errors.New("content must not be empty")
 	}
-	params := newRequestParams()
-	params.Set("projectId", strconv.Itoa(projectID))
-	params.Set("name", name)
-	params.Set("content", content)
 
+	validOptions := []optionType{optionMailNotify}
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
+
+	params := newRequestParams()
+	for _, option := range options {
+		if err := option.set(params); err != nil {
+			return nil, err
+		}
+	}
+	params.Set("projectId", strconv.Itoa(projectID))
+	params.Set("name", name)
+	params.Set("content", content)
 
 	resp, err := s.method.Post("wikis", params)
 	if err != nil {
@@ -134,8 +155,13 @@ func (s *WikiService) Create(projectID int, name, content string, options ...Wik
 
 // Update a wiki.
 //
+// Options:
+//  - WithName
+//  - WithContent
+//  - WithMailNotify
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
+func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) {
 	if wikiID < 1 {
 		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
@@ -144,9 +170,16 @@ func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 		return nil, errors.New("requires one or more options")
 	}
 
+	validOptions := []optionType{optionName, optionContent, optionMailNotify}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	params := newRequestParams()
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.set(params); err != nil {
 			return nil, err
 		}
 	}
@@ -168,14 +201,25 @@ func (s *WikiService) Update(wikiID int, options ...WikiOption) (*Wiki, error) {
 
 // Delete a wiki by ID.
 //
+// Options:
+//  - WithMailNotify
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, options ...WikiOption) (*Wiki, error) {
+func (s *WikiService) Delete(wikiID int, options ...*WikiOption) (*Wiki, error) {
 	if wikiID < 1 {
 		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
+
+	validOptions := []optionType{optionMailNotify}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	params := newRequestParams()
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.set(params); err != nil {
 			return nil, err
 		}
 	}

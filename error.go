@@ -40,3 +40,28 @@ func (e *APIResponseError) Error() string {
 
 	return strings.Join(msgs[:], "\n")
 }
+
+// InvalidOptionError is an invalid option error.
+type InvalidOptionError struct {
+	Invalid   optionType
+	ValidList []optionType
+}
+
+func newInvalidOptionError(invalid optionType, validList []optionType) *InvalidOptionError {
+	return &InvalidOptionError{
+		Invalid:   invalid,
+		ValidList: validList,
+	}
+}
+
+func (e InvalidOptionError) validListString() string {
+	var types []string
+	for _, v := range e.ValidList {
+		types = append(types, v.String())
+	}
+	return strings.Join(types, ",")
+}
+
+func (e *InvalidOptionError) Error() string {
+	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid, e.validListString())
+}

@@ -60,7 +60,7 @@ func TestWikiService_All_param(t *testing.T) {
 	o := s.Option
 	cases := map[string]struct {
 		projectIdOrKey backlog.ProjectIDOrKeyGetter
-		keywordOption  backlog.WikiOption
+		keywordOption  *backlog.WikiOption
 		content        string
 		mailNotify     bool
 		wantError      bool
@@ -550,9 +550,9 @@ func TestWikiService_Create_option_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	error_option := func(p *backlog.ExportRequestParams) error {
+	error_option := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
-	}
+	})
 	wiki, err := s.Create(1, "name", "content", error_option)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
@@ -863,9 +863,9 @@ func TestWikiService_Delete_option_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	error_option := func(p *backlog.ExportRequestParams) error {
+	error_option := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
-	}
+	})
 	wiki, err := s.Delete(1, error_option)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
