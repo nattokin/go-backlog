@@ -498,12 +498,12 @@ func TestProjectService_Create_option(t *testing.T) {
 		textFormattingRule                string
 	}
 	cases := map[string]struct {
-		options   []backlog.ProjectOption
+		options   []*backlog.ProjectOption
 		wantError bool
 		want      options
 	}{
 		"no-option": {
-			options:   []backlog.ProjectOption{},
+			options:   []*backlog.ProjectOption{},
 			wantError: false,
 			want: options{
 				chartEnabled:                      "",
@@ -513,7 +513,7 @@ func TestProjectService_Create_option(t *testing.T) {
 			},
 		},
 		"valid": {
-			options: []backlog.ProjectOption{
+			options: []*backlog.ProjectOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
@@ -528,7 +528,7 @@ func TestProjectService_Create_option(t *testing.T) {
 			},
 		},
 		"invalid": {
-			options: []backlog.ProjectOption{
+			options: []*backlog.ProjectOption{
 				o.WithChartEnabled(false),
 				o.WithSubtaskingEnabled(false),
 				o.WithProjectLeaderCanEditProjectLeader(false),
@@ -701,12 +701,12 @@ func TestProjectService_Update_option(t *testing.T) {
 		archived                          string
 	}
 	cases := map[string]struct {
-		options   []backlog.ProjectOption
+		options   []*backlog.ProjectOption
 		wantError bool
 		want      options
 	}{
 		"option-1": {
-			options: []backlog.ProjectOption{
+			options: []*backlog.ProjectOption{
 				o.WithKey("TEST1"),
 				o.WithName("test1"),
 				o.WithChartEnabled(true),
@@ -727,7 +727,7 @@ func TestProjectService_Update_option(t *testing.T) {
 			},
 		},
 		"option-2": {
-			options: []backlog.ProjectOption{
+			options: []*backlog.ProjectOption{
 				o.WithKey("TEST2"),
 				o.WithName("test2"),
 				o.WithChartEnabled(false),
@@ -748,7 +748,7 @@ func TestProjectService_Update_option(t *testing.T) {
 			},
 		},
 		"option-error": {
-			options: []backlog.ProjectOption{
+			options: []*backlog.ProjectOption{
 				o.WithKey(""),
 				o.WithName(""),
 				o.WithChartEnabled(false),

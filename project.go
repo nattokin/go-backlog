@@ -148,8 +148,14 @@ func (s *ProjectService) One(target ProjectIDOrKeyGetter) (*Project, error) {
 
 // Create creates a new project.
 //
+// Options:
+//  - WithChartEnabled
+//  - WithSubtaskingEnabled
+//  - WithProjectLeaderCanEditProjectLeader
+//  - WithTextFormattingRule
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Project, error) {
+func (s *ProjectService) Create(key, name string, options ...*ProjectOption) (*Project, error) {
 	if key == "" {
 		return nil, errors.New("key must not be empty")
 	}
@@ -157,18 +163,21 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 		return nil, errors.New("name must not be empty")
 	}
 
-	params := newRequestParams()
-
+	validOptions := []optionType{optionChartEnabled, optionSubtaskingEnabled, optionProjectLeaderCanEditProjectLeader, optionTextFormattingRule}
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	// Disable invalid options.
+	params := newRequestParams()
+	for _, option := range options {
+		if err := option.set(params); err != nil {
+			return nil, err
+		}
+	}
 	params.Set("key", key)
 	params.Set("name", name)
-	params.Del("archived")
 
 	resp, err := s.method.Post("projects", params)
 	if err != nil {
@@ -186,15 +195,34 @@ func (s *ProjectService) Create(key, name string, options ...ProjectOption) (*Pr
 
 // Update updates a project.
 //
+// Options:
+//  - WithKey
+//  - WithName
+//  - WithChartEnabled
+//  - WithSubtaskingEnabled
+//  - WithProjectLeaderCanEditProjectLeader
+//  - WithTextFormattingRule
+//  - WithArchived
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...ProjectOption) (*Project, error) {
+func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...*ProjectOption) (*Project, error) {
 	projectIDOrKey, err := target.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
+
+	validOptions := []optionType{
+		optionKey, optionName, optionChartEnabled, optionSubtaskingEnabled, optionProjectLeaderCanEditProjectLeader, optionTextFormattingRule, optionArchived,
+	}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	params := newRequestParams()
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.set(params); err != nil {
 			return nil, err
 		}
 	}
