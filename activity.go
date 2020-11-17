@@ -44,6 +44,15 @@ type ProjectActivityService struct {
 
 // List returns a list of activities in the project.
 //
+// This method can specify the options returned by methods in "*Client.Project.Activity.Option".
+//
+// Use the following methods:
+//   WithActivityTypeIDs
+//   WithMinID
+//   WithMaxID
+//   WithCount
+//   WithOrder
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(target ProjectIDOrKeyGetter, options ...*ActivityOption) ([]*Activity, error) {
 	projectIDOrKey, err := target.getProjectIDOrKey()
@@ -64,6 +73,15 @@ type SpaceActivityService struct {
 
 // List returns a list of activities in your space.
 //
+// This method can specify the options returned by methods in "*Client.Space.Activity.Option".
+//
+// Use the following methods:
+//   WithActivityTypeIDs
+//   WithMinID
+//   WithMaxID
+//   WithCount
+//   WithOrder
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...*ActivityOption) ([]*Activity, error) {
 	spath := "space/activities"
@@ -78,6 +96,15 @@ type UserActivityService struct {
 }
 
 // List returns a list of user activities.
+//
+// This method can specify the options returned by methods in "*Client.User.Activity.Option".
+//
+// Use the following methods:
+//   WithActivityTypeIDs
+//   WithMinID
+//   WithMaxID
+//   WithCount
+//   WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(userID int, options ...*ActivityOption) ([]*Activity, error) {

@@ -148,11 +148,13 @@ func (s *ProjectService) One(target ProjectIDOrKeyGetter) (*Project, error) {
 
 // Create creates a new project.
 //
-// Options:
-//  - WithChartEnabled
-//  - WithSubtaskingEnabled
-//  - WithProjectLeaderCanEditProjectLeader
-//  - WithTextFormattingRule
+// This method can specify the options returned by methods in "*Client.Project.Option".
+//
+// Use the following methods:
+//   WithChartEnabled
+//   WithSubtaskingEnabled
+//   WithProjectLeaderCanEditProjectLeader
+//   WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(key, name string, options ...*ProjectOption) (*Project, error) {
@@ -195,14 +197,17 @@ func (s *ProjectService) Create(key, name string, options ...*ProjectOption) (*P
 
 // Update updates a project.
 //
-// Options:
-//  - WithKey
-//  - WithName
-//  - WithChartEnabled
-//  - WithSubtaskingEnabled
-//  - WithProjectLeaderCanEditProjectLeader
-//  - WithTextFormattingRule
-//  - WithArchived
+// This method can specify the options returned by methods in "*Client.Project.Option".
+//
+// Use the following methods:
+//   WithKey
+//   WithName
+//   WithChartEnabled
+//   WithSubtaskingEnabled
+//   WithProjectLeaderCanEditProjectLeader
+//   WithTextFormattingRule
+//   WithArchived
+//   WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...*ProjectOption) (*Project, error) {

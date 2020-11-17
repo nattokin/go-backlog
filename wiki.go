@@ -17,8 +17,10 @@ type WikiService struct {
 
 // All Wiki in project is gotten.
 //
-// Options:
-//  - WithKeyword: Search by some keyword.
+// This method can specify the options returned by methods in "*Client.Wiki.Option".
+//
+// Use the following methods:
+//   WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*WikiOption) ([]*Wiki, error) {
@@ -107,8 +109,10 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 
 // Create creates a new Wiki for the project.
 //
-// Options:
-//  - WithMailNotify
+// This method can specify the options returned by methods in "*Client.Wiki.Option".
+//
+// Use the following methods:
+//   WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...*WikiOption) (*Wiki, error) {
@@ -155,10 +159,12 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Wi
 
 // Update a wiki.
 //
-// Options:
-//  - WithName
-//  - WithContent
-//  - WithMailNotify
+// This method can specify the options returned by methods in "*Client.Wiki.Option".
+//
+// Use the following methods:
+//   WithName
+//   WithContent
+//   WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) {
@@ -201,8 +207,10 @@ func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) 
 
 // Delete a wiki by ID.
 //
-// Options:
-//  - WithMailNotify
+// This method can specify the options returned by methods in "*Client.Wiki.Option".
+//
+// Use the following methods:
+//   WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, options ...*WikiOption) (*Wiki, error) {
