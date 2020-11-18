@@ -21,12 +21,12 @@ func TestError_Error(t *testing.T) {
 func TestAPIResponseError_Error(t *testing.T) {
 	e := &backlog.APIResponseError{
 		Errors: []*backlog.Error{
-			&backlog.Error{
+			{
 				Message:  "1st error",
 				Code:     5,
 				MoreInfo: "more info 1",
 			},
-			&backlog.Error{
+			{
 				Message:  "2nd error",
 				Code:     9,
 				MoreInfo: "more info 2",
