@@ -110,17 +110,17 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 		want      []string
 		wantError bool
 	}{
-		"valid-1": {
+		"Valid-1": {
 			typeIDs:   []int{1},
 			want:      []string{"1"},
 			wantError: false,
 		},
-		"valid-2": {
+		"Valid-2": {
 			typeIDs:   []int{26},
 			want:      []string{"26"},
 			wantError: false,
 		},
-		"valid-3": {
+		"Valid-3": {
 			typeIDs: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26},
 			want: []string{
 				"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
@@ -128,32 +128,32 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 			},
 			wantError: false,
 		},
-		"invalid-1": {
+		"Invalid-1": {
 			typeIDs:   []int{0},
 			want:      nil,
 			wantError: true,
 		},
-		"invalid-2": {
+		"Invalid-2": {
 			typeIDs:   []int{-1},
 			want:      nil,
 			wantError: true,
 		},
-		"invalid-3": {
+		"Invalid-3": {
 			typeIDs:   []int{27},
 			want:      nil,
 			wantError: true,
 		},
-		"invalid-4": {
+		"Invalid-4": {
 			typeIDs:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27},
 			want:      nil,
 			wantError: true,
 		},
-		"invalid-5": {
+		"Invalid-5": {
 			typeIDs:   []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26},
 			want:      nil,
 			wantError: true,
 		},
-		"empty": {
+		"Empty": {
 			typeIDs:   []int{},
 			want:      nil,
 			wantError: false,
@@ -188,15 +188,15 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 		minID     int
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			minID:     1,
 			wantError: false,
 		},
-		"invalid-1": {
+		"Invalid-1": {
 			minID:     0,
 			wantError: true,
 		},
-		"invalid-2": {
+		"Invalid-2": {
 			minID:     -1,
 			wantError: true,
 		},
@@ -224,15 +224,15 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 		maxID     int
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			maxID:     1,
 			wantError: false,
 		},
-		"invalid-1": {
+		"Invalid-1": {
 			maxID:     0,
 			wantError: true,
 		},
-		"invalid-2": {
+		"Invalid-2": {
 			maxID:     -1,
 			wantError: true,
 		},
@@ -260,23 +260,23 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 		count     int
 		wantError bool
 	}{
-		"valid-1": {
+		"Valid-1": {
 			count:     1,
 			wantError: false,
 		},
-		"valid-2": {
+		"Valid-2": {
 			count:     100,
 			wantError: false,
 		},
-		"invalid-1": {
+		"Invalid-1": {
 			count:     0,
 			wantError: true,
 		},
-		"invalid-2": {
+		"Invalid-2": {
 			count:     -1,
 			wantError: true,
 		},
-		"invalid-3": {
+		"Invalid-3": {
 			count:     101,
 			wantError: true,
 		},
@@ -312,11 +312,11 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 			order:     backlog.OrderDesc,
 			wantError: false,
 		},
-		"invalid": {
+		"Invalid": {
 			order:     "test",
 			wantError: true,
 		},
-		"empty": {
+		"Empty": {
 			order:     "",
 			wantError: true,
 		},
@@ -337,6 +337,31 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	}
 }
 
+func TestProjectOptionService_WithAll(t *testing.T) {
+	o := backlog.ProjectOptionService{}
+
+	cases := map[string]struct {
+		enabeld bool
+	}{
+		"true": {
+			enabeld: true,
+		},
+		"false": {
+			enabeld: false,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithAll(tc.enabeld)
+			params := backlog.ExportNewRequestParams()
+			err := backlog.ExportProjectOptionSet(option, params)
+			assert.NoError(t, err)
+			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("all"))
+		})
+	}
+}
+
 func TestProjectOptionService_WithKey(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
@@ -344,11 +369,11 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 		key       string
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			key:       "TEST",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			key:       "",
 			wantError: true,
 		},
@@ -376,11 +401,11 @@ func TestProjectOptionService_WithName(t *testing.T) {
 		name      string
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			name:      "test",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			name:      "",
 			wantError: true,
 		},
@@ -491,11 +516,11 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 			format:    backlog.FormatMarkdown,
 			wantError: false,
 		},
-		"invalid": {
+		"Invalid": {
 			format:    "test",
 			wantError: true,
 		},
-		"empty": {
+		"Empty": {
 			format:    "",
 			wantError: true,
 		},
@@ -548,15 +573,15 @@ func TestUserOptionService_WithPassword(t *testing.T) {
 		password  string
 		wantError bool
 	}{
-		"valid-1": {
+		"Valid-1": {
 			password:  "password",
 			wantError: false,
 		},
-		"valid-2": {
+		"Valid-2": {
 			password:  "@password#1234",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			password:  "",
 			wantError: true,
 		},
@@ -584,11 +609,11 @@ func TestUserOptionService_WithName(t *testing.T) {
 		name      string
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			name:      "test",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			name:      "",
 			wantError: true,
 		},
@@ -616,15 +641,15 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 		mailAddress string
 		wantError   bool
 	}{
-		"valid-1": {
+		"Valid-1": {
 			mailAddress: "mail@test.com",
 			wantError:   false,
 		},
-		"valid-2": {
+		"Valid-2": {
 			mailAddress: "mail_test@test.com",
 			wantError:   false,
 		},
-		"valid-3": {
+		"Valid-3": {
 			mailAddress: "mail-test@test.com",
 			wantError:   false,
 		},
@@ -633,7 +658,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 		// 	mailAddress:  "test",
 		// 	wantError: true,
 		// },
-		"empty": {
+		"Empty": {
 			mailAddress: "",
 			wantError:   true,
 		},
@@ -692,12 +717,12 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 			want:      "6",
 			wantError: false,
 		},
-		"invalid-1": {
+		"Invalid-1": {
 			roleType:  0,
 			want:      "6",
 			wantError: true,
 		},
-		"invalid-2": {
+		"Invalid-2": {
 			roleType:  -1,
 			want:      "6",
 			wantError: true,
@@ -725,10 +750,10 @@ func TestWikiOptionService_WithKeyword(t *testing.T) {
 	cases := map[string]struct {
 		keyword string
 	}{
-		"valid": {
+		"Valid": {
 			keyword: "test",
 		},
-		"empty": {
+		"Empty": {
 			keyword: "",
 		},
 	}
@@ -751,11 +776,11 @@ func TestWikiOptionService_WithName(t *testing.T) {
 		name      string
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			name:      "test",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			name:      "",
 			wantError: true,
 		},
@@ -783,11 +808,11 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 		content   string
 		wantError bool
 	}{
-		"valid": {
+		"Valid": {
 			content:   "content",
 			wantError: false,
 		},
-		"empty": {
+		"Empty": {
 			content:   "",
 			wantError: true,
 		},
