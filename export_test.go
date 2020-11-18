@@ -14,6 +14,7 @@ type (
 
 const (
 	ExportOptionActivityTypeIDs                   = optionActivityTypeIDs
+	ExportOptionAll                               = optionAll
 	ExportOptionArchived                          = optionArchived
 	ExportOptionChartEnabled                      = optionChartEnabled
 	ExportOptionContent                           = optionContent
@@ -70,6 +71,14 @@ func ExportNewWikiOption(optionType optionType, optionFunc optionFunc) *WikiOpti
 
 func ExportNewActivityOption(optionType optionType, optionFunc optionFunc) *ActivityOption {
 	return &ActivityOption{&option{optionType, optionFunc}}
+}
+
+func ExportNewProjectOption(optionType optionType, optionFunc optionFunc) *ProjectOption {
+	return &ProjectOption{&option{optionType, optionFunc}}
+}
+
+func ExportNewUserOption(optionType optionType, optionFunc optionFunc) *UserOption {
+	return &UserOption{&option{optionType, optionFunc}}
 }
 
 func (c *Client) ExportURL() *url.URL {

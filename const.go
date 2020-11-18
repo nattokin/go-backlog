@@ -26,6 +26,7 @@ const (
 const (
 	_ optionType = iota
 	optionActivityTypeIDs
+	optionAll
 	optionArchived
 	optionChartEnabled
 	optionContent

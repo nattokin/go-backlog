@@ -153,8 +153,8 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 // This method can specify the options returned by methods in "*Client.User.Option".
 //
 // Use the following methods:
-//   WithPassword
 //   WithName
+//   WithPassword
 //   WithMailAddress
 //   WithRoleType
 //
@@ -166,7 +166,7 @@ func (s *UserService) Update(id int, options ...*UserOption) (*User, error) {
 
 	spath := "users/" + strconv.Itoa(id)
 
-	validOptions := []optionType{optionPassword, optionName, optionMailAddress, optionRoleType}
+	validOptions := []optionType{optionName, optionPassword, optionMailAddress, optionRoleType}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
