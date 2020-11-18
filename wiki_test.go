@@ -60,7 +60,7 @@ func TestWikiService_All_param(t *testing.T) {
 	o := s.Option
 	cases := map[string]struct {
 		projectIdOrKey backlog.ProjectIDOrKeyGetter
-		keywordOption  backlog.WikiOption
+		keywordOption  *backlog.WikiOption
 		content        string
 		mailNotify     bool
 		wantError      bool
@@ -89,6 +89,13 @@ func TestWikiService_All_param(t *testing.T) {
 			projectIdOrKey: backlog.ProjectKey("TEST"),
 			keywordOption:  o.WithName(""),
 			wantError:      true,
+		},
+		"option-error": {
+			projectIdOrKey: backlog.ProjectKey("TEST"),
+			keywordOption: backlog.ExportNewWikiOption(backlog.ExportOptionKeyword, func(p *backlog.ExportRequestParams) error {
+				return errors.New("error")
+			}),
+			wantError: true,
 		},
 	}
 
@@ -207,6 +214,7 @@ func TestWikiService_Count(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, want.count, count)
 }
+
 func TestWikiService_Count_param_error(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
@@ -301,6 +309,7 @@ func TestWikiService_One(t *testing.T) {
 	assert.Equal(t, want.wikiID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 }
+
 func TestWikiService_One_param(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
@@ -533,7 +542,7 @@ func TestWikiService_Create_invaliedJson(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_Create_option_error(t *testing.T) {
+func TestWikiService_Create_OptionError(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_minimum.json")
 	if err != nil {
 		t.Fatal(err)
@@ -550,12 +559,37 @@ func TestWikiService_Create_option_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	error_option := func(p *backlog.ExportRequestParams) error {
+	errorOption := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
-	}
-	wiki, err := s.Create(1, "name", "content", error_option)
+	})
+	wiki, err := s.Create(1, "name", "content", errorOption)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
+}
+
+func TestWikiService_Create_invalidOption(t *testing.T) {
+	bj, err := os.Open("testdata/json/wiki_minimum.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	s := &backlog.WikiService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+		return nil
+	})
+	wiki, err := s.Create(1, "name", "content", invalidOption)
+	assert.Nil(t, wiki)
+	assert.IsType(t, &backlog.InvalidOptionError{}, err)
 }
 
 func TestWikiService_Update(t *testing.T) {
@@ -728,6 +762,31 @@ func TestWikiService_Update_option_required(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestWikiService_Update_invalidOption(t *testing.T) {
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	s := &backlog.WikiService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+		return nil
+	})
+	wiki, err := s.Update(1, invalidOption)
+	assert.Nil(t, wiki)
+	assert.IsType(t, &backlog.InvalidOptionError{}, err)
+}
+
 func TestWikiService_Delete(t *testing.T) {
 	id := 34
 	bj, err := os.Open("testdata/json/wiki_maximum.json")
@@ -770,16 +829,16 @@ func TestWikiService_Delete_param(t *testing.T) {
 		mailNotify bool
 		wantError  bool
 	}{
-		"mailNotify_false": {
+		"valid": {
 			wikiID:    1,
 			wantError: false,
 		},
-		"mailNotify_true": {
-			wikiID:    100,
-			wantError: false,
-		},
-		"wikiId_zero": {
+		"invalid-1": {
 			wikiID:    0,
+			wantError: true,
+		},
+		"invalid-2": {
+			wikiID:    -1,
 			wantError: true,
 		},
 	}
@@ -863,10 +922,35 @@ func TestWikiService_Delete_option_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	error_option := func(p *backlog.ExportRequestParams) error {
+	errorOption := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
-	}
-	wiki, err := s.Delete(1, error_option)
+	})
+	wiki, err := s.Delete(1, errorOption)
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
+}
+
+func TestWikiService_Delete_invalidOption(t *testing.T) {
+	bj, err := os.Open("testdata/json/wiki_maximum.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	s := &backlog.WikiService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+		return nil
+	})
+	wiki, err := s.Delete(1, invalidOption)
+	assert.Nil(t, wiki)
+	assert.IsType(t, &backlog.InvalidOptionError{}, err)
 }

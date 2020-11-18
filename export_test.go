@@ -6,9 +6,32 @@ import (
 )
 
 type (
-	ExportRole   = role
-	ExportOrder  = order
-	ExportFormat = format
+	ExportRole       = role
+	ExportOrder      = order
+	ExportFormat     = format
+	ExportOptionType = optionType
+)
+
+const (
+	ExportOptionActivityTypeIDs                   = optionActivityTypeIDs
+	ExportOptionAll                               = optionAll
+	ExportOptionArchived                          = optionArchived
+	ExportOptionChartEnabled                      = optionChartEnabled
+	ExportOptionContent                           = optionContent
+	ExportOptionCount                             = optionCount
+	ExportOptionKey                               = optionKey
+	ExportOptionKeyword                           = optionKeyword
+	ExportOptionName                              = optionName
+	ExportOptionMailAddress                       = optionMailAddress
+	ExportOptionMailNotify                        = optionMailNotify
+	ExportOptionMaxID                             = optionMaxID
+	ExportOptionMinID                             = optionMinID
+	ExportOptionOrder                             = optionOrder
+	ExportOptionPassword                          = optionPassword
+	ExportOptionProjectLeaderCanEditProjectLeader = optionProjectLeaderCanEditProjectLeader
+	ExportOptionRoleType                          = optionRoleType
+	ExportOptionSubtaskingEnabled                 = optionSubtaskingEnabled
+	ExportOptionTextFormattingRule                = optionTextFormattingRule
 )
 
 type (
@@ -28,12 +51,35 @@ var (
 )
 
 var (
+	ExportActivityOptionSet = (*ActivityOption).set
+	ExportProjectOptionSet  = (*ProjectOption).set
+	ExportUserOptionSet     = (*UserOption).set
+	ExportWikiOptionSet     = (*WikiOption).set
+)
+
+var (
 	ExportNewClientError   = newClientError
 	ExportNewRequestParams = newRequestParams
 	ExportCeckResponse     = checkResponse
 	ExportCreateFormFile   = createFormFile
 	ExportCopy             = copy
 )
+
+func ExportNewWikiOption(optionType optionType, optionFunc optionFunc) *WikiOption {
+	return &WikiOption{&option{optionType, optionFunc}}
+}
+
+func ExportNewActivityOption(optionType optionType, optionFunc optionFunc) *ActivityOption {
+	return &ActivityOption{&option{optionType, optionFunc}}
+}
+
+func ExportNewProjectOption(optionType optionType, optionFunc optionFunc) *ProjectOption {
+	return &ProjectOption{&option{optionType, optionFunc}}
+}
+
+func ExportNewUserOption(optionType optionType, optionFunc optionFunc) *UserOption {
+	return &UserOption{&option{optionType, optionFunc}}
+}
 
 func (c *Client) ExportURL() *url.URL {
 	return c.url

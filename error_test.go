@@ -37,3 +37,15 @@ func TestAPIResponseError_Error(t *testing.T) {
 
 	assert.Equal(t, want, e.Error())
 }
+
+func TestInvalidOptionError_Error(t *testing.T) {
+	e := &backlog.InvalidOptionError{
+		Invalid: backlog.ExportOptionActivityTypeIDs,
+		ValidList: []backlog.ExportOptionType{
+			backlog.ExportOptionActivityTypeIDs,
+			backlog.ExportOptionArchived,
+			backlog.ExportOptionChartEnabled,
+		},
+	}
+	assert.EqualError(t, e, "invalid option error. option:ActivityTypeIDs, allowd options:ActivityTypeIDs,Archived,ChartEnabled")
+}

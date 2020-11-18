@@ -454,33 +454,17 @@ func TestUserService_Update_option(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		options   []backlog.UserOption
+		options   []*backlog.UserOption
 		wantError bool
 		want      options
 	}{
-		"no-option": {
-			options:   []backlog.UserOption{},
+		"WithoutOption": {
+			options:   []*backlog.UserOption{},
 			wantError: false,
 			want:      options{},
 		},
-		"option-password": {
-			options: []backlog.UserOption{
-				o.WithPassword("testpasword"),
-			},
-			wantError: false,
-			want: options{
-				password: "testpasword",
-			},
-		},
-		"option-password_empty": {
-			options: []backlog.UserOption{
-				o.WithPassword(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"option-name": {
-			options: []backlog.UserOption{
+		"WithName": {
+			options: []*backlog.UserOption{
 				o.WithName("testname"),
 			},
 			wantError: false,
@@ -488,15 +472,17 @@ func TestUserService_Update_option(t *testing.T) {
 				name: "testname",
 			},
 		},
-		"option-name_empty": {
-			options: []backlog.UserOption{
-				o.WithName(""),
+		"WithPassword": {
+			options: []*backlog.UserOption{
+				o.WithPassword("testpasword"),
 			},
-			wantError: true,
-			want:      options{},
+			wantError: false,
+			want: options{
+				password: "testpasword",
+			},
 		},
-		"option-mailAddress": {
-			options: []backlog.UserOption{
+		"WithMailAddress": {
+			options: []*backlog.UserOption{
 				o.WithMailAddress("test@test.com"),
 			},
 			wantError: false,
@@ -504,15 +490,8 @@ func TestUserService_Update_option(t *testing.T) {
 				mailAddress: "test@test.com",
 			},
 		},
-		"option-mailAddress_empty": {
-			options: []backlog.UserOption{
-				o.WithMailAddress(""),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"option-roleType_Administrator": {
-			options: []backlog.UserOption{
+		"WithRoleType": {
+			options: []*backlog.UserOption{
 				o.WithRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
@@ -520,8 +499,8 @@ func TestUserService_Update_option(t *testing.T) {
 				roleType: "1",
 			},
 		},
-		"multi-option": {
-			options: []backlog.UserOption{
+		"MultiOptions": {
+			options: []*backlog.UserOption{
 				o.WithPassword("testpasword1"),
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
@@ -534,6 +513,22 @@ func TestUserService_Update_option(t *testing.T) {
 				mailAddress: "test1@test.com",
 				roleType:    "1",
 			},
+		},
+		"OptionError": {
+			options: []*backlog.UserOption{
+				o.WithName(""),
+			},
+			wantError: true,
+			want:      options{},
+		},
+		"InvalidOption": {
+			options: []*backlog.UserOption{
+				backlog.ExportNewUserOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+					return nil
+				}),
+			},
+			wantError: true,
+			want:      options{},
 		},
 	}
 	for n, tc := range cases {
@@ -784,6 +779,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		})
 	}
 }
+
 func TestProjectUserService_Delete(t *testing.T) {
 	type want struct {
 		spath  string
@@ -854,6 +850,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		})
 	}
 }
+
 func TestProjectUserService_AddAdmin(t *testing.T) {
 	type want struct {
 		spath  string
@@ -915,6 +912,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		})
 	}
 }
+
 func TestProjectUserService_AdminAll(t *testing.T) {
 	type want struct {
 		spath string
@@ -956,6 +954,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		})
 	}
 }
+
 func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	type want struct {
 		spath  string
