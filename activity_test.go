@@ -132,7 +132,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithActivityTypeIDs_valid": {
+		"WithActivityTypeIDs": {
 			options: []*backlog.ActivityOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
@@ -145,14 +145,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithActivityTypeIDs_invalid": {
-			options: []*backlog.ActivityOption{
-				o.WithActivityTypeIDs([]int{0}),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithMinID_valid": {
+		"WithMinID": {
 			options: []*backlog.ActivityOption{
 				o.WithMinID(1),
 			},
@@ -165,14 +158,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithMinID_invalid": {
-			options: []*backlog.ActivityOption{
-				o.WithMinID(0),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithMaxID_valid": {
+		"WithMaxID": {
 			options: []*backlog.ActivityOption{
 				o.WithMaxID(1),
 			},
@@ -185,14 +171,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithMaxID_invalid": {
-			options: []*backlog.ActivityOption{
-				o.WithMaxID(0),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithCount_valid": {
+		"WithCount": {
 			options: []*backlog.ActivityOption{
 				o.WithCount(1),
 			},
@@ -205,14 +184,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithCount_invalid": {
-			options: []*backlog.ActivityOption{
-				o.WithCount(0),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"WithOrder_valid": {
+		"WithOrder": {
 			options: []*backlog.ActivityOption{
 				o.WithOrder(backlog.OrderAsc),
 			},
@@ -224,13 +196,6 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				count:          "",
 				order:          "asc",
 			},
-		},
-		"WithOrder_invalid": {
-			options: []*backlog.ActivityOption{
-				o.WithOrder("test"),
-			},
-			wantError: true,
-			want:      want{},
 		},
 		"MultipleOptions": {
 			options: []*backlog.ActivityOption{
@@ -248,6 +213,22 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				count:          "20",
 				order:          "asc",
 			},
+		},
+		"OptionError": {
+			options: []*backlog.ActivityOption{
+				o.WithCount(0),
+			},
+			wantError: true,
+			want:      want{},
+		},
+		"InvalidOption": {
+			options: []*backlog.ActivityOption{
+				backlog.ExportNewActivityOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+					return nil
+				}),
+			},
+			wantError: true,
+			want:      want{},
 		},
 	}
 	for n, tc := range cases {
