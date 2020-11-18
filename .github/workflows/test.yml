@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - "**.go"
+      - ".github/workflows/*.yml"
 
 jobs:
   lint:
