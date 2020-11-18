@@ -68,6 +68,10 @@ func ExportNewWikiOption(optionType optionType, optionFunc optionFunc) *WikiOpti
 	return &WikiOption{&option{optionType, optionFunc}}
 }
 
+func ExportNewActivityOption(optionType optionType, optionFunc optionFunc) *ActivityOption {
+	return &ActivityOption{&option{optionType, optionFunc}}
+}
+
 func (c *Client) ExportURL() *url.URL {
 	return c.url
 }
