@@ -12,6 +12,8 @@ func (o optionType) String() string {
 	switch o {
 	case optionActivityTypeIDs:
 		return "ActivityTypeIDs"
+	case optionAll:
+		return "All"
 	case optionArchived:
 		return "Archived"
 	case optionChartEnabled:
@@ -79,6 +81,13 @@ func withActivityTypeIDs(typeIDs []int) *option {
 			}
 			params.Add("activityTypeId[]", strconv.Itoa(id))
 		}
+		return nil
+	}}
+}
+
+func withAll(enabeld bool) *option {
+	return &option{optionAll, func(params *requestParams) error {
+		params.Set("all", strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
@@ -277,6 +286,11 @@ type ProjectOption struct {
 
 // ProjectOptionService has methods to make option for ProjectService.
 type ProjectOptionService struct {
+}
+
+// WithAll returns option. the option sets `all` for project.
+func (*ProjectOptionService) WithAll(enabeld bool) *ProjectOption {
+	return &ProjectOption{withAll(enabeld)}
 }
 
 // WithKey returns option. the option sets `key` for project.

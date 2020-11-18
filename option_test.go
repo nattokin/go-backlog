@@ -17,6 +17,10 @@ func TestOptionType_String(t *testing.T) {
 			optionType: backlog.ExportOptionActivityTypeIDs,
 			want:       "ActivityTypeIDs",
 		},
+		"All": {
+			optionType: backlog.ExportOptionAll,
+			want:       "All",
+		},
 		"Archived": {
 			optionType: backlog.ExportOptionArchived,
 			want:       "Archived",

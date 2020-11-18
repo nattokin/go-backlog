@@ -40,75 +40,24 @@ type ProjectService struct {
 	Option   *ProjectOptionService
 }
 
-// Joined returns all of joining projects.
+// All returns all of projects.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) Joined() ([]*Project, error) {
+func (s *ProjectService) All(options ...*ProjectOption) ([]*Project, error) {
+	validOptions := []optionType{optionAll, optionArchived}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	params := newRequestParams()
-	params.Set("all", "false")
+	for _, option := range options {
+		if err := option.set(params); err != nil {
+			return nil, err
+		}
+	}
 
-	return s.getList(params)
-}
-
-// All returns all of projects. This is limited to admin.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All() ([]*Project, error) {
-	params := newRequestParams()
-	params.Set("all", "true")
-
-	return s.getList(params)
-}
-
-// Archived returns all of joining projects archived.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) Archived() ([]*Project, error) {
-	params := newRequestParams()
-	params.Set("archived", "true")
-	params.Set("all", "false")
-
-	return s.getList(params)
-}
-
-// AllArchived returns all of projects archived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AllArchived() ([]*Project, error) {
-	params := newRequestParams()
-	params.Set("archived", "true")
-	params.Set("all", "true")
-
-	return s.getList(params)
-}
-
-// Unarchived returns all of joining projects unarchived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) Unarchived() ([]*Project, error) {
-	params := newRequestParams()
-	params.Set("archived", "false")
-	params.Set("all", "false")
-
-	return s.getList(params)
-}
-
-// AllUnarchived returns all of projects unarchived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AllUnarchived() ([]*Project, error) {
-	params := newRequestParams()
-	params.Set("archived", "false")
-	params.Set("all", "true")
-
-	return s.getList(params)
-}
-
-func (s *ProjectService) getList(params *requestParams) ([]*Project, error) {
 	resp, err := s.method.Get("projects", params)
 	if err != nil {
 		return nil, err
@@ -121,6 +70,56 @@ func (s *ProjectService) getList(params *requestParams) ([]*Project, error) {
 	}
 
 	return v, nil
+}
+
+// AdminAll returns all of projects. This is limited to admin.
+// If you are not an admin, only joining projects returned.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
+func (s *ProjectService) AdminAll(options ...*ProjectOption) ([]*Project, error) {
+	validOptions := []optionType{optionArchived}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
+	return s.All(append(options, s.Option.WithAll(true))...)
+}
+
+// AllUnarchived returns all of joining projects unarchived.
+// If you are not an admin, only joining projects returned.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
+func (s *ProjectService) AllUnarchived() ([]*Project, error) {
+	params := newRequestParams()
+	params.Set("archived", "false")
+
+	return s.All(s.Option.WithArchived(false))
+}
+
+// AdminAllUnarchived returns all of projects unarchived.
+// If you are not an admin, only joining projects returned.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
+func (s *ProjectService) AdminAllUnarchived() ([]*Project, error) {
+	return s.All(s.Option.WithAll(true), s.Option.WithArchived(false))
+}
+
+// AllArchived returns all of joining projects archived.
+// If you are not an admin, only joining projects returned.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
+func (s *ProjectService) AllArchived() ([]*Project, error) {
+	return s.All(s.Option.WithArchived(true))
+}
+
+// AdminAllArchived returns all of projects archived.
+// If you are not an admin, only joining projects returned.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
+func (s *ProjectService) AdminAllArchived() ([]*Project, error) {
+	return s.All(s.Option.WithAll(true), s.Option.WithArchived(true))
 }
 
 // One returns one of the projects searched by ID or key.
