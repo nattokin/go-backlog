@@ -75,6 +75,7 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 	for _, id := range attachmentIDs {
 		params.Add("attachmentId[]", strconv.Itoa(id))
 	}
+
 	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments"
 	resp, err := s.method.Post(spath, params)
 	if err != nil {

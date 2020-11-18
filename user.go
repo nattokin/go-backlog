@@ -150,17 +150,32 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 
 // Update updates a user in your space.
 //
+// This method can specify the options returned by methods in "*Client.User.Option".
+//
+// Use the following methods:
+//   WithName
+//   WithPassword
+//   WithMailAddress
+//   WithRoleType
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(id int, options ...UserOption) (*User, error) {
+func (s *UserService) Update(id int, options ...*UserOption) (*User, error) {
 	if id < 1 {
 		return nil, errors.New("id must be greater than 1")
 	}
 
 	spath := "users/" + strconv.Itoa(id)
 
+	validOptions := []optionType{optionName, optionPassword, optionMailAddress, optionRoleType}
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	params := newRequestParams()
 	for _, option := range options {
-		if err := option(params); err != nil {
+		if err := option.set(params); err != nil {
 			return nil, err
 		}
 	}

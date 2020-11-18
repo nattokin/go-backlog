@@ -22,3 +22,26 @@ const (
 	RoleGuestReporter
 	RoleGuestViewer
 )
+
+const (
+	_ optionType = iota
+	optionActivityTypeIDs
+	optionAll
+	optionArchived
+	optionChartEnabled
+	optionContent
+	optionCount
+	optionKey
+	optionKeyword
+	optionName
+	optionMailAddress
+	optionMailNotify
+	optionMaxID
+	optionMinID
+	optionOrder
+	optionPassword
+	optionProjectLeaderCanEditProjectLeader
+	optionRoleType
+	optionSubtaskingEnabled
+	optionTextFormattingRule
+)

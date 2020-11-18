@@ -11,221 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProjectService_Joined(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "false",
-		archived: "",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	project, err := s.Joined()
-	assert.Nil(t, project)
-	assert.Error(t, err)
-}
-
 func TestProjectService_All(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	projects, err := s.All()
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestProjectService_Archived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "false",
-		archived: "true",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	projects, err := s.Archived()
-
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestProjectService_AllArchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "true",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	projects, err := s.AllArchived()
-
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestProjectService_Unarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "false",
-		archived: "false",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	projects, err := s.Unarchived()
-
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestProjectService_AllUnarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "false",
-	}
-	s := &backlog.ProjectService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       bj,
-			}
-			return resp, nil
-		},
-	})
-	projects, err := s.AllUnarchived()
-
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestProjectService_GetList(t *testing.T) {
 	bj, err := os.Open("testdata/json/project_list.json")
 	if err != nil {
 		t.Fatal(err)
@@ -250,7 +36,7 @@ func TestProjectService_GetList(t *testing.T) {
 			return resp, nil
 		},
 	})
-	projects, err := s.Joined()
+	projects, err := s.All()
 	assert.NoError(t, err)
 	count := len(projects)
 	assert.Equal(t, len(want.idList), count)
@@ -260,14 +46,346 @@ func TestProjectService_GetList(t *testing.T) {
 	}
 }
 
-func TestProjectService_GetList_clientError(t *testing.T) {
+func TestProjectService_All_option(t *testing.T) {
+	o := &backlog.ProjectOptionService{}
+	type options struct {
+		all      string
+		archived string
+	}
+	cases := map[string]struct {
+		options   []*backlog.ProjectOption
+		wantError bool
+		want      options
+	}{
+		"WithoutOption": {
+			options:   []*backlog.ProjectOption{},
+			wantError: false,
+			want: options{
+				all:      "",
+				archived: "",
+			},
+		},
+		"ValidOption": {
+			options: []*backlog.ProjectOption{
+				o.WithAll(false),
+				o.WithArchived(true),
+			},
+			wantError: false,
+			want: options{
+				all:      "false",
+				archived: "true",
+			},
+		},
+		"OptionError": {
+			options: []*backlog.ProjectOption{
+				backlog.ExportNewProjectOption(backlog.ExportOptionAll, func(p *backlog.ExportRequestParams) error {
+					return errors.New("error")
+				}),
+			},
+			wantError: true,
+			want:      options{},
+		},
+		"InvalidOption": {
+			options: []*backlog.ProjectOption{
+				o.WithName("test"),
+			},
+			wantError: true,
+			want:      options{},
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/project_list.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			s := &backlog.ProjectService{}
+			s.ExportSetMethod(&backlog.ExportMethod{
+				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.all, params.Get("all"))
+					assert.Equal(t, tc.want.archived, params.Get("archived"))
+
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return resp, nil
+				},
+			})
+
+			if _, err := s.All(tc.options...); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestProjectService_AdminAll(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath    string
+		all      string
+		archived string
+	}{
+		spath:    "projects",
+		all:      "true",
+		archived: "",
+	}
+	s := &backlog.ProjectService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Equal(t, want.all, params.Get("all"))
+			assert.Equal(t, want.archived, params.Get("archived"))
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	projects, err := s.AdminAll()
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
+func TestProjectService_AdminAll_option(t *testing.T) {
+	o := &backlog.ProjectOptionService{}
+	type options struct {
+		all      string
+		archived string
+	}
+	cases := map[string]struct {
+		options   []*backlog.ProjectOption
+		wantError bool
+		want      options
+	}{
+		"WithoutOption": {
+			options:   []*backlog.ProjectOption{},
+			wantError: false,
+			want: options{
+				all:      "true",
+				archived: "",
+			},
+		},
+		"ValidOption": {
+			options: []*backlog.ProjectOption{
+				o.WithArchived(true),
+			},
+			wantError: false,
+			want: options{
+				all:      "true",
+				archived: "true",
+			},
+		},
+		"OptionError": {
+			options: []*backlog.ProjectOption{
+				backlog.ExportNewProjectOption(backlog.ExportOptionArchived, func(p *backlog.ExportRequestParams) error {
+					return errors.New("error")
+				}),
+			},
+			wantError: true,
+			want:      options{},
+		},
+		"InvalidOption": {
+			options: []*backlog.ProjectOption{
+				o.WithAll(true),
+			},
+			wantError: true,
+			want:      options{},
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/project_list.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			s := &backlog.ProjectService{}
+			s.ExportSetMethod(&backlog.ExportMethod{
+				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.all, params.Get("all"))
+					assert.Equal(t, tc.want.archived, params.Get("archived"))
+
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return resp, nil
+				},
+			})
+
+			if _, err := s.AdminAll(tc.options...); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestProjectService_AllArchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath    string
+		all      string
+		archived string
+	}{
+		spath:    "projects",
+		archived: "true",
+	}
+	s := &backlog.ProjectService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Equal(t, want.archived, params.Get("archived"))
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	projects, err := s.AllArchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
+func TestProjectService_AdminAllArchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath    string
+		all      string
+		archived string
+	}{
+		spath:    "projects",
+		all:      "true",
+		archived: "true",
+	}
+	s := &backlog.ProjectService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Equal(t, want.all, params.Get("all"))
+			assert.Equal(t, want.archived, params.Get("archived"))
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	projects, err := s.AdminAllArchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
+func TestProjectService_AllUnarchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath    string
+		all      string
+		archived string
+	}{
+		spath:    "projects",
+		archived: "false",
+	}
+	s := &backlog.ProjectService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Equal(t, want.archived, params.Get("archived"))
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	projects, err := s.AllUnarchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
+func TestProjectService_AdminAllUnarchived(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer bj.Close()
+
+	want := struct {
+		spath    string
+		all      string
+		archived string
+	}{
+		spath:    "projects",
+		all:      "true",
+		archived: "false",
+	}
+	s := &backlog.ProjectService{}
+	s.ExportSetMethod(&backlog.ExportMethod{
+		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			assert.Equal(t, want.all, params.Get("all"))
+			assert.Equal(t, want.archived, params.Get("archived"))
+
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       bj,
+			}
+			return resp, nil
+		},
+	})
+	projects, err := s.AdminAllUnarchived()
+
+	assert.Nil(t, projects)
+	assert.Error(t, err)
+}
+
+func TestProjectService_All_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.Joined()
+	_, err := s.All()
 	assert.Error(t, err)
 }
 
@@ -441,17 +559,17 @@ func TestProjectService_Create_param(t *testing.T) {
 		name      string
 		wantError bool
 	}{
-		"no-option": {
+		"WithoutOption": {
 			key:       "TEST",
 			name:      "test",
 			wantError: false,
 		},
-		"key_empty": {
+		"KeyEnpty": {
 			key:       "",
 			name:      "test",
 			wantError: true,
 		},
-		"name_empty": {
+		"NameEmpty": {
 			key:       "TEST",
 			name:      "",
 			wantError: true,
@@ -498,12 +616,12 @@ func TestProjectService_Create_option(t *testing.T) {
 		textFormattingRule                string
 	}
 	cases := map[string]struct {
-		options   []backlog.ProjectOption
+		options   []*backlog.ProjectOption
 		wantError bool
 		want      options
 	}{
-		"no-option": {
-			options:   []backlog.ProjectOption{},
+		"WithoutOption": {
+			options:   []*backlog.ProjectOption{},
 			wantError: false,
 			want: options{
 				chartEnabled:                      "",
@@ -512,8 +630,8 @@ func TestProjectService_Create_option(t *testing.T) {
 				textFormattingRule:                "",
 			},
 		},
-		"valid": {
-			options: []backlog.ProjectOption{
+		"ValidOption": {
+			options: []*backlog.ProjectOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
@@ -527,12 +645,18 @@ func TestProjectService_Create_option(t *testing.T) {
 				textFormattingRule:                "backlog",
 			},
 		},
-		"invalid": {
-			options: []backlog.ProjectOption{
-				o.WithChartEnabled(false),
-				o.WithSubtaskingEnabled(false),
-				o.WithProjectLeaderCanEditProjectLeader(false),
+		"OptionError": {
+			options: []*backlog.ProjectOption{
 				o.WithTextFormattingRule("invalid"),
+			},
+			wantError: true,
+			want:      options{},
+		},
+		"InvalidOption": {
+			options: []*backlog.ProjectOption{
+				backlog.ExportNewProjectOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+					return nil
+				}),
 			},
 			wantError: true,
 			want:      options{},
@@ -701,12 +825,12 @@ func TestProjectService_Update_option(t *testing.T) {
 		archived                          string
 	}
 	cases := map[string]struct {
-		options   []backlog.ProjectOption
+		options   []*backlog.ProjectOption
 		wantError bool
 		want      options
 	}{
-		"option-1": {
-			options: []backlog.ProjectOption{
+		"ValidOption": {
+			options: []*backlog.ProjectOption{
 				o.WithKey("TEST1"),
 				o.WithName("test1"),
 				o.WithChartEnabled(true),
@@ -726,29 +850,8 @@ func TestProjectService_Update_option(t *testing.T) {
 				archived:                          "true",
 			},
 		},
-		"option-2": {
-			options: []backlog.ProjectOption{
-				o.WithKey("TEST2"),
-				o.WithName("test2"),
-				o.WithChartEnabled(false),
-				o.WithSubtaskingEnabled(false),
-				o.WithProjectLeaderCanEditProjectLeader(false),
-				o.WithTextFormattingRule(backlog.FormatMarkdown),
-				o.WithArchived(false),
-			},
-			wantError: false,
-			want: options{
-				key:                               "TEST2",
-				name:                              "test2",
-				chartEnabled:                      "false",
-				subtaskingEnabled:                 "false",
-				projectLeaderCanEditProjectLeader: "false",
-				textFormattingRule:                backlog.FormatMarkdown,
-				archived:                          "false",
-			},
-		},
-		"option-error": {
-			options: []backlog.ProjectOption{
+		"OptionError": {
+			options: []*backlog.ProjectOption{
 				o.WithKey(""),
 				o.WithName(""),
 				o.WithChartEnabled(false),
@@ -756,6 +859,15 @@ func TestProjectService_Update_option(t *testing.T) {
 				o.WithProjectLeaderCanEditProjectLeader(false),
 				o.WithTextFormattingRule("invalid"),
 				o.WithArchived(false),
+			},
+			wantError: true,
+			want:      options{},
+		},
+		"InvalidOption": {
+			options: []*backlog.ProjectOption{
+				backlog.ExportNewProjectOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+					return nil
+				}),
 			},
 			wantError: true,
 			want:      options{},
