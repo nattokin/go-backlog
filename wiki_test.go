@@ -214,6 +214,7 @@ func TestWikiService_Count(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, want.count, count)
 }
+
 func TestWikiService_Count_param_error(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
@@ -308,6 +309,7 @@ func TestWikiService_One(t *testing.T) {
 	assert.Equal(t, want.wikiID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
 }
+
 func TestWikiService_One_param(t *testing.T) {
 	bj, err := os.Open("testdata/json/wiki_maximum.json")
 	if err != nil {
