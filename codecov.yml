@@ -1,3 +1,10 @@
+codecov:
+  strict_yaml_branch: "codecov-config"
+  max_report_age: 24
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+
 coverage:
   precision: 2
   round: down
@@ -13,11 +20,14 @@ coverage:
 comment:
   layout: "reach, diff, flags, files"
   behavior: default
-  require_changes: true
+  require_changes: false
   branches:
     - master
 
 ignore:
-  - "./docker/"
-  - "./exxamples/"
-  - "./testdata/"
+  - "./docker"
+  - "./exxamples"
+  - "./testdata"
+
+github_checks:
+  annotations: true
