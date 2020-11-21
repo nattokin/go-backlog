@@ -62,79 +62,79 @@ func (o *QueryOption) validate(validTypes []queryType) error {
 	return newInvalidQueryOptionError(o.t, validTypes)
 }
 
-func (o *QueryOption) set(params *QueryParams) error {
-	return o.f(params)
+func (o *QueryOption) set(query *QueryParams) error {
+	return o.f(query)
 }
 
 func withQueryActivityTypeIDs(typeIDs []int) *QueryOption {
-	return &QueryOption{queryActivityTypeIDs, func(params *QueryParams) error {
+	return &QueryOption{queryActivityTypeIDs, func(query *QueryParams) error {
 		for _, id := range typeIDs {
 			if id < 1 || 26 < id {
 				return errors.New("activityTypeId must be between 1 and 26")
 			}
-			params.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
+			query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 		}
 		return nil
 	}}
 }
 
 func withQueryAll(enabeld bool) *QueryOption {
-	return &QueryOption{queryAll, func(params *QueryParams) error {
-		params.Set(queryAll.Value(), strconv.FormatBool(enabeld))
+	return &QueryOption{queryAll, func(query *QueryParams) error {
+		query.Set(queryAll.Value(), strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
 
 func withQueryArchived(archived bool) *QueryOption {
-	return &QueryOption{queryArchived, func(params *QueryParams) error {
-		params.Set(queryArchived.Value(), strconv.FormatBool(archived))
+	return &QueryOption{queryArchived, func(query *QueryParams) error {
+		query.Set(queryArchived.Value(), strconv.FormatBool(archived))
 		return nil
 	}}
 }
 
 func withQueryCount(count int) *QueryOption {
-	return &QueryOption{queryCount, func(params *QueryParams) error {
+	return &QueryOption{queryCount, func(query *QueryParams) error {
 		if count < 1 || 100 < count {
 			return errors.New("count must be between 1 and 100")
 		}
-		params.Set(queryCount.Value(), strconv.Itoa(count))
+		query.Set(queryCount.Value(), strconv.Itoa(count))
 		return nil
 	}}
 }
 
 func withQueryKeyword(keyword string) *QueryOption {
-	return &QueryOption{queryKeyword, func(params *QueryParams) error {
-		params.Set(queryKeyword.Value(), keyword)
+	return &QueryOption{queryKeyword, func(query *QueryParams) error {
+		query.Set(queryKeyword.Value(), keyword)
 		return nil
 	}}
 }
 
 func withQueryMaxID(maxID int) *QueryOption {
-	return &QueryOption{queryMaxID, func(params *QueryParams) error {
+	return &QueryOption{queryMaxID, func(query *QueryParams) error {
 		if maxID < 1 {
 			return errors.New("maxId must be greater than 1")
 		}
-		params.Set(queryMaxID.Value(), strconv.Itoa(maxID))
+		query.Set(queryMaxID.Value(), strconv.Itoa(maxID))
 		return nil
 	}}
 }
 
 func withQueryMinID(minID int) *QueryOption {
-	return &QueryOption{queryMinID, func(params *QueryParams) error {
+	return &QueryOption{queryMinID, func(query *QueryParams) error {
 		if minID < 1 {
 			return errors.New("minId must be greater than 1")
 		}
-		params.Set(queryMinID.Value(), strconv.Itoa(minID))
+		query.Set(queryMinID.Value(), strconv.Itoa(minID))
 		return nil
 	}}
 }
 
 func withQueryOrder(order order) *QueryOption {
-	return &QueryOption{queryOrder, func(params *QueryParams) error {
+	return &QueryOption{queryOrder, func(query *QueryParams) error {
 		if order != OrderAsc && order != OrderDesc {
 			return fmt.Errorf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
 		}
-		params.Set(queryOrder.Value(), string(order))
+		query.Set(queryOrder.Value(), string(order))
 		return nil
 	}}
 }
@@ -183,7 +183,7 @@ func (s *QueryOptionService) WithOrder(order order) *QueryOption {
 	return withQueryOrder(order)
 }
 
-type formOptionFunc func(params *FormParams) error
+type formOptionFunc func(form *FormParams) error
 
 // FormOption is option to set form parameter for request.
 type FormOption struct {
@@ -200,112 +200,112 @@ func (o *FormOption) validate(validTypes []formType) error {
 	return newInvalidFormOptionError(o.t, validTypes)
 }
 
-func (o *FormOption) set(params *FormParams) error {
-	return o.f(params)
+func (o *FormOption) set(form *FormParams) error {
+	return o.f(form)
 }
 
 func withFormArchived(archived bool) *FormOption {
-	return &FormOption{formArchived, func(params *FormParams) error {
-		params.Set(formArchived.Value(), strconv.FormatBool(archived))
+	return &FormOption{formArchived, func(form *FormParams) error {
+		form.Set(formArchived.Value(), strconv.FormatBool(archived))
 		return nil
 	}}
 }
 
 func withFormChartEnabled(enabeld bool) *FormOption {
-	return &FormOption{formChartEnabled, func(params *FormParams) error {
-		params.Set(formChartEnabled.Value(), strconv.FormatBool(enabeld))
+	return &FormOption{formChartEnabled, func(form *FormParams) error {
+		form.Set(formChartEnabled.Value(), strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
 
 func withFormContent(content string) *FormOption {
-	return &FormOption{formContent, func(params *FormParams) error {
+	return &FormOption{formContent, func(form *FormParams) error {
 		if content == "" {
 			return errors.New("content must not be empty")
 		}
-		params.Set(formContent.Value(), content)
+		form.Set(formContent.Value(), content)
 		return nil
 	}}
 }
 
 func withFormKey(key string) *FormOption {
-	return &FormOption{formKey, func(params *FormParams) error {
+	return &FormOption{formKey, func(form *FormParams) error {
 		if key == "" {
 			return errors.New("key must not be empty")
 		}
-		params.Set(formKey.Value(), key)
+		form.Set(formKey.Value(), key)
 		return nil
 	}}
 }
 
 func withFormName(name string) *FormOption {
-	return &FormOption{formName, func(params *FormParams) error {
+	return &FormOption{formName, func(form *FormParams) error {
 		if name == "" {
 			return errors.New("name must not be empty")
 		}
-		params.Set(formName.Value(), name)
+		form.Set(formName.Value(), name)
 		return nil
 	}}
 }
 
 func withFormMailAddress(mailAddress string) *FormOption {
 	// ToDo: validate mailAddress
-	return &FormOption{formMailAddress, func(params *FormParams) error {
+	return &FormOption{formMailAddress, func(form *FormParams) error {
 		if mailAddress == "" {
 			return errors.New("mailAddress must not be empty")
 		}
-		params.Set(formMailAddress.Value(), mailAddress)
+		form.Set(formMailAddress.Value(), mailAddress)
 		return nil
 	}}
 }
 
 func withFormMailNotify(enabeld bool) *FormOption {
-	return &FormOption{formMailNotify, func(params *FormParams) error {
-		params.Set(formMailNotify.Value(), strconv.FormatBool(enabeld))
+	return &FormOption{formMailNotify, func(form *FormParams) error {
+		form.Set(formMailNotify.Value(), strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
 
 func withFormPassword(password string) *FormOption {
-	return &FormOption{formPassword, func(params *FormParams) error {
+	return &FormOption{formPassword, func(form *FormParams) error {
 		if password == "" {
 			return errors.New("password must not be empty")
 		}
-		params.Set(formPassword.Value(), password)
+		form.Set(formPassword.Value(), password)
 		return nil
 	}}
 }
 
 func withFormProjectLeaderCanEditProjectLeader(enabeld bool) *FormOption {
-	return &FormOption{formProjectLeaderCanEditProjectLeader, func(params *FormParams) error {
-		params.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabeld))
+	return &FormOption{formProjectLeaderCanEditProjectLeader, func(form *FormParams) error {
+		form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
 
 func withFormRoleType(roleType role) *FormOption {
-	return &FormOption{formRoleType, func(params *FormParams) error {
+	return &FormOption{formRoleType, func(form *FormParams) error {
 		if roleType < 1 || 6 < roleType {
 			return errors.New("roleType must be between 1 and 7")
 		}
-		params.Add(formRoleType.Value(), strconv.Itoa(int(roleType)))
+		form.Add(formRoleType.Value(), strconv.Itoa(int(roleType)))
 		return nil
 	}}
 }
 
 func withFormSubtaskingEnabled(enabeld bool) *FormOption {
-	return &FormOption{formSubtaskingEnabled, func(params *FormParams) error {
-		params.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabeld))
+	return &FormOption{formSubtaskingEnabled, func(form *FormParams) error {
+		form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabeld))
 		return nil
 	}}
 }
 
 func withFormTextFormattingRule(format format) *FormOption {
-	return &FormOption{formTextFormattingRule, func(params *FormParams) error {
+	return &FormOption{formTextFormattingRule, func(form *FormParams) error {
 		if format != FormatBacklog && format != FormatMarkdown {
 			return fmt.Errorf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
 		}
-		params.Set(formTextFormattingRule.Value(), string(format))
+		form.Set(formTextFormattingRule.Value(), string(format))
 		return nil
 	}}
 }

@@ -20,7 +20,7 @@ func TestProjectActivityService_List(t *testing.T) {
 	}
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -32,7 +32,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	projectKey := ""
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
@@ -49,7 +49,7 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -70,7 +70,7 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}
 	s := &backlog.SpaceActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -87,7 +87,7 @@ func TestUserActivityService_List(t *testing.T) {
 	}
 	s := &backlog.UserActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -99,7 +99,7 @@ func TestUserActivityService_List_invaliedID(t *testing.T) {
 	id := 0
 	s := &backlog.UserActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
@@ -223,7 +223,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(backlog.ExportQueryType(0), func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(0, func(p *backlog.QueryParams) error {
 					return nil
 				}),
 			},
@@ -242,13 +242,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 			s := &backlog.SpaceActivityService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
-					v := *params.Values
-					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
-					assert.Equal(t, tc.want.minID, params.Get("minId"))
-					assert.Equal(t, tc.want.maxID, params.Get("maxId"))
-					assert.Equal(t, tc.want.count, params.Get("count"))
-					assert.Equal(t, tc.want.order, params.Get("order"))
+				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.activityTypeID, (*query.Values)["activityTypeId[]"])
+					assert.Equal(t, tc.want.minID, query.Get("minId"))
+					assert.Equal(t, tc.want.maxID, query.Get("maxId"))
+					assert.Equal(t, tc.want.count, query.Get("count"))
+					assert.Equal(t, tc.want.order, query.Get("order"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
