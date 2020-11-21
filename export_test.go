@@ -40,7 +40,7 @@ const (
 
 type (
 	ExportMethod        = method
-	ExportRequestParams = requestParams
+	ExportRequestParams = FormParams
 	ExportWrapper       = wrapper
 )
 
@@ -62,11 +62,10 @@ var (
 )
 
 var (
-	ExportNewClientError   = newClientError
-	ExportNewRequestParams = newRequestParams
-	ExportCeckResponse     = checkResponse
-	ExportCreateFormFile   = createFormFile
-	ExportCopy             = copy
+	ExportNewClientError = newClientError
+	ExportCeckResponse   = checkResponse
+	ExportCreateFormFile = createFormFile
+	ExportCopy           = copy
 )
 
 var ExportQueryParamsWithOptions = (*QueryParams).withOptions
@@ -75,7 +74,7 @@ func ExportNewQueryOption(qType queryType, qFunc queryOptionFunc) *QueryOption {
 	return &QueryOption{qType, qFunc}
 }
 
-func ExportNewFormOption(formType formType, fFunc formOptionType) *FormOption {
+func ExportNewFormOption(formType formType, fFunc formOptionFunc) *FormOption {
 	return &FormOption{formType, fFunc}
 }
 
@@ -107,7 +106,7 @@ func (c *Client) ExportSetWrapper(wrapper *wrapper) {
 	c.wrapper = wrapper
 }
 
-func (p *requestParams) ExportURLValues() *url.Values {
+func (p *FormParams) ExportURLValues() *url.Values {
 	return p.Values
 }
 

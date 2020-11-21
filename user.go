@@ -36,7 +36,7 @@ func getUserList(get clientGet, spath string, params *QueryParams) ([]*User, err
 	return v, nil
 }
 
-func addUser(post clientPost, spath string, params *requestParams) (*User, error) {
+func addUser(post clientPost, spath string, params *FormParams) (*User, error) {
 	resp, err := post(spath, params)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func addUser(post clientPost, spath string, params *requestParams) (*User, error
 	return &v, nil
 }
 
-func updateUser(patch clientPatch, spath string, params *requestParams) (*User, error) {
+func updateUser(patch clientPatch, spath string, params *FormParams) (*User, error) {
 	resp, err := patch(spath, params)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func updateUser(patch clientPatch, spath string, params *requestParams) (*User, 
 	return &v, nil
 }
 
-func deleteUser(delete clientDelete, spath string, params *requestParams) (*User, error) {
+func deleteUser(delete clientDelete, spath string, params *FormParams) (*User, error) {
 	resp, err := delete(spath, params)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 		return nil, errors.New("mailAddress must not be empty")
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	params.Add("userId", userID)
 	params.Add("password", password)
 	params.Add("name", name)
@@ -173,7 +173,7 @@ func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -228,7 +228,7 @@ func (s *ProjectUserService) Add(target ProjectIDOrKeyGetter, userID int) (*User
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/users"
@@ -247,7 +247,7 @@ func (s *ProjectUserService) Delete(target ProjectIDOrKeyGetter, userID int) (*U
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/users"
@@ -266,7 +266,7 @@ func (s *ProjectUserService) AddAdmin(target ProjectIDOrKeyGetter, userID int) (
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/administrators"
@@ -298,7 +298,7 @@ func (s *ProjectUserService) DeleteAdmin(target ProjectIDOrKeyGetter, userID int
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
 	spath := "projects/" + projectIDOrKey + "/administrators"

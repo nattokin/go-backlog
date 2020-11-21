@@ -71,7 +71,7 @@ type WikiAttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
 func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Attachment, error) {
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, id := range attachmentIDs {
 		params.Add("attachmentId[]", strconv.Itoa(id))
 	}

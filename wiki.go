@@ -133,7 +133,7 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -183,7 +183,7 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -225,7 +225,7 @@ func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
