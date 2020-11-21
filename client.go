@@ -209,7 +209,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // Creates new request.
-func (c *Client) newReqest(method, spath string, query *QueryParams, body io.Reader) (*http.Request, error) {
+func (c *Client) newReqest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not empty")
 	}
@@ -223,11 +223,22 @@ func (c *Client) newReqest(method, spath string, query *QueryParams, body io.Rea
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
 	u.RawQuery = query.Encode()
 
-	return http.NewRequest(method, u.String(), body)
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = header
+	return req, nil
 }
 
 // Do http request, and return Response.
-func (c *Client) do(req *http.Request) (*http.Response, error) {
+func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
+	req, err := c.newReqest(method, spath, header, body, query)
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -239,60 +250,46 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 // Get method of http reqest.
 // It creates new http reqest and do and return Response.
 func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
-	req, err := c.newReqest(http.MethodGet, spath, query, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.do(req)
+	return c.do(http.MethodGet, spath, nil, nil, query)
 }
 
 // Post method of http reqest.
 // It creates new http reqest and do and return Response.
 func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	if form == nil {
 		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodPost, spath, nil, form.NewReader())
-	if err != nil {
-		return nil, err
-	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
 }
 
 // Patch method of http reqest.
 // It creates new http reqest and do and return Response.
 func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	if form == nil {
 		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodPatch, spath, nil, form.NewReader())
-	if err != nil {
-		return nil, err
-	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
 }
 
 // Delete method of http reqest.
 // It creates new http reqest and do and return Response.
 func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	if form == nil {
 		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodDelete, spath, nil, form.NewReader())
-	if err != nil {
-		return nil, err
-	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
 }
 
 // Upload file method used http reqest.
@@ -320,14 +317,10 @@ func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 		return nil, err
 	}
 
-	req, err := c.newReqest(http.MethodPost, spath, nil, &buf)
-	if err != nil {
-		return nil, err
-	}
+	header := http.Header{}
+	header.Set("Content-Type", w.FormDataContentType())
 
-	req.Header.Set("Content-Type", w.FormDataContentType())
-
-	return c.do(req)
+	return c.do(http.MethodPost, spath, header, &buf, nil)
 }
 
 // Check HTTP status code. If it has errors, return error.
