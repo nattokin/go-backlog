@@ -616,7 +616,7 @@ func TestProjectOptionService_WithFormKey(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormKey(tc.key)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -648,7 +648,7 @@ func TestProjectOptionService_WithFormName(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -677,7 +677,7 @@ func TestProjectOptionService_WithFormChartEnabled(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormChartEnabled(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("chartEnabled"))
@@ -702,7 +702,7 @@ func TestProjectOptionService_WithFormSubtaskingEnabled(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormSubtaskingEnabled(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("subtaskingEnabled"))
@@ -727,7 +727,7 @@ func TestProjectOptionService_WithFormProjectLeaderCanEditProjectLeader(t *testi
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormProjectLeaderCanEditProjectLeader(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("projectLeaderCanEditProjectLeader"))
@@ -763,7 +763,7 @@ func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormTextFormattingRule(tc.format)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -824,7 +824,7 @@ func TestUserOptionService_WithFormPassword(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormPassword(tc.password)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -856,7 +856,7 @@ func TestUserOptionService_WithFormName(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -901,7 +901,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormMailAddress(tc.mailAddress)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -966,7 +966,7 @@ func TestUserOptionService_WithFormRoleType(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormRoleType(tc.roleType)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -1023,7 +1023,7 @@ func TestWikiOptionService_WithFormName(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -1055,7 +1055,7 @@ func TestWikiOptionService_WithFormContent(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormContent(tc.content)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
@@ -1084,7 +1084,7 @@ func TestWikiOptionService_WithFormMailNotify(t *testing.T) {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
 			option := o.WithFormMailNotify(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
+			params := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("mailNotify"))

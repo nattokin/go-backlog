@@ -179,7 +179,7 @@ func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Proj
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -232,7 +232,7 @@ func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...*FormOpt
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -263,7 +263,7 @@ func (s *ProjectService) Delete(target ProjectIDOrKeyGetter) (*Project, error) {
 		return nil, err
 	}
 	spath := "projects/" + projectIDOrKey
-	resp, err := s.method.Delete(spath, newRequestParams())
+	resp, err := s.method.Delete(spath, NewFormParams())
 	if err != nil {
 		return nil, err
 	}

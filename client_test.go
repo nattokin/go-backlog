@@ -581,7 +581,7 @@ func TestClient_Post(t *testing.T) {
 func TestClient_Post_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientPost(c, "", backlog.ExportNewRequestParams())
+	_, err := backlog.ExportClientPost(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
 }
 
@@ -613,7 +613,7 @@ func TestClient_Patch(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	params := backlog.ExportNewRequestParams()
+	params := backlog.NewFormParams()
 	params.Set("key", "value")
 
 	res, _ := backlog.ExportClientPatch(c, spath, params)
@@ -640,7 +640,7 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 func TestClient_Patch_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientPatch(c, "", backlog.ExportNewRequestParams())
+	_, err := backlog.ExportClientPatch(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
 }
 
@@ -673,7 +673,7 @@ func TestClient_Delete(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	params := backlog.ExportNewRequestParams()
+	params := backlog.NewFormParams()
 	params.Set("key", "value")
 
 	res, _ := backlog.ExportClientDelete(c, spath, params)
@@ -700,7 +700,7 @@ func TestClient_Delete_emptyParams(t *testing.T) {
 func TestClient_Delete_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientDelete(c, "", backlog.ExportNewRequestParams())
+	_, err := backlog.ExportClientDelete(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
 }
 

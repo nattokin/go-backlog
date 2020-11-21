@@ -45,9 +45,19 @@ type Client struct {
 	Wiki        *WikiService
 }
 
-// RequestParams wraps url.Values.
-type requestParams struct {
+// FormParams wraps url.Values.
+type FormParams struct {
 	*url.Values
+}
+
+// NewFormParams returns new FormParams.
+func NewFormParams() *FormParams {
+	return &FormParams{&url.Values{}}
+}
+
+// NewReader converts FormParams to io.Reader.
+func (p *FormParams) NewReader() io.Reader {
+	return strings.NewReader(p.Encode())
 }
 
 // QueryParams is query parameters for request.
@@ -77,10 +87,10 @@ func (p *QueryParams) withOptions(options []*QueryOption, validOptions ...queryT
 	return nil
 }
 
-type clientGet func(spath string, params *QueryParams) (*http.Response, error)
-type clientPost func(spath string, params *requestParams) (*http.Response, error)
-type clientPatch func(spath string, params *requestParams) (*http.Response, error)
-type clientDelete func(spath string, params *requestParams) (*http.Response, error)
+type clientGet func(spath string, query *QueryParams) (*http.Response, error)
+type clientPost func(spath string, form *FormParams) (*http.Response, error)
+type clientPatch func(spath string, form *FormParams) (*http.Response, error)
+type clientDelete func(spath string, form *FormParams) (*http.Response, error)
 type clientUpload func(spath, fpath, fname string) (*http.Response, error)
 
 type method struct {
@@ -127,17 +137,17 @@ func NewClient(baseURL, token string) (*Client, error) {
 	}
 
 	m := &method{
-		Get: func(spath string, params *QueryParams) (*http.Response, error) {
-			return c.get(spath, params)
+		Get: func(spath string, query *QueryParams) (*http.Response, error) {
+			return c.get(spath, query)
 		},
-		Post: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.post(spath, params)
+		Post: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.post(spath, form)
 		},
-		Patch: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.patch(spath, params)
+		Patch: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.patch(spath, form)
 		},
-		Delete: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.delete(spath, params)
+		Delete: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.delete(spath, form)
 		},
 		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			return c.upload(spath, fpath, fname)
@@ -199,19 +209,19 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // Creates new request.
-func (c *Client) newReqest(method, spath string, params *QueryParams, body io.Reader) (*http.Request, error) {
+func (c *Client) newReqest(method, spath string, query *QueryParams, body io.Reader) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not empty")
 	}
 
-	if params == nil {
-		params = NewQueryParams()
+	if query == nil {
+		query = NewQueryParams()
 	}
-	params.Set("apiKey", c.token)
+	query.Set("apiKey", c.token)
 
 	u := *c.url
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
-	u.RawQuery = params.Encode()
+	u.RawQuery = query.Encode()
 
 	return http.NewRequest(method, u.String(), body)
 }
@@ -228,8 +238,8 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 
 // Get method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) get(spath string, params *QueryParams) (*http.Response, error) {
-	req, err := c.newReqest(http.MethodGet, spath, params, nil)
+func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
+	req, err := c.newReqest(http.MethodGet, spath, query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -239,11 +249,11 @@ func (c *Client) get(spath string, params *QueryParams) (*http.Response, error) 
 
 // Post method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) post(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
+func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
+	if form == nil {
+		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodPost, spath, nil, strings.NewReader(params.Encode()))
+	req, err := c.newReqest(http.MethodPost, spath, nil, form.NewReader())
 	if err != nil {
 		return nil, err
 	}
@@ -255,11 +265,11 @@ func (c *Client) post(spath string, params *requestParams) (*http.Response, erro
 
 // Patch method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) patch(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
+func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
+	if form == nil {
+		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodPatch, spath, nil, strings.NewReader(params.Encode()))
+	req, err := c.newReqest(http.MethodPatch, spath, nil, form.NewReader())
 	if err != nil {
 		return nil, err
 	}
@@ -271,11 +281,11 @@ func (c *Client) patch(spath string, params *requestParams) (*http.Response, err
 
 // Delete method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) delete(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
+func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
+	if form == nil {
+		form = NewFormParams()
 	}
-	req, err := c.newReqest(http.MethodDelete, spath, nil, strings.NewReader(params.Encode()))
+	req, err := c.newReqest(http.MethodDelete, spath, nil, form.NewReader())
 	if err != nil {
 		return nil, err
 	}
@@ -318,11 +328,6 @@ func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 	req.Header.Set("Content-Type", w.FormDataContentType())
 
 	return c.do(req)
-}
-
-// Create new parameter for request.
-func newRequestParams() *requestParams {
-	return &requestParams{&url.Values{}}
 }
 
 // Check HTTP status code. If it has errors, return error.
