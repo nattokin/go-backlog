@@ -2,9 +2,9 @@ package backlog_test
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -39,7 +39,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	}
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*http.Response, error) {
+		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.fpath, fpath)
 			assert.Equal(t, want.fname, fname)
@@ -50,7 +50,14 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachment, err := s.Upload(fpath, fname)
+
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	attachment, err := s.Upload(fpath, f)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachment) {
 		assert.Equal(t, want.id, attachment.ID)
@@ -62,11 +69,18 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*http.Response, error) {
+		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
-	attachement, err := s.Upload("fpath", "fname")
+
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	attachement, err := s.Upload("fpath", f)
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
 }
@@ -80,7 +94,7 @@ func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
 
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Upload: func(spath, fpath, fname string) (*http.Response, error) {
+		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -88,7 +102,14 @@ func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachement, err := s.Upload("fpath", "fname")
+
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	attachement, err := s.Upload("fpath", f)
 	assert.Error(t, err)
 	assert.Nil(t, attachement)
 }
@@ -101,6 +122,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 	defer bj.Close()
 
 	wikiID := 1234
+	spath := "wikis/1234/attachments"
 
 	want := struct {
 		spath   string
@@ -109,7 +131,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "wikis/" + strconv.Itoa(wikiID) + "/attachments",
+		spath:   spath,
 		id:      2,
 		name:    "A.png",
 		size:    196186,
@@ -181,6 +203,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	defer bj.Close()
 
 	wikiID := 1234
+	spath := "wikis/1234/attachments"
 
 	want := struct {
 		spath   string
@@ -189,7 +212,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "wikis/" + strconv.Itoa(wikiID) + "/attachments",
+		spath:   spath,
 		id:      2,
 		name:    "A.png",
 		size:    196186,
@@ -311,6 +334,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 
 	wikiID := 1234
 	attachmentID := 8
+	spath := "wikis/1234/attachments/8"
 
 	want := struct {
 		spath   string
@@ -319,7 +343,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "wikis/" + strconv.Itoa(wikiID) + "/attachments/" + strconv.Itoa(attachmentID),
+		spath:   spath,
 		id:      8,
 		name:    "IMG0088.png",
 		size:    5563,
@@ -452,6 +476,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	defer bj.Close()
 
 	issueID := 1234
+	spath := "issues/1234/attachments"
 
 	want := struct {
 		spath   string
@@ -460,7 +485,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "issues/" + strconv.Itoa(issueID) + "/attachments",
+		spath:   spath,
 		id:      2,
 		name:    "A.png",
 		size:    196186,
@@ -578,6 +603,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 
 	issueID := 1234
 	attachmentID := 8
+	spath := "issues/1234/attachments/8"
 
 	want := struct {
 		spath   string
@@ -586,7 +612,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "issues/" + strconv.Itoa(issueID) + "/attachments/" + strconv.Itoa(attachmentID),
+		spath:   spath,
 		id:      attachmentID,
 		name:    "IMG0088.png",
 		size:    5563,
@@ -712,6 +738,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 	projectKey := "TEST"
 	repoName := "test"
 	prNumber := 1234
+	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments"
 
 	want := struct {
 		spath   string
@@ -720,7 +747,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "projects/" + projectKey + "/git/repositories/" + repoName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments",
+		spath:   spath,
 		id:      2,
 		name:    "A.png",
 		size:    196186,
@@ -858,6 +885,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 	repoName := "test"
 	prNumber := 1234
 	attachmentID := 8
+	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments/8"
 
 	want := struct {
 		spath   string
@@ -866,7 +894,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		size    int
 		created time.Time
 	}{
-		spath:   "projects/" + projectKey + "/git/repositories/" + repoName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments" + strconv.Itoa(attachmentID),
+		spath:   spath,
 		id:      8,
 		name:    "IMG0088.png",
 		size:    5563,

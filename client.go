@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"strings"
 )
@@ -91,7 +90,7 @@ type clientGet func(spath string, query *QueryParams) (*http.Response, error)
 type clientPost func(spath string, form *FormParams) (*http.Response, error)
 type clientPatch func(spath string, form *FormParams) (*http.Response, error)
 type clientDelete func(spath string, form *FormParams) (*http.Response, error)
-type clientUpload func(spath, fpath, fname string) (*http.Response, error)
+type clientUpload func(spath, fileName string, r io.Reader) (*http.Response, error)
 
 type method struct {
 	Get    clientGet
@@ -149,8 +148,8 @@ func NewClient(baseURL, token string) (*Client, error) {
 		Delete: func(spath string, form *FormParams) (*http.Response, error) {
 			return c.delete(spath, form)
 		},
-		Upload: func(spath, fpath, fname string) (*http.Response, error) {
-			return c.upload(spath, fpath, fname)
+		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+			return c.upload(spath, fileName, r)
 		},
 	}
 
@@ -294,8 +293,8 @@ func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) 
 
 // Upload file method used http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
-	if fname == "" {
+func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, error) {
+	if fileName == "" {
 		return nil, newClientError("fname is required")
 	}
 
@@ -303,17 +302,11 @@ func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 	w := multipart.NewWriter(&buf)
 	w.Close()
 
-	f, err := os.Open(fpath)
+	fw, err := c.wrapper.CreateFormFile(w, fileName)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-
-	fw, err := c.wrapper.CreateFormFile(w, fname)
-	if err != nil {
-		return nil, err
-	}
-	if err = c.wrapper.Copy(fw, f); err != nil {
+	if err = c.wrapper.Copy(fw, r); err != nil {
 		return nil, err
 	}
 

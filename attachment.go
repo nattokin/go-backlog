@@ -3,6 +3,8 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"path"
 	"strconv"
 )
 
@@ -16,9 +18,8 @@ type SpaceAttachmentService struct {
 // File's path and name are must not empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *SpaceAttachmentService) Upload(fpath, fname string) (*Attachment, error) {
-	spath := "space/attachment"
-	resp, err := s.method.Upload(spath, fpath, fname)
+func (s *SpaceAttachmentService) Upload(fileName string, r io.Reader) (*Attachment, error) {
+	resp, err := s.method.Upload("space/attachment", fileName, r)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +77,7 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 		params.Add("attachmentId[]", strconv.Itoa(id))
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments"
+	spath := path.Join("wikis/", strconv.Itoa(wikiID), "/attachments")
 	resp, err := s.method.Post(spath, params)
 	if err != nil {
 		return nil, err
@@ -99,7 +100,7 @@ func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
 		return nil, errors.New("wikiID must not be less than 1")
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments"
+	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
 	return listAttachments(s.method.Get, spath)
 }
 
@@ -114,7 +115,7 @@ func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, e
 		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID) + "/attachments/" + strconv.Itoa(attachmentID)
+	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
 	return removeAttachment(s.method.Delete, spath)
 }
 
@@ -132,7 +133,7 @@ func (s *IssueAttachmentService) List(target IssueIDOrKeyGetter) ([]*Attachment,
 		return nil, err
 	}
 
-	spath := "issues/" + issueIDOrKey + "/attachments"
+	spath := path.Join("issues", issueIDOrKey, "attachments")
 	return listAttachments(s.method.Get, spath)
 }
 
@@ -148,7 +149,7 @@ func (s *IssueAttachmentService) Remove(target IssueIDOrKeyGetter, attachmentID 
 		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
-	spath := "issues/" + issueIDOrKey + "/attachments/" + strconv.Itoa(attachmentID)
+	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
 	return removeAttachment(s.method.Delete, spath)
 }
 
@@ -173,7 +174,7 @@ func (s *PullRequestAttachmentService) List(targetProject ProjectIDOrKeyGetter, 
 		return nil, errors.New("prNumber must not be less than 1")
 	}
 
-	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments"
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
 	return listAttachments(s.method.Get, spath)
 }
 
@@ -196,6 +197,6 @@ func (s *PullRequestAttachmentService) Remove(targetProject ProjectIDOrKeyGetter
 		return nil, errors.New("attachmentID must not be less than 1")
 	}
 
-	spath := "projects/" + projectIDOrKey + "/git/repositories/" + repoIDOrName + "/pullRequests/" + strconv.Itoa(prNumber) + "/attachments" + strconv.Itoa(attachmentID)
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
 	return removeAttachment(s.method.Delete, spath)
 }

@@ -185,7 +185,6 @@ func TestNewClient_spaceActivity(t *testing.T) {
 }
 
 func TestNewClient_spaceAttachment(t *testing.T) {
-	fpath := "testdata/testfile"
 	fname := "test.txt"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
@@ -206,7 +205,13 @@ func TestNewClient_spaceAttachment(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	attachment, err := c.Space.Attachment.Upload(fpath, fname)
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	attachment, err := c.Space.Attachment.Upload(fname, f)
 	assert.NoError(t, err)
 	assert.NotNil(t, attachment)
 	assert.Equal(t, fname, attachment.Name)
@@ -717,7 +722,6 @@ func TestClient_Upload(t *testing.T) {
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
-	fpath := "testdata/testfile"
 	want := struct {
 		method string
 		url    string
@@ -738,7 +742,13 @@ func TestClient_Upload(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	res, err := backlog.ExportClientUpload(c, spath, fpath, "filename")
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	res, err := backlog.ExportClientUpload(c, spath, "filename", f)
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -747,28 +757,26 @@ func TestClient_Upload(t *testing.T) {
 func TestClient_Upload_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "", "testdata/testfile", "filename")
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = backlog.ExportClientUpload(c, "", "filename", f)
 	assert.Error(t, err)
-}
-
-func TestClient_Upload_emptyFilePath(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
-
-	_, err := backlog.ExportClientUpload(c, "spath", "", "filename")
-	assert.IsType(t, &os.PathError{}, err)
-}
-
-func TestClient_Upload_invalidFilePath(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
-
-	_, err := backlog.ExportClientUpload(c, "spath", "invalid", "filename")
-	assert.IsType(t, &os.PathError{}, err)
 }
 
 func TestClient_Upload_emptyFileName(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "")
+	f, err := os.Open("testdata/testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = backlog.ExportClientUpload(c, "spath", "", f)
 	assert.Error(t, err)
 }
 
@@ -781,7 +789,13 @@ func TestClient_Upload_createFormFileError(t *testing.T) {
 		Copy: backlog.ExportCopy,
 	})
 
-	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "filename")
+	f, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
 	assert.Error(t, err)
 }
 
@@ -794,7 +808,13 @@ func TestClient_Upload_copyError(t *testing.T) {
 		},
 	})
 
-	_, err := backlog.ExportClientUpload(c, "spath", "testdata/testfile", "filename")
+	f, err := os.Open("testdata/json/invalied.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
 	assert.Error(t, err)
 }
 
