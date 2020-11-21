@@ -161,6 +161,64 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 	}
 }
 
+func TestWikiAttachmentService_Attach_param(t *testing.T) {
+	cases := map[string]struct {
+		wikiID        int
+		attachmentIDs []int
+		wantError     bool
+	}{
+		"valid": {
+			wikiID:        1,
+			attachmentIDs: []int{1, 2},
+			wantError:     false,
+		},
+		"wikiID_invalid": {
+			wikiID:        0,
+			attachmentIDs: []int{1, 2},
+			wantError:     true,
+		},
+		"attachmentIDs_invalid": {
+			wikiID:        1,
+			attachmentIDs: []int{0, 1, 2},
+			wantError:     true,
+		},
+		"attachmentIDs_empty": {
+			wikiID:        1,
+			attachmentIDs: []int{},
+			wantError:     true,
+		},
+	}
+
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			bj, err := os.Open("testdata/json/attachment_list.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer bj.Close()
+
+			s := &backlog.WikiAttachmentService{}
+			s.ExportSetMethod(&backlog.ExportMethod{
+				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       bj,
+					}
+					return resp, nil
+				},
+			})
+
+			if attachements, err := s.Attach(tc.wikiID, tc.attachmentIDs); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Len(t, attachements, 2)
+			}
+		})
+	}
+}
+
 func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
