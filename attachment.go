@@ -90,6 +90,9 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 	if err := wID.validate(); err != nil {
 		return nil, err
 	}
+	if len(attachmentIDs) == 0 {
+		return nil, errors.New("attachmentIDs is must not empty")
+	}
 
 	form := NewFormParams()
 	for _, id := range attachmentIDs {
