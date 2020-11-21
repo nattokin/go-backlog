@@ -3,6 +3,7 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
+	"path"
 	"strconv"
 )
 
@@ -93,8 +94,7 @@ type UserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
 func (s *UserService) All() ([]*User, error) {
-	spath := "users"
-	return getUserList(s.method.Get, spath, nil)
+	return getUserList(s.method.Get, "users", nil)
 }
 
 // One returns a user in your space.
@@ -105,7 +105,7 @@ func (s *UserService) One(id int) (*User, error) {
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	spath := "users/" + strconv.Itoa(id)
+	spath := path.Join("users", strconv.Itoa(id))
 	return getUser(s.method.Get, spath)
 }
 
@@ -113,8 +113,7 @@ func (s *UserService) One(id int) (*User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
 func (s *UserService) Own() (*User, error) {
-	spath := "users/myself"
-	return getUser(s.method.Get, spath)
+	return getUser(s.method.Get, "users/myself")
 }
 
 // ToDo: func (s *UserService) Icon()
@@ -144,8 +143,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 	params.Add("mailAddress", mailAddress)
 	params.Add("roleType", strconv.Itoa(int(roleType)))
 
-	spath := "users"
-	return addUser(s.method.Post, spath, params)
+	return addUser(s.method.Post, "users", params)
 }
 
 // Update updates a user in your space.
@@ -164,7 +162,7 @@ func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	spath := "users/" + strconv.Itoa(id)
+	spath := path.Join("users", strconv.Itoa(id))
 
 	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
 	for _, option := range options {
@@ -191,7 +189,7 @@ func (s *UserService) Delete(id int) (*User, error) {
 		return nil, errors.New("id must be greater than 1")
 	}
 
-	spath := "users/" + strconv.Itoa(id)
+	spath := path.Join("users", strconv.Itoa(id))
 	return deleteUser(s.method.Delete, spath, nil)
 }
 
@@ -212,7 +210,7 @@ func (s *ProjectUserService) All(target ProjectIDOrKeyGetter, excludeGroupMember
 	params := NewQueryParams()
 	params.Add("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
-	spath := "projects/" + projectIDOrKey + "/users"
+	spath := path.Join("projects", projectIDOrKey, "users")
 	return getUserList(s.method.Get, spath, params)
 }
 
@@ -231,7 +229,7 @@ func (s *ProjectUserService) Add(target ProjectIDOrKeyGetter, userID int) (*User
 	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
-	spath := "projects/" + projectIDOrKey + "/users"
+	spath := path.Join("projects", projectIDOrKey, "users")
 	return addUser(s.method.Post, spath, params)
 }
 
@@ -250,7 +248,7 @@ func (s *ProjectUserService) Delete(target ProjectIDOrKeyGetter, userID int) (*U
 	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
-	spath := "projects/" + projectIDOrKey + "/users"
+	spath := path.Join("projects", projectIDOrKey, "users")
 	return deleteUser(s.method.Delete, spath, params)
 }
 
@@ -269,7 +267,7 @@ func (s *ProjectUserService) AddAdmin(target ProjectIDOrKeyGetter, userID int) (
 	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
-	spath := "projects/" + projectIDOrKey + "/administrators"
+	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return addUser(s.method.Post, spath, params)
 }
 
@@ -282,7 +280,7 @@ func (s *ProjectUserService) AdminAll(target ProjectIDOrKeyGetter) ([]*User, err
 		return nil, err
 	}
 
-	spath := "projects/" + projectIDOrKey + "/administrators"
+	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return getUserList(s.method.Get, spath, nil)
 }
 
@@ -301,6 +299,6 @@ func (s *ProjectUserService) DeleteAdmin(target ProjectIDOrKeyGetter, userID int
 	params := NewFormParams()
 	params.Add("userId", strconv.Itoa(userID))
 
-	spath := "projects/" + projectIDOrKey + "/administrators"
+	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return deleteUser(s.method.Delete, spath, params)
 }
