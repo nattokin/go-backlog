@@ -8,96 +8,330 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOptionType_String(t *testing.T) {
+func TestQueryOptionService_WithActivityTypeIDs(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
 	cases := map[string]struct {
-		optionType backlog.ExportOptionType
-		want       string
+		typeIDs   []int
+		want      []string
+		wantError bool
 	}{
-		"ActivityTypeIDs": {
-			optionType: backlog.ExportOptionActivityTypeIDs,
-			want:       "ActivityTypeIDs",
+		"Valid-1": {
+			typeIDs:   []int{1},
+			want:      []string{"1"},
+			wantError: false,
 		},
-		"All": {
-			optionType: backlog.ExportOptionAll,
-			want:       "All",
+		"Valid-2": {
+			typeIDs:   []int{26},
+			want:      []string{"26"},
+			wantError: false,
 		},
-		"Archived": {
-			optionType: backlog.ExportOptionArchived,
-			want:       "Archived",
+		"Valid-3": {
+			typeIDs: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26},
+			want: []string{
+				"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
+				"14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+			},
+			wantError: false,
 		},
-		"ChartEnabled": {
-			optionType: backlog.ExportOptionChartEnabled,
-			want:       "ChartEnabled",
+		"Invalid-1": {
+			typeIDs:   []int{0},
+			want:      nil,
+			wantError: true,
 		},
-		"Content": {
-			optionType: backlog.ExportOptionContent,
-			want:       "Content",
+		"Invalid-2": {
+			typeIDs:   []int{-1},
+			want:      nil,
+			wantError: true,
 		},
-		"Count": {
-			optionType: backlog.ExportOptionCount,
-			want:       "Count",
+		"Invalid-3": {
+			typeIDs:   []int{27},
+			want:      nil,
+			wantError: true,
 		},
-		"Key": {
-			optionType: backlog.ExportOptionKey,
-			want:       "Key",
+		"Invalid-4": {
+			typeIDs:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27},
+			want:      nil,
+			wantError: true,
 		},
-		"Keyword": {
-			optionType: backlog.ExportOptionKeyword,
-			want:       "Keyword",
+		"Invalid-5": {
+			typeIDs:   []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26},
+			want:      nil,
+			wantError: true,
 		},
-		"Name": {
-			optionType: backlog.ExportOptionName,
-			want:       "Name",
+		"Empty": {
+			typeIDs:   []int{},
+			want:      nil,
+			wantError: false,
 		},
-		"MailAddress": {
-			optionType: backlog.ExportOptionMailAddress,
-			want:       "MailAddress",
-		},
-		"MailNotify": {
-			optionType: backlog.ExportOptionMailNotify,
-			want:       "MailNotify",
-		},
-		"MaxID": {
-			optionType: backlog.ExportOptionMaxID,
-			want:       "MaxID",
-		},
-		"MinID": {
-			optionType: backlog.ExportOptionMinID,
-			want:       "MinID",
-		},
-		"Order": {
-			optionType: backlog.ExportOptionOrder,
-			want:       "Order",
-		},
-		"Password": {
-			optionType: backlog.ExportOptionPassword,
-			want:       "Password",
-		},
-		"ProjectLeaderCanEditProjectLeader": {
-			optionType: backlog.ExportOptionProjectLeaderCanEditProjectLeader,
-			want:       "ProjectLeaderCanEditProjectLeader",
-		},
-		"RoleType": {
-			optionType: backlog.ExportOptionRoleType,
-			want:       "RoleType",
-		},
-		"SubtaskingEnabled": {
-			optionType: backlog.ExportOptionSubtaskingEnabled,
-			want:       "SubtaskingEnabled",
-		},
-		"TextFormattingRule": {
-			optionType: backlog.ExportOptionTextFormattingRule,
-			want:       "TextFormattingRule",
-		},
-		"unknown": {
-			optionType: backlog.ExportOptionType(0),
-			want:       "unknown",
+		"duplicate": {
+			typeIDs:   []int{1, 1},
+			want:      []string{"1", "1"},
+			wantError: false,
 		},
 	}
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			assert.Equal(t, tc.optionType.String(), tc.want)
+			option := o.WithActivityTypeIDs(tc.typeIDs)
+			params := backlog.NewQueryParams()
+
+			if err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryActivityTypeIDs); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.want, (*params.Values)["activityTypeId[]"])
+			}
+		})
+	}
+}
+
+func TestQueryOptionService_WithActivityTypeIDs_invalidOption(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	activityIDs := []int{1, 2}
+	validTypes := []backlog.ExportQueryType{
+		backlog.ExportQueryAll,
+		backlog.ExportQueryArchived,
+		backlog.ExportQueryCount,
+		backlog.ExportQueryKey,
+		backlog.ExportQueryOrder,
+	}
+
+	option := o.WithActivityTypeIDs(activityIDs)
+	params := backlog.NewQueryParams()
+	err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, validTypes...)
+	assert.IsType(t, &backlog.InvalidQueryOptionError{}, err)
+}
+
+func TestQueryOptionService_WithAll(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		enabeld bool
+	}{
+		"true": {
+			enabeld: true,
+		},
+		"false": {
+			enabeld: false,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithAll(tc.enabeld)
+			params := backlog.NewQueryParams()
+			err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryAll)
+			assert.NoError(t, err)
+			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("all"))
+		})
+	}
+}
+
+func TestQueryOptionService_WithArchived(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		enabeld bool
+	}{
+		"true": {
+			enabeld: true,
+		},
+		"false": {
+			enabeld: false,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithArchived(tc.enabeld)
+			params := backlog.NewQueryParams()
+			err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryArchived)
+			assert.NoError(t, err)
+			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("archived"))
+		})
+	}
+}
+
+func TestQueryOptionService_WithCount(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		count     int
+		wantError bool
+	}{
+		"Valid-1": {
+			count:     1,
+			wantError: false,
+		},
+		"Valid-2": {
+			count:     100,
+			wantError: false,
+		},
+		"Invalid-1": {
+			count:     0,
+			wantError: true,
+		},
+		"Invalid-2": {
+			count:     -1,
+			wantError: true,
+		},
+		"Invalid-3": {
+			count:     101,
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithCount(tc.count)
+			params := backlog.NewQueryParams()
+
+			if err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryCount); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(tc.count), params.Get("count"))
+			}
+		})
+	}
+}
+
+func TestQueryOptionService_WithKeyword(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		keyword string
+	}{
+		"Valid": {
+			keyword: "test",
+		},
+		"Empty": {
+			keyword: "",
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithKeyword(tc.keyword)
+			params := backlog.NewQueryParams()
+
+			err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryKeyword)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.keyword, params.Get("keyword"))
+		})
+	}
+}
+
+func TestQueryOptionService_WithMinID(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		minID     int
+		wantError bool
+	}{
+		"Valid": {
+			minID:     1,
+			wantError: false,
+		},
+		"Invalid-1": {
+			minID:     0,
+			wantError: true,
+		},
+		"Invalid-2": {
+			minID:     -1,
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithMinID(tc.minID)
+			params := backlog.NewQueryParams()
+
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(tc.minID), params.Get("minId"))
+			}
+		})
+	}
+}
+
+func TestQueryOptionService_WithMaxID(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		maxID     int
+		wantError bool
+	}{
+		"Valid": {
+			maxID:     1,
+			wantError: false,
+		},
+		"Invalid-1": {
+			maxID:     0,
+			wantError: true,
+		},
+		"Invalid-2": {
+			maxID:     -1,
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithMaxID(tc.maxID)
+			params := backlog.NewQueryParams()
+
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(tc.maxID), params.Get("maxId"))
+			}
+		})
+	}
+}
+
+func TestQueryOptionService_WithOrder(t *testing.T) {
+	o := backlog.QueryOptionService{}
+
+	cases := map[string]struct {
+		order     backlog.ExportOrder
+		wantError bool
+	}{
+		"asc": {
+			order:     backlog.OrderAsc,
+			wantError: false,
+		},
+		"desc": {
+			order:     backlog.OrderDesc,
+			wantError: false,
+		},
+		"Invalid": {
+			order:     "test",
+			wantError: true,
+		},
+		"Empty": {
+			order:     "",
+			wantError: true,
+		},
+	}
+	for n, tc := range cases {
+		tc := tc
+		t.Run(n, func(t *testing.T) {
+			option := o.WithOrder(tc.order)
+			params := backlog.NewQueryParams()
+
+			if err := backlog.ExportQueryParamsWithOptions(params, []*backlog.QueryOption{option}, backlog.ExportQueryOrder); tc.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, string(tc.order), params.Get("order"))
+			}
 		})
 	}
 }
@@ -167,14 +401,14 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithActivityTypeIDs(tc.typeIDs)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithQueryActivityTypeIDs(tc.typeIDs)
+			params := backlog.NewQueryParams()
 
-			if err := backlog.ExportActivityOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				v := *params.ExportURLValues()
+				v := *params.Values
 				assert.Equal(t, tc.want, v["activityTypeId[]"])
 			}
 		})
@@ -204,10 +438,10 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithMinID(tc.minID)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithQueryMinID(tc.minID)
+			params := backlog.NewQueryParams()
 
-			if err := backlog.ExportActivityOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -240,10 +474,10 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithMaxID(tc.maxID)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithQueryMaxID(tc.maxID)
+			params := backlog.NewQueryParams()
 
-			if err := backlog.ExportActivityOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -284,10 +518,10 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithCount(tc.count)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithQueryCount(tc.count)
+			params := backlog.NewQueryParams()
 
-			if err := backlog.ExportActivityOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -324,10 +558,10 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithOrder(tc.order)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithQueryOrder(tc.order)
+			params := backlog.NewQueryParams()
 
-			if err := backlog.ExportActivityOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportQueryOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -337,7 +571,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	}
 }
 
-func TestProjectOptionService_WithAll(t *testing.T) {
+func TestProjectOptionService_WithQueryAll(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -353,16 +587,16 @@ func TestProjectOptionService_WithAll(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithAll(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportProjectOptionSet(option, params)
+			option := o.WithQueryAll(tc.enabeld)
+			params := backlog.NewQueryParams()
+			err := backlog.ExportQueryOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("all"))
 		})
 	}
 }
 
-func TestProjectOptionService_WithKey(t *testing.T) {
+func TestProjectOptionService_WithFormKey(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -381,10 +615,10 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithKey(tc.key)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormKey(tc.key)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportProjectOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -394,7 +628,7 @@ func TestProjectOptionService_WithKey(t *testing.T) {
 	}
 }
 
-func TestProjectOptionService_WithName(t *testing.T) {
+func TestProjectOptionService_WithFormName(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -413,10 +647,10 @@ func TestProjectOptionService_WithName(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormName(tc.name)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportProjectOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -426,7 +660,7 @@ func TestProjectOptionService_WithName(t *testing.T) {
 	}
 }
 
-func TestProjectOptionService_WithChartEnabled(t *testing.T) {
+func TestProjectOptionService_WithFormChartEnabled(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -442,16 +676,16 @@ func TestProjectOptionService_WithChartEnabled(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithChartEnabled(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportProjectOptionSet(option, params)
+			option := o.WithFormChartEnabled(tc.enabeld)
+			params := backlog.NewFormParams()
+			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("chartEnabled"))
 		})
 	}
 }
 
-func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
+func TestProjectOptionService_WithFormSubtaskingEnabled(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -467,16 +701,16 @@ func TestProjectOptionService_WithSubtaskingEnabled(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithSubtaskingEnabled(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportProjectOptionSet(option, params)
+			option := o.WithFormSubtaskingEnabled(tc.enabeld)
+			params := backlog.NewFormParams()
+			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("subtaskingEnabled"))
 		})
 	}
 }
 
-func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T) {
+func TestProjectOptionService_WithFormProjectLeaderCanEditProjectLeader(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -492,16 +726,16 @@ func TestProjectOptionService_WithProjectLeaderCanEditProjectLeader(t *testing.T
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithProjectLeaderCanEditProjectLeader(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportProjectOptionSet(option, params)
+			option := o.WithFormProjectLeaderCanEditProjectLeader(tc.enabeld)
+			params := backlog.NewFormParams()
+			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("projectLeaderCanEditProjectLeader"))
 		})
 	}
 }
 
-func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
+func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -528,10 +762,10 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithTextFormattingRule(tc.format)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormTextFormattingRule(tc.format)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportProjectOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -541,7 +775,7 @@ func TestProjectOptionService_WithTextFormattingRule(t *testing.T) {
 	}
 }
 
-func TestProjectOptionService_WithArchived(t *testing.T) {
+func TestProjectOptionService_WithFormArchived(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
@@ -557,16 +791,16 @@ func TestProjectOptionService_WithArchived(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithArchived(tc.archived)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportProjectOptionSet(option, params)
+			option := o.WithQueryArchived(tc.archived)
+			params := backlog.NewQueryParams()
+			err := backlog.ExportQueryOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.archived), params.Get("archived"))
 		})
 	}
 }
 
-func TestUserOptionService_WithPassword(t *testing.T) {
+func TestUserOptionService_WithFormPassword(t *testing.T) {
 	o := backlog.UserOptionService{}
 
 	cases := map[string]struct {
@@ -589,10 +823,10 @@ func TestUserOptionService_WithPassword(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithPassword(tc.password)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormPassword(tc.password)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportUserOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -602,7 +836,7 @@ func TestUserOptionService_WithPassword(t *testing.T) {
 	}
 }
 
-func TestUserOptionService_WithName(t *testing.T) {
+func TestUserOptionService_WithFormName(t *testing.T) {
 	o := backlog.UserOptionService{}
 
 	cases := map[string]struct {
@@ -621,10 +855,10 @@ func TestUserOptionService_WithName(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormName(tc.name)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportUserOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -666,10 +900,10 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithMailAddress(tc.mailAddress)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormMailAddress(tc.mailAddress)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportUserOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -679,7 +913,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 	}
 }
 
-func TestUserOptionService_WithRoleType(t *testing.T) {
+func TestUserOptionService_WithFormRoleType(t *testing.T) {
 	o := backlog.UserOptionService{}
 
 	cases := map[string]struct {
@@ -731,10 +965,10 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithRoleType(tc.roleType)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormRoleType(tc.roleType)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportUserOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -744,7 +978,7 @@ func TestUserOptionService_WithRoleType(t *testing.T) {
 	}
 }
 
-func TestWikiOptionService_WithKeyword(t *testing.T) {
+func TestWikiOptionService_WithFormKeyword(t *testing.T) {
 	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
@@ -760,16 +994,16 @@ func TestWikiOptionService_WithKeyword(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithKeyword(tc.keyword)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportWikiOptionSet(option, params)
+			option := o.WithQueryKeyword(tc.keyword)
+			params := backlog.NewQueryParams()
+			err := backlog.ExportQueryOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.keyword, params.Get("keyword"))
 		})
 	}
 }
 
-func TestWikiOptionService_WithName(t *testing.T) {
+func TestWikiOptionService_WithFormName(t *testing.T) {
 	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
@@ -788,10 +1022,10 @@ func TestWikiOptionService_WithName(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithName(tc.name)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormName(tc.name)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportWikiOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -801,7 +1035,7 @@ func TestWikiOptionService_WithName(t *testing.T) {
 	}
 }
 
-func TestWikiOptionService_WithContent(t *testing.T) {
+func TestWikiOptionService_WithFormContent(t *testing.T) {
 	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
@@ -820,10 +1054,10 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithContent(tc.content)
-			params := backlog.ExportNewRequestParams()
+			option := o.WithFormContent(tc.content)
+			params := backlog.NewFormParams()
 
-			if err := backlog.ExportWikiOptionSet(option, params); tc.wantError {
+			if err := backlog.ExportFormOptionSet(option, params); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -833,7 +1067,7 @@ func TestWikiOptionService_WithContent(t *testing.T) {
 	}
 }
 
-func TestWikiOptionService_WithMailNotify(t *testing.T) {
+func TestWikiOptionService_WithFormMailNotify(t *testing.T) {
 	o := backlog.WikiOptionService{}
 
 	cases := map[string]struct {
@@ -849,9 +1083,9 @@ func TestWikiOptionService_WithMailNotify(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			option := o.WithMailNotify(tc.enabeld)
-			params := backlog.ExportNewRequestParams()
-			err := backlog.ExportWikiOptionSet(option, params)
+			option := o.WithFormMailNotify(tc.enabeld)
+			params := backlog.NewFormParams()
+			err := backlog.ExportFormOptionSet(option, params)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), params.Get("mailNotify"))
 		})

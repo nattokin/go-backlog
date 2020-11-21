@@ -20,23 +20,23 @@ type WikiService struct {
 // This method can specify the options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithKeyword
+//   WithQueryKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*WikiOption) ([]*Wiki, error) {
+func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Wiki, error) {
 	projectIDOrKey, err := target.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
 
-	validOptions := []optionType{optionKeyword}
+	validOptions := []queryType{queryKeyword}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	params := newRequestParams()
+	params := NewQueryParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -67,7 +67,7 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 		return 0, err
 	}
 
-	params := newRequestParams()
+	params := NewQueryParams()
 	params.Set("projectIdOrKey", projectIDOrKey)
 
 	resp, err := s.method.Get("wikis/count", params)
@@ -112,10 +112,10 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 // This method can specify the options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithMailNotify
+//   WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, options ...*WikiOption) (*Wiki, error) {
+func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
 	if projectID < 1 {
 		return nil, fmt.Errorf("projectID must not be less than 1")
 	}
@@ -126,14 +126,14 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Wi
 		return nil, errors.New("content must not be empty")
 	}
 
-	validOptions := []optionType{optionMailNotify}
+	validOptions := []formType{formMailNotify}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -162,12 +162,12 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Wi
 // This method can specify the options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithName
-//   WithContent
-//   WithMailNotify
+//   WithFormName
+//   WithFormContent
+//   WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) {
+func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) {
 	if wikiID < 1 {
 		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
@@ -176,14 +176,14 @@ func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) 
 		return nil, errors.New("requires one or more options")
 	}
 
-	validOptions := []optionType{optionName, optionContent, optionMailNotify}
+	validOptions := []formType{formName, formContent, formMailNotify}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err
@@ -210,22 +210,22 @@ func (s *WikiService) Update(wikiID int, options ...*WikiOption) (*Wiki, error) 
 // This method can specify the options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithMailNotify
+//   WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, options ...*WikiOption) (*Wiki, error) {
+func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) {
 	if wikiID < 1 {
 		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
 
-	validOptions := []optionType{optionMailNotify}
+	validOptions := []formType{formMailNotify}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	params := newRequestParams()
+	params := NewFormParams()
 	for _, option := range options {
 		if err := option.set(params); err != nil {
 			return nil, err

@@ -23,25 +23,33 @@ const (
 	RoleGuestViewer
 )
 
+// TODO: activityId
+
 const (
-	_ optionType = iota
-	optionActivityTypeIDs
-	optionAll
-	optionArchived
-	optionChartEnabled
-	optionContent
-	optionCount
-	optionKey
-	optionKeyword
-	optionName
-	optionMailAddress
-	optionMailNotify
-	optionMaxID
-	optionMinID
-	optionOrder
-	optionPassword
-	optionProjectLeaderCanEditProjectLeader
-	optionRoleType
-	optionSubtaskingEnabled
-	optionTextFormattingRule
+	_ formType = iota
+	formArchived
+	formChartEnabled
+	formContent
+	formKey
+	formName
+	formMailAddress
+	formMailNotify
+	formPassword
+	formProjectLeaderCanEditProjectLeader
+	formRoleType
+	formSubtaskingEnabled
+	formTextFormattingRule
+)
+
+const (
+	_ queryType = iota
+	queryActivityTypeIDs
+	queryAll
+	queryArchived
+	queryCount
+	queryKey
+	queryKeyword
+	queryMaxID
+	queryMinID
+	queryOrder
 )
