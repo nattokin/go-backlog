@@ -28,7 +28,7 @@ func TestProjectService_All(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -53,12 +53,12 @@ func TestProjectService_All_option(t *testing.T) {
 		archived string
 	}
 	cases := map[string]struct {
-		options   []*backlog.ProjectOption
+		options   []*backlog.QueryOption
 		wantError bool
 		want      options
 	}{
 		"WithoutOption": {
-			options:   []*backlog.ProjectOption{},
+			options:   []*backlog.QueryOption{},
 			wantError: false,
 			want: options{
 				all:      "",
@@ -66,9 +66,9 @@ func TestProjectService_All_option(t *testing.T) {
 			},
 		},
 		"ValidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithAll(false),
-				o.WithArchived(true),
+			options: []*backlog.QueryOption{
+				o.WithQueryAll(false),
+				o.WithQueryArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -77,8 +77,8 @@ func TestProjectService_All_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.ProjectOption{
-				backlog.ExportNewProjectOption(backlog.ExportOptionAll, func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(backlog.ExportQueryAll, func(p *backlog.QueryParams) error {
 					return errors.New("error")
 				}),
 			},
@@ -86,8 +86,10 @@ func TestProjectService_All_option(t *testing.T) {
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithName("test"),
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(backlog.ExportQueryType(0), func(p *backlog.QueryParams) error {
+					return nil
+				}),
 			},
 			wantError: true,
 			want:      options{},
@@ -104,7 +106,7 @@ func TestProjectService_All_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.all, params.Get("all"))
 					assert.Equal(t, tc.want.archived, params.Get("archived"))
 
@@ -143,7 +145,7 @@ func TestProjectService_AdminAll(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
@@ -167,12 +169,12 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 		archived string
 	}
 	cases := map[string]struct {
-		options   []*backlog.ProjectOption
+		options   []*backlog.QueryOption
 		wantError bool
 		want      options
 	}{
 		"WithoutOption": {
-			options:   []*backlog.ProjectOption{},
+			options:   []*backlog.QueryOption{},
 			wantError: false,
 			want: options{
 				all:      "true",
@@ -180,8 +182,8 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 			},
 		},
 		"ValidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithArchived(true),
+			options: []*backlog.QueryOption{
+				o.WithQueryArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -190,8 +192,8 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.ProjectOption{
-				backlog.ExportNewProjectOption(backlog.ExportOptionArchived, func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(backlog.ExportQueryArchived, func(p *backlog.QueryParams) error {
 					return errors.New("error")
 				}),
 			},
@@ -199,8 +201,8 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithAll(true),
+			options: []*backlog.QueryOption{
+				o.WithQueryAll(true),
 			},
 			wantError: true,
 			want:      options{},
@@ -217,7 +219,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.all, params.Get("all"))
 					assert.Equal(t, tc.want.archived, params.Get("archived"))
 
@@ -255,7 +257,7 @@ func TestProjectService_AllArchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.archived, params.Get("archived"))
 
@@ -290,7 +292,7 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
@@ -325,7 +327,7 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.archived, params.Get("archived"))
 
@@ -360,7 +362,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.all, params.Get("all"))
 			assert.Equal(t, want.archived, params.Get("archived"))
@@ -381,7 +383,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 func TestProjectService_All_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -408,7 +410,7 @@ func TestProjectService_One_key(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			resp := &http.Response{
@@ -443,7 +445,7 @@ func TestProjectService_One_id(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			resp := &http.Response{
@@ -468,7 +470,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -484,7 +486,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 func TestProjectService_One_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -501,7 +503,7 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -616,12 +618,12 @@ func TestProjectService_Create_option(t *testing.T) {
 		textFormattingRule                string
 	}
 	cases := map[string]struct {
-		options   []*backlog.ProjectOption
+		options   []*backlog.FormOption
 		wantError bool
 		want      options
 	}{
 		"WithoutOption": {
-			options:   []*backlog.ProjectOption{},
+			options:   []*backlog.FormOption{},
 			wantError: false,
 			want: options{
 				chartEnabled:                      "",
@@ -631,11 +633,11 @@ func TestProjectService_Create_option(t *testing.T) {
 			},
 		},
 		"ValidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithChartEnabled(true),
-				o.WithSubtaskingEnabled(true),
-				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(backlog.FormatBacklog),
+			options: []*backlog.FormOption{
+				o.WithFormChartEnabled(true),
+				o.WithFormSubtaskingEnabled(true),
+				o.WithFormProjectLeaderCanEditProjectLeader(true),
+				o.WithFormTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -646,15 +648,15 @@ func TestProjectService_Create_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.ProjectOption{
-				o.WithTextFormattingRule("invalid"),
+			options: []*backlog.FormOption{
+				o.WithFormTextFormattingRule("invalid"),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.ProjectOption{
-				backlog.ExportNewProjectOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.FormOption{
+				backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},
@@ -825,19 +827,19 @@ func TestProjectService_Update_option(t *testing.T) {
 		archived                          string
 	}
 	cases := map[string]struct {
-		options   []*backlog.ProjectOption
+		options   []*backlog.FormOption
 		wantError bool
 		want      options
 	}{
 		"ValidOption": {
-			options: []*backlog.ProjectOption{
-				o.WithKey("TEST1"),
-				o.WithName("test1"),
-				o.WithChartEnabled(true),
-				o.WithSubtaskingEnabled(true),
-				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(backlog.FormatBacklog),
-				o.WithArchived(true),
+			options: []*backlog.FormOption{
+				o.WithFormKey("TEST1"),
+				o.WithFormName("test1"),
+				o.WithFormChartEnabled(true),
+				o.WithFormSubtaskingEnabled(true),
+				o.WithFormProjectLeaderCanEditProjectLeader(true),
+				o.WithFormTextFormattingRule(backlog.FormatBacklog),
+				o.WithFormArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -851,21 +853,21 @@ func TestProjectService_Update_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.ProjectOption{
-				o.WithKey(""),
-				o.WithName(""),
-				o.WithChartEnabled(false),
-				o.WithSubtaskingEnabled(false),
-				o.WithProjectLeaderCanEditProjectLeader(false),
-				o.WithTextFormattingRule("invalid"),
-				o.WithArchived(false),
+			options: []*backlog.FormOption{
+				o.WithFormKey(""),
+				o.WithFormName(""),
+				o.WithFormChartEnabled(false),
+				o.WithFormSubtaskingEnabled(false),
+				o.WithFormProjectLeaderCanEditProjectLeader(false),
+				o.WithFormTextFormattingRule("invalid"),
+				o.WithFormArchived(false),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.ProjectOption{
-				backlog.ExportNewProjectOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.FormOption{
+				backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},

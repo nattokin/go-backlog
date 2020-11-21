@@ -21,7 +21,7 @@ func getUser(get clientGet, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(get clientGet, spath string, params *requestParams) ([]*User, error) {
+func getUserList(get clientGet, spath string, params *QueryParams) ([]*User, error) {
 	resp, err := get(spath, params)
 	if err != nil {
 		return nil, err
@@ -153,20 +153,20 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 // This method can specify the options returned by methods in "*Client.User.Option".
 //
 // Use the following methods:
-//   WithName
-//   WithPassword
-//   WithMailAddress
-//   WithRoleType
+//   WithFormName
+//   WithFormPassword
+//   WithFormMailAddress
+//   WithFormRoleType
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(id int, options ...*UserOption) (*User, error) {
+func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 	if id < 1 {
 		return nil, errors.New("id must be greater than 1")
 	}
 
 	spath := "users/" + strconv.Itoa(id)
 
-	validOptions := []optionType{optionName, optionPassword, optionMailAddress, optionRoleType}
+	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
@@ -209,7 +209,7 @@ func (s *ProjectUserService) All(target ProjectIDOrKeyGetter, excludeGroupMember
 		return nil, err
 	}
 
-	params := newRequestParams()
+	params := NewQueryParams()
 	params.Add("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := "projects/" + projectIDOrKey + "/users"

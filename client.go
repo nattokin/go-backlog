@@ -50,7 +50,34 @@ type requestParams struct {
 	*url.Values
 }
 
-type clientGet func(spath string, params *requestParams) (*http.Response, error)
+// QueryParams is query parameters for request.
+type QueryParams struct {
+	*url.Values
+}
+
+// NewQueryParams returns new QueryParams.
+func NewQueryParams() *QueryParams {
+	return &QueryParams{&url.Values{}}
+}
+
+// withOptions sets request query parameters from options.
+func (p *QueryParams) withOptions(options []*QueryOption, validOptions ...queryType) error {
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return err
+		}
+	}
+
+	for _, option := range options {
+		if err := option.set(p); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type clientGet func(spath string, params *QueryParams) (*http.Response, error)
 type clientPost func(spath string, params *requestParams) (*http.Response, error)
 type clientPatch func(spath string, params *requestParams) (*http.Response, error)
 type clientDelete func(spath string, params *requestParams) (*http.Response, error)
@@ -100,7 +127,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 	}
 
 	m := &method{
-		Get: func(spath string, params *requestParams) (*http.Response, error) {
+		Get: func(spath string, params *QueryParams) (*http.Response, error) {
 			return c.get(spath, params)
 		},
 		Post: func(spath string, params *requestParams) (*http.Response, error) {
@@ -172,13 +199,13 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // Creates new request.
-func (c *Client) newReqest(method, spath string, params *requestParams, body io.Reader) (*http.Request, error) {
+func (c *Client) newReqest(method, spath string, params *QueryParams, body io.Reader) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not empty")
 	}
 
 	if params == nil {
-		params = newRequestParams()
+		params = NewQueryParams()
 	}
 	params.Set("apiKey", c.token)
 
@@ -186,14 +213,7 @@ func (c *Client) newReqest(method, spath string, params *requestParams, body io.
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
 	u.RawQuery = params.Encode()
 
-	req, err := http.NewRequest(method, u.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Accept", "application/json")
-
-	return req, nil
+	return http.NewRequest(method, u.String(), body)
 }
 
 // Do http request, and return Response.
@@ -208,7 +228,7 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 
 // Get method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) get(spath string, params *requestParams) (*http.Response, error) {
+func (c *Client) get(spath string, params *QueryParams) (*http.Response, error) {
 	req, err := c.newReqest(http.MethodGet, spath, params, nil)
 	if err != nil {
 		return nil, err
