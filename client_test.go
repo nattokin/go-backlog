@@ -297,77 +297,94 @@ func TestNewClient_wiki(t *testing.T) {
 }
 
 func TestClient_NewReqest(t *testing.T) {
-	reader := bytes.NewReader([]byte("test"))
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	cases := map[string]struct {
 		method    string
 		spath     string
-		params    *backlog.QueryParams
+		header    http.Header
 		body      io.Reader
+		query     *backlog.QueryParams
 		wantError bool
 	}{
 		"method-get": {
 			method:    http.MethodGet,
 			spath:     "get",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
 		"method-post": {
 			method:    http.MethodPost,
 			spath:     "post",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
 		"method-patch": {
 			method:    http.MethodPatch,
 			spath:     "patch",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
 		"method-delete": {
 			method:    http.MethodDelete,
 			spath:     "delete",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
 		"method-empty": {
 			method:    "",
 			spath:     "nothing",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
 		"method-eroor": {
 			method:    "@error",
 			spath:     "nothing",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: true,
 		},
 		"spath-empty": {
 			method:    http.MethodGet,
 			spath:     "",
-			params:    backlog.NewQueryParams(),
-			body:      reader,
+			header:    nil,
+			body:      nil,
+			query:     nil,
 			wantError: true,
 		},
-		"params-empty": {
+		"header": {
 			method:    http.MethodGet,
 			spath:     "test",
-			params:    nil,
-			body:      reader,
+			header:    http.Header{},
+			body:      nil,
+			query:     nil,
 			wantError: false,
 		},
-		"body-empty": {
+		"body": {
 			method:    http.MethodGet,
 			spath:     "test",
-			params:    backlog.NewQueryParams(),
+			header:    nil,
+			body:      bytes.NewReader([]byte("test")),
+			query:     nil,
+			wantError: false,
+		},
+		"query": {
+			method:    http.MethodGet,
+			spath:     "test",
+			header:    nil,
 			body:      nil,
+			query:     backlog.NewQueryParams(),
 			wantError: false,
 		},
 	}
@@ -375,7 +392,7 @@ func TestClient_NewReqest(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			request, err := backlog.ExportClientNewReqest(c, tc.method, tc.spath, tc.params, tc.body)
+			request, err := backlog.ExportClientNewReqest(c, tc.method, tc.spath, tc.header, tc.body, tc.query)
 
 			switch {
 			case tc.wantError:
@@ -435,13 +452,10 @@ func TestClient_Do(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	req, _ := backlog.ExportClientNewReqest(
+	res, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
-		backlog.NewQueryParams(),
-		bytes.NewReader([]byte("test")),
+		http.Header{}, nil, nil,
 	)
-
-	res, err := backlog.ExportClientDo(c, req)
 	assert.NoError(t, err)
 
 	defer res.Body.Close()
@@ -464,12 +478,10 @@ func TestClient_Do_httpClientError(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	req, _ := backlog.ExportClientNewReqest(
+	_, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
-		backlog.NewQueryParams(),
-		bytes.NewReader([]byte("test")),
+		http.Header{}, nil, nil,
 	)
-	_, err := backlog.ExportClientDo(c, req)
 	assert.Error(t, err, emsg)
 
 }
@@ -504,13 +516,10 @@ func TestClient_Do_errorResponse(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	req, _ := backlog.ExportClientNewReqest(
+	_, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
-		backlog.NewQueryParams(),
-		bytes.NewReader([]byte("test")),
+		http.Header{}, nil, nil,
 	)
-
-	_, err := backlog.ExportClientDo(c, req)
 	assert.Error(t, err, apiErrors.Error())
 }
 
