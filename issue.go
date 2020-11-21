@@ -13,15 +13,26 @@ type IssueIDOrKeyGetter interface {
 // IssueID implements IssueIDOrKeyGetter interface.
 type IssueID int
 
-// IssueKey implements IssueIDOrKeyGetter interface.
-type IssueKey string
+func (i IssueID) validate() error {
+	if i < 1 {
+		return errors.New("issueID must not be less than 1")
+	}
+	return nil
+}
+
+func (i IssueID) String() string {
+	return strconv.Itoa(int(i))
+}
 
 func (i IssueID) getIssueIDOrKey() (string, error) {
-	if i < 1 {
-		return "", errors.New("id must not be less than 1")
+	if err := i.validate(); err != nil {
+		return "", err
 	}
-	return strconv.Itoa(int(i)), nil
+	return i.String(), nil
 }
+
+// IssueKey implements IssueIDOrKeyGetter interface.
+type IssueKey string
 
 func (k IssueKey) getIssueIDOrKey() (string, error) {
 	if k == "" {
