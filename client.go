@@ -45,15 +45,52 @@ type Client struct {
 	Wiki        *WikiService
 }
 
-// RequestParams wraps url.Values.
-type requestParams struct {
+// FormParams wraps url.Values.
+type FormParams struct {
 	*url.Values
 }
 
-type clientGet func(spath string, params *requestParams) (*http.Response, error)
-type clientPost func(spath string, params *requestParams) (*http.Response, error)
-type clientPatch func(spath string, params *requestParams) (*http.Response, error)
-type clientDelete func(spath string, params *requestParams) (*http.Response, error)
+// NewFormParams returns new FormParams.
+func NewFormParams() *FormParams {
+	return &FormParams{&url.Values{}}
+}
+
+// NewReader converts FormParams to io.Reader.
+func (p *FormParams) NewReader() io.Reader {
+	return strings.NewReader(p.Encode())
+}
+
+// QueryParams is query parameters for request.
+type QueryParams struct {
+	*url.Values
+}
+
+// NewQueryParams returns new QueryParams.
+func NewQueryParams() *QueryParams {
+	return &QueryParams{&url.Values{}}
+}
+
+// withOptions sets request query parameters from options.
+func (p *QueryParams) withOptions(options []*QueryOption, validOptions ...queryType) error {
+	for _, option := range options {
+		if err := option.validate(validOptions); err != nil {
+			return err
+		}
+	}
+
+	for _, option := range options {
+		if err := option.set(p); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type clientGet func(spath string, query *QueryParams) (*http.Response, error)
+type clientPost func(spath string, form *FormParams) (*http.Response, error)
+type clientPatch func(spath string, form *FormParams) (*http.Response, error)
+type clientDelete func(spath string, form *FormParams) (*http.Response, error)
 type clientUpload func(spath, fpath, fname string) (*http.Response, error)
 
 type method struct {
@@ -100,17 +137,17 @@ func NewClient(baseURL, token string) (*Client, error) {
 	}
 
 	m := &method{
-		Get: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.get(spath, params)
+		Get: func(spath string, query *QueryParams) (*http.Response, error) {
+			return c.get(spath, query)
 		},
-		Post: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.post(spath, params)
+		Post: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.post(spath, form)
 		},
-		Patch: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.patch(spath, params)
+		Patch: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.patch(spath, form)
 		},
-		Delete: func(spath string, params *requestParams) (*http.Response, error) {
-			return c.delete(spath, params)
+		Delete: func(spath string, form *FormParams) (*http.Response, error) {
+			return c.delete(spath, form)
 		},
 		Upload: func(spath, fpath, fname string) (*http.Response, error) {
 			return c.upload(spath, fpath, fname)
@@ -172,32 +209,36 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // Creates new request.
-func (c *Client) newReqest(method, spath string, params *requestParams, body io.Reader) (*http.Request, error) {
+func (c *Client) newReqest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not empty")
 	}
 
-	if params == nil {
-		params = newRequestParams()
+	if query == nil {
+		query = NewQueryParams()
 	}
-	params.Set("apiKey", c.token)
+	query.Set("apiKey", c.token)
 
 	u := *c.url
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
-	u.RawQuery = params.Encode()
+	u.RawQuery = query.Encode()
 
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Accept", "application/json")
-
+	req.Header = header
 	return req, nil
 }
 
 // Do http request, and return Response.
-func (c *Client) do(req *http.Request) (*http.Response, error) {
+func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
+	req, err := c.newReqest(method, spath, header, body, query)
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -208,61 +249,47 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 
 // Get method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) get(spath string, params *requestParams) (*http.Response, error) {
-	req, err := c.newReqest(http.MethodGet, spath, params, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.do(req)
+func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
+	return c.do(http.MethodGet, spath, nil, nil, query)
 }
 
 // Post method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) post(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
-	}
-	req, err := c.newReqest(http.MethodPost, spath, nil, strings.NewReader(params.Encode()))
-	if err != nil {
-		return nil, err
+func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if form == nil {
+		form = NewFormParams()
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
 }
 
 // Patch method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) patch(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
-	}
-	req, err := c.newReqest(http.MethodPatch, spath, nil, strings.NewReader(params.Encode()))
-	if err != nil {
-		return nil, err
+func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if form == nil {
+		form = NewFormParams()
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
 }
 
 // Delete method of http reqest.
 // It creates new http reqest and do and return Response.
-func (c *Client) delete(spath string, params *requestParams) (*http.Response, error) {
-	if params == nil {
-		params = newRequestParams()
-	}
-	req, err := c.newReqest(http.MethodDelete, spath, nil, strings.NewReader(params.Encode()))
-	if err != nil {
-		return nil, err
+func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if form == nil {
+		form = NewFormParams()
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.do(req)
+	return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
 }
 
 // Upload file method used http reqest.
@@ -290,19 +317,10 @@ func (c *Client) upload(spath, fpath, fname string) (*http.Response, error) {
 		return nil, err
 	}
 
-	req, err := c.newReqest(http.MethodPost, spath, nil, &buf)
-	if err != nil {
-		return nil, err
-	}
+	header := http.Header{}
+	header.Set("Content-Type", w.FormDataContentType())
 
-	req.Header.Set("Content-Type", w.FormDataContentType())
-
-	return c.do(req)
-}
-
-// Create new parameter for request.
-func newRequestParams() *requestParams {
-	return &requestParams{&url.Values{}}
+	return c.do(http.MethodPost, spath, header, &buf, nil)
 }
 
 // Check HTTP status code. If it has errors, return error.

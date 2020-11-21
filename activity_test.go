@@ -20,7 +20,7 @@ func TestProjectActivityService_List(t *testing.T) {
 	}
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -32,7 +32,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	projectKey := ""
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
@@ -49,7 +49,7 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -70,7 +70,7 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}
 	s := &backlog.SpaceActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -87,7 +87,7 @@ func TestUserActivityService_List(t *testing.T) {
 	}
 	s := &backlog.UserActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
@@ -99,7 +99,7 @@ func TestUserActivityService_List_invaliedID(t *testing.T) {
 	id := 0
 	s := &backlog.UserActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
@@ -117,12 +117,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		order          string
 	}
 	cases := map[string]struct {
-		options   []*backlog.ActivityOption
+		options   []*backlog.QueryOption
 		wantError bool
 		want      want
 	}{
 		"NoOption": {
-			options:   []*backlog.ActivityOption{},
+			options:   []*backlog.QueryOption{},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
@@ -133,8 +133,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithActivityTypeIDs": {
-			options: []*backlog.ActivityOption{
-				o.WithActivityTypeIDs([]int{1}),
+			options: []*backlog.QueryOption{
+				o.WithQueryActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
 			want: want{
@@ -146,8 +146,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithMinID": {
-			options: []*backlog.ActivityOption{
-				o.WithMinID(1),
+			options: []*backlog.QueryOption{
+				o.WithQueryMinID(1),
 			},
 			wantError: false,
 			want: want{
@@ -159,8 +159,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithMaxID": {
-			options: []*backlog.ActivityOption{
-				o.WithMaxID(1),
+			options: []*backlog.QueryOption{
+				o.WithQueryMaxID(1),
 			},
 			wantError: false,
 			want: want{
@@ -172,8 +172,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithCount": {
-			options: []*backlog.ActivityOption{
-				o.WithCount(1),
+			options: []*backlog.QueryOption{
+				o.WithQueryCount(1),
 			},
 			wantError: false,
 			want: want{
@@ -185,8 +185,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"WithOrder": {
-			options: []*backlog.ActivityOption{
-				o.WithOrder(backlog.OrderAsc),
+			options: []*backlog.QueryOption{
+				o.WithQueryOrder(backlog.OrderAsc),
 			},
 			wantError: false,
 			want: want{
@@ -198,12 +198,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"MultipleOptions": {
-			options: []*backlog.ActivityOption{
-				o.WithActivityTypeIDs([]int{1, 2}),
-				o.WithMinID(1),
-				o.WithMaxID(100),
-				o.WithCount(20),
-				o.WithOrder(backlog.OrderAsc),
+			options: []*backlog.QueryOption{
+				o.WithQueryActivityTypeIDs([]int{1, 2}),
+				o.WithQueryMinID(1),
+				o.WithQueryMaxID(100),
+				o.WithQueryCount(20),
+				o.WithQueryOrder(backlog.OrderAsc),
 			},
 			wantError: false,
 			want: want{
@@ -215,15 +215,15 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.ActivityOption{
-				o.WithCount(0),
+			options: []*backlog.QueryOption{
+				o.WithQueryCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"InvalidOption": {
-			options: []*backlog.ActivityOption{
-				backlog.ExportNewActivityOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(backlog.ExportQueryType(0), func(p *backlog.QueryParams) error {
 					return nil
 				}),
 			},
@@ -242,8 +242,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 			s := &backlog.SpaceActivityService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-					v := *params.ExportURLValues()
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+					v := *params.Values
 					assert.Equal(t, tc.want.activityTypeID, v["activityTypeId[]"])
 					assert.Equal(t, tc.want.minID, params.Get("minId"))
 					assert.Equal(t, tc.want.maxID, params.Get("maxId"))

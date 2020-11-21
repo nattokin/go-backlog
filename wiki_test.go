@@ -34,7 +34,7 @@ func TestWikiService_All(t *testing.T) {
 	}
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, strconv.Itoa(want.projectID), params.Get("projectIdOrKey"))
 
@@ -60,39 +60,41 @@ func TestWikiService_All_param(t *testing.T) {
 	o := s.Option
 	cases := map[string]struct {
 		projectIdOrKey backlog.ProjectIDOrKeyGetter
-		keywordOption  *backlog.WikiOption
+		keywordOption  *backlog.QueryOption
 		content        string
 		mailNotify     bool
 		wantError      bool
 	}{
 		"valid-1": {
 			projectIdOrKey: backlog.ProjectID(1),
-			keywordOption:  o.WithKeyword("test"),
+			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      false,
 		},
 		"valid-2": {
 			projectIdOrKey: backlog.ProjectKey("TEST"),
-			keywordOption:  o.WithKeyword(""),
+			keywordOption:  o.WithQueryKeyword(""),
 			wantError:      false,
 		},
 		"invalid-ProjectID": {
 			projectIdOrKey: backlog.ProjectID(0),
-			keywordOption:  o.WithKeyword("test"),
+			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      true,
 		},
 		"invalid-ProjectKey": {
 			projectIdOrKey: backlog.ProjectKey(""),
-			keywordOption:  o.WithKeyword("test"),
+			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      true,
 		},
 		"invalid-option": {
 			projectIdOrKey: backlog.ProjectKey("TEST"),
-			keywordOption:  o.WithName(""),
-			wantError:      true,
+			keywordOption: backlog.ExportNewQueryOption(backlog.ExportQueryType(0), func(p *backlog.QueryParams) error {
+				return nil
+			}),
+			wantError: true,
 		},
 		"option-error": {
 			projectIdOrKey: backlog.ProjectKey("TEST"),
-			keywordOption: backlog.ExportNewWikiOption(backlog.ExportOptionKeyword, func(p *backlog.ExportRequestParams) error {
+			keywordOption: backlog.ExportNewQueryOption(backlog.ExportQueryKeyword, func(p *backlog.QueryParams) error {
 				return errors.New("error")
 			}),
 			wantError: true,
@@ -109,7 +111,7 @@ func TestWikiService_All_param(t *testing.T) {
 			defer bj.Close()
 
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       bj,
@@ -137,7 +139,7 @@ func TestWikiService_All_param_error(t *testing.T) {
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -156,7 +158,7 @@ func TestWikiService_All_param_error(t *testing.T) {
 func TestWikiService_All_clientError(t *testing.T) {
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -173,7 +175,7 @@ func TestWikiService_All_invaliedJson(t *testing.T) {
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -199,7 +201,7 @@ func TestWikiService_Count(t *testing.T) {
 	}
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Equal(t, want.projectKey, params.Get("projectIdOrKey"))
 
@@ -224,7 +226,7 @@ func TestWikiService_Count_param_error(t *testing.T) {
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -243,7 +245,7 @@ func TestWikiService_Count_param_error(t *testing.T) {
 func TestWikiService_Count_clientError(t *testing.T) {
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -261,7 +263,7 @@ func TestWikiService_Count_invaliedJson(t *testing.T) {
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -293,7 +295,7 @@ func TestWikiService_One(t *testing.T) {
 	}
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 
@@ -340,7 +342,7 @@ func TestWikiService_One_param(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       bj,
@@ -362,7 +364,7 @@ func TestWikiService_One_param(t *testing.T) {
 func TestWikiService_One_clientError(t *testing.T) {
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -380,7 +382,7 @@ func TestWikiService_One_invaliedJson(t *testing.T) {
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -433,7 +435,7 @@ func TestWikiService_Create(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wiki, err := s.Create(projectID, name, content, s.Option.WithMailNotify(true))
+	wiki, err := s.Create(projectID, name, content, s.Option.WithFormMailNotify(true))
 	assert.NoError(t, err)
 	assert.Equal(t, want.wikiID, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -559,7 +561,7 @@ func TestWikiService_Create_OptionError(t *testing.T) {
 			return resp, nil
 		},
 	})
-	errorOption := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
+	errorOption := backlog.ExportNewFormOption(backlog.ExportFormMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
 	})
 	wiki, err := s.Create(1, "name", "content", errorOption)
@@ -584,12 +586,12 @@ func TestWikiService_Create_invalidOption(t *testing.T) {
 			return resp, nil
 		},
 	})
-	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+	invalidOption := backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 		return nil
 	})
 	wiki, err := s.Create(1, "name", "content", invalidOption)
 	assert.Nil(t, wiki)
-	assert.IsType(t, &backlog.InvalidOptionError{}, err)
+	assert.IsType(t, &backlog.InvalidFormOptionError{}, err)
 }
 
 func TestWikiService_Update(t *testing.T) {
@@ -632,7 +634,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 	})
 	option := s.Option
-	wiki, err := s.Update(id, option.WithName(name), option.WithContent(content), option.WithMailNotify(true))
+	wiki, err := s.Update(id, option.WithFormName(name), option.WithFormContent(content), option.WithFormMailNotify(true))
 	assert.NoError(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 	assert.Equal(t, want.name, wiki.Name)
@@ -698,7 +700,7 @@ func TestWikiService_Update_param(t *testing.T) {
 				},
 			})
 			o := s.Option
-			if _, err := s.Update(tc.wikiID, o.WithName(tc.name), o.WithContent(tc.content)); tc.wantError {
+			if _, err := s.Update(tc.wikiID, o.WithFormName(tc.name), o.WithFormContent(tc.content)); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -714,7 +716,7 @@ func TestWikiService_Update_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.Update(1, s.Option.WithName("name"))
+	_, err := s.Update(1, s.Option.WithFormName("name"))
 	assert.Error(t, err)
 }
 
@@ -735,7 +737,7 @@ func TestWikiService_Update_invaliedJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wiki, err := s.Update(1, s.Option.WithName("name"))
+	wiki, err := s.Update(1, s.Option.WithFormName("name"))
 	assert.Nil(t, wiki)
 	assert.Error(t, err)
 }
@@ -779,12 +781,12 @@ func TestWikiService_Update_invalidOption(t *testing.T) {
 			return resp, nil
 		},
 	})
-	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+	invalidOption := backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 		return nil
 	})
 	wiki, err := s.Update(1, invalidOption)
 	assert.Nil(t, wiki)
-	assert.IsType(t, &backlog.InvalidOptionError{}, err)
+	assert.IsType(t, &backlog.InvalidFormOptionError{}, err)
 }
 
 func TestWikiService_Delete(t *testing.T) {
@@ -818,7 +820,7 @@ func TestWikiService_Delete(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wiki, err := s.Delete(id, s.Option.WithMailNotify(true))
+	wiki, err := s.Delete(id, s.Option.WithFormMailNotify(true))
 	assert.NoError(t, err)
 	assert.Equal(t, want.id, wiki.ID)
 }
@@ -922,7 +924,7 @@ func TestWikiService_Delete_option_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	errorOption := backlog.ExportNewWikiOption(backlog.ExportOptionMailNotify, func(p *backlog.ExportRequestParams) error {
+	errorOption := backlog.ExportNewFormOption(backlog.ExportFormMailNotify, func(p *backlog.ExportRequestParams) error {
 		return errors.New("error")
 	})
 	wiki, err := s.Delete(1, errorOption)
@@ -947,10 +949,10 @@ func TestWikiService_Delete_invalidOption(t *testing.T) {
 			return resp, nil
 		},
 	})
-	invalidOption := backlog.ExportNewWikiOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+	invalidOption := backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 		return nil
 	})
 	wiki, err := s.Delete(1, invalidOption)
 	assert.Nil(t, wiki)
-	assert.IsType(t, &backlog.InvalidOptionError{}, err)
+	assert.IsType(t, &backlog.InvalidFormOptionError{}, err)
 }
