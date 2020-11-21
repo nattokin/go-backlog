@@ -74,7 +74,7 @@ func main() {
 	// When agreement is obtained, update the name of the Wiki
 	if agree == "y" || agree == "Y" || agree == "yes" || agree == "Yes" {
 		for _, t := range targets {
-			c.Wiki.Update(t.wikiID, c.Wiki.Option.WithName(t.name))
+			c.Wiki.Update(t.wikiID, c.Wiki.Option.WithFormName(t.name))
 		}
 	} else {
 		fmt.Println("exit.")

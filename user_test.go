@@ -22,7 +22,7 @@ func TestUserService_One_getUser(t *testing.T) {
 	}
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, "users/1", spath)
 			assert.Nil(t, params)
 
@@ -55,7 +55,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	}
 	s := &backlog.ProjectUserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
 			assert.Equal(t, strconv.FormatBool(excludeGroupMembers), params.Get("excludeGroupMembers"))
 			resp := &http.Response{
@@ -168,7 +168,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	})
 	o := s.Option
 	user, err := s.Update(
-		id, o.WithPassword(password), o.WithName(name), o.WithMailAddress(mailAddress), o.WithRoleType(roleType),
+		id, o.WithFormPassword(password), o.WithFormName(name), o.WithFormMailAddress(mailAddress), o.WithFormRoleType(roleType),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -185,7 +185,7 @@ func TestUserService_All(t *testing.T) {
 	}
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			return nil, errors.New("error")
@@ -205,7 +205,7 @@ func TestUserService_All_invaliedJson(t *testing.T) {
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -253,7 +253,7 @@ func TestUserService_One(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := &backlog.UserService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Get must never be called")
 					} else {
@@ -276,7 +276,7 @@ func TestUserService_Own(t *testing.T) {
 	}
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			assert.Nil(t, params)
 			return nil, errors.New("error")
@@ -296,7 +296,7 @@ func TestUserService_Own_invaliedJson(t *testing.T) {
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -454,18 +454,18 @@ func TestUserService_Update_option(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		options   []*backlog.UserOption
+		options   []*backlog.FormOption
 		wantError bool
 		want      options
 	}{
 		"WithoutOption": {
-			options:   []*backlog.UserOption{},
+			options:   []*backlog.FormOption{},
 			wantError: false,
 			want:      options{},
 		},
 		"WithName": {
-			options: []*backlog.UserOption{
-				o.WithName("testname"),
+			options: []*backlog.FormOption{
+				o.WithFormName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -473,8 +473,8 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithPassword": {
-			options: []*backlog.UserOption{
-				o.WithPassword("testpasword"),
+			options: []*backlog.FormOption{
+				o.WithFormPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -482,8 +482,8 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithMailAddress": {
-			options: []*backlog.UserOption{
-				o.WithMailAddress("test@test.com"),
+			options: []*backlog.FormOption{
+				o.WithFormMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -491,8 +491,8 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithRoleType": {
-			options: []*backlog.UserOption{
-				o.WithRoleType(backlog.RoleAdministrator),
+			options: []*backlog.FormOption{
+				o.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -500,11 +500,11 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"MultiOptions": {
-			options: []*backlog.UserOption{
-				o.WithPassword("testpasword1"),
-				o.WithName("testname1"),
-				o.WithMailAddress("test1@test.com"),
-				o.WithRoleType(backlog.RoleAdministrator),
+			options: []*backlog.FormOption{
+				o.WithFormPassword("testpasword1"),
+				o.WithFormName("testname1"),
+				o.WithFormMailAddress("test1@test.com"),
+				o.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -515,15 +515,15 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.UserOption{
-				o.WithName(""),
+			options: []*backlog.FormOption{
+				o.WithFormName(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.UserOption{
-				backlog.ExportNewUserOption(backlog.ExportOptionType(0), func(p *backlog.ExportRequestParams) error {
+			options: []*backlog.FormOption{
+				backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},
@@ -703,7 +703,7 @@ func TestProjectUserService_All(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := &backlog.ProjectUserService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Get must never be called")
 					} else {
@@ -940,7 +940,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := &backlog.ProjectUserService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Get must never be called")
 					} else {

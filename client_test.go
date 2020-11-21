@@ -96,7 +96,7 @@ func TestNewClient_project(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	project, err := c.Project.Update(backlog.ProjectKey(key), c.Project.Option.WithArchived(false))
+	project, err := c.Project.Update(backlog.ProjectKey(key), c.Project.Option.WithFormName("test"))
 	assert.NoError(t, err)
 	assert.NotNil(t, project)
 	assert.Equal(t, key, project.ProjectKey)
@@ -151,7 +151,7 @@ func TestNewClient_projectActivity(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	activities, err := c.Project.Activity.List(backlog.ProjectKey(projectKey), c.Project.Activity.Option.WithCount(1))
+	activities, err := c.Project.Activity.List(backlog.ProjectKey(projectKey), c.Project.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
 	assert.NotNil(t, activities)
 	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
@@ -178,7 +178,7 @@ func TestNewClient_spaceActivity(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	activities, err := c.Space.Activity.List(c.Space.Activity.Option.WithCount(1))
+	activities, err := c.Space.Activity.List(c.Space.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
 	assert.NotNil(t, activities)
 	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
@@ -234,7 +234,7 @@ func TestNewClient_user(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	user, err := c.User.Update(userID, c.User.Option.WithName(userName))
+	user, err := c.User.Update(userID, c.User.Option.WithFormName(userName))
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, userName, user.Name)
@@ -261,7 +261,7 @@ func TestNewClient_userActivity(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	activities, err := c.User.Activity.List(userID, c.User.Activity.Option.WithCount(1))
+	activities, err := c.User.Activity.List(userID, c.User.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
 	assert.NotNil(t, activities)
 	assert.Equal(t, userID, activities[0].CreatedUser.ID)
@@ -290,7 +290,7 @@ func TestNewClient_wiki(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	wiki, err := c.Wiki.Create(projectID, name, content, c.Wiki.Option.WithMailNotify(false))
+	wiki, err := c.Wiki.Create(projectID, name, content, c.Wiki.Option.WithFormMailNotify(false))
 	assert.NoError(t, err)
 	assert.NotNil(t, wiki)
 	assert.Equal(t, name, wiki.Name)
@@ -303,56 +303,56 @@ func TestClient_NewReqest(t *testing.T) {
 	cases := map[string]struct {
 		method    string
 		spath     string
-		params    *backlog.ExportRequestParams
+		params    *backlog.QueryParams
 		body      io.Reader
 		wantError bool
 	}{
 		"method-get": {
 			method:    http.MethodGet,
 			spath:     "get",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: false,
 		},
 		"method-post": {
 			method:    http.MethodPost,
 			spath:     "post",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: false,
 		},
 		"method-patch": {
 			method:    http.MethodPatch,
 			spath:     "patch",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: false,
 		},
 		"method-delete": {
 			method:    http.MethodDelete,
 			spath:     "delete",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: false,
 		},
 		"method-empty": {
 			method:    "",
 			spath:     "nothing",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: false,
 		},
 		"method-eroor": {
 			method:    "@error",
 			spath:     "nothing",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: true,
 		},
 		"spath-empty": {
 			method:    http.MethodGet,
 			spath:     "",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      reader,
 			wantError: true,
 		},
@@ -366,7 +366,7 @@ func TestClient_NewReqest(t *testing.T) {
 		"body-empty": {
 			method:    http.MethodGet,
 			spath:     "test",
-			params:    backlog.ExportNewRequestParams(),
+			params:    backlog.NewQueryParams(),
 			body:      nil,
 			wantError: false,
 		},
@@ -437,7 +437,7 @@ func TestClient_Do(t *testing.T) {
 
 	req, _ := backlog.ExportClientNewReqest(
 		c, http.MethodGet, "test",
-		backlog.ExportNewRequestParams(),
+		backlog.NewQueryParams(),
 		bytes.NewReader([]byte("test")),
 	)
 
@@ -466,7 +466,7 @@ func TestClient_Do_httpClientError(t *testing.T) {
 
 	req, _ := backlog.ExportClientNewReqest(
 		c, http.MethodGet, "test",
-		backlog.ExportNewRequestParams(),
+		backlog.NewQueryParams(),
 		bytes.NewReader([]byte("test")),
 	)
 	_, err := backlog.ExportClientDo(c, req)
@@ -506,7 +506,7 @@ func TestClient_Do_errorResponse(t *testing.T) {
 
 	req, _ := backlog.ExportClientNewReqest(
 		c, http.MethodGet, "test",
-		backlog.ExportNewRequestParams(),
+		backlog.NewQueryParams(),
 		bytes.NewReader([]byte("test")),
 	)
 
@@ -546,7 +546,7 @@ func TestClient_Get(t *testing.T) {
 func TestClient_Get_newRequestError(t *testing.T) {
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientGet(c, "", backlog.ExportNewRequestParams())
+	_, err := backlog.ExportClientGet(c, "", backlog.NewQueryParams())
 	assert.Error(t, err)
 }
 

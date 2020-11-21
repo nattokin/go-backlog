@@ -41,27 +41,46 @@ func (e *APIResponseError) Error() string {
 	return strings.Join(msgs[:], "\n")
 }
 
-// InvalidOptionError is an invalid option error.
-type InvalidOptionError struct {
-	Invalid   optionType
-	ValidList []optionType
+// InvalidQueryOptionError is an invalid option error.
+type InvalidQueryOptionError struct {
+	Invalid   queryType
+	ValidList []queryType
 }
 
-func newInvalidOptionError(invalid optionType, validList []optionType) *InvalidOptionError {
-	return &InvalidOptionError{
+func newInvalidQueryOptionError(invalid queryType, validList []queryType) *InvalidQueryOptionError {
+	return &InvalidQueryOptionError{
 		Invalid:   invalid,
 		ValidList: validList,
 	}
 }
 
-func (e InvalidOptionError) validListString() string {
-	var types []string
-	for _, v := range e.ValidList {
-		types = append(types, v.String())
+func (e *InvalidQueryOptionError) Error() string {
+	types := make([]string, len(e.ValidList))
+	for k, v := range e.ValidList {
+		types[k] = v.Value()
 	}
-	return strings.Join(types, ",")
+
+	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }
 
-func (e *InvalidOptionError) Error() string {
-	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid, e.validListString())
+// InvalidFormOptionError is an invalid option error.
+type InvalidFormOptionError struct {
+	Invalid   formType
+	ValidList []formType
+}
+
+func newInvalidFormOptionError(invalid formType, validList []formType) *InvalidFormOptionError {
+	return &InvalidFormOptionError{
+		Invalid:   invalid,
+		ValidList: validList,
+	}
+}
+
+func (e *InvalidFormOptionError) Error() string {
+	types := make([]string, len(e.ValidList))
+	for k, v := range e.ValidList {
+		types[k] = v.Value()
+	}
+
+	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }

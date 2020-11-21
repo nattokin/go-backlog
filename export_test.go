@@ -6,32 +6,36 @@ import (
 )
 
 type (
-	ExportRole       = role
-	ExportOrder      = order
-	ExportFormat     = format
-	ExportOptionType = optionType
+	ExportRole      = role
+	ExportOrder     = order
+	ExportFormat    = format
+	ExportFormType  = formType
+	ExportQueryType = queryType
 )
 
 const (
-	ExportOptionActivityTypeIDs                   = optionActivityTypeIDs
-	ExportOptionAll                               = optionAll
-	ExportOptionArchived                          = optionArchived
-	ExportOptionChartEnabled                      = optionChartEnabled
-	ExportOptionContent                           = optionContent
-	ExportOptionCount                             = optionCount
-	ExportOptionKey                               = optionKey
-	ExportOptionKeyword                           = optionKeyword
-	ExportOptionName                              = optionName
-	ExportOptionMailAddress                       = optionMailAddress
-	ExportOptionMailNotify                        = optionMailNotify
-	ExportOptionMaxID                             = optionMaxID
-	ExportOptionMinID                             = optionMinID
-	ExportOptionOrder                             = optionOrder
-	ExportOptionPassword                          = optionPassword
-	ExportOptionProjectLeaderCanEditProjectLeader = optionProjectLeaderCanEditProjectLeader
-	ExportOptionRoleType                          = optionRoleType
-	ExportOptionSubtaskingEnabled                 = optionSubtaskingEnabled
-	ExportOptionTextFormattingRule                = optionTextFormattingRule
+	ExportQueryActivityTypeIDs = queryActivityTypeIDs
+	ExportQueryAll             = queryAll
+	ExportQueryArchived        = queryArchived
+	ExportQueryCount           = queryCount
+	ExportQueryKey             = queryKey
+	ExportQueryKeyword         = queryKeyword
+	ExportQueryOrder           = queryOrder
+)
+
+const (
+	ExportFormArchived                          = formArchived
+	ExportFormChartEnabled                      = formChartEnabled
+	ExportFormContent                           = formContent
+	ExportFormKey                               = formKey
+	ExportFormName                              = formName
+	ExportFormMailAddress                       = formMailAddress
+	ExportFormMailNotify                        = formMailNotify
+	ExportFormPassword                          = formPassword
+	ExportFormProjectLeaderCanEditProjectLeader = formProjectLeaderCanEditProjectLeader
+	ExportFormRoleType                          = formRoleType
+	ExportFormSubtaskingEnabled                 = formSubtaskingEnabled
+	ExportFormTextFormattingRule                = formTextFormattingRule
 )
 
 type (
@@ -51,10 +55,10 @@ var (
 )
 
 var (
-	ExportActivityOptionSet = (*ActivityOption).set
-	ExportProjectOptionSet  = (*ProjectOption).set
-	ExportUserOptionSet     = (*UserOption).set
-	ExportWikiOptionSet     = (*WikiOption).set
+	ExportQueryOptionSet      = (*QueryOption).set
+	ExportQueryOptionValidate = (*QueryOption).validate
+	ExportFormOptionSet       = (*FormOption).set
+	ExportFormOptionValidate  = (*FormOption).validate
 )
 
 var (
@@ -65,20 +69,14 @@ var (
 	ExportCopy             = copy
 )
 
-func ExportNewWikiOption(optionType optionType, optionFunc optionFunc) *WikiOption {
-	return &WikiOption{&option{optionType, optionFunc}}
+var ExportQueryParamsWithOptions = (*QueryParams).withOptions
+
+func ExportNewQueryOption(qType queryType, qFunc queryOptionFunc) *QueryOption {
+	return &QueryOption{qType, qFunc}
 }
 
-func ExportNewActivityOption(optionType optionType, optionFunc optionFunc) *ActivityOption {
-	return &ActivityOption{&option{optionType, optionFunc}}
-}
-
-func ExportNewProjectOption(optionType optionType, optionFunc optionFunc) *ProjectOption {
-	return &ProjectOption{&option{optionType, optionFunc}}
-}
-
-func ExportNewUserOption(optionType optionType, optionFunc optionFunc) *UserOption {
-	return &UserOption{&option{optionType, optionFunc}}
+func ExportNewFormOption(formType formType, fFunc formOptionType) *FormOption {
+	return &FormOption{formType, fFunc}
 }
 
 func (c *Client) ExportURL() *url.URL {

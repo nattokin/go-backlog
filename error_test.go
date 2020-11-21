@@ -38,14 +38,26 @@ func TestAPIResponseError_Error(t *testing.T) {
 	assert.Equal(t, want, e.Error())
 }
 
-func TestInvalidOptionError_Error(t *testing.T) {
-	e := &backlog.InvalidOptionError{
-		Invalid: backlog.ExportOptionActivityTypeIDs,
-		ValidList: []backlog.ExportOptionType{
-			backlog.ExportOptionActivityTypeIDs,
-			backlog.ExportOptionArchived,
-			backlog.ExportOptionChartEnabled,
+func TestInvalidFormOptionError_Error(t *testing.T) {
+	e := &backlog.InvalidFormOptionError{
+		Invalid: backlog.ExportFormKey,
+		ValidList: []backlog.ExportFormType{
+			backlog.ExportFormName,
+			backlog.ExportFormKey,
+			backlog.ExportFormChartEnabled,
 		},
 	}
-	assert.EqualError(t, e, "invalid option error. option:ActivityTypeIDs, allowd options:ActivityTypeIDs,Archived,ChartEnabled")
+	assert.EqualError(t, e, "invalid option error. option:key, allowd options:name,key,chartEnabled")
+}
+
+func TestInvalidQueryOptionError_Error(t *testing.T) {
+	e := &backlog.InvalidQueryOptionError{
+		Invalid: backlog.ExportQueryActivityTypeIDs,
+		ValidList: []backlog.ExportQueryType{
+			backlog.ExportQueryAll,
+			backlog.ExportQueryArchived,
+			backlog.ExportQueryOrder,
+		},
+	}
+	assert.EqualError(t, e, "invalid option error. option:activityTypeId[], allowd options:all,archived,order")
 }
