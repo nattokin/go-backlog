@@ -3,6 +3,7 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
+	"path"
 	"strconv"
 )
 
@@ -138,7 +139,7 @@ func (s *ProjectService) One(target ProjectIDOrKeyGetter) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	spath := "projects/" + projectIDOrKey
+	spath := path.Join("projects", projectIDOrKey)
 	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
@@ -239,7 +240,7 @@ func (s *ProjectService) Update(target ProjectIDOrKeyGetter, options ...*FormOpt
 		}
 	}
 
-	spath := "projects/" + projectIDOrKey
+	spath := path.Join("projects", projectIDOrKey)
 	resp, err := s.method.Patch(spath, params)
 	if err != nil {
 		return nil, err
@@ -262,7 +263,7 @@ func (s *ProjectService) Delete(target ProjectIDOrKeyGetter) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	spath := "projects/" + projectIDOrKey
+	spath := path.Join("projects", projectIDOrKey)
 	resp, err := s.method.Delete(spath, NewFormParams())
 	if err != nil {
 		return nil, err
@@ -285,7 +286,7 @@ func (s *ProjectService) Delete(target ProjectIDOrKeyGetter) (*Project, error) {
 // 	if err != nil {
 // 		return nil, err
 // 	}
-// 	spath := "projects/" + projectIDOrKey + "/image"
+// 	spath := path.Join("projects", projectIDOrKey, "image")
 // 	resp, err := s.method.Get(spath, nil)
 // 	if err != nil {
 // 		return nil, err

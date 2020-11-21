@@ -3,6 +3,7 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
+	"path"
 	"strconv"
 )
 
@@ -60,7 +61,7 @@ func (s *ProjectActivityService) List(target ProjectIDOrKeyGetter, options ...*Q
 		return nil, err
 	}
 
-	spath := "projects/" + projectIDOrKey + "/activities"
+	spath := path.Join("projects", projectIDOrKey, "activities")
 	return getActivityList(s.method.Get, spath, options...)
 }
 
@@ -84,8 +85,7 @@ type SpaceActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...*QueryOption) ([]*Activity, error) {
-	spath := "space/activities"
-	return getActivityList(s.method.Get, spath, options...)
+	return getActivityList(s.method.Get, "space/activities", options...)
 }
 
 // UserActivityService has methods for user activitys.
@@ -112,6 +112,6 @@ func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Acti
 		return nil, errors.New("userID must be greater than 1")
 	}
 
-	spath := "users/" + strconv.Itoa(userID) + "/activities"
+	spath := path.Join("users", strconv.Itoa(userID), "activities")
 	return getActivityList(s.method.Get, spath, options...)
 }

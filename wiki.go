@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path"
 	"strconv"
 )
 
@@ -92,7 +93,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 		return nil, fmt.Errorf("wikiID must not be less than 1")
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID)
+	spath := path.Join("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
@@ -190,7 +191,7 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID)
+	spath := path.Join("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Patch(spath, params)
 	if err != nil {
 		return nil, err
@@ -232,7 +233,7 @@ func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	spath := "wikis/" + strconv.Itoa(wikiID)
+	spath := path.Join("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Delete(spath, params)
 	if err != nil {
 		return nil, err
