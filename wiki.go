@@ -10,15 +10,15 @@ import (
 // WikiID is ID of Wiki.
 type WikiID int
 
-func (id WikiID) validate() error {
-	if id < 1 {
+func (i WikiID) validate() error {
+	if i < 1 {
 		return errors.New("wikiID must not be less than 1")
 	}
 	return nil
 }
 
-func (id WikiID) String() string {
-	return strconv.Itoa(int(id))
+func (i WikiID) String() string {
+	return strconv.Itoa(int(i))
 }
 
 // WikiService has methods for Wiki.

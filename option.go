@@ -112,7 +112,7 @@ func withQueryKeyword(keyword string) *QueryOption {
 func withQueryMaxID(maxID int) *QueryOption {
 	return &QueryOption{queryMaxID, func(query *QueryParams) error {
 		if maxID < 1 {
-			return errors.New("maxId must be greater than 1")
+			return errors.New("maxId must not be less than 1")
 		}
 		query.Set(queryMaxID.Value(), strconv.Itoa(maxID))
 		return nil
@@ -122,7 +122,7 @@ func withQueryMaxID(maxID int) *QueryOption {
 func withQueryMinID(minID int) *QueryOption {
 	return &QueryOption{queryMinID, func(query *QueryParams) error {
 		if minID < 1 {
-			return errors.New("minId must be greater than 1")
+			return errors.New("minId must not be less than 1")
 		}
 		query.Set(queryMinID.Value(), strconv.Itoa(minID))
 		return nil
@@ -288,7 +288,7 @@ func withFormRoleType(roleType role) *FormOption {
 		if roleType < 1 || 6 < roleType {
 			return errors.New("roleType must be between 1 and 7")
 		}
-		form.Add(formRoleType.Value(), strconv.Itoa(int(roleType)))
+		form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
 		return nil
 	}}
 }
