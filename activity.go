@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"encoding/json"
-	"errors"
 	"path"
 	"strconv"
 )
@@ -108,8 +107,9 @@ type UserActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Activity, error) {
-	if userID < 1 {
-		return nil, errors.New("userID must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
