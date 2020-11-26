@@ -137,7 +137,7 @@ func (s *UserService) Own() (*User, error) {
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(userID, password, name, mailAddress string, roleType role) (*User, error) {
+func (s *UserService) Add(userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	if userID == "" {
 		return nil, errors.New("userID must not be empty")
 	}
@@ -156,7 +156,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 		return nil, err
 	}
 
-	form.Add("userId", userID)
+	form.Set("userId", userID)
 
 	return addUser(s.method.Post, "users", form)
 }
@@ -225,7 +225,7 @@ func (s *ProjectUserService) All(project ProjectIDOrKeyGetter, excludeGroupMembe
 	}
 
 	query := NewQueryParams()
-	query.Add("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
+	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return getUserList(s.method.Get, spath, query)
@@ -245,7 +245,7 @@ func (s *ProjectUserService) Add(project ProjectIDOrKeyGetter, userID int) (*Use
 	}
 
 	form := NewFormParams()
-	form.Add("userId", uID.String())
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return addUser(s.method.Post, spath, form)
@@ -265,7 +265,7 @@ func (s *ProjectUserService) Delete(project ProjectIDOrKeyGetter, userID int) (*
 	}
 
 	form := NewFormParams()
-	form.Add("userId", uID.String())
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return deleteUser(s.method.Delete, spath, form)
@@ -285,7 +285,7 @@ func (s *ProjectUserService) AddAdmin(project ProjectIDOrKeyGetter, userID int) 
 	}
 
 	form := NewFormParams()
-	form.Add("userId", uID.String())
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return addUser(s.method.Post, spath, form)
@@ -318,7 +318,7 @@ func (s *ProjectUserService) DeleteAdmin(project ProjectIDOrKeyGetter, userID in
 	}
 
 	form := NewFormParams()
-	form.Add("userId", uID.String())
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return deleteUser(s.method.Delete, spath, form)

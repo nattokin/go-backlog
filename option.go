@@ -129,7 +129,7 @@ func withQueryMinID(minID int) *QueryOption {
 	}}
 }
 
-func withQueryOrder(order order) *QueryOption {
+func withQueryOrder(order Order) *QueryOption {
 	return &QueryOption{queryOrder, func(query *QueryParams) error {
 		if order != OrderAsc && order != OrderDesc {
 			return fmt.Errorf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
@@ -179,7 +179,7 @@ func (s *QueryOptionService) WithMinID(minID int) *QueryOption {
 }
 
 // WithOrder returns option to set `order`.
-func (s *QueryOptionService) WithOrder(order order) *QueryOption {
+func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 	return withQueryOrder(order)
 }
 
@@ -283,10 +283,10 @@ func withFormProjectLeaderCanEditProjectLeader(enabeld bool) *FormOption {
 	}}
 }
 
-func withFormRoleType(roleType role) *FormOption {
+func withFormRoleType(roleType Role) *FormOption {
 	return &FormOption{formRoleType, func(form *FormParams) error {
 		if roleType < 1 || 6 < roleType {
-			return errors.New("roleType must be between 1 and 7")
+			return errors.New("roleType must be between 1 and 6")
 		}
 		form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
 		return nil
@@ -300,7 +300,7 @@ func withFormSubtaskingEnabled(enabeld bool) *FormOption {
 	}}
 }
 
-func withFormTextFormattingRule(format format) *FormOption {
+func withFormTextFormattingRule(format Format) *FormOption {
 	return &FormOption{formTextFormattingRule, func(form *FormParams) error {
 		if format != FormatBacklog && format != FormatMarkdown {
 			return fmt.Errorf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
@@ -335,7 +335,7 @@ func (*ActivityOptionService) WithQueryCount(count int) *QueryOption {
 }
 
 // WithQueryOrder returns option to set `order` for user.
-func (*ActivityOptionService) WithQueryOrder(order order) *QueryOption {
+func (*ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
 	return withQueryOrder(order)
 }
 
@@ -379,7 +379,7 @@ func (*ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabeld b
 }
 
 // WithFormTextFormattingRule returns option to set `textFormattingRule` for project.
-func (*ProjectOptionService) WithFormTextFormattingRule(format format) *FormOption {
+func (*ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOption {
 	return withFormTextFormattingRule(format)
 }
 
@@ -408,7 +408,7 @@ func (*UserOptionService) WithFormMailAddress(mailAddress string) *FormOption {
 }
 
 // WithFormRoleType returns option to set `roleType` for user.
-func (*UserOptionService) WithFormRoleType(roleType role) *FormOption {
+func (*UserOptionService) WithFormRoleType(roleType Role) *FormOption {
 	return withFormRoleType(roleType)
 }
 

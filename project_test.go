@@ -823,7 +823,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		chartEnabled                      string
 		subtaskingEnabled                 string
 		projectLeaderCanEditProjectLeader string
-		textFormattingRule                backlog.ExportFormat
+		textFormattingRule                backlog.Format
 		archived                          string
 	}
 	cases := map[string]struct {

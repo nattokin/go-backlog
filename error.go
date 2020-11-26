@@ -60,7 +60,7 @@ func (e *InvalidQueryOptionError) Error() string {
 		types[k] = v.Value()
 	}
 
-	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
+	return fmt.Sprintf("invalid option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }
 
 // InvalidFormOptionError is an invalid option error.
@@ -82,5 +82,5 @@ func (e *InvalidFormOptionError) Error() string {
 		types[k] = v.Value()
 	}
 
-	return fmt.Sprintf("invalid option error. option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
+	return fmt.Sprintf("invalid option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }

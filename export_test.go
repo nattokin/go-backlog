@@ -6,9 +6,6 @@ import (
 )
 
 type (
-	ExportRole      = role
-	ExportOrder     = order
-	ExportFormat    = format
 	ExportFormType  = formType
 	ExportQueryType = queryType
 )

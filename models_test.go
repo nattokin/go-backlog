@@ -9,7 +9,7 @@ import (
 
 func TestFormat_String(t *testing.T) {
 	cases := map[string]struct {
-		format backlog.ExportFormat
+		format backlog.Format
 		want   string
 	}{
 		"Markdown": {
@@ -21,7 +21,7 @@ func TestFormat_String(t *testing.T) {
 			want:   "Backlog",
 		},
 		"unknown": {
-			format: backlog.ExportFormat("test"),
+			format: backlog.Format("test"),
 			want:   "unknown",
 		},
 	}
@@ -35,7 +35,7 @@ func TestFormat_String(t *testing.T) {
 
 func TestOrder_String(t *testing.T) {
 	cases := map[string]struct {
-		format backlog.ExportOrder
+		format backlog.Order
 		want   string
 	}{
 		"Markdown": {
@@ -47,7 +47,7 @@ func TestOrder_String(t *testing.T) {
 			want:   "Desc",
 		},
 		"unknown": {
-			format: backlog.ExportOrder("test"),
+			format: backlog.Order("test"),
 			want:   "unknown",
 		},
 	}
@@ -61,7 +61,7 @@ func TestOrder_String(t *testing.T) {
 
 func TestRole_String(t *testing.T) {
 	cases := map[string]struct {
-		roleType backlog.ExportRole
+		roleType backlog.Role
 		want     string
 	}{
 		"Administrator": {
@@ -89,7 +89,7 @@ func TestRole_String(t *testing.T) {
 			want:     "GuestViewer",
 		},
 		"unknown": {
-			roleType: backlog.ExportRole(0),
+			roleType: backlog.Role(0),
 			want:     "unknown",
 		},
 	}
