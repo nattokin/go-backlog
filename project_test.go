@@ -28,7 +28,7 @@ func TestProjectService_All(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -87,7 +87,7 @@ func TestProjectService_All_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(backlog.ExportQueryType(0), func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(0, func(p *backlog.QueryParams) error {
 					return nil
 				}),
 			},
@@ -106,9 +106,9 @@ func TestProjectService_All_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.all, params.Get("all"))
-					assert.Equal(t, tc.want.archived, params.Get("archived"))
+				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.all, query.Get("all"))
+					assert.Equal(t, tc.want.archived, query.Get("archived"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -145,10 +145,10 @@ func TestProjectService_AdminAll(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
+			assert.Equal(t, want.all, query.Get("all"))
+			assert.Equal(t, want.archived, query.Get("archived"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -219,9 +219,9 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.all, params.Get("all"))
-					assert.Equal(t, tc.want.archived, params.Get("archived"))
+				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.all, query.Get("all"))
+					assert.Equal(t, tc.want.archived, query.Get("archived"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -257,9 +257,9 @@ func TestProjectService_AllArchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.archived, params.Get("archived"))
+			assert.Equal(t, want.archived, query.Get("archived"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -292,10 +292,10 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
+			assert.Equal(t, want.all, query.Get("all"))
+			assert.Equal(t, want.archived, query.Get("archived"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -327,9 +327,9 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.archived, params.Get("archived"))
+			assert.Equal(t, want.archived, query.Get("archived"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -362,10 +362,10 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, params.Get("all"))
-			assert.Equal(t, want.archived, params.Get("archived"))
+			assert.Equal(t, want.all, query.Get("all"))
+			assert.Equal(t, want.archived, query.Get("archived"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -383,7 +383,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 func TestProjectService_All_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -410,9 +410,9 @@ func TestProjectService_One_key(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, params)
+			assert.Nil(t, query)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -445,9 +445,9 @@ func TestProjectService_One_id(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, params)
+			assert.Nil(t, query)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -470,7 +470,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -486,7 +486,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 func TestProjectService_One_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -503,7 +503,7 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, params *backlog.QueryParams) (*http.Response, error) {
+		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -537,11 +537,11 @@ func TestProjectService_Create(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, params)
-			assert.Equal(t, want.key, params.Get("key"))
-			assert.Equal(t, want.name, params.Get("name"))
+			assert.NotNil(t, form)
+			assert.Equal(t, want.key, form.Get("key"))
+			assert.Equal(t, want.name, form.Get("name"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -588,9 +588,9 @@ func TestProjectService_Create_param(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-					assert.Equal(t, tc.key, params.Get("key"))
-					assert.Equal(t, tc.name, params.Get("name"))
+				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+					assert.Equal(t, tc.key, form.Get("key"))
+					assert.Equal(t, tc.name, form.Get("name"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -656,7 +656,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},
@@ -675,11 +675,11 @@ func TestProjectService_Create_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
-					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
-					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
+				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
+					assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
+					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
+					assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -701,7 +701,7 @@ func TestProjectService_Create_option(t *testing.T) {
 func TestProjectService_Create_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -718,7 +718,7 @@ func TestProjectService_Create_invalidJson(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -749,9 +749,9 @@ func TestProjectService_Update(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, params)
+			assert.NotNil(t, form)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -797,7 +797,7 @@ func TestProjectService_Update_param(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       bj,
@@ -823,7 +823,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		chartEnabled                      string
 		subtaskingEnabled                 string
 		projectLeaderCanEditProjectLeader string
-		textFormattingRule                backlog.ExportFormat
+		textFormattingRule                backlog.Format
 		archived                          string
 	}
 	cases := map[string]struct {
@@ -867,7 +867,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(backlog.ExportFormType(0), func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},
@@ -886,14 +886,14 @@ func TestProjectService_Update_option(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.key, params.Get("key"))
-					assert.Equal(t, tc.want.name, params.Get("name"))
-					assert.Equal(t, tc.want.chartEnabled, params.Get("chartEnabled"))
-					assert.Equal(t, tc.want.subtaskingEnabled, params.Get("subtaskingEnabled"))
-					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, params.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, string(tc.want.textFormattingRule), params.Get("textFormattingRule"))
-					assert.Equal(t, tc.want.archived, params.Get("archived"))
+				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+					assert.Equal(t, tc.want.key, form.Get("key"))
+					assert.Equal(t, tc.want.name, form.Get("name"))
+					assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
+					assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
+					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
+					assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
+					assert.Equal(t, tc.want.archived, form.Get("archived"))
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
@@ -915,7 +915,7 @@ func TestProjectService_Update_option(t *testing.T) {
 func TestProjectService_Update_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -932,7 +932,7 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -979,7 +979,7 @@ func TestProjectService_Delete_param(t *testing.T) {
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       bj,
@@ -1014,9 +1014,9 @@ func TestProjectService_Delete(t *testing.T) {
 	}
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, params)
+			assert.NotNil(t, form)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,
@@ -1032,7 +1032,7 @@ func TestProjectService_Delete(t *testing.T) {
 func TestProjectService_Delete_clientError(t *testing.T) {
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
@@ -1049,7 +1049,7 @@ func TestProjectService_Delete_invalidJson(t *testing.T) {
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, params *backlog.ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       bj,

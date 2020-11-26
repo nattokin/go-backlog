@@ -7,6 +7,20 @@ import (
 	"strconv"
 )
 
+// UserID is ID of user.
+type UserID int
+
+func (id UserID) validate() error {
+	if id < 1 {
+		return errors.New("userID must not be less than 1")
+	}
+	return nil
+}
+
+func (id UserID) String() string {
+	return strconv.Itoa(int(id))
+}
+
 func getUser(get clientGet, spath string) (*User, error) {
 	resp, err := get(spath, nil)
 	if err != nil {
@@ -22,8 +36,8 @@ func getUser(get clientGet, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(get clientGet, spath string, params *QueryParams) ([]*User, error) {
-	resp, err := get(spath, params)
+func getUserList(get clientGet, spath string, query *QueryParams) ([]*User, error) {
+	resp, err := get(spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +51,8 @@ func getUserList(get clientGet, spath string, params *QueryParams) ([]*User, err
 	return v, nil
 }
 
-func addUser(post clientPost, spath string, params *FormParams) (*User, error) {
-	resp, err := post(spath, params)
+func addUser(post clientPost, spath string, form *FormParams) (*User, error) {
+	resp, err := post(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +66,8 @@ func addUser(post clientPost, spath string, params *FormParams) (*User, error) {
 	return &v, nil
 }
 
-func updateUser(patch clientPatch, spath string, params *FormParams) (*User, error) {
-	resp, err := patch(spath, params)
+func updateUser(patch clientPatch, spath string, form *FormParams) (*User, error) {
+	resp, err := patch(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +81,8 @@ func updateUser(patch clientPatch, spath string, params *FormParams) (*User, err
 	return &v, nil
 }
 
-func deleteUser(delete clientDelete, spath string, params *FormParams) (*User, error) {
-	resp, err := delete(spath, params)
+func deleteUser(delete clientDelete, spath string, form *FormParams) (*User, error) {
+	resp, err := delete(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +115,12 @@ func (s *UserService) All() ([]*User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
 func (s *UserService) One(id int) (*User, error) {
-	if id < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(id)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := path.Join("users", uID.String())
 	return getUser(s.method.Get, spath)
 }
 
@@ -122,28 +137,28 @@ func (s *UserService) Own() (*User, error) {
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(userID, password, name, mailAddress string, roleType role) (*User, error) {
+func (s *UserService) Add(userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	if userID == "" {
 		return nil, errors.New("userID must not be empty")
 	}
-	if password == "" {
-		return nil, errors.New("password must not be empty")
+
+	form := NewFormParams()
+	if err := withFormPassword(password).set(form); err != nil {
+		return nil, err
 	}
-	if name == "" {
-		return nil, errors.New("name must not be empty")
+	if err := withFormName(name).set(form); err != nil {
+		return nil, err
 	}
-	if mailAddress == "" {
-		return nil, errors.New("mailAddress must not be empty")
+	if err := withFormMailAddress(mailAddress).set(form); err != nil {
+		return nil, err
+	}
+	if err := withFormRoleType(roleType).set(form); err != nil {
+		return nil, err
 	}
 
-	params := NewFormParams()
-	params.Add("userId", userID)
-	params.Add("password", password)
-	params.Add("name", name)
-	params.Add("mailAddress", mailAddress)
-	params.Add("roleType", strconv.Itoa(int(roleType)))
+	form.Set("userId", userID)
 
-	return addUser(s.method.Post, "users", params)
+	return addUser(s.method.Post, "users", form)
 }
 
 // Update updates a user in your space.
@@ -158,11 +173,12 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType r
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
-	if id < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(id)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := path.Join("users", uID.String())
 
 	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
 	for _, option := range options {
@@ -171,25 +187,26 @@ func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 		}
 	}
 
-	params := NewFormParams()
+	form := NewFormParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(form); err != nil {
 			return nil, err
 		}
 	}
 
-	return updateUser(s.method.Patch, spath, params)
+	return updateUser(s.method.Patch, spath, form)
 }
 
 // Delete deletes a user from your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
 func (s *UserService) Delete(id int) (*User, error) {
-	if id < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(id)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := path.Join("users", uID.String())
 	return deleteUser(s.method.Delete, spath, nil)
 }
 
@@ -201,81 +218,84 @@ type ProjectUserService struct {
 // All returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(target ProjectIDOrKeyGetter, excludeGroupMembers bool) ([]*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) All(project ProjectIDOrKeyGetter, excludeGroupMembers bool) ([]*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
 
-	params := NewQueryParams()
-	params.Add("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
+	query := NewQueryParams()
+	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return getUserList(s.method.Get, spath, params)
+	return getUserList(s.method.Get, spath, query)
 }
 
 // Add adds a user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
-func (s *ProjectUserService) Add(target ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) Add(project ProjectIDOrKeyGetter, userID int) (*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
-	if userID < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	params := NewFormParams()
-	params.Add("userId", strconv.Itoa(userID))
+	form := NewFormParams()
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return addUser(s.method.Post, spath, params)
+	return addUser(s.method.Post, spath, form)
 }
 
 // Delete deletes a user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
-func (s *ProjectUserService) Delete(target ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) Delete(project ProjectIDOrKeyGetter, userID int) (*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
-	if userID < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	params := NewFormParams()
-	params.Add("userId", strconv.Itoa(userID))
+	form := NewFormParams()
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return deleteUser(s.method.Delete, spath, params)
+	return deleteUser(s.method.Delete, spath, form)
 }
 
 // AddAdmin adds a admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
-func (s *ProjectUserService) AddAdmin(target ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) AddAdmin(project ProjectIDOrKeyGetter, userID int) (*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
-	if userID < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	params := NewFormParams()
-	params.Add("userId", strconv.Itoa(userID))
+	form := NewFormParams()
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return addUser(s.method.Post, spath, params)
+	return addUser(s.method.Post, spath, form)
 }
 
 // AdminAll returns all of admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
-func (s *ProjectUserService) AdminAll(target ProjectIDOrKeyGetter) ([]*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) AdminAll(project ProjectIDOrKeyGetter) ([]*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
@@ -287,18 +307,19 @@ func (s *ProjectUserService) AdminAll(target ProjectIDOrKeyGetter) ([]*User, err
 // DeleteAdmin deletes a admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
-func (s *ProjectUserService) DeleteAdmin(target ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectUserService) DeleteAdmin(project ProjectIDOrKeyGetter, userID int) (*User, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
-	if userID < 1 {
-		return nil, errors.New("id must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
-	params := NewFormParams()
-	params.Add("userId", strconv.Itoa(userID))
+	form := NewFormParams()
+	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return deleteUser(s.method.Delete, spath, params)
+	return deleteUser(s.method.Delete, spath, form)
 }

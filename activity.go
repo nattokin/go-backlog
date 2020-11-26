@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"encoding/json"
-	"errors"
 	"path"
 	"strconv"
 )
@@ -15,14 +14,14 @@ func getActivityList(get clientGet, spath string, options ...*QueryOption) ([]*A
 		}
 	}
 
-	params := NewQueryParams()
+	query := NewQueryParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(query); err != nil {
 			return nil, err
 		}
 	}
 
-	resp, err := get(spath, params)
+	resp, err := get(spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ type ProjectActivityService struct {
 //   WithQueryOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(target ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Activity, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *ProjectActivityService) List(project ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Activity, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +107,9 @@ type UserActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Activity, error) {
-	if userID < 1 {
-		return nil, errors.New("userID must be greater than 1")
+	uID := UserID(userID)
+	if err := uID.validate(); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")

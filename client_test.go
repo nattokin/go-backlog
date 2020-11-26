@@ -627,10 +627,10 @@ func TestClient_Patch(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	params := backlog.NewFormParams()
-	params.Set("key", "value")
+	form := backlog.NewFormParams()
+	form.Set("key", "value")
 
-	res, _ := backlog.ExportClientPatch(c, spath, params)
+	res, _ := backlog.ExportClientPatch(c, spath, form)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
@@ -687,10 +687,10 @@ func TestClient_Delete(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	params := backlog.NewFormParams()
-	params.Set("key", "value")
+	form := backlog.NewFormParams()
+	form.Set("key", "value")
 
-	res, _ := backlog.ExportClientDelete(c, spath, params)
+	res, _ := backlog.ExportClientDelete(c, spath, form)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
