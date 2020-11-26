@@ -47,7 +47,7 @@ func TestInvalidFormOptionError_Error(t *testing.T) {
 			backlog.ExportFormChartEnabled,
 		},
 	}
-	assert.EqualError(t, e, "invalid option error. option:key, allowd options:name,key,chartEnabled")
+	assert.EqualError(t, e, "invalid option:key, allowd options:name,key,chartEnabled")
 }
 
 func TestInvalidQueryOptionError_Error(t *testing.T) {
@@ -59,5 +59,5 @@ func TestInvalidQueryOptionError_Error(t *testing.T) {
 			backlog.ExportQueryOrder,
 		},
 	}
-	assert.EqualError(t, e, "invalid option error. option:activityTypeId[], allowd options:all,archived,order")
+	assert.EqualError(t, e, "invalid option:activityTypeId[], allowd options:all,archived,order")
 }

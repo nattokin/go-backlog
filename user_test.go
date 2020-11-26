@@ -316,7 +316,7 @@ func TestUserService_Add(t *testing.T) {
 		password    string
 		name        string
 		mailAddress string
-		roleType    backlog.ExportRole
+		roleType    backlog.Role
 		wantError   bool
 	}{
 		"no_error": {

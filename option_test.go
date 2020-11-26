@@ -300,7 +300,7 @@ func TestQueryOptionService_WithOrder(t *testing.T) {
 	o := backlog.QueryOptionService{}
 
 	cases := map[string]struct {
-		order     backlog.ExportOrder
+		order     backlog.Order
 		wantError bool
 	}{
 		"asc": {
@@ -535,7 +535,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 	o := backlog.ActivityOptionService{}
 
 	cases := map[string]struct {
-		order     backlog.ExportOrder
+		order     backlog.Order
 		wantError bool
 	}{
 		"asc": {
@@ -739,7 +739,7 @@ func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 	o := backlog.ProjectOptionService{}
 
 	cases := map[string]struct {
-		format    backlog.ExportFormat
+		format    backlog.Format
 		wantError bool
 	}{
 		"backlog": {
@@ -917,7 +917,7 @@ func TestUserOptionService_WithFormRoleType(t *testing.T) {
 	o := backlog.UserOptionService{}
 
 	cases := map[string]struct {
-		roleType  backlog.ExportRole
+		roleType  backlog.Role
 		want      string
 		wantError bool
 	}{
