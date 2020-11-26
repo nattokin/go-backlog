@@ -206,7 +206,7 @@ type Project struct {
 	ChartEnabled                      bool   `json:"chartEnabled,omitempty"`
 	SubtaskingEnabled                 bool   `json:"subtaskingEnabled,omitempty"`
 	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
-	TextFormattingRule                format `json:"textFormattingRule,omitempty"`
+	TextFormattingRule                Format `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
@@ -279,7 +279,7 @@ type Space struct {
 	Lang               string    `json:"lang,omitempty"`
 	Timezone           string    `json:"timezone,omitempty"`
 	ReportSendTime     string    `json:"reportSendTime,omitempty"`
-	TextFormattingRule format    `json:"textFormattingRule,omitempty"`
+	TextFormattingRule Format    `json:"textFormattingRule,omitempty"`
 	Created            time.Time `json:"created,omitempty"`
 	Updated            time.Time `json:"updated,omitempty"`
 }
@@ -329,7 +329,7 @@ type User struct {
 	ID          int    `json:"id,omitempty"`
 	UserID      string `json:"userId,omitempty"`
 	Name        string `json:"name,omitempty"`
-	RoleType    role   `json:"roleType,omitempty"`
+	RoleType    Role   `json:"roleType,omitempty"`
 	Lang        string `json:"lang,omitempty"`
 	MailAddress string `json:"mailAddress,omitempty"`
 }
@@ -398,9 +398,10 @@ type WikiHistory struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
-type format string
+// Format of Backlog wiki.
+type Format string
 
-func (f format) String() string {
+func (f Format) String() string {
 	switch f {
 	case FormatMarkdown:
 		return "Markdown"
@@ -411,9 +412,10 @@ func (f format) String() string {
 	}
 }
 
-type order string
+// Order type.
+type Order string
 
-func (o order) String() string {
+func (o Order) String() string {
 	switch o {
 	case OrderAsc:
 		return "Asc"
@@ -424,9 +426,10 @@ func (o order) String() string {
 	}
 }
 
-type role int
+// Role type.
+type Role int
 
-func (r role) String() string {
+func (r Role) String() string {
 	switch r {
 	case RoleAdministrator:
 		return "Administrator"

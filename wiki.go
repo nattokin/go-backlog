@@ -3,10 +3,23 @@ package backlog
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path"
 	"strconv"
 )
+
+// WikiID is ID of Wiki.
+type WikiID int
+
+func (i WikiID) validate() error {
+	if i < 1 {
+		return errors.New("wikiID must not be less than 1")
+	}
+	return nil
+}
+
+func (i WikiID) String() string {
+	return strconv.Itoa(int(i))
+}
 
 // WikiService has methods for Wiki.
 type WikiService struct {
@@ -24,8 +37,8 @@ type WikiService struct {
 //   WithQueryKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Wiki, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *WikiService) All(project ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Wiki, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return nil, err
 	}
@@ -37,15 +50,15 @@ func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*QueryOption) 
 		}
 	}
 
-	params := NewQueryParams()
+	query := NewQueryParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(query); err != nil {
 			return nil, err
 		}
 	}
-	params.Set("projectIdOrKey", projectIDOrKey)
+	query.Set("projectIdOrKey", projectIDOrKey)
 
-	resp, err := s.method.Get("wikis", params)
+	resp, err := s.method.Get("wikis", query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,16 +75,16 @@ func (s *WikiService) All(target ProjectIDOrKeyGetter, options ...*QueryOption) 
 // Count returns the number of wikis in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
-func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
-	projectIDOrKey, err := target.getProjectIDOrKey()
+func (s *WikiService) Count(project ProjectIDOrKeyGetter) (int, error) {
+	projectIDOrKey, err := project.getProjectIDOrKey()
 	if err != nil {
 		return 0, err
 	}
 
-	params := NewQueryParams()
-	params.Set("projectIdOrKey", projectIDOrKey)
+	query := NewQueryParams()
+	query.Set("projectIdOrKey", projectIDOrKey)
 
-	resp, err := s.method.Get("wikis/count", params)
+	resp, err := s.method.Get("wikis/count", query)
 	if err != nil {
 		return 0, err
 	}
@@ -89,11 +102,12 @@ func (s *WikiService) Count(target ProjectIDOrKeyGetter) (int, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
-	if wikiID < 1 {
-		return nil, fmt.Errorf("wikiID must not be less than 1")
+	wID := WikiID(wikiID)
+	if err := wID.validate(); err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID))
+	spath := path.Join("wikis", wID.String())
 	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
@@ -117,14 +131,17 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
-	if projectID < 1 {
-		return nil, fmt.Errorf("projectID must not be less than 1")
+	pID := ProjectID(projectID)
+	if err := pID.validate(); err != nil {
+		return nil, err
 	}
-	if name == "" {
-		return nil, errors.New("name must not be empty")
+
+	form := NewFormParams()
+	if err := withFormName(name).set(form); err != nil {
+		return nil, err
 	}
-	if content == "" {
-		return nil, errors.New("content must not be empty")
+	if err := withFormContent(content).set(form); err != nil {
+		return nil, err
 	}
 
 	validOptions := []formType{formMailNotify}
@@ -134,17 +151,14 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 		}
 	}
 
-	params := NewFormParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(form); err != nil {
 			return nil, err
 		}
 	}
-	params.Set("projectId", strconv.Itoa(projectID))
-	params.Set("name", name)
-	params.Set("content", content)
+	form.Set("projectId", pID.String())
 
-	resp, err := s.method.Post("wikis", params)
+	resp, err := s.method.Post("wikis", form)
 	if err != nil {
 		return nil, err
 	}
@@ -169,8 +183,9 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) {
-	if wikiID < 1 {
-		return nil, fmt.Errorf("wikiID must not be less than 1")
+	wID := WikiID(wikiID)
+	if err := wID.validate(); err != nil {
+		return nil, err
 	}
 
 	if options == nil {
@@ -184,15 +199,15 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	params := NewFormParams()
+	form := NewFormParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(form); err != nil {
 			return nil, err
 		}
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
-	resp, err := s.method.Patch(spath, params)
+	resp, err := s.method.Patch(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -215,8 +230,9 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) {
-	if wikiID < 1 {
-		return nil, fmt.Errorf("wikiID must not be less than 1")
+	wID := WikiID(wikiID)
+	if err := wID.validate(); err != nil {
+		return nil, err
 	}
 
 	validOptions := []formType{formMailNotify}
@@ -226,15 +242,15 @@ func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) 
 		}
 	}
 
-	params := NewFormParams()
+	form := NewFormParams()
 	for _, option := range options {
-		if err := option.set(params); err != nil {
+		if err := option.set(form); err != nil {
 			return nil, err
 		}
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
-	resp, err := s.method.Delete(spath, params)
+	resp, err := s.method.Delete(spath, form)
 	if err != nil {
 		return nil, err
 	}

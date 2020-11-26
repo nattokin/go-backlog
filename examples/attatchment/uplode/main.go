@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/nattokin/go-backlog"
 )
@@ -19,9 +20,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fpath := "/path/to/test.txt"
-	fname := "name.txt"
-	r, err := c.Wiki.Attachment.Upload(fpath, fname)
+	f, err := os.Open("/path/to/test.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	r, err := c.Space.Attachment.Upload(f.Name(), f)
 	if err != nil {
 		fmt.Println(err)
 	}

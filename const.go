@@ -2,19 +2,19 @@ package backlog
 
 // Order type
 const (
-	OrderAsc  order = "asc"
-	OrderDesc order = "desc"
+	OrderAsc  Order = "asc"
+	OrderDesc Order = "desc"
 )
 
 // Fomat of Backlog wiki
 const (
-	FormatMarkdown format = "markdown"
-	FormatBacklog  format = "backlog"
+	FormatMarkdown Format = "markdown"
+	FormatBacklog  Format = "backlog"
 )
 
 // Role type
 const (
-	_ role = iota
+	_ Role = iota
 	RoleAdministrator
 	RoleNormalUser
 	RoleReporter
