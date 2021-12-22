@@ -13,7 +13,7 @@ type AttachmentID int
 
 func (i AttachmentID) validate() error {
 	if i < 1 {
-		return errors.New("attachmentID must not be less than 1")
+		return newValidationError("attachmentID must not be less than 1")
 	}
 	return nil
 }
