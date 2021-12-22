@@ -12,7 +12,7 @@ type WikiID int
 
 func (i WikiID) validate() error {
 	if i < 1 {
-		return errors.New("wikiID must not be less than 1")
+		return newValidationError("wikiID must not be less than 1")
 	}
 	return nil
 }

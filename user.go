@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"encoding/json"
-	"errors"
 	"path"
 	"strconv"
 )
@@ -12,7 +11,7 @@ type UserID int
 
 func (id UserID) validate() error {
 	if id < 1 {
-		return errors.New("userID must not be less than 1")
+		return newValidationError("userID must not be less than 1")
 	}
 	return nil
 }
@@ -139,7 +138,7 @@ func (s *UserService) Own() (*User, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserService) Add(userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	if userID == "" {
-		return nil, errors.New("userID must not be empty")
+		return nil, newValidationError("userID must not be empty")
 	}
 
 	form := NewFormParams()
@@ -178,8 +177,6 @@ func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 		return nil, err
 	}
 
-	spath := path.Join("users", uID.String())
-
 	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
@@ -193,6 +190,8 @@ func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
 			return nil, err
 		}
 	}
+
+	spath := path.Join("users", uID.String())
 
 	return updateUser(s.method.Patch, spath, form)
 }

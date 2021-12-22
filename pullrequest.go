@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"errors"
 	"strconv"
 )
 
@@ -10,7 +9,7 @@ type PRNumber int
 
 func (n PRNumber) validate() error {
 	if n < 1 {
-		return errors.New("prNumber must not be less than 1")
+		return newValidationError("prNumber must not be less than 1")
 	}
 	return nil
 }
