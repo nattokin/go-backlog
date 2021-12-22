@@ -49,7 +49,7 @@ jobs:
         run: misspell -error .
 
       - name: Run ineffassign
-        run: ineffassign ./*
+        run: ineffassign ./*.go
 
   go1_11:
     name: go:1.11
