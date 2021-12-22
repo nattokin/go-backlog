@@ -15,12 +15,9 @@ type ProjectIDOrKeyGetter interface {
 // ProjectID implements ProjectIDOrKeyGetter interface.
 type ProjectID int
 
-// ProjectKey implements ProjectIDOrKeyGetter interface.
-type ProjectKey string
-
 func (i ProjectID) validate() error {
 	if i < 1 {
-		return errors.New("projectID must not be less than 1")
+		return newValidationError("projectID must not be less than 1")
 	}
 	return nil
 }
@@ -35,6 +32,9 @@ func (i ProjectID) getProjectIDOrKey() (string, error) {
 	}
 	return i.String(), nil
 }
+
+// ProjectKey implements ProjectIDOrKeyGetter interface.
+type ProjectKey string
 
 func (k ProjectKey) getProjectIDOrKey() (string, error) {
 	if k == "" {

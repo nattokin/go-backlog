@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -70,7 +69,7 @@ func withQueryActivityTypeIDs(typeIDs []int) *QueryOption {
 	return &QueryOption{queryActivityTypeIDs, func(query *QueryParams) error {
 		for _, id := range typeIDs {
 			if id < 1 || 26 < id {
-				return errors.New("activityTypeId must be between 1 and 26")
+				return newValidationError("activityTypeId must be between 1 and 26")
 			}
 			query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 		}
@@ -95,7 +94,7 @@ func withQueryArchived(archived bool) *QueryOption {
 func withQueryCount(count int) *QueryOption {
 	return &QueryOption{queryCount, func(query *QueryParams) error {
 		if count < 1 || 100 < count {
-			return errors.New("count must be between 1 and 100")
+			return newValidationError("count must be between 1 and 100")
 		}
 		query.Set(queryCount.Value(), strconv.Itoa(count))
 		return nil
@@ -112,7 +111,7 @@ func withQueryKeyword(keyword string) *QueryOption {
 func withQueryMaxID(maxID int) *QueryOption {
 	return &QueryOption{queryMaxID, func(query *QueryParams) error {
 		if maxID < 1 {
-			return errors.New("maxId must not be less than 1")
+			return newValidationError("maxId must not be less than 1")
 		}
 		query.Set(queryMaxID.Value(), strconv.Itoa(maxID))
 		return nil
@@ -122,7 +121,7 @@ func withQueryMaxID(maxID int) *QueryOption {
 func withQueryMinID(minID int) *QueryOption {
 	return &QueryOption{queryMinID, func(query *QueryParams) error {
 		if minID < 1 {
-			return errors.New("minId must not be less than 1")
+			return newValidationError("minId must not be less than 1")
 		}
 		query.Set(queryMinID.Value(), strconv.Itoa(minID))
 		return nil
@@ -132,7 +131,8 @@ func withQueryMinID(minID int) *QueryOption {
 func withQueryOrder(order Order) *QueryOption {
 	return &QueryOption{queryOrder, func(query *QueryParams) error {
 		if order != OrderAsc && order != OrderDesc {
-			return fmt.Errorf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
+			msg := fmt.Sprintf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
+			return newValidationError(msg)
 		}
 		query.Set(queryOrder.Value(), string(order))
 		return nil
@@ -221,7 +221,7 @@ func withFormChartEnabled(enabeld bool) *FormOption {
 func withFormContent(content string) *FormOption {
 	return &FormOption{formContent, func(form *FormParams) error {
 		if content == "" {
-			return errors.New("content must not be empty")
+			return newValidationError("content must not be empty")
 		}
 		form.Set(formContent.Value(), content)
 		return nil
@@ -231,7 +231,7 @@ func withFormContent(content string) *FormOption {
 func withFormKey(key string) *FormOption {
 	return &FormOption{formKey, func(form *FormParams) error {
 		if key == "" {
-			return errors.New("key must not be empty")
+			return newValidationError("key must not be empty")
 		}
 		form.Set(formKey.Value(), key)
 		return nil
@@ -241,7 +241,7 @@ func withFormKey(key string) *FormOption {
 func withFormName(name string) *FormOption {
 	return &FormOption{formName, func(form *FormParams) error {
 		if name == "" {
-			return errors.New("name must not be empty")
+			return newValidationError("name must not be empty")
 		}
 		form.Set(formName.Value(), name)
 		return nil
@@ -252,7 +252,7 @@ func withFormMailAddress(mailAddress string) *FormOption {
 	// ToDo: validate mailAddress
 	return &FormOption{formMailAddress, func(form *FormParams) error {
 		if mailAddress == "" {
-			return errors.New("mailAddress must not be empty")
+			return newValidationError("mailAddress must not be empty")
 		}
 		form.Set(formMailAddress.Value(), mailAddress)
 		return nil
@@ -269,7 +269,7 @@ func withFormMailNotify(enabeld bool) *FormOption {
 func withFormPassword(password string) *FormOption {
 	return &FormOption{formPassword, func(form *FormParams) error {
 		if password == "" {
-			return errors.New("password must not be empty")
+			return newValidationError("password must not be empty")
 		}
 		form.Set(formPassword.Value(), password)
 		return nil
@@ -286,7 +286,7 @@ func withFormProjectLeaderCanEditProjectLeader(enabeld bool) *FormOption {
 func withFormRoleType(roleType Role) *FormOption {
 	return &FormOption{formRoleType, func(form *FormParams) error {
 		if roleType < 1 || 6 < roleType {
-			return errors.New("roleType must be between 1 and 6")
+			return newValidationError("roleType must be between 1 and 6")
 		}
 		form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
 		return nil
@@ -303,7 +303,8 @@ func withFormSubtaskingEnabled(enabeld bool) *FormOption {
 func withFormTextFormattingRule(format Format) *FormOption {
 	return &FormOption{formTextFormattingRule, func(form *FormParams) error {
 		if format != FormatBacklog && format != FormatMarkdown {
-			return fmt.Errorf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
+			msg := fmt.Sprintf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
+			return newValidationError(msg)
 		}
 		form.Set(formTextFormattingRule.Value(), string(format))
 		return nil

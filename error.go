@@ -14,14 +14,13 @@ type Error struct {
 
 // Error message converted from API error is returned.
 func (e *Error) Error() string {
-	msg := fmt.Sprint("Massage:", e.Message)
-	msg += fmt.Sprint(", Code:", e.Code)
+	msg := fmt.Sprintf("Massage:%s, Code:%d", e.Message, e.Code)
 
-	if len(e.MoreInfo) != 0 {
-		msg += fmt.Sprint(", MoreInfo:", e.MoreInfo)
+	if e.MoreInfo == "" {
+		return msg
 	}
 
-	return msg
+	return msg + ", MoreInfo:" + e.MoreInfo
 }
 
 // APIResponseError represents Error Response of Backlog API.
@@ -38,7 +37,7 @@ func (e *APIResponseError) Error() string {
 		msgs[i] = e.Errors[i].Error()
 	}
 
-	return strings.Join(msgs[:], "\n")
+	return strings.Join(msgs, "\n")
 }
 
 // InvalidQueryOptionError is an invalid option error.
@@ -60,7 +59,7 @@ func (e *InvalidQueryOptionError) Error() string {
 		types[k] = v.Value()
 	}
 
-	return fmt.Sprintf("invalid option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
+	return fmt.Sprintf("invalid option:%s, allowed options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }
 
 // InvalidFormOptionError is an invalid option error.
@@ -82,5 +81,20 @@ func (e *InvalidFormOptionError) Error() string {
 		types[k] = v.Value()
 	}
 
-	return fmt.Sprintf("invalid option:%s, allowd options:%s", e.Invalid.Value(), strings.Join(types, ","))
+	return fmt.Sprintf("invalid option:%s, allowed options:%s", e.Invalid.Value(), strings.Join(types, ","))
+}
+
+// ValidationError represents an argument validation error.
+type ValidationError struct {
+	Message string
+}
+
+func newValidationError(msg string) *ValidationError {
+	return &ValidationError{
+		Message: msg,
+	}
+}
+
+func (e *ValidationError) Error() string {
+	return e.Message
 }

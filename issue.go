@@ -15,7 +15,7 @@ type IssueID int
 
 func (i IssueID) validate() error {
 	if i < 1 {
-		return errors.New("issueID must not be less than 1")
+		return newValidationError("issueID must not be less than 1")
 	}
 	return nil
 }
