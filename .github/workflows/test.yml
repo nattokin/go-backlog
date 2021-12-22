@@ -51,63 +51,6 @@ jobs:
       - name: Run ineffassign
         run: ineffassign ./*.go
 
-  go1_11:
-    name: go:1.11
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go 1.11
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.11"
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: Build
-        run: go build -v .
-
-      - name: Test
-        run: go test -v .
-
-  go1_12:
-    name: go:1.12
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go 1.12
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.12"
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: Build
-        run: go build -v .
-
-      - name: Test
-        run: go test -v .
-
-  go1_13:
-    name: go:1.13
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go 1.13
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.13"
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: Build
-        run: go build -v .
-
-      - name: Test
-        run: go test -v .
-
   go1_14:
     name: go:1.14
     needs: lint
@@ -157,9 +100,6 @@ jobs:
     name: Notification
     runs-on: ubuntu-latest
     needs:
-      - go1_11
-      - go1_12
-      - go1_13
       - go1_14
       - go1_15
     steps:
