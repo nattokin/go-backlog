@@ -7,18 +7,11 @@ import (
 	"strconv"
 )
 
-// WikiID is ID of Wiki.
-type WikiID int
-
-func (i WikiID) validate() error {
-	if i < 1 {
+func validateWikiID(wikiID int) error {
+	if wikiID < 1 {
 		return newValidationError("wikiID must not be less than 1")
 	}
 	return nil
-}
-
-func (i WikiID) String() string {
-	return strconv.Itoa(int(i))
 }
 
 // WikiService has methods for Wiki.
@@ -37,9 +30,8 @@ type WikiService struct {
 //   WithQueryKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(project ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Wiki, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *WikiService) All(projectIDOrKey string, options ...*QueryOption) ([]*Wiki, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -75,9 +67,8 @@ func (s *WikiService) All(project ProjectIDOrKeyGetter, options ...*QueryOption)
 // Count returns the number of wikis in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
-func (s *WikiService) Count(project ProjectIDOrKeyGetter) (int, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *WikiService) Count(projectIDOrKey string) (int, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return 0, err
 	}
 
@@ -102,12 +93,11 @@ func (s *WikiService) Count(project ProjectIDOrKeyGetter) (int, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
-	wID := WikiID(wikiID)
-	if err := wID.validate(); err != nil {
+	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
-	spath := path.Join("wikis", wID.String())
+	spath := path.Join("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Get(spath, nil)
 	if err != nil {
 		return nil, err
@@ -131,8 +121,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
-	pID := ProjectID(projectID)
-	if err := pID.validate(); err != nil {
+	if err := validateProjectID(projectID); err != nil {
 		return nil, err
 	}
 
@@ -156,7 +145,7 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 			return nil, err
 		}
 	}
-	form.Set("projectId", pID.String())
+	form.Set("projectId", strconv.Itoa(projectID))
 
 	resp, err := s.method.Post("wikis", form)
 	if err != nil {
@@ -183,8 +172,7 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) {
-	wID := WikiID(wikiID)
-	if err := wID.validate(); err != nil {
+	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
@@ -230,8 +218,7 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) {
-	wID := WikiID(wikiID)
-	if err := wID.validate(); err != nil {
+	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 

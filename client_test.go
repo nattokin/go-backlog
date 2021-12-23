@@ -96,7 +96,7 @@ func TestNewClient_project(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	project, err := c.Project.Update(backlog.ProjectKey(key), c.Project.Option.WithFormName("test"))
+	project, err := c.Project.Update(key, c.Project.Option.WithFormName("test"))
 	assert.NoError(t, err)
 	assert.NotNil(t, project)
 	assert.Equal(t, key, project.ProjectKey)
@@ -124,7 +124,7 @@ func TestNewClient_projectUser(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	user, err := c.Project.User.Delete(backlog.ProjectKey(projectKey), userID)
+	user, err := c.Project.User.Delete(projectKey, userID)
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, userID, user.ID)
@@ -151,7 +151,7 @@ func TestNewClient_projectActivity(t *testing.T) {
 	})
 	c.ExportSetHTTPClient(httpClient)
 
-	activities, err := c.Project.Activity.List(backlog.ProjectKey(projectKey), c.Project.Activity.Option.WithQueryCount(1))
+	activities, err := c.Project.Activity.List(projectKey, c.Project.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
 	assert.NotNil(t, activities)
 	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)

@@ -1,33 +1,13 @@
 package backlog
 
-import (
-	"errors"
-	"strconv"
-)
-
-// RepositoryIDOrKeyGetter has method to get RepositoryIDOrKey and validation errror.
-type RepositoryIDOrKeyGetter interface {
-	getRepositoryIDOrKey() (string, error)
-}
-
-// RepositoryID implements RepositoryIDOrKeyGetter interface.
-type RepositoryID int
-
-// RepositoryName implements RepositoryIDOrKeyGetter interface.
-type RepositoryName string
-
-func (i RepositoryID) getRepositoryIDOrKey() (string, error) {
-	if i < 1 {
-		return "", errors.New("id must not be less than 1")
+func validateRepositoryIDOrName(repositoryIDOrName string) error {
+	if repositoryIDOrName == "" {
+		return newValidationError("repositoryIDOrName must not be empty")
 	}
-	return strconv.Itoa(int(i)), nil
-}
-
-func (k RepositoryName) getRepositoryIDOrKey() (string, error) {
-	if k == "" {
-		return "", errors.New("key must not be empty")
+	if repositoryIDOrName == "0" {
+		return newValidationError("repositoryIDOrName must not be '0'")
 	}
-	return string(k), nil
+	return nil
 }
 
 // RepositoryService has methods for Repository.

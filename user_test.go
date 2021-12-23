@@ -65,7 +65,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			return resp, nil
 		},
 	})
-	users, err := s.All(backlog.ProjectKey(projectKey), excludeGroupMembers)
+	users, err := s.All(projectKey, excludeGroupMembers)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users[0].UserID)
 	assert.Equal(t, name, users[0].Name)
@@ -131,7 +131,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			return resp, nil
 		},
 	})
-	users, err := s.Delete(backlog.ProjectKey(projectKey), id)
+	users, err := s.Delete(projectKey, id)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users.UserID)
 	assert.Equal(t, name, users.Name)
@@ -721,7 +721,7 @@ func TestProjectUserService_All(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.All(backlog.ProjectKey(tc.projectKey), tc.excludeGroupMembers)
+			s.All(tc.projectKey, tc.excludeGroupMembers)
 		})
 	}
 }
@@ -783,7 +783,7 @@ func TestProjectUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.Add(backlog.ProjectKey(tc.projectKey), tc.userID)
+			s.Add(tc.projectKey, tc.userID)
 		})
 	}
 }
@@ -854,7 +854,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.Delete(backlog.ProjectKey(tc.projectKey), tc.userID)
+			s.Delete(tc.projectKey, tc.userID)
 		})
 	}
 }
@@ -916,7 +916,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.AddAdmin(backlog.ProjectKey(tc.projectKey), tc.userID)
+			s.AddAdmin(tc.projectKey, tc.userID)
 		})
 	}
 }
@@ -958,7 +958,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.AdminAll(backlog.ProjectKey(tc.projectKey))
+			s.AdminAll(tc.projectKey)
 		})
 	}
 }
@@ -1020,7 +1020,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
-			s.DeleteAdmin(backlog.ProjectKey(tc.projectKey), tc.userID)
+			s.DeleteAdmin(tc.projectKey, tc.userID)
 		})
 	}
 }

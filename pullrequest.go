@@ -1,21 +1,10 @@
 package backlog
 
-import (
-	"strconv"
-)
-
-// PRNumber implements IssueIDOrKeyGetter interface.
-type PRNumber int
-
-func (n PRNumber) validate() error {
-	if n < 1 {
+func validatePRNumber(prNumber int) error {
+	if prNumber < 1 {
 		return newValidationError("prNumber must not be less than 1")
 	}
 	return nil
-}
-
-func (n PRNumber) String() string {
-	return strconv.Itoa(int(n))
 }
 
 // PullRequestService has methods for Issue.
