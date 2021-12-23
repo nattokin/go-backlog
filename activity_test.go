@@ -25,7 +25,7 @@ func TestProjectActivityService_List(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	s.List(backlog.ProjectKey(projectKey))
+	s.List(projectKey)
 }
 
 func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
@@ -37,7 +37,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	s.List(backlog.ProjectKey(projectKey))
+	s.List(projectKey)
 }
 
 func TestProjectActivityService_List_invaliedJson(t *testing.T) {
@@ -57,7 +57,7 @@ func TestProjectActivityService_List_invaliedJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	projects, err := s.List(backlog.ProjectKey("TEST"))
+	projects, err := s.List("TEST")
 	assert.Nil(t, projects)
 	assert.Error(t, err)
 }

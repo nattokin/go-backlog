@@ -2,45 +2,24 @@ package backlog
 
 import (
 	"encoding/json"
-	"errors"
 	"path"
-	"strconv"
 )
 
-// ProjectIDOrKeyGetter has method to get ProjectIDOrKey and validation errror.
-type ProjectIDOrKeyGetter interface {
-	getProjectIDOrKey() (string, error)
-}
-
-// ProjectID implements ProjectIDOrKeyGetter interface.
-type ProjectID int
-
-func (i ProjectID) validate() error {
-	if i < 1 {
+func validateProjectID(projectID int) error {
+	if projectID < 1 {
 		return newValidationError("projectID must not be less than 1")
 	}
 	return nil
 }
 
-func (i ProjectID) String() string {
-	return strconv.Itoa(int(i))
-}
-
-func (i ProjectID) getProjectIDOrKey() (string, error) {
-	if err := i.validate(); err != nil {
-		return "", err
+func validateProjectIDOrKey(projectIDOrKey string) error {
+	if projectIDOrKey == "" {
+		return newValidationError("projectIDOrKey must not be empty")
 	}
-	return i.String(), nil
-}
-
-// ProjectKey implements ProjectIDOrKeyGetter interface.
-type ProjectKey string
-
-func (k ProjectKey) getProjectIDOrKey() (string, error) {
-	if k == "" {
-		return "", errors.New("key must not be empty")
+	if projectIDOrKey == "0" {
+		return newValidationError("projectIDOrKey must not be '0'")
 	}
-	return string(k), nil
+	return nil
 }
 
 // ProjectService has methods for Project.
@@ -145,11 +124,11 @@ func (s *ProjectService) AdminAllArchived() ([]*Project, error) {
 // One returns one of the projects searched by ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
-func (s *ProjectService) One(project ProjectIDOrKeyGetter) (*Project, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	spath := path.Join("projects", projectIDOrKey)
 	resp, err := s.method.Get(spath, nil)
 	if err != nil {
@@ -227,9 +206,8 @@ func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Proj
 //   WithFormTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(project ProjectIDOrKeyGetter, options ...*FormOption) (*Project, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (*Project, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -267,11 +245,11 @@ func (s *ProjectService) Update(project ProjectIDOrKeyGetter, options ...*FormOp
 // Delete deletes a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
-func (s *ProjectService) Delete(project ProjectIDOrKeyGetter) (*Project, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	spath := path.Join("projects", projectIDOrKey)
 	resp, err := s.method.Delete(spath, NewFormParams())
 	if err != nil {
@@ -290,11 +268,11 @@ func (s *ProjectService) Delete(project ProjectIDOrKeyGetter) (*Project, error) 
 // TODO: Icon returns icon image of the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
-// func (s *ProjectService) Icon(project ProjectIDOrKeyGetter) (io.ReadCloser, error) {
-// 	projectIDOrKey, err := project.getProjectIDOrKey()
-// 	if err != nil {
+// func (s *ProjectService) Icon(projectIDOrKey string) (io.ReadCloser, error) {
+// 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 // 		return nil, err
 // 	}
+//
 // 	spath := path.Join("projects", projectIDOrKey, "image")
 // 	resp, err := s.method.Get(spath, nil)
 // 	if err != nil {

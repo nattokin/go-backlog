@@ -533,7 +533,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	}
 	defer bj.Close()
 
-	issueID := 1234
+	issueIDOrKey := "1234"
 	spath := "issues/1234/attachments"
 
 	want := struct {
@@ -560,7 +560,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachments, err := s.List(backlog.IssueID(issueID))
+	attachments, err := s.List(issueIDOrKey)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
@@ -573,16 +573,16 @@ func TestIssueAttachmentService_List(t *testing.T) {
 
 func TestIssueAttachmentService_List_param(t *testing.T) {
 	cases := map[string]struct {
-		issueID   backlog.IssueID
-		wantError bool
+		issueIDOrKey string
+		wantError    bool
 	}{
 		"valid": {
-			issueID:   1,
-			wantError: false,
+			issueIDOrKey: "1",
+			wantError:    false,
 		},
 		"invalid": {
-			issueID:   0,
-			wantError: true,
+			issueIDOrKey: "0",
+			wantError:    true,
 		},
 	}
 
@@ -606,7 +606,7 @@ func TestIssueAttachmentService_List_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.List(tc.issueID); tc.wantError {
+			if attachements, err := s.List(tc.issueIDOrKey); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -625,7 +625,7 @@ func TestIssueAttachmentService_List_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	attachments, err := s.List(backlog.IssueID(1234))
+	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -647,7 +647,7 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachments, err := s.List(backlog.IssueID(1234))
+	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -659,7 +659,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 	}
 	defer bj.Close()
 
-	issueID := 1234
+	issueIDOrKey := "1234"
 	attachmentID := 8
 	spath := "issues/1234/attachments/8"
 
@@ -688,7 +688,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachment, err := s.Remove(backlog.IssueID(issueID), attachmentID)
+	attachment, err := s.Remove(issueIDOrKey, attachmentID)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachment) {
 		assert.Equal(t, want.id, attachment.ID)
@@ -707,22 +707,22 @@ func TestIssueAttachmentService_Remove_param(t *testing.T) {
 	defer bj.Close()
 
 	cases := map[string]struct {
-		issueKey     backlog.IssueKey
+		issueIDOrKey string
 		attachmentID int
 		wantError    bool
 	}{
 		"valid": {
-			issueKey:     backlog.IssueKey("test"),
+			issueIDOrKey: "test",
 			attachmentID: 8,
 			wantError:    false,
 		},
 		"invalid-issueKey": {
-			issueKey:     backlog.IssueKey(""),
+			issueIDOrKey: "",
 			attachmentID: 8,
 			wantError:    true,
 		},
 		"invalid-attachmentID": {
-			issueKey:     backlog.IssueKey("test"),
+			issueIDOrKey: "test",
 			attachmentID: 0,
 			wantError:    true,
 		},
@@ -742,7 +742,7 @@ func TestIssueAttachmentService_Remove_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.Remove(tc.issueKey, tc.attachmentID); tc.wantError {
+			if attachements, err := s.Remove(tc.issueIDOrKey, tc.attachmentID); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -759,7 +759,7 @@ func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	attachment, err := s.Remove(backlog.IssueID(1234), 8)
+	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
 }
@@ -781,7 +781,7 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachment, err := s.Remove(backlog.IssueID(1234), 8)
+	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
 }
@@ -794,7 +794,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 	defer bj.Close()
 
 	projectKey := "TEST"
-	repoName := "test"
+	repositoryIDOrName := "test"
 	prNumber := 1234
 	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments"
 
@@ -822,7 +822,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachments, err := s.List(backlog.ProjectKey(projectKey), backlog.RepositoryName(repoName), prNumber)
+	attachments, err := s.List(projectKey, repositoryIDOrName, prNumber)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments[0].ID)
@@ -841,34 +841,34 @@ func TestPullRequestAttachmentService_List_param(t *testing.T) {
 	defer bj.Close()
 
 	cases := map[string]struct {
-		project    backlog.ProjectID
-		repository backlog.RepositoryID
-		prNumber   int
-		wantError  bool
+		projectIDOrKey     string
+		repositoryIDOrName string
+		prNumber           int
+		wantError          bool
 	}{
 		"valid": {
-			project:    1,
-			repository: 1,
-			prNumber:   1,
-			wantError:  false,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "1",
+			prNumber:           1,
+			wantError:          false,
 		},
 		"invalid-project": {
-			project:    0,
-			repository: 1,
-			prNumber:   1,
-			wantError:  true,
+			projectIDOrKey:     "0",
+			repositoryIDOrName: "1",
+			prNumber:           1,
+			wantError:          true,
 		},
 		"invalid-repository": {
-			project:    1,
-			repository: 0,
-			prNumber:   1,
-			wantError:  true,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "0",
+			prNumber:           1,
+			wantError:          true,
 		},
 		"invalid-prNumber": {
-			project:    1,
-			repository: 1,
-			prNumber:   0,
-			wantError:  true,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "1",
+			prNumber:           0,
+			wantError:          true,
 		},
 	}
 
@@ -886,7 +886,7 @@ func TestPullRequestAttachmentService_List_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.List(tc.project, tc.repository, tc.prNumber); tc.wantError {
+			if attachements, err := s.List(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -905,7 +905,7 @@ func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	attachments, err := s.List(backlog.ProjectID(1234), backlog.RepositoryName("test"), 10)
+	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -927,7 +927,7 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachments, err := s.List(backlog.ProjectID(1234), backlog.RepositoryName("test"), 10)
+	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -940,7 +940,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 	defer bj.Close()
 
 	projectKey := "TEST"
-	repoName := "test"
+	repositoryIDOrName := "test"
 	prNumber := 1234
 	attachmentID := 8
 	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments/8"
@@ -969,7 +969,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachments, err := s.Remove(backlog.ProjectKey(projectKey), backlog.RepositoryName(repoName), prNumber, attachmentID)
+	attachments, err := s.Remove(projectKey, repositoryIDOrName, prNumber, attachmentID)
 	assert.NoError(t, err)
 	if assert.NotNil(t, attachments) {
 		assert.Equal(t, want.id, attachments.ID)
@@ -988,46 +988,46 @@ func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 	defer bj.Close()
 
 	cases := map[string]struct {
-		project      backlog.ProjectID
-		repository   backlog.RepositoryName
-		prNumber     int
-		attachmentID int
-		wantError    bool
+		projectIDOrKey     string
+		repositoryIDOrName string
+		prNumber           int
+		attachmentID       int
+		wantError          bool
 	}{
 		"valid": {
-			project:      1,
-			repository:   "test",
-			prNumber:     1,
-			attachmentID: 8,
-			wantError:    false,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "test",
+			prNumber:           1,
+			attachmentID:       8,
+			wantError:          false,
 		},
 		"invalid-project": {
-			project:      0,
-			repository:   "test",
-			prNumber:     1,
-			attachmentID: 8,
-			wantError:    true,
+			projectIDOrKey:     "0",
+			repositoryIDOrName: "test",
+			prNumber:           1,
+			attachmentID:       8,
+			wantError:          true,
 		},
 		"invalid-repository": {
-			project:      1,
-			repository:   "",
-			prNumber:     1,
-			attachmentID: 8,
-			wantError:    true,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "",
+			prNumber:           1,
+			attachmentID:       8,
+			wantError:          true,
 		},
 		"invalid-prNumber": {
-			project:      1,
-			repository:   "test",
-			prNumber:     0,
-			attachmentID: 8,
-			wantError:    true,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "test",
+			prNumber:           0,
+			attachmentID:       8,
+			wantError:          true,
 		},
 		"invalid-attachmentID": {
-			project:      1,
-			repository:   "test",
-			prNumber:     1,
-			attachmentID: 0,
-			wantError:    true,
+			projectIDOrKey:     "1",
+			repositoryIDOrName: "test",
+			prNumber:           1,
+			attachmentID:       0,
+			wantError:          true,
 		},
 	}
 
@@ -1045,7 +1045,7 @@ func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 				},
 			})
 
-			if attachment, err := s.Remove(tc.project, tc.repository, tc.prNumber, tc.attachmentID); tc.wantError {
+			if attachment, err := s.Remove(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -1062,7 +1062,7 @@ func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	attachment, err := s.Remove(backlog.ProjectID(1234), backlog.RepositoryName("test"), 10, 8)
+	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
 }
@@ -1084,7 +1084,7 @@ func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	attachment, err := s.Remove(backlog.ProjectID(1234), backlog.RepositoryName("test"), 10, 8)
+	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
 }

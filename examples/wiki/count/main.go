@@ -20,12 +20,12 @@ func main() {
 	}
 
 	// ID or Key of the project.
-	projectID := 12345
+	projectID := "12345"
 	// projectKey := "ProjectKey"
 
 	// Get count of how many Wiki in project.
-	count, err := c.Wiki.Count(backlog.ProjectID(projectID))
-	// count, err := c.Wiki.Count(backlog.ProjectKey(projectKey))
+	count, err := c.Wiki.Count(projectID)
+	// count, err := c.Wiki.Count(projectKey)
 
 	if err != nil {
 		log.Fatalln(err)
