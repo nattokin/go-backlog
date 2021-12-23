@@ -14,7 +14,7 @@ import (
 )
 
 func TestWikiService_All(t *testing.T) {
-	projectID := 103
+	projectIDOrKey := "103"
 	bj, err := os.Open("testdata/json/wiki_list.json")
 	if err != nil {
 		t.Fatal(err)
@@ -22,21 +22,21 @@ func TestWikiService_All(t *testing.T) {
 	defer bj.Close()
 
 	want := struct {
-		spath     string
-		projectID int
-		idList    []int
-		nameList  []string
+		spath          string
+		projectIDOrKey string
+		idList         []int
+		nameList       []string
 	}{
-		spath:     "wikis",
-		projectID: projectID,
-		idList:    []int{112, 115},
-		nameList:  []string{"test1", "test2"},
+		spath:          "wikis",
+		projectIDOrKey: projectIDOrKey,
+		idList:         []int{112, 115},
+		nameList:       []string{"test1", "test2"},
 	}
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, strconv.Itoa(want.projectID), query.Get("projectIdOrKey"))
+			assert.Equal(t, want.projectIDOrKey, query.Get("projectIdOrKey"))
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -45,7 +45,7 @@ func TestWikiService_All(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wikis, err := s.All(backlog.ProjectID(projectID))
+	wikis, err := s.All(projectIDOrKey)
 	assert.NoError(t, err)
 	count := len(wikis)
 	assert.Equal(t, len(want.idList), count)
@@ -59,41 +59,41 @@ func TestWikiService_All_param(t *testing.T) {
 	s := &backlog.WikiService{}
 	o := s.Option
 	cases := map[string]struct {
-		projectIdOrKey backlog.ProjectIDOrKeyGetter
+		projectIdOrKey string
 		keywordOption  *backlog.QueryOption
 		content        string
 		mailNotify     bool
 		wantError      bool
 	}{
 		"valid-1": {
-			projectIdOrKey: backlog.ProjectID(1),
+			projectIdOrKey: "1",
 			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      false,
 		},
 		"valid-2": {
-			projectIdOrKey: backlog.ProjectKey("TEST"),
+			projectIdOrKey: "TEST",
 			keywordOption:  o.WithQueryKeyword(""),
 			wantError:      false,
 		},
 		"invalid-ProjectID": {
-			projectIdOrKey: backlog.ProjectID(0),
+			projectIdOrKey: "0",
 			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      true,
 		},
 		"invalid-ProjectKey": {
-			projectIdOrKey: backlog.ProjectKey(""),
+			projectIdOrKey: "",
 			keywordOption:  o.WithQueryKeyword("test"),
 			wantError:      true,
 		},
 		"invalid-option": {
-			projectIdOrKey: backlog.ProjectKey("TEST"),
+			projectIdOrKey: "TEST",
 			keywordOption: backlog.ExportNewQueryOption(0, func(p *backlog.QueryParams) error {
 				return nil
 			}),
 			wantError: true,
 		},
 		"option-error": {
-			projectIdOrKey: backlog.ProjectKey("TEST"),
+			projectIdOrKey: "TEST",
 			keywordOption: backlog.ExportNewQueryOption(backlog.ExportQueryKeyword, func(p *backlog.QueryParams) error {
 				return errors.New("error")
 			}),
@@ -147,10 +147,10 @@ func TestWikiService_All_param_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	wikis, err := s.All(backlog.ProjectID(0))
+	wikis, err := s.All("0")
 	assert.Error(t, err)
 	assert.Nil(t, wikis)
-	wikis, err = s.All(backlog.ProjectKey(""))
+	wikis, err = s.All("")
 	assert.Error(t, err)
 	assert.Nil(t, wikis)
 }
@@ -162,7 +162,7 @@ func TestWikiService_All_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.All(backlog.ProjectKey("TEST"))
+	_, err := s.All("TEST")
 	assert.Error(t, err)
 }
 
@@ -183,7 +183,7 @@ func TestWikiService_All_invaliedJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	_, err = s.All(backlog.ProjectKey("TEST"))
+	_, err = s.All("TEST")
 	assert.Error(t, err)
 }
 
@@ -212,7 +212,7 @@ func TestWikiService_Count(t *testing.T) {
 			return resp, nil
 		},
 	})
-	count, err := s.Count(backlog.ProjectKey(projectKey))
+	count, err := s.Count(projectKey)
 	assert.NoError(t, err)
 	assert.Equal(t, want.count, count)
 }
@@ -234,10 +234,10 @@ func TestWikiService_Count_param_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	count, err := s.Count(backlog.ProjectID(0))
+	count, err := s.Count("0")
 	assert.Error(t, err)
 	assert.Zero(t, count)
-	count, err = s.Count(backlog.ProjectKey(""))
+	count, err = s.Count("")
 	assert.Error(t, err)
 	assert.Zero(t, count)
 }
@@ -249,7 +249,7 @@ func TestWikiService_Count_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	count, err := s.Count(backlog.ProjectKey("TEST"))
+	count, err := s.Count("TEST")
 	assert.Error(t, err)
 	assert.Zero(t, count)
 }
@@ -271,7 +271,7 @@ func TestWikiService_Count_invaliedJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	count, err := s.Count(backlog.ProjectKey("TEST"))
+	count, err := s.Count("TEST")
 	assert.Zero(t, count)
 	assert.Error(t, err)
 }

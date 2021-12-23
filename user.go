@@ -217,9 +217,8 @@ type ProjectUserService struct {
 // All returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(project ProjectIDOrKeyGetter, excludeGroupMembers bool) ([]*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -233,11 +232,11 @@ func (s *ProjectUserService) All(project ProjectIDOrKeyGetter, excludeGroupMembe
 // Add adds a user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
-func (s *ProjectUserService) Add(project ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
@@ -253,11 +252,11 @@ func (s *ProjectUserService) Add(project ProjectIDOrKeyGetter, userID int) (*Use
 // Delete deletes a user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
-func (s *ProjectUserService) Delete(project ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
@@ -273,11 +272,11 @@ func (s *ProjectUserService) Delete(project ProjectIDOrKeyGetter, userID int) (*
 // AddAdmin adds a admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
-func (s *ProjectUserService) AddAdmin(project ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
@@ -293,9 +292,8 @@ func (s *ProjectUserService) AddAdmin(project ProjectIDOrKeyGetter, userID int) 
 // AdminAll returns all of admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
-func (s *ProjectUserService) AdminAll(project ProjectIDOrKeyGetter) ([]*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -306,11 +304,11 @@ func (s *ProjectUserService) AdminAll(project ProjectIDOrKeyGetter) ([]*User, er
 // DeleteAdmin deletes a admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
-func (s *ProjectUserService) DeleteAdmin(project ProjectIDOrKeyGetter, userID int) (*User, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*User, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
+
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
