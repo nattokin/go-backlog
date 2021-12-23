@@ -54,9 +54,8 @@ type ProjectActivityService struct {
 //   WithQueryOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(project ProjectIDOrKeyGetter, options ...*QueryOption) ([]*Activity, error) {
-	projectIDOrKey, err := project.getProjectIDOrKey()
-	if err != nil {
+func (s *ProjectActivityService) List(projectIDOrKey string, options ...*QueryOption) ([]*Activity, error) {
+	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 

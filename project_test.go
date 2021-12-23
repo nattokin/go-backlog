@@ -420,7 +420,7 @@ func TestProjectService_One_key(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.One(backlog.ProjectKey(projectKey))
+	project, err := s.One(projectKey)
 	assert.NoError(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 	assert.Equal(t, want.name, project.Name)
@@ -455,7 +455,7 @@ func TestProjectService_One_id(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.One(backlog.ProjectID(projectID))
+	project, err := s.One(strconv.Itoa(projectID))
 	assert.NoError(t, err)
 	assert.Equal(t, want.id, project.ID)
 	assert.Equal(t, want.name, project.Name)
@@ -478,7 +478,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.One(backlog.ProjectKey(""))
+	project, err := s.One("")
 	assert.Nil(t, project)
 	assert.Error(t, err)
 }
@@ -490,7 +490,7 @@ func TestProjectService_One_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.One(backlog.ProjectKey("TEST"))
+	_, err := s.One("TEST")
 	assert.Error(t, err)
 }
 
@@ -511,7 +511,7 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.One(backlog.ProjectKey("TEST"))
+	project, err := s.One("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -759,30 +759,30 @@ func TestProjectService_Update(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.Update(backlog.ProjectKey((projectKey)))
+	project, err := s.Update(projectKey)
 	assert.NoError(t, err)
 	assert.Equal(t, want.projectKey, project.ProjectKey)
 }
 
 func TestProjectService_Update_param(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey backlog.ProjectIDOrKeyGetter
+		projectIDOrKey string
 		wantError      bool
 	}{
 		"projectIDOrKey_string": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
+			projectIDOrKey: "TEST",
 			wantError:      false,
 		},
 		"projectIDOrKey_number": {
-			projectIDOrKey: backlog.ProjectID(1234),
+			projectIDOrKey: "1234",
 			wantError:      false,
 		},
 		"projectIDOrKey_empty": {
-			projectIDOrKey: backlog.ProjectKey(""),
+			projectIDOrKey: "",
 			wantError:      true,
 		},
 		"projectIDOrKey_zero": {
-			projectIDOrKey: backlog.ProjectID(0),
+			projectIDOrKey: "0",
 			wantError:      true,
 		},
 	}
@@ -903,7 +903,7 @@ func TestProjectService_Update_option(t *testing.T) {
 				},
 			})
 
-			if _, err := s.Update(backlog.ProjectKey("TEST"), tc.options...); tc.wantError {
+			if _, err := s.Update("TEST", tc.options...); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
@@ -919,7 +919,7 @@ func TestProjectService_Update_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.Update(backlog.ProjectKey("TEST"))
+	_, err := s.Update("TEST")
 	assert.Error(t, err)
 }
 
@@ -940,7 +940,7 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.Update(backlog.ProjectKey("TEST"))
+	project, err := s.Update("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)
@@ -948,23 +948,23 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 
 func TestProjectService_Delete_param(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey backlog.ProjectIDOrKeyGetter
+		projectIDOrKey string
 		wantError      bool
 	}{
 		"projectIDOrKey_string": {
-			projectIDOrKey: backlog.ProjectKey("TEST"),
+			projectIDOrKey: "TEST",
 			wantError:      false,
 		},
 		"projectIDOrKey_number": {
-			projectIDOrKey: backlog.ProjectID(1234),
+			projectIDOrKey: "1234",
 			wantError:      false,
 		},
 		"projectIDOrKey_empty": {
-			projectIDOrKey: backlog.ProjectKey(""),
+			projectIDOrKey: "",
 			wantError:      true,
 		},
 		"projectIDOrKey_zero": {
-			projectIDOrKey: backlog.ProjectID(0),
+			projectIDOrKey: "0",
 			wantError:      true,
 		},
 	}
@@ -1024,7 +1024,7 @@ func TestProjectService_Delete(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.Delete(backlog.ProjectKey(projectKey))
+	project, err := s.Delete(projectKey)
 	assert.NoError(t, err)
 	assert.Equal(t, want.key, project.ProjectKey)
 }
@@ -1036,7 +1036,7 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
-	_, err := s.Delete(backlog.ProjectKey("TEST"))
+	_, err := s.Delete("TEST")
 	assert.Error(t, err)
 }
 
@@ -1057,7 +1057,7 @@ func TestProjectService_Delete_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
-	project, err := s.Delete(backlog.ProjectKey("TEST"))
+	project, err := s.Delete("TEST")
 
 	assert.Nil(t, project)
 	assert.Error(t, err)

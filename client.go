@@ -210,7 +210,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 // Creates new request.
 func (c *Client) newReqest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
-		return nil, errors.New("spath must not empty")
+		return nil, errors.New("spath must not be empty")
 	}
 
 	if query == nil {

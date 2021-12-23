@@ -32,7 +32,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.All(backlog.ProjectKey(projectKey))
+	r, err := c.Wiki.All(projectKey)
 	if err != nil {
 		log.Fatalln(err)
 	}
