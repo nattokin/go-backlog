@@ -7,7 +7,7 @@ func validatePRNumber(prNumber int) error {
 	return nil
 }
 
-// PullRequestService has methods for Issue.
+// PullRequestService handles communication with the pull request-related methods of the Backlog API.
 type PullRequestService struct {
 	method *method
 

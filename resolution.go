@@ -1,6 +1,6 @@
 package backlog
 
-// ResolutionService has methods for Resolution.
+// ResolutionService handles communication with the resolution-related methods of the Backlog API.
 type ResolutionService struct {
 	method *method
 }

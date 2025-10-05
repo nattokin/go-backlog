@@ -15,14 +15,14 @@ func validateAttachmentID(attachmentID int) error {
 	return nil
 }
 
-// SpaceAttachmentService hs methods for attachment.
+// SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
 	method *method
 }
 
-// Upload uploads a any file to the space.
+// Upload uploads any file to the space.
 //
-// File's path and name are must not empty.
+// The file name must not be empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
 func (s *SpaceAttachmentService) Upload(fileName string, r io.Reader) (*Attachment, error) {
@@ -70,12 +70,12 @@ func removeAttachment(delete clientDelete, spath string) (*Attachment, error) {
 	return &v, nil
 }
 
-// WikiAttachmentService hs methods for attachment file of wiki.
+// WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
 	method *method
 }
 
-// Attach attachs files uploaded to space to the wiki.
+// Attach attaches files uploaded to the space to the specified wiki.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
 func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Attachment, error) {
@@ -136,7 +136,7 @@ func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, e
 	return removeAttachment(s.method.Delete, spath)
 }
 
-// IssueAttachmentService hs methods for attachment file of issue.
+// IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {
 	method *method
 }
@@ -168,7 +168,7 @@ func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (
 	return removeAttachment(s.method.Delete, spath)
 }
 
-// PullRequestAttachmentService hs methods for attachment file of pull request.
+// PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
 type PullRequestAttachmentService struct {
 	method *method
 }

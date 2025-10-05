@@ -1,6 +1,6 @@
 package backlog
 
-// CustomFieldService has methods for CustomField.
+// CustomFieldService handles communication with the custom field-related methods of the Backlog API.
 type CustomFieldService struct {
 	method *method
 }

@@ -1,18 +1,18 @@
 package backlog
 
-// Order type
+// Order defines the sort order (ascending or descending).
 const (
 	OrderAsc  Order = "asc"
 	OrderDesc Order = "desc"
 )
 
-// Fomat of Backlog wiki
+// Format defines the text formatting rule for the Backlog wiki.
 const (
 	FormatMarkdown Format = "markdown"
 	FormatBacklog  Format = "backlog"
 )
 
-// Role type
+// Role defines the type of user role within a project.
 const (
 	_ Role = iota
 	RoleAdministrator
@@ -23,7 +23,7 @@ const (
 	RoleGuestViewer
 )
 
-// TODO: activityId
+//
 
 const (
 	_ formType = iota

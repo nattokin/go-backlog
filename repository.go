@@ -10,7 +10,7 @@ func validateRepositoryIDOrName(repositoryIDOrName string) error {
 	return nil
 }
 
-// RepositoryService has methods for Repository.
+// RepositoryService handles communication with the repository-related methods of the Backlog API.
 type RepositoryService struct {
 	method *method
 }

@@ -16,7 +16,7 @@ const (
 	apiVersion = "v2"
 )
 
-// ClinetError is a description of a Backlog API client error.
+// ClientError is a description of a Backlog API client error.
 type ClinetError struct {
 	msg string
 }
@@ -29,7 +29,7 @@ func newClientError(msg string) *ClinetError {
 	return &ClinetError{msg: msg}
 }
 
-// Client is Backlog API client.
+// Client is a Backlog API client.
 type Client struct {
 	url        *url.URL
 	httpClient *http.Client
@@ -59,7 +59,7 @@ func (p *FormParams) NewReader() io.Reader {
 	return strings.NewReader(p.Encode())
 }
 
-// QueryParams is query parameters for request.
+// QueryParams represents query parameters for a request.
 type QueryParams struct {
 	*url.Values
 }
@@ -207,7 +207,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 	return c, nil
 }
 
-// Creates new request.
+// newRequest creates a new HTTP request for the Backlog API.
 func (c *Client) newReqest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
@@ -231,7 +231,7 @@ func (c *Client) newReqest(method, spath string, header http.Header, body io.Rea
 	return req, nil
 }
 
-// Do http request, and return Response.
+// do performs the HTTP request and returns the response.
 func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
 	req, err := c.newReqest(method, spath, header, body, query)
 	if err != nil {
@@ -246,14 +246,14 @@ func (c *Client) do(method, spath string, header http.Header, body io.Reader, qu
 	return checkResponse(resp)
 }
 
-// Get method of http reqest.
-// It creates new http reqest and do and return Response.
+// get performs a GET request to the Backlog API.
+//
 func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
 	return c.do(http.MethodGet, spath, nil, nil, query)
 }
 
-// Post method of http reqest.
-// It creates new http reqest and do and return Response.
+// post performs a POST request to the Backlog API.
+//
 func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -265,8 +265,8 @@ func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
 	return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
 }
 
-// Patch method of http reqest.
-// It creates new http reqest and do and return Response.
+// patch performs a PATCH request to the Backlog API.
+//
 func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -278,8 +278,8 @@ func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
 	return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
 }
 
-// Delete method of http reqest.
-// It creates new http reqest and do and return Response.
+// delete performs a DELETE request to the Backlog API.
+//
 func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -291,8 +291,8 @@ func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) 
 	return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
 }
 
-// Upload file method used http reqest.
-// It creates new http reqest and do and return Response.
+// upload performs a POST request to upload a file to the Backlog API.
+//
 func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, error) {
 	if fileName == "" {
 		return nil, newClientError("fname is required")
@@ -316,7 +316,7 @@ func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, er
 	return c.do(http.MethodPost, spath, header, &buf, nil)
 }
 
-// Check HTTP status code. If it has errors, return error.
+// checkResponse checks the HTTP status code. If it indicates an error, it returns an API error.
 func checkResponse(r *http.Response) (*http.Response, error) {
 	if sc := r.StatusCode; 200 <= sc && sc <= 299 {
 		return r, nil

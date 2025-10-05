@@ -35,7 +35,7 @@ func getActivityList(get clientGet, spath string, options ...*QueryOption) ([]*A
 	return v, nil
 }
 
-// ProjectActivityService has methods for activitys of the project.
+// ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
 	method *method
 
@@ -44,7 +44,7 @@ type ProjectActivityService struct {
 
 // List returns a list of activities in the project.
 //
-// This method can specify the options returned by methods in "*Client.Project.Activity.Option".
+// This method supports options returned by methods in "*Client.Project.Activity.Option".
 //
 // Use the following methods:
 //   WithQueryActivityTypeIDs
@@ -63,7 +63,7 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...*QueryOp
 	return getActivityList(s.method.Get, spath, options...)
 }
 
-// SpaceActivityService has methods for activitys in your space.
+// SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {
 	method *method
 
@@ -72,7 +72,7 @@ type SpaceActivityService struct {
 
 // List returns a list of activities in your space.
 //
-// This method can specify the options returned by methods in "*Client.Space.Activity.Option".
+// This method supports options returned by methods in "*Client.Space.Activity.Option".
 //
 // Use the following methods:
 //   WithQueryActivityTypeIDs
@@ -86,7 +86,7 @@ func (s *SpaceActivityService) List(options ...*QueryOption) ([]*Activity, error
 	return getActivityList(s.method.Get, "space/activities", options...)
 }
 
-// UserActivityService has methods for user activitys.
+// UserActivityService handles communication with the user activities-related methods of the Backlog API.
 type UserActivityService struct {
 	method *method
 
@@ -95,7 +95,7 @@ type UserActivityService struct {
 
 // List returns a list of user activities.
 //
-// This method can specify the options returned by methods in "*Client.User.Activity.Option".
+// This method supports options returned by methods in "*Client.User.Activity.Option".
 //
 // Use the following methods:
 //   WithQueryActivityTypeIDs

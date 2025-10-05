@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// UserID is ID of user.
+// UserID is the unique identifier for a user.
 type UserID int
 
 func (id UserID) validate() error {
@@ -289,7 +289,7 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 	return addUser(s.method.Post, spath, form)
 }
 
-// AdminAll returns all of admin users in the project.
+// AdminAll returns a list of all admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
@@ -301,7 +301,7 @@ func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
 	return getUserList(s.method.Get, spath, nil)
 }
 
-// DeleteAdmin deletes a admin user from the project.
+// DeleteAdmin removes an admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*User, error) {

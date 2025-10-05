@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Activity represents a activity.
+// Activity represents a recent update or change in the project or space.
 type Activity struct {
 	ID            int              `json:"id,omitempty"`
 	Project       *Project         `json:"project,omitempty"`
@@ -14,7 +14,7 @@ type Activity struct {
 	CreatedUser   *User            `json:"createdUser,omitempty"`
 }
 
-// ActivityContent represents content of Activity.
+// ActivityContent represents the detailed content of an activity.
 type ActivityContent struct {
 	ID          int      `json:"id,omitempty"`
 	KeyID       int      `json:"key_id,omitempty"`
@@ -23,7 +23,7 @@ type ActivityContent struct {
 	Comment     *Comment `json:"comment,omitempty"`
 }
 
-// Attachment represents a attachment.
+// Attachment represents an attached file.
 type Attachment struct {
 	ID          int       `json:"id,omitempty"`
 	Name        string    `json:"name,omitempty"`
@@ -32,14 +32,14 @@ type Attachment struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
-// Category represents a category.
+// Category represents an issue category.
 type Category []struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// ChangeLog reprements the changelog.
+// ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
 	Field         string `json:"field,omitempty"`
 	NewValue      string `json:"newValue,omitempty"`
@@ -58,7 +58,7 @@ type Comment struct {
 	Notifications []*Notification `json:"notifications,omitempty"`
 }
 
-// CustomField represents a custom field.
+// CustomField represents a custom field defined in the project.
 type CustomField struct {
 	ID                     int                `json:"id,omitempty"`
 	TypeID                 int                `json:"typeId,omitempty"`
@@ -258,7 +258,7 @@ type Resolution struct {
 	Name string `json:"name,omitempty"`
 }
 
-// SharedFile represents a shared file.
+// SharedFile represents a file shared within the project or space.
 type SharedFile struct {
 	ID          int       `json:"id,omitempty"`
 	Type        string    `json:"type,omitempty"`
@@ -388,7 +388,7 @@ type Wiki struct {
 	Updated     time.Time     `json:"updated,omitempty"`
 }
 
-// WikiHistory reprements history of Wiki.
+// WikiHistory represents a version history entry for a wiki page.
 type WikiHistory struct {
 	PageID      int       `json:"pageId,omitempty"`
 	Version     int       `json:"version,omitempty"`
@@ -398,7 +398,7 @@ type WikiHistory struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
-// Format of Backlog wiki.
+// Format defines the text formatting rule for the Backlog wiki.
 type Format string
 
 func (f Format) String() string {
@@ -412,7 +412,7 @@ func (f Format) String() string {
 	}
 }
 
-// Order type.
+// Order defines the sort order (ascending or descending).
 type Order string
 
 func (o Order) String() string {
@@ -426,7 +426,7 @@ func (o Order) String() string {
 	}
 }
 
-// Role type.
+// Role defines the type of user role within a project.
 type Role int
 
 func (r Role) String() string {
