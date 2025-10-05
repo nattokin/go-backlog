@@ -27,7 +27,8 @@ type WikiService struct {
 // This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithQueryKeyword
+//
+//	WithQueryKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) All(projectIDOrKey string, options ...*QueryOption) ([]*Wiki, error) {
@@ -117,7 +118,8 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 // This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithFormMailNotify
+//
+//	WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
@@ -166,9 +168,10 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 // This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithFormName
-//   WithFormContent
-//   WithFormMailNotify
+//
+//	WithFormName
+//	WithFormContent
+//	WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) {
@@ -214,7 +217,8 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 // This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
-//   WithFormMailNotify
+//
+//	WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) {

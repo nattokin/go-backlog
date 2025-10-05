@@ -47,11 +47,12 @@ type ProjectActivityService struct {
 // This method supports options returned by methods in "*Client.Project.Activity.Option".
 //
 // Use the following methods:
-//   WithQueryActivityTypeIDs
-//   WithQueryMinID
-//   WithQueryMaxID
-//   WithQueryCount
-//   WithQueryOrder
+//
+//	WithQueryActivityTypeIDs
+//	WithQueryMinID
+//	WithQueryMaxID
+//	WithQueryCount
+//	WithQueryOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(projectIDOrKey string, options ...*QueryOption) ([]*Activity, error) {
@@ -75,11 +76,12 @@ type SpaceActivityService struct {
 // This method supports options returned by methods in "*Client.Space.Activity.Option".
 //
 // Use the following methods:
-//   WithQueryActivityTypeIDs
-//   WithQueryMinID
-//   WithQueryMaxID
-//   WithQueryCount
-//   WithQueryOrder
+//
+//	WithQueryActivityTypeIDs
+//	WithQueryMinID
+//	WithQueryMaxID
+//	WithQueryCount
+//	WithQueryOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...*QueryOption) ([]*Activity, error) {
@@ -98,11 +100,12 @@ type UserActivityService struct {
 // This method supports options returned by methods in "*Client.User.Activity.Option".
 //
 // Use the following methods:
-//   WithQueryActivityTypeIDs
-//   WithQueryMinID
-//   WithQueryMaxID
-//   WithQueryCount
-//   WithQueryOrder
+//
+//	WithQueryActivityTypeIDs
+//	WithQueryMinID
+//	WithQueryMaxID
+//	WithQueryCount
+//	WithQueryOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Activity, error) {

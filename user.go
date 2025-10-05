@@ -165,10 +165,11 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 // This method can specify the options returned by methods in "*Client.User.Option".
 //
 // Use the following methods:
-//   WithFormName
-//   WithFormPassword
-//   WithFormMailAddress
-//   WithFormRoleType
+//
+//	WithFormName
+//	WithFormPassword
+//	WithFormMailAddress
+//	WithFormRoleType
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
