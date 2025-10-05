@@ -393,17 +393,17 @@ func (*ProjectOptionService) WithFormArchived(archived bool) *FormOption {
 type UserOptionService struct {
 }
 
-// WithFormPassword returns an option to set "password" for a user.
+// WithFormPassword returns a form option to set the `password` field in the request body for a user.
 func (*UserOptionService) WithFormPassword(password string) *FormOption {
 	return withFormPassword(password)
 }
 
-// WithFormName returns an option to set "name" for a user.
+// WithFormName returns a form option to set the `name` field in the request body for a user.
 func (*UserOptionService) WithFormName(name string) *FormOption {
 	return withFormName(name)
 }
 
-// WithFormMailAddress returns an option to set "mailAddress" for a user.
+// WithFormMailAddress returns a form option to set the `mailAddress` field in the request body for a user.
 func (*UserOptionService) WithFormMailAddress(mailAddress string) *FormOption {
 	return withFormMailAddress(mailAddress)
 }
