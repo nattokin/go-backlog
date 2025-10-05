@@ -11,7 +11,7 @@ import (
 func main() {
 	// The base URL of Backlog API.
 	baseURL := "BACKLOG_BASE_URL"
-	// The tokun for request to Backlog API.
+	// The token for request to Backlog API.
 	token := "BACKLOG_TOKEN"
 
 	// Create Backlog API client.
