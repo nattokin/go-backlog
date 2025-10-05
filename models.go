@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -408,7 +409,7 @@ func (f Format) String() string {
 	case FormatBacklog:
 		return "Backlog"
 	default:
-		return "unknown"
+		return fmt.Sprintf("unknown Format type %s", string(f))
 	}
 }
 
@@ -422,7 +423,7 @@ func (o Order) String() string {
 	case OrderDesc:
 		return "Desc"
 	default:
-		return "unknown"
+		return fmt.Sprintf("unknown Order type %s", string(o))
 	}
 }
 
@@ -444,6 +445,6 @@ func (r Role) String() string {
 	case RoleGuestViewer:
 		return "GuestViewer"
 	default:
-		return "unknown"
+		return fmt.Sprintf("unknown Role type %d", r)
 	}
 }
