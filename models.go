@@ -46,7 +46,7 @@ type ChangeLog struct {
 	OriginalValue string `json:"originalValue,omitempty"`
 }
 
-// Comment reprements any one comment.
+// Comment represents any one comment.
 type Comment struct {
 	ID            int             `json:"id,omitempty"`
 	Content       string          `json:"content,omitempty"`
