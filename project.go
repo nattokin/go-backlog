@@ -36,8 +36,9 @@ type ProjectService struct {
 // This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
-//    WithQueryAll
-//    WithQueryArchived
+//
+//	WithQueryAll
+//	WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All(options ...*QueryOption) ([]*Project, error) {
@@ -75,7 +76,8 @@ func (s *ProjectService) All(options ...*QueryOption) ([]*Project, error) {
 // This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
-//    WithQueryArchived
+//
+//	WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) AdminAll(options ...*QueryOption) ([]*Project, error) {
@@ -149,10 +151,11 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 // This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
-//   WithFormChartEnabled
-//   WithFormSubtaskingEnabled
-//   WithFormProjectLeaderCanEditProjectLeader
-//   WithFormTextFormattingRule
+//
+//	WithFormChartEnabled
+//	WithFormSubtaskingEnabled
+//	WithFormProjectLeaderCanEditProjectLeader
+//	WithFormTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Project, error) {
@@ -196,14 +199,15 @@ func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Proj
 // This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
-//   WithFormKey
-//   WithFormName
-//   WithFormChartEnabled
-//   WithFormSubtaskingEnabled
-//   WithFormProjectLeaderCanEditProjectLeader
-//   WithFormTextFormattingRule
-//   WithFormArchived
-//   WithFormTextFormattingRule
+//
+//	WithFormKey
+//	WithFormName
+//	WithFormChartEnabled
+//	WithFormSubtaskingEnabled
+//	WithFormProjectLeaderCanEditProjectLeader
+//	WithFormTextFormattingRule
+//	WithFormArchived
+//	WithFormTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (*Project, error) {

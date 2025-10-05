@@ -17,16 +17,16 @@ const (
 )
 
 // ClientError is a description of a Backlog API client error.
-type ClinetError struct {
+type ClientError struct {
 	msg string
 }
 
-func (e *ClinetError) Error() string {
+func (e *ClientError) Error() string {
 	return e.msg
 }
 
-func newClientError(msg string) *ClinetError {
-	return &ClinetError{msg: msg}
+func newClientError(msg string) *ClientError {
+	return &ClientError{msg: msg}
 }
 
 // Client is a Backlog API client.
@@ -247,13 +247,11 @@ func (c *Client) do(method, spath string, header http.Header, body io.Reader, qu
 }
 
 // get performs a GET request to the Backlog API.
-//
 func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
 	return c.do(http.MethodGet, spath, nil, nil, query)
 }
 
 // post performs a POST request to the Backlog API.
-//
 func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -266,7 +264,6 @@ func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
 }
 
 // patch performs a PATCH request to the Backlog API.
-//
 func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -279,7 +276,6 @@ func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
 }
 
 // delete performs a DELETE request to the Backlog API.
-//
 func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -292,7 +288,6 @@ func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) 
 }
 
 // upload performs a POST request to upload a file to the Backlog API.
-//
 func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, error) {
 	if fileName == "" {
 		return nil, newClientError("fname is required")
