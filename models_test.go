@@ -22,7 +22,7 @@ func TestFormat_String(t *testing.T) {
 		},
 		"unknown": {
 			format: backlog.Format("test"),
-			want:   "unknown",
+			want:   "unknown Format type test",
 		},
 	}
 	for n, tc := range cases {
@@ -48,7 +48,7 @@ func TestOrder_String(t *testing.T) {
 		},
 		"unknown": {
 			format: backlog.Order("test"),
-			want:   "unknown",
+			want:   "unknown Order type test",
 		},
 	}
 	for n, tc := range cases {
@@ -90,7 +90,7 @@ func TestRole_String(t *testing.T) {
 		},
 		"unknown": {
 			roleType: backlog.Role(0),
-			want:     "unknown",
+			want:     "unknown Role type 0",
 		},
 	}
 	for n, tc := range cases {
