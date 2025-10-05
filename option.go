@@ -46,7 +46,7 @@ func (t queryType) Value() string {
 
 type queryOptionFunc func(query *QueryParams) error
 
-// QueryOption is option of request query.
+// QueryOption represents an option for a request query.
 type QueryOption struct {
 	t queryType
 	f queryOptionFunc
@@ -393,17 +393,17 @@ func (*ProjectOptionService) WithFormArchived(archived bool) *FormOption {
 type UserOptionService struct {
 }
 
-// WithFormPassword returns option to set `password` for user.
+// WithFormPassword returns an option to set "password" for a user.
 func (*UserOptionService) WithFormPassword(password string) *FormOption {
 	return withFormPassword(password)
 }
 
-// WithFormName returns option to set `password` for user.
+// WithFormName returns an option to set "name" for a user.
 func (*UserOptionService) WithFormName(name string) *FormOption {
 	return withFormName(name)
 }
 
-// WithFormMailAddress returns option to set `mailAddress` for user.
+// WithFormMailAddress returns an option to set "mailAddress" for a user.
 func (*UserOptionService) WithFormMailAddress(mailAddress string) *FormOption {
 	return withFormMailAddress(mailAddress)
 }
@@ -413,7 +413,7 @@ func (*UserOptionService) WithFormRoleType(roleType Role) *FormOption {
 	return withFormRoleType(roleType)
 }
 
-// WikiOptionService has methods to make option for WikiService.
+// WikiOptionService provides methods to create options for WikiService.
 type WikiOptionService struct {
 }
 

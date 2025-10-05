@@ -22,7 +22,7 @@ func validateProjectIDOrKey(projectIDOrKey string) error {
 	return nil
 }
 
-// ProjectService has methods for Project.
+// ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
 	method *method
 
@@ -31,9 +31,9 @@ type ProjectService struct {
 	Option   *ProjectOptionService
 }
 
-// All returns all of projects.
+// All returns a list of all projects.
 //
-// This method can specify the options returned by methods in "*Client.Project.Option".
+// This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
 //    WithQueryAll
@@ -72,7 +72,7 @@ func (s *ProjectService) All(options ...*QueryOption) ([]*Project, error) {
 // AdminAll returns all of projects. This is limited to admin.
 // If you are not an admin, only joining projects returned.
 //
-// This method can specify the options returned by methods in "*Client.Project.Option".
+// This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
 //    WithQueryArchived
@@ -146,7 +146,7 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 
 // Create creates a new project.
 //
-// This method can specify the options returned by methods in "*Client.Project.Option".
+// This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
 //   WithFormChartEnabled
@@ -193,7 +193,7 @@ func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Proj
 
 // Update updates a project.
 //
-// This method can specify the options returned by methods in "*Client.Project.Option".
+// This method supports options returned by methods in "*Client.Project.Option".
 //
 // Use the following methods:
 //   WithFormKey
@@ -265,7 +265,7 @@ func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 	return &v, nil
 }
 
-// TODO: Icon returns icon image of the project.
+// Icon returns the icon image of the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
 // func (s *ProjectService) Icon(projectIDOrKey string) (io.ReadCloser, error) {

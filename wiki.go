@@ -14,7 +14,7 @@ func validateWikiID(wikiID int) error {
 	return nil
 }
 
-// WikiService has methods for Wiki.
+// WikiService handles communication with the wiki-related methods of the Backlog API.
 type WikiService struct {
 	method *method
 
@@ -22,9 +22,9 @@ type WikiService struct {
 	Option     *WikiOptionService
 }
 
-// All Wiki in project is gotten.
+// All returns a list of all wikis in the specified project.
 //
-// This method can specify the options returned by methods in "*Client.Wiki.Option".
+// This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
 //   WithQueryKeyword
@@ -89,7 +89,7 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 	return v["count"], nil
 }
 
-// One returns one of the wiki by ID.
+// One returns a specific wiki by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *WikiService) One(wikiID int) (*Wiki, error) {
@@ -114,7 +114,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 
 // Create creates a new Wiki for the project.
 //
-// This method can specify the options returned by methods in "*Client.Wiki.Option".
+// This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
 //   WithFormMailNotify
@@ -161,9 +161,9 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 	return &v, nil
 }
 
-// Update a wiki.
+// Update modifies an existing wiki.
 //
-// This method can specify the options returned by methods in "*Client.Wiki.Option".
+// This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
 //   WithFormName
@@ -209,9 +209,9 @@ func (s *WikiService) Update(wikiID int, options ...*FormOption) (*Wiki, error) 
 	return &v, nil
 }
 
-// Delete a wiki by ID.
+// Delete removes a wiki by ID.
 //
-// This method can specify the options returned by methods in "*Client.Wiki.Option".
+// This method supports options returned by methods in "*Client.Wiki.Option".
 //
 // Use the following methods:
 //   WithFormMailNotify

@@ -10,7 +10,7 @@ func validateIssueIDOrKey(issueIDOrKey string) error {
 	return nil
 }
 
-// IssueService has methods for Issue.
+// IssueService handles communication with the issue-related methods of the Backlog API.
 type IssueService struct {
 	method *method
 

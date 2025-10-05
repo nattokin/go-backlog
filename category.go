@@ -1,6 +1,6 @@
 package backlog
 
-// CategoryService has methods for Category.
+// CategoryService handles communication with the category-related methods of the Backlog API.
 type CategoryService struct {
 	method *method
 }

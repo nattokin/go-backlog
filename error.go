@@ -12,7 +12,7 @@ type Error struct {
 	MoreInfo string `json:"moreInfo,omitempty"`
 }
 
-// Error message converted from API error is returned.
+// Error returns the API error message.
 func (e *Error) Error() string {
 	msg := fmt.Sprintf("Massage:%s, Code:%d", e.Message, e.Code)
 
@@ -28,7 +28,7 @@ type APIResponseError struct {
 	Errors []*Error `json:"errors,omitempty"`
 }
 
-// All error massages converted to APIResponseError is returned.
+// Error returns all error messages in APIResponseError.
 func (e *APIResponseError) Error() string {
 	len := len(e.Errors)
 	msgs := make([]string, len)
@@ -40,7 +40,7 @@ func (e *APIResponseError) Error() string {
 	return strings.Join(msgs, "\n")
 }
 
-// InvalidQueryOptionError is an invalid option error.
+// InvalidQueryOptionError represents an error for an invalid query option.
 type InvalidQueryOptionError struct {
 	Invalid   queryType
 	ValidList []queryType
@@ -62,7 +62,7 @@ func (e *InvalidQueryOptionError) Error() string {
 	return fmt.Sprintf("invalid option:%s, allowed options:%s", e.Invalid.Value(), strings.Join(types, ","))
 }
 
-// InvalidFormOptionError is an invalid option error.
+// InvalidFormOptionError represents an error for an invalid form option.
 type InvalidFormOptionError struct {
 	Invalid   formType
 	ValidList []formType

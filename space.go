@@ -1,6 +1,6 @@
 package backlog
 
-// SpaceService has methods for Space.
+// SpaceService handles communication with the space-related methods of the Backlog API.
 type SpaceService struct {
 	method *method
 
