@@ -60,7 +60,7 @@ var (
 
 var (
 	ExportNewInternalClientError = newInternalClientError
-	ExportCeckResponse           = checkResponse
+	ExportCheckResponse          = checkResponse
 	ExportCreateFormFile         = createFormFile
 	ExportCopy                   = copy
 )

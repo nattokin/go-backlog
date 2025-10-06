@@ -40,8 +40,8 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	s.List(projectKey)
 }
 
-func TestProjectActivityService_List_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestProjectActivityService_List_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func TestUserActivityService_List(t *testing.T) {
 	s.List(id)
 }
 
-func TestUserActivityService_List_invaliedID(t *testing.T) {
+func TestUserActivityService_List_invalidID(t *testing.T) {
 	id := 0
 	s := &backlog.UserActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{

@@ -196,8 +196,8 @@ func TestUserService_All(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestUserService_All_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestUserService_All_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -287,8 +287,8 @@ func TestUserService_Own(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestUserService_Own_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestUserService_Own_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -394,8 +394,8 @@ func TestUserService_Add(t *testing.T) {
 	}
 }
 
-func TestUserService_Add_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestUserService_Add_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -565,8 +565,8 @@ func TestUserService_Update_option(t *testing.T) {
 	}
 }
 
-func TestUserService_Update_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestUserService_Update_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -639,8 +639,8 @@ func TestUserService_Delete(t *testing.T) {
 	}
 }
 
-func TestUserService_Delete_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestUserService_Delete_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}

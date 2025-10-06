@@ -86,7 +86,7 @@ func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
 }
 
 func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -232,7 +232,7 @@ func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -362,7 +362,7 @@ func TestWikiAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -505,7 +505,7 @@ func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -631,7 +631,7 @@ func TestIssueAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -765,7 +765,7 @@ func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -911,7 +911,7 @@ func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1068,7 +1068,7 @@ func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
