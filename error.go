@@ -15,7 +15,7 @@ type Error struct {
 
 // Error returns the API error message.
 func (e *Error) Error() string {
-	msg := fmt.Sprintf("Massage:%s, Code:%d", e.Message, e.Code)
+	msg := fmt.Sprintf("Message:%s, Code:%d", e.Message, e.Code)
 
 	if e.MoreInfo == "" {
 		return msg
@@ -32,14 +32,13 @@ type APIResponseError struct {
 
 // Error returns all error messages in APIResponseError.
 func (e *APIResponseError) Error() string {
-	len := len(e.Errors)
-	msgs := make([]string, len)
+	msgs := make([]string, len(e.Errors))
 
-	for i := 0; i < len; i++ {
-		msgs[i] = e.Errors[i].Error()
+	for i, err := range e.Errors {
+		msgs[i] = err.Error()
 	}
 
-	return strings.Join(msgs, "\n")
+	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
 // InvalidQueryOptionError represents an error for an invalid query option.

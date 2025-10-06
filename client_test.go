@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -53,6 +54,8 @@ func TestNewClient(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			c, err := backlog.NewClient(tc.url, tc.token)
 
 			switch {
@@ -396,6 +399,8 @@ func TestClient_NewReqest(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			request, err := backlog.ExportClientNewReqest(c, tc.method, tc.spath, tc.header, tc.body, tc.query)
 
 			switch {
@@ -820,99 +825,111 @@ func TestClient_Upload_copyError(t *testing.T) {
 }
 
 func TestCheckResponse(t *testing.T) {
+	const apiErrorBody = `{"errors":[{"message": "No project.", "code": 6, "moreInfo": ""}]}`
+	const wantErrorStringFormat = "Status Code:%d\nMessage:No project., Code:6"
+
 	cases := map[string]struct {
-		statusCode int
-		wantError  bool
+		statusCode        int
+		body              io.ReadCloser
+		wantNilResponse   bool
+		wantErr           bool
+		wantErrStatusCode int
+		wantEmptyBodyTest bool // Indicates a test case with a nil response body
 	}{
-		"199": {
-			statusCode: 199,
-			wantError:  true,
+		"Status OK (200)": {
+			statusCode:      http.StatusOK,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: false,
 		},
-		"200": {
-			statusCode: 200,
-			wantError:  false,
+		"Status Created (201)": {
+			statusCode:      http.StatusCreated,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: false,
 		},
-		"299": {
-			statusCode: 299,
-			wantError:  false,
+		// Test 204 No Content handling: should return (nil, nil)
+		"Status No Content (204) with nil body": {
+			statusCode:      http.StatusNoContent,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: true,
 		},
-		"300": {
-			statusCode: 300,
-			wantError:  true,
+		// Test 204 No Content handling with body: should return (nil, nil)
+		"Status No Content (204) with non-nil body": {
+			statusCode:      http.StatusNoContent,
+			body:            io.NopCloser(bytes.NewReader([]byte(`{"data":"ignored"}`))),
+			wantNilResponse: true,
+		},
+		// Test 4xx/5xx error handling with valid body
+		"Status Bad Request (400)": {
+			statusCode:        http.StatusBadRequest,
+			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusBadRequest,
+		},
+		// Test 4xx/5xx error handling with nil body (to check defer r.Body.Close() and JSON unmarshal resilience)
+		"Status Not Found (404) with nil body": {
+			statusCode:        http.StatusNotFound,
+			body:              nil,
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusNotFound,
+			wantEmptyBodyTest: true,
+		},
+		"Status Internal Server Error (500)": {
+			statusCode:        http.StatusInternalServerError,
+			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusInternalServerError,
+		},
+		"Status Bad Request (400) with invalid JSON": {
+			statusCode:        http.StatusBadRequest,
+			body:              io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"invalid json...`))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusBadRequest,
+			wantEmptyBodyTest: true,
 		},
 	}
-	for n, tc := range cases {
+
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
-			body := io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
 			resp := &http.Response{
 				StatusCode: tc.statusCode,
-				Body:       body,
+				Body:       tc.body,
 			}
 
-			if r, err := backlog.ExportCheckResponse(resp); tc.wantError {
-				assert.NotNil(t, err)
+			// Use the exported function from backlog package
+			r, err := backlog.ExportCheckResponse(resp)
+
+			// 1. Validate response pointer
+			if tc.wantNilResponse {
+				assert.Nil(t, r, "Response should be nil")
 			} else {
-				assert.Equal(t, resp, r)
+				assert.NotNil(t, r, "Response should NOT be nil")
+			}
+
+			// 2. Validate error
+			if tc.wantErr {
+				assert.Error(t, err)
+
+				apiErr, ok := err.(*backlog.APIResponseError)
+				if assert.True(t, ok, "Error should be *backlog.APIResponseError") {
+					// Validate StatusCode
+					assert.Equal(t, tc.wantErrStatusCode, apiErr.StatusCode, "StatusCode mismatch")
+
+					// Validate error message only if a body was provided
+					if !tc.wantEmptyBodyTest {
+						wantMsg := fmt.Sprintf(wantErrorStringFormat, tc.wantErrStatusCode)
+						assert.Equal(t, wantMsg, apiErr.Error(), "Error message mismatch")
+					}
+				}
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
-}
-
-// TestCheckResponse_statusNoContent tests that ExportCheckResponse returns (nil, nil)
-// for HTTP 204 No Content responses, regardless of whether the body is empty or not.
-func TestCheckResponse_statusNoContent(t *testing.T) {
-	cases := map[string]struct {
-		bodyIsEmpty bool
-	}{
-		"body is empty": {
-			bodyIsEmpty: true,
-		},
-		"body is not empty": {
-			bodyIsEmpty: false,
-		},
-	}
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			var body io.ReadCloser
-			if tc.bodyIsEmpty {
-				body = io.NopCloser(bytes.NewReader(nil))
-			} else {
-				body = io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
-			}
-
-			resp := &http.Response{
-				StatusCode: http.StatusNoContent,
-				Body:       body,
-			}
-
-			r, e := backlog.ExportCheckResponse(resp)
-			// For HTTP 204 No Content, both response and error should be nil.
-			assert.Nil(t, r)
-			assert.NoError(t, e, "Expected no error for 204 No Content")
-		})
-	}
-
-}
-
-func TestCheckResponse_emptyBody(t *testing.T) {
-	resp := &http.Response{
-		StatusCode: http.StatusBadRequest,
-		Body:       nil,
-	}
-	_, err := backlog.ExportCheckResponse(resp)
-	assert.Error(t, err)
-}
-
-func TestCheckResponse_statusBadRequestWithInvalidJSON(t *testing.T) {
-	body := io.NopCloser(bytes.NewReader([]byte(`{invalid}`)))
-
-	resp := &http.Response{
-		StatusCode: http.StatusBadRequest,
-		Body:       body,
-	}
-	_, err := backlog.ExportCheckResponse(resp)
-	assert.IsType(t, &backlog.APIResponseError{}, err)
 }
