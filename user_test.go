@@ -1,9 +1,10 @@
 package backlog_test
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"testing"
 
@@ -12,14 +13,13 @@ import (
 )
 
 func TestUserService_One_getUser(t *testing.T) {
+	t.Parallel()
+
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -28,7 +28,7 @@ func TestUserService_One_getUser(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 			}
 			return resp, nil
 		},
@@ -49,10 +49,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 
 	projectKey := "TEST"
 	excludeGroupMembers := false
-	bj, err := os.Open("testdata/json/user_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	s := &backlog.ProjectUserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -60,7 +57,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			assert.Equal(t, strconv.FormatBool(excludeGroupMembers), query.Get("excludeGroupMembers"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
 			}
 			return resp, nil
 		},
@@ -74,15 +71,14 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 }
 
 func TestUserService_Add_addUser(t *testing.T) {
+	t.Parallel()
+
 	userID := "admin"
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -94,7 +90,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 			assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 			}
 			return resp, nil
 		},
@@ -108,6 +104,8 @@ func TestUserService_Add_addUser(t *testing.T) {
 }
 
 func TestProjectUserService_Delete_deleteUser(t *testing.T) {
+	t.Parallel()
+
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
@@ -115,10 +113,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 
 	projectKey := "TEST"
 	id := 1
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	s := &backlog.ProjectUserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -126,7 +121,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			assert.Equal(t, strconv.Itoa(id), form.Get("userId"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 			}
 			return resp, nil
 		},
@@ -140,16 +135,15 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 }
 
 func TestUserService_Update_updateUser(t *testing.T) {
+	t.Parallel()
+
 	id := 1
 	userID := "admin"
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -161,7 +155,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 			assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 			}
 			return resp, nil
 		},
@@ -197,18 +191,14 @@ func TestUserService_All(t *testing.T) {
 }
 
 func TestUserService_All_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -288,18 +278,14 @@ func TestUserService_Own(t *testing.T) {
 }
 
 func TestUserService_Own_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -395,18 +381,14 @@ func TestUserService_Add(t *testing.T) {
 }
 
 func TestUserService_Add_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -566,18 +548,14 @@ func TestUserService_Update_option(t *testing.T) {
 }
 
 func TestUserService_Update_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -640,18 +618,14 @@ func TestUserService_Delete(t *testing.T) {
 }
 
 func TestUserService_Delete_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},

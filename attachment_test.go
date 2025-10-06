@@ -1,6 +1,7 @@
 package backlog_test
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"net/http"
@@ -13,11 +14,7 @@ import (
 )
 
 func TestSpaceAttachmentService_Upload(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_upload.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	fpath := "fpath"
 	fname := "test.txt"
@@ -45,7 +42,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			assert.Equal(t, want.fname, fname)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
 			}
 			return resp, nil
 		},
@@ -86,18 +83,14 @@ func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
 }
 
 func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -115,12 +108,9 @@ func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Attach(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
+	body := io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON)))
 	wikiID := 1234
 	spath := "wikis/1234/attachments"
 
@@ -145,7 +135,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			assert.Equal(t, []string{"2"}, v["attachmentId[]"])
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       body,
 			}
 			return resp, nil
 		},
@@ -192,18 +182,14 @@ func TestWikiAttachmentService_Attach_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/attachment_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.WikiAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 					}
 					return resp, nil
 				},
@@ -232,18 +218,14 @@ func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -254,11 +236,7 @@ func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
 }
 
 func TestWikiAttachmentService_List(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	wikiID := 1234
 	spath := "wikis/1234/attachments"
@@ -282,7 +260,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 			}
 			return resp, nil
 		},
@@ -320,18 +298,14 @@ func TestWikiAttachmentService_List_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/attachment_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.WikiAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 					}
 					return resp, nil
 				},
@@ -362,18 +336,14 @@ func TestWikiAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -384,11 +354,7 @@ func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Remove(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	wikiID := 1234
 	attachmentID := 8
@@ -413,7 +379,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 			}
 			return resp, nil
 		},
@@ -430,11 +396,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Remove_param(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	cases := map[string]struct {
 		wikiID       int
@@ -476,7 +438,7 @@ func TestWikiAttachmentService_Remove_param(t *testing.T) {
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 					}
 					return resp, nil
 				},
@@ -505,18 +467,14 @@ func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -527,11 +485,7 @@ func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
 }
 
 func TestIssueAttachmentService_List(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	issueIDOrKey := "1234"
 	spath := "issues/1234/attachments"
@@ -555,7 +509,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 			}
 			return resp, nil
 		},
@@ -589,18 +543,14 @@ func TestIssueAttachmentService_List_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/attachment_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.IssueAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 					}
 					return resp, nil
 				},
@@ -631,18 +581,14 @@ func TestIssueAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -653,11 +599,7 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 }
 
 func TestIssueAttachmentService_Remove(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	issueIDOrKey := "1234"
 	attachmentID := 8
@@ -683,7 +625,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 			}
 			return resp, nil
 		},
@@ -700,11 +642,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 }
 
 func TestIssueAttachmentService_Remove_param(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	cases := map[string]struct {
 		issueIDOrKey string
@@ -736,7 +674,7 @@ func TestIssueAttachmentService_Remove_param(t *testing.T) {
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 					}
 					return resp, nil
 				},
@@ -765,18 +703,14 @@ func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -787,11 +721,7 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_List(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	projectKey := "TEST"
 	repositoryIDOrName := "test"
@@ -817,7 +747,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 			}
 			return resp, nil
 		},
@@ -834,12 +764,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_List_param(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
 	cases := map[string]struct {
 		projectIDOrKey     string
 		repositoryIDOrName string
@@ -875,12 +799,14 @@ func TestPullRequestAttachmentService_List_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			s := &backlog.PullRequestAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
 					}
 					return resp, nil
 				},
@@ -911,18 +837,14 @@ func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -933,11 +855,7 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_Remove(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	projectKey := "TEST"
 	repositoryIDOrName := "test"
@@ -964,7 +882,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 			}
 			return resp, nil
 		},
@@ -981,12 +899,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
-	bj, err := os.Open("testdata/json/attachment.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
-
 	cases := map[string]struct {
 		projectIDOrKey     string
 		repositoryIDOrName string
@@ -1039,7 +951,7 @@ func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
 					}
 					return resp, nil
 				},
@@ -1068,18 +980,14 @@ func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
 }
 
 func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},

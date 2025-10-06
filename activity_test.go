@@ -1,9 +1,10 @@
 package backlog_test
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"testing"
 
@@ -41,18 +42,14 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 }
 
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectActivityService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -234,11 +231,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/activity_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.SpaceActivityService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -251,7 +244,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 					}
 					return resp, nil
 				},

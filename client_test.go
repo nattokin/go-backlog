@@ -17,6 +17,8 @@ import (
 )
 
 func TestNewClientError(t *testing.T) {
+	t.Parallel()
+
 	msg := "test error message"
 	e := backlog.ExportNewInternalClientError(msg)
 
@@ -78,20 +80,18 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClient_project(t *testing.T) {
+	t.Parallel()
+
 	key := "TEST"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 		}
 
 		return resp, nil
@@ -105,21 +105,19 @@ func TestNewClient_project(t *testing.T) {
 }
 
 func TestNewClient_projectUser(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "TEST"
 	userID := 1
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 		}
 
 		return resp, nil
@@ -133,20 +131,18 @@ func TestNewClient_projectUser(t *testing.T) {
 }
 
 func TestNewClient_projectActivity(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "SUB"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
@@ -160,20 +156,18 @@ func TestNewClient_projectActivity(t *testing.T) {
 }
 
 func TestNewClient_spaceActivity(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "SUB"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
@@ -187,20 +181,18 @@ func TestNewClient_spaceActivity(t *testing.T) {
 }
 
 func TestNewClient_spaceAttachment(t *testing.T) {
+	t.Parallel()
+
 	fname := "test.txt"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/attachment_upload.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
 		}
 
 		return resp, nil
@@ -220,21 +212,19 @@ func TestNewClient_spaceAttachment(t *testing.T) {
 }
 
 func TestNewClient_user(t *testing.T) {
+	t.Parallel()
+
 	userID := 1
 	userName := "admin"
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 		}
 
 		return resp, nil
@@ -248,20 +238,18 @@ func TestNewClient_user(t *testing.T) {
 }
 
 func TestNewClient_userActivity(t *testing.T) {
+	t.Parallel()
+
 	userID := 1
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
@@ -275,22 +263,20 @@ func TestNewClient_userActivity(t *testing.T) {
 }
 
 func TestNewClient_wiki(t *testing.T) {
+	t.Parallel()
+
 	projectID := 1
 	name := "Minimum Wiki Page"
 	content := "This is a minimal wiki page."
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/wiki_minimum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 		}
 
 		return resp, nil
@@ -417,6 +403,8 @@ func TestClient_NewReqest(t *testing.T) {
 }
 
 func TestClient_Do(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	header := http.Header{}
@@ -478,6 +466,8 @@ func TestClient_Do(t *testing.T) {
 }
 
 func TestClient_Do_httpClientError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	emsg := "http client error"
@@ -496,6 +486,8 @@ func TestClient_Do_httpClientError(t *testing.T) {
 }
 
 func TestClient_Do_errorResponse(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
 	header := http.Header{}
@@ -787,6 +779,8 @@ func TestClient_Upload_emptyFileName(t *testing.T) {
 }
 
 func TestClient_Upload_createFormFileError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetWrapper(&backlog.ExportWrapper{
 		CreateFormFile: func(w *multipart.Writer, fname string) (io.Writer, error) {
@@ -795,17 +789,14 @@ func TestClient_Upload_createFormFileError(t *testing.T) {
 		Copy: backlog.ExportCopy,
 	})
 
-	f, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
+	f := io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON)))
+	_, err := backlog.ExportClientUpload(c, "spath", "filename", f)
 	assert.Error(t, err)
 }
 
 func TestClient_Upload_copyError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetWrapper(&backlog.ExportWrapper{
 		CreateFormFile: backlog.ExportCreateFormFile,
@@ -814,13 +805,9 @@ func TestClient_Upload_copyError(t *testing.T) {
 		},
 	})
 
-	f, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
+	f := io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON)))
 
-	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
+	_, err := backlog.ExportClientUpload(c, "spath", "filename", f)
 	assert.Error(t, err)
 }
 

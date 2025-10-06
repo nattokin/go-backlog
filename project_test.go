@@ -1,9 +1,10 @@
 package backlog_test
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"testing"
 
@@ -12,11 +13,7 @@ import (
 )
 
 func TestProjectService_All(t *testing.T) {
-	bj, err := os.Open("testdata/json/project_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		idList   []int
@@ -31,7 +28,7 @@ func TestProjectService_All(t *testing.T) {
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
 			}
 			return resp, nil
 		},
@@ -98,11 +95,7 @@ func TestProjectService_All_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -112,7 +105,7 @@ func TestProjectService_All_option(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
 					}
 					return resp, nil
 				},
@@ -128,11 +121,7 @@ func TestProjectService_All_option(t *testing.T) {
 }
 
 func TestProjectService_AdminAll(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		spath    string
@@ -152,7 +141,7 @@ func TestProjectService_AdminAll(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -211,11 +200,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -225,7 +210,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
 					}
 					return resp, nil
 				},
@@ -241,11 +226,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 }
 
 func TestProjectService_AllArchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		spath    string
@@ -263,7 +244,7 @@ func TestProjectService_AllArchived(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -275,11 +256,7 @@ func TestProjectService_AllArchived(t *testing.T) {
 }
 
 func TestProjectService_AdminAllArchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		spath    string
@@ -299,7 +276,7 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -311,11 +288,7 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 }
 
 func TestProjectService_AllUnarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		spath    string
@@ -333,7 +306,7 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -345,11 +318,7 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 }
 
 func TestProjectService_AdminAllUnarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	want := struct {
 		spath    string
@@ -369,7 +338,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -392,12 +361,9 @@ func TestProjectService_All_clientError(t *testing.T) {
 }
 
 func TestProjectService_One_key(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "TEST"
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath string
@@ -415,7 +381,7 @@ func TestProjectService_One_key(t *testing.T) {
 			assert.Nil(t, query)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -427,12 +393,9 @@ func TestProjectService_One_key(t *testing.T) {
 }
 
 func TestProjectService_One_id(t *testing.T) {
+	t.Parallel()
+
 	projectID := 6
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath string
@@ -450,7 +413,7 @@ func TestProjectService_One_id(t *testing.T) {
 			assert.Nil(t, query)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -462,18 +425,14 @@ func TestProjectService_One_id(t *testing.T) {
 }
 
 func TestProjectService_One_key_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -495,18 +454,14 @@ func TestProjectService_One_clientError(t *testing.T) {
 }
 
 func TestProjectService_One_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -518,13 +473,10 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 }
 
 func TestProjectService_Create(t *testing.T) {
+	t.Parallel()
+
 	key := "TEST"
 	name := "test"
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath string
@@ -544,7 +496,7 @@ func TestProjectService_Create(t *testing.T) {
 			assert.Equal(t, want.name, form.Get("name"))
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -580,11 +532,7 @@ func TestProjectService_Create_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -594,7 +542,7 @@ func TestProjectService_Create_param(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 					}
 					return resp, nil
 				},
@@ -667,11 +615,7 @@ func TestProjectService_Create_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -683,7 +627,7 @@ func TestProjectService_Create_option(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 					}
 					return resp, nil
 				},
@@ -710,18 +654,14 @@ func TestProjectService_Create_clientError(t *testing.T) {
 }
 
 func TestProjectService_Create_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -733,12 +673,9 @@ func TestProjectService_Create_invalidJson(t *testing.T) {
 }
 
 func TestProjectService_Update(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "TEST"
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath      string
@@ -754,7 +691,7 @@ func TestProjectService_Update(t *testing.T) {
 			assert.NotNil(t, form)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -789,18 +726,14 @@ func TestProjectService_Update_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 					}
 					return resp, nil
 				},
@@ -878,11 +811,7 @@ func TestProjectService_Update_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
@@ -897,7 +826,7 @@ func TestProjectService_Update_option(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 					}
 					return resp, nil
 				},
@@ -924,18 +853,14 @@ func TestProjectService_Update_clientError(t *testing.T) {
 }
 
 func TestProjectService_Update_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -971,18 +896,14 @@ func TestProjectService_Delete_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/project.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.ProjectService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 					}
 					return resp, nil
 				},
@@ -998,12 +919,9 @@ func TestProjectService_Delete_param(t *testing.T) {
 }
 
 func TestProjectService_Delete(t *testing.T) {
+	t.Parallel()
+
 	projectKey := "TEST"
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath string
@@ -1019,7 +937,7 @@ func TestProjectService_Delete(t *testing.T) {
 			assert.NotNil(t, form)
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 			}
 			return resp, nil
 		},
@@ -1041,18 +959,14 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 }
 
 func TestProjectService_Delete_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.ProjectService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},

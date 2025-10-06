@@ -1,10 +1,11 @@
 package backlog_test
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -14,12 +15,9 @@ import (
 )
 
 func TestWikiService_All(t *testing.T) {
+	t.Parallel()
+
 	projectIDOrKey := "103"
-	bj, err := os.Open("testdata/json/wiki_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath          string
@@ -40,7 +38,7 @@ func TestWikiService_All(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
 			}
 			return resp, nil
 		},
@@ -104,17 +102,13 @@ func TestWikiService_All_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki_list.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
 					}
 					return resp, nil
 				},
@@ -131,18 +125,14 @@ func TestWikiService_All_param(t *testing.T) {
 }
 
 func TestWikiService_All_param_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
 			}
 			return resp, nil
 		},
@@ -167,23 +157,19 @@ func TestWikiService_All_clientError(t *testing.T) {
 }
 
 func TestWikiService_All_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
 	})
-	_, err = s.All("TEST")
+	_, err := s.All("TEST")
 	assert.Error(t, err)
 }
 
@@ -218,18 +204,14 @@ func TestWikiService_Count(t *testing.T) {
 }
 
 func TestWikiService_Count_param_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
 			}
 			return resp, nil
 		},
@@ -255,18 +237,14 @@ func TestWikiService_Count_clientError(t *testing.T) {
 }
 
 func TestWikiService_Count_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -277,12 +255,9 @@ func TestWikiService_Count_invalidJson(t *testing.T) {
 }
 
 func TestWikiService_One(t *testing.T) {
+	t.Parallel()
+
 	wikiID := 34
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		spath  string
@@ -301,7 +276,7 @@ func TestWikiService_One(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -313,11 +288,7 @@ func TestWikiService_One(t *testing.T) {
 }
 
 func TestWikiService_One_param(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	cases := map[string]struct {
 		wikiID    int
@@ -345,7 +316,7 @@ func TestWikiService_One_param(t *testing.T) {
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 					}
 					return resp, nil
 				},
@@ -374,18 +345,14 @@ func TestWikiService_One_clientError(t *testing.T) {
 }
 
 func TestWikiService_One_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -396,15 +363,12 @@ func TestWikiService_One_invalidJson(t *testing.T) {
 }
 
 func TestWikiService_Create(t *testing.T) {
+	t.Parallel()
+
 	projectID := 56
 	wikiID := 34
 	name := "Minimum Wiki Page"
 	content := "This is a minimal wiki page."
-	bj, err := os.Open("testdata/json/wiki_minimum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		wikiID     int
@@ -430,7 +394,7 @@ func TestWikiService_Create(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 			}
 			return resp, nil
 		},
@@ -485,18 +449,14 @@ func TestWikiService_Create_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki_minimum.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 					}
 					return resp, nil
 				},
@@ -523,18 +483,14 @@ func TestWikiService_Create_clientError(t *testing.T) {
 }
 
 func TestWikiService_Create_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -545,18 +501,14 @@ func TestWikiService_Create_invalidJson(t *testing.T) {
 }
 
 func TestWikiService_Create_OptionError(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_minimum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 			}
 			return resp, nil
 		},
@@ -570,18 +522,14 @@ func TestWikiService_Create_OptionError(t *testing.T) {
 }
 
 func TestWikiService_Create_invalidOption(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_minimum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 			}
 			return resp, nil
 		},
@@ -595,14 +543,11 @@ func TestWikiService_Create_invalidOption(t *testing.T) {
 }
 
 func TestWikiService_Update(t *testing.T) {
+	t.Parallel()
+
 	id := 34
 	name := "Maximum Wiki Page"
 	content := "This is a muximal wiki page."
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		id         int
@@ -628,7 +573,7 @@ func TestWikiService_Update(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -683,18 +628,14 @@ func TestWikiService_Update_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki_maximum.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 					}
 					return resp, nil
 				},
@@ -721,18 +662,14 @@ func TestWikiService_Update_clientError(t *testing.T) {
 }
 
 func TestWikiService_Update_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -743,18 +680,14 @@ func TestWikiService_Update_invalidJson(t *testing.T) {
 }
 
 func TestWikiService_Update_option_required(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -765,18 +698,14 @@ func TestWikiService_Update_option_required(t *testing.T) {
 }
 
 func TestWikiService_Update_invalidOption(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -790,12 +719,9 @@ func TestWikiService_Update_invalidOption(t *testing.T) {
 }
 
 func TestWikiService_Delete(t *testing.T) {
+	t.Parallel()
+
 	id := 34
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
 
 	want := struct {
 		id         int
@@ -815,7 +741,7 @@ func TestWikiService_Delete(t *testing.T) {
 
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -848,18 +774,14 @@ func TestWikiService_Delete_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			bj, err := os.Open("testdata/json/wiki_maximum.json")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer bj.Close()
+			t.Parallel()
 
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       bj,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 					}
 					return resp, nil
 				},
@@ -886,18 +808,14 @@ func TestWikiService_Delete_clientError(t *testing.T) {
 }
 
 func TestWikiService_Delete_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -908,18 +826,14 @@ func TestWikiService_Delete_invalidJson(t *testing.T) {
 }
 
 func TestWikiService_Delete_option_error(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
@@ -933,18 +847,14 @@ func TestWikiService_Delete_option_error(t *testing.T) {
 }
 
 func TestWikiService_Delete_invalidOption(t *testing.T) {
-	bj, err := os.Open("testdata/json/wiki_maximum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer bj.Close()
+	t.Parallel()
 
 	s := &backlog.WikiService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       bj,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
 			}
 			return resp, nil
 		},
