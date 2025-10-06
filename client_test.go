@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -18,7 +17,7 @@ import (
 
 func TestNewClientError(t *testing.T) {
 	msg := "test error massage"
-	e := backlog.ExportNewClientError(msg)
+	e := backlog.ExportNewInternalClientError(msg)
 
 	assert.Equal(t, msg, e.Error())
 }
@@ -444,7 +443,7 @@ func TestClient_Do(t *testing.T) {
 	}
 
 	bs, _ := json.Marshal(want)
-	body := ioutil.NopCloser(bytes.NewReader(bs))
+	body := io.NopCloser(bytes.NewReader(bs))
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
@@ -508,7 +507,7 @@ func TestClient_Do_errorResponse(t *testing.T) {
 	}
 
 	bs, _ := json.Marshal(apiErrors)
-	body := ioutil.NopCloser(bytes.NewReader(bs))
+	body := io.NopCloser(bytes.NewReader(bs))
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
@@ -843,7 +842,7 @@ func TestCeckResponse(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			body := ioutil.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
+			body := io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
 
 			resp := &http.Response{
 				StatusCode: tc.statusCode,
@@ -868,14 +867,14 @@ func TestCeckResponse_emptyBody(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestCeckResponse_invalidJSON(t *testing.T) {
-	body := ioutil.NopCloser(bytes.NewReader([]byte(`{{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
+func TestCeckResponse_StatusBadRequestWithInvalidJSON(t *testing.T) {
+	body := io.NopCloser(bytes.NewReader([]byte(`{{invalid json}`)))
 
 	resp := &http.Response{
 		StatusCode: http.StatusBadRequest,
 		Body:       body,
 	}
-	want := &json.SyntaxError{}
+	want := &backlog.APIResponseError{}
 
 	_, err := backlog.ExportCeckResponse(resp)
 	assert.IsType(t, want, err)
