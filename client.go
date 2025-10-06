@@ -16,17 +16,17 @@ const (
 	apiVersion = "v2"
 )
 
-// ClientError is a description of a Backlog API client error.
-type ClientError struct {
+// InternalClientError is an error type for client-side issues (e.g., missing token, URL parsing failure).
+type InternalClientError struct {
 	msg string
 }
 
-func (e *ClientError) Error() string {
+func (e *InternalClientError) Error() string {
 	return e.msg
 }
 
-func newClientError(msg string) *ClientError {
-	return &ClientError{msg: msg}
+func newInternalClientError(msg string) *InternalClientError {
+	return &InternalClientError{msg: msg}
 }
 
 // Client is a Backlog API client.
@@ -117,7 +117,7 @@ func copy(dst io.Writer, src io.Reader) error {
 // NewClient creates a new Backlog API Client.
 func NewClient(baseURL, token string) (*Client, error) {
 	if len(token) == 0 {
-		return nil, newClientError("missing token")
+		return nil, newInternalClientError("missing token")
 	}
 
 	parsedURL, err := url.ParseRequestURI(baseURL)
@@ -290,7 +290,7 @@ func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) 
 // upload performs a POST request to upload a file to the Backlog API.
 func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, error) {
 	if fileName == "" {
-		return nil, newClientError("fname is required")
+		return nil, newInternalClientError("fname is required")
 	}
 
 	var buf bytes.Buffer
@@ -313,19 +313,42 @@ func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, er
 
 // checkResponse checks the HTTP status code. If it indicates an error, it returns an API error.
 func checkResponse(r *http.Response) (*http.Response, error) {
-	if sc := r.StatusCode; 200 <= sc && sc <= 299 {
+	sc := r.StatusCode
+
+	// Check for success status codes (2xx)
+	if 200 <= sc && sc <= 299 {
+		// Handle 204 No Content
+		if sc == http.StatusNoContent {
+			if r.Body != nil {
+				r.Body.Close()
+			}
+			return nil, nil
+		}
+		// Return successful response
 		return r, nil
 	}
 
-	if r.Body == nil {
-		return nil, newClientError("response body is empty")
-	}
-	defer r.Body.Close()
+	// Handle error response (4xx/5xx)
+	defer func() {
+		// Ensure the response body is closed
+		if r.Body != nil {
+			r.Body.Close()
+		}
+	}()
 
-	e := &APIResponseError{}
-	if err := json.NewDecoder(r.Body).Decode(e); err != nil {
-		return nil, err
+	e := &APIResponseError{
+		StatusCode: sc,
 	}
 
+	// Attempt to decode error details from body
+	if r.Body != nil {
+		if err := json.NewDecoder(r.Body).Decode(e); err == nil {
+			// Successfully decoded API error
+			return nil, e
+		}
+	}
+
+	// If decoding fails (invalid JSON or empty body), return the APIResponseError
+	// containing only the StatusCode, as the error is from the API service.
 	return nil, e
 }

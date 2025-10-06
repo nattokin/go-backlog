@@ -128,7 +128,7 @@ func TestProjectService_All_option(t *testing.T) {
 }
 
 func TestProjectService_AdminAll(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +241,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 }
 
 func TestProjectService_AllArchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -275,7 +275,7 @@ func TestProjectService_AllArchived(t *testing.T) {
 }
 
 func TestProjectService_AdminAllArchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -311,7 +311,7 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 }
 
 func TestProjectService_AllUnarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -345,7 +345,7 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 }
 
 func TestProjectService_AdminAllUnarchived(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -495,7 +495,7 @@ func TestProjectService_One_clientError(t *testing.T) {
 }
 
 func TestProjectService_One_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -710,7 +710,7 @@ func TestProjectService_Create_clientError(t *testing.T) {
 }
 
 func TestProjectService_Create_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -924,7 +924,7 @@ func TestProjectService_Update_clientError(t *testing.T) {
 }
 
 func TestProjectService_Update_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1041,7 +1041,7 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 }
 
 func TestProjectService_Delete_invalidJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}

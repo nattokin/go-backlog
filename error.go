@@ -7,6 +7,7 @@ import (
 
 // Error represents one of Backlog API response errors.
 type Error struct {
+	// Message is the detailed error message from the API.
 	Message  string `json:"message,omitempty"`
 	Code     int    `json:"code,omitempty"`
 	MoreInfo string `json:"moreInfo,omitempty"`
@@ -25,7 +26,8 @@ func (e *Error) Error() string {
 
 // APIResponseError represents Error Response of Backlog API.
 type APIResponseError struct {
-	Errors []*Error `json:"errors,omitempty"`
+	StatusCode int      `json:"-"` // HTTP status code (4xx or 5xx)
+	Errors     []*Error `json:"errors,omitempty"`
 }
 
 // Error returns all error messages in APIResponseError.

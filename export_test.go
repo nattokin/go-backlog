@@ -59,10 +59,10 @@ var (
 )
 
 var (
-	ExportNewClientError = newClientError
-	ExportCeckResponse   = checkResponse
-	ExportCreateFormFile = createFormFile
-	ExportCopy           = copy
+	ExportNewInternalClientError = newInternalClientError
+	ExportCheckResponse          = checkResponse
+	ExportCreateFormFile         = createFormFile
+	ExportCopy                   = copy
 )
 
 var ExportQueryParamsWithOptions = (*QueryParams).withOptions

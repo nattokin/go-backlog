@@ -166,8 +166,8 @@ func TestWikiService_All_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_All_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_All_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -254,8 +254,8 @@ func TestWikiService_Count_clientError(t *testing.T) {
 	assert.Zero(t, count)
 }
 
-func TestWikiService_Count_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_Count_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -373,8 +373,8 @@ func TestWikiService_One_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_One_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_One_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -522,8 +522,8 @@ func TestWikiService_Create_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_Create_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_Create_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -720,8 +720,8 @@ func TestWikiService_Update_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_Update_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_Update_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -885,8 +885,8 @@ func TestWikiService_Delete_clientError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestWikiService_Delete_invaliedJson(t *testing.T) {
-	bj, err := os.Open("testdata/json/invalied.json")
+func TestWikiService_Delete_invalidJson(t *testing.T) {
+	bj, err := os.Open("testdata/json/invalid.json")
 	if err != nil {
 		t.Fatal(err)
 	}
