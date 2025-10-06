@@ -104,6 +104,7 @@ func TestWikiService_All_param(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
+			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					resp := &http.Response{
