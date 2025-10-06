@@ -354,37 +354,37 @@ func (*ProjectOptionService) WithQueryArchived(archived bool) *QueryOption {
 	return withQueryArchived(archived)
 }
 
-// WithFormKey returns a form option that sets the `key` field in the request body for project.
+// WithFormKey returns a form option that sets the `key` field in the request body for a project.
 func (*ProjectOptionService) WithFormKey(key string) *FormOption {
 	return withFormKey(key)
 }
 
-// WithFormName returns a form option that sets the `name` field in the request body for project.
+// WithFormName returns a form option that sets the `name` field in the request body for a project.
 func (*ProjectOptionService) WithFormName(name string) *FormOption {
 	return withFormName(name)
 }
 
-// WithFormChartEnabled returns a form option that sets the `chartEnabled` field in the request body for project.
+// WithFormChartEnabled returns a form option that sets the `chartEnabled` field in the request body for a project.
 func (*ProjectOptionService) WithFormChartEnabled(enabeld bool) *FormOption {
 	return withFormChartEnabled(enabeld)
 }
 
-// WithFormSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field in the request body for project.
+// WithFormSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field in the request body for a project.
 func (*ProjectOptionService) WithFormSubtaskingEnabled(enabeld bool) *FormOption {
 	return withFormSubtaskingEnabled(enabeld)
 }
 
-// WithFormProjectLeaderCanEditProjectLeader returns a form option that sets the `projectLeaderCanEditProjectLeader` field in the request body for project.
+// WithFormProjectLeaderCanEditProjectLeader returns a form option that sets the `projectLeaderCanEditProjectLeader` field in the request body for a project.
 func (*ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabeld bool) *FormOption {
 	return withFormProjectLeaderCanEditProjectLeader(enabeld)
 }
 
-// WithFormTextFormattingRule returns a form option that sets the `textFormattingRule` field in the request body for project.
+// WithFormTextFormattingRule returns a form option that sets the `textFormattingRule` field in the request body for a project.
 func (*ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOption {
 	return withFormTextFormattingRule(format)
 }
 
-// WithFormArchived returns a form option that sets the `archived` field in the request body for project.
+// WithFormArchived returns a form option that sets the `archived` field in the request body for a project.
 func (*ProjectOptionService) WithFormArchived(archived bool) *FormOption {
 	return withFormArchived(archived)
 }
@@ -408,7 +408,7 @@ func (*UserOptionService) WithFormMailAddress(mailAddress string) *FormOption {
 	return withFormMailAddress(mailAddress)
 }
 
-// WithFormRoleType returns a form option that sets the `roleType` field in the request body for user.
+// WithFormRoleType returns a form option that sets the `roleType` field in the request body for a user.
 func (*UserOptionService) WithFormRoleType(roleType Role) *FormOption {
 	return withFormRoleType(roleType)
 }
@@ -422,17 +422,17 @@ func (*WikiOptionService) WithQueryKeyword(keyword string) *QueryOption {
 	return withQueryKeyword(keyword)
 }
 
-// WithFormName returns a form option that sets the `name` field in the request body for wiki.
+// WithFormName returns a form option that sets the `name` field in the request body for a wiki.
 func (*WikiOptionService) WithFormName(name string) *FormOption {
 	return withFormName(name)
 }
 
-// WithFormContent returns a form option that sets the `content` field in the request body for wiki.
+// WithFormContent returns a form option that sets the `content` field in the request body for a wiki.
 func (*WikiOptionService) WithFormContent(content string) *FormOption {
 	return withFormContent(content)
 }
 
-// WithFormMailNotify returns a form option that sets the `mailNotify` field in the request body for wiki (e.g., true/false).
+// WithFormMailNotify returns a form option that sets the `mailNotify` field in the request body for a wiki (e.g., true/false).
 func (*WikiOptionService) WithFormMailNotify(enabeld bool) *FormOption {
 	return withFormMailNotify(enabeld)
 }

@@ -907,7 +907,7 @@ func TestCheckResponse_emptyBody(t *testing.T) {
 }
 
 func TestCheckResponse_statusBadRequestWithInvalidJSON(t *testing.T) {
-	body := io.NopCloser(bytes.NewReader([]byte(`{{invalid json}`)))
+	body := io.NopCloser(bytes.NewReader([]byte(`{invalid}`)))
 
 	resp := &http.Response{
 		StatusCode: http.StatusBadRequest,
