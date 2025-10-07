@@ -632,11 +632,38 @@ func TestWikiService_Update(t *testing.T) {
 			wantID:      34,
 			wantName:    "Maximum Wiki Page",
 		},
-		"success-content-and-notify": {
+		"success-content-only": {
+			wikiID:      34,
+			option:      option.WithFormContent("New Content"),
+			opts:        []*backlog.FormOption{},
+			httpStatus:  http.StatusOK,
+			httpBody:    testdataWikiMaximumJSON,
+			httpError:   nil,
+			wantError:   false,
+			wantErrType: nil,
+			wantID:      34,
+			wantName:    "Maximum Wiki Page",
+		},
+		"success-full-option": {
 			wikiID: 34,
-			option: option.WithFormContent("Updated content."),
+			option: option.WithFormName("New Page Name"),
 			opts: []*backlog.FormOption{
+				option.WithFormContent("New Content"),
 				option.WithFormMailNotify(true),
+			},
+			httpStatus:  http.StatusOK,
+			httpBody:    testdataWikiMaximumJSON,
+			httpError:   nil,
+			wantError:   false,
+			wantErrType: nil,
+			wantID:      34,
+			wantName:    "Maximum Wiki Page",
+		},
+		"success-main-option-not-required": {
+			wikiID: 34,
+			option: option.WithFormMailNotify(true),
+			opts: []*backlog.FormOption{
+				option.WithFormContent("New Content"),
 			},
 			httpStatus:  http.StatusOK,
 			httpBody:    testdataWikiMaximumJSON,
@@ -650,13 +677,8 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID:      12,
 			option:      option.WithFormMailNotify(true),
 			opts:        []*backlog.FormOption{},
-			httpStatus:  http.StatusBadRequest,
-			httpBody:    "",
-			httpError:   nil,
 			wantError:   true,
 			wantErrType: &backlog.ValidationError{},
-			wantID:      0,
-			wantName:    "",
 		},
 		"validation-error-invalid-wikiID": {
 			wikiID:      0,
@@ -667,12 +689,10 @@ func TestWikiService_Update(t *testing.T) {
 			httpError:   nil,
 			wantError:   true,
 			wantErrType: &backlog.ValidationError{},
-			wantID:      0,
-			wantName:    "",
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
-			option: option.WithFormMailNotify(false),
+			option: option.WithFormName("New Name"),
 			opts: []*backlog.FormOption{
 				(&backlog.ProjectOptionService{}).WithFormKey("Invalid Option"), // Invalid option type for WikiService
 			},
@@ -681,12 +701,10 @@ func TestWikiService_Update(t *testing.T) {
 			httpError:   nil,
 			wantError:   true,
 			wantErrType: &backlog.InvalidFormOptionError{},
-			wantID:      0,
-			wantName:    "",
 		},
 		"validation-error-option-set-fail": {
 			wikiID: 12,
-			option: option.WithFormMailNotify(false),
+			option: option.WithFormName("New Name"),
 			opts: []*backlog.FormOption{
 				backlog.ExportNewFormOption(
 					backlog.ExportFormMailNotify,
@@ -695,13 +713,8 @@ func TestWikiService_Update(t *testing.T) {
 					},
 				),
 			},
-			httpStatus:  0,
-			httpBody:    "",
-			httpError:   nil,
 			wantError:   true,
 			wantErrType: &backlog.ValidationError{},
-			wantID:      0,
-			wantName:    "",
 		},
 		"client-error-network-failure": {
 			wikiID:      13,
