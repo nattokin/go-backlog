@@ -71,6 +71,9 @@ func withQueryActivityTypeIDs(typeIDs []int) *QueryOption {
 			if id < 1 || 26 < id {
 				return newValidationError("activityTypeId must be between 1 and 26")
 			}
+		}
+
+		for _, id := range typeIDs {
 			query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 		}
 		return nil

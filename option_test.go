@@ -81,10 +81,10 @@ func TestQueryOptionService_WithActivityTypeIDs(t *testing.T) {
 
 			if err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryActivityTypeIDs); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("activityTypeId[]"))
+				assert.Empty(t, query.Values)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.want, query.Get("activityTypeId[]"))
+				assert.Equal(t, tc.want, (*query.Values)["activityTypeId[]"])
 			}
 		})
 
@@ -208,7 +208,7 @@ func TestQueryOptionService_WithCount(t *testing.T) {
 
 			if err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryCount); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("count"))
+				assert.Empty(t, query.Get("count"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.count), query.Get("count"))
@@ -279,7 +279,7 @@ func TestQueryOptionService_WithMinID(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("minId"))
+				assert.Empty(t, query.Get("minId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.minID), query.Get("minId"))
@@ -320,7 +320,7 @@ func TestQueryOptionService_WithMaxID(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("maxId"))
+				assert.Empty(t, query.Get("maxId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.maxID), query.Get("maxId"))
@@ -447,10 +447,10 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("activityTypeId[]"))
+				assert.Empty(t, query.Values)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.want, query.Get("activityTypeId[]"))
+				assert.Equal(t, tc.want, (*query.Values)["activityTypeId[]"])
 			}
 		})
 
@@ -488,7 +488,7 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("minId"))
+				assert.Empty(t, query.Get("minId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.minID), query.Get("minId"))
@@ -529,7 +529,7 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("maxId"))
+				assert.Empty(t, query.Get("maxId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.maxID), query.Get("maxId"))
@@ -578,7 +578,7 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("count"))
+				assert.Empty(t, query.Get("count"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.count), query.Get("count"))
@@ -623,7 +623,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, query.Get("order"))
+				assert.Empty(t, query.Get("order"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, string(tc.order), query.Get("order"))
@@ -689,7 +689,7 @@ func TestProjectOptionService_WithFormKey(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("key"))
+				assert.Empty(t, form.Get("key"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.key, form.Get("key"))
@@ -726,7 +726,7 @@ func TestProjectOptionService_WithFormName(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("name"))
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
@@ -858,7 +858,7 @@ func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("textFormattingRule"))
+				assert.Empty(t, form.Get("textFormattingRule"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, string(tc.format), form.Get("textFormattingRule"))
@@ -928,7 +928,7 @@ func TestUserOptionService_WithFormPassword(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("password"))
+				assert.Empty(t, form.Get("password"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.password, form.Get("password"))
@@ -965,7 +965,7 @@ func TestUserOptionService_WithFormName(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("name"))
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
@@ -1015,7 +1015,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("mailAddress"))
+				assert.Empty(t, form.Get("mailAddress"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.mailAddress, form.Get("mailAddress"))
@@ -1085,7 +1085,7 @@ func TestUserOptionService_WithFormRoleType(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("roleType"))
+				assert.Empty(t, form.Get("roleType"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.want, form.Get("roleType"))
@@ -1151,7 +1151,7 @@ func TestWikiOptionService_WithFormName(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("name"))
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
@@ -1188,7 +1188,7 @@ func TestWikiOptionService_WithFormContent(t *testing.T) {
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, form.Get("content"))
+				assert.Empty(t, form.Get("content"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.content, form.Get("content"))
