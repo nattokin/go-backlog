@@ -653,6 +653,16 @@ func TestWikiService_Update(t *testing.T) {
 			wantError:   true,
 			wantErrType: &backlog.ValidationError{},
 		},
+		"validation-error-invalid-option-type": {
+			wikiID: 12,
+			option: option.WithFormMailNotify(false),
+			opts: []*backlog.FormOption{
+				(&backlog.ProjectOptionService{}).WithFormKey("Invalid Option"),
+			},
+			wantError:   true,
+			wantErrType: &backlog.InvalidFormOptionError{},
+			wantID:      12,
+		},
 		"client-error-network-failure": {
 			wikiID:      13,
 			option:      option.WithFormName("New Name"),
