@@ -680,7 +680,6 @@ func TestWikiService_Update(t *testing.T) {
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-					// 成功時とAPIエラー時の処理
 					resp := &http.Response{
 						StatusCode: tc.httpStatus,
 						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
@@ -689,14 +688,10 @@ func TestWikiService_Update(t *testing.T) {
 				},
 			})
 
-			// 実行
 			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
-
-			// 検証
 			if tc.wantError {
 				assert.Error(t, err)
 				if tc.wantErrType != nil {
-					// 特定のエラー型の検証（ValidationErrorなど）
 					assert.IsType(t, tc.wantErrType, err)
 				}
 			} else {
@@ -712,160 +707,150 @@ func TestWikiService_Update(t *testing.T) {
 func TestWikiService_Delete(t *testing.T) {
 	t.Parallel()
 
-	id := 34
+	option := &backlog.WikiOptionService{}
 
-	want := struct {
-		id         int
-		spath      string
-		mailNotify string
-	}{
-		id:         id,
-		spath:      "wikis/" + strconv.Itoa(id),
-		mailNotify: "true",
+	type testCase struct {
+		wikiID         int
+		options        []*backlog.FormOption
+		httpStatus     int
+		httpBody       string
+		httpError      error
+		wantSpath      string
+		wantMailNotify string
+		expectAPICall  bool
+		wantError      bool
+		wantErrType    interface{}
+		wantID         int
 	}
 
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, form)
-			assert.Equal(t, want.mailNotify, form.Get("mailNotify"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
-			}
-			return resp, nil
+	cases := map[string]testCase{
+		"success-with-option": {
+			wikiID:         34,
+			options:        []*backlog.FormOption{option.WithFormMailNotify(true)},
+			httpStatus:     http.StatusOK,
+			httpBody:       testdataWikiMaximumJSON,
+			wantSpath:      "wikis/34",
+			wantMailNotify: "true",
+			expectAPICall:  true,
+			wantError:      false,
+			wantID:         34,
 		},
-	})
-
-	wiki, err := s.Delete(id, s.Option.WithFormMailNotify(true))
-	require.NoError(t, err)
-	assert.Equal(t, want.id, wiki.ID)
-}
-
-func TestWikiService_Delete_param(t *testing.T) {
-	cases := map[string]struct {
-		wikiID     int
-		mailNotify bool
-		wantError  bool
-	}{
-		"valid": {
-			wikiID:    1,
-			wantError: false,
+		"success-no-option": {
+			wikiID:         1,
+			options:        []*backlog.FormOption{},
+			httpStatus:     http.StatusOK,
+			httpBody:       testdataWikiMaximumJSON,
+			wantSpath:      "wikis/1",
+			wantMailNotify: "",
+			expectAPICall:  true,
+			wantError:      false,
+			wantID:         34,
 		},
-		"invalid-1": {
-			wikiID:    0,
-			wantError: true,
+		"validation-error-id-zero": {
+			wikiID:        0,
+			expectAPICall: false,
+			wantError:     true,
+			wantErrType:   &backlog.ValidationError{},
 		},
-		"invalid-2": {
-			wikiID:    -1,
-			wantError: true,
+		"validation-error-id-negative": {
+			wikiID:        -1,
+			expectAPICall: false,
+			wantError:     true,
+			wantErrType:   &backlog.ValidationError{},
+		},
+		"client-error-network-failure": {
+			wikiID:        34,
+			options:       []*backlog.FormOption{},
+			httpStatus:    http.StatusOK,
+			httpError:     errors.New("network error"),
+			wantSpath:     "wikis/34",
+			expectAPICall: true,
+			wantError:     true,
+			wantID:        0,
+		},
+		"api-error-invalid-json": {
+			wikiID:        34,
+			options:       []*backlog.FormOption{},
+			httpStatus:    http.StatusOK,
+			httpBody:      testdataInvalidJSON,
+			wantSpath:     "wikis/34",
+			expectAPICall: true,
+			wantError:     true,
+			wantID:        0,
+		},
+		"validation-error-option-set-fail": {
+			wikiID: 1,
+			options: []*backlog.FormOption{
+				backlog.ExportNewFormOption(
+					backlog.ExportFormMailNotify,
+					func(p *backlog.ExportRequestParams) error {
+						return errors.New("error during option set")
+					},
+				),
+			},
+			expectAPICall: false,
+			wantError:     true,
+			wantID:        0,
+		},
+		"validation-error-invalid-option-type": {
+			wikiID: 1,
+			options: []*backlog.FormOption{
+				option.WithFormName("Invalid Option"),
+			},
+			expectAPICall: false,
+			wantError:     true,
+			wantErrType:   &backlog.InvalidFormOptionError{},
+			wantID:        0,
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
+			calledAPICall := false
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					calledAPICall = true
+
+					if tc.expectAPICall {
+						assert.Equal(t, tc.wantSpath, spath)
+						if tc.wantMailNotify != "" {
+							assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
+						} else {
+							assert.Empty(t, form.Get("mailNotify"))
+						}
 					}
-					return resp, nil
+
+					resp := &http.Response{
+						StatusCode: tc.httpStatus,
+						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+					}
+					return resp, tc.httpError
 				},
 			})
 
-			if wiki, err := s.Delete(tc.wikiID); tc.wantError {
+			wiki, err := s.Delete(tc.wikiID, tc.options...)
+
+			if tc.expectAPICall {
+				assert.True(t, calledAPICall)
+			} else {
+				assert.False(t, calledAPICall)
+			}
+
+			if tc.wantError {
 				assert.Error(t, err)
+				if tc.wantErrType != nil {
+					assert.IsType(t, tc.wantErrType, err)
+				}
 				assert.Nil(t, wiki)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, wiki)
+				require.NotNil(t, wiki)
+				assert.Equal(t, tc.wantID, wiki.ID)
 			}
 		})
-
 	}
-}
-
-func TestWikiService_Delete_clientError(t *testing.T) {
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
-	})
-
-	wiki, err := s.Delete(1)
-	assert.Error(t, err)
-	assert.Nil(t, wiki)
-}
-
-func TestWikiService_Delete_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
-
-	wiki, err := s.Delete(1)
-	assert.Error(t, err)
-	assert.Nil(t, wiki)
-}
-
-func TestWikiService_Delete_option_error(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
-			}
-			return resp, nil
-		},
-	})
-
-	errorOption := backlog.ExportNewFormOption(backlog.ExportFormMailNotify, func(p *backlog.ExportRequestParams) error {
-		return errors.New("error")
-	})
-
-	wiki, err := s.Delete(1, errorOption)
-	assert.Error(t, err)
-	assert.Nil(t, wiki)
-}
-
-func TestWikiService_Delete_invalidOption(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
-			}
-			return resp, nil
-		},
-	})
-
-	invalidOption := backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
-		return nil
-	})
-
-	wiki, err := s.Delete(1, invalidOption)
-	assert.IsType(t, &backlog.InvalidFormOptionError{}, err)
-	assert.Nil(t, wiki)
 }
