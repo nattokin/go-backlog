@@ -186,14 +186,13 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 
 	options := append([]*FormOption{option}, opts...)
 
-	validOptions := []formType{formName, formContent, formMailNotify}
 	for _, option := range options {
-		if err := option.validate(validOptions); err != nil {
+		if err := option.validate([]formType{formName, formContent, formMailNotify}); err != nil {
 			return nil, err
 		}
 	}
 
-	if !checkRequiredOptionTypes(options, validOptions) {
+	if !checkRequiredOptionTypes(options, []formType{formName, formContent}) {
 		return nil, newValidationError("requires an option to modify wiki content or name (WithFormName or WithFormContent)")
 	}
 

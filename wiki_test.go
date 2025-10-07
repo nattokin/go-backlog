@@ -589,172 +589,124 @@ func TestWikiService_Create_invalidOption(t *testing.T) {
 func TestWikiService_Update(t *testing.T) {
 	t.Parallel()
 
-	id := 34
-	name := "Maximum Wiki Page"
-	content := "This is a muximal wiki page."
+	option := &backlog.WikiOptionService{}
 
-	want := struct {
-		id         int
-		spath      string
-		name       string
-		content    string
-		mailNotify string
-	}{
-		id:         id,
-		spath:      "wikis/" + strconv.Itoa(id),
-		name:       name,
-		content:    content,
-		mailNotify: "true",
+	type testCase struct {
+		wikiID int
+		option *backlog.FormOption
+		opts   []*backlog.FormOption
+
+		httpStatus int
+		httpBody   string
+		httpError  error
+
+		wantError   bool
+		wantErrType interface{}
+		wantID      int
+		wantName    string
 	}
 
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, form)
-			assert.Equal(t, want.name, form.Get("name"))
-			assert.Equal(t, want.content, form.Get("content"))
-			assert.Equal(t, want.mailNotify, form.Get("mailNotify"))
-
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
-			}
-			return resp, nil
+	cases := map[string]testCase{
+		"success-name-only": {
+			wikiID:     34,
+			option:     option.WithFormName("New Page Name"),
+			opts:       []*backlog.FormOption{},
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+			wantError:  false,
+			wantID:     34,
+			wantName:   "Maximum Wiki Page",
 		},
-	})
-
-	option := s.Option
-	wiki, err := s.Update(id, option.WithFormName(name), option.WithFormContent(content), option.WithFormMailNotify(true))
-	require.NoError(t, err)
-	assert.Equal(t, want.id, wiki.ID)
-	assert.Equal(t, want.name, wiki.Name)
-	assert.Equal(t, want.content, wiki.Content)
-}
-
-func TestWikiService_Update_param(t *testing.T) {
-	cases := map[string]struct {
-		wikiID    int
-		name      string
-		content   string
-		wantError bool
-	}{
-		"no_error_1": {
-			wikiID:    1,
-			name:      "Test",
-			content:   "test",
-			wantError: false,
+		"success-content-and-notify": {
+			wikiID:     34,
+			option:     option.WithFormContent("Updated content."),
+			opts:       []*backlog.FormOption{option.WithFormMailNotify(true)},
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+			wantError:  false,
+			wantID:     34,
+			wantName:   "Maximum Wiki Page",
 		},
-		"no_error_2": {
-			wikiID:    100,
-			name:      "Test Name",
-			content:   "test content",
-			wantError: false,
+		"validation-error-required-option": {
+			wikiID:      12,
+			option:      option.WithFormMailNotify(true),
+			opts:        []*backlog.FormOption{},
+			httpStatus:  http.StatusBadRequest,
+			httpBody:    "",
+			wantError:   true,
+			wantErrType: &backlog.ValidationError{},
 		},
-		"wikiId_zero": {
-			wikiID:    0,
-			name:      "Test",
-			content:   "test",
-			wantError: true,
+		"validation-error-required-content": {
+			wikiID:      12,
+			option:      option.WithFormMailNotify(true),
+			opts:        []*backlog.FormOption{},
+			httpStatus:  http.StatusBadRequest,
+			httpBody:    "",
+			wantError:   true,
+			wantErrType: &backlog.ValidationError{},
 		},
-		"name_empty": {
-			wikiID:    1,
-			name:      "",
-			content:   "test",
-			wantError: true,
+		"validation-error-invalid-wikiID": {
+			wikiID:      0,
+			option:      option.WithFormName("New Name"),
+			httpStatus:  http.StatusBadRequest,
+			httpBody:    "",
+			wantError:   true,
+			wantErrType: &backlog.ValidationError{},
 		},
-		"content_empty": {
-			wikiID:    1,
-			name:      "Test",
-			content:   "",
-			wantError: true,
+		"client-error-network-failure": {
+			wikiID:      13,
+			option:      option.WithFormName("New Name"),
+			httpStatus:  http.StatusOK,
+			httpBody:    "",
+			httpError:   errors.New("network error"),
+			wantError:   true,
+			wantErrType: nil,
+		},
+		"api-error-invalid-json": {
+			wikiID:      14,
+			option:      option.WithFormName("New Name"),
+			httpStatus:  http.StatusOK,
+			httpBody:    testdataInvalidJSON,
+			wantError:   true,
+			wantErrType: nil,
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := &backlog.WikiService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+					// 成功時とAPIエラー時の処理
 					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+						StatusCode: tc.httpStatus,
+						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
 					}
-					return resp, nil
+					return resp, tc.httpError
 				},
 			})
 
-			option := s.Option
-			if wiki, err := s.Update(tc.wikiID, option.WithFormName(tc.name), option.WithFormContent(tc.content)); tc.wantError {
+			// 実行
+			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
+
+			// 検証
+			if tc.wantError {
 				assert.Error(t, err)
-				assert.Nil(t, wiki)
+				if tc.wantErrType != nil {
+					// 特定のエラー型の検証（ValidationErrorなど）
+					assert.IsType(t, tc.wantErrType, err)
+				}
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, wiki)
+				require.NotNil(t, wiki)
+				assert.Equal(t, tc.wantID, wiki.ID)
+				assert.Equal(t, tc.wantName, wiki.Name)
 			}
 		})
-
 	}
-}
-
-func TestWikiService_Update_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
-	})
-
-	wiki, err := s.Update(1, s.Option.WithFormName("name"))
-	assert.Error(t, err)
-	assert.Nil(t, wiki)
-}
-
-func TestWikiService_Update_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
-
-	wiki, err := s.Update(1, s.Option.WithFormName("name"))
-	assert.Error(t, err)
-	assert.Nil(t, wiki)
-}
-
-func TestWikiService_Update_invalidOption(t *testing.T) {
-	t.Parallel()
-
-	s := &backlog.WikiService{}
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
-			}
-			return resp, nil
-		},
-	})
-
-	invalidOption := backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
-		return nil
-	})
-
-	wiki, err := s.Update(1, invalidOption)
-	assert.IsType(t, &backlog.InvalidFormOptionError{}, err)
-	assert.Nil(t, wiki)
 }
 
 func TestWikiService_Delete(t *testing.T) {
