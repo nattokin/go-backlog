@@ -33,6 +33,7 @@ func TestUserService_One_getUser(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.One(1)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -62,6 +63,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	users, err := s.All(projectKey, excludeGroupMembers)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users[0].UserID)
@@ -95,6 +97,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.Add(userID, password, name, mailAddress, roleType)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -126,6 +129,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	users, err := s.Delete(projectKey, id)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, users.UserID)
@@ -160,9 +164,10 @@ func TestUserService_Update_updateUser(t *testing.T) {
 			return resp, nil
 		},
 	})
-	o := s.Option
+
+	option := s.Option
 	user, err := s.Update(
-		id, o.WithFormPassword(password), o.WithFormName(name), o.WithFormMailAddress(mailAddress), o.WithFormRoleType(roleType),
+		id, option.WithFormPassword(password), option.WithFormName(name), option.WithFormMailAddress(mailAddress), option.WithFormRoleType(roleType),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, userID, user.UserID)
@@ -172,11 +177,14 @@ func TestUserService_Update_updateUser(t *testing.T) {
 }
 
 func TestUserService_All(t *testing.T) {
+	t.Parallel()
+
 	want := struct {
 		spath string
 	}{
 		spath: "users",
 	}
+
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -185,6 +193,7 @@ func TestUserService_All(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
+
 	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
@@ -203,6 +212,7 @@ func TestUserService_All_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	users, err := s.All()
 	assert.Nil(t, users)
 	assert.Error(t, err)
@@ -238,6 +248,7 @@ func TestUserService_One(t *testing.T) {
 			want:      want{},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -253,17 +264,22 @@ func TestUserService_One(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.One(tc.id)
 		})
+
 	}
 }
 
 func TestUserService_Own(t *testing.T) {
+	t.Parallel()
+
 	want := struct {
 		spath string
 	}{
 		spath: "users/myself",
 	}
+
 	s := &backlog.UserService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -272,6 +288,7 @@ func TestUserService_Own(t *testing.T) {
 			return nil, errors.New("error")
 		},
 	})
+
 	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -290,6 +307,7 @@ func TestUserService_Own_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.Own()
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -354,6 +372,7 @@ func TestUserService_Add(t *testing.T) {
 			wantError:   true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -373,10 +392,12 @@ func TestUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			user, err := s.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
+
 	}
 }
 
@@ -393,6 +414,7 @@ func TestUserService_Add_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.Add("userid", "password", "name", "mailAdress", 1)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -412,6 +434,7 @@ func TestUserService_Update(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -426,15 +449,17 @@ func TestUserService_Update(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			user, err := s.Update(tc.id)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
+
 	}
 }
 
 func TestUserService_Update_option(t *testing.T) {
-	o := &backlog.UserOptionService{}
+	option := &backlog.UserOptionService{}
 	id := 1
 
 	type options struct {
@@ -455,7 +480,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithName": {
 			options: []*backlog.FormOption{
-				o.WithFormName("testname"),
+				option.WithFormName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -464,7 +489,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithPassword": {
 			options: []*backlog.FormOption{
-				o.WithFormPassword("testpasword"),
+				option.WithFormPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -473,7 +498,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithMailAddress": {
 			options: []*backlog.FormOption{
-				o.WithFormMailAddress("test@test.com"),
+				option.WithFormMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -482,7 +507,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithRoleType": {
 			options: []*backlog.FormOption{
-				o.WithFormRoleType(backlog.RoleAdministrator),
+				option.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -491,10 +516,10 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"MultiOptions": {
 			options: []*backlog.FormOption{
-				o.WithFormPassword("testpasword1"),
-				o.WithFormName("testname1"),
-				o.WithFormMailAddress("test1@test.com"),
-				o.WithFormRoleType(backlog.RoleAdministrator),
+				option.WithFormPassword("testpasword1"),
+				option.WithFormName("testname1"),
+				option.WithFormMailAddress("test1@test.com"),
+				option.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -506,7 +531,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.FormOption{
-				o.WithFormName(""),
+				option.WithFormName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -521,6 +546,7 @@ func TestUserService_Update_option(t *testing.T) {
 			want:      options{},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -544,6 +570,7 @@ func TestUserService_Update_option(t *testing.T) {
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
+
 	}
 }
 
@@ -560,6 +587,7 @@ func TestUserService_Update_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.Update(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -595,6 +623,7 @@ func TestUserService_Delete(t *testing.T) {
 			want:      want{},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -610,10 +639,12 @@ func TestUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			user, err := s.Delete(tc.id)
 			assert.Nil(t, user)
 			assert.Error(t, err)
 		})
+
 	}
 }
 
@@ -630,6 +661,7 @@ func TestUserService_Delete_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	user, err := s.Delete(1234)
 	assert.Nil(t, user)
 	assert.Error(t, err)
@@ -680,6 +712,7 @@ func TestProjectUserService_All(t *testing.T) {
 			},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -695,8 +728,10 @@ func TestProjectUserService_All(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.All(tc.projectKey, tc.excludeGroupMembers)
 		})
+
 	}
 }
 
@@ -742,6 +777,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -757,8 +793,10 @@ func TestProjectUserService_Add(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.Add(tc.projectKey, tc.userID)
 		})
+
 	}
 }
 
@@ -813,6 +851,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -828,8 +867,10 @@ func TestProjectUserService_Delete(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.Delete(tc.projectKey, tc.userID)
 		})
+
 	}
 }
 
@@ -875,6 +916,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -890,8 +932,10 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.AddAdmin(tc.projectKey, tc.userID)
 		})
+
 	}
 }
 
@@ -917,6 +961,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 			want:       want{},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -932,8 +977,10 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.AdminAll(tc.projectKey)
 		})
+
 	}
 }
 
@@ -979,6 +1026,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			},
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
@@ -994,7 +1042,9 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 					return nil, errors.New("error")
 				},
 			})
+
 			s.DeleteAdmin(tc.projectKey, tc.userID)
 		})
+
 	}
 }

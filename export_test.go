@@ -42,13 +42,13 @@ type (
 )
 
 var (
-	ExportClientNewReqest = (*Client).newReqest
-	ExportClientDo        = (*Client).do
-	ExportClientGet       = (*Client).get
-	ExportClientPost      = (*Client).post
-	ExportClientPatch     = (*Client).patch
-	ExportClientDelete    = (*Client).delete
-	ExportClientUpload    = (*Client).upload
+	ExportClientNewRequest = (*Client).newRequest
+	ExportClientDo         = (*Client).do
+	ExportClientGet        = (*Client).get
+	ExportClientPost       = (*Client).post
+	ExportClientPatch      = (*Client).patch
+	ExportClientDelete     = (*Client).delete
+	ExportClientUpload     = (*Client).upload
 )
 
 var (

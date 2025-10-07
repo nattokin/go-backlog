@@ -436,3 +436,19 @@ func (*WikiOptionService) WithFormContent(content string) *FormOption {
 func (*WikiOptionService) WithFormMailNotify(enabeld bool) *FormOption {
 	return withFormMailNotify(enabeld)
 }
+
+// checkRequiredOptionTypes checks if at least one form type specified in
+// the requiredTypes slice is present in the given options.
+// It returns true if a required type is found, otherwise false.
+func checkRequiredOptionTypes(options []*FormOption, requiredTypes []formType) bool {
+	for _, opt := range options {
+		optionType := opt.t
+
+		for _, requiredType := range requiredTypes {
+			if optionType == requiredType {
+				return true
+			}
+		}
+	}
+	return false
+}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSpaceAttachmentService_Upload(t *testing.T) {
@@ -34,6 +35,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		name:  fname,
 		size:  8857,
 	}
+
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
@@ -55,15 +57,16 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	defer f.Close()
 
 	attachment, err := s.Upload(fpath, f)
-	assert.NoError(t, err)
-	if assert.NotNil(t, attachment) {
-		assert.Equal(t, want.id, attachment.ID)
-		assert.Equal(t, want.name, attachment.Name)
-		assert.Equal(t, want.size, attachment.Size)
-	}
+	require.NoError(t, err)
+	require.NotNil(t, attachment)
+	assert.Equal(t, want.id, attachment.ID)
+	assert.Equal(t, want.name, attachment.Name)
+	assert.Equal(t, want.size, attachment.Size)
 }
 
 func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.SpaceAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
@@ -127,6 +130,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -140,15 +144,15 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.Attach(wikiID, []int{2})
-	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments[0].ID)
-		assert.Equal(t, want.name, attachments[0].Name)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-	}
+
+	require.NoError(t, err)
+	require.NotNil(t, attachments)
+	assert.Equal(t, want.id, attachments[0].ID)
+	assert.Equal(t, want.name, attachments[0].Name)
+	assert.Equal(t, want.size, attachments[0].Size)
+	assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
 }
 
 func TestWikiAttachmentService_Attach_param(t *testing.T) {
@@ -195,24 +199,31 @@ func TestWikiAttachmentService_Attach_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.Attach(tc.wikiID, tc.attachmentIDs); tc.wantError {
+			if attachments, err := s.Attach(tc.wikiID, tc.attachmentIDs); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachments)
 			} else {
 				assert.NoError(t, err)
-				assert.Len(t, attachements, 2)
+				require.NotNil(t, attachments)
+				assert.Len(t, attachments, 2)
 			}
 		})
+
 	}
 }
 
 func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachments, err := s.Attach(1234, []int{2})
+
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -230,7 +241,9 @@ func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.Attach(1234, []int{2})
+
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
 }
@@ -254,6 +267,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -265,15 +279,14 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List(wikiID)
-	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments[0].ID)
-		assert.Equal(t, want.name, attachments[0].Name)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-	}
+	require.NoError(t, err)
+	require.NotNil(t, attachments)
+	assert.Equal(t, want.id, attachments[0].ID)
+	assert.Equal(t, want.name, attachments[0].Name)
+	assert.Equal(t, want.size, attachments[0].Size)
+	assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
 }
 
 func TestWikiAttachmentService_List_param(t *testing.T) {
@@ -311,25 +324,31 @@ func TestWikiAttachmentService_List_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.List(tc.wikiID); tc.wantError {
+			if attachments, err := s.List(tc.wikiID); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachments)
 			} else {
 				assert.NoError(t, err)
-				assert.Len(t, attachements, 2)
-				assert.Equal(t, attachements[0].ID, 2)
-				assert.Equal(t, attachements[1].ID, 5)
+				require.NotNil(t, attachments)
+				assert.Len(t, attachments, 2)
+				assert.Equal(t, attachments[0].ID, 2)
+				assert.Equal(t, attachments[1].ID, 5)
 			}
 		})
+
 	}
 }
 
 func TestWikiAttachmentService_List_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachments, err := s.List(1234)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -348,6 +367,7 @@ func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List(1234)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -373,6 +393,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		size:    5563,
 		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
 	}
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -384,20 +405,17 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.Remove(wikiID, attachmentID)
 	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments.ID)
-		assert.Equal(t, want.name, attachments.Name)
-		assert.Equal(t, want.size, attachments.Size)
-		assert.Equal(t, want.size, attachments.Size)
-		assert.ObjectsAreEqualValues(want.created, attachments.Created)
-	}
+	require.NotNil(t, attachments)
+	assert.Equal(t, want.id, attachments.ID)
+	assert.Equal(t, want.name, attachments.Name)
+	assert.Equal(t, want.size, attachments.Size)
+	assert.ObjectsAreEqualValues(want.created, attachments.Created)
 }
 
 func TestWikiAttachmentService_Remove_param(t *testing.T) {
-	t.Parallel()
-
 	cases := map[string]struct {
 		wikiID       int
 		attachmentID int
@@ -433,6 +451,8 @@ func TestWikiAttachmentService_Remove_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			s := &backlog.WikiAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -444,23 +464,28 @@ func TestWikiAttachmentService_Remove_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.Remove(tc.wikiID, tc.attachmentID); tc.wantError {
+			if attachments, err := s.Remove(tc.wikiID, tc.attachmentID); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachments)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, attachements)
+				assert.NotNil(t, attachments)
 			}
 		})
+
 	}
 }
 
 func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.WikiAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachment, err := s.Remove(1234, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -479,6 +504,7 @@ func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachment, err := s.Remove(1234, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -503,6 +529,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
+
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -514,15 +541,13 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List(issueIDOrKey)
 	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments[0].ID)
-		assert.Equal(t, want.name, attachments[0].Name)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-	}
+	require.NotNil(t, attachments)
+	assert.Len(t, attachments, 2)
+	assert.Equal(t, attachments[0].ID, 2)
+	assert.Equal(t, attachments[1].ID, 5)
 }
 
 func TestIssueAttachmentService_List_param(t *testing.T) {
@@ -556,25 +581,31 @@ func TestIssueAttachmentService_List_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.List(tc.issueIDOrKey); tc.wantError {
+			if attachments, err := s.List(tc.issueIDOrKey); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachments)
 			} else {
 				assert.NoError(t, err)
-				assert.Len(t, attachements, 2)
-				assert.Equal(t, attachements[0].ID, 2)
-				assert.Equal(t, attachements[1].ID, 5)
+				require.NotNil(t, attachments)
+				assert.Len(t, attachments, 2)
+				assert.Equal(t, attachments[0].ID, 2)
+				assert.Equal(t, attachments[1].ID, 5)
 			}
 		})
+
 	}
 }
 
 func TestIssueAttachmentService_List_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -593,6 +624,7 @@ func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List("1234")
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -630,20 +662,17 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachment, err := s.Remove(issueIDOrKey, attachmentID)
 	assert.NoError(t, err)
-	if assert.NotNil(t, attachment) {
-		assert.Equal(t, want.id, attachment.ID)
-		assert.Equal(t, want.name, attachment.Name)
-		assert.Equal(t, want.size, attachment.Size)
-		assert.Equal(t, want.size, attachment.Size)
-		assert.ObjectsAreEqualValues(want.created, attachment.Created)
-	}
+	require.NotNil(t, attachment)
+	assert.Equal(t, want.id, attachment.ID)
+	assert.Equal(t, want.name, attachment.Name)
+	assert.Equal(t, want.size, attachment.Size)
+	assert.ObjectsAreEqualValues(want.created, attachment.Created)
 }
 
 func TestIssueAttachmentService_Remove_param(t *testing.T) {
-	t.Parallel()
-
 	cases := map[string]struct {
 		issueIDOrKey string
 		attachmentID int
@@ -669,6 +698,8 @@ func TestIssueAttachmentService_Remove_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			s := &backlog.IssueAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -680,23 +711,28 @@ func TestIssueAttachmentService_Remove_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.Remove(tc.issueIDOrKey, tc.attachmentID); tc.wantError {
+			if attachments, err := s.Remove(tc.issueIDOrKey, tc.attachmentID); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachments)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, attachements)
+				assert.NotNil(t, attachments)
 			}
 		})
+
 	}
 }
 
 func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.IssueAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -715,6 +751,7 @@ func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachment, err := s.Remove("1234", 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -741,6 +778,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		size:    196186,
 		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
 	}
+
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
@@ -752,15 +790,13 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List(projectKey, repositoryIDOrName, prNumber)
 	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments[0].ID)
-		assert.Equal(t, want.name, attachments[0].Name)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.Equal(t, want.size, attachments[0].Size)
-		assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-	}
+	require.NotNil(t, attachments)
+	assert.Len(t, attachments, 2)
+	assert.Equal(t, attachments[0].ID, 2)
+	assert.Equal(t, attachments[1].ID, 5)
 }
 
 func TestPullRequestAttachmentService_List_param(t *testing.T) {
@@ -812,25 +848,29 @@ func TestPullRequestAttachmentService_List_param(t *testing.T) {
 				},
 			})
 
-			if attachements, err := s.List(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber); tc.wantError {
+			if attachments, err := s.List(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber); tc.wantError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Len(t, attachements, 2)
-				assert.Equal(t, attachements[0].ID, 2)
-				assert.Equal(t, attachements[1].ID, 5)
+				assert.Len(t, attachments, 2)
+				assert.Equal(t, attachments[0].ID, 2)
+				assert.Equal(t, attachments[1].ID, 5)
 			}
 		})
+
 	}
 }
 
 func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -849,6 +889,7 @@ func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.List("1234", "test", 10)
 	assert.Error(t, err)
 	assert.Nil(t, attachments)
@@ -876,6 +917,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		size:    5563,
 		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
 	}
+
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -887,15 +929,14 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachments, err := s.Remove(projectKey, repositoryIDOrName, prNumber, attachmentID)
 	assert.NoError(t, err)
-	if assert.NotNil(t, attachments) {
-		assert.Equal(t, want.id, attachments.ID)
-		assert.Equal(t, want.name, attachments.Name)
-		assert.Equal(t, want.size, attachments.Size)
-		assert.Equal(t, want.size, attachments.Size)
-		assert.ObjectsAreEqualValues(want.created, attachments.Created)
-	}
+	require.NotNil(t, attachments)
+	assert.Equal(t, want.id, attachments.ID)
+	assert.Equal(t, want.name, attachments.Name)
+	assert.Equal(t, want.size, attachments.Size)
+	assert.ObjectsAreEqualValues(want.created, attachments.Created)
 }
 
 func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
@@ -946,6 +987,8 @@ func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			s := &backlog.PullRequestAttachmentService{}
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -959,21 +1002,27 @@ func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 
 			if attachment, err := s.Remove(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID); tc.wantError {
 				assert.Error(t, err)
+				assert.Nil(t, attachment)
 			} else {
 				assert.NoError(t, err)
+				require.NotNil(t, attachment)
 				assert.Equal(t, 8, attachment.ID)
 			}
 		})
+
 	}
 }
 
 func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
+	t.Parallel()
+
 	s := &backlog.PullRequestAttachmentService{}
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
 		},
 	})
+
 	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
@@ -992,6 +1041,7 @@ func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
 			return resp, nil
 		},
 	})
+
 	attachment, err := s.Remove("1234", "test", 10, 8)
 	assert.Error(t, err)
 	assert.Nil(t, attachment)
