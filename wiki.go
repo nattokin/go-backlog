@@ -227,20 +227,20 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 //	WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, options ...*FormOption) (*Wiki, error) {
+func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
 	validOptions := []formType{formMailNotify}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
 	form := NewFormParams()
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.set(form); err != nil {
 			return nil, err
 		}
