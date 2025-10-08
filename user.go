@@ -141,7 +141,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 		return nil, newValidationError("userID must not be empty")
 	}
 
-	option := &FormOptionService{}
+	option := s.Option.support.form
 	form := NewFormParams()
 	if err := option.WithPassword(password).set(form); err != nil {
 		return nil, err

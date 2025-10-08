@@ -47,7 +47,7 @@ func TestProjectService_All(t *testing.T) {
 }
 
 func TestProjectService_All_option(t *testing.T) {
-	option := &backlog.ProjectOptionService{}
+	option := backlog.ExportNewProjectOptionService()
 	type options struct {
 		all      string
 		archived string
@@ -161,7 +161,7 @@ func TestProjectService_AdminAll(t *testing.T) {
 }
 
 func TestProjectService_AdminAll_option(t *testing.T) {
-	option := &backlog.ProjectOptionService{}
+	option := backlog.ExportNewProjectOptionService()
 	type options struct {
 		all      string
 		archived string
@@ -602,7 +602,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		textFormattingRule                string
 	}
 
-	option := &backlog.ProjectOptionService{}
+	option := backlog.ExportNewProjectOptionService()
 	cases := map[string]struct {
 		options   []*backlog.FormOption
 		wantError bool
@@ -812,7 +812,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		archived                          string
 	}
 
-	option := &backlog.ProjectOptionService{}
+	option := backlog.ExportNewProjectOptionService()
 	cases := map[string]struct {
 		options   []*backlog.FormOption
 		wantError bool

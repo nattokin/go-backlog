@@ -5,9 +5,21 @@ import (
 	"strconv"
 )
 
-// --- Request Parameter Types and Mappings ---
+// optionSupport provides shared access to the query/form option builders.
+// It is intended for internal composition by each XxxOptionService (e.g. WikiOptionService).
+// This struct should be initialized by the Client when setting up each service.
+type optionSupport struct {
+	query *QueryOptionService
+	form  *FormOptionService
+}
 
-// formType represents the distinct fields (keys) that can be sent in a request form body.
+//
+// ──────────────────────────────────────────────────────────────
+//  Core Option Types and Services
+// ──────────────────────────────────────────────────────────────
+//
+
+// formType represents the distinct form field keys available for Backlog API requests.
 type formType int
 
 // Value returns the string representation of the form field key for the API request.
@@ -25,12 +37,14 @@ func (t formType) Value() string {
 		formRoleType:                          "roleType",
 		formSubtaskingEnabled:                 "subtaskingEnabled",
 		formTextFormattingRule:                "textFormattingRule",
+		formUserID:                            "userId",
+		formSendMail:                          "sendMail",
 	}
 
 	return m[t]
 }
 
-// queryType represents the distinct fields (keys) that can be sent in a request URL query string.
+// queryType represents the distinct query parameter keys for Backlog API requests.
 type queryType int
 
 // Value returns the string representation of the query parameter key for the API request.
@@ -50,38 +64,35 @@ func (t queryType) Value() string {
 	return m[t]
 }
 
-// --- Query Option Definition ---
+// --- QueryOption -------------------------------------------------------------
 
-// queryOptionFunc is a function that applies a query option's value to the request's QueryParams.
+// queryOptionFunc applies a query option's value to the request parameters.
 type queryOptionFunc func(query *QueryParams) error
 
-// QueryOption represents an option for a request query parameter.
-// It encapsulates the query field type and the function to apply its value.
+// QueryOption represents a single query parameter to be applied to a request.
 type QueryOption struct {
-	t queryType       // The underlying query parameter type (e.g., queryKeyword)
-	f queryOptionFunc // The function to set the parameter value
+	t queryType       // The underlying query parameter key type
+	f queryOptionFunc // The function that sets the value into the query
 }
 
-// validate checks if the current QueryOption is of a valid type for a specific API endpoint.
-// It prevents using an option (e.g., 'keyword') on an endpoint that doesn't support it.
+// validate ensures that the QueryOption is allowed for the current API context.
 func (o *QueryOption) validate(validTypes []queryType) error {
 	for _, valid := range validTypes {
 		if o.t == valid {
 			return nil
 		}
 	}
-	// Returns a custom error indicating the option is invalid for this context.
 	return newInvalidQueryOptionError(o.t, validTypes)
 }
 
-// set executes the embedded function to apply the option's value to the QueryParams struct.
+// set executes the stored function to apply the option.
 func (o *QueryOption) set(query *QueryParams) error {
 	return o.f(query)
 }
 
-// QueryOptionService has methods to make option for request query.
-type QueryOptionService struct {
-}
+// QueryOptionService provides builders for query options.
+// Each XxxOptionService selectively exposes only the valid methods.
+type QueryOptionService struct{}
 
 // WithActivityTypeIDs returns option to set `activityTypeId`.
 func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
@@ -168,38 +179,35 @@ func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 	}}
 }
 
-// --- Form Option Definition ---
+// --- FormOption --------------------------------------------------------------
 
-// formOptionFunc is a function that applies a form option's value to the request's FormParams.
+// formOptionFunc applies a form option's value to the request form body.
 type formOptionFunc func(form *FormParams) error
 
-// FormOption is option to set form parameter for a request body.
-// It holds the form field type and the function to set its value.
+// FormOption represents a single form field to be applied to a request body.
 type FormOption struct {
-	t formType       // The underlying form parameter type (e.g., formPassword)
-	f formOptionFunc // The function to set the parameter value
+	t formType       // The underlying form field type
+	f formOptionFunc // The function that sets the value into the form
 }
 
-// validate checks if the current FormOption is of a valid type for a specific API endpoint.
-// It ensures that only supported form fields are passed to the request.
+// validate ensures that the FormOption is allowed for the current API context.
 func (o *FormOption) validate(validTypes []formType) error {
 	for _, valid := range validTypes {
 		if o.t == valid {
 			return nil
 		}
 	}
-	// Returns a custom error indicating the form option is invalid for this context.
 	return newInvalidFormOptionError(o.t, validTypes)
 }
 
-// set executes the embedded function to apply the option's value to the FormParams struct.
+// set executes the stored function to apply the option.
 func (o *FormOption) set(form *FormParams) error {
 	return o.f(form)
 }
 
-// FormOptionService provides methods to create options for request bodies (FormOption).
-type FormOptionService struct {
-}
+// FormOptionService provides builders for form options.
+// Each XxxOptionService selectively exposes only the valid subset.
+type FormOptionService struct{}
 
 // WithArchived returns a form option that sets the `archived` field (e.g., for Project).
 func (*FormOptionService) WithArchived(enabled bool) *FormOption {
@@ -323,168 +331,352 @@ func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
 	}}
 }
 
-// ActivityOptionService provides methods to create query options for ActivityService.
-// It aggregates the functionalities of QueryOptionService.
+// WithUserID creates a form option to set the user's ID (login name).
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (*FormOptionService) WithUserID(userID string) *FormOption {
+	return &FormOption{formUserID, func(form *FormParams) error {
+		if userID == "" {
+			return newValidationError("userID must not be empty")
+		}
+		form.Set(formUserID.Value(), userID)
+		return nil
+	}}
+}
+
+// WithSendMail creates a form option to specify whether to send
+// an invitation email to the newly created user.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (*FormOptionService) WithSendMail(enabled bool) *FormOption {
+	return &FormOption{formSendMail, func(form *FormParams) error {
+		form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
+		return nil
+	}}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  ActivityOptionService
+// ──────────────────────────────────────────────────────────────
+//
+
+// ActivityOptionService provides a domain-specific set of option builders
+// for operations within the ActivityService.
+//
+// It exposes only those options that are valid for the Backlog Activity API.
+// Internally, it delegates to an optionSupport instance,
+// which holds the generic QueryOptionService (Form options are not used here).
 type ActivityOptionService struct {
-	// Query holds all query option methods relevant to the activity context.
-	Query *QueryOptionService
+	support *optionSupport
 }
 
-// --- Delegation Methods for Activity Query Options ---
+// --- Query Options -----------------------------------------------------------
 
-// WithQueryActivityTypeIDs creates a query option for Activity Type I Ds.
-func (s *ActivityOptionService) WithQueryActivityTypeIDs(ids []int) *QueryOption {
-	return s.Query.WithActivityTypeIDs(ids)
+// WithQueryActivityTypeIDs returns a query option to filter activities
+// by one or more activity type IDs.
+//
+// Example: typeIds=1&typeIds=2&typeIds=3
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-activities
+func (s *ActivityOptionService) WithQueryActivityTypeIDs(typeIDs []int) *QueryOption {
+	return s.support.query.WithActivityTypeIDs(typeIDs)
 }
 
-// WithQueryMinID creates a query option for Min I D.
-func (s *ActivityOptionService) WithQueryMinID(minID int) *QueryOption {
-	return s.Query.WithMinID(minID)
+// WithQueryMinID returns a query option to filter activities
+// that have IDs greater than or equal to the given value.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-activities
+func (s *ActivityOptionService) WithQueryMinID(id int) *QueryOption {
+	return s.support.query.WithMinID(id)
 }
 
-// WithQueryMaxID creates a query option for Max I D.
-func (s *ActivityOptionService) WithQueryMaxID(maxID int) *QueryOption {
-	return s.Query.WithMaxID(maxID)
+// WithQueryMaxID returns a query option to filter activities
+// that have IDs less than or equal to the given value.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-activities
+func (s *ActivityOptionService) WithQueryMaxID(id int) *QueryOption {
+	return s.support.query.WithMaxID(id)
 }
 
-// WithQueryCount creates a query option for Count.
+// WithQueryCount returns a query option to limit the number of activities
+// returned by the API (max 100).
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-activities
 func (s *ActivityOptionService) WithQueryCount(count int) *QueryOption {
-	return s.Query.WithCount(count)
+	return s.support.query.WithCount(count)
 }
 
-// WithQueryOrder creates a query option for Order.
+// WithQueryOrder returns a query option to specify the result order (asc or desc).
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-activities
 func (s *ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
-	return s.Query.WithOrder(order)
+	return s.support.query.WithOrder(order)
 }
 
-// ProjectOptionService provides methods to create both query and form options for ProjectService.
-// It aggregates the functionalities of QueryOptionService and FormOptionService.
+//
+// ──────────────────────────────────────────────────────────────
+//  ProjectOptionService
+// ──────────────────────────────────────────────────────────────
+//
+
+// ProjectOptionService provides a domain-specific set of option builders
+// for operations within the ProjectService.
+//
+// It exposes only those options that are valid for the Backlog Project API.
+// Internally, it delegates to an optionSupport instance,
+// which holds the generic FormOptionService and QueryOptionService.
 type ProjectOptionService struct {
-	// Query holds all query option methods relevant to the project context.
-	Query *QueryOptionService
-	// Form holds all form option methods relevant to the project context.
-	Form *FormOptionService
+	support *optionSupport
 }
 
-// --- Delegation Methods for Query Options (QueryOptionService) ---
+// --- Query Options -----------------------------------------------------------
 
-// WithQueryAll returns a query option that includes archived projects in the result.
+// WithQueryAll returns a query option that includes archived projects
+// in the result list.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectOptionService) WithQueryAll(enabled bool) *QueryOption {
-	return s.Query.WithAll(enabled)
+	return s.support.query.WithAll(enabled)
 }
 
-// WithQueryArchived returns a query option that filters projects by their archive status.
+// WithQueryArchived returns a query option that filters projects
+// by their archived status.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectOptionService) WithQueryArchived(enabled bool) *QueryOption {
-	// Assuming QueryOptionService has WithQueryArchived
-	return s.Query.WithArchived(enabled)
+	return s.support.query.WithArchived(enabled)
 }
 
-// --- Delegation Methods for Form Options (FormOptionService) ---
+// --- Form Options ------------------------------------------------------------
 
-// WithFormArchived returns a form option that sets the `archived` field for the project.
-func (s *ProjectOptionService) WithFormArchived(enabled bool) *FormOption {
-	return s.Form.WithArchived(enabled)
-}
-
-// WithFormChartEnabled returns a form option that sets the `chartEnabled` field for the project.
-func (s *ProjectOptionService) WithFormChartEnabled(enabled bool) *FormOption {
-	return s.Form.WithChartEnabled(enabled)
-}
-
-// WithFormKey returns a form option that sets the `key` field for the project.
-func (s *ProjectOptionService) WithFormKey(key string) *FormOption {
-	return s.Form.WithKey(key)
-}
-
-// WithFormName returns a form option that sets the `name` field for the project.
+// WithFormName returns a form option to set the project's name.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectOptionService) WithFormName(name string) *FormOption {
-	return s.Form.WithName(name)
+	return s.support.form.WithName(name)
 }
 
-// WithFormProjectLeaderCanEditProjectLeader returns a form option that sets the project leader edit permission.
-func (s *ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
-	return s.Form.WithProjectLeaderCanEditProjectLeader(enabled)
+// WithFormKey returns a form option to set the project's key.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-project
+func (s *ProjectOptionService) WithFormKey(key string) *FormOption {
+	return s.support.form.WithKey(key)
 }
 
-// WithFormSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field for the project.
+// WithFormArchived returns a form option to set the project's archived status.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-project
+func (s *ProjectOptionService) WithFormArchived(enabled bool) *FormOption {
+	return s.support.form.WithArchived(enabled)
+}
+
+// WithFormChartEnabled returns a form option to enable or disable charts
+// for the project.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-project
+func (s *ProjectOptionService) WithFormChartEnabled(enabled bool) *FormOption {
+	return s.support.form.WithChartEnabled(enabled)
+}
+
+// WithFormSubtaskingEnabled returns a form option to enable or disable
+// subtasking for the project.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectOptionService) WithFormSubtaskingEnabled(enabled bool) *FormOption {
-	return s.Form.WithSubtaskingEnabled(enabled)
+	return s.support.form.WithSubtaskingEnabled(enabled)
 }
 
-// WithFormTextFormattingRule returns a form option that sets the text formatting rule (format) for the project.
+// WithFormProjectLeaderCanEditProjectLeader returns a form option to set
+// whether the project leader can edit the project leader field.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-project
+func (s *ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
+	return s.support.form.WithProjectLeaderCanEditProjectLeader(enabled)
+}
+
+// WithFormTextFormattingRule returns a form option to set the text formatting
+// rule (Backlog or Markdown) for the project.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOption {
-	return s.Form.WithTextFormattingRule(format)
+	return s.support.form.WithTextFormattingRule(format)
 }
 
-// UserOptionService provides methods to create form options for UserService.
-// It aggregates the functionalities of FormOptionService.
+//
+// ──────────────────────────────────────────────────────────────
+//  UserOptionService
+// ──────────────────────────────────────────────────────────────
+//
+
+// UserOptionService provides a domain-specific set of option builders
+// for operations within the UserService.
+//
+// It exposes only those options that are valid for the Backlog User API.
+// Internally, it delegates to an optionSupport instance,
+// which holds the generic FormOptionService and QueryOptionService.
 type UserOptionService struct {
-	// Form holds all form option methods relevant to the user context.
-	Form *FormOptionService
+	support *optionSupport
 }
 
-// --- Delegation Methods for User Form Options ---
+// --- Query Options -----------------------------------------------------------
 
-// WithFormPassword creates a form option for Password.
+// (Backlog User API currently does not use query parameters extensively.)
+// You can add WithQueryXXX methods here when needed.
+
+// --- Form Options ------------------------------------------------------------
+
+// WithFormPassword returns a form option to set the user's password.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserOptionService) WithFormPassword(password string) *FormOption {
-	return s.Form.WithPassword(password)
+	return s.support.form.WithPassword(password)
 }
 
-// WithFormName creates a form option for Name.
+// WithFormMailAddress returns a form option to set the user's mail address.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserOptionService) WithFormMailAddress(mail string) *FormOption {
+	return s.support.form.WithMailAddress(mail)
+}
+
+// WithFormRoleType returns a form option to set the user's role type.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserOptionService) WithFormRoleType(role Role) *FormOption {
+	return s.support.form.WithRoleType(role)
+}
+
+// WithFormName returns a form option to set the user's display name.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserOptionService) WithFormName(name string) *FormOption {
-	return s.Form.WithName(name)
+	return s.support.form.WithName(name)
 }
 
-// WithFormMailAddress creates a form option for Mail Address.
-func (s *UserOptionService) WithFormMailAddress(mailAddress string) *FormOption {
-	return s.Form.WithMailAddress(mailAddress)
+// // WithFormUserId returns a form option to set the user's ID (login name).
+
+// // Backlog API reference:
+
+// // https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserOptionService) WithFormUserId(userID string) *FormOption {
+	return s.support.form.WithUserID(userID)
 }
 
-// WithFormRoleType creates a form option for Role Type.
-func (s *UserOptionService) WithFormRoleType(roleType Role) *FormOption {
-	return s.Form.WithRoleType(roleType)
+// WithFormSendMail returns a form option to specify whether to send
+// an invitation email to the newly created user.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserOptionService) WithFormSendMail(enabled bool) *FormOption {
+	return s.support.form.WithSendMail(enabled)
 }
 
-// WikiOptionService provides methods to create both query and form options for WikiService.
-// It aggregates the functionalities of QueryOptionService and FormOptionService.
+//
+// ──────────────────────────────────────────────────────────────
+//  WikiOptionService
+// ──────────────────────────────────────────────────────────────
+//
+
+// WikiOptionService provides a domain-specific set of option builders
+// for operations within the WikiService.
+//
+// It exposes only those options that are valid for the Backlog Wiki API.
+// Internally, it delegates to an optionSupport instance,
+// which holds the generic FormOptionService and QueryOptionService.
 type WikiOptionService struct {
-	// Query holds all query option methods relevant to the wiki context.
-	Query *QueryOptionService
-	// Form holds all form option methods relevant to the wiki context.
-	Form *FormOptionService
+	support *optionSupport
 }
 
-// --- Delegation Methods for Wiki Query Options ---
-
-// WithQueryKeyword creates a query option for Keyword.
+// WithQueryKeyword returns a query option to search wiki pages by keyword.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiOptionService) WithQueryKeyword(keyword string) *QueryOption {
-	return s.Query.WithKeyword(keyword)
+	return s.support.query.WithKeyword(keyword)
 }
 
-// --- Delegation Methods for Wiki Form Options ---
-
-// WithFormName creates a form option for Name.
+// WithFormName returns a form option to set the wiki page name.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiOptionService) WithFormName(name string) *FormOption {
-	return s.Form.WithName(name)
+	return s.support.form.WithName(name)
 }
 
-// WithFormContent creates a form option for Content.
+// WithFormContent returns a form option to set the wiki page content.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiOptionService) WithFormContent(content string) *FormOption {
-	return s.Form.WithContent(content)
+	return s.support.form.WithContent(content)
 }
 
-// WithFormMailNotify creates a form option for Mail Notify.
+// WithFormMailNotify returns a form option to enable or disable mail notifications
+// for wiki updates or deletions.
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiOptionService) WithFormMailNotify(enabled bool) *FormOption {
-	return s.Form.WithMailNotify(enabled)
+	return s.support.form.WithMailNotify(enabled)
 }
 
-// hasRequiredFormOption checks if at least one form type specified in
-// the requiredTypes slice is present in the given options.
-// It returns true if a required type is found, otherwise false.
+//
+// ──────────────────────────────────────────────────────────────
+//  Internal Helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// hasRequiredFormOption checks whether the provided form options
+// include at least one of the required form types.
 func hasRequiredFormOption(options []*FormOption, requiredTypes []formType) bool {
 	for _, opt := range options {
 		optionType := opt.t
-
 		for _, requiredType := range requiredTypes {
 			if optionType == requiredType {
 				return true

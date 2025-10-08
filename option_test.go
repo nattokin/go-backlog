@@ -9,7 +9,7 @@ import (
 )
 
 func TestQueryOptionService_WithActivityTypeIDs(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		typeIDs   []int
@@ -92,9 +92,7 @@ func TestQueryOptionService_WithActivityTypeIDs(t *testing.T) {
 }
 
 func TestQueryOptionService_WithActivityTypeIDs_invalidOption(t *testing.T) {
-	t.Parallel()
-
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	activityIDs := []int{1, 2}
 	validTypes := []backlog.ExportQueryType{
@@ -112,7 +110,7 @@ func TestQueryOptionService_WithActivityTypeIDs_invalidOption(t *testing.T) {
 }
 
 func TestQueryOptionService_WithAll(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -141,7 +139,7 @@ func TestQueryOptionService_WithAll(t *testing.T) {
 }
 
 func TestQueryOptionService_WithArchived(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -170,7 +168,7 @@ func TestQueryOptionService_WithArchived(t *testing.T) {
 }
 
 func TestQueryOptionService_WithCount(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		count     int
@@ -219,7 +217,7 @@ func TestQueryOptionService_WithCount(t *testing.T) {
 }
 
 func TestQueryOptionService_WithKeyword(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		keyword string
@@ -249,7 +247,7 @@ func TestQueryOptionService_WithKeyword(t *testing.T) {
 }
 
 func TestQueryOptionService_WithMinID(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		minID     int
@@ -290,7 +288,7 @@ func TestQueryOptionService_WithMinID(t *testing.T) {
 }
 
 func TestQueryOptionService_WithMaxID(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		maxID     int
@@ -331,7 +329,7 @@ func TestQueryOptionService_WithMaxID(t *testing.T) {
 }
 
 func TestQueryOptionService_WithOrder(t *testing.T) {
-	o := backlog.QueryOptionService{}
+	o := backlog.ExportNewQueryOptionService()
 
 	cases := map[string]struct {
 		order     backlog.Order
@@ -375,7 +373,7 @@ func TestQueryOptionService_WithOrder(t *testing.T) {
 }
 
 func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
-	o := backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 
 	cases := map[string]struct {
 		typeIDs   []int
@@ -458,7 +456,7 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 }
 
 func TestActivityOptionService_WithMinID(t *testing.T) {
-	o := backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 
 	cases := map[string]struct {
 		minID     int
@@ -499,7 +497,7 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 }
 
 func TestActivityOptionService_WithMaxID(t *testing.T) {
-	o := backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 
 	cases := map[string]struct {
 		maxID     int
@@ -540,7 +538,7 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 }
 
 func TestActivityOptionService_WithCount(t *testing.T) {
-	o := backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 
 	cases := map[string]struct {
 		count     int
@@ -589,7 +587,7 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 }
 
 func TestActivityOptionService_WithOrder(t *testing.T) {
-	o := backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 
 	cases := map[string]struct {
 		order     backlog.Order
@@ -634,7 +632,7 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 }
 
 func TestProjectOptionService_WithQueryAll(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -663,7 +661,7 @@ func TestProjectOptionService_WithQueryAll(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormKey(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		key       string
@@ -700,7 +698,7 @@ func TestProjectOptionService_WithFormKey(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormName(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		name      string
@@ -737,7 +735,7 @@ func TestProjectOptionService_WithFormName(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormChartEnabled(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -766,7 +764,7 @@ func TestProjectOptionService_WithFormChartEnabled(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormSubtaskingEnabled(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -795,7 +793,7 @@ func TestProjectOptionService_WithFormSubtaskingEnabled(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormProjectLeaderCanEditProjectLeader(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		enabeld bool
@@ -824,7 +822,7 @@ func TestProjectOptionService_WithFormProjectLeaderCanEditProjectLeader(t *testi
 }
 
 func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		format    backlog.Format
@@ -869,7 +867,7 @@ func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 }
 
 func TestProjectOptionService_WithFormArchived(t *testing.T) {
-	o := backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 
 	cases := map[string]struct {
 		archived bool
@@ -898,7 +896,7 @@ func TestProjectOptionService_WithFormArchived(t *testing.T) {
 }
 
 func TestUserOptionService_WithFormPassword(t *testing.T) {
-	o := backlog.UserOptionService{}
+	o := backlog.ExportNewUserOptionService()
 
 	cases := map[string]struct {
 		password  string
@@ -947,7 +945,7 @@ func TestUserOptionService_WithFormPassword(t *testing.T) {
 }
 
 func TestUserOptionService_WithFormName(t *testing.T) {
-	o := backlog.UserOptionService{}
+	o := backlog.ExportNewUserOptionService()
 
 	cases := map[string]struct {
 		name      string
@@ -984,7 +982,7 @@ func TestUserOptionService_WithFormName(t *testing.T) {
 }
 
 func TestUserOptionService_withMailAddress(t *testing.T) {
-	o := backlog.UserOptionService{}
+	o := backlog.ExportNewUserOptionService()
 
 	cases := map[string]struct {
 		mailAddress string
@@ -1034,7 +1032,7 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 }
 
 func TestUserOptionService_WithFormRoleType(t *testing.T) {
-	o := backlog.UserOptionService{}
+	o := backlog.ExportNewUserOptionService()
 
 	cases := map[string]struct {
 		roleType  backlog.Role
@@ -1104,7 +1102,7 @@ func TestUserOptionService_WithFormRoleType(t *testing.T) {
 }
 
 func TestWikiOptionService_WithFormKeyword(t *testing.T) {
-	o := backlog.WikiOptionService{}
+	o := backlog.ExportNewWikiOptionService()
 
 	cases := map[string]struct {
 		keyword string
@@ -1133,7 +1131,7 @@ func TestWikiOptionService_WithFormKeyword(t *testing.T) {
 }
 
 func TestWikiOptionService_WithFormName(t *testing.T) {
-	o := backlog.WikiOptionService{}
+	o := backlog.ExportNewWikiOptionService()
 
 	cases := map[string]struct {
 		name      string
@@ -1170,7 +1168,7 @@ func TestWikiOptionService_WithFormName(t *testing.T) {
 }
 
 func TestWikiOptionService_WithFormContent(t *testing.T) {
-	o := backlog.WikiOptionService{}
+	o := backlog.ExportNewWikiOptionService()
 
 	cases := map[string]struct {
 		content   string
@@ -1207,7 +1205,7 @@ func TestWikiOptionService_WithFormContent(t *testing.T) {
 }
 
 func TestWikiOptionService_WithFormMailNotify(t *testing.T) {
-	o := backlog.WikiOptionService{}
+	o := backlog.ExportNewWikiOptionService()
 
 	cases := map[string]struct {
 		enabeld bool

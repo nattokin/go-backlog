@@ -43,6 +43,7 @@ func TestWikiService_All(t *testing.T) {
 	const testWiki1Name = "test1"
 	const testWiki2Name = "test2"
 
+	opt := backlog.ExportNewWikiOptionService()
 	cases := map[string]testCase{
 		"success-project-id": {
 			projectIDOrKey:          "103",
@@ -58,7 +59,7 @@ func TestWikiService_All(t *testing.T) {
 		"success-with-options": {
 			projectIDOrKey: "PRJ_KEY",
 			options: []*backlog.QueryOption{
-				(&backlog.WikiOptionService{}).WithQueryKeyword("test"),
+				opt.WithQueryKeyword("test"),
 			},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataWikiListJSON,
@@ -78,10 +79,15 @@ func TestWikiService_All(t *testing.T) {
 		// 2. Validation Error: Invalid Option Type (option.validate cover)
 		"validation-error-invalid-option-type": {
 			projectIDOrKey: "PRJ",
-			options:        []*backlog.QueryOption{(&backlog.QueryOptionService{}).WithActivityTypeIDs([]int{1, 2})}, // Invalid option for WikiService.All
-			expectAPICall:  false,
-			wantError:      true,
-			wantErrType:    &backlog.InvalidQueryOptionError{},
+			options: []*backlog.QueryOption{backlog.ExportNewQueryOption(
+				backlog.ExportQueryCount,
+				func(p *backlog.QueryParams) error {
+					return nil
+				},
+			)}, // Invalid option for WikiService.All
+			expectAPICall: false,
+			wantError:     true,
+			wantErrType:   &backlog.InvalidQueryOptionError{},
 		},
 		// 3. Option Set Error (option.set cover)
 		"validation-error-option-set-fail": {
@@ -125,7 +131,7 @@ func TestWikiService_All(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					calledAPICall = true
@@ -250,7 +256,7 @@ func TestWikiService_Count(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					calledAPICall = true
@@ -363,7 +369,7 @@ func TestWikiService_One(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					calledAPICall = true
@@ -410,7 +416,7 @@ func TestWikiService_One(t *testing.T) {
 func TestWikiService_Create(t *testing.T) {
 	t.Parallel()
 
-	option := &backlog.WikiOptionService{}
+	option := backlog.ExportNewWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
@@ -514,10 +520,15 @@ func TestWikiService_Create(t *testing.T) {
 			wantError:     true,
 		},
 		"validation-error-invalid-option-type": {
-			projectID:     1,
-			name:          "Test",
-			content:       "content",
-			options:       []*backlog.FormOption{(&backlog.ProjectOptionService{}).WithFormKey("Invalid Option")},
+			projectID: 1,
+			name:      "Test",
+			content:   "content",
+			options: []*backlog.FormOption{backlog.ExportNewFormOption(
+				backlog.ExportFormMailAddress,
+				func(p *backlog.ExportRequestParams) error {
+					return nil
+				},
+			)},
 			expectAPICall: false,
 			wantError:     true,
 			wantErrType:   &backlog.InvalidFormOptionError{},
@@ -551,7 +562,7 @@ func TestWikiService_Create(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					calledAPICall = true
@@ -607,7 +618,7 @@ func TestWikiService_Create(t *testing.T) {
 func TestWikiService_Update(t *testing.T) {
 	t.Parallel()
 
-	option := &backlog.WikiOptionService{}
+	option := backlog.ExportNewWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
@@ -708,9 +719,12 @@ func TestWikiService_Update(t *testing.T) {
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
 			option: option.WithFormName("New Name"),
-			opts: []*backlog.FormOption{
-				(&backlog.ProjectOptionService{}).WithFormKey("Invalid Option"),
-			},
+			opts: []*backlog.FormOption{backlog.ExportNewFormOption(
+				backlog.ExportFormMailAddress,
+				func(p *backlog.ExportRequestParams) error {
+					return nil
+				},
+			)},
 			expectAPICall: false,
 			wantError:     true,
 			wantErrType:   &backlog.InvalidFormOptionError{},
@@ -759,7 +773,7 @@ func TestWikiService_Update(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					calledAPICall = true
@@ -815,8 +829,8 @@ func TestWikiService_Update(t *testing.T) {
 func TestWikiService_Delete(t *testing.T) {
 	t.Parallel()
 
-	option := &backlog.WikiOptionService{}
-	projectOption := &backlog.ProjectOptionService{} // For testing InvalidFormOptionError
+	option := backlog.ExportNewWikiOptionService()
+	projectOption := backlog.ExportNewProjectOptionService() // For testing InvalidFormOptionError
 
 	type testCase struct {
 		// Input arguments
@@ -922,7 +936,7 @@ func TestWikiService_Delete(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := &backlog.WikiService{}
+			s := backlog.ExportNewWikiService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					calledAPICall = true

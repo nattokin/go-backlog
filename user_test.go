@@ -51,7 +51,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	projectKey := "TEST"
 	excludeGroupMembers := false
 
-	s := &backlog.ProjectUserService{}
+	s := backlog.ExportNewProjectUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
@@ -117,7 +117,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	projectKey := "TEST"
 	id := 1
 
-	s := &backlog.ProjectUserService{}
+	s := backlog.ExportNewProjectUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
@@ -459,7 +459,7 @@ func TestUserService_Update(t *testing.T) {
 }
 
 func TestUserService_Update_option(t *testing.T) {
-	option := &backlog.UserOptionService{}
+	option := backlog.ExportNewUserOptionService()
 	id := 1
 
 	type options struct {
@@ -716,7 +716,7 @@ func TestProjectUserService_All(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
@@ -781,7 +781,7 @@ func TestProjectUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -855,7 +855,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -920,7 +920,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -965,7 +965,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
@@ -1030,7 +1030,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {

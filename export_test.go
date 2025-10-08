@@ -243,30 +243,40 @@ func ExportNewFormOptionService() *FormOptionService {
 // ExportNewActivityOptionService returns a test instance of ActivityOptionService.
 func ExportNewActivityOptionService() *ActivityOptionService {
 	return &ActivityOptionService{
-		Query: ExportNewQueryOptionService(),
+		support: &optionSupport{
+			query: ExportNewQueryOptionService(),
+			form:  ExportNewFormOptionService(),
+		},
 	}
 }
 
 // ExportNewProjectOptionService returns a test instance of ProjectOptionService.
 func ExportNewProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
-		Query: ExportNewQueryOptionService(),
-		Form:  ExportNewFormOptionService(),
+		support: &optionSupport{
+			query: ExportNewQueryOptionService(),
+			form:  ExportNewFormOptionService(),
+		},
 	}
 }
 
 // ExportNewUserOptionService returns a test instance of UserOptionService.
 func ExportNewUserOptionService() *UserOptionService {
 	return &UserOptionService{
-		Form: ExportNewFormOptionService(),
+		support: &optionSupport{
+			query: ExportNewQueryOptionService(),
+			form:  ExportNewFormOptionService(),
+		},
 	}
 }
 
 // ExportNewWikiOptionService returns a test instance of WikiOptionService.
 func ExportNewWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
-		Query: ExportNewQueryOptionService(),
-		Form:  ExportNewFormOptionService(),
+		support: &optionSupport{
+			query: ExportNewQueryOptionService(),
+			form:  ExportNewFormOptionService(),
+		},
 	}
 }
 

@@ -153,11 +153,13 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	queryOptionService := &QueryOptionService{}
-	formOptionService := &FormOptionService{}
+	optionSupport := &optionSupport{
+		query: &QueryOptionService{},
+		form:  &FormOptionService{},
+	}
 
 	activityOptionService := &ActivityOptionService{
-		Query: queryOptionService,
+		support: optionSupport,
 	}
 
 	c.Issue = &IssueService{
@@ -176,8 +178,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 			method: m,
 		},
 		Option: &ProjectOptionService{
-			Query: queryOptionService,
-			Form:  formOptionService,
+			support: optionSupport,
 		},
 	}
 	c.PullRequest = &PullRequestService{
@@ -203,7 +204,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			Form: formOptionService,
+			support: optionSupport,
 		},
 	}
 	c.Wiki = &WikiService{
@@ -212,8 +213,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 			method: m,
 		},
 		Option: &WikiOptionService{
-			Query: queryOptionService,
-			Form:  formOptionService,
+			support: optionSupport,
 		},
 	}
 
@@ -308,13 +308,16 @@ func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, er
 
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
-	w.Close()
 
 	fw, err := c.wrapper.CreateFormFile(w, fileName)
 	if err != nil {
 		return nil, err
 	}
 	if err = c.wrapper.Copy(fw, r); err != nil {
+		return nil, err
+	}
+
+	if err := w.Close(); err != nil {
 		return nil, err
 	}
 
