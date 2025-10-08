@@ -122,11 +122,13 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
+
+	form := NewFormParams()
+
 	if err := validateProjectID(projectID); err != nil {
 		return nil, err
 	}
-
-	form := NewFormParams()
+	form.Set("projectId", strconv.Itoa(projectID))
 	if err := withFormName(name).set(form); err != nil {
 		return nil, err
 	}
@@ -146,7 +148,6 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 			return nil, err
 		}
 	}
-	form.Set("projectId", strconv.Itoa(projectID))
 
 	resp, err := s.method.Post("wikis", form)
 	if err != nil {
