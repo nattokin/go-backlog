@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 )
@@ -107,82 +108,280 @@ func (p *FormParams) ExportURLValues() *url.Values {
 	return p.Values
 }
 
-func (s *SpaceAttachmentService) ExportSetMethod(m *method) {
-	s.method = m
-}
+// --- Test Helper Methods for Setting *method (Alphabetical Order) ---
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *CategoryService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *CustomFieldService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *IssueService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *IssueAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *PriorityService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *ProjectService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *ProjectActivityService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *ProjectUserService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *PullRequestService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *PullRequestAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *ResolutionService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *SpaceService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *SpaceActivityService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
+func (s *SpaceAttachmentService) ExportSetMethod(m *method) {
+	s.method = m
+}
+
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *StatusService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *UserService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *UserActivityService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *VersionService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *WikiService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
+// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *WikiAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
+}
+
+// newTestClientMethod creates a mock 'method' that returns an error by default for API calls.
+func newTestClientMethod() *method {
+	return &method{
+		Get: func(spath string, query *QueryParams) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Post: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Patch: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Delete: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+	}
+}
+
+// --- Option Service Helpers ---
+
+// ExportNewQueryOptionService returns a test instance of QueryOptionService.
+func ExportNewQueryOptionService() *QueryOptionService {
+	return &QueryOptionService{}
+}
+
+// ExportNewFormOptionService returns a test instance of FormOptionService.
+func ExportNewFormOptionService() *FormOptionService {
+	return &FormOptionService{}
+}
+
+// ExportNewActivityOptionService returns a test instance of ActivityOptionService.
+func ExportNewActivityOptionService() *ActivityOptionService {
+	return &ActivityOptionService{
+		Query: ExportNewQueryOptionService(),
+	}
+}
+
+// ExportNewProjectOptionService returns a test instance of ProjectOptionService.
+func ExportNewProjectOptionService() *ProjectOptionService {
+	return &ProjectOptionService{
+		Query: ExportNewQueryOptionService(),
+		Form:  ExportNewFormOptionService(),
+	}
+}
+
+// ExportNewUserOptionService returns a test instance of UserOptionService.
+func ExportNewUserOptionService() *UserOptionService {
+	return &UserOptionService{
+		Form: ExportNewFormOptionService(),
+	}
+}
+
+// ExportNewWikiOptionService returns a test instance of WikiOptionService.
+func ExportNewWikiOptionService() *WikiOptionService {
+	return &WikiOptionService{
+		Query: ExportNewQueryOptionService(),
+		Form:  ExportNewFormOptionService(),
+	}
+}
+
+// --- Sub-Service Helpers (Attachment, Activity, User) ---
+
+// ExportNewIssueAttachmentService returns a test instance of IssueAttachmentService.
+func ExportNewIssueAttachmentService() *IssueAttachmentService {
+	return &IssueAttachmentService{
+		method: newTestClientMethod(),
+	}
+}
+
+// ExportNewPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
+func ExportNewPullRequestAttachmentService() *PullRequestAttachmentService {
+	return &PullRequestAttachmentService{
+		method: newTestClientMethod(),
+	}
+}
+
+// ExportNewSpaceAttachmentService returns a test instance of SpaceAttachmentService.
+func ExportNewSpaceAttachmentService() *SpaceAttachmentService {
+	return &SpaceAttachmentService{
+		method: newTestClientMethod(),
+	}
+}
+
+// ExportNewWikiAttachmentService returns a test instance of WikiAttachmentService.
+func ExportNewWikiAttachmentService() *WikiAttachmentService {
+	return &WikiAttachmentService{
+		method: newTestClientMethod(),
+	}
+}
+
+// ExportNewProjectUserService returns a test instance of ProjectUserService.
+func ExportNewProjectUserService() *ProjectUserService {
+	return &ProjectUserService{
+		method: newTestClientMethod(),
+	}
+}
+
+// ExportNewProjectActivityService returns a test instance of ProjectActivityService.
+func ExportNewProjectActivityService() *ProjectActivityService {
+	return &ProjectActivityService{
+		method: newTestClientMethod(),
+		Option: ExportNewActivityOptionService(),
+	}
+}
+
+// ExportNewSpaceActivityService returns a test instance of SpaceActivityService.
+func ExportNewSpaceActivityService() *SpaceActivityService {
+	return &SpaceActivityService{
+		method: newTestClientMethod(),
+		Option: ExportNewActivityOptionService(),
+	}
+}
+
+// ExportNewUserActivityService returns a test instance of UserActivityService.
+func ExportNewUserActivityService() *UserActivityService {
+	return &UserActivityService{
+		method: newTestClientMethod(),
+		Option: ExportNewActivityOptionService(),
+	}
+}
+
+// --- Main Service Helpers ---
+
+// ExportNewIssueService returns a test instance of IssueService.
+func ExportNewIssueService() *IssueService {
+	return &IssueService{
+		method:     newTestClientMethod(),
+		Attachment: ExportNewIssueAttachmentService(),
+	}
+}
+
+// ExportNewProjectService returns a test instance of ProjectService.
+func ExportNewProjectService() *ProjectService {
+	return &ProjectService{
+		method:   newTestClientMethod(),
+		Activity: ExportNewProjectActivityService(),
+		User:     ExportNewProjectUserService(),
+		Option:   ExportNewProjectOptionService(),
+	}
+}
+
+// ExportNewPullRequestService returns a test instance of PullRequestService.
+func ExportNewPullRequestService() *PullRequestService {
+	return &PullRequestService{
+		method:     newTestClientMethod(),
+		Attachment: ExportNewPullRequestAttachmentService(),
+	}
+}
+
+// ExportNewSpaceService returns a test instance of SpaceService.
+func ExportNewSpaceService() *SpaceService {
+	return &SpaceService{
+		method:     newTestClientMethod(),
+		Activity:   ExportNewSpaceActivityService(),
+		Attachment: ExportNewSpaceAttachmentService(),
+	}
+}
+
+// ExportNewUserService returns a test instance of UserService.
+func ExportNewUserService() *UserService {
+	return &UserService{
+		method:   newTestClientMethod(),
+		Activity: ExportNewUserActivityService(),
+		Option:   ExportNewUserOptionService(),
+	}
+}
+
+// ExportNewWikiService returns a test instance of WikiService.
+func ExportNewWikiService() *WikiService {
+	return &WikiService{
+		method:     newTestClientMethod(),
+		Attachment: ExportNewWikiAttachmentService(),
+		Option:     ExportNewWikiOptionService(),
+	}
 }

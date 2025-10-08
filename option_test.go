@@ -904,15 +904,23 @@ func TestUserOptionService_WithFormPassword(t *testing.T) {
 		password  string
 		wantError bool
 	}{
-		"Valid-1": {
+		"Valid-8char": {
 			password:  "password",
 			wantError: false,
 		},
-		"Valid-2": {
+		"Valid-more": {
 			password:  "@password#1234",
 			wantError: false,
 		},
-		"Empty": {
+		"Invalid-1": {
+			password:  "1234567",
+			wantError: true,
+		},
+		"Invalid-2": {
+			password:  "asdEdfd",
+			wantError: true,
+		},
+		"Invalid-empty": {
 			password:  "",
 			wantError: true,
 		},

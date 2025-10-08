@@ -160,10 +160,10 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Project, error) {
 	form := NewFormParams()
-	if err := withFormKey(key).set(form); err != nil {
+	if err := (&FormOptionService{}).WithKey(key).set(form); err != nil {
 		return nil, err
 	}
-	if err := withFormName(name).set(form); err != nil {
+	if err := (&FormOptionService{}).WithName(name).set(form); err != nil {
 		return nil, err
 	}
 

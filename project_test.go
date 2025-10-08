@@ -24,7 +24,7 @@ func TestProjectService_All(t *testing.T) {
 		nameList: []string{"test", "test2", "test3"},
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -101,7 +101,7 @@ func TestProjectService_All_option(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.all, query.Get("all"))
@@ -140,7 +140,7 @@ func TestProjectService_AdminAll(t *testing.T) {
 		archived: "",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -212,7 +212,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.all, query.Get("all"))
@@ -250,7 +250,7 @@ func TestProjectService_AllArchived(t *testing.T) {
 		archived: "true",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -282,7 +282,7 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 		archived: "true",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -315,7 +315,7 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 		archived: "false",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -348,7 +348,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 		archived: "false",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -370,7 +370,7 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 }
 
 func TestProjectService_All_clientError(t *testing.T) {
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
@@ -397,7 +397,7 @@ func TestProjectService_One_key(t *testing.T) {
 		name:  "test",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -431,7 +431,7 @@ func TestProjectService_One_id(t *testing.T) {
 		name:  "test",
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -453,7 +453,7 @@ func TestProjectService_One_id(t *testing.T) {
 func TestProjectService_One_key_error(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -472,7 +472,7 @@ func TestProjectService_One_key_error(t *testing.T) {
 func TestProjectService_One_clientError(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			return nil, errors.New("error")
@@ -487,7 +487,7 @@ func TestProjectService_One_clientError(t *testing.T) {
 func TestProjectService_One_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -519,7 +519,7 @@ func TestProjectService_Create(t *testing.T) {
 		name:  name,
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -568,7 +568,7 @@ func TestProjectService_Create_param(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					assert.Equal(t, tc.key, form.Get("key"))
@@ -656,7 +656,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
@@ -687,7 +687,7 @@ func TestProjectService_Create_option(t *testing.T) {
 func TestProjectService_Create_clientError(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
@@ -702,7 +702,7 @@ func TestProjectService_Create_clientError(t *testing.T) {
 func TestProjectService_Create_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -731,7 +731,7 @@ func TestProjectService_Update(t *testing.T) {
 		projectKey: projectKey,
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -778,7 +778,7 @@ func TestProjectService_Update_param(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
@@ -868,7 +868,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.key, form.Get("key"))
@@ -902,7 +902,7 @@ func TestProjectService_Update_option(t *testing.T) {
 func TestProjectService_Update_clientError(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
@@ -917,7 +917,7 @@ func TestProjectService_Update_clientError(t *testing.T) {
 func TestProjectService_Update_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -961,7 +961,7 @@ func TestProjectService_Delete_param(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.ProjectService{}
+			s := backlog.ExportNewProjectService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					resp := &http.Response{
@@ -997,7 +997,7 @@ func TestProjectService_Delete(t *testing.T) {
 		key:   projectKey,
 	}
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -1018,7 +1018,7 @@ func TestProjectService_Delete(t *testing.T) {
 func TestProjectService_Delete_clientError(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			return nil, errors.New("error")
@@ -1033,7 +1033,7 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 func TestProjectService_Delete_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectService{}
+	s := backlog.ExportNewProjectService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
