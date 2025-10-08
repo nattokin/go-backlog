@@ -20,7 +20,7 @@ func TestUserService_One_getUser(t *testing.T) {
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, "users/1", spath)
@@ -81,7 +81,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, "users", spath)
@@ -148,7 +148,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	mailAddress := "eguchi@nulab.example"
 	roleType := backlog.RoleAdministrator
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, "users/"+strconv.Itoa(id), spath)
@@ -185,7 +185,7 @@ func TestUserService_All(t *testing.T) {
 		spath: "users",
 	}
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -202,7 +202,7 @@ func TestUserService_All(t *testing.T) {
 func TestUserService_All_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -252,7 +252,7 @@ func TestUserService_One(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.UserService{}
+			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
@@ -280,7 +280,7 @@ func TestUserService_Own(t *testing.T) {
 		spath: "users/myself",
 	}
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -297,7 +297,7 @@ func TestUserService_Own(t *testing.T) {
 func TestUserService_Own_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -376,7 +376,7 @@ func TestUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.UserService{}
+			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -404,7 +404,7 @@ func TestUserService_Add(t *testing.T) {
 func TestUserService_Add_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -438,7 +438,7 @@ func TestUserService_Update(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.UserService{}
+			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -550,7 +550,7 @@ func TestUserService_Update_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.UserService{}
+			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -577,7 +577,7 @@ func TestUserService_Update_option(t *testing.T) {
 func TestUserService_Update_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -627,7 +627,7 @@ func TestUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.UserService{}
+			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -651,7 +651,7 @@ func TestUserService_Delete(t *testing.T) {
 func TestUserService_Delete_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.UserService{}
+	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			resp := &http.Response{

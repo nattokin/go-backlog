@@ -153,7 +153,12 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	activityOptionService := &ActivityOptionService{}
+	queryOptionService := &QueryOptionService{}
+	formOptionService := &FormOptionService{}
+
+	activityOptionService := &ActivityOptionService{
+		Query: queryOptionService,
+	}
 
 	c.Issue = &IssueService{
 		method: m,
@@ -170,7 +175,10 @@ func NewClient(baseURL, token string) (*Client, error) {
 		User: &ProjectUserService{
 			method: m,
 		},
-		Option: &ProjectOptionService{},
+		Option: &ProjectOptionService{
+			Query: queryOptionService,
+			Form:  formOptionService,
+		},
 	}
 	c.PullRequest = &PullRequestService{
 		method: m,
@@ -194,14 +202,19 @@ func NewClient(baseURL, token string) (*Client, error) {
 			method: m,
 			Option: activityOptionService,
 		},
-		Option: &UserOptionService{},
+		Option: &UserOptionService{
+			Form: formOptionService,
+		},
 	}
 	c.Wiki = &WikiService{
 		method: m,
 		Attachment: &WikiAttachmentService{
 			method: m,
 		},
-		Option: &WikiOptionService{},
+		Option: &WikiOptionService{
+			Query: queryOptionService,
+			Form:  formOptionService,
+		},
 	}
 
 	return c, nil

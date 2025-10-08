@@ -129,10 +129,10 @@ func (s *WikiService) Create(projectID int, name, content string, options ...*Fo
 		return nil, err
 	}
 	form.Set("projectId", strconv.Itoa(projectID))
-	if err := withFormName(name).set(form); err != nil {
+	if err := (&FormOptionService{}).WithName(name).set(form); err != nil {
 		return nil, err
 	}
-	if err := withFormContent(content).set(form); err != nil {
+	if err := (&FormOptionService{}).WithContent(content).set(form); err != nil {
 		return nil, err
 	}
 
@@ -193,7 +193,7 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 		}
 	}
 
-	if !checkRequiredOptionTypes(options, []formType{formName, formContent}) {
+	if !hasRequiredFormOption(options, []formType{formName, formContent}) {
 		return nil, newValidationError("requires an option to modify wiki content or name (WithFormName or WithFormContent)")
 	}
 
