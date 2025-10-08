@@ -594,12 +594,12 @@ func (s *UserOptionService) WithFormName(name string) *FormOption {
 	return s.support.form.WithName(name)
 }
 
-// // WithFormUserId returns a form option to set the user's ID (login name).
-
-// // Backlog API reference:
-
-// // https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserOptionService) WithFormUserId(userID string) *FormOption {
+// WithFormUserID returns a form option to set the user's ID (login name).
+//
+// Backlog API reference:
+//
+//	https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserOptionService) WithFormUserID(userID string) *FormOption {
 	return s.support.form.WithUserID(userID)
 }
 
