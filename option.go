@@ -331,6 +331,7 @@ type ActivityOptionService struct {
 }
 
 // --- Delegation Methods for Activity Query Options ---
+
 // WithQueryActivityTypeIDs creates a query option for Activity Type I Ds.
 func (s *ActivityOptionService) WithQueryActivityTypeIDs(ids []int) *QueryOption {
 	return s.Query.WithActivityTypeIDs(ids)
@@ -423,6 +424,7 @@ type UserOptionService struct {
 }
 
 // --- Delegation Methods for User Form Options ---
+
 // WithFormPassword creates a form option for Password.
 func (s *UserOptionService) WithFormPassword(password string) *FormOption {
 	return s.Form.WithPassword(password)
@@ -453,12 +455,14 @@ type WikiOptionService struct {
 }
 
 // --- Delegation Methods for Wiki Query Options ---
+
 // WithQueryKeyword creates a query option for Keyword.
 func (s *WikiOptionService) WithQueryKeyword(keyword string) *QueryOption {
 	return s.Query.WithKeyword(keyword)
 }
 
 // --- Delegation Methods for Wiki Form Options ---
+
 // WithFormName creates a form option for Name.
 func (s *WikiOptionService) WithFormName(name string) *FormOption {
 	return s.Form.WithName(name)
