@@ -13,11 +13,10 @@ import (
 )
 
 func TestWikiService_All(t *testing.T) {
-	t.Parallel()
-
 	type testCase struct {
 		// Input arguments
 		projectIDOrKey string
+		options        []*backlog.QueryOption // Variable arguments
 
 		// HTTP mock settings
 		httpStatus int
@@ -47,6 +46,7 @@ func TestWikiService_All(t *testing.T) {
 	cases := map[string]testCase{
 		"success-project-id": {
 			projectIDOrKey:          "103",
+			options:                 []*backlog.QueryOption{},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataWikiListJSON,
 			wantSpath:               "wikis",
@@ -55,8 +55,11 @@ func TestWikiService_All(t *testing.T) {
 			wantIDs:                 []int{testWiki1ID, testWiki2ID},
 			wantNames:               []string{testWiki1Name, testWiki2Name},
 		},
-		"success-project-key": {
-			projectIDOrKey:          "PRJ_KEY",
+		"success-with-options": {
+			projectIDOrKey: "PRJ_KEY",
+			options: []*backlog.QueryOption{
+				(&backlog.WikiOptionService{}).WithQueryKeyword("test"),
+			},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataWikiListJSON,
 			wantSpath:               "wikis",
@@ -65,15 +68,39 @@ func TestWikiService_All(t *testing.T) {
 			wantIDs:                 []int{testWiki1ID, testWiki2ID},
 			wantNames:               []string{testWiki1Name, testWiki2Name},
 		},
-		// --- Failure Cases (omitting success-only fields) ---
+		// 1. Validation Error: projectIDOrKey is empty (validateProjectIDOrKey cover)
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
 			expectAPICall:  false,
 			wantError:      true,
 			wantErrType:    &backlog.ValidationError{},
 		},
+		// 2. Validation Error: Invalid Option Type (option.validate cover)
+		"validation-error-invalid-option-type": {
+			projectIDOrKey: "PRJ",
+			options:        []*backlog.QueryOption{(&backlog.QueryOptionService{}).WithActivityTypeIDs([]int{1, 2})}, // Invalid option for WikiService.All
+			expectAPICall:  false,
+			wantError:      true,
+			wantErrType:    &backlog.InvalidQueryOptionError{},
+		},
+		// 3. Option Set Error (option.set cover)
+		"validation-error-option-set-fail": {
+			projectIDOrKey: "PRJ",
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(
+					backlog.ExportQueryKeyword,
+					func(p *backlog.QueryParams) error {
+						return errors.New("error during option set")
+					},
+				),
+			},
+			expectAPICall: false,
+			wantError:     true,
+		},
+		// --- Existing Failure Cases ---
 		"client-error-network-failure": {
 			projectIDOrKey:          "1",
+			options:                 []*backlog.QueryOption{},
 			httpError:               errors.New("network error"),
 			wantSpath:               "wikis",
 			wantQueryProjectIDOrKey: "1",
@@ -82,6 +109,7 @@ func TestWikiService_All(t *testing.T) {
 		},
 		"api-error-invalid-json": {
 			projectIDOrKey:          "1",
+			options:                 []*backlog.QueryOption{},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataInvalidJSON,
 			wantSpath:               "wikis",
@@ -116,7 +144,7 @@ func TestWikiService_All(t *testing.T) {
 				},
 			})
 
-			wikis, err := s.All(tc.projectIDOrKey)
+			wikis, err := s.All(tc.projectIDOrKey, tc.options...)
 
 			if tc.expectAPICall {
 				assert.True(t, calledAPICall)
