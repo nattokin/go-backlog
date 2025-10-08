@@ -13,13 +13,14 @@ func TestError_Error(t *testing.T) {
 		Code:     6,
 		MoreInfo: "more info",
 	}
-	want := "Massage:No project., Code:6, MoreInfo:more info"
+	want := "Message:No project., Code:6, MoreInfo:more info"
 
 	assert.Equal(t, want, e.Error())
 }
 
 func TestAPIResponseError_Error(t *testing.T) {
 	e := &backlog.APIResponseError{
+		StatusCode: 404,
 		Errors: []*backlog.Error{
 			{
 				Message:  "1st error",
@@ -33,7 +34,7 @@ func TestAPIResponseError_Error(t *testing.T) {
 			},
 		},
 	}
-	want := "Massage:1st error, Code:5, MoreInfo:more info 1\nMassage:2nd error, Code:9, MoreInfo:more info 2"
+	want := "Status Code:404\nMessage:1st error, Code:5, MoreInfo:more info 1\nMessage:2nd error, Code:9, MoreInfo:more info 2"
 
 	assert.Equal(t, want, e.Error())
 }

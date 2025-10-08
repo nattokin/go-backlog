@@ -70,23 +70,30 @@ func TestQueryOptionService_WithActivityTypeIDs(t *testing.T) {
 			wantError: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithActivityTypeIDs(tc.typeIDs)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryActivityTypeIDs); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Values)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.want, (*query.Values)["activityTypeId[]"])
 			}
 		})
+
 	}
 }
 
 func TestQueryOptionService_WithActivityTypeIDs_invalidOption(t *testing.T) {
+	t.Parallel()
+
 	o := backlog.QueryOptionService{}
 
 	activityIDs := []int{1, 2}
@@ -117,15 +124,19 @@ func TestQueryOptionService_WithAll(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithAll(tc.enabeld)
 			query := backlog.NewQueryParams()
 			err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryAll)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), query.Get("all"))
 		})
+
 	}
 }
 
@@ -142,15 +153,19 @@ func TestQueryOptionService_WithArchived(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithArchived(tc.enabeld)
 			query := backlog.NewQueryParams()
 			err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryArchived)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), query.Get("archived"))
 		})
+
 	}
 }
 
@@ -182,19 +197,24 @@ func TestQueryOptionService_WithCount(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithCount(tc.count)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryParamsWithOptions(query, []*backlog.QueryOption{option}, backlog.ExportQueryCount); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("count"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.count), query.Get("count"))
 			}
 		})
+
 	}
 }
 
@@ -211,9 +231,12 @@ func TestQueryOptionService_WithKeyword(t *testing.T) {
 			keyword: "",
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithKeyword(tc.keyword)
 			query := backlog.NewQueryParams()
 
@@ -221,6 +244,7 @@ func TestQueryOptionService_WithKeyword(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tc.keyword, query.Get("keyword"))
 		})
+
 	}
 }
 
@@ -244,19 +268,24 @@ func TestQueryOptionService_WithMinID(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithMinID(tc.minID)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("minId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.minID), query.Get("minId"))
 			}
 		})
+
 	}
 }
 
@@ -280,19 +309,24 @@ func TestQueryOptionService_WithMaxID(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithMaxID(tc.maxID)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("maxId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.maxID), query.Get("maxId"))
 			}
 		})
+
 	}
 }
 
@@ -320,9 +354,12 @@ func TestQueryOptionService_WithOrder(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithOrder(tc.order)
 			query := backlog.NewQueryParams()
 
@@ -333,6 +370,7 @@ func TestQueryOptionService_WithOrder(t *testing.T) {
 				assert.Equal(t, string(tc.order), query.Get("order"))
 			}
 		})
+
 	}
 }
 
@@ -398,20 +436,24 @@ func TestActivityOptionService_WithActivityTypeIDs(t *testing.T) {
 			wantError: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryActivityTypeIDs(tc.typeIDs)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Values)
 			} else {
 				assert.NoError(t, err)
-				v := *query.Values
-				assert.Equal(t, tc.want, v["activityTypeId[]"])
+				assert.Equal(t, tc.want, (*query.Values)["activityTypeId[]"])
 			}
 		})
+
 	}
 }
 
@@ -435,19 +477,24 @@ func TestActivityOptionService_WithMinID(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryMinID(tc.minID)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("minId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.minID), query.Get("minId"))
 			}
 		})
+
 	}
 }
 
@@ -471,19 +518,24 @@ func TestActivityOptionService_WithMaxID(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryMaxID(tc.maxID)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("maxId"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.maxID), query.Get("maxId"))
 			}
 		})
+
 	}
 }
 
@@ -515,19 +567,24 @@ func TestActivityOptionService_WithCount(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryCount(tc.count)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("count"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.count), query.Get("count"))
 			}
 		})
+
 	}
 }
 
@@ -555,19 +612,24 @@ func TestActivityOptionService_WithOrder(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryOrder(tc.order)
 			query := backlog.NewQueryParams()
 
 			if err := backlog.ExportQueryOptionSet(option, query); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, query.Get("order"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, string(tc.order), query.Get("order"))
 			}
 		})
+
 	}
 }
 
@@ -584,15 +646,19 @@ func TestProjectOptionService_WithQueryAll(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryAll(tc.enabeld)
 			query := backlog.NewQueryParams()
 			err := backlog.ExportQueryOptionSet(option, query)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), query.Get("all"))
 		})
+
 	}
 }
 
@@ -612,19 +678,24 @@ func TestProjectOptionService_WithFormKey(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormKey(tc.key)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("key"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.key, form.Get("key"))
 			}
 		})
+
 	}
 }
 
@@ -644,19 +715,24 @@ func TestProjectOptionService_WithFormName(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormName(tc.name)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
 			}
 		})
+
 	}
 }
 
@@ -673,15 +749,19 @@ func TestProjectOptionService_WithFormChartEnabled(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormChartEnabled(tc.enabeld)
 			form := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, form)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), form.Get("chartEnabled"))
 		})
+
 	}
 }
 
@@ -698,15 +778,19 @@ func TestProjectOptionService_WithFormSubtaskingEnabled(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormSubtaskingEnabled(tc.enabeld)
 			form := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, form)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), form.Get("subtaskingEnabled"))
 		})
+
 	}
 }
 
@@ -723,15 +807,19 @@ func TestProjectOptionService_WithFormProjectLeaderCanEditProjectLeader(t *testi
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormProjectLeaderCanEditProjectLeader(tc.enabeld)
 			form := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, form)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), form.Get("projectLeaderCanEditProjectLeader"))
 		})
+
 	}
 }
 
@@ -759,19 +847,24 @@ func TestProjectOptionService_WithFormTextFormattingRule(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormTextFormattingRule(tc.format)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("textFormattingRule"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, string(tc.format), form.Get("textFormattingRule"))
 			}
 		})
+
 	}
 }
 
@@ -788,15 +881,19 @@ func TestProjectOptionService_WithFormArchived(t *testing.T) {
 			archived: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryArchived(tc.archived)
 			query := backlog.NewQueryParams()
 			err := backlog.ExportQueryOptionSet(option, query)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.archived), query.Get("archived"))
 		})
+
 	}
 }
 
@@ -820,19 +917,24 @@ func TestUserOptionService_WithFormPassword(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormPassword(tc.password)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("password"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.password, form.Get("password"))
 			}
 		})
+
 	}
 }
 
@@ -852,19 +954,24 @@ func TestUserOptionService_WithFormName(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormName(tc.name)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
 			}
 		})
+
 	}
 }
 
@@ -897,19 +1004,24 @@ func TestUserOptionService_withMailAddress(t *testing.T) {
 			wantError:   true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormMailAddress(tc.mailAddress)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("mailAddress"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.mailAddress, form.Get("mailAddress"))
 			}
 		})
+
 	}
 }
 
@@ -962,19 +1074,24 @@ func TestUserOptionService_WithFormRoleType(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormRoleType(tc.roleType)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("roleType"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.want, form.Get("roleType"))
 			}
 		})
+
 	}
 }
 
@@ -991,15 +1108,19 @@ func TestWikiOptionService_WithFormKeyword(t *testing.T) {
 			keyword: "",
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithQueryKeyword(tc.keyword)
 			query := backlog.NewQueryParams()
 			err := backlog.ExportQueryOptionSet(option, query)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.keyword, query.Get("keyword"))
 		})
+
 	}
 }
 
@@ -1019,19 +1140,24 @@ func TestWikiOptionService_WithFormName(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormName(tc.name)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("name"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.name, form.Get("name"))
 			}
 		})
+
 	}
 }
 
@@ -1051,19 +1177,24 @@ func TestWikiOptionService_WithFormContent(t *testing.T) {
 			wantError: true,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormContent(tc.content)
 			form := backlog.NewFormParams()
 
 			if err := backlog.ExportFormOptionSet(option, form); tc.wantError {
 				assert.Error(t, err)
+				assert.Empty(t, form.Get("content"))
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.content, form.Get("content"))
 			}
 		})
+
 	}
 }
 
@@ -1080,14 +1211,18 @@ func TestWikiOptionService_WithFormMailNotify(t *testing.T) {
 			enabeld: false,
 		},
 	}
+
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			option := o.WithFormMailNotify(tc.enabeld)
 			form := backlog.NewFormParams()
 			err := backlog.ExportFormOptionSet(option, form)
 			assert.NoError(t, err)
 			assert.Equal(t, strconv.FormatBool(tc.enabeld), form.Get("mailNotify"))
 		})
+
 	}
 }

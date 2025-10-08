@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,9 +14,12 @@ import (
 
 	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewClientError(t *testing.T) {
+	t.Parallel()
+
 	msg := "test error message"
 	e := backlog.ExportNewInternalClientError(msg)
 
@@ -53,155 +57,146 @@ func TestNewClient(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
 			c, err := backlog.NewClient(tc.url, tc.token)
 
-			switch {
-			case tc.wantError:
+			if tc.wantError {
 				assert.Error(t, err)
 				assert.Nil(t, c)
-			case !tc.wantError:
-				assert.NoError(t, err)
+			} else {
+				require.NoError(t, err)
 				assert.NotNil(t, c)
+				assert.Equal(t, tc.url, c.ExportURL().String())
+				assert.Equal(t, tc.token, c.ExportToken())
 			}
-
-			if c == nil {
-				return
-			}
-
-			assert.Equal(t, tc.url, c.ExportURL().String())
-			assert.Equal(t, tc.token, c.ExportToken())
 		})
+
 	}
 }
 
 func TestNewClient_project(t *testing.T) {
-	key := "TEST"
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/project.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	key := "TEST"
 	project, err := c.Project.Update(key, c.Project.Option.WithFormName("test"))
 	assert.NoError(t, err)
-	assert.NotNil(t, project)
+	require.NotNil(t, project)
 	assert.Equal(t, key, project.ProjectKey)
 }
 
 func TestNewClient_projectUser(t *testing.T) {
-	projectKey := "TEST"
-	userID := 1
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	projectKey := "TEST"
+	userID := 1
 	user, err := c.Project.User.Delete(projectKey, userID)
 	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	require.NotNil(t, user)
 	assert.Equal(t, userID, user.ID)
 }
 
 func TestNewClient_projectActivity(t *testing.T) {
-	projectKey := "SUB"
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	projectKey := "SUB"
 	activities, err := c.Project.Activity.List(projectKey, c.Project.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
-	assert.NotNil(t, activities)
+	require.NotNil(t, activities)
 	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
 }
 
 func TestNewClient_spaceActivity(t *testing.T) {
-	projectKey := "SUB"
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	projectKey := "SUB"
 	activities, err := c.Space.Activity.List(c.Space.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
-	assert.NotNil(t, activities)
+	require.NotNil(t, activities)
 	assert.Equal(t, projectKey, activities[0].Project.ProjectKey)
 }
 
 func TestNewClient_spaceAttachment(t *testing.T) {
-	fname := "test.txt"
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/attachment_upload.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
 	f, err := os.Open("testdata/testfile")
@@ -210,99 +205,95 @@ func TestNewClient_spaceAttachment(t *testing.T) {
 	}
 	defer f.Close()
 
+	fname := "test.txt"
 	attachment, err := c.Space.Attachment.Upload(fname, f)
 	assert.NoError(t, err)
-	assert.NotNil(t, attachment)
+	require.NotNil(t, attachment)
 	assert.Equal(t, fname, attachment.Name)
 }
 
 func TestNewClient_user(t *testing.T) {
-	userID := 1
-	userName := "admin"
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/user.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	userID := 1
+	userName := "admin"
 	user, err := c.User.Update(userID, c.User.Option.WithFormName(userName))
 	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	require.NotNil(t, user)
 	assert.Equal(t, userName, user.Name)
 }
 
 func TestNewClient_userActivity(t *testing.T) {
-	userID := 1
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/activity_list.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	userID := 1
 	activities, err := c.User.Activity.List(userID, c.User.Activity.Option.WithQueryCount(1))
 	assert.NoError(t, err)
-	assert.NotNil(t, activities)
+	require.NotNil(t, activities)
 	assert.Equal(t, userID, activities[0].CreatedUser.ID)
 }
 
 func TestNewClient_wiki(t *testing.T) {
-	projectID := 1
-	name := "Minimum Wiki Page"
-	content := "This is a minimal wiki page."
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
+
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	bj, err := os.Open("testdata/json/wiki_minimum.json")
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     header,
-			Body:       bj,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMinimumJSON))),
 		}
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
+	projectID := 1
+	name := "Minimum Wiki Page"
+	content := "This is a minimal wiki page."
 	wiki, err := c.Wiki.Create(projectID, name, content, c.Wiki.Option.WithFormMailNotify(false))
 	assert.NoError(t, err)
-	assert.NotNil(t, wiki)
+	require.NotNil(t, wiki)
 	assert.Equal(t, name, wiki.Name)
 }
 
-func TestClient_NewReqest(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
-
+func TestClient_NewRequest(t *testing.T) {
 	cases := map[string]struct {
 		method    string
 		spath     string
@@ -396,26 +387,26 @@ func TestClient_NewReqest(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			request, err := backlog.ExportClientNewReqest(c, tc.method, tc.spath, tc.header, tc.body, tc.query)
+			t.Parallel()
 
-			switch {
-			case tc.wantError:
+			c, _ := backlog.NewClient("https://test.backlog.com", "test")
+			request, err := backlog.ExportClientNewRequest(c, tc.method, tc.spath, tc.header, tc.body, tc.query)
+
+			if tc.wantError {
 				assert.Error(t, err)
 				assert.Nil(t, request)
-			case !tc.wantError:
+			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, request)
 			}
 		})
+
 	}
 
 }
 
 func TestClient_Do(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
-
-	header := http.Header{}
-	header.Set("Content-Type", "application/json;charset=utf-8")
+	t.Parallel()
 
 	user := &backlog.User{
 		ID:          1,
@@ -442,6 +433,8 @@ func TestClient_Do(t *testing.T) {
 		Updated:     now,
 	}
 
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
 	bs, _ := json.Marshal(want)
 	body := io.NopCloser(bytes.NewReader(bs))
 
@@ -454,44 +447,45 @@ func TestClient_Do(t *testing.T) {
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
 	res, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
 		http.Header{}, nil, nil,
 	)
-	assert.NoError(t, err)
-
-	defer res.Body.Close()
+	require.NoError(t, err)
 
 	wiki := backlog.Wiki{}
-	json.NewDecoder(res.Body).Decode(&wiki)
-
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&wiki))
 	assert.Equal(t, want.ID, wiki.ID)
 	assert.Equal(t, want.Name, wiki.Name)
 	assert.Equal(t, want.CreatedUser.Name, wiki.CreatedUser.Name)
 }
 
 func TestClient_Do_httpClientError(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
 
 	emsg := "http client error"
-	// If http.Client.Do return error, Should return error.
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		return nil, errors.New(emsg)
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
-	_, err := backlog.ExportClientDo(
+	resp, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
 		http.Header{}, nil, nil,
 	)
+	assert.Nil(t, resp)
 	assert.Error(t, err, emsg)
 
 }
 
 func TestClient_Do_errorResponse(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
 
 	header := http.Header{}
 	header.Set("Content-Type", "application/json;charset=utf-8")
@@ -518,19 +512,25 @@ func TestClient_Do_errorResponse(t *testing.T) {
 
 		return resp, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetHTTPClient(httpClient)
 
-	_, err := backlog.ExportClientDo(
+	resp, err := backlog.ExportClientDo(
 		c, http.MethodGet, "test",
 		http.Header{}, nil, nil,
 	)
+	assert.Nil(t, resp)
 	assert.Error(t, err, apiErrors.Error())
 }
 
 func TestClient_Get(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
+
 	want := struct {
 		method      string
 		url         string
@@ -541,32 +541,38 @@ func TestClient_Get(t *testing.T) {
 		contentType: "",
 	}
 
-	c, _ := backlog.NewClient(baseURL, apiKey)
-
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		assert.Equal(t, want.method, req.Method)
 		assert.Equal(t, want.url, req.URL.String())
 		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
+	c, _ := backlog.NewClient(baseURL, apiKey)
 	c.ExportSetHTTPClient(httpClient)
 
-	res, _ := backlog.ExportClientGet(c, spath, nil)
-	statusCode := res.StatusCode
-	assert.Equal(t, http.StatusOK, statusCode)
+	res, err := backlog.ExportClientGet(c, spath, nil)
+	require.NoError(t, err)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Get_newRequestError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientGet(c, "", backlog.NewQueryParams())
+	resp, err := backlog.ExportClientGet(c, "", backlog.NewQueryParams())
 	assert.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Post(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
+
 	want := struct {
 		method      string
 		url         string
@@ -585,23 +591,31 @@ func TestClient_Post(t *testing.T) {
 		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
 	c.ExportSetHTTPClient(httpClient)
 
-	res, _ := backlog.ExportClientPost(c, spath, nil)
+	res, err := backlog.ExportClientPost(c, spath, nil)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Post_newRequestError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientPost(c, "", backlog.NewFormParams())
+	resp, err := backlog.ExportClientPost(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Patch(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
+
 	want := struct {
 		method      string
 		url         string
@@ -626,16 +640,21 @@ func TestClient_Patch(t *testing.T) {
 		assert.Equal(t, want.body, string(content))
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
 	c.ExportSetHTTPClient(httpClient)
 
 	form := backlog.NewFormParams()
 	form.Set("key", "value")
 
-	res, _ := backlog.ExportClientPatch(c, spath, form)
+	res, err := backlog.ExportClientPatch(c, spath, form)
+	require.NoError(t, err)
+	require.NotNil(t, res)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Patch_emptyParams(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
@@ -646,23 +665,31 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 		defer req.Body.Close()
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
 	c.ExportSetHTTPClient(httpClient)
 
-	res, _ := backlog.ExportClientPatch(c, spath, nil)
+	res, err := backlog.ExportClientPatch(c, spath, nil)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Patch_newRequestError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientPatch(c, "", backlog.NewFormParams())
+	resp, err := backlog.ExportClientPatch(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Delete(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
+
 	want := struct {
 		method      string
 		url         string
@@ -672,8 +699,6 @@ func TestClient_Delete(t *testing.T) {
 		url:         baseURL + "/api/v2/" + spath + "?apiKey=" + apiKey,
 		contentType: "application/x-www-form-urlencoded",
 	}
-
-	c, _ := backlog.NewClient(baseURL, apiKey)
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		defer req.Body.Close()
@@ -686,43 +711,51 @@ func TestClient_Delete(t *testing.T) {
 		assert.Empty(t, content)
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
+	c, _ := backlog.NewClient(baseURL, apiKey)
 	c.ExportSetHTTPClient(httpClient)
 
 	form := backlog.NewFormParams()
 	form.Set("key", "value")
 
-	res, _ := backlog.ExportClientDelete(c, spath, form)
+	res, err := backlog.ExportClientDelete(c, spath, form)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Delete_emptyParams(t *testing.T) {
-	baseURL := "https://test.backlog.com"
-	apiKey := "apikey"
-	spath := "spath"
-
-	c, _ := backlog.NewClient(baseURL, apiKey)
+	t.Parallel()
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		defer req.Body.Close()
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
+	c, _ := backlog.NewClient("https://test.backlog.com", "apikey")
 	c.ExportSetHTTPClient(httpClient)
 
-	res, _ := backlog.ExportClientDelete(c, spath, nil)
+	res, err := backlog.ExportClientDelete(c, "spath", nil)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Delete_newRequestError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 
-	_, err := backlog.ExportClientDelete(c, "", backlog.NewFormParams())
+	resp, err := backlog.ExportClientDelete(c, "", backlog.NewFormParams())
 	assert.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Upload(t *testing.T) {
+	t.Parallel()
+
 	baseURL := "https://test.backlog.com"
 	apiKey := "apikey"
 	spath := "spath"
+
 	want := struct {
 		method string
 		url    string
@@ -730,8 +763,6 @@ func TestClient_Upload(t *testing.T) {
 		method: http.MethodPost,
 		url:    baseURL + "/api/v2/" + spath + "?apiKey=" + apiKey,
 	}
-
-	c, _ := backlog.NewClient(baseURL, apiKey)
 
 	httpClient := NewHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		assert.Equal(t, want.method, req.Method)
@@ -741,6 +772,8 @@ func TestClient_Upload(t *testing.T) {
 		assert.Regexp(t, "^multipart/form-data; boundary=", contentType)
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
+
+	c, _ := backlog.NewClient(baseURL, apiKey)
 	c.ExportSetHTTPClient(httpClient)
 
 	f, err := os.Open("testdata/testfile")
@@ -750,13 +783,12 @@ func TestClient_Upload(t *testing.T) {
 	defer f.Close()
 
 	res, err := backlog.ExportClientUpload(c, spath, "filename", f)
-	assert.NoError(t, err)
-
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
 func TestClient_Upload_newRequestError(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
 
 	f, err := os.Open("testdata/testfile")
 	if err != nil {
@@ -764,12 +796,14 @@ func TestClient_Upload_newRequestError(t *testing.T) {
 	}
 	defer f.Close()
 
-	_, err = backlog.ExportClientUpload(c, "", "filename", f)
-	assert.Error(t, err)
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	resp, err := backlog.ExportClientUpload(c, "", "filename", f)
+	require.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Upload_emptyFileName(t *testing.T) {
-	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	t.Parallel()
 
 	f, err := os.Open("testdata/testfile")
 	if err != nil {
@@ -777,11 +811,15 @@ func TestClient_Upload_emptyFileName(t *testing.T) {
 	}
 	defer f.Close()
 
-	_, err = backlog.ExportClientUpload(c, "spath", "", f)
+	c, _ := backlog.NewClient("https://test.backlog.com", "test")
+	resp, err := backlog.ExportClientUpload(c, "spath", "", f)
 	assert.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Upload_createFormFileError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetWrapper(&backlog.ExportWrapper{
 		CreateFormFile: func(w *multipart.Writer, fname string) (io.Writer, error) {
@@ -790,17 +828,15 @@ func TestClient_Upload_createFormFileError(t *testing.T) {
 		Copy: backlog.ExportCopy,
 	})
 
-	f, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
-	assert.Error(t, err)
+	f := io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON)))
+	resp, err := backlog.ExportClientUpload(c, "spath", "filename", f)
+	require.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestClient_Upload_copyError(t *testing.T) {
+	t.Parallel()
+
 	c, _ := backlog.NewClient("https://test.backlog.com", "test")
 	c.ExportSetWrapper(&backlog.ExportWrapper{
 		CreateFormFile: backlog.ExportCreateFormFile,
@@ -809,110 +845,119 @@ func TestClient_Upload_copyError(t *testing.T) {
 		},
 	})
 
-	f, err := os.Open("testdata/json/invalid.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	_, err = backlog.ExportClientUpload(c, "spath", "filename", f)
-	assert.Error(t, err)
+	f := io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON)))
+	resp, err := backlog.ExportClientUpload(c, "spath", "filename", f)
+	require.Error(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestCheckResponse(t *testing.T) {
+	const apiErrorBody = `{"errors":[{"message": "No project.", "code": 6, "moreInfo": ""}]}`
+	const wantErrorStringFormat = "Status Code:%d\nMessage:No project., Code:6"
+
 	cases := map[string]struct {
-		statusCode int
-		wantError  bool
+		statusCode        int
+		body              io.ReadCloser
+		wantNilResponse   bool
+		wantErr           bool
+		wantErrStatusCode int
+		wantEmptyBodyTest bool // Indicates a test case with a nil response body
 	}{
-		"199": {
-			statusCode: 199,
-			wantError:  true,
+		"Status OK (200)": {
+			statusCode:      http.StatusOK,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: false,
 		},
-		"200": {
-			statusCode: 200,
-			wantError:  false,
+		"Status Created (201)": {
+			statusCode:      http.StatusCreated,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: false,
 		},
-		"299": {
-			statusCode: 299,
-			wantError:  false,
+		// Test 204 No Content handling: should return (nil, nil)
+		"Status No Content (204) with nil body": {
+			statusCode:      http.StatusNoContent,
+			body:            io.NopCloser(bytes.NewReader(nil)),
+			wantNilResponse: true,
 		},
-		"300": {
-			statusCode: 300,
-			wantError:  true,
+		// Test 204 No Content handling with body: should return (nil, nil)
+		"Status No Content (204) with non-nil body": {
+			statusCode:      http.StatusNoContent,
+			body:            io.NopCloser(bytes.NewReader([]byte(`{"data":"ignored"}`))),
+			wantNilResponse: true,
+		},
+		// Test 4xx/5xx error handling with valid body
+		"Status Bad Request (400)": {
+			statusCode:        http.StatusBadRequest,
+			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusBadRequest,
+		},
+		// Test 4xx/5xx error handling with nil body (to check defer r.Body.Close() and JSON unmarshal resilience)
+		"Status Not Found (404) with nil body": {
+			statusCode:        http.StatusNotFound,
+			body:              nil,
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusNotFound,
+			wantEmptyBodyTest: true,
+		},
+		"Status Internal Server Error (500)": {
+			statusCode:        http.StatusInternalServerError,
+			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusInternalServerError,
+		},
+		"Status Bad Request (400) with invalid JSON": {
+			statusCode:        http.StatusBadRequest,
+			body:              io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"invalid json...`))),
+			wantNilResponse:   true,
+			wantErr:           true,
+			wantErrStatusCode: http.StatusBadRequest,
+			wantEmptyBodyTest: true,
 		},
 	}
-	for n, tc := range cases {
+
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
-			body := io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
 			resp := &http.Response{
 				StatusCode: tc.statusCode,
-				Body:       body,
+				Body:       tc.body,
 			}
 
-			if r, err := backlog.ExportCheckResponse(resp); tc.wantError {
-				assert.NotNil(t, err)
+			// Use the exported function from backlog package
+			r, err := backlog.ExportCheckResponse(resp)
+
+			// 1. Validate response pointer
+			if tc.wantNilResponse {
+				assert.Nil(t, r, "Response should be nil")
 			} else {
-				assert.Equal(t, resp, r)
+				assert.NotNil(t, r, "Response should NOT be nil")
+			}
+
+			// 2. Validate error
+			if tc.wantErr {
+				assert.Error(t, err)
+
+				apiErr, ok := err.(*backlog.APIResponseError)
+				if assert.True(t, ok, "Error should be *backlog.APIResponseError") {
+					// Validate StatusCode
+					assert.Equal(t, tc.wantErrStatusCode, apiErr.StatusCode, "StatusCode mismatch")
+
+					// Validate error message only if a body was provided
+					if !tc.wantEmptyBodyTest {
+						wantMsg := fmt.Sprintf(wantErrorStringFormat, tc.wantErrStatusCode)
+						assert.Equal(t, wantMsg, apiErr.Error(), "Error message mismatch")
+					}
+				}
+			} else {
+				assert.NoError(t, err)
 			}
 		})
+
 	}
-}
-
-// TestCheckResponse_statusNoContent tests that ExportCheckResponse returns (nil, nil)
-// for HTTP 204 No Content responses, regardless of whether the body is empty or not.
-func TestCheckResponse_statusNoContent(t *testing.T) {
-	cases := map[string]struct {
-		bodyIsEmpty bool
-	}{
-		"body is empty": {
-			bodyIsEmpty: true,
-		},
-		"body is not empty": {
-			bodyIsEmpty: false,
-		},
-	}
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			var body io.ReadCloser
-			if tc.bodyIsEmpty {
-				body = io.NopCloser(bytes.NewReader(nil))
-			} else {
-				body = io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"message": "No project.","code": 6,"moreInfo": ""}]}`)))
-			}
-
-			resp := &http.Response{
-				StatusCode: http.StatusNoContent,
-				Body:       body,
-			}
-
-			r, e := backlog.ExportCheckResponse(resp)
-			// For HTTP 204 No Content, both response and error should be nil.
-			assert.Nil(t, r)
-			assert.NoError(t, e, "Expected no error for 204 No Content")
-		})
-	}
-
-}
-
-func TestCheckResponse_emptyBody(t *testing.T) {
-	resp := &http.Response{
-		StatusCode: http.StatusBadRequest,
-		Body:       nil,
-	}
-	_, err := backlog.ExportCheckResponse(resp)
-	assert.Error(t, err)
-}
-
-func TestCheckResponse_statusBadRequestWithInvalidJSON(t *testing.T) {
-	body := io.NopCloser(bytes.NewReader([]byte(`{invalid}`)))
-
-	resp := &http.Response{
-		StatusCode: http.StatusBadRequest,
-		Body:       body,
-	}
-	_, err := backlog.ExportCheckResponse(resp)
-	assert.IsType(t, &backlog.APIResponseError{}, err)
 }

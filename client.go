@@ -208,7 +208,7 @@ func NewClient(baseURL, token string) (*Client, error) {
 }
 
 // newRequest creates a new HTTP request for the Backlog API.
-func (c *Client) newReqest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
+func (c *Client) newRequest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
 	}
@@ -233,7 +233,7 @@ func (c *Client) newReqest(method, spath string, header http.Header, body io.Rea
 
 // do performs the HTTP request and returns the response.
 func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
-	req, err := c.newReqest(method, spath, header, body, query)
+	req, err := c.newRequest(method, spath, header, body, query)
 	if err != nil {
 		return nil, err
 	}

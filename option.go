@@ -71,6 +71,9 @@ func withQueryActivityTypeIDs(typeIDs []int) *QueryOption {
 			if id < 1 || 26 < id {
 				return newValidationError("activityTypeId must be between 1 and 26")
 			}
+		}
+
+		for _, id := range typeIDs {
 			query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 		}
 		return nil
@@ -435,4 +438,20 @@ func (*WikiOptionService) WithFormContent(content string) *FormOption {
 // WithFormMailNotify returns a form option that sets the `mailNotify` field in the request body for a wiki (e.g., true/false).
 func (*WikiOptionService) WithFormMailNotify(enabeld bool) *FormOption {
 	return withFormMailNotify(enabeld)
+}
+
+// checkRequiredOptionTypes checks if at least one form type specified in
+// the requiredTypes slice is present in the given options.
+// It returns true if a required type is found, otherwise false.
+func checkRequiredOptionTypes(options []*FormOption, requiredTypes []formType) bool {
+	for _, opt := range options {
+		optionType := opt.t
+
+		for _, requiredType := range requiredTypes {
+			if optionType == requiredType {
+				return true
+			}
+		}
+	}
+	return false
 }
