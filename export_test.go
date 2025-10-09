@@ -62,8 +62,6 @@ var (
 var (
 	ExportNewInternalClientError = newInternalClientError
 	ExportCheckResponse          = checkResponse
-	ExportCreateFormFile         = createFormFile
-	ExportCopy                   = copy
 )
 
 var ExportQueryParamsWithOptions = (*QueryParams).withOptions
@@ -100,7 +98,7 @@ func (c *Client) ExportSetToken(token string) {
 	c.token = token
 }
 
-func (c *Client) ExportSetWrapper(wrapper *wrapper) {
+func (c *Client) ExportSetWrapper(wrapper wrapper) {
 	c.wrapper = wrapper
 }
 
