@@ -20,7 +20,7 @@ import (
 
 type httpCapture struct {
 	Method string
-	URL    string
+	URL    *url.URL
 	Header http.Header
 	Body   []byte
 }
@@ -36,7 +36,7 @@ func makeClient(t *testing.T) (*Client, *httpCapture) {
 			bodyBytes, _ = io.ReadAll(req.Body)
 		}
 		captured.Method = req.Method
-		captured.URL = req.URL.String()
+		captured.URL = req.URL
 		captured.Header = req.Header
 		captured.Body = bodyBytes
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(`{}`))}, nil
@@ -59,26 +59,26 @@ func TestNewClientError(t *testing.T) {
 
 func TestNewClient_InitAndValidation(t *testing.T) {
 	cases := map[string]struct {
-		baseURL string
-		token   string
-		wantErr bool
-		errMsg  string
+		baseURL   string
+		token     string
+		wantError bool
+		errMsg    string
 	}{
 		"missing token": {
-			baseURL: "https://example.com",
-			token:   "",
-			wantErr: true,
-			errMsg:  "missing token",
+			baseURL:   "https://example.com",
+			token:     "",
+			wantError: true,
+			errMsg:    "missing token",
 		},
 		"invalid baseURL": {
-			baseURL: "://invalid-url",
-			token:   "token123",
-			wantErr: true,
+			baseURL:   "://invalid-url",
+			token:     "token123",
+			wantError: true,
 		},
 		"valid input": {
-			baseURL: "https://example.com",
-			token:   "token123",
-			wantErr: false,
+			baseURL:   "https://example.com",
+			token:     "token123",
+			wantError: false,
 		},
 	}
 
@@ -86,7 +86,7 @@ func TestNewClient_InitAndValidation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c, err := NewClient(tc.baseURL, tc.token)
 
-			if tc.wantErr {
+			if tc.wantError {
 				assert.Error(t, err)
 				assert.Nil(t, c)
 				if tc.errMsg != "" {
@@ -158,9 +158,8 @@ func TestClient_HTTPMethods(t *testing.T) {
 		_, err := c.method.Get("/path1", nil)
 		assert.NoError(t, err)
 		assert.Equal(t, "GET", captured.Method)
-		u, _ := url.Parse(captured.URL)
-		assert.Equal(t, "/api/v2/path1", u.Path)
-		assert.Equal(t, "token123", u.Query().Get("apiKey"))
+		assert.Equal(t, "/api/v2/path1", captured.URL.Path)
+		assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 		assert.Empty(t, captured.Body)
 		assert.Empty(t, captured.Header.Get("Content-Type"))
 	}
@@ -173,10 +172,9 @@ func TestClient_HTTPMethods(t *testing.T) {
 		_, err := c.method.Post("/path2", form)
 		assert.NoError(t, err)
 		assert.Equal(t, "POST", captured.Method)
-		u, err := url.Parse(captured.URL)
 		require.NoError(t, err)
-		assert.Equal(t, "/api/v2/path2", u.Path)
-		assert.Equal(t, "token123", u.Query().Get("apiKey"))
+		assert.Equal(t, "/api/v2/path2", captured.URL.Path)
+		assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 		assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 		assert.Contains(t, string(captured.Body), "k=v")
 	}
@@ -189,10 +187,9 @@ func TestClient_HTTPMethods(t *testing.T) {
 		_, err := c.method.Patch("/path3", form)
 		assert.NoError(t, err)
 		assert.Equal(t, "PATCH", captured.Method)
-		u, err := url.Parse(captured.URL)
 		require.NoError(t, err)
-		assert.Equal(t, "/api/v2/path3", u.Path)
-		assert.Equal(t, "token123", u.Query().Get("apiKey"))
+		assert.Equal(t, "/api/v2/path3", captured.URL.Path)
+		assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 		assert.Contains(t, string(captured.Body), "id=123")
 	}
 
@@ -204,10 +201,9 @@ func TestClient_HTTPMethods(t *testing.T) {
 		_, err := c.method.Delete("/path4", form)
 		assert.NoError(t, err)
 		assert.Equal(t, "DELETE", captured.Method)
-		u, err := url.Parse(captured.URL)
 		require.NoError(t, err)
-		assert.Equal(t, "/api/v2/path4", u.Path)
-		assert.Equal(t, "token123", u.Query().Get("apiKey"))
+		assert.Equal(t, "/api/v2/path4", captured.URL.Path)
+		assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 		assert.Contains(t, string(captured.Body), "id=321")
 	}
 
@@ -218,11 +214,10 @@ func TestClient_HTTPMethods(t *testing.T) {
 		_, err := c.method.Upload("/path5", "file.txt", buf)
 		assert.NoError(t, err)
 		assert.Equal(t, "POST", captured.Method)
-		assert.Contains(t, captured.URL, "/path5")
-		u, err := url.Parse(captured.URL)
+		assert.Contains(t, captured.URL.String(), "/path5")
 		require.NoError(t, err)
-		assert.Equal(t, "/api/v2/path5", u.Path)
-		assert.Equal(t, "token123", u.Query().Get("apiKey"))
+		assert.Equal(t, "/api/v2/path5", captured.URL.Path)
+		assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 		assert.Contains(t, captured.Header.Get("Content-Type"), "multipart/form-data")
 	}
 }
@@ -242,10 +237,9 @@ func TestClient_HTTPUpload(t *testing.T) {
 
 	// Verify basic request info
 	assert.Equal(t, "POST", captured.Method)
-	u, err := url.Parse(captured.URL)
 	require.NoError(t, err)
-	assert.Equal(t, "/api/v2/upload-path", u.Path)
-	assert.Equal(t, "token123", u.Query().Get("apiKey"))
+	assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
+	assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
 
 	// Verify headers
 	ct := captured.Header.Get("Content-Type")
@@ -740,7 +734,7 @@ func TestClient_Upload(t *testing.T) {
 		wantMethod string
 		wantURL    string
 		wantStatus int
-		wantErr    bool
+		wantError  bool
 		setup      func(c *Client)
 	}
 
@@ -755,7 +749,7 @@ func TestClient_Upload(t *testing.T) {
 			wantMethod: http.MethodPost,
 			wantURL:    "https://test.com/api/v2/spath?apiKey=apikey",
 			wantStatus: http.StatusOK,
-			wantErr:    false,
+			wantError:  false,
 			setup: func(c *Client) {
 				c.httpClient = newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 					assert.Equal(t, http.MethodPost, req.Method)
@@ -766,54 +760,54 @@ func TestClient_Upload(t *testing.T) {
 			},
 		},
 		"empty fileName": {
-			name:     "empty fileName",
-			baseURL:  "https://test.com",
-			apiKey:   "test",
-			spath:    "spath",
-			fileName: "",
-			fileData: "testdata",
-			wantErr:  true,
+			name:      "empty fileName",
+			baseURL:   "https://test.com",
+			apiKey:    "test",
+			spath:     "spath",
+			fileName:  "",
+			fileData:  "testdata",
+			wantError: true,
 		},
 		"empty spath": {
-			name:     "empty spath",
-			baseURL:  "https://test.com",
-			apiKey:   "test",
-			spath:    "",
-			fileName: "filename",
-			fileData: "dummy",
-			wantErr:  true,
+			name:      "empty spath",
+			baseURL:   "https://test.com",
+			apiKey:    "test",
+			spath:     "",
+			fileName:  "filename",
+			fileData:  "dummy",
+			wantError: true,
 		},
 		"createFormFile create error": {
-			baseURL:  "https://test.com",
-			apiKey:   "test",
-			spath:    "spath",
-			fileName: "filename",
-			fileData: "dummy",
-			wantErr:  true,
+			baseURL:   "https://test.com",
+			apiKey:    "test",
+			spath:     "spath",
+			fileName:  "filename",
+			fileData:  "dummy",
+			wantError: true,
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{createErr: errors.New("mock createFormFile error")}
 			},
 		},
 		"createFormFile close error": {
-			name:     "createFormFile error",
-			baseURL:  "https://test.com",
-			apiKey:   "test",
-			spath:    "spath",
-			fileName: "filename",
-			fileData: "invalid",
-			wantErr:  true,
+			name:      "createFormFile error",
+			baseURL:   "https://test.com",
+			apiKey:    "test",
+			spath:     "spath",
+			fileName:  "filename",
+			fileData:  "invalid",
+			wantError: true,
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{closeErr: errors.New("mock close error")}
 			},
 		},
 		"copy error": {
-			name:     "copy error",
-			baseURL:  "https://test.com",
-			apiKey:   "test",
-			spath:    "spath",
-			fileName: "filename",
-			fileData: "invalid",
-			wantErr:  true,
+			name:      "copy error",
+			baseURL:   "https://test.com",
+			apiKey:    "test",
+			spath:     "spath",
+			fileName:  "filename",
+			fileData:  "invalid",
+			wantError: true,
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{copyErr: errors.New("mock copy error")}
 			},
@@ -835,7 +829,7 @@ func TestClient_Upload(t *testing.T) {
 			f := io.NopCloser(bytes.NewBufferString(tc.fileData))
 			resp, err := c.upload(tc.spath, tc.fileName, f)
 
-			if tc.wantErr {
+			if tc.wantError {
 				assert.Error(t, err)
 				assert.Nil(t, resp)
 				return
@@ -856,7 +850,7 @@ func TestCheckResponse(t *testing.T) {
 		statusCode        int
 		body              io.ReadCloser
 		wantNilResponse   bool
-		wantErr           bool
+		wantError         bool
 		wantErrStatusCode int
 		wantEmptyBodyTest bool // Indicates a test case with a nil response body
 	}{
@@ -887,7 +881,7 @@ func TestCheckResponse(t *testing.T) {
 			statusCode:        http.StatusBadRequest,
 			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
 			wantNilResponse:   true,
-			wantErr:           true,
+			wantError:         true,
 			wantErrStatusCode: http.StatusBadRequest,
 		},
 		// Test 4xx/5xx error handling with nil body (to check defer r.Body.Close() and JSON unmarshal resilience)
@@ -895,7 +889,7 @@ func TestCheckResponse(t *testing.T) {
 			statusCode:        http.StatusNotFound,
 			body:              nil,
 			wantNilResponse:   true,
-			wantErr:           true,
+			wantError:         true,
 			wantErrStatusCode: http.StatusNotFound,
 			wantEmptyBodyTest: true,
 		},
@@ -903,14 +897,14 @@ func TestCheckResponse(t *testing.T) {
 			statusCode:        http.StatusInternalServerError,
 			body:              io.NopCloser(bytes.NewReader([]byte(apiErrorBody))),
 			wantNilResponse:   true,
-			wantErr:           true,
+			wantError:         true,
 			wantErrStatusCode: http.StatusInternalServerError,
 		},
 		"Status Bad Request (400) with invalid JSON": {
 			statusCode:        http.StatusBadRequest,
 			body:              io.NopCloser(bytes.NewReader([]byte(`{"errors":[{"invalid json...`))),
 			wantNilResponse:   true,
-			wantErr:           true,
+			wantError:         true,
 			wantErrStatusCode: http.StatusBadRequest,
 			wantEmptyBodyTest: true,
 		},
@@ -937,7 +931,7 @@ func TestCheckResponse(t *testing.T) {
 			}
 
 			// 2. Validate error
-			if tc.wantErr {
+			if tc.wantError {
 				assert.Error(t, err)
 
 				apiErr, ok := err.(*APIResponseError)

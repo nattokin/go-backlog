@@ -43,7 +43,7 @@ func TestWikiService_All(t *testing.T) {
 	const testWiki1Name = "test1"
 	const testWiki2Name = "test2"
 
-	opt := backlog.ExportNewWikiOptionService()
+	o := backlog.ExportNewWikiOptionService()
 	cases := map[string]testCase{
 		"success-project-id": {
 			projectIDOrKey:          "103",
@@ -59,7 +59,7 @@ func TestWikiService_All(t *testing.T) {
 		"success-with-options": {
 			projectIDOrKey: "PRJ_KEY",
 			options: []*backlog.QueryOption{
-				opt.WithQueryKeyword("test"),
+				o.WithQueryKeyword("test"),
 			},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataWikiListJSON,
@@ -416,7 +416,7 @@ func TestWikiService_One(t *testing.T) {
 func TestWikiService_Create(t *testing.T) {
 	t.Parallel()
 
-	option := backlog.ExportNewWikiOptionService()
+	o := backlog.ExportNewWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
@@ -465,7 +465,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:      56,
 			name:           "Minimum Wiki Page",
 			content:        "This is a minimal wiki page.",
-			options:        []*backlog.FormOption{option.WithFormMailNotify(true)},
+			options:        []*backlog.FormOption{o.WithFormMailNotify(true)},
 			httpStatus:     http.StatusOK,
 			httpBody:       testdataWikiMinimumJSON,
 			wantSpath:      "wikis",
@@ -618,7 +618,7 @@ func TestWikiService_Create(t *testing.T) {
 func TestWikiService_Update(t *testing.T) {
 	t.Parallel()
 
-	option := backlog.ExportNewWikiOptionService()
+	o := backlog.ExportNewWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
@@ -651,7 +651,7 @@ func TestWikiService_Update(t *testing.T) {
 	cases := map[string]testCase{
 		"success-name-only": {
 			wikiID:        34,
-			option:        option.WithFormName("New Page Name"),
+			option:        o.WithFormName("New Page Name"),
 			opts:          []*backlog.FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataWikiMaximumJSON,
@@ -665,10 +665,10 @@ func TestWikiService_Update(t *testing.T) {
 		// Test Viewpoint 1: Specify all available options
 		"success-full-options": {
 			wikiID: 34,
-			option: option.WithFormName("Full Options Name"),
+			option: o.WithFormName("Full Options Name"),
 			opts: []*backlog.FormOption{
-				option.WithFormContent("Full Options Content"),
-				option.WithFormMailNotify(true),
+				o.WithFormContent("Full Options Content"),
+				o.WithFormMailNotify(true),
 			},
 			httpStatus:         http.StatusOK,
 			httpBody:           testdataWikiMaximumJSON,
@@ -684,9 +684,9 @@ func TestWikiService_Update(t *testing.T) {
 		// Test Viewpoint 2: Verify correct handling when mandatory option is in opts...
 		"success-option-opts-split": {
 			wikiID: 35,
-			option: option.WithFormMailNotify(true), // Non-mandatory option in the required argument slot
+			option: o.WithFormMailNotify(true), // Non-mandatory option in the required argument slot
 			opts: []*backlog.FormOption{
-				option.WithFormName("Split Option Name"), // Mandatory option in the variadic argument slot
+				o.WithFormName("Split Option Name"), // Mandatory option in the variadic argument slot
 			},
 			httpStatus:         http.StatusOK,
 			httpBody:           testdataWikiMaximumJSON,
@@ -702,7 +702,7 @@ func TestWikiService_Update(t *testing.T) {
 		"validation-error-required-option": {
 			wikiID: 12,
 			// All provided options (option and opts...) do not set mandatory fields (name/content)
-			option:        option.WithFormMailNotify(true),
+			option:        o.WithFormMailNotify(true),
 			opts:          []*backlog.FormOption{},
 			expectAPICall: false,
 			wantError:     true,
@@ -710,7 +710,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"validation-error-invalid-wikiID": {
 			wikiID:        0,
-			option:        option.WithFormName("New Name"),
+			option:        o.WithFormName("New Name"),
 			opts:          []*backlog.FormOption{},
 			expectAPICall: false,
 			wantError:     true,
@@ -718,7 +718,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
-			option: option.WithFormName("New Name"),
+			option: o.WithFormName("New Name"),
 			opts: []*backlog.FormOption{backlog.ExportNewFormOption(
 				backlog.ExportFormMailAddress,
 				func(p *backlog.ExportRequestParams) error {
@@ -731,7 +731,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"validation-error-option-set-fail": {
 			wikiID: 12,
-			option: option.WithFormName("New Name"),
+			option: o.WithFormName("New Name"),
 			opts: []*backlog.FormOption{
 				backlog.ExportNewFormOption(
 					backlog.ExportFormMailNotify,
@@ -746,7 +746,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"client-error-network-failure": {
 			wikiID:        13,
-			option:        option.WithFormName("New Name"),
+			option:        o.WithFormName("New Name"),
 			opts:          []*backlog.FormOption{},
 			httpError:     errors.New("network error"),
 			wantSpath:     "wikis/13",
@@ -756,7 +756,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"api-error-invalid-json": {
 			wikiID:        14,
-			option:        option.WithFormName("New Name"),
+			option:        o.WithFormName("New Name"),
 			opts:          []*backlog.FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataInvalidJSON,
@@ -829,7 +829,7 @@ func TestWikiService_Update(t *testing.T) {
 func TestWikiService_Delete(t *testing.T) {
 	t.Parallel()
 
-	option := backlog.ExportNewWikiOptionService()
+	o := backlog.ExportNewWikiOptionService()
 	projectOption := backlog.ExportNewProjectOptionService() // For testing InvalidFormOptionError
 
 	type testCase struct {
@@ -858,7 +858,7 @@ func TestWikiService_Delete(t *testing.T) {
 	cases := map[string]testCase{
 		"success-with-option": {
 			wikiID:         34,
-			opts:           []*backlog.FormOption{option.WithFormMailNotify(true)},
+			opts:           []*backlog.FormOption{o.WithFormMailNotify(true)},
 			httpStatus:     http.StatusOK,
 			httpBody:       testdataWikiMaximumJSON,
 			wantSpath:      "wikis/34",

@@ -70,23 +70,6 @@ func NewQueryParams() *QueryParams {
 	return &QueryParams{&url.Values{}}
 }
 
-// withOptions sets request query parameters from options.
-func (p *QueryParams) withOptions(options []*QueryOption, validOptions ...queryType) error {
-	for _, option := range options {
-		if err := option.validate(validOptions); err != nil {
-			return err
-		}
-	}
-
-	for _, option := range options {
-		if err := option.set(p); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 type clientGet func(spath string, query *QueryParams) (*http.Response, error)
 type clientPost func(spath string, form *FormParams) (*http.Response, error)
 type clientPatch func(spath string, form *FormParams) (*http.Response, error)

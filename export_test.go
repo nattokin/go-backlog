@@ -21,6 +21,11 @@ const (
 	ExportQueryOrder           = queryOrder
 )
 
+var ExportNewProjectOptionService = newProjectOptionService
+var ExportNewWikiOptionService = newWikiOptionService
+var ExportNewActivityOptionService = newActivityOptionService
+var ExportNewUserOptionService = newUserOptionService
+
 const (
 	ExportFormArchived                          = formArchived
 	ExportFormChartEnabled                      = formChartEnabled
@@ -63,8 +68,6 @@ var (
 	ExportNewInternalClientError = newInternalClientError
 	ExportCheckResponse          = checkResponse
 )
-
-var ExportQueryParamsWithOptions = (*QueryParams).withOptions
 
 func ExportNewQueryOption(qType queryType, qFunc queryOptionFunc) *QueryOption {
 	return &QueryOption{qType, qFunc}
@@ -226,58 +229,6 @@ func newTestClientMethod() *method {
 	}
 }
 
-// --- Option Service Helpers ---
-
-// ExportNewQueryOptionService returns a test instance of QueryOptionService.
-func ExportNewQueryOptionService() *QueryOptionService {
-	return &QueryOptionService{}
-}
-
-// ExportNewFormOptionService returns a test instance of FormOptionService.
-func ExportNewFormOptionService() *FormOptionService {
-	return &FormOptionService{}
-}
-
-// ExportNewActivityOptionService returns a test instance of ActivityOptionService.
-func ExportNewActivityOptionService() *ActivityOptionService {
-	return &ActivityOptionService{
-		support: &optionSupport{
-			query: ExportNewQueryOptionService(),
-			form:  ExportNewFormOptionService(),
-		},
-	}
-}
-
-// ExportNewProjectOptionService returns a test instance of ProjectOptionService.
-func ExportNewProjectOptionService() *ProjectOptionService {
-	return &ProjectOptionService{
-		support: &optionSupport{
-			query: ExportNewQueryOptionService(),
-			form:  ExportNewFormOptionService(),
-		},
-	}
-}
-
-// ExportNewUserOptionService returns a test instance of UserOptionService.
-func ExportNewUserOptionService() *UserOptionService {
-	return &UserOptionService{
-		support: &optionSupport{
-			query: ExportNewQueryOptionService(),
-			form:  ExportNewFormOptionService(),
-		},
-	}
-}
-
-// ExportNewWikiOptionService returns a test instance of WikiOptionService.
-func ExportNewWikiOptionService() *WikiOptionService {
-	return &WikiOptionService{
-		support: &optionSupport{
-			query: ExportNewQueryOptionService(),
-			form:  ExportNewFormOptionService(),
-		},
-	}
-}
-
 // --- Sub-Service Helpers (Attachment, Activity, User) ---
 
 // ExportNewIssueAttachmentService returns a test instance of IssueAttachmentService.
@@ -319,7 +270,7 @@ func ExportNewProjectUserService() *ProjectUserService {
 func ExportNewProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
 		method: newTestClientMethod(),
-		Option: ExportNewActivityOptionService(),
+		Option: newActivityOptionService(),
 	}
 }
 
@@ -327,7 +278,7 @@ func ExportNewProjectActivityService() *ProjectActivityService {
 func ExportNewSpaceActivityService() *SpaceActivityService {
 	return &SpaceActivityService{
 		method: newTestClientMethod(),
-		Option: ExportNewActivityOptionService(),
+		Option: newActivityOptionService(),
 	}
 }
 
@@ -335,7 +286,7 @@ func ExportNewSpaceActivityService() *SpaceActivityService {
 func ExportNewUserActivityService() *UserActivityService {
 	return &UserActivityService{
 		method: newTestClientMethod(),
-		Option: ExportNewActivityOptionService(),
+		Option: newActivityOptionService(),
 	}
 }
 
@@ -355,7 +306,7 @@ func ExportNewProjectService() *ProjectService {
 		method:   newTestClientMethod(),
 		Activity: ExportNewProjectActivityService(),
 		User:     ExportNewProjectUserService(),
-		Option:   ExportNewProjectOptionService(),
+		Option:   newProjectOptionService(),
 	}
 }
 
