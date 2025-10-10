@@ -51,7 +51,7 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	projectKey := "TEST"
 	excludeGroupMembers := false
 
-	s := &backlog.ProjectUserService{}
+	s := backlog.ExportNewProjectUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
@@ -117,7 +117,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	projectKey := "TEST"
 	id := 1
 
-	s := &backlog.ProjectUserService{}
+	s := backlog.ExportNewProjectUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
@@ -459,8 +459,7 @@ func TestUserService_Update(t *testing.T) {
 }
 
 func TestUserService_Update_option(t *testing.T) {
-	option := &backlog.UserOptionService{}
-	id := 1
+	o := backlog.ExportNewUserOptionService()
 
 	type options struct {
 		password    string
@@ -480,7 +479,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithName": {
 			options: []*backlog.FormOption{
-				option.WithFormName("testname"),
+				o.WithFormName("testname"),
 			},
 			wantError: false,
 			want: options{
@@ -489,7 +488,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithPassword": {
 			options: []*backlog.FormOption{
-				option.WithFormPassword("testpasword"),
+				o.WithFormPassword("testpasword"),
 			},
 			wantError: false,
 			want: options{
@@ -498,7 +497,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithMailAddress": {
 			options: []*backlog.FormOption{
-				option.WithFormMailAddress("test@test.com"),
+				o.WithFormMailAddress("test@test.com"),
 			},
 			wantError: false,
 			want: options{
@@ -507,7 +506,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"WithRoleType": {
 			options: []*backlog.FormOption{
-				option.WithFormRoleType(backlog.RoleAdministrator),
+				o.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -516,10 +515,10 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"MultiOptions": {
 			options: []*backlog.FormOption{
-				option.WithFormPassword("testpasword1"),
-				option.WithFormName("testname1"),
-				option.WithFormMailAddress("test1@test.com"),
-				option.WithFormRoleType(backlog.RoleAdministrator),
+				o.WithFormPassword("testpasword1"),
+				o.WithFormName("testname1"),
+				o.WithFormMailAddress("test1@test.com"),
+				o.WithFormRoleType(backlog.RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -531,7 +530,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.FormOption{
-				option.WithFormName(""),
+				o.WithFormName(""),
 			},
 			wantError: true,
 			want:      options{},
@@ -550,6 +549,8 @@ func TestUserService_Update_option(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
+			id := 1
+
 			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
@@ -716,7 +717,7 @@ func TestProjectUserService_All(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
@@ -781,7 +782,7 @@ func TestProjectUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -855,7 +856,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -920,7 +921,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {
@@ -965,7 +966,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					if tc.wantError {
@@ -1030,7 +1031,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := &backlog.ProjectUserService{}
+			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
 					if tc.wantError {

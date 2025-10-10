@@ -47,7 +47,7 @@ func TestProjectService_All(t *testing.T) {
 }
 
 func TestProjectService_All_option(t *testing.T) {
-	option := &backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 	type options struct {
 		all      string
 		archived string
@@ -67,8 +67,8 @@ func TestProjectService_All_option(t *testing.T) {
 		},
 		"ValidOption": {
 			options: []*backlog.QueryOption{
-				option.WithQueryAll(false),
-				option.WithQueryArchived(true),
+				o.WithQueryAll(false),
+				o.WithQueryArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -161,7 +161,7 @@ func TestProjectService_AdminAll(t *testing.T) {
 }
 
 func TestProjectService_AdminAll_option(t *testing.T) {
-	option := &backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 	type options struct {
 		all      string
 		archived string
@@ -181,7 +181,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 		},
 		"ValidOption": {
 			options: []*backlog.QueryOption{
-				option.WithQueryArchived(true),
+				o.WithQueryArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -200,7 +200,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.QueryOption{
-				option.WithQueryAll(true),
+				o.WithQueryAll(true),
 			},
 			wantError: true,
 			want:      options{},
@@ -602,7 +602,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		textFormattingRule                string
 	}
 
-	option := &backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 	cases := map[string]struct {
 		options   []*backlog.FormOption
 		wantError bool
@@ -620,10 +620,10 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"ValidOption": {
 			options: []*backlog.FormOption{
-				option.WithFormChartEnabled(true),
-				option.WithFormSubtaskingEnabled(true),
-				option.WithFormProjectLeaderCanEditProjectLeader(true),
-				option.WithFormTextFormattingRule(backlog.FormatBacklog),
+				o.WithFormChartEnabled(true),
+				o.WithFormSubtaskingEnabled(true),
+				o.WithFormProjectLeaderCanEditProjectLeader(true),
+				o.WithFormTextFormattingRule(backlog.FormatBacklog),
 			},
 			wantError: false,
 			want: options{
@@ -635,7 +635,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.FormOption{
-				option.WithFormTextFormattingRule("invalid"),
+				o.WithFormTextFormattingRule("invalid"),
 			},
 			wantError: true,
 			want:      options{},
@@ -812,7 +812,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		archived                          string
 	}
 
-	option := &backlog.ProjectOptionService{}
+	o := backlog.ExportNewProjectOptionService()
 	cases := map[string]struct {
 		options   []*backlog.FormOption
 		wantError bool
@@ -820,13 +820,13 @@ func TestProjectService_Update_option(t *testing.T) {
 	}{
 		"ValidOption": {
 			options: []*backlog.FormOption{
-				option.WithFormKey("TEST1"),
-				option.WithFormName("test1"),
-				option.WithFormChartEnabled(true),
-				option.WithFormSubtaskingEnabled(true),
-				option.WithFormProjectLeaderCanEditProjectLeader(true),
-				option.WithFormTextFormattingRule(backlog.FormatBacklog),
-				option.WithFormArchived(true),
+				o.WithFormKey("TEST1"),
+				o.WithFormName("test1"),
+				o.WithFormChartEnabled(true),
+				o.WithFormSubtaskingEnabled(true),
+				o.WithFormProjectLeaderCanEditProjectLeader(true),
+				o.WithFormTextFormattingRule(backlog.FormatBacklog),
+				o.WithFormArchived(true),
 			},
 			wantError: false,
 			want: options{
@@ -841,13 +841,13 @@ func TestProjectService_Update_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.FormOption{
-				option.WithFormKey(""),
-				option.WithFormName(""),
-				option.WithFormChartEnabled(false),
-				option.WithFormSubtaskingEnabled(false),
-				option.WithFormProjectLeaderCanEditProjectLeader(false),
-				option.WithFormTextFormattingRule("invalid"),
-				option.WithFormArchived(false),
+				o.WithFormKey(""),
+				o.WithFormName(""),
+				o.WithFormChartEnabled(false),
+				o.WithFormSubtaskingEnabled(false),
+				o.WithFormProjectLeaderCanEditProjectLeader(false),
+				o.WithFormTextFormattingRule("invalid"),
+				o.WithFormArchived(false),
 			},
 			wantError: true,
 			want:      options{},

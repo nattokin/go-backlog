@@ -34,7 +34,8 @@ type Client struct {
 	url        *url.URL
 	httpClient *http.Client
 	token      string
-	wrapper    *wrapper
+	wrapper    wrapper
+	method     *method
 
 	Issue       *IssueService
 	Project     *ProjectService
@@ -69,23 +70,6 @@ func NewQueryParams() *QueryParams {
 	return &QueryParams{&url.Values{}}
 }
 
-// withOptions sets request query parameters from options.
-func (p *QueryParams) withOptions(options []*QueryOption, validOptions ...queryType) error {
-	for _, option := range options {
-		if err := option.validate(validOptions); err != nil {
-			return err
-		}
-	}
-
-	for _, option := range options {
-		if err := option.set(p); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 type clientGet func(spath string, query *QueryParams) (*http.Response, error)
 type clientPost func(spath string, form *FormParams) (*http.Response, error)
 type clientPatch func(spath string, form *FormParams) (*http.Response, error)
@@ -100,18 +84,46 @@ type method struct {
 	Upload clientUpload
 }
 
-type wrapper struct {
-	CreateFormFile func(w *multipart.Writer, fname string) (io.Writer, error)
-	Copy           func(dst io.Writer, src io.Reader) error
+type wrapper interface {
+	Copy(dst io.Writer, src io.Reader) error
+	NewMultipartWriter(w io.Writer) multipartWriter
 }
 
-func createFormFile(w *multipart.Writer, fname string) (io.Writer, error) {
-	return w.CreateFormFile("file", fname)
+type multipartWriter interface {
+	CreateFormFile(fieldname, filename string) (io.Writer, error)
+	FormDataContentType() string
+	Close() error
 }
 
-func copy(dst io.Writer, src io.Reader) error {
+//--------------------------------------
+// Default implementations
+//--------------------------------------
+
+type defaultWrapper struct{}
+
+func (*defaultWrapper) Copy(dst io.Writer, src io.Reader) error {
 	_, err := io.Copy(dst, src)
 	return err
+}
+
+func (*defaultWrapper) NewMultipartWriter(w io.Writer) multipartWriter {
+	return &defaultMultipartWriter{multipart.NewWriter(w)}
+}
+
+type defaultMultipartWriter struct {
+	*multipart.Writer
+}
+
+func (mw *defaultMultipartWriter) CreateFormFile(fieldname, filename string) (io.Writer, error) {
+	return mw.Writer.CreateFormFile(fieldname, filename)
+}
+
+func (mw *defaultMultipartWriter) FormDataContentType() string {
+	return mw.Writer.FormDataContentType()
+}
+
+func (mw *defaultMultipartWriter) Close() error {
+	return mw.Writer.Close()
 }
 
 // NewClient creates a new Backlog API Client.
@@ -129,13 +141,10 @@ func NewClient(baseURL, token string) (*Client, error) {
 		url:        parsedURL,
 		httpClient: http.DefaultClient,
 		token:      token,
-		wrapper: &wrapper{
-			CreateFormFile: createFormFile,
-			Copy:           copy,
-		},
+		wrapper:    &defaultWrapper{},
 	}
 
-	m := &method{
+	c.method = &method{
 		Get: func(spath string, query *QueryParams) (*http.Response, error) {
 			return c.get(spath, query)
 		},
@@ -153,67 +162,67 @@ func NewClient(baseURL, token string) (*Client, error) {
 		},
 	}
 
-	queryOptionService := &QueryOptionService{}
-	formOptionService := &FormOptionService{}
+	optionSupport := &optionSupport{
+		query: &QueryOptionService{},
+		form:  &FormOptionService{},
+	}
 
 	activityOptionService := &ActivityOptionService{
-		Query: queryOptionService,
+		support: optionSupport,
 	}
 
 	c.Issue = &IssueService{
-		method: m,
+		method: c.method,
 		Attachment: &IssueAttachmentService{
-			method: m,
+			method: c.method,
 		},
 	}
 	c.Project = &ProjectService{
-		method: m,
+		method: c.method,
 		Activity: &ProjectActivityService{
-			method: m,
+			method: c.method,
 			Option: activityOptionService,
 		},
 		User: &ProjectUserService{
-			method: m,
+			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			Query: queryOptionService,
-			Form:  formOptionService,
+			support: optionSupport,
 		},
 	}
 	c.PullRequest = &PullRequestService{
-		method: m,
+		method: c.method,
 		Attachment: &PullRequestAttachmentService{
-			method: m,
+			method: c.method,
 		},
 	}
 	c.Space = &SpaceService{
-		method: m,
+		method: c.method,
 		Activity: &SpaceActivityService{
-			method: m,
+			method: c.method,
 			Option: activityOptionService,
 		},
 		Attachment: &SpaceAttachmentService{
-			method: m,
+			method: c.method,
 		},
 	}
 	c.User = &UserService{
-		method: m,
+		method: c.method,
 		Activity: &UserActivityService{
-			method: m,
+			method: c.method,
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			Form: formOptionService,
+			support: optionSupport,
 		},
 	}
 	c.Wiki = &WikiService{
-		method: m,
+		method: c.method,
 		Attachment: &WikiAttachmentService{
-			method: m,
+			method: c.method,
 		},
 		Option: &WikiOptionService{
-			Query: queryOptionService,
-			Form:  formOptionService,
+			support: optionSupport,
 		},
 	}
 
@@ -307,19 +316,23 @@ func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, er
 	}
 
 	var buf bytes.Buffer
-	w := multipart.NewWriter(&buf)
-	w.Close()
+	mw := c.wrapper.NewMultipartWriter(&buf)
 
-	fw, err := c.wrapper.CreateFormFile(w, fileName)
+	fw, err := mw.CreateFormFile("file", fileName)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = c.wrapper.Copy(fw, r); err != nil {
 		return nil, err
 	}
 
+	if err := mw.Close(); err != nil {
+		return nil, err
+	}
+
 	header := http.Header{}
-	header.Set("Content-Type", w.FormDataContentType())
+	header.Set("Content-Type", mw.FormDataContentType())
 
 	return c.do(http.MethodPost, spath, header, &buf, nil)
 }

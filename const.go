@@ -39,6 +39,8 @@ const (
 	formRoleType
 	formSubtaskingEnabled
 	formTextFormattingRule
+	formUserID
+	formSendMail
 )
 
 const (

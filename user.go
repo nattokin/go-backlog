@@ -141,18 +141,18 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 		return nil, newValidationError("userID must not be empty")
 	}
 
-	option := &FormOptionService{}
+	o := s.Option.support.form
 	form := NewFormParams()
-	if err := option.WithPassword(password).set(form); err != nil {
+	if err := o.WithPassword(password).set(form); err != nil {
 		return nil, err
 	}
-	if err := option.WithName(name).set(form); err != nil {
+	if err := o.WithName(name).set(form); err != nil {
 		return nil, err
 	}
-	if err := option.WithMailAddress(mailAddress).set(form); err != nil {
+	if err := o.WithMailAddress(mailAddress).set(form); err != nil {
 		return nil, err
 	}
-	if err := option.WithRoleType(roleType).set(form); err != nil {
+	if err := o.WithRoleType(roleType).set(form); err != nil {
 		return nil, err
 	}
 

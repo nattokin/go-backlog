@@ -24,7 +24,7 @@ func TestProjectActivityService_List(t *testing.T) {
 		spath: "projects/" + projectKey + "/activities",
 	}
 
-	s := &backlog.ProjectActivityService{}
+	s := backlog.ExportNewProjectActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -39,7 +39,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	t.Parallel()
 
 	projectKey := ""
-	s := &backlog.ProjectActivityService{}
+	s := backlog.ExportNewProjectActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
@@ -53,7 +53,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := &backlog.ProjectActivityService{}
+	s := backlog.ExportNewProjectActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			resp := &http.Response{
@@ -78,7 +78,7 @@ func TestSpaceActivityService_List(t *testing.T) {
 		spath: "space/activities",
 	}
 
-	s := &backlog.SpaceActivityService{}
+	s := backlog.ExportNewSpaceActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -100,7 +100,7 @@ func TestUserActivityService_List(t *testing.T) {
 		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
 
-	s := &backlog.UserActivityService{}
+	s := backlog.ExportNewUserActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
@@ -115,7 +115,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	t.Parallel()
 
 	id := 0
-	s := &backlog.UserActivityService{}
+	s := backlog.ExportNewUserActivityService()
 	s.ExportSetMethod(&backlog.ExportMethod{
 		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
@@ -127,7 +127,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {
-	option := &backlog.ActivityOptionService{}
+	o := backlog.ExportNewActivityOptionService()
 	type want struct {
 		activityTypeID []string
 		minID          string
@@ -153,7 +153,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"WithActivityTypeIDs": {
 			options: []*backlog.QueryOption{
-				option.WithQueryActivityTypeIDs([]int{1}),
+				o.WithQueryActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
 			want: want{
@@ -166,7 +166,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"WithMinID": {
 			options: []*backlog.QueryOption{
-				option.WithQueryMinID(1),
+				o.WithQueryMinID(1),
 			},
 			wantError: false,
 			want: want{
@@ -179,7 +179,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"WithMaxID": {
 			options: []*backlog.QueryOption{
-				option.WithQueryMaxID(1),
+				o.WithQueryMaxID(1),
 			},
 			wantError: false,
 			want: want{
@@ -192,7 +192,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"WithCount": {
 			options: []*backlog.QueryOption{
-				option.WithQueryCount(1),
+				o.WithQueryCount(1),
 			},
 			wantError: false,
 			want: want{
@@ -205,7 +205,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"WithOrder": {
 			options: []*backlog.QueryOption{
-				option.WithQueryOrder(backlog.OrderAsc),
+				o.WithQueryOrder(backlog.OrderAsc),
 			},
 			wantError: false,
 			want: want{
@@ -218,24 +218,24 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"MultipleOptions": {
 			options: []*backlog.QueryOption{
-				option.WithQueryActivityTypeIDs([]int{1, 2}),
-				option.WithQueryMinID(1),
-				option.WithQueryMaxID(100),
-				option.WithQueryCount(20),
-				option.WithQueryOrder(backlog.OrderAsc),
+				o.WithQueryActivityTypeIDs([]int{1, 2}),
+				o.WithQueryMinID(1),
+				o.WithQueryMaxID(26),
+				o.WithQueryCount(20),
+				o.WithQueryOrder(backlog.OrderAsc),
 			},
 			wantError: false,
 			want: want{
 				activityTypeID: []string{"1", "2"},
 				minID:          "1",
-				maxID:          "100",
+				maxID:          "26",
 				count:          "20",
 				order:          "asc",
 			},
 		},
 		"OptionError": {
 			options: []*backlog.QueryOption{
-				option.WithQueryCount(0),
+				o.WithQueryCount(0),
 			},
 			wantError: true,
 			want:      want{},
@@ -256,7 +256,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := &backlog.SpaceActivityService{}
+			s := backlog.ExportNewSpaceActivityService()
 			s.ExportSetMethod(&backlog.ExportMethod{
 				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
 					assert.Equal(t, tc.want.activityTypeID, (*query.Values)["activityTypeId[]"])
