@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func getActivityList(get clientGet, spath string, options ...*QueryOption) ([]*Activity, error) {
+func getActivityList(m *method, spath string, options ...*QueryOption) ([]*Activity, error) {
 	validOptions := []queryType{queryActivityTypeIDs, queryMinID, queryMaxID, queryCount, queryOrder}
 	for _, option := range options {
 		if err := option.validate(validOptions); err != nil {
@@ -24,7 +24,7 @@ func getActivityList(get clientGet, spath string, options ...*QueryOption) ([]*A
 		}
 	}
 
-	resp, err := get(spath, query)
+	resp, err := m.Get(spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (s *ProjectActivityService) List(projectIDOrKey string, options ...*QueryOp
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "activities")
-	return getActivityList(s.method.Get, spath, options...)
+	return getActivityList(s.method, spath, options...)
 }
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
@@ -88,7 +88,7 @@ type SpaceActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(options ...*QueryOption) ([]*Activity, error) {
-	return getActivityList(s.method.Get, "space/activities", options...)
+	return getActivityList(s.method, "space/activities", options...)
 }
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
@@ -118,5 +118,5 @@ func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Acti
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return getActivityList(s.method.Get, spath, options...)
+	return getActivityList(s.method, spath, options...)
 }

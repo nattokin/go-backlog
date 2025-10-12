@@ -84,7 +84,7 @@ func TestNewClient_InitAndValidation(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			c, err := NewClient(tc.baseURL, tc.token)
+			c, err := NewClient(tc.baseURL, tc.token, nil)
 
 			if tc.wantError {
 				assert.Error(t, err)
@@ -98,14 +98,14 @@ func TestNewClient_InitAndValidation(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, c)
 			assert.Equal(t, tc.token, c.token)
-			assert.Equal(t, http.DefaultClient, c.httpClient)
+			assert.Equal(t, http.DefaultClient, c.doer)
 			assert.IsType(t, &defaultWrapper{}, c.wrapper)
 		})
 	}
 }
 
 func TestNewClient_InitializationStructure(t *testing.T) {
-	c, err := NewClient("https://example.com", "token123")
+	c, err := NewClient("https://example.com", "token123", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
@@ -361,7 +361,7 @@ func TestClient_NewRequest(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := NewClient("https://test.com", "test")
+			c, _ := NewClient("https://test.com", "test", nil)
 			request, err := c.newRequest(tc.method, tc.spath, tc.header, tc.body, tc.query)
 
 			if tc.wantError {
@@ -420,8 +420,7 @@ func TestClient_Do(t *testing.T) {
 		return resp, nil
 	})
 
-	c, _ := NewClient("https://test.com", "test")
-	c.httpClient = httpClient
+	c, _ := NewClient("https://test.com", "test", httpClient)
 
 	res, err := c.do(
 		http.MethodGet, "test",
@@ -444,8 +443,7 @@ func TestClient_Do_httpClientError(t *testing.T) {
 		return nil, errors.New(emsg)
 	})
 
-	c, _ := NewClient("https://test.com", "test")
-	c.httpClient = httpClient
+	c, _ := NewClient("https://test.com", "test", httpClient)
 
 	resp, err := c.do(
 		http.MethodGet, "test",
@@ -485,8 +483,7 @@ func TestClient_Do_errorResponse(t *testing.T) {
 		return resp, nil
 	})
 
-	c, _ := NewClient("https://test.com", "test")
-	c.httpClient = httpClient
+	c, _ := NewClient("https://test.com", "test", httpClient)
 
 	resp, err := c.do(
 		http.MethodGet, "test",
@@ -520,10 +517,9 @@ func TestClient_Get(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c, _ := NewClient(baseURL, apiKey)
-	c.httpClient = httpClient
+	c, _ := NewClient(baseURL, apiKey, httpClient)
 
-	res, err := c.get(spath, nil)
+	res, err := c.method.Get(spath, nil)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
@@ -531,9 +527,9 @@ func TestClient_Get(t *testing.T) {
 func TestClient_Get_newRequestError(t *testing.T) {
 	t.Parallel()
 
-	c, _ := NewClient("https://test.com", "test")
+	c, _ := NewClient("https://test.com", "test", nil)
 
-	resp, err := c.get("", NewQueryParams())
+	resp, err := c.method.Get("", NewQueryParams())
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 }
@@ -555,8 +551,6 @@ func TestClient_Post(t *testing.T) {
 		contentType: "application/x-www-form-urlencoded",
 	}
 
-	c, _ := NewClient(baseURL, apiKey)
-
 	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		assert.Equal(t, want.method, req.Method)
 		assert.Equal(t, want.url, req.URL.String())
@@ -564,9 +558,9 @@ func TestClient_Post(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c.httpClient = httpClient
+	c, _ := NewClient(baseURL, apiKey, httpClient)
 
-	res, err := c.post(spath, nil)
+	res, err := c.method.Post(spath, nil)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
@@ -574,9 +568,9 @@ func TestClient_Post(t *testing.T) {
 func TestClient_Post_newRequestError(t *testing.T) {
 	t.Parallel()
 
-	c, _ := NewClient("https://test.com", "test")
+	c, _ := NewClient("https://test.com", "test", nil)
 
-	resp, err := c.post("", NewFormParams())
+	resp, err := c.method.Post("", NewFormParams())
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 }
@@ -600,8 +594,6 @@ func TestClient_Patch(t *testing.T) {
 		body:        "key=value",
 	}
 
-	c, _ := NewClient(baseURL, apiKey)
-
 	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		defer req.Body.Close()
 		assert.Equal(t, want.method, req.Method)
@@ -613,12 +605,12 @@ func TestClient_Patch(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c.httpClient = httpClient
+	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	form := NewFormParams()
 	form.Set("key", "value")
 
-	res, err := c.patch(spath, form)
+	res, err := c.method.Patch(spath, form)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
@@ -631,16 +623,14 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 	apiKey := "apikey"
 	spath := "spath"
 
-	c, _ := NewClient(baseURL, apiKey)
-
 	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 		defer req.Body.Close()
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c.httpClient = httpClient
+	c, _ := NewClient(baseURL, apiKey, httpClient)
 
-	res, err := c.patch(spath, nil)
+	res, err := c.method.Patch(spath, nil)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
@@ -648,9 +638,9 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 func TestClient_Patch_newRequestError(t *testing.T) {
 	t.Parallel()
 
-	c, _ := NewClient("https://test.com", "test")
+	c, _ := NewClient("https://test.com", "test", nil)
 
-	resp, err := c.patch("", NewFormParams())
+	resp, err := c.method.Patch("", NewFormParams())
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 }
@@ -684,13 +674,12 @@ func TestClient_Delete(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c, _ := NewClient(baseURL, apiKey)
-	c.httpClient = httpClient
+	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	form := NewFormParams()
 	form.Set("key", "value")
 
-	res, err := c.delete(spath, form)
+	res, err := c.method.Delete(spath, form)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
@@ -703,10 +692,9 @@ func TestClient_Delete_emptyParams(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusOK}, nil
 	})
 
-	c, _ := NewClient("https://test.com", "apikey")
-	c.httpClient = httpClient
+	c, _ := NewClient("https://test.com", "apikey", httpClient)
 
-	res, err := c.delete("spath", nil)
+	res, err := c.method.Delete("spath", nil)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
@@ -714,9 +702,9 @@ func TestClient_Delete_emptyParams(t *testing.T) {
 func TestClient_Delete_newRequestError(t *testing.T) {
 	t.Parallel()
 
-	c, _ := NewClient("https://test.com", "test")
+	c, _ := NewClient("https://test.com", "test", nil)
 
-	resp, err := c.delete("", NewFormParams())
+	resp, err := c.method.Delete("", NewFormParams())
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 }
@@ -751,7 +739,7 @@ func TestClient_Upload(t *testing.T) {
 			wantStatus: http.StatusOK,
 			wantError:  false,
 			setup: func(c *Client) {
-				c.httpClient = newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+				c.doer = newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
 					assert.Equal(t, http.MethodPost, req.Method)
 					assert.Equal(t, "https://test.com/api/v2/spath?apiKey=apikey", req.URL.String())
 					assert.Regexp(t, "^multipart/form-data; boundary=", req.Header.Get("Content-Type"))
@@ -819,7 +807,7 @@ func TestClient_Upload(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := NewClient(tc.baseURL, tc.apiKey)
+			c, err := NewClient(tc.baseURL, tc.apiKey, nil)
 			require.NoError(t, err)
 
 			if tc.setup != nil {
@@ -827,7 +815,7 @@ func TestClient_Upload(t *testing.T) {
 			}
 
 			f := io.NopCloser(bytes.NewBufferString(tc.fileData))
-			resp, err := c.upload(tc.spath, tc.fileName, f)
+			resp, err := c.method.Upload(tc.spath, tc.fileName, f)
 
 			if tc.wantError {
 				assert.Error(t, err)

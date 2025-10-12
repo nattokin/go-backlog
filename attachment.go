@@ -40,8 +40,8 @@ func (s *SpaceAttachmentService) Upload(fileName string, r io.Reader) (*Attachme
 	return &v, nil
 }
 
-func listAttachments(get clientGet, spath string) ([]*Attachment, error) {
-	resp, err := get(spath, nil)
+func listAttachments(m *method, spath string) ([]*Attachment, error) {
+	resp, err := m.Get(spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func listAttachments(get clientGet, spath string) ([]*Attachment, error) {
 	return v, nil
 }
 
-func removeAttachment(delete clientDelete, spath string) (*Attachment, error) {
-	resp, err := delete(spath, nil)
+func removeAttachment(m *method, spath string) (*Attachment, error) {
+	resp, err := m.Delete(spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (s *WikiAttachmentService) List(wikiID int) ([]*Attachment, error) {
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
-	return listAttachments(s.method.Get, spath)
+	return listAttachments(s.method, spath)
 }
 
 // Remove removes a file attached to the wiki.
@@ -133,7 +133,7 @@ func (s *WikiAttachmentService) Remove(wikiID, attachmentID int) (*Attachment, e
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
-	return removeAttachment(s.method.Delete, spath)
+	return removeAttachment(s.method, spath)
 }
 
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
@@ -150,7 +150,7 @@ func (s *IssueAttachmentService) List(issueIDOrKey string) ([]*Attachment, error
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments")
-	return listAttachments(s.method.Get, spath)
+	return listAttachments(s.method, spath)
 }
 
 // Remove removes a file attached to the issue.
@@ -165,7 +165,7 @@ func (s *IssueAttachmentService) Remove(issueIDOrKey string, attachmentID int) (
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
-	return removeAttachment(s.method.Delete, spath)
+	return removeAttachment(s.method, spath)
 }
 
 // PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
@@ -188,7 +188,7 @@ func (s *PullRequestAttachmentService) List(projectIDOrKey string, repositoryIDO
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
-	return listAttachments(s.method.Get, spath)
+	return listAttachments(s.method, spath)
 }
 
 // Remove removes a file attached to the pull request.
@@ -209,5 +209,5 @@ func (s *PullRequestAttachmentService) Remove(projectIDOrKey string, repositoryI
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
-	return removeAttachment(s.method.Delete, spath)
+	return removeAttachment(s.method, spath)
 }

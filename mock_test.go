@@ -18,13 +18,10 @@ func newHTTPClientMock(f roundTripFunc) *http.Client {
 }
 
 func newClientMock(baseURL, token string, f roundTripFunc) (*Client, error) {
-	c, err := NewClient(baseURL, token)
+	c, err := NewClient(baseURL, token, newHTTPClientMock(f))
 	if err != nil {
 		return nil, err
 	}
-
-	httpClient := newHTTPClientMock(f)
-	c.httpClient = httpClient
 
 	return c, nil
 }
