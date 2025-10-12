@@ -101,13 +101,13 @@ func TestFormOption(t *testing.T) {
 			t.Parallel()
 
 			form := NewFormParams()
-			if err := tc.option.Check(); tc.expectCheckErr {
+			err := tc.option.Check()
+			if tc.expectCheckErr {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantCheckErrType, err)
 				return
-			} else {
-				require.NoError(t, err)
 			}
+			require.NoError(t, err)
 
 			if err := tc.option.set(form); tc.expectSetErr {
 				require.Error(t, err)

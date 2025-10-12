@@ -101,13 +101,13 @@ func TestQueryOption(t *testing.T) {
 			t.Parallel()
 
 			query := NewQueryParams()
-			if err := tc.option.Check(); tc.expectCheckErr {
+			err := tc.option.Check()
+			if tc.expectCheckErr {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantCheckErrType, err)
 				return
-			} else {
-				require.NoError(t, err)
 			}
+			require.NoError(t, err)
 
 			if err := tc.option.set(query); tc.expectSetErr {
 				require.Error(t, err)
