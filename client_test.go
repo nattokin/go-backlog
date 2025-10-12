@@ -70,6 +70,13 @@ func TestNewClient_InitAndValidation(t *testing.T) {
 			wantError: true,
 			errMsg:    "missing token",
 		},
+		"missing baseURL": {
+			baseURL:   "",
+			token:     "token123",
+			wantError: true,
+			errMsg:    "missing baseURL",
+		},
+
 		"invalid baseURL": {
 			baseURL:   "://invalid-url",
 			token:     "token123",
