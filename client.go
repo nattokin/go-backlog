@@ -16,7 +16,13 @@ const (
 	apiVersion = "v2"
 )
 
-// InternalClientError is an error type for client-side issues (e.g., missing token, URL parsing failure).
+// ──────────────────────────────────────────────────────────────
+//  Error types
+// ──────────────────────────────────────────────────────────────
+
+// InternalClientError represents client-side configuration or usage errors.
+// It is distinct from API-level errors and indicates issues like missing token
+// or malformed base URL.
 type InternalClientError struct {
 	msg string
 }
@@ -29,14 +35,31 @@ func newInternalClientError(msg string) *InternalClientError {
 	return &InternalClientError{msg: msg}
 }
 
-// Client is a Backlog API client.
-type Client struct {
-	url        *url.URL
-	httpClient *http.Client
-	token      string
-	wrapper    wrapper
-	method     *method
+// ──────────────────────────────────────────────────────────────
+//  Doer interface (HTTP abstraction)
+// ──────────────────────────────────────────────────────────────
 
+// Doer defines the minimal interface required to perform HTTP requests.
+// It is compatible with *http.Client and allows injection of mock clients
+// for unit or integration testing.
+type Doer interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Client structure and initialization
+// ──────────────────────────────────────────────────────────────
+
+// Client represents a Backlog API client.
+// It wraps an underlying HTTP Doer and provides typed services for API access.
+type Client struct {
+	baseURL *url.URL
+	doer    Doer
+	token   string
+	wrapper wrapper
+	method  *method
+
+	// Service endpoints
 	Issue       *IssueService
 	Project     *ProjectService
 	PullRequest *PullRequestService
@@ -45,44 +68,71 @@ type Client struct {
 	Wiki        *WikiService
 }
 
-// FormParams wraps url.Values.
+// ──────────────────────────────────────────────────────────────
+//  HTTP method function set
+// ──────────────────────────────────────────────────────────────
+
+// method holds injected HTTP operation functions.
+// Each function delegates to Client.do() but can be replaced in tests
+// for fine-grained unit testing of individual services.
+type method struct {
+	Get    func(spath string, query *QueryParams) (*http.Response, error)
+	Post   func(spath string, form *FormParams) (*http.Response, error)
+	Patch  func(spath string, form *FormParams) (*http.Response, error)
+	Delete func(spath string, form *FormParams) (*http.Response, error)
+	Upload func(spath, fileName string, r io.Reader) (*http.Response, error)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Parameter types
+// ──────────────────────────────────────────────────────────────
+
+// FormParams represents form-encoded parameters used in Backlog API POST,
+// PATCH, and DELETE requests. It wraps url.Values to provide helper methods
+// for constructing form data and converting it to io.Reader for HTTP bodies.
+//
+// Typical usage:
+//
+//	form := NewFormParams()
+//	form.Add("name", "ProjectX")
+//	resp, err := c.method.Post("projects", form)
 type FormParams struct {
 	*url.Values
 }
 
-// NewFormParams returns new FormParams.
+// NewFormParams creates and returns a new, initialized FormParams instance.
+// It is primarily used to prepare form data for POST, PATCH, and DELETE requests.
 func NewFormParams() *FormParams {
 	return &FormParams{&url.Values{}}
 }
 
-// NewReader converts FormParams to io.Reader.
+// NewReader returns an io.Reader containing the URL-encoded form data.
+// This is used to provide the request body to an HTTP client.
 func (p *FormParams) NewReader() io.Reader {
 	return strings.NewReader(p.Encode())
 }
 
-// QueryParams represents query parameters for a request.
+// QueryParams represents query string parameters used in Backlog API GET requests.
+// It wraps url.Values to simplify parameter creation and encoding.
+//
+// Typical usage:
+//
+//	query := NewQueryParams()
+//	query.Add("projectId", "123")
+//	resp, err := c.method.Get("issues", query)
 type QueryParams struct {
 	*url.Values
 }
 
-// NewQueryParams returns new QueryParams.
+// NewQueryParams creates and returns a new, initialized QueryParams instance.
+// It is typically used to construct URL query strings for GET requests.
 func NewQueryParams() *QueryParams {
 	return &QueryParams{&url.Values{}}
 }
 
-type clientGet func(spath string, query *QueryParams) (*http.Response, error)
-type clientPost func(spath string, form *FormParams) (*http.Response, error)
-type clientPatch func(spath string, form *FormParams) (*http.Response, error)
-type clientDelete func(spath string, form *FormParams) (*http.Response, error)
-type clientUpload func(spath, fileName string, r io.Reader) (*http.Response, error)
-
-type method struct {
-	Get    clientGet
-	Post   clientPost
-	Patch  clientPatch
-	Delete clientDelete
-	Upload clientUpload
-}
+// ──────────────────────────────────────────────────────────────
+//  Wrapper interface for I/O abstractions
+// ──────────────────────────────────────────────────────────────
 
 type wrapper interface {
 	Copy(dst io.Writer, src io.Reader) error
@@ -95,9 +145,9 @@ type multipartWriter interface {
 	Close() error
 }
 
-//--------------------------------------
-// Default implementations
-//--------------------------------------
+// ──────────────────────────────────────────────────────────────
+//  Default wrapper implementations
+// ──────────────────────────────────────────────────────────────
 
 type defaultWrapper struct{}
 
@@ -126,57 +176,120 @@ func (mw *defaultMultipartWriter) Close() error {
 	return mw.Writer.Close()
 }
 
-// NewClient creates a new Backlog API Client.
-func NewClient(baseURL, token string) (*Client, error) {
-	if len(token) == 0 {
+// ──────────────────────────────────────────────────────────────
+//  Client constructor
+// ──────────────────────────────────────────────────────────────
+
+// NewClient creates and initializes a Backlog API Client.
+// A custom Doer (e.g., *http.Client or mock) may be provided for testing.
+// If doer is nil, http.DefaultClient is used.
+func NewClient(baseURL, token string, doer Doer) (*Client, error) {
+	if token == "" {
 		return nil, newInternalClientError("missing token")
 	}
+	if baseURL == "" {
+		return nil, newInternalClientError("missing baseURL")
+	}
 
-	parsedURL, err := url.ParseRequestURI(baseURL)
+	u, err := url.ParseRequestURI(baseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	c := &Client{
-		url:        parsedURL,
-		httpClient: http.DefaultClient,
-		token:      token,
-		wrapper:    &defaultWrapper{},
+	if doer == nil {
+		doer = http.DefaultClient
 	}
 
+	c := &Client{
+		baseURL: u,
+		doer:    doer,
+		token:   token,
+		wrapper: &defaultWrapper{},
+	}
+
+	// --- Inject HTTP method wrappers ------------------------------------------
 	c.method = &method{
 		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			return c.get(spath, query)
+			return c.do(http.MethodGet, spath, nil, nil, query)
 		},
 		Post: func(spath string, form *FormParams) (*http.Response, error) {
-			return c.post(spath, form)
+			header := http.Header{}
+			header.Set("Content-Type", "application/x-www-form-urlencoded")
+			if form == nil {
+				form = NewFormParams()
+			}
+			return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
 		},
 		Patch: func(spath string, form *FormParams) (*http.Response, error) {
-			return c.patch(spath, form)
+			header := http.Header{}
+			header.Set("Content-Type", "application/x-www-form-urlencoded")
+			if form == nil {
+				form = NewFormParams()
+			}
+			return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
 		},
 		Delete: func(spath string, form *FormParams) (*http.Response, error) {
-			return c.delete(spath, form)
+			header := http.Header{}
+			header.Set("Content-Type", "application/x-www-form-urlencoded")
+			if form == nil {
+				form = NewFormParams()
+			}
+			return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
-			return c.upload(spath, fileName, r)
+			if fileName == "" {
+				return nil, newInternalClientError("fileName is required")
+			}
+			var buf bytes.Buffer
+			mw := c.wrapper.NewMultipartWriter(&buf)
+
+			fw, err := mw.CreateFormFile("file", fileName)
+			if err != nil {
+				return nil, err
+			}
+			if err = c.wrapper.Copy(fw, r); err != nil {
+				return nil, err
+			}
+			if err := mw.Close(); err != nil {
+				return nil, err
+			}
+
+			header := http.Header{}
+			header.Set("Content-Type", mw.FormDataContentType())
+
+			return c.do(http.MethodPost, spath, header, &buf, nil)
 		},
 	}
 
+	// ──────────────────────────────────────────────────────────────
+	//  Service initialization
+	// ──────────────────────────────────────────────────────────────
+
+	// --- Initialize shared option services --------------------------------------
+	// Option services provide reusable form and query parameter builders
+	// used across multiple Backlog API services.
 	optionSupport := &optionSupport{
 		query: &QueryOptionService{},
 		form:  &FormOptionService{},
 	}
 
+	// ActivityOptionService wraps shared optionSupport to be reused
+	// by activity-related services such as ProjectActivityService or SpaceActivityService.
 	activityOptionService := &ActivityOptionService{
 		support: optionSupport,
 	}
 
+	// --- Initialize IssueService -------------------------------------------------
+	// Provides methods for issue management and file attachment operations.
 	c.Issue = &IssueService{
 		method: c.method,
 		Attachment: &IssueAttachmentService{
 			method: c.method,
 		},
 	}
+
+	// --- Initialize ProjectService ----------------------------------------------
+	// Includes sub-services for project activities, users, and project options.
 	c.Project = &ProjectService{
 		method: c.method,
 		Activity: &ProjectActivityService{
@@ -190,12 +303,18 @@ func NewClient(baseURL, token string) (*Client, error) {
 			support: optionSupport,
 		},
 	}
+
+	// --- Initialize PullRequestService ------------------------------------------
+	// Handles pull request operations and related file attachments.
 	c.PullRequest = &PullRequestService{
 		method: c.method,
 		Attachment: &PullRequestAttachmentService{
 			method: c.method,
 		},
 	}
+
+	// --- Initialize SpaceService -------------------------------------------------
+	// Provides access to space-level APIs including activities and attachments.
 	c.Space = &SpaceService{
 		method: c.method,
 		Activity: &SpaceActivityService{
@@ -206,6 +325,9 @@ func NewClient(baseURL, token string) (*Client, error) {
 			method: c.method,
 		},
 	}
+
+	// --- Initialize UserService --------------------------------------------------
+	// Provides APIs related to user activities and user option settings.
 	c.User = &UserService{
 		method: c.method,
 		Activity: &UserActivityService{
@@ -216,6 +338,9 @@ func NewClient(baseURL, token string) (*Client, error) {
 			support: optionSupport,
 		},
 	}
+
+	// --- Initialize WikiService --------------------------------------------------
+	// Provides wiki page APIs, including file attachments and option configurations.
 	c.Wiki = &WikiService{
 		method: c.method,
 		Attachment: &WikiAttachmentService{
@@ -229,7 +354,11 @@ func NewClient(baseURL, token string) (*Client, error) {
 	return c, nil
 }
 
-// newRequest creates a new HTTP request for the Backlog API.
+// ──────────────────────────────────────────────────────────────
+//  HTTP request creation and execution
+// ──────────────────────────────────────────────────────────────
+
+// newRequest builds a new HTTP request with token-based authentication.
 func (c *Client) newRequest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
@@ -240,7 +369,7 @@ func (c *Client) newRequest(method, spath string, header http.Header, body io.Re
 	}
 	query.Set("apiKey", c.token)
 
-	u := *c.url
+	u := *c.baseURL
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
 	u.RawQuery = query.Encode()
 
@@ -248,19 +377,19 @@ func (c *Client) newRequest(method, spath string, header http.Header, body io.Re
 	if err != nil {
 		return nil, err
 	}
-
 	req.Header = header
 	return req, nil
 }
 
-// do performs the HTTP request and returns the response.
+// do executes the given HTTP request using the injected Doer.
+// All HTTP calls pass through this function, ensuring consistent error handling.
 func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
 	req, err := c.newRequest(method, spath, header, body, query)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doer.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -268,113 +397,38 @@ func (c *Client) do(method, spath string, header http.Header, body io.Reader, qu
 	return checkResponse(resp)
 }
 
-// get performs a GET request to the Backlog API.
-func (c *Client) get(spath string, query *QueryParams) (*http.Response, error) {
-	return c.do(http.MethodGet, spath, nil, nil, query)
-}
+// ──────────────────────────────────────────────────────────────
+//  Response validation
+// ──────────────────────────────────────────────────────────────
 
-// post performs a POST request to the Backlog API.
-func (c *Client) post(spath string, form *FormParams) (*http.Response, error) {
-	header := http.Header{}
-	header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	if form == nil {
-		form = NewFormParams()
-	}
-
-	return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
-}
-
-// patch performs a PATCH request to the Backlog API.
-func (c *Client) patch(spath string, form *FormParams) (*http.Response, error) {
-	header := http.Header{}
-	header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	if form == nil {
-		form = NewFormParams()
-	}
-
-	return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
-}
-
-// delete performs a DELETE request to the Backlog API.
-func (c *Client) delete(spath string, form *FormParams) (*http.Response, error) {
-	header := http.Header{}
-	header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	if form == nil {
-		form = NewFormParams()
-	}
-
-	return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
-}
-
-// upload performs a POST request to upload a file to the Backlog API.
-func (c *Client) upload(spath, fileName string, r io.Reader) (*http.Response, error) {
-	if fileName == "" {
-		return nil, newInternalClientError("fname is required")
-	}
-
-	var buf bytes.Buffer
-	mw := c.wrapper.NewMultipartWriter(&buf)
-
-	fw, err := mw.CreateFormFile("file", fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = c.wrapper.Copy(fw, r); err != nil {
-		return nil, err
-	}
-
-	if err := mw.Close(); err != nil {
-		return nil, err
-	}
-
-	header := http.Header{}
-	header.Set("Content-Type", mw.FormDataContentType())
-
-	return c.do(http.MethodPost, spath, header, &buf, nil)
-}
-
-// checkResponse checks the HTTP status code. If it indicates an error, it returns an API error.
+// checkResponse validates an HTTP response and decodes API errors if present.
+// It closes the response body in error cases to avoid leaks.
 func checkResponse(r *http.Response) (*http.Response, error) {
 	sc := r.StatusCode
 
-	// Check for success status codes (2xx)
 	if 200 <= sc && sc <= 299 {
-		// Handle 204 No Content
 		if sc == http.StatusNoContent {
 			if r.Body != nil {
 				r.Body.Close()
 			}
 			return nil, nil
 		}
-		// Return successful response
 		return r, nil
 	}
 
-	// Handle error response (4xx/5xx)
 	defer func() {
-		// Ensure the response body is closed
 		if r.Body != nil {
 			r.Body.Close()
 		}
 	}()
 
-	e := &APIResponseError{
-		StatusCode: sc,
-	}
+	e := &APIResponseError{StatusCode: sc}
 
-	// Attempt to decode error details from body
 	if r.Body != nil {
 		if err := json.NewDecoder(r.Body).Decode(e); err == nil {
-			// Successfully decoded API error
 			return nil, e
 		}
 	}
 
-	// If decoding fails (invalid JSON or empty body), return the APIResponseError
-	// containing only the StatusCode, as the error is from the API service.
 	return nil, e
 }

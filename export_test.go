@@ -50,11 +50,6 @@ type (
 var (
 	ExportClientNewRequest = (*Client).newRequest
 	ExportClientDo         = (*Client).do
-	ExportClientGet        = (*Client).get
-	ExportClientPost       = (*Client).post
-	ExportClientPatch      = (*Client).patch
-	ExportClientDelete     = (*Client).delete
-	ExportClientUpload     = (*Client).upload
 )
 
 var (
@@ -75,22 +70,6 @@ func ExportNewQueryOption(queryType queryType, checkFunc optionCheckFunc, queryF
 
 func ExportNewFormOption(formType formType, checkFunc optionCheckFunc, fFunc formOptionFunc) *FormOption {
 	return &FormOption{t: formType, checkFunc: checkFunc, setFunc: fFunc}
-}
-
-func (c *Client) ExportURL() *url.URL {
-	return c.url
-}
-
-func (c *Client) ExportSetURL(url *url.URL) {
-	c.url = url
-}
-
-func (c *Client) ExportHTTPClient() *http.Client {
-	return c.httpClient
-}
-
-func (c *Client) ExportSetHTTPClient(httpClient *http.Client) {
-	c.httpClient = httpClient
 }
 
 func (c *Client) ExportToken() string {

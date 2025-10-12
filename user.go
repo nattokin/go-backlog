@@ -20,8 +20,8 @@ func (id UserID) String() string {
 	return strconv.Itoa(int(id))
 }
 
-func getUser(get clientGet, spath string) (*User, error) {
-	resp, err := get(spath, nil)
+func getUser(m *method, spath string) (*User, error) {
+	resp, err := m.Get(spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func getUser(get clientGet, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(get clientGet, spath string, query *QueryParams) ([]*User, error) {
-	resp, err := get(spath, query)
+func getUserList(m *method, spath string, query *QueryParams) ([]*User, error) {
+	resp, err := m.Get(spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func getUserList(get clientGet, spath string, query *QueryParams) ([]*User, erro
 	return v, nil
 }
 
-func addUser(post clientPost, spath string, form *FormParams) (*User, error) {
-	resp, err := post(spath, form)
+func addUser(m *method, spath string, form *FormParams) (*User, error) {
+	resp, err := m.Post(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -65,8 +65,8 @@ func addUser(post clientPost, spath string, form *FormParams) (*User, error) {
 	return &v, nil
 }
 
-func updateUser(patch clientPatch, spath string, form *FormParams) (*User, error) {
-	resp, err := patch(spath, form)
+func updateUser(m *method, spath string, form *FormParams) (*User, error) {
+	resp, err := m.Patch(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +80,8 @@ func updateUser(patch clientPatch, spath string, form *FormParams) (*User, error
 	return &v, nil
 }
 
-func deleteUser(delete clientDelete, spath string, form *FormParams) (*User, error) {
-	resp, err := delete(spath, form)
+func deleteUser(m *method, spath string, form *FormParams) (*User, error) {
+	resp, err := m.Delete(spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ type UserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
 func (s *UserService) All() ([]*User, error) {
-	return getUserList(s.method.Get, "users", nil)
+	return getUserList(s.method, "users", nil)
 }
 
 // One returns a user in your space.
@@ -120,14 +120,14 @@ func (s *UserService) One(id int) (*User, error) {
 	}
 
 	spath := path.Join("users", uID.String())
-	return getUser(s.method.Get, spath)
+	return getUser(s.method, spath)
 }
 
 // Own returns your own user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
 func (s *UserService) Own() (*User, error) {
-	return getUser(s.method.Get, "users/myself")
+	return getUser(s.method, "users/myself")
 }
 
 // ToDo: func (s *UserService) Icon()
@@ -155,7 +155,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 
 	form.Set("userId", userID)
 
-	return addUser(s.method.Post, "users", form)
+	return addUser(s.method, "users", form)
 }
 
 // Update updates a user in your space.
@@ -191,7 +191,7 @@ func (s *UserService) Update(id int, opts ...*FormOption) (*User, error) {
 
 	spath := path.Join("users", strconv.Itoa(id))
 
-	return updateUser(s.method.Patch, spath, form)
+	return updateUser(s.method, spath, form)
 }
 
 // Delete deletes a user from your space.
@@ -204,7 +204,7 @@ func (s *UserService) Delete(id int) (*User, error) {
 	}
 
 	spath := path.Join("users", uID.String())
-	return deleteUser(s.method.Delete, spath, nil)
+	return deleteUser(s.method, spath, nil)
 }
 
 // ProjectUserService has methods for user of project.
@@ -224,7 +224,7 @@ func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return getUserList(s.method.Get, spath, query)
+	return getUserList(s.method, spath, query)
 }
 
 // Add adds a user to the project.
@@ -244,7 +244,7 @@ func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, erro
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return addUser(s.method.Post, spath, form)
+	return addUser(s.method, spath, form)
 }
 
 // Delete deletes a user from the project.
@@ -264,7 +264,7 @@ func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, e
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return deleteUser(s.method.Delete, spath, form)
+	return deleteUser(s.method, spath, form)
 }
 
 // AddAdmin adds a admin user to the project.
@@ -284,7 +284,7 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return addUser(s.method.Post, spath, form)
+	return addUser(s.method, spath, form)
 }
 
 // AdminAll returns a list of all admin users in the project.
@@ -296,7 +296,7 @@ func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return getUserList(s.method.Get, spath, nil)
+	return getUserList(s.method, spath, nil)
 }
 
 // DeleteAdmin removes an admin user from the project.
@@ -316,5 +316,5 @@ func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*Us
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return deleteUser(s.method.Delete, spath, form)
+	return deleteUser(s.method, spath, form)
 }
