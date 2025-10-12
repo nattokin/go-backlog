@@ -69,12 +69,12 @@ var (
 	ExportCheckResponse          = checkResponse
 )
 
-func ExportNewQueryOption(qType queryType, qFunc queryOptionFunc) *QueryOption {
-	return &QueryOption{qType, qFunc}
+func ExportNewQueryOption(queryType queryType, checkFunc optionCheckFunc, queryFunc queryOptionFunc) *QueryOption {
+	return &QueryOption{t: queryType, checkFunc: checkFunc, setFunc: queryFunc}
 }
 
-func ExportNewFormOption(formType formType, fFunc formOptionFunc) *FormOption {
-	return &FormOption{formType, fFunc}
+func ExportNewFormOption(formType formType, checkFunc optionCheckFunc, fFunc formOptionFunc) *FormOption {
+	return &FormOption{t: formType, checkFunc: checkFunc, setFunc: fFunc}
 }
 
 func (c *Client) ExportURL() *url.URL {

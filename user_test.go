@@ -415,7 +415,7 @@ func TestUserService_Add_invalidJson(t *testing.T) {
 		},
 	})
 
-	user, err := s.Add("userid", "password", "name", "mailAdress", 1)
+	user, err := s.Add("userID", "password", "name", "mailAdress", 1)
 	assert.Nil(t, user)
 	assert.Error(t, err)
 }
@@ -537,7 +537,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, nil, func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},

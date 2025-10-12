@@ -70,9 +70,18 @@ func (t formType) Value() string {
 
 //
 // ──────────────────────────────────────────────────────────────
-//  Core Option Types and Utilities
+//  RequestOption interface and shared function types
 // ──────────────────────────────────────────────────────────────
 //
+
+// RequestOption defines a common interface for all option types (e.g., FormOption, QueryOption).
+// It allows unified validation handling across different request-level options.
+type RequestOption interface {
+	Check() error
+}
+
+// optionCheckFunc defines a generic validation function used by all RequestOption implementations.
+type optionCheckFunc func() error
 
 // --- QueryOption -------------------------------------------------------------
 
@@ -81,8 +90,25 @@ type queryOptionFunc func(query *QueryParams) error
 
 // QueryOption represents a single query parameter to be applied to a request.
 type QueryOption struct {
-	t queryType       // The underlying query parameter key type
-	f queryOptionFunc // The function that sets the value into the query
+	t         queryType       // The underlying query parameter key type
+	checkFunc optionCheckFunc // The function that performs validation
+	setFunc   queryOptionFunc // The function that sets the value into the query
+}
+
+// Check validates the QueryOption by executing its check function, if defined.
+func (o *QueryOption) Check() error {
+	if o.checkFunc != nil {
+		return o.checkFunc()
+	}
+	return nil
+}
+
+// set executes the stored function to apply the option value into the query.
+func (o *QueryOption) set(query *QueryParams) error {
+	if o.setFunc == nil {
+		return newValidationError("query option has no setter")
+	}
+	return o.setFunc(query)
 }
 
 // validate ensures that the QueryOption is allowed for the current API context.
@@ -95,11 +121,6 @@ func (o *QueryOption) validate(validTypes []queryType) error {
 	return newInvalidQueryOptionError(o.t, validTypes)
 }
 
-// set executes the stored function to apply the option.
-func (o *QueryOption) set(query *QueryParams) error {
-	return o.f(query)
-}
-
 // --- FormOption --------------------------------------------------------------
 
 // formOptionFunc applies a form option's value to the request form body.
@@ -107,8 +128,25 @@ type formOptionFunc func(form *FormParams) error
 
 // FormOption represents a single form field to be applied to a request body.
 type FormOption struct {
-	t formType       // The underlying form field type
-	f formOptionFunc // The function that sets the value into the form
+	t         formType        // The underlying form field type
+	checkFunc optionCheckFunc // The function that performs validation
+	setFunc   formOptionFunc  // The function that sets the value into the form
+}
+
+// Check validates the FormOption by executing its check function, if defined.
+func (o *FormOption) Check() error {
+	if o.checkFunc != nil {
+		return o.checkFunc()
+	}
+	return nil
+}
+
+// set executes the stored function to apply the option value into the form.
+func (o *FormOption) set(form *FormParams) error {
+	if o.setFunc == nil {
+		return newValidationError("form option has no setter")
+	}
+	return o.setFunc(form)
 }
 
 // validate ensures that the FormOption is allowed for the current API context.
@@ -121,11 +159,6 @@ func (o *FormOption) validate(validTypes []formType) error {
 	return newInvalidFormOptionError(o.t, validTypes)
 }
 
-// set executes the stored function to apply the option.
-func (o *FormOption) set(form *FormParams) error {
-	return o.f(form)
-}
-
 //
 // ──────────────────────────────────────────────────────────────
 //  QueryOptionService
@@ -136,96 +169,148 @@ func (o *FormOption) set(form *FormParams) error {
 // Each XxxOptionService selectively exposes only the valid methods.
 type QueryOptionService struct{}
 
+// applyOptions validates and applies one or more query options to the given query parameters.
+func (s *QueryOptionService) applyOptions(query *QueryParams, opts ...*QueryOption) error {
+	for _, opt := range opts {
+		if err := opt.Check(); err != nil {
+			return err
+		}
+		if err := opt.set(query); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // --- Boolean options ------------------------------------------------------------
 
 // WithAll returns an option to set the `all` query parameter.
 func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
-	return &QueryOption{queryAll, func(query *QueryParams) error {
-		query.Set(queryAll.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryAll,
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryAll.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithArchived returns an option to set the `archived` query parameter.
 func (s *QueryOptionService) WithArchived(archived bool) *QueryOption {
-	return &QueryOption{queryArchived, func(query *QueryParams) error {
-		query.Set(queryArchived.Value(), strconv.FormatBool(archived))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryArchived,
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryArchived.Value(), strconv.FormatBool(archived))
+			return nil
+		},
+	}
 }
 
 // --- Integer options ------------------------------------------------------------
 
-// WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` query parameters.
-func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
-	return &QueryOption{queryActivityTypeIDs, func(query *QueryParams) error {
-		for _, id := range typeIDs {
-			if err := validateActivityID(id, "activityTypeIds"); err != nil {
-				return err
-			}
-		}
-		for _, id := range typeIDs {
-			query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
-		}
-		return nil
-	}}
-}
-
 // WithCount returns an option to set the `count` query parameter.
 func (s *QueryOptionService) WithCount(count int) *QueryOption {
-	return &QueryOption{queryCount, func(query *QueryParams) error {
-		if count < 1 || 100 < count {
-			return newValidationError("count must be between 1 and 100")
-		}
-		query.Set(queryCount.Value(), strconv.Itoa(count))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryCount,
+		checkFunc: func() error {
+			if count < 1 || 100 < count {
+				return newValidationError("count must be between 1 and 100")
+			}
+			return nil
+		},
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryCount.Value(), strconv.Itoa(count))
+			return nil
+		},
+	}
 }
 
 // WithMaxID returns an option to set the `maxId` query parameter.
 func (s *QueryOptionService) WithMaxID(id int) *QueryOption {
-	return &QueryOption{queryMaxID, func(query *QueryParams) error {
-		if err := validateActivityID(id, "maxID"); err != nil {
-			return err
-		}
-		query.Set(queryMaxID.Value(), strconv.Itoa(id))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryMaxID,
+		checkFunc: func() error {
+			if err := validateActivityID(id, "maxID"); err != nil {
+				return err
+			}
+			return nil
+		},
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryMaxID.Value(), strconv.Itoa(id))
+			return nil
+		},
+	}
 }
 
 // WithMinID returns an option to set the `minId` query parameter.
 func (s *QueryOptionService) WithMinID(id int) *QueryOption {
-	return &QueryOption{queryMinID, func(query *QueryParams) error {
-		if err := validateActivityID(id, "minID"); err != nil {
-			return err
-		}
-		query.Set(queryMinID.Value(), strconv.Itoa(id))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryMinID,
+		checkFunc: func() error {
+			if err := validateActivityID(id, "minID"); err != nil {
+				return err
+			}
+			return nil
+		},
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryMinID.Value(), strconv.Itoa(id))
+			return nil
+		},
+	}
 }
 
 // --- String options ------------------------------------------------------------
 
 // WithKeyword returns an option to set the `keyword` query parameter.
 func (s *QueryOptionService) WithKeyword(keyword string) *QueryOption {
-	return &QueryOption{queryKeyword, func(query *QueryParams) error {
-		query.Set(queryKeyword.Value(), keyword)
-		return nil
-	}}
+	return &QueryOption{
+		t: queryKeyword,
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryKeyword.Value(), keyword)
+			return nil
+		},
+	}
 }
 
 // --- Enum or special options ----------------------------------------------------
 
+// WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` query parameters.
+func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
+	return &QueryOption{
+		t: queryActivityTypeIDs,
+		checkFunc: func() error {
+			for _, id := range typeIDs {
+				if err := validateActivityID(id, "activityTypeIds"); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+		setFunc: func(query *QueryParams) error {
+			for _, id := range typeIDs {
+				query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
+			}
+			return nil
+		},
+	}
+}
+
 // WithOrder returns an option to set the `order` query parameter.
 func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
-	return &QueryOption{queryOrder, func(query *QueryParams) error {
-		if order != OrderAsc && order != OrderDesc {
-			msg := fmt.Sprintf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
-			return newValidationError(msg)
-		}
-		query.Set(queryOrder.Value(), string(order))
-		return nil
-	}}
+	return &QueryOption{
+		t: queryOrder,
+		checkFunc: func() error {
+			if order != OrderAsc && order != OrderDesc {
+				msg := fmt.Sprintf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
+				return newValidationError(msg)
+			}
+			return nil
+		},
+		setFunc: func(query *QueryParams) error {
+			query.Set(queryOrder.Value(), string(order))
+			return nil
+		},
+	}
 }
 
 //
@@ -238,153 +323,232 @@ func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 // Each XxxOptionService selectively exposes only the valid subset.
 type FormOptionService struct{}
 
+// applyOptions validates and applies one or more form options to the given form.
+// It returns the first error encountered from Check or set.
+func (s *FormOptionService) applyOptions(form *FormParams, opts ...*FormOption) error {
+	for _, opt := range opts {
+		if err := opt.Check(); err != nil {
+			return err
+		}
+		if err := opt.set(form); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // --- Boolean options ------------------------------------------------------------
 
 // WithArchived returns a form option that sets the `archived` field (e.g., for Project).
 func (*FormOptionService) WithArchived(enabled bool) *FormOption {
-	return &FormOption{formArchived, func(form *FormParams) error {
-		form.Set(formArchived.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formArchived,
+		setFunc: func(form *FormParams) error {
+			form.Set(formArchived.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithChartEnabled returns a form option that sets the `chartEnabled` field (e.g., for Project).
 func (*FormOptionService) WithChartEnabled(enabled bool) *FormOption {
-	return &FormOption{formChartEnabled, func(form *FormParams) error {
-		form.Set(formChartEnabled.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formChartEnabled,
+		setFunc: func(form *FormParams) error {
+			form.Set(formChartEnabled.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithMailNotify returns a form option that sets the `mailNotify` field (e.g., for Wiki, Issue).
 func (*FormOptionService) WithMailNotify(enabled bool) *FormOption {
-	return &FormOption{formMailNotify, func(form *FormParams) error {
-		form.Set(formMailNotify.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formMailNotify,
+		setFunc: func(form *FormParams) error {
+			form.Set(formMailNotify.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithProjectLeaderCanEditProjectLeader returns a form option that sets the `projectLeaderCanEditProjectLeader` field (e.g., for Project).
 func (*FormOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
-	return &FormOption{formProjectLeaderCanEditProjectLeader, func(form *FormParams) error {
-		form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formProjectLeaderCanEditProjectLeader,
+		setFunc: func(form *FormParams) error {
+			form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithSendMail creates a form option to specify whether to send
 // an invitation email to the newly created user.
 func (*FormOptionService) WithSendMail(enabled bool) *FormOption {
-	return &FormOption{formSendMail, func(form *FormParams) error {
-		form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formSendMail,
+		setFunc: func(form *FormParams) error {
+			form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // WithSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field (e.g., for Project).
 func (*FormOptionService) WithSubtaskingEnabled(enabled bool) *FormOption {
-	return &FormOption{formSubtaskingEnabled, func(form *FormParams) error {
-		form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
-		return nil
-	}}
+	return &FormOption{
+		t: formSubtaskingEnabled,
+		setFunc: func(form *FormParams) error {
+			form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
 }
 
 // --- Integer options ------------------------------------------------------------
 
 // WithUserID creates a form option to set the user's ID (login name).
 func (*FormOptionService) WithUserID(id int) *FormOption {
-	return &FormOption{formUserID, func(form *FormParams) error {
-		if err := validateID(id, "userID"); err != nil {
-			return err
-		}
-
-		form.Set(formUserID.Value(), strconv.Itoa(id))
-		return nil
-	}}
+	return &FormOption{
+		t: formUserID,
+		checkFunc: func() error {
+			if err := validateID(id, "userID"); err != nil {
+				return err
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formUserID.Value(), strconv.Itoa(id))
+			return nil
+		},
+	}
 }
 
 // --- String options -------------------------------------------------------------
 
 // WithContent returns a form option that sets the `content` field (e.g., for Wiki, Comment).
 func (*FormOptionService) WithContent(content string) *FormOption {
-	return &FormOption{formContent, func(form *FormParams) error {
-		if content == "" {
-			return newValidationError("content must not be empty")
-		}
-		form.Set(formContent.Value(), content)
-		return nil
-	}}
+	return &FormOption{
+		t: formContent,
+		checkFunc: func() error {
+			if content == "" {
+				return newValidationError("content must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formContent.Value(), content)
+			return nil
+		},
+	}
 }
 
 // WithKey returns a form option that sets the `key` field (e.g., for Project Key).
 func (*FormOptionService) WithKey(key string) *FormOption {
-	return &FormOption{formKey, func(form *FormParams) error {
-		if key == "" {
-			return newValidationError("key must not be empty")
-		}
-		form.Set(formKey.Value(), key)
-		return nil
-	}}
+	return &FormOption{
+		t: formKey,
+		checkFunc: func() error {
+			if key == "" {
+				return newValidationError("key must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formKey.Value(), key)
+			return nil
+		},
+	}
 }
 
 // WithMailAddress returns a form option that sets the `mailAddress` field (e.g., for User).
 func (*FormOptionService) WithMailAddress(mailAddress string) *FormOption {
 	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return &FormOption{formMailAddress, func(form *FormParams) error {
-		if mailAddress == "" {
-			return newValidationError("mailAddress must not be empty")
-		}
-		form.Set(formMailAddress.Value(), mailAddress)
-		return nil
-	}}
+	return &FormOption{
+		t: formMailAddress,
+		checkFunc: func() error {
+			if mailAddress == "" {
+				return newValidationError("mailAddress must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formMailAddress.Value(), mailAddress)
+			return nil
+		},
+	}
 }
 
 // WithName returns a form option that sets the `name` field (e.g., for Project Name, Wiki Name).
 func (*FormOptionService) WithName(name string) *FormOption {
-	return &FormOption{formName, func(form *FormParams) error {
-		if name == "" {
-			return newValidationError("name must not be empty")
-		}
-		form.Set(formName.Value(), name)
-		return nil
-	}}
+	return &FormOption{
+		t: formName,
+		checkFunc: func() error {
+			if name == "" {
+				return newValidationError("name must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formName.Value(), name)
+			return nil
+		},
+	}
 }
 
 // WithPassword returns a form option that sets the `password` field (e.g., for User).
 // It validates that the password meets the minimum length requirement (8 characters).
 func (*FormOptionService) WithPassword(password string) *FormOption {
-	return &FormOption{formPassword, func(form *FormParams) error {
-		if len(password) < 8 {
-			return newValidationError("password must be at least 8 characters long")
-		}
-		form.Set(formPassword.Value(), password)
-		return nil
-	}}
+	return &FormOption{
+		t: formPassword,
+		checkFunc: func() error {
+			if len(password) < 8 {
+				return newValidationError("password must be at least 8 characters long")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formPassword.Value(), password)
+			return nil
+		},
+	}
 }
 
 // --- Enum or Special options ----------------------------------------------------
 
 // WithRoleType returns a form option that sets the `roleType` field (e.g., for User).
 func (*FormOptionService) WithRoleType(roleType Role) *FormOption {
-	return &FormOption{formRoleType, func(form *FormParams) error {
-		if roleType < 1 || 6 < roleType {
-			return newValidationError("roleType must be between 1 and 6")
-		}
-		form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
-		return nil
-	}}
+	return &FormOption{
+		t: formRoleType,
+		checkFunc: func() error {
+			if roleType < 1 || 6 < roleType {
+				return newValidationError("roleType must be between 1 and 6")
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
+			return nil
+		},
+	}
 }
 
 // WithTextFormattingRule returns a form option that sets the `textFormattingRule` field (e.g., for Project).
 func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
-	return &FormOption{formTextFormattingRule, func(form *FormParams) error {
-		if format != FormatBacklog && format != FormatMarkdown {
-			msg := fmt.Sprintf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
-			return newValidationError(msg)
-		}
-		form.Set(formTextFormattingRule.Value(), string(format))
-		return nil
-	}}
+	return &FormOption{
+		t: formTextFormattingRule,
+		checkFunc: func() error {
+			if format != FormatBacklog && format != FormatMarkdown {
+				msg := fmt.Sprintf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
+				return newValidationError(msg)
+			}
+			return nil
+		},
+		setFunc: func(form *FormParams) error {
+			form.Set(formTextFormattingRule.Value(), string(format))
+			return nil
+		},
+	}
 }
 
 //

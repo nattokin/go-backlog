@@ -81,6 +81,7 @@ func TestWikiService_All(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			options: []*backlog.QueryOption{backlog.ExportNewQueryOption(
 				backlog.ExportQueryCount,
+				nil,
 				func(p *backlog.QueryParams) error {
 					return nil
 				},
@@ -95,6 +96,7 @@ func TestWikiService_All(t *testing.T) {
 			options: []*backlog.QueryOption{
 				backlog.ExportNewQueryOption(
 					backlog.ExportQueryKeyword,
+					nil,
 					func(p *backlog.QueryParams) error {
 						return errors.New("error during option set")
 					},
@@ -511,6 +513,7 @@ func TestWikiService_Create(t *testing.T) {
 			options: []*backlog.FormOption{
 				backlog.ExportNewFormOption(
 					backlog.ExportFormMailNotify,
+					nil,
 					func(p *backlog.ExportRequestParams) error {
 						return errors.New("error during option set")
 					},
@@ -525,6 +528,7 @@ func TestWikiService_Create(t *testing.T) {
 			content:   "content",
 			options: []*backlog.FormOption{backlog.ExportNewFormOption(
 				backlog.ExportFormMailAddress,
+				nil,
 				func(p *backlog.ExportRequestParams) error {
 					return nil
 				},
@@ -721,6 +725,7 @@ func TestWikiService_Update(t *testing.T) {
 			option: o.WithFormName("New Name"),
 			opts: []*backlog.FormOption{backlog.ExportNewFormOption(
 				backlog.ExportFormMailAddress,
+				nil,
 				func(p *backlog.ExportRequestParams) error {
 					return nil
 				},
@@ -735,6 +740,7 @@ func TestWikiService_Update(t *testing.T) {
 			opts: []*backlog.FormOption{
 				backlog.ExportNewFormOption(
 					backlog.ExportFormMailNotify,
+					nil,
 					func(p *backlog.ExportRequestParams) error {
 						return &backlog.ValidationError{Message: "error during option set"}
 					},
@@ -893,6 +899,7 @@ func TestWikiService_Delete(t *testing.T) {
 			opts: []*backlog.FormOption{
 				backlog.ExportNewFormOption(
 					backlog.ExportFormMailNotify,
+					nil,
 					func(p *backlog.ExportRequestParams) error {
 						return errors.New("error during option set")
 					},

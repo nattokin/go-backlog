@@ -78,7 +78,7 @@ func TestProjectService_All_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(backlog.ExportQueryAll, func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(backlog.ExportQueryAll, nil, func(p *backlog.QueryParams) error {
 					return errors.New("error")
 				}),
 			},
@@ -87,7 +87,7 @@ func TestProjectService_All_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(0, func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(0, nil, func(p *backlog.QueryParams) error {
 					return nil
 				}),
 			},
@@ -191,7 +191,7 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 		},
 		"OptionError": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(backlog.ExportQueryArchived, func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(backlog.ExportQueryArchived, nil, func(p *backlog.QueryParams) error {
 					return errors.New("error")
 				}),
 			},
@@ -642,7 +642,7 @@ func TestProjectService_Create_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, nil, func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},
@@ -854,7 +854,7 @@ func TestProjectService_Update_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(0, func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, nil, func(p *backlog.ExportRequestParams) error {
 					return nil
 				}),
 			},

@@ -242,12 +242,23 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(0, func(p *backlog.QueryParams) error {
+				backlog.ExportNewQueryOption(0, nil, func(p *backlog.QueryParams) error {
 					return nil
 				}),
 			},
 			wantError: true,
 			want:      want{},
+		},
+		"SetErr": {
+			options: []*backlog.QueryOption{
+				backlog.ExportNewQueryOption(
+					backlog.ExportQueryCount,
+					nil,
+					func(p *backlog.QueryParams) error {
+						return errors.New("set error")
+					}),
+			},
+			wantError: true,
 		},
 	}
 
