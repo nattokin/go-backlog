@@ -87,24 +87,45 @@ type method struct {
 //  Parameter types
 // ──────────────────────────────────────────────────────────────
 
-// FormParams wraps url.Values for form-based API requests.
+// FormParams represents form-encoded parameters used in Backlog API POST,
+// PATCH, and DELETE requests. It wraps url.Values to provide helper methods
+// for constructing form data and converting it to io.Reader for HTTP bodies.
+//
+// Typical usage:
+//
+//	form := NewFormParams()
+//	form.Add("name", "ProjectX")
+//	resp, err := c.method.Post("projects", form)
 type FormParams struct {
 	*url.Values
 }
 
+// NewFormParams creates and returns a new, initialized FormParams instance.
+// It is primarily used to prepare form data for POST, PATCH, and DELETE requests.
 func NewFormParams() *FormParams {
 	return &FormParams{&url.Values{}}
 }
 
+// NewReader returns an io.Reader containing the URL-encoded form data.
+// This is used to provide the request body to an HTTP client.
 func (p *FormParams) NewReader() io.Reader {
 	return strings.NewReader(p.Encode())
 }
 
-// QueryParams represents query parameters for Backlog API requests.
+// QueryParams represents query string parameters used in Backlog API GET requests.
+// It wraps url.Values to simplify parameter creation and encoding.
+//
+// Typical usage:
+//
+//	query := NewQueryParams()
+//	query.Add("projectId", "123")
+//	resp, err := c.method.Get("issues", query)
 type QueryParams struct {
 	*url.Values
 }
 
+// NewQueryParams creates and returns a new, initialized QueryParams instance.
+// It is typically used to construct URL query strings for GET requests.
 func NewQueryParams() *QueryParams {
 	return &QueryParams{&url.Values{}}
 }
