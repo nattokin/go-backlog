@@ -16,6 +16,9 @@ func getActivityList(get clientGet, spath string, options ...*QueryOption) ([]*A
 
 	query := NewQueryParams()
 	for _, option := range options {
+		if err := option.Check(); err != nil {
+			return nil, err
+		}
 		if err := option.set(query); err != nil {
 			return nil, err
 		}

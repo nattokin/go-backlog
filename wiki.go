@@ -30,24 +30,25 @@ type WikiService struct {
 //	WithQueryKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(projectIDOrKey string, options ...*QueryOption) ([]*Wiki, error) {
+func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	validOptions := []queryType{queryKeyword}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
+	o := s.Option.support.query
 	query := NewQueryParams()
-	for _, option := range options {
-		if err := option.set(query); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(query, opts...)
+	if err != nil {
+		return nil, err
 	}
+
 	query.Set("projectIdOrKey", projectIDOrKey)
 
 	resp, err := s.method.Get("wikis", query)
@@ -121,33 +122,26 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //	WithFormMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, options ...*FormOption) (*Wiki, error) {
-
-	form := NewFormParams()
-
+func (s *WikiService) Create(projectID int, name, content string, opts ...*FormOption) (*Wiki, error) {
 	if err := validateProjectID(projectID); err != nil {
-		return nil, err
-	}
-	form.Set("projectId", strconv.Itoa(projectID))
-	if err := (&FormOptionService{}).WithName(name).set(form); err != nil {
-		return nil, err
-	}
-	if err := (&FormOptionService{}).WithContent(content).set(form); err != nil {
 		return nil, err
 	}
 
 	validOptions := []formType{formMailNotify}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	for _, option := range options {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	o := s.Option.support.form
+	form := NewFormParams()
+	err := o.applyOptions(form, append(opts, o.WithName(name), o.WithContent(content))...)
+	if err != nil {
+		return nil, err
 	}
+
+	form.Set("projectId", strconv.Itoa(projectID))
 
 	resp, err := s.method.Post("wikis", form)
 	if err != nil {
@@ -197,11 +191,11 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 		return nil, newValidationError("requires an option to modify wiki content or name (WithFormName or WithFormContent)")
 	}
 
+	o := s.Option.support.form
 	form := NewFormParams()
-	for _, option := range options {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(form, options...)
+	if err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
@@ -240,11 +234,11 @@ func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 		}
 	}
 
+	o := s.Option.support.form
 	form := NewFormParams()
-	for _, option := range opts {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(form, opts...)
+	if err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))

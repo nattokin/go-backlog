@@ -1,12 +1,125 @@
 package backlog
 
 import (
+	"errors"
 	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+//
+// ──────────────────────────────────────────────────────────────
+//  TestQueryOption
+// ──────────────────────────────────────────────────────────────
+//
+
+func TestQueryOption(t *testing.T) {
+	cases := map[string]struct {
+		option           *QueryOption
+		expectCheckErr   bool
+		expectSetErr     bool
+		wantValue        string
+		wantCheckErrType error
+		wantSetErrType   error
+	}{
+		"Success": {
+			option: &QueryOption{
+				t:         queryKey,
+				checkFunc: func() error { return nil },
+				setFunc: func(query *QueryParams) error {
+					query.Set(queryKey.Value(), "success")
+					return nil
+				},
+			},
+			expectCheckErr: false,
+			expectSetErr:   false,
+			wantValue:      "success",
+		},
+		"Check-error": {
+			option: &QueryOption{
+				t:         queryKey,
+				checkFunc: func() error { return errors.New("check error") },
+			},
+			expectCheckErr:   true,
+			expectSetErr:     false,
+			wantCheckErrType: errors.New("check error"),
+		},
+		"set-error": {
+			option: &QueryOption{
+				t:         queryKey,
+				checkFunc: func() error { return nil },
+				setFunc: func(query *QueryParams) error {
+					return errors.New("set error")
+				},
+			},
+			expectCheckErr: false,
+			expectSetErr:   true,
+			wantSetErrType: errors.New("set error"),
+		},
+		"queryType-invalid": {
+			option: &QueryOption{
+				t: 0,
+				setFunc: func(query *QueryParams) error {
+					return nil
+				},
+			},
+			expectCheckErr:   false,
+			expectSetErr:     false,
+			wantValue:        "",
+			wantCheckErrType: nil,
+		},
+		"checkFunc-nil": {
+			option: &QueryOption{
+				t:         queryKey,
+				checkFunc: nil,
+				setFunc: func(query *QueryParams) error {
+					query.Set(queryKey.Value(), "checkFunc nil")
+					return nil
+				},
+			},
+			expectCheckErr: false,
+			expectSetErr:   false,
+			wantValue:      "checkFunc nil",
+		},
+		"set-nil": {
+			option: &QueryOption{
+				t:         queryKey,
+				checkFunc: func() error { return nil },
+				setFunc:   nil,
+			},
+			expectCheckErr: false,
+			expectSetErr:   true,
+			wantSetErrType: newValidationError("set nil"),
+		},
+	}
+
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			query := NewQueryParams()
+			if err := tc.option.Check(); tc.expectCheckErr {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantCheckErrType, err)
+				return
+			} else {
+				require.NoError(t, err)
+			}
+
+			if err := tc.option.set(query); tc.expectSetErr {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantSetErrType, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tc.wantValue, query.Get(tc.option.t.Value()))
+			}
+		})
+	}
+
+}
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -123,13 +236,14 @@ func TestQueryOptionService(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
-				err := tc.option.set(q)
+				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
 					assert.Empty(t, q.Get(tc.key))
 					return
 				}
 				require.NoError(t, err)
+				_ = tc.option.set(q)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
 			})
 		}
@@ -162,8 +276,10 @@ func TestQueryOptionService(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
-				err := tc.option.set(q)
+
+				err := tc.option.Check()
 				require.NoError(t, err)
+				_ = tc.option.set(q)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
 			})
 		}
@@ -252,13 +368,14 @@ func TestQueryOptionService(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
-				err := tc.option.set(q)
+				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
 					assert.Empty(t, q.Get(tc.key))
 					return
 				}
 				require.NoError(t, err)
+				_ = tc.option.set(q)
 
 				if tc.key == queryActivityTypeIDs.Value() {
 					// Compare joined values

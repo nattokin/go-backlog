@@ -41,19 +41,19 @@ type ProjectService struct {
 //	WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(options ...*QueryOption) ([]*Project, error) {
+func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
 	validOptions := []queryType{queryAll, queryArchived}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
+	o := s.Option.support.query
 	query := NewQueryParams()
-	for _, option := range options {
-		if err := option.set(query); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(query, opts...)
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := s.method.Get("projects", query)
@@ -80,15 +80,15 @@ func (s *ProjectService) All(options ...*QueryOption) ([]*Project, error) {
 //	WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AdminAll(options ...*QueryOption) ([]*Project, error) {
+func (s *ProjectService) AdminAll(opts ...*QueryOption) ([]*Project, error) {
 	validOptions := []queryType{queryArchived}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	return s.All(append(options, s.Option.WithQueryAll(true))...)
+	return s.All(append(opts, s.Option.WithQueryAll(true))...)
 }
 
 // AllUnarchived returns all of joining projects unarchived.
@@ -158,26 +158,21 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 //	WithFormTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(key, name string, options ...*FormOption) (*Project, error) {
-	form := NewFormParams()
-	if err := (&FormOptionService{}).WithKey(key).set(form); err != nil {
-		return nil, err
-	}
-	if err := (&FormOptionService{}).WithName(name).set(form); err != nil {
-		return nil, err
-	}
-
+func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project, error) {
 	validOptions := []formType{formChartEnabled, formSubtaskingEnabled, formProjectLeaderCanEditProjectLeader, formTextFormattingRule}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	for _, option := range options {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	o := s.Option.support.form
+	form := NewFormParams()
+	err := o.applyOptions(form, append(
+		[]*FormOption{o.WithKey(key), o.WithName(name)}, opts...,
+	)...)
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := s.method.Post("projects", form)
@@ -224,11 +219,11 @@ func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (
 		}
 	}
 
+	o := s.Option.support.form
 	form := NewFormParams()
-	for _, option := range options {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(form, options...)
+	if err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey)

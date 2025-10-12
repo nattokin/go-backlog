@@ -143,16 +143,13 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 
 	o := s.Option.support.form
 	form := NewFormParams()
-	if err := o.WithPassword(password).set(form); err != nil {
-		return nil, err
-	}
-	if err := o.WithName(name).set(form); err != nil {
-		return nil, err
-	}
-	if err := o.WithMailAddress(mailAddress).set(form); err != nil {
-		return nil, err
-	}
-	if err := o.WithRoleType(roleType).set(form); err != nil {
+	err := o.applyOptions(form,
+		o.WithPassword(password),
+		o.WithName(name),
+		o.WithMailAddress(mailAddress),
+		o.WithRoleType(roleType),
+	)
+	if err != nil {
 		return nil, err
 	}
 
@@ -173,27 +170,26 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 //	WithFormRoleType
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(id int, options ...*FormOption) (*User, error) {
-	uID := UserID(id)
-	if err := uID.validate(); err != nil {
+func (s *UserService) Update(id int, opts ...*FormOption) (*User, error) {
+	o := s.Option.support.form
+	form := NewFormParams()
+	if err := o.applyOptions(form, o.WithUserID(id)); err != nil {
 		return nil, err
 	}
 
 	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
-	for _, option := range options {
+	for _, option := range opts {
 		if err := option.validate(validOptions); err != nil {
 			return nil, err
 		}
 	}
 
-	form := NewFormParams()
-	for _, option := range options {
-		if err := option.set(form); err != nil {
-			return nil, err
-		}
+	err := o.applyOptions(form, opts...)
+	if err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("users", uID.String())
+	spath := path.Join("users", strconv.Itoa(id))
 
 	return updateUser(s.method.Patch, spath, form)
 }
