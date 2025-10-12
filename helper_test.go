@@ -72,3 +72,55 @@ func toQueryOptions(t *testing.T, opts []RequestOption) []*QueryOption {
 	}
 	return queryOpts
 }
+
+// --- Option Service Helpers ---
+
+// newQueryOptionService returns a test instance of QueryOptionService.
+func newQueryOptionService() *QueryOptionService {
+	return &QueryOptionService{}
+}
+
+// newFormOptionService returns a test instance of FormOptionService.
+func newFormOptionService() *FormOptionService {
+	return &FormOptionService{}
+}
+
+// newActivityOptionService returns a test instance of ActivityOptionService.
+func newActivityOptionService() *ActivityOptionService {
+	return &ActivityOptionService{
+		support: &optionSupport{
+			query: newQueryOptionService(),
+			form:  newFormOptionService(),
+		},
+	}
+}
+
+// newProjectOptionService returns a test instance of ProjectOptionService.
+func newProjectOptionService() *ProjectOptionService {
+	return &ProjectOptionService{
+		support: &optionSupport{
+			query: newQueryOptionService(),
+			form:  newFormOptionService(),
+		},
+	}
+}
+
+// newUserOptionService returns a test instance of UserOptionService.
+func newUserOptionService() *UserOptionService {
+	return &UserOptionService{
+		support: &optionSupport{
+			query: newQueryOptionService(),
+			form:  newFormOptionService(),
+		},
+	}
+}
+
+// newWikiOptionService returns a test instance of WikiOptionService.
+func newWikiOptionService() *WikiOptionService {
+	return &WikiOptionService{
+		support: &optionSupport{
+			query: newQueryOptionService(),
+			form:  newFormOptionService(),
+		},
+	}
+}
