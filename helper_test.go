@@ -133,3 +133,13 @@ func newWikiService() *WikiService {
 		Option:     newWikiOptionService(),
 	}
 }
+
+// newProjectService returns a test instance of ProjectService.
+func newProjectService() *ProjectService {
+	return &ProjectService{
+		method:   newClientMethodMock(),
+		Activity: ExportNewProjectActivityService(),
+		User:     ExportNewProjectUserService(),
+		Option:   newProjectOptionService(),
+	}
+}
