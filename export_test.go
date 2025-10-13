@@ -199,13 +199,6 @@ func ExportNewWikiAttachmentService() *WikiAttachmentService {
 	}
 }
 
-// ExportNewProjectUserService returns a test instance of ProjectUserService.
-func ExportNewProjectUserService() *ProjectUserService {
-	return &ProjectUserService{
-		method: newClientMethodMock(),
-	}
-}
-
 // ExportNewProjectActivityService returns a test instance of ProjectActivityService.
 func ExportNewProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
@@ -254,14 +247,5 @@ func ExportNewSpaceService() *SpaceService {
 		method:     newClientMethodMock(),
 		Activity:   ExportNewSpaceActivityService(),
 		Attachment: ExportNewSpaceAttachmentService(),
-	}
-}
-
-// ExportNewUserService returns a test instance of UserService.
-func ExportNewUserService() *UserService {
-	return &UserService{
-		method:   newClientMethodMock(),
-		Activity: ExportNewUserActivityService(),
-		Option:   ExportNewUserOptionService(),
 	}
 }

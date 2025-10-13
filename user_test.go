@@ -1,4 +1,4 @@
-package backlog_test
+package backlog
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,21 +17,19 @@ func TestUserService_One_getUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := backlog.RoleAdministrator
+	roleType := RoleAdministrator
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			assert.Equal(t, "users/1", spath)
-			assert.Nil(t, query)
+	s := newUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, "users/1", spath)
+		assert.Nil(t, query)
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-			}
-			return resp, nil
-		},
-	})
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.One(1)
 	assert.NoError(t, err)
@@ -46,23 +43,21 @@ func TestProjectUserService_All_getUserList(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := backlog.RoleAdministrator
+	roleType := RoleAdministrator
 
 	projectKey := "TEST"
 	excludeGroupMembers := false
 
-	s := backlog.ExportNewProjectUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			assert.Equal(t, "projects/"+projectKey+"/users", spath)
-			assert.Equal(t, strconv.FormatBool(excludeGroupMembers), query.Get("excludeGroupMembers"))
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newProjectUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, "projects/"+projectKey+"/users", spath)
+		assert.Equal(t, strconv.FormatBool(excludeGroupMembers), query.Get("excludeGroupMembers"))
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+		}
+		return resp, nil
+	}
 
 	users, err := s.All(projectKey, excludeGroupMembers)
 	assert.NoError(t, err)
@@ -79,24 +74,22 @@ func TestUserService_Add_addUser(t *testing.T) {
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := backlog.RoleAdministrator
+	roleType := RoleAdministrator
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			assert.Equal(t, "users", spath)
-			assert.Equal(t, userID, form.Get("userId"))
-			assert.Equal(t, password, form.Get("password"))
-			assert.Equal(t, name, form.Get("name"))
-			assert.Equal(t, mailAddress, form.Get("mailAddress"))
-			assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, "users", spath)
+		assert.Equal(t, userID, form.Get("userId"))
+		assert.Equal(t, password, form.Get("password"))
+		assert.Equal(t, name, form.Get("name"))
+		assert.Equal(t, mailAddress, form.Get("mailAddress"))
+		assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.Add(userID, password, name, mailAddress, roleType)
 	assert.NoError(t, err)
@@ -112,23 +105,21 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 	userID := "admin"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := backlog.RoleAdministrator
+	roleType := RoleAdministrator
 
 	projectKey := "TEST"
 	id := 1
 
-	s := backlog.ExportNewProjectUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			assert.Equal(t, "projects/"+projectKey+"/users", spath)
-			assert.Equal(t, strconv.Itoa(id), form.Get("userId"))
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newProjectUserService()
+	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, "projects/"+projectKey+"/users", spath)
+		assert.Equal(t, strconv.Itoa(id), form.Get("userId"))
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+		}
+		return resp, nil
+	}
 
 	users, err := s.Delete(projectKey, id)
 	assert.NoError(t, err)
@@ -146,24 +137,22 @@ func TestUserService_Update_updateUser(t *testing.T) {
 	password := "password"
 	name := "admin"
 	mailAddress := "eguchi@nulab.example"
-	roleType := backlog.RoleAdministrator
+	roleType := RoleAdministrator
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			assert.Equal(t, "users/"+strconv.Itoa(id), spath)
-			assert.Equal(t, name, form.Get("name"))
-			assert.Equal(t, password, form.Get("password"))
-			assert.Equal(t, name, form.Get("name"))
-			assert.Equal(t, mailAddress, form.Get("mailAddress"))
-			assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, "users/"+strconv.Itoa(id), spath)
+		assert.Equal(t, name, form.Get("name"))
+		assert.Equal(t, password, form.Get("password"))
+		assert.Equal(t, name, form.Get("name"))
+		assert.Equal(t, mailAddress, form.Get("mailAddress"))
+		assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+		}
+		return resp, nil
+	}
 
 	option := s.Option
 	user, err := s.Update(
@@ -185,14 +174,12 @@ func TestUserService_All(t *testing.T) {
 		spath: "users",
 	}
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, query)
-			return nil, errors.New("error")
-		},
-	})
+	s := newUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Nil(t, query)
+		return nil, errors.New("error")
+	}
 
 	users, err := s.All()
 	assert.Nil(t, users)
@@ -202,16 +189,14 @@ func TestUserService_All(t *testing.T) {
 func TestUserService_All_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
 
 	users, err := s.All()
 	assert.Nil(t, users)
@@ -252,18 +237,16 @@ func TestUserService_One(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Get must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Nil(t, query)
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newUserService()
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Get must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Nil(t, query)
+				}
+				return nil, errors.New("error")
+			}
 
 			s.One(tc.id)
 		})
@@ -280,14 +263,12 @@ func TestUserService_Own(t *testing.T) {
 		spath: "users/myself",
 	}
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, query)
-			return nil, errors.New("error")
-		},
-	})
+	s := newUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Nil(t, query)
+		return nil, errors.New("error")
+	}
 
 	user, err := s.Own()
 	assert.Nil(t, user)
@@ -297,16 +278,14 @@ func TestUserService_Own(t *testing.T) {
 func TestUserService_Own_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.Own()
 	assert.Nil(t, user)
@@ -320,7 +299,7 @@ func TestUserService_Add(t *testing.T) {
 		password    string
 		name        string
 		mailAddress string
-		roleType    backlog.Role
+		roleType    Role
 		wantError   bool
 	}{
 		"no_error": {
@@ -328,7 +307,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    backlog.RoleAdministrator,
+			roleType:    RoleAdministrator,
 			wantError:   false,
 		},
 		"userID_empty": {
@@ -336,7 +315,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    backlog.RoleAdministrator,
+			roleType:    RoleAdministrator,
 			wantError:   true,
 		},
 		"password_empty": {
@@ -344,7 +323,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "",
 			name:        "testname",
 			mailAddress: "test@test.com",
-			roleType:    backlog.RoleAdministrator,
+			roleType:    RoleAdministrator,
 			wantError:   true,
 		},
 		"name_empty": {
@@ -352,7 +331,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "",
 			mailAddress: "test@test.com",
-			roleType:    backlog.RoleAdministrator,
+			roleType:    RoleAdministrator,
 			wantError:   true,
 		},
 		"mailAddress_empty": {
@@ -360,7 +339,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "testpass",
 			name:        "testname",
 			mailAddress: "",
-			roleType:    backlog.RoleAdministrator,
+			roleType:    RoleAdministrator,
 			wantError:   true,
 		},
 		"roleType_invalid": {
@@ -376,22 +355,20 @@ func TestUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Post must never be called")
-					} else {
-						assert.Equal(t, wantSpath, spath)
-						assert.Equal(t, tc.userID, form.Get("userId"))
-						assert.Equal(t, tc.password, form.Get("password"))
-						assert.Equal(t, tc.name, form.Get("name"))
-						assert.Equal(t, tc.mailAddress, form.Get("mailAddress"))
-						assert.Equal(t, strconv.Itoa(int(tc.roleType)), form.Get("roleType"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newUserService()
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Post must never be called")
+				} else {
+					assert.Equal(t, wantSpath, spath)
+					assert.Equal(t, tc.userID, form.Get("userId"))
+					assert.Equal(t, tc.password, form.Get("password"))
+					assert.Equal(t, tc.name, form.Get("name"))
+					assert.Equal(t, tc.mailAddress, form.Get("mailAddress"))
+					assert.Equal(t, strconv.Itoa(int(tc.roleType)), form.Get("roleType"))
+				}
+				return nil, errors.New("error")
+			}
 
 			user, err := s.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
 			assert.Nil(t, user)
@@ -404,16 +381,14 @@ func TestUserService_Add(t *testing.T) {
 func TestUserService_Add_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.Add("userID", "password", "name", "mailAdress", 1)
 	assert.Nil(t, user)
@@ -438,17 +413,15 @@ func TestUserService_Update(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Patch must never be called")
-					} else {
-						assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newUserService()
+			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Patch must never be called")
+				} else {
+					assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
+				}
+				return nil, errors.New("error")
+			}
 
 			user, err := s.Update(tc.id)
 			assert.Nil(t, user)
@@ -459,7 +432,7 @@ func TestUserService_Update(t *testing.T) {
 }
 
 func TestUserService_Update_option(t *testing.T) {
-	o := backlog.ExportNewUserOptionService()
+	o := newUserOptionService()
 
 	type options struct {
 		password    string
@@ -468,17 +441,17 @@ func TestUserService_Update_option(t *testing.T) {
 		roleType    string
 	}
 	cases := map[string]struct {
-		options   []*backlog.FormOption
+		options   []*FormOption
 		wantError bool
 		want      options
 	}{
 		"WithoutOption": {
-			options:   []*backlog.FormOption{},
+			options:   []*FormOption{},
 			wantError: false,
 			want:      options{},
 		},
 		"WithName": {
-			options: []*backlog.FormOption{
+			options: []*FormOption{
 				o.WithFormName("testname"),
 			},
 			wantError: false,
@@ -487,7 +460,7 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithPassword": {
-			options: []*backlog.FormOption{
+			options: []*FormOption{
 				o.WithFormPassword("testpasword"),
 			},
 			wantError: false,
@@ -496,7 +469,7 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithMailAddress": {
-			options: []*backlog.FormOption{
+			options: []*FormOption{
 				o.WithFormMailAddress("test@test.com"),
 			},
 			wantError: false,
@@ -505,8 +478,8 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"WithRoleType": {
-			options: []*backlog.FormOption{
-				o.WithFormRoleType(backlog.RoleAdministrator),
+			options: []*FormOption{
+				o.WithFormRoleType(RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -514,11 +487,11 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"MultiOptions": {
-			options: []*backlog.FormOption{
+			options: []*FormOption{
 				o.WithFormPassword("testpasword1"),
 				o.WithFormName("testname1"),
 				o.WithFormMailAddress("test1@test.com"),
-				o.WithFormRoleType(backlog.RoleAdministrator),
+				o.WithFormRoleType(RoleAdministrator),
 			},
 			wantError: false,
 			want: options{
@@ -529,18 +502,14 @@ func TestUserService_Update_option(t *testing.T) {
 			},
 		},
 		"OptionError": {
-			options: []*backlog.FormOption{
+			options: []*FormOption{
 				o.WithFormName(""),
 			},
 			wantError: true,
 			want:      options{},
 		},
 		"InvalidOption": {
-			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(0, nil, func(p *backlog.FormParams) error {
-					return nil
-				}),
-			},
+			options:   []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
 			wantError: true,
 			want:      options{},
 		},
@@ -551,21 +520,19 @@ func TestUserService_Update_option(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			id := 1
 
-			s := backlog.ExportNewUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Patch must never be called")
-					} else {
-						assert.Equal(t, "users/"+strconv.Itoa(id), spath)
-						assert.Equal(t, tc.want.password, form.Get("password"))
-						assert.Equal(t, tc.want.name, form.Get("name"))
-						assert.Equal(t, tc.want.mailAddress, form.Get("mailAddress"))
-						assert.Equal(t, tc.want.roleType, form.Get("roleType"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newUserService()
+			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Patch must never be called")
+				} else {
+					assert.Equal(t, "users/"+strconv.Itoa(id), spath)
+					assert.Equal(t, tc.want.password, form.Get("password"))
+					assert.Equal(t, tc.want.name, form.Get("name"))
+					assert.Equal(t, tc.want.mailAddress, form.Get("mailAddress"))
+					assert.Equal(t, tc.want.roleType, form.Get("roleType"))
+				}
+				return nil, errors.New("error")
+			}
 
 			user, err := s.Update(id, tc.options...)
 			assert.Nil(t, user)
@@ -578,16 +545,14 @@ func TestUserService_Update_option(t *testing.T) {
 func TestUserService_Update_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.Update(1234)
 	assert.Nil(t, user)
@@ -628,18 +593,16 @@ func TestUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Delete must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Nil(t, form)
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newUserService()
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Delete must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Nil(t, form)
+				}
+				return nil, errors.New("error")
+			}
 
 			user, err := s.Delete(tc.id)
 			assert.Nil(t, user)
@@ -652,16 +615,14 @@ func TestUserService_Delete(t *testing.T) {
 func TestUserService_Delete_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := backlog.ExportNewUserService()
-	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	s := newUserService()
+	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
 
 	user, err := s.Delete(1234)
 	assert.Nil(t, user)
@@ -717,18 +678,16 @@ func TestProjectUserService_All(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Get must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Equal(t, tc.want.excludeGroupMembers, query.Get("excludeGroupMembers"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Get must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Equal(t, tc.want.excludeGroupMembers, query.Get("excludeGroupMembers"))
+				}
+				return nil, errors.New("error")
+			}
 
 			s.All(tc.projectKey, tc.excludeGroupMembers)
 		})
@@ -782,18 +741,16 @@ func TestProjectUserService_Add(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Post must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Equal(t, tc.want.userID, form.Get("userId"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Post must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Equal(t, tc.want.userID, form.Get("userId"))
+				}
+				return nil, errors.New("error")
+			}
 
 			s.Add(tc.projectKey, tc.userID)
 		})
@@ -856,18 +813,16 @@ func TestProjectUserService_Delete(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Delete must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Equal(t, tc.want.userID, form.Get("userId"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Delete must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Equal(t, tc.want.userID, form.Get("userId"))
+				}
+				return nil, errors.New("error")
+			}
 
 			s.Delete(tc.projectKey, tc.userID)
 		})
@@ -921,18 +876,16 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Post must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Equal(t, tc.want.userID, form.Get("userId"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Post must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Equal(t, tc.want.userID, form.Get("userId"))
+				}
+				return nil, errors.New("error")
+			}
 
 			s.AddAdmin(tc.projectKey, tc.userID)
 		})
@@ -966,18 +919,16 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Get must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Nil(t, query)
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Get must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Nil(t, query)
+				}
+				return nil, errors.New("error")
+			}
 
 			s.AdminAll(tc.projectKey)
 		})
@@ -1031,18 +982,16 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	for n, tc := range cases {
 		tc := tc
 		t.Run(n, func(t *testing.T) {
-			s := backlog.ExportNewProjectUserService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
-					if tc.wantError {
-						t.Error("s.method.Delete must never be called")
-					} else {
-						assert.Equal(t, tc.want.spath, spath)
-						assert.Equal(t, tc.want.userID, form.Get("userId"))
-					}
-					return nil, errors.New("error")
-				},
-			})
+			s := newProjectUserService()
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				if tc.wantError {
+					t.Error("s.method.Delete must never be called")
+				} else {
+					assert.Equal(t, tc.want.spath, spath)
+					assert.Equal(t, tc.want.userID, form.Get("userId"))
+				}
+				return nil, errors.New("error")
+			}
 
 			s.DeleteAdmin(tc.projectKey, tc.userID)
 		})
