@@ -38,22 +38,13 @@ func TestFormOption(t *testing.T) {
 			wantValue:      "success",
 		},
 		"Check-error": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return errors.New("check error") },
-			},
+			option:           newFormOptionWithCheckError(formKey),
 			expectCheckErr:   true,
 			expectSetErr:     false,
 			wantCheckErrType: errors.New("check error"),
 		},
 		"set-error": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(form *FormParams) error {
-					return errors.New("set error")
-				},
-			},
+			option:         newFormOptionWithSetError(formKey),
 			expectCheckErr: false,
 			expectSetErr:   true,
 			wantSetErrType: errors.New("set error"),
@@ -134,7 +125,7 @@ func TestFormOptionService(t *testing.T) {
 	o := newFormOptionService()
 
 	// --- Boolean options ------------------------------------------------------------
-	t.Run("Boolean options", func(t *testing.T) {
+	t.Run("Boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -217,7 +208,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer options", func(t *testing.T) {
+	t.Run("Integer-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -256,7 +247,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- String options ------------------------------------------------------------
-	t.Run("String options", func(t *testing.T) {
+	t.Run("String-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -334,7 +325,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- Enum or special options ------------------------------------------------------------
-	t.Run("Enum or special options", func(t *testing.T) {
+	t.Run("Enum-or-special-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string

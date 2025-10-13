@@ -54,8 +54,8 @@ type Doer interface {
 // It wraps an underlying HTTP Doer and provides typed services for API access.
 type Client struct {
 	baseURL *url.URL
-	doer    Doer
 	token   string
+	doer    Doer
 	wrapper wrapper
 	method  *method
 

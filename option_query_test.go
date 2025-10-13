@@ -38,22 +38,13 @@ func TestQueryOption(t *testing.T) {
 			wantValue:      "success",
 		},
 		"Check-error": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return errors.New("check error") },
-			},
+			option:           newQueryOptionWithCheckError(queryKey),
 			expectCheckErr:   true,
 			expectSetErr:     false,
 			wantCheckErrType: errors.New("check error"),
 		},
 		"set-error": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(query *QueryParams) error {
-					return errors.New("set error")
-				},
-			},
+			option:         newQueryOptionWithSetError(queryKey),
 			expectCheckErr: false,
 			expectSetErr:   true,
 			wantSetErrType: errors.New("set error"),
@@ -132,7 +123,7 @@ func TestQueryOption(t *testing.T) {
 func TestQueryOptionService(t *testing.T) {
 
 	// --- Boolean options ------------------------------------------------------------
-	t.Run("Boolean options", func(t *testing.T) {
+	t.Run("Boolean-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -176,7 +167,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer options", func(t *testing.T) {
+	t.Run("Integer-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -250,7 +241,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- String options ------------------------------------------------------------
-	t.Run("String options", func(t *testing.T) {
+	t.Run("String-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -286,7 +277,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- Enum or special options ----------------------------------------------------
-	t.Run("Enum or special options", func(t *testing.T) {
+	t.Run("Enum-or-special-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {

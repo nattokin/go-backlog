@@ -1,8 +1,6 @@
 package backlog
 
 import (
-	"errors"
-	"net/http"
 	"net/url"
 )
 
@@ -70,18 +68,6 @@ func ExportNewQueryOption(queryType queryType, checkFunc optionCheckFunc, queryF
 
 func ExportNewFormOption(formType formType, checkFunc optionCheckFunc, fFunc formOptionFunc) *FormOption {
 	return &FormOption{t: formType, checkFunc: checkFunc, setFunc: fFunc}
-}
-
-func (c *Client) ExportToken() string {
-	return c.token
-}
-
-func (c *Client) ExportSetToken(token string) {
-	c.token = token
-}
-
-func (c *Client) ExportSetWrapper(wrapper wrapper) {
-	c.wrapper = wrapper
 }
 
 func (p *FormParams) ExportURLValues() *url.Values {
@@ -190,65 +176,47 @@ func (s *WikiAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
 }
 
-// newTestClientMethod creates a mock 'method' that returns an error by default for API calls.
-func newTestClientMethod() *method {
-	return &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			return nil, errors.New("default mock not implemented")
-		},
-		Post: func(spath string, form *ExportRequestParams) (*http.Response, error) {
-			return nil, errors.New("default mock not implemented")
-		},
-		Patch: func(spath string, form *ExportRequestParams) (*http.Response, error) {
-			return nil, errors.New("default mock not implemented")
-		},
-		Delete: func(spath string, form *ExportRequestParams) (*http.Response, error) {
-			return nil, errors.New("default mock not implemented")
-		},
-	}
-}
-
 // --- Sub-Service Helpers (Attachment, Activity, User) ---
 
 // ExportNewIssueAttachmentService returns a test instance of IssueAttachmentService.
 func ExportNewIssueAttachmentService() *IssueAttachmentService {
 	return &IssueAttachmentService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 	}
 }
 
 // ExportNewPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
 func ExportNewPullRequestAttachmentService() *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 	}
 }
 
 // ExportNewSpaceAttachmentService returns a test instance of SpaceAttachmentService.
 func ExportNewSpaceAttachmentService() *SpaceAttachmentService {
 	return &SpaceAttachmentService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 	}
 }
 
 // ExportNewWikiAttachmentService returns a test instance of WikiAttachmentService.
 func ExportNewWikiAttachmentService() *WikiAttachmentService {
 	return &WikiAttachmentService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 	}
 }
 
 // ExportNewProjectUserService returns a test instance of ProjectUserService.
 func ExportNewProjectUserService() *ProjectUserService {
 	return &ProjectUserService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 	}
 }
 
 // ExportNewProjectActivityService returns a test instance of ProjectActivityService.
 func ExportNewProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -256,7 +224,7 @@ func ExportNewProjectActivityService() *ProjectActivityService {
 // ExportNewSpaceActivityService returns a test instance of SpaceActivityService.
 func ExportNewSpaceActivityService() *SpaceActivityService {
 	return &SpaceActivityService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -264,7 +232,7 @@ func ExportNewSpaceActivityService() *SpaceActivityService {
 // ExportNewUserActivityService returns a test instance of UserActivityService.
 func ExportNewUserActivityService() *UserActivityService {
 	return &UserActivityService{
-		method: newTestClientMethod(),
+		method: newClientMethodMock(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -274,7 +242,7 @@ func ExportNewUserActivityService() *UserActivityService {
 // ExportNewIssueService returns a test instance of IssueService.
 func ExportNewIssueService() *IssueService {
 	return &IssueService{
-		method:     newTestClientMethod(),
+		method:     newClientMethodMock(),
 		Attachment: ExportNewIssueAttachmentService(),
 	}
 }
@@ -282,7 +250,7 @@ func ExportNewIssueService() *IssueService {
 // ExportNewProjectService returns a test instance of ProjectService.
 func ExportNewProjectService() *ProjectService {
 	return &ProjectService{
-		method:   newTestClientMethod(),
+		method:   newClientMethodMock(),
 		Activity: ExportNewProjectActivityService(),
 		User:     ExportNewProjectUserService(),
 		Option:   newProjectOptionService(),
@@ -292,7 +260,7 @@ func ExportNewProjectService() *ProjectService {
 // ExportNewPullRequestService returns a test instance of PullRequestService.
 func ExportNewPullRequestService() *PullRequestService {
 	return &PullRequestService{
-		method:     newTestClientMethod(),
+		method:     newClientMethodMock(),
 		Attachment: ExportNewPullRequestAttachmentService(),
 	}
 }
@@ -300,7 +268,7 @@ func ExportNewPullRequestService() *PullRequestService {
 // ExportNewSpaceService returns a test instance of SpaceService.
 func ExportNewSpaceService() *SpaceService {
 	return &SpaceService{
-		method:     newTestClientMethod(),
+		method:     newClientMethodMock(),
 		Activity:   ExportNewSpaceActivityService(),
 		Attachment: ExportNewSpaceAttachmentService(),
 	}
@@ -309,7 +277,7 @@ func ExportNewSpaceService() *SpaceService {
 // ExportNewUserService returns a test instance of UserService.
 func ExportNewUserService() *UserService {
 	return &UserService{
-		method:   newTestClientMethod(),
+		method:   newClientMethodMock(),
 		Activity: ExportNewUserActivityService(),
 		Option:   ExportNewUserOptionService(),
 	}
@@ -318,7 +286,7 @@ func ExportNewUserService() *UserService {
 // ExportNewWikiService returns a test instance of WikiService.
 func ExportNewWikiService() *WikiService {
 	return &WikiService{
-		method:     newTestClientMethod(),
+		method:     newClientMethodMock(),
 		Attachment: ExportNewWikiAttachmentService(),
 		Option:     ExportNewWikiOptionService(),
 	}
