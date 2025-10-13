@@ -39,9 +39,8 @@ const (
 )
 
 type (
-	ExportMethod        = method
-	ExportRequestParams = FormParams
-	ExportWrapper       = wrapper
+	ExportMethod  = method
+	ExportWrapper = wrapper
 )
 
 var (
@@ -238,16 +237,6 @@ func ExportNewIssueService() *IssueService {
 	return &IssueService{
 		method:     newClientMethodMock(),
 		Attachment: ExportNewIssueAttachmentService(),
-	}
-}
-
-// ExportNewProjectService returns a test instance of ProjectService.
-func ExportNewProjectService() *ProjectService {
-	return &ProjectService{
-		method:   newClientMethodMock(),
-		Activity: ExportNewProjectActivityService(),
-		User:     ExportNewProjectUserService(),
-		Option:   newProjectOptionService(),
 	}
 }
 

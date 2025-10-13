@@ -81,13 +81,13 @@ func newClientMethodMock() *method {
 		Get: func(spath string, query *QueryParams) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Post: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *FormParams) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Patch: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *FormParams) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Delete: func(spath string, form *ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *FormParams) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {

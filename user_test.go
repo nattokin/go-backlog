@@ -83,7 +83,7 @@ func TestUserService_Add_addUser(t *testing.T) {
 
 	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			assert.Equal(t, "users", spath)
 			assert.Equal(t, userID, form.Get("userId"))
 			assert.Equal(t, password, form.Get("password"))
@@ -119,7 +119,7 @@ func TestProjectUserService_Delete_deleteUser(t *testing.T) {
 
 	s := backlog.ExportNewProjectUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			assert.Equal(t, "projects/"+projectKey+"/users", spath)
 			assert.Equal(t, strconv.Itoa(id), form.Get("userId"))
 			resp := &http.Response{
@@ -150,7 +150,7 @@ func TestUserService_Update_updateUser(t *testing.T) {
 
 	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			assert.Equal(t, "users/"+strconv.Itoa(id), spath)
 			assert.Equal(t, name, form.Get("name"))
 			assert.Equal(t, password, form.Get("password"))
@@ -378,7 +378,7 @@ func TestUserService_Add(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Post must never be called")
 					} else {
@@ -406,7 +406,7 @@ func TestUserService_Add_invalidJson(t *testing.T) {
 
 	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -440,7 +440,7 @@ func TestUserService_Update(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Patch must never be called")
 					} else {
@@ -537,7 +537,7 @@ func TestUserService_Update_option(t *testing.T) {
 		},
 		"InvalidOption": {
 			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(0, nil, func(p *backlog.ExportRequestParams) error {
+				backlog.ExportNewFormOption(0, nil, func(p *backlog.FormParams) error {
 					return nil
 				}),
 			},
@@ -553,7 +553,7 @@ func TestUserService_Update_option(t *testing.T) {
 
 			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Patch must never be called")
 					} else {
@@ -580,7 +580,7 @@ func TestUserService_Update_invalidJson(t *testing.T) {
 
 	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Patch: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -630,7 +630,7 @@ func TestUserService_Delete(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Delete must never be called")
 					} else {
@@ -654,7 +654,7 @@ func TestUserService_Delete_invalidJson(t *testing.T) {
 
 	s := backlog.ExportNewUserService()
 	s.ExportSetMethod(&backlog.ExportMethod{
-		Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+		Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -784,7 +784,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Post must never be called")
 					} else {
@@ -858,7 +858,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Delete must never be called")
 					} else {
@@ -923,7 +923,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Post: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Post must never be called")
 					} else {
@@ -1033,7 +1033,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			s := backlog.ExportNewProjectUserService()
 			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+				Delete: func(spath string, form *backlog.FormParams) (*http.Response, error) {
 					if tc.wantError {
 						t.Error("s.method.Delete must never be called")
 					} else {
