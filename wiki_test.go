@@ -800,7 +800,7 @@ func TestWikiService_Delete(t *testing.T) {
 	t.Parallel()
 
 	o := newWikiOptionService()
-	projectOption := ExportNewProjectOptionService() // For testing InvalidFormOptionError
+	projectOption := newProjectOptionService() // For testing InvalidFormOptionError
 
 	type testCase struct {
 		// Input arguments

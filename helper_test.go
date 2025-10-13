@@ -125,22 +125,41 @@ func newWikiOptionService() *WikiOptionService {
 	}
 }
 
+// --- WikiService ------------------------------------------------------------
+
 // newWikiService returns a test instance of WikiService.
 func newWikiService() *WikiService {
 	return &WikiService{
 		method:     newClientMethodMock(),
-		Attachment: ExportNewWikiAttachmentService(),
+		Attachment: newWikiAttachmentService(),
 		Option:     newWikiOptionService(),
 	}
 }
+
+// newWikiAttachmentService returns a test instance of WikiAttachmentService.
+func newWikiAttachmentService() *WikiAttachmentService {
+	return &WikiAttachmentService{
+		method: newClientMethodMock(),
+	}
+}
+
+// --- ProjectService ------------------------------------------------------------
 
 // newProjectService returns a test instance of ProjectService.
 func newProjectService() *ProjectService {
 	return &ProjectService{
 		method:   newClientMethodMock(),
-		Activity: ExportNewProjectActivityService(),
+		Activity: newProjectActivityService(),
 		User:     newProjectUserService(),
 		Option:   newProjectOptionService(),
+	}
+}
+
+// newProjectActivityService returns a test instance of ProjectActivityService.
+func newProjectActivityService() *ProjectActivityService {
+	return &ProjectActivityService{
+		method: newClientMethodMock(),
+		Option: newActivityOptionService(),
 	}
 }
 
@@ -151,11 +170,81 @@ func newProjectUserService() *ProjectUserService {
 	}
 }
 
+// --- UserService ------------------------------------------------------------
+
 // newUserService returns a test instance of UserService.
 func newUserService() *UserService {
 	return &UserService{
 		method:   newClientMethodMock(),
-		Activity: ExportNewUserActivityService(),
+		Activity: newUserActivityService(),
 		Option:   newUserOptionService(),
+	}
+}
+
+// newUserActivityService returns a test instance of UserActivityService.
+func newUserActivityService() *UserActivityService {
+	return &UserActivityService{
+		method: newClientMethodMock(),
+		Option: newActivityOptionService(),
+	}
+}
+
+// --- SpaceService ------------------------------------------------------------
+
+// newSpaceService returns a test instance of SpaceService.
+func newSpaceService() *SpaceService {
+	return &SpaceService{
+		method:     newClientMethodMock(),
+		Activity:   newSpaceActivityService(),
+		Attachment: newSpaceAttachmentService(),
+	}
+}
+
+// newSpaceActivityService returns a test instance of SpaceActivityService.
+func newSpaceActivityService() *SpaceActivityService {
+	return &SpaceActivityService{
+		method: newClientMethodMock(),
+		Option: newActivityOptionService(),
+	}
+}
+
+// newSpaceAttachmentService returns a test instance of SpaceAttachmentService.
+func newSpaceAttachmentService() *SpaceAttachmentService {
+	return &SpaceAttachmentService{
+		method: newClientMethodMock(),
+	}
+}
+
+// --- IssueService ------------------------------------------------------------
+
+// newIssueService returns a test instance of IssueService.
+func newIssueService() *IssueService {
+	return &IssueService{
+		method:     newClientMethodMock(),
+		Attachment: newIssueAttachmentService(),
+	}
+}
+
+// newIssueAttachmentService returns a test instance of IssueAttachmentService.
+func newIssueAttachmentService() *IssueAttachmentService {
+	return &IssueAttachmentService{
+		method: newClientMethodMock(),
+	}
+}
+
+// --- PullRequestService ------------------------------------------------------------
+
+// newPullRequestService returns a test instance of PullRequestService.
+func newPullRequestService() *PullRequestService {
+	return &PullRequestService{
+		method:     newClientMethodMock(),
+		Attachment: newPullRequestAttachmentService(),
+	}
+}
+
+// newPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
+func newPullRequestAttachmentService() *PullRequestAttachmentService {
+	return &PullRequestAttachmentService{
+		method: newClientMethodMock(),
 	}
 }
