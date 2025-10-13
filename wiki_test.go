@@ -722,7 +722,7 @@ func TestWikiService_Update(t *testing.T) {
 			opts:          []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wantErrType:   errors.New("set error"),
 		},
 		"client-error-network-failure": {
 			wikiID:        13,
