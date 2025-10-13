@@ -124,22 +124,20 @@ func TestWikiService_All(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Get: func(spath string, query *QueryParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				calledAPICall = true
 
-					// Assert the API request when expected
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
-						assert.Equal(t, tc.wantQueryProjectIDOrKey, query.Get("projectIdOrKey"))
-					}
+				// Assert the API request when expected
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
+					assert.Equal(t, tc.wantQueryProjectIDOrKey, query.Get("projectIdOrKey"))
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			wikis, err := s.All(tc.projectIDOrKey, tc.options...)
@@ -249,22 +247,20 @@ func TestWikiService_Count(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Get: func(spath string, query *QueryParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				calledAPICall = true
 
-					// Assert the API request when expected
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
-						assert.Equal(t, tc.wantQueryParam, query.Get("projectIdOrKey"))
-					}
+				// Assert the API request when expected
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
+					assert.Equal(t, tc.wantQueryParam, query.Get("projectIdOrKey"))
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			count, err := s.Count(tc.projectIDOrKey)
@@ -362,22 +358,20 @@ func TestWikiService_One(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Get: func(spath string, query *QueryParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				calledAPICall = true
 
-					// Assert the API request when expected
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
-						assert.Nil(t, query) // One() does not use query params
-					}
+				// Assert the API request when expected
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
+					assert.Nil(t, query) // One() does not use query params
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			wiki, err := s.One(tc.wikiID)
@@ -549,31 +543,29 @@ func TestWikiService_Create(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Post: func(spath string, form *FormParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				calledAPICall = true
 
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
-						assert.Equal(t, tc.wantProjectID, form.Get("projectId"))
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
+					assert.Equal(t, tc.wantProjectID, form.Get("projectId"))
 
-						// 💡 修正箇所: tc.wantName/wantContent -> tc.name/content に変更
-						assert.Equal(t, tc.name, form.Get("name"))
-						assert.Equal(t, tc.content, form.Get("content"))
+					// 💡 修正箇所: tc.wantName/wantContent -> tc.name/content に変更
+					assert.Equal(t, tc.name, form.Get("name"))
+					assert.Equal(t, tc.content, form.Get("content"))
 
-						if tc.wantMailNotify != "" {
-							assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
-						} else {
-							assert.Empty(t, form.Get("mailNotify"))
-						}
+					if tc.wantMailNotify != "" {
+						assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
+					} else {
+						assert.Empty(t, form.Get("mailNotify"))
 					}
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.options...)
@@ -754,30 +746,28 @@ func TestWikiService_Update(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Patch: func(spath string, form *FormParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+				calledAPICall = true
 
-					// Assert the API request when expected
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
+				// Assert the API request when expected
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
 
-						// Assert form payload
-						assert.Equal(t, tc.wantFormName, form.Get("name"))
-						assert.Equal(t, tc.wantFormContent, form.Get("content"))
-						if tc.wantFormMailNotify != "" {
-							assert.Equal(t, tc.wantFormMailNotify, form.Get("mailNotify"))
-						} else {
-							assert.Empty(t, form.Get("mailNotify"))
-						}
+					// Assert form payload
+					assert.Equal(t, tc.wantFormName, form.Get("name"))
+					assert.Equal(t, tc.wantFormContent, form.Get("content"))
+					if tc.wantFormMailNotify != "" {
+						assert.Equal(t, tc.wantFormMailNotify, form.Get("mailNotify"))
+					} else {
+						assert.Empty(t, form.Get("mailNotify"))
 					}
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
@@ -910,26 +900,24 @@ func TestWikiService_Delete(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
-			s.method = &method{
-				Delete: func(spath string, form *FormParams) (*http.Response, error) {
-					calledAPICall = true
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				calledAPICall = true
 
-					// Assert the API request when expected
-					if tc.expectAPICall {
-						assert.Equal(t, tc.wantSpath, spath)
-						if tc.wantMailNotify != "" {
-							assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
-						} else {
-							assert.Empty(t, form.Get("mailNotify"))
-						}
+				// Assert the API request when expected
+				if tc.expectAPICall {
+					assert.Equal(t, tc.wantSpath, spath)
+					if tc.wantMailNotify != "" {
+						assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
+					} else {
+						assert.Empty(t, form.Get("mailNotify"))
 					}
+				}
 
-					resp := &http.Response{
-						StatusCode: tc.httpStatus,
-						Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-					}
-					return resp, tc.httpError
-				},
+				resp := &http.Response{
+					StatusCode: tc.httpStatus,
+					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
+				}
+				return resp, tc.httpError
 			}
 
 			wiki, err := s.Delete(tc.wikiID, tc.opts...)

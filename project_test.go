@@ -24,14 +24,12 @@ func TestProjectService_All(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.All()
@@ -93,17 +91,15 @@ func TestProjectService_All_option(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Get: func(spath string, query *QueryParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.all, query.Get("all"))
-					assert.Equal(t, tc.want.archived, query.Get("archived"))
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, tc.want.all, query.Get("all"))
+				assert.Equal(t, tc.want.archived, query.Get("archived"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-					}
-					return resp, nil
-				},
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.All(tc.options...); tc.wantError {
@@ -132,18 +128,16 @@ func TestProjectService_AdminAll(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, query.Get("all"))
-			assert.Equal(t, want.archived, query.Get("archived"))
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Equal(t, want.all, query.Get("all"))
+		assert.Equal(t, want.archived, query.Get("archived"))
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.AdminAll()
@@ -200,17 +194,15 @@ func TestProjectService_AdminAll_option(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Get: func(spath string, query *QueryParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.all, query.Get("all"))
-					assert.Equal(t, tc.want.archived, query.Get("archived"))
+			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, tc.want.all, query.Get("all"))
+				assert.Equal(t, tc.want.archived, query.Get("archived"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-					}
-					return resp, nil
-				},
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.AdminAll(tc.options...); tc.wantError {
@@ -238,17 +230,15 @@ func TestProjectService_AllArchived(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.archived, query.Get("archived"))
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Equal(t, want.archived, query.Get("archived"))
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.AllArchived()
@@ -270,18 +260,16 @@ func TestProjectService_AdminAllArchived(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, query.Get("all"))
-			assert.Equal(t, want.archived, query.Get("archived"))
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Equal(t, want.all, query.Get("all"))
+		assert.Equal(t, want.archived, query.Get("archived"))
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.AdminAllArchived()
@@ -303,17 +291,15 @@ func TestProjectService_AllUnarchived(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.archived, query.Get("archived"))
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Equal(t, want.archived, query.Get("archived"))
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.AllUnarchived()
@@ -336,18 +322,16 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Equal(t, want.all, query.Get("all"))
-			assert.Equal(t, want.archived, query.Get("archived"))
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Equal(t, want.all, query.Get("all"))
+		assert.Equal(t, want.archived, query.Get("archived"))
 
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	projects, err := s.AdminAllUnarchived()
@@ -358,10 +342,8 @@ func TestProjectService_AdminAllUnarchived(t *testing.T) {
 
 func TestProjectService_All_clientError(t *testing.T) {
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		return nil, errors.New("error")
 	}
 
 	resp, err := s.All()
@@ -385,16 +367,14 @@ func TestProjectService_One_key(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, query)
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Nil(t, query)
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.One(projectKey)
@@ -419,16 +399,14 @@ func TestProjectService_One_id(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.Nil(t, query)
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Nil(t, query)
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.One(strconv.Itoa(projectID))
@@ -441,14 +419,12 @@ func TestProjectService_One_key_error(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.One("")
@@ -460,10 +436,8 @@ func TestProjectService_One_clientError(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		return nil, errors.New("error")
 	}
 
 	resp, err := s.One("TEST")
@@ -475,14 +449,12 @@ func TestProjectService_One_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.One("TEST")
@@ -507,18 +479,16 @@ func TestProjectService_Create(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, form)
-			assert.Equal(t, want.key, form.Get("key"))
-			assert.Equal(t, want.name, form.Get("name"))
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.NotNil(t, form)
+		assert.Equal(t, want.key, form.Get("key"))
+		assert.Equal(t, want.name, form.Get("name"))
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Create(key, name)
@@ -556,17 +526,15 @@ func TestProjectService_Create_param(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Post: func(spath string, form *FormParams) (*http.Response, error) {
-					assert.Equal(t, tc.key, form.Get("key"))
-					assert.Equal(t, tc.name, form.Get("name"))
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, tc.key, form.Get("key"))
+				assert.Equal(t, tc.name, form.Get("name"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-					}
-					return resp, nil
-				},
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.Create(tc.key, tc.name); tc.wantError {
@@ -640,19 +608,17 @@ func TestProjectService_Create_option(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Post: func(spath string, form *FormParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
-					assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
-					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
+			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
+				assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
+				assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-					}
-					return resp, nil
-				},
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.Create("TEST", "test", tc.options...); tc.wantError {
@@ -671,10 +637,8 @@ func TestProjectService_Create_clientError(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
+	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+		return nil, errors.New("error")
 	}
 
 	resp, err := s.Create("TEST", "test")
@@ -686,14 +650,12 @@ func TestProjectService_Create_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Create("TEST", "test")
@@ -715,16 +677,14 @@ func TestProjectService_Update(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, form)
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.NotNil(t, form)
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Update(projectKey)
@@ -762,14 +722,12 @@ func TestProjectService_Update_param(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Patch: func(spath string, form *FormParams) (*http.Response, error) {
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-					}
-					return resp, nil
-				},
+			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.Update(tc.projectIDOrKey); tc.wantError {
@@ -848,22 +806,20 @@ func TestProjectService_Update_option(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Patch: func(spath string, form *FormParams) (*http.Response, error) {
-					assert.Equal(t, tc.want.key, form.Get("key"))
-					assert.Equal(t, tc.want.name, form.Get("name"))
-					assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
-					assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
-					assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
-					assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
-					assert.Equal(t, tc.want.archived, form.Get("archived"))
+			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, tc.want.key, form.Get("key"))
+				assert.Equal(t, tc.want.name, form.Get("name"))
+				assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
+				assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
+				assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
+				assert.Equal(t, tc.want.archived, form.Get("archived"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-					}
-					return resp, nil
-				},
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.Update("TEST", tc.options...); tc.wantError {
@@ -882,10 +838,8 @@ func TestProjectService_Update_clientError(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
+	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+		return nil, errors.New("error")
 	}
 
 	resp, err := s.Update("TEST")
@@ -897,14 +851,12 @@ func TestProjectService_Update_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Update("TEST")
@@ -941,14 +893,12 @@ func TestProjectService_Delete_param(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method = &method{
-				Delete: func(spath string, form *FormParams) (*http.Response, error) {
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-					}
-					return resp, nil
-				},
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.Delete(tc.projectIDOrKey); tc.wantError {
@@ -977,16 +927,14 @@ func TestProjectService_Delete(t *testing.T) {
 	}
 
 	s := newProjectService()
-	s.method = &method{
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			assert.NotNil(t, form)
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.NotNil(t, form)
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Delete(projectKey)
@@ -998,10 +946,8 @@ func TestProjectService_Delete_clientError(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
-			return nil, errors.New("error")
-		},
+	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+		return nil, errors.New("error")
 	}
 
 	resp, err := s.Delete("TEST")
@@ -1013,14 +959,12 @@ func TestProjectService_Delete_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectService()
-	s.method = &method{
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-			}
-			return resp, nil
-		},
+	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
 	}
 
 	project, err := s.Delete("TEST")

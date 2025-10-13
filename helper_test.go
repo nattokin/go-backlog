@@ -139,7 +139,23 @@ func newProjectService() *ProjectService {
 	return &ProjectService{
 		method:   newClientMethodMock(),
 		Activity: ExportNewProjectActivityService(),
-		User:     ExportNewProjectUserService(),
+		User:     newProjectUserService(),
 		Option:   newProjectOptionService(),
+	}
+}
+
+// newProjectUserService returns a test instance of ProjectUserService.
+func newProjectUserService() *ProjectUserService {
+	return &ProjectUserService{
+		method: newClientMethodMock(),
+	}
+}
+
+// newUserService returns a test instance of UserService.
+func newUserService() *UserService {
+	return &UserService{
+		method:   newClientMethodMock(),
+		Activity: ExportNewUserActivityService(),
+		Option:   newUserOptionService(),
 	}
 }
