@@ -38,22 +38,13 @@ func TestFormOption(t *testing.T) {
 			wantValue:      "success",
 		},
 		"Check-error": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return errors.New("check error") },
-			},
+			option:           newFormOptionWithCheckError(formKey),
 			expectCheckErr:   true,
 			expectSetErr:     false,
 			wantCheckErrType: errors.New("check error"),
 		},
 		"set-error": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(form *FormParams) error {
-					return errors.New("set error")
-				},
-			},
+			option:         newFormOptionWithSetError(formKey),
 			expectCheckErr: false,
 			expectSetErr:   true,
 			wantSetErrType: errors.New("set error"),

@@ -47,7 +47,6 @@ func TestWikiService_All(t *testing.T) {
 	cases := map[string]testCase{
 		"success-project-id": {
 			projectIDOrKey:          "103",
-			options:                 []*backlog.QueryOption{},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataWikiListJSON,
 			wantSpath:               "wikis",

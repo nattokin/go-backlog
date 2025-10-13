@@ -30,21 +30,19 @@ func makeClient(t *testing.T) (*Client, *httpCapture) {
 
 	captured := &httpCapture{}
 
-	mockTransport := roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		var bodyBytes []byte
-		if req.Body != nil {
-			bodyBytes, _ = io.ReadAll(req.Body)
-		}
-		captured.Method = req.Method
-		captured.URL = req.URL
-		captured.Header = req.Header
-		captured.Body = bodyBytes
-		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(`{}`))}, nil
+	c := newClientMock(t, "https://example.com", "token123", &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			var bodyBytes []byte
+			if req.Body != nil {
+				bodyBytes, _ = io.ReadAll(req.Body)
+			}
+			captured.Method = req.Method
+			captured.URL = req.URL
+			captured.Header = req.Header
+			captured.Body = bodyBytes
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(`{}`))}, nil
+		},
 	})
-
-	c, err := newClientMock("https://example.com", "token123", mockTransport)
-	require.NoError(t, err)
-
 	return c, captured
 }
 
@@ -417,17 +415,17 @@ func TestClient_Do(t *testing.T) {
 	bs, _ := json.Marshal(want)
 	body := io.NopCloser(bytes.NewReader(bs))
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Header:     header,
-			Body:       body,
-		}
+	c := newClientMock(t, "https://test.com", "test", &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Header:     header,
+				Body:       body,
+			}
 
-		return resp, nil
+			return resp, nil
+		},
 	})
-
-	c, _ := NewClient("https://test.com", "test", httpClient)
 
 	res, err := c.do(
 		http.MethodGet, "test",
@@ -446,11 +444,12 @@ func TestClient_Do_httpClientError(t *testing.T) {
 	t.Parallel()
 
 	emsg := "http client error"
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		return nil, errors.New(emsg)
-	})
 
-	c, _ := NewClient("https://test.com", "test", httpClient)
+	c := newClientMock(t, "https://test.com", "test", &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			return nil, errors.New(emsg)
+		},
+	})
 
 	resp, err := c.do(
 		http.MethodGet, "test",
@@ -480,17 +479,17 @@ func TestClient_Do_errorResponse(t *testing.T) {
 	bs, _ := json.Marshal(apiErrors)
 	body := io.NopCloser(bytes.NewReader(bs))
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: 404,
-			Header:     header,
-			Body:       body,
-		}
+	c, _ := NewClient("https://test.com", "test", &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: 404,
+				Header:     header,
+				Body:       body,
+			}
 
-		return resp, nil
+			return resp, nil
+		},
 	})
-
-	c, _ := NewClient("https://test.com", "test", httpClient)
 
 	resp, err := c.do(
 		http.MethodGet, "test",
@@ -517,14 +516,14 @@ func TestClient_Get(t *testing.T) {
 		contentType: "",
 	}
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		assert.Equal(t, want.method, req.Method)
-		assert.Equal(t, want.url, req.URL.String())
-		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
-		return &http.Response{StatusCode: http.StatusOK}, nil
+	c, _ := NewClient(baseURL, apiKey, &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			assert.Equal(t, want.method, req.Method)
+			assert.Equal(t, want.url, req.URL.String())
+			assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	res, err := c.method.Get(spath, nil)
 	require.NoError(t, err)
@@ -558,14 +557,14 @@ func TestClient_Post(t *testing.T) {
 		contentType: "application/x-www-form-urlencoded",
 	}
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		assert.Equal(t, want.method, req.Method)
-		assert.Equal(t, want.url, req.URL.String())
-		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
-		return &http.Response{StatusCode: http.StatusOK}, nil
+	c, _ := NewClient(baseURL, apiKey, &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			assert.Equal(t, want.method, req.Method)
+			assert.Equal(t, want.url, req.URL.String())
+			assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	res, err := c.method.Post(spath, nil)
 	require.NoError(t, err)
@@ -601,18 +600,18 @@ func TestClient_Patch(t *testing.T) {
 		body:        "key=value",
 	}
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		defer req.Body.Close()
-		assert.Equal(t, want.method, req.Method)
-		assert.Equal(t, want.url, req.URL.String())
-		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
-		content, err := io.ReadAll(req.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, want.body, string(content))
-		return &http.Response{StatusCode: http.StatusOK}, nil
+	c, _ := NewClient(baseURL, apiKey, &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			defer req.Body.Close()
+			assert.Equal(t, want.method, req.Method)
+			assert.Equal(t, want.url, req.URL.String())
+			assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
+			content, err := io.ReadAll(req.Body)
+			assert.NoError(t, err)
+			assert.Equal(t, want.body, string(content))
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	form := NewFormParams()
 	form.Set("key", "value")
@@ -630,12 +629,12 @@ func TestClient_Patch_emptyParams(t *testing.T) {
 	apiKey := "apikey"
 	spath := "spath"
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		defer req.Body.Close()
-		return &http.Response{StatusCode: http.StatusOK}, nil
+	c, _ := NewClient(baseURL, apiKey, &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			defer req.Body.Close()
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	res, err := c.method.Patch(spath, nil)
 	require.NoError(t, err)
@@ -669,19 +668,19 @@ func TestClient_Delete(t *testing.T) {
 		contentType: "application/x-www-form-urlencoded",
 	}
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		defer req.Body.Close()
+	c, _ := NewClient(baseURL, apiKey, &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			defer req.Body.Close()
 
-		assert.Equal(t, want.method, req.Method)
-		assert.Equal(t, want.url, req.URL.String())
-		assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
-		content := []byte{}
-		req.Body.Read(content)
-		assert.Empty(t, content)
-		return &http.Response{StatusCode: http.StatusOK}, nil
+			assert.Equal(t, want.method, req.Method)
+			assert.Equal(t, want.url, req.URL.String())
+			assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
+			content := []byte{}
+			req.Body.Read(content)
+			assert.Empty(t, content)
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient(baseURL, apiKey, httpClient)
 
 	form := NewFormParams()
 	form.Set("key", "value")
@@ -694,12 +693,12 @@ func TestClient_Delete(t *testing.T) {
 func TestClient_Delete_emptyParams(t *testing.T) {
 	t.Parallel()
 
-	httpClient := newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
-		defer req.Body.Close()
-		return &http.Response{StatusCode: http.StatusOK}, nil
+	c, _ := NewClient("https://test.com", "apikey", &mockDoer{t: t,
+		doFunc: func(req *http.Request) (*http.Response, error) {
+			defer req.Body.Close()
+			return &http.Response{StatusCode: http.StatusOK}, nil
+		},
 	})
-
-	c, _ := NewClient("https://test.com", "apikey", httpClient)
 
 	res, err := c.method.Delete("spath", nil)
 	require.NoError(t, err)
@@ -746,12 +745,12 @@ func TestClient_Upload(t *testing.T) {
 			wantStatus: http.StatusOK,
 			wantError:  false,
 			setup: func(c *Client) {
-				c.doer = newHTTPClientMock(func(req *http.Request) (*http.Response, error) {
+				c.doer = &mockDoer{t: t, doFunc: func(req *http.Request) (*http.Response, error) {
 					assert.Equal(t, http.MethodPost, req.Method)
 					assert.Equal(t, "https://test.com/api/v2/spath?apiKey=apikey", req.URL.String())
 					assert.Regexp(t, "^multipart/form-data; boundary=", req.Header.Get("Content-Type"))
 					return &http.Response{StatusCode: http.StatusOK}, nil
-				})
+				}}
 			},
 		},
 		"empty fileName": {

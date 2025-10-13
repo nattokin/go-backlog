@@ -38,22 +38,13 @@ func TestQueryOption(t *testing.T) {
 			wantValue:      "success",
 		},
 		"Check-error": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return errors.New("check error") },
-			},
+			option:           newQueryOptionWithCheckError(queryKey),
 			expectCheckErr:   true,
 			expectSetErr:     false,
 			wantCheckErrType: errors.New("check error"),
 		},
 		"set-error": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(query *QueryParams) error {
-					return errors.New("set error")
-				},
-			},
+			option:         newQueryOptionWithSetError(queryKey),
 			expectCheckErr: false,
 			expectSetErr:   true,
 			wantSetErrType: errors.New("set error"),
