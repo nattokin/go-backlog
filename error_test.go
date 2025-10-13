@@ -1,14 +1,13 @@
-package backlog_test
+package backlog
 
 import (
 	"testing"
 
-	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestError_Error(t *testing.T) {
-	e := &backlog.Error{
+	e := &Error{
 		Message:  "No project.",
 		Code:     6,
 		MoreInfo: "more info",
@@ -19,9 +18,9 @@ func TestError_Error(t *testing.T) {
 }
 
 func TestAPIResponseError_Error(t *testing.T) {
-	e := &backlog.APIResponseError{
+	e := &APIResponseError{
 		StatusCode: 404,
-		Errors: []*backlog.Error{
+		Errors: []*Error{
 			{
 				Message:  "1st error",
 				Code:     5,
@@ -40,24 +39,24 @@ func TestAPIResponseError_Error(t *testing.T) {
 }
 
 func TestInvalidFormOptionError_Error(t *testing.T) {
-	e := &backlog.InvalidFormOptionError{
-		Invalid: backlog.ExportFormKey,
-		ValidList: []backlog.ExportFormType{
-			backlog.ExportFormName,
-			backlog.ExportFormKey,
-			backlog.ExportFormChartEnabled,
+	e := &InvalidFormOptionError{
+		Invalid: formKey,
+		ValidList: []formType{
+			formName,
+			formKey,
+			formChartEnabled,
 		},
 	}
 	assert.EqualError(t, e, "invalid option:key, allowed options:name,key,chartEnabled")
 }
 
 func TestInvalidQueryOptionError_Error(t *testing.T) {
-	e := &backlog.InvalidQueryOptionError{
-		Invalid: backlog.ExportQueryActivityTypeIDs,
-		ValidList: []backlog.ExportQueryType{
-			backlog.ExportQueryAll,
-			backlog.ExportQueryArchived,
-			backlog.ExportQueryOrder,
+	e := &InvalidQueryOptionError{
+		Invalid: queryActivityTypeIDs,
+		ValidList: []queryType{
+			queryAll,
+			queryArchived,
+			queryOrder,
 		},
 	}
 	assert.EqualError(t, e, "invalid option:activityTypeId[], allowed options:all,archived,order")
@@ -65,7 +64,7 @@ func TestInvalidQueryOptionError_Error(t *testing.T) {
 
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
-	e := &backlog.ValidationError{
+	e := &ValidationError{
 		Message: msg,
 	}
 	assert.EqualError(t, e, msg)
