@@ -123,7 +123,7 @@ func TestQueryOption(t *testing.T) {
 func TestQueryOptionService(t *testing.T) {
 
 	// --- Boolean options ------------------------------------------------------------
-	t.Run("Boolean options", func(t *testing.T) {
+	t.Run("Boolean-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -167,7 +167,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer options", func(t *testing.T) {
+	t.Run("Integer-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -241,7 +241,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- String options ------------------------------------------------------------
-	t.Run("String options", func(t *testing.T) {
+	t.Run("String-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {
@@ -277,7 +277,7 @@ func TestQueryOptionService(t *testing.T) {
 	})
 
 	// --- Enum or special options ----------------------------------------------------
-	t.Run("Enum or special options", func(t *testing.T) {
+	t.Run("Enum-or-special-options", func(t *testing.T) {
 		o := newQueryOptionService()
 
 		cases := map[string]struct {

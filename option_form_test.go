@@ -125,7 +125,7 @@ func TestFormOptionService(t *testing.T) {
 	o := newFormOptionService()
 
 	// --- Boolean options ------------------------------------------------------------
-	t.Run("Boolean options", func(t *testing.T) {
+	t.Run("Boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -208,7 +208,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer options", func(t *testing.T) {
+	t.Run("Integer-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -247,7 +247,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- String options ------------------------------------------------------------
-	t.Run("String options", func(t *testing.T) {
+	t.Run("String-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -325,7 +325,7 @@ func TestFormOptionService(t *testing.T) {
 	})
 
 	// --- Enum or special options ------------------------------------------------------------
-	t.Run("Enum or special options", func(t *testing.T) {
+	t.Run("Enum-or-special-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
