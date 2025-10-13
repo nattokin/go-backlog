@@ -1,4 +1,4 @@
-package backlog_test
+package backlog
 
 import (
 	"bytes"
@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +15,7 @@ func TestWikiService_All(t *testing.T) {
 	type testCase struct {
 		// Input arguments
 		projectIDOrKey string
-		options        []*backlog.QueryOption // Variable arguments
+		options        []*QueryOption // Variable arguments
 
 		// HTTP mock settings
 		httpStatus int
@@ -43,7 +42,7 @@ func TestWikiService_All(t *testing.T) {
 	const testWiki1Name = "test1"
 	const testWiki2Name = "test2"
 
-	o := backlog.ExportNewWikiOptionService()
+	o := newWikiOptionService()
 	cases := map[string]testCase{
 		"success-project-id": {
 			projectIDOrKey:          "103",
@@ -57,7 +56,7 @@ func TestWikiService_All(t *testing.T) {
 		},
 		"success-with-options": {
 			projectIDOrKey: "PRJ_KEY",
-			options: []*backlog.QueryOption{
+			options: []*QueryOption{
 				o.WithQueryKeyword("test"),
 			},
 			httpStatus:              http.StatusOK,
@@ -73,41 +72,33 @@ func TestWikiService_All(t *testing.T) {
 			projectIDOrKey: "",
 			expectAPICall:  false,
 			wantError:      true,
-			wantErrType:    &backlog.ValidationError{},
+			wantErrType:    &ValidationError{},
 		},
 		// 2. Validation Error: Invalid Option Type (option.validate cover)
 		"validation-error-invalid-option-type": {
 			projectIDOrKey: "PRJ",
-			options: []*backlog.QueryOption{backlog.ExportNewQueryOption(
-				backlog.ExportQueryCount,
-				nil,
-				func(p *backlog.QueryParams) error {
+			options: []*QueryOption{{
+				t:         queryCount,
+				checkFunc: nil,
+				setFunc: func(p *QueryParams) error {
 					return nil
 				},
-			)}, // Invalid option for WikiService.All
+			}},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.InvalidQueryOptionError{},
+			wantErrType:   &InvalidQueryOptionError{},
 		},
 		// 3. Option Set Error (option.set cover)
 		"validation-error-option-set-fail": {
 			projectIDOrKey: "PRJ",
-			options: []*backlog.QueryOption{
-				backlog.ExportNewQueryOption(
-					backlog.ExportQueryKeyword,
-					nil,
-					func(p *backlog.QueryParams) error {
-						return errors.New("error during option set")
-					},
-				),
-			},
-			expectAPICall: false,
-			wantError:     true,
+			options:        []*QueryOption{newQueryOptionWithSetError(queryKeyword)},
+			expectAPICall:  false,
+			wantError:      true,
 		},
 		// --- Existing Failure Cases ---
 		"client-error-network-failure": {
 			projectIDOrKey:          "1",
-			options:                 []*backlog.QueryOption{},
+			options:                 []*QueryOption{},
 			httpError:               errors.New("network error"),
 			wantSpath:               "wikis",
 			wantQueryProjectIDOrKey: "1",
@@ -116,7 +107,7 @@ func TestWikiService_All(t *testing.T) {
 		},
 		"api-error-invalid-json": {
 			projectIDOrKey:          "1",
-			options:                 []*backlog.QueryOption{},
+			options:                 []*QueryOption{},
 			httpStatus:              http.StatusOK,
 			httpBody:                testdataInvalidJSON,
 			wantSpath:               "wikis",
@@ -132,9 +123,9 @@ func TestWikiService_All(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Get: func(spath string, query *QueryParams) (*http.Response, error) {
 					calledAPICall = true
 
 					// Assert the API request when expected
@@ -149,7 +140,7 @@ func TestWikiService_All(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			wikis, err := s.All(tc.projectIDOrKey, tc.options...)
 
@@ -230,7 +221,7 @@ func TestWikiService_Count(t *testing.T) {
 			projectIDOrKey: "",
 			expectAPICall:  false,
 			wantError:      true,
-			wantErrType:    &backlog.ValidationError{},
+			wantErrType:    &ValidationError{},
 		},
 		"client-error-network-failure": {
 			projectIDOrKey: "1",
@@ -257,9 +248,9 @@ func TestWikiService_Count(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Get: func(spath string, query *QueryParams) (*http.Response, error) {
 					calledAPICall = true
 
 					// Assert the API request when expected
@@ -274,7 +265,7 @@ func TestWikiService_Count(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			count, err := s.Count(tc.projectIDOrKey)
 
@@ -339,13 +330,13 @@ func TestWikiService_One(t *testing.T) {
 			wikiID:        0,
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-id-negative": {
 			wikiID:        -1,
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"client-error-network-failure": {
 			wikiID:        1,
@@ -370,9 +361,9 @@ func TestWikiService_One(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Get: func(spath string, query *backlog.QueryParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Get: func(spath string, query *QueryParams) (*http.Response, error) {
 					calledAPICall = true
 
 					// Assert the API request when expected
@@ -387,7 +378,7 @@ func TestWikiService_One(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			wiki, err := s.One(tc.wikiID)
 
@@ -417,14 +408,14 @@ func TestWikiService_One(t *testing.T) {
 func TestWikiService_Create(t *testing.T) {
 	t.Parallel()
 
-	o := backlog.ExportNewWikiOptionService()
+	o := newWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
 		projectID int
 		name      string
 		content   string
-		options   []*backlog.FormOption
+		options   []*FormOption
 
 		// HTTP mock settings
 		httpStatus int
@@ -452,7 +443,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:     56,
 			name:          "Minimum Wiki Page",
 			content:       "This is a minimal wiki page.",
-			options:       []*backlog.FormOption{},
+			options:       []*FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataWikiMinimumJSON,
 			wantSpath:     "wikis",
@@ -466,7 +457,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:      56,
 			name:           "Minimum Wiki Page",
 			content:        "This is a minimal wiki page.",
-			options:        []*backlog.FormOption{o.WithFormMailNotify(true)},
+			options:        []*FormOption{o.WithFormMailNotify(true)},
 			httpStatus:     http.StatusOK,
 			httpBody:       testdataWikiMinimumJSON,
 			wantSpath:      "wikis",
@@ -482,42 +473,34 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:     0,
 			name:          "Test",
 			content:       "test",
-			options:       []*backlog.FormOption{},
+			options:       []*FormOption{},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-name-empty": {
 			projectID:     1,
 			name:          "",
 			content:       "test",
-			options:       []*backlog.FormOption{},
+			options:       []*FormOption{},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-content-empty": {
 			projectID:     1,
 			name:          "Test",
 			content:       "",
-			options:       []*backlog.FormOption{},
+			options:       []*FormOption{},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-option-set-fail": {
-			projectID: 1,
-			name:      "Test",
-			content:   "content",
-			options: []*backlog.FormOption{
-				backlog.ExportNewFormOption(
-					backlog.ExportFormMailNotify,
-					nil,
-					func(p *backlog.ExportRequestParams) error {
-						return errors.New("error during option set")
-					},
-				),
-			},
+			projectID:     1,
+			name:          "Test",
+			content:       "content",
+			options:       []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			expectAPICall: false,
 			wantError:     true,
 		},
@@ -525,16 +508,16 @@ func TestWikiService_Create(t *testing.T) {
 			projectID: 1,
 			name:      "Test",
 			content:   "content",
-			options: []*backlog.FormOption{backlog.ExportNewFormOption(
-				backlog.ExportFormMailAddress,
+			options: []*FormOption{{
+				formMailAddress,
 				nil,
-				func(p *backlog.ExportRequestParams) error {
+				func(p *FormParams) error {
 					return nil
 				},
-			)},
+			}},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.InvalidFormOptionError{},
+			wantErrType:   &InvalidFormOptionError{},
 		},
 		"client-error-network-failure": {
 			projectID:     1,
@@ -565,9 +548,9 @@ func TestWikiService_Create(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Post: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Post: func(spath string, form *FormParams) (*http.Response, error) {
 					calledAPICall = true
 
 					if tc.expectAPICall {
@@ -591,7 +574,7 @@ func TestWikiService_Create(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.options...)
 
@@ -621,13 +604,13 @@ func TestWikiService_Create(t *testing.T) {
 func TestWikiService_Update(t *testing.T) {
 	t.Parallel()
 
-	o := backlog.ExportNewWikiOptionService()
+	o := newWikiOptionService()
 
 	type testCase struct {
 		// Input arguments
 		wikiID int
-		option *backlog.FormOption   // Required option argument
-		opts   []*backlog.FormOption // Variable arguments (additional options)
+		option *FormOption   // Required option argument
+		opts   []*FormOption // Variable arguments (additional options)
 
 		// HTTP mock settings
 		httpStatus int
@@ -655,7 +638,7 @@ func TestWikiService_Update(t *testing.T) {
 		"success-name-only": {
 			wikiID:        34,
 			option:        o.WithFormName("New Page Name"),
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataWikiMaximumJSON,
 			wantSpath:     "wikis/34",
@@ -669,7 +652,7 @@ func TestWikiService_Update(t *testing.T) {
 		"success-full-options": {
 			wikiID: 34,
 			option: o.WithFormName("Full Options Name"),
-			opts: []*backlog.FormOption{
+			opts: []*FormOption{
 				o.WithFormContent("Full Options Content"),
 				o.WithFormMailNotify(true),
 			},
@@ -688,7 +671,7 @@ func TestWikiService_Update(t *testing.T) {
 		"success-option-opts-split": {
 			wikiID: 35,
 			option: o.WithFormMailNotify(true), // Non-mandatory option in the required argument slot
-			opts: []*backlog.FormOption{
+			opts: []*FormOption{
 				o.WithFormName("Split Option Name"), // Mandatory option in the variadic argument slot
 			},
 			httpStatus:         http.StatusOK,
@@ -706,53 +689,45 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 12,
 			// All provided options (option and opts...) do not set mandatory fields (name/content)
 			option:        o.WithFormMailNotify(true),
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-invalid-wikiID": {
 			wikiID:        0,
 			option:        o.WithFormName("New Name"),
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
 			option: o.WithFormName("New Name"),
-			opts: []*backlog.FormOption{backlog.ExportNewFormOption(
-				backlog.ExportFormMailAddress,
+			opts: []*FormOption{{
+				formMailAddress,
 				nil,
-				func(p *backlog.ExportRequestParams) error {
+				func(p *FormParams) error {
 					return nil
 				},
-			)},
+			}},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.InvalidFormOptionError{},
+			wantErrType:   &InvalidFormOptionError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID: 12,
-			option: o.WithFormName("New Name"),
-			opts: []*backlog.FormOption{
-				backlog.ExportNewFormOption(
-					backlog.ExportFormMailNotify,
-					nil,
-					func(p *backlog.ExportRequestParams) error {
-						return &backlog.ValidationError{Message: "error during option set"}
-					},
-				),
-			},
+			wikiID:        12,
+			option:        o.WithFormName("New Name"),
+			opts:          []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"client-error-network-failure": {
 			wikiID:        13,
 			option:        o.WithFormName("New Name"),
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpError:     errors.New("network error"),
 			wantSpath:     "wikis/13",
 			expectAPICall: true,
@@ -762,7 +737,7 @@ func TestWikiService_Update(t *testing.T) {
 		"api-error-invalid-json": {
 			wikiID:        14,
 			option:        o.WithFormName("New Name"),
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataInvalidJSON,
 			wantSpath:     "wikis/14",
@@ -778,9 +753,9 @@ func TestWikiService_Update(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Patch: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Patch: func(spath string, form *FormParams) (*http.Response, error) {
 					calledAPICall = true
 
 					// Assert the API request when expected
@@ -803,7 +778,7 @@ func TestWikiService_Update(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
 
@@ -834,13 +809,13 @@ func TestWikiService_Update(t *testing.T) {
 func TestWikiService_Delete(t *testing.T) {
 	t.Parallel()
 
-	o := backlog.ExportNewWikiOptionService()
-	projectOption := backlog.ExportNewProjectOptionService() // For testing InvalidFormOptionError
+	o := newWikiOptionService()
+	projectOption := ExportNewProjectOptionService() // For testing InvalidFormOptionError
 
 	type testCase struct {
 		// Input arguments
 		wikiID int
-		opts   []*backlog.FormOption // Variable arguments
+		opts   []*FormOption // Variable arguments
 
 		// HTTP mock settings
 		httpStatus int
@@ -863,7 +838,7 @@ func TestWikiService_Delete(t *testing.T) {
 	cases := map[string]testCase{
 		"success-with-option": {
 			wikiID:         34,
-			opts:           []*backlog.FormOption{o.WithFormMailNotify(true)},
+			opts:           []*FormOption{o.WithFormMailNotify(true)},
 			httpStatus:     http.StatusOK,
 			httpBody:       testdataWikiMaximumJSON,
 			wantSpath:      "wikis/34",
@@ -873,7 +848,7 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"success-no-option": {
 			wikiID:        1,
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataWikiMaximumJSON,
 			wantSpath:     "wikis/1",
@@ -885,41 +860,33 @@ func TestWikiService_Delete(t *testing.T) {
 			wikiID:        0,
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-id-negative": {
 			wikiID:        -1,
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.ValidationError{},
+			wantErrType:   &ValidationError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID: 1,
-			opts: []*backlog.FormOption{
-				backlog.ExportNewFormOption(
-					backlog.ExportFormMailNotify,
-					nil,
-					func(p *backlog.ExportRequestParams) error {
-						return errors.New("error during option set")
-					},
-				),
-			},
+			wikiID:        1,
+			opts:          []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			expectAPICall: false,
 			wantError:     true,
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 1,
-			opts: []*backlog.FormOption{
+			opts: []*FormOption{
 				// Use ProjectOptionService to correctly trigger InvalidFormOptionError in WikiService
 				projectOption.WithFormKey("Invalid Option"),
 			},
 			expectAPICall: false,
 			wantError:     true,
-			wantErrType:   &backlog.InvalidFormOptionError{},
+			wantErrType:   &InvalidFormOptionError{},
 		},
 		"client-error-network-failure": {
 			wikiID:        34,
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpError:     errors.New("network error"),
 			wantSpath:     "wikis/34",
 			expectAPICall: true,
@@ -927,7 +894,7 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"api-error-invalid-json": {
 			wikiID:        34,
-			opts:          []*backlog.FormOption{},
+			opts:          []*FormOption{},
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataInvalidJSON,
 			wantSpath:     "wikis/34",
@@ -942,9 +909,9 @@ func TestWikiService_Delete(t *testing.T) {
 			t.Parallel()
 
 			calledAPICall := false
-			s := backlog.ExportNewWikiService()
-			s.ExportSetMethod(&backlog.ExportMethod{
-				Delete: func(spath string, form *backlog.ExportRequestParams) (*http.Response, error) {
+			s := newWikiService()
+			s.method = &method{
+				Delete: func(spath string, form *FormParams) (*http.Response, error) {
 					calledAPICall = true
 
 					// Assert the API request when expected
@@ -963,7 +930,7 @@ func TestWikiService_Delete(t *testing.T) {
 					}
 					return resp, tc.httpError
 				},
-			})
+			}
 
 			wiki, err := s.Delete(tc.wikiID, tc.opts...)
 

@@ -20,7 +20,6 @@ const (
 )
 
 var ExportNewProjectOptionService = newProjectOptionService
-var ExportNewWikiOptionService = newWikiOptionService
 var ExportNewActivityOptionService = newActivityOptionService
 var ExportNewUserOptionService = newUserOptionService
 
@@ -167,11 +166,6 @@ func (s *VersionService) ExportSetMethod(m *method) {
 }
 
 // ExportSetMethod sets the internal 'method' field for testing purposes.
-func (s *WikiService) ExportSetMethod(m *method) {
-	s.method = m
-}
-
-// ExportSetMethod sets the internal 'method' field for testing purposes.
 func (s *WikiAttachmentService) ExportSetMethod(m *method) {
 	s.method = m
 }
@@ -280,14 +274,5 @@ func ExportNewUserService() *UserService {
 		method:   newClientMethodMock(),
 		Activity: ExportNewUserActivityService(),
 		Option:   ExportNewUserOptionService(),
-	}
-}
-
-// ExportNewWikiService returns a test instance of WikiService.
-func ExportNewWikiService() *WikiService {
-	return &WikiService{
-		method:     newClientMethodMock(),
-		Attachment: ExportNewWikiAttachmentService(),
-		Option:     ExportNewWikiOptionService(),
 	}
 }

@@ -1,4 +1,4 @@
-package backlog
+package backlog_test
 
 const (
 	testdataActivityListJSON = `

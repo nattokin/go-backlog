@@ -124,3 +124,12 @@ func newWikiOptionService() *WikiOptionService {
 		},
 	}
 }
+
+// newWikiService returns a test instance of WikiService.
+func newWikiService() *WikiService {
+	return &WikiService{
+		method:     newClientMethodMock(),
+		Attachment: ExportNewWikiAttachmentService(),
+		Option:     newWikiOptionService(),
+	}
+}
