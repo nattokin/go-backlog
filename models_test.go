@@ -1,27 +1,26 @@
-package backlog_test
+package backlog
 
 import (
 	"testing"
 
-	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFormat_String(t *testing.T) {
 	cases := map[string]struct {
-		format backlog.Format
+		format Format
 		want   string
 	}{
 		"Markdown": {
-			format: backlog.FormatMarkdown,
+			format: FormatMarkdown,
 			want:   "Markdown",
 		},
 		"Backlog": {
-			format: backlog.FormatBacklog,
+			format: FormatBacklog,
 			want:   "Backlog",
 		},
-		"unknown": {
-			format: backlog.Format("test"),
+		"Unknown": {
+			format: Format("test"),
 			want:   "unknown Format type test",
 		},
 	}
@@ -37,19 +36,19 @@ func TestFormat_String(t *testing.T) {
 
 func TestOrder_String(t *testing.T) {
 	cases := map[string]struct {
-		format backlog.Order
+		format Order
 		want   string
 	}{
 		"Markdown": {
-			format: backlog.OrderAsc,
+			format: OrderAsc,
 			want:   "Asc",
 		},
 		"Backlog": {
-			format: backlog.OrderDesc,
+			format: OrderDesc,
 			want:   "Desc",
 		},
-		"unknown": {
-			format: backlog.Order("test"),
+		"Unknown": {
+			format: Order("test"),
 			want:   "unknown Order type test",
 		},
 	}
@@ -65,35 +64,35 @@ func TestOrder_String(t *testing.T) {
 
 func TestRole_String(t *testing.T) {
 	cases := map[string]struct {
-		roleType backlog.Role
+		roleType Role
 		want     string
 	}{
 		"Administrator": {
-			roleType: backlog.RoleAdministrator,
+			roleType: RoleAdministrator,
 			want:     "Administrator",
 		},
 		"NormalUser": {
-			roleType: backlog.RoleNormalUser,
+			roleType: RoleNormalUser,
 			want:     "NormalUser",
 		},
 		"Reporter": {
-			roleType: backlog.RoleReporter,
+			roleType: RoleReporter,
 			want:     "Reporter",
 		},
 		"Viewer": {
-			roleType: backlog.RoleViewer,
+			roleType: RoleViewer,
 			want:     "Viewer",
 		},
 		"GuestReporter": {
-			roleType: backlog.RoleGuestReporter,
+			roleType: RoleGuestReporter,
 			want:     "GuestReporter",
 		},
 		"GuestViewer": {
-			roleType: backlog.RoleGuestViewer,
+			roleType: RoleGuestViewer,
 			want:     "GuestViewer",
 		},
-		"unknown": {
-			roleType: backlog.Role(0),
+		"Unknown": {
+			roleType: Role(0),
 			want:     "unknown Role type 0",
 		},
 	}
