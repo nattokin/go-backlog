@@ -84,7 +84,9 @@ func TestNewClient_InitializationStructure(t *testing.T) {
 	baseURL := "https://example.com"
 	token := "token123"
 
-	t.Run("With-Doer", func(t *testing.T) {
+	t.Run("with-Doer", func(t *testing.T) {
+		t.Parallel()
+
 		mockDoer := &mockDoer{t: t,
 			doFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
@@ -101,52 +103,56 @@ func TestNewClient_InitializationStructure(t *testing.T) {
 
 	})
 
-	c, err := NewClient(baseURL, token, nil)
-	require.NoError(t, err)
-	assert.NotNil(t, c)
+	t.Run("without-Doer", func(t *testing.T) {
+		t.Parallel()
 
-	assert.Equal(t, token, c.token)
-	assert.Equal(t, http.DefaultClient, c.doer)
-	assert.IsType(t, &defaultWrapper{}, c.wrapper)
+		c, err := NewClient(baseURL, token, nil)
+		require.NoError(t, err)
+		assert.NotNil(t, c)
 
-	// Service initialization
-	assert.NotNil(t, c.Wiki)
-	assert.NotNil(t, c.Project)
-	assert.NotNil(t, c.User)
-	assert.NotNil(t, c.Issue)
-	assert.NotNil(t, c.PullRequest)
-	assert.NotNil(t, c.Space)
+		assert.Equal(t, token, c.token)
+		assert.Equal(t, http.DefaultClient, c.doer)
+		assert.IsType(t, &defaultWrapper{}, c.wrapper)
 
-	// Shared method
-	assert.NotNil(t, c.Wiki.method)
-	assert.Same(t, c.Wiki.method, c.Project.method)
-	assert.Same(t, c.Wiki.method, c.User.method)
-	assert.Same(t, c.Wiki.method, c.Space.method)
+		// Service initialization
+		assert.NotNil(t, c.Wiki)
+		assert.NotNil(t, c.Project)
+		assert.NotNil(t, c.User)
+		assert.NotNil(t, c.Issue)
+		assert.NotNil(t, c.PullRequest)
+		assert.NotNil(t, c.Space)
 
-	// Shared option support
-	assert.NotNil(t, c.Wiki.Option.support.query)
-	assert.NotNil(t, c.Wiki.Option.support.form)
-	assert.Same(t, c.Wiki.Option.support.query, c.Project.Option.support.query)
-	assert.Same(t, c.Wiki.Option.support.form, c.Project.Option.support.form)
+		// Shared method
+		assert.NotNil(t, c.Wiki.method)
+		assert.Same(t, c.Wiki.method, c.Project.method)
+		assert.Same(t, c.Wiki.method, c.User.method)
+		assert.Same(t, c.Wiki.method, c.Space.method)
 
-	// Activity / Attachment presence
-	assert.NotNil(t, c.Project.Activity)
-	assert.NotNil(t, c.User.Activity)
-	assert.NotNil(t, c.Space.Activity)
-	assert.NotNil(t, c.Issue.Attachment)
-	assert.NotNil(t, c.Wiki.Attachment)
-	assert.NotNil(t, c.PullRequest.Attachment)
+		// Shared option support
+		assert.NotNil(t, c.Wiki.Option.support.query)
+		assert.NotNil(t, c.Wiki.Option.support.form)
+		assert.Same(t, c.Wiki.Option.support.query, c.Project.Option.support.query)
+		assert.Same(t, c.Wiki.Option.support.form, c.Project.Option.support.form)
 
-	// Reflection-based safety check
-	clientType := reflect.TypeOf(*c)
-	clientValue := reflect.ValueOf(*c)
-	for i := 0; i < clientType.NumField(); i++ {
-		field := clientType.Field(i)
-		value := clientValue.Field(i)
-		if field.Type.Kind() == reflect.Ptr && field.Name != "httpClient" {
-			assert.Falsef(t, value.IsNil(), "%s should not be nil", field.Name)
+		// Activity / Attachment presence
+		assert.NotNil(t, c.Project.Activity)
+		assert.NotNil(t, c.User.Activity)
+		assert.NotNil(t, c.Space.Activity)
+		assert.NotNil(t, c.Issue.Attachment)
+		assert.NotNil(t, c.Wiki.Attachment)
+		assert.NotNil(t, c.PullRequest.Attachment)
+
+		// Reflection-based safety check
+		clientType := reflect.TypeOf(*c)
+		clientValue := reflect.ValueOf(*c)
+		for i := 0; i < clientType.NumField(); i++ {
+			field := clientType.Field(i)
+			value := clientValue.Field(i)
+			if field.Type.Kind() == reflect.Ptr && field.Name != "httpClient" {
+				assert.Falsef(t, value.IsNil(), "%s should not be nil", field.Name)
+			}
 		}
-	}
+	})
 }
 
 func TestClient_HTTPMethods(t *testing.T) {

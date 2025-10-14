@@ -209,7 +209,7 @@ func TestActivityOptionService(t *testing.T) {
 	o := newActivityOptionService()
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer-options", func(t *testing.T) {
+	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *QueryOption
 			key       string
@@ -246,7 +246,7 @@ func TestActivityOptionService(t *testing.T) {
 	})
 
 	// --- Enum options ---------------------------------------------------------------
-	t.Run("Enum-options", func(t *testing.T) {
+	t.Run("enum-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *QueryOption
 			key       string
@@ -278,7 +278,7 @@ func TestActivityOptionService(t *testing.T) {
 	})
 
 	// --- Special options -------------------------------------------------------------
-	t.Run("Special-options", func(t *testing.T) {
+	t.Run("special-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *QueryOption
 			key       string
@@ -322,7 +322,7 @@ func TestProjectOptionService(t *testing.T) {
 	s := newProjectOptionService()
 
 	// --- Form boolean options -------------------------------------------------------
-	t.Run("Form-boolean-options", func(t *testing.T) {
+	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -359,7 +359,7 @@ func TestProjectOptionService(t *testing.T) {
 	})
 
 	// --- Query boolean options ------------------------------------------------------
-	t.Run("Query-boolean-options", func(t *testing.T) {
+	t.Run("query-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *QueryOption
 			key       string
@@ -391,7 +391,7 @@ func TestProjectOptionService(t *testing.T) {
 	})
 
 	// --- Form string options --------------------------------------------------------
-	t.Run("Form string options", func(t *testing.T) {
+	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -436,7 +436,7 @@ func TestUserOptionService(t *testing.T) {
 	o := newUserOptionService()
 
 	// --- Boolean options ------------------------------------------------------------
-	t.Run("Boolean-options", func(t *testing.T) {
+	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -463,7 +463,7 @@ func TestUserOptionService(t *testing.T) {
 	})
 
 	// --- Integer options ------------------------------------------------------------
-	t.Run("Integer-options", func(t *testing.T) {
+	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -495,7 +495,7 @@ func TestUserOptionService(t *testing.T) {
 	})
 
 	// --- String options -------------------------------------------------------------
-	t.Run("String-options", func(t *testing.T) {
+	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -545,7 +545,7 @@ func TestWikiOptionService(t *testing.T) {
 	}
 
 	// --- Query options ------------------------------------------------------------
-	t.Run("Query-options", func(t *testing.T) {
+	t.Run("query-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *QueryOption
 			key       string
@@ -572,7 +572,7 @@ func TestWikiOptionService(t *testing.T) {
 	})
 
 	// --- Form string options ------------------------------------------------------
-	t.Run("Form string options", func(t *testing.T) {
+	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
@@ -604,7 +604,7 @@ func TestWikiOptionService(t *testing.T) {
 	})
 
 	// --- Form boolean options -----------------------------------------------------
-	t.Run("Form-boolean-options", func(t *testing.T) {
+	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
 			option    *FormOption
 			key       string
