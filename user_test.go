@@ -9,992 +9,946 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestUserService_One_getUser(t *testing.T) {
-	t.Parallel()
-
-	userID := "admin"
-	name := "admin"
-	mailAddress := "eguchi@nulab.example"
-	roleType := RoleAdministrator
-
-	s := newUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, "users/1", spath)
-		assert.Nil(t, query)
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-		}
-		return resp, nil
-	}
-
-	user, err := s.One(1)
-	assert.NoError(t, err)
-	assert.Equal(t, userID, user.UserID)
-	assert.Equal(t, name, user.Name)
-	assert.Equal(t, mailAddress, user.MailAddress)
-	assert.Equal(t, roleType, user.RoleType)
-}
-
-func TestProjectUserService_All_getUserList(t *testing.T) {
-	userID := "admin"
-	name := "admin"
-	mailAddress := "eguchi@nulab.example"
-	roleType := RoleAdministrator
-
-	projectKey := "TEST"
-	excludeGroupMembers := false
-
-	s := newProjectUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, "projects/"+projectKey+"/users", spath)
-		assert.Equal(t, strconv.FormatBool(excludeGroupMembers), query.Get("excludeGroupMembers"))
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
-		}
-		return resp, nil
-	}
-
-	users, err := s.All(projectKey, excludeGroupMembers)
-	assert.NoError(t, err)
-	assert.Equal(t, userID, users[0].UserID)
-	assert.Equal(t, name, users[0].Name)
-	assert.Equal(t, mailAddress, users[0].MailAddress)
-	assert.Equal(t, roleType, users[0].RoleType)
-}
-
-func TestUserService_Add_addUser(t *testing.T) {
-	t.Parallel()
-
-	userID := "admin"
-	password := "password"
-	name := "admin"
-	mailAddress := "eguchi@nulab.example"
-	roleType := RoleAdministrator
-
-	s := newUserService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, "users", spath)
-		assert.Equal(t, userID, form.Get("userId"))
-		assert.Equal(t, password, form.Get("password"))
-		assert.Equal(t, name, form.Get("name"))
-		assert.Equal(t, mailAddress, form.Get("mailAddress"))
-		assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-		}
-		return resp, nil
-	}
-
-	user, err := s.Add(userID, password, name, mailAddress, roleType)
-	assert.NoError(t, err)
-	assert.Equal(t, userID, user.UserID)
-	assert.Equal(t, name, user.Name)
-	assert.Equal(t, mailAddress, user.MailAddress)
-	assert.Equal(t, roleType, user.RoleType)
-}
-
-func TestProjectUserService_Delete_deleteUser(t *testing.T) {
-	t.Parallel()
-
-	userID := "admin"
-	name := "admin"
-	mailAddress := "eguchi@nulab.example"
-	roleType := RoleAdministrator
-
-	projectKey := "TEST"
-	id := 1
-
-	s := newProjectUserService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, "projects/"+projectKey+"/users", spath)
-		assert.Equal(t, strconv.Itoa(id), form.Get("userId"))
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-		}
-		return resp, nil
-	}
-
-	users, err := s.Delete(projectKey, id)
-	assert.NoError(t, err)
-	assert.Equal(t, userID, users.UserID)
-	assert.Equal(t, name, users.Name)
-	assert.Equal(t, mailAddress, users.MailAddress)
-	assert.Equal(t, roleType, users.RoleType)
-}
-
-func TestUserService_Update_updateUser(t *testing.T) {
-	t.Parallel()
-
-	id := 1
-	userID := "admin"
-	password := "password"
-	name := "admin"
-	mailAddress := "eguchi@nulab.example"
-	roleType := RoleAdministrator
-
-	s := newUserService()
-	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, "users/"+strconv.Itoa(id), spath)
-		assert.Equal(t, name, form.Get("name"))
-		assert.Equal(t, password, form.Get("password"))
-		assert.Equal(t, name, form.Get("name"))
-		assert.Equal(t, mailAddress, form.Get("mailAddress"))
-		assert.Equal(t, strconv.Itoa(int(roleType)), form.Get("roleType"))
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-		}
-		return resp, nil
-	}
-
-	option := s.Option
-	user, err := s.Update(
-		id, option.WithFormPassword(password), option.WithFormName(name), option.WithFormMailAddress(mailAddress), option.WithFormRoleType(roleType),
-	)
-	assert.NoError(t, err)
-	assert.Equal(t, userID, user.UserID)
-	assert.Equal(t, name, user.Name)
-	assert.Equal(t, mailAddress, user.MailAddress)
-	assert.Equal(t, roleType, user.RoleType)
-}
-
-func TestUserService_All(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath string
-	}{
-		spath: "users",
-	}
-
-	s := newUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Nil(t, query)
-		return nil, errors.New("error")
-	}
-
-	users, err := s.All()
-	assert.Nil(t, users)
-	assert.Error(t, err)
-}
-
-func TestUserService_All_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	users, err := s.All()
-	assert.Nil(t, users)
-	assert.Error(t, err)
-}
-
 func TestUserService_One(t *testing.T) {
-	type want struct {
-		spath string
-	}
 	cases := map[string]struct {
-		id        int
-		wantError bool
-		want      want
+		id          int
+		expectError bool
+		wantUser    *User
+		mockGetFn   func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"id_1": {
-			id:        1,
-			wantError: false,
-			want: want{
-				spath: "users/1",
+		"success-id-1": {
+			id:          1,
+			expectError: false,
+			wantUser: &User{
+				UserID:      "admin",
+				Name:        "admin",
+				MailAddress: "eguchi@nulab.example",
+				RoleType:    RoleAdministrator,
 			},
+			mockGetFn: newMockGetFn(t, "users/1", &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+			}),
 		},
-		"id_100": {
-			id:        100,
-			wantError: false,
-			want: want{
-				spath: "users/100",
-			},
+		"success-id-100": {
+			id:          100,
+			expectError: false,
+			wantUser:    &User{},
+			mockGetFn: newMockGetFn(t, "users/100", &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(`{}`))),
+			}),
 		},
-
-		"id_0": {
-			id:        0,
-			wantError: true,
-			want:      want{},
+		"invalid-id-0": {
+			id:          0,
+			expectError: true,
+			mockGetFn:   newUnexpectedGetFn(t, "id is invalid"),
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newUserService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Get must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Nil(t, query)
-				}
-				return nil, errors.New("error")
+			s.method.Get = tc.mockGetFn
+
+			user, err := s.One(tc.id)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
 			}
 
-			s.One(tc.id)
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, tc.wantUser.UserID, user.UserID)
+			assert.Equal(t, tc.wantUser.Name, user.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
 		})
-
 	}
-}
-
-func TestUserService_Own(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath string
-	}{
-		spath: "users/myself",
-	}
-
-	s := newUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Nil(t, query)
-		return nil, errors.New("error")
-	}
-
-	user, err := s.Own()
-	assert.Nil(t, user)
-	assert.Error(t, err)
-}
-
-func TestUserService_Own_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	user, err := s.Own()
-	assert.Nil(t, user)
-	assert.Error(t, err)
 }
 
 func TestUserService_Add(t *testing.T) {
-	wantSpath := "users"
 	cases := map[string]struct {
 		userID      string
 		password    string
 		name        string
 		mailAddress string
 		roleType    Role
-		wantError   bool
+		expectError bool
+		mockPostFn  func(spath string, form *FormParams) (*http.Response, error)
+		wantUser    *User
 	}{
-		"no_error": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
+		"success-add-user": {
+			userID:      "admin",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "eguchi@nulab.example",
 			roleType:    RoleAdministrator,
-			wantError:   false,
+			expectError: false,
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users", spath)
+				assert.Equal(t, "admin", form.Get("userId"))
+				assert.Equal(t, "password", form.Get("password"))
+				assert.Equal(t, "admin", form.Get("name"))
+				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
+				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
+			},
+			wantUser: &User{
+				UserID:      "admin",
+				Name:        "admin",
+				MailAddress: "eguchi@nulab.example",
+				RoleType:    RoleAdministrator,
+			},
 		},
-		"userID_empty": {
+		"post-error": {
+			userID:      "errorUser",
+			password:    "password",
+			name:        "error",
+			mailAddress: "error@example.com",
+			roleType:    RoleAdministrator,
+			expectError: true,
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users", spath)
+				return nil, errors.New("network failure")
+			},
+		},
+		"invalid-empty-userID": {
 			userID:      "",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
-			wantError:   true,
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t, "userID is empty"),
 		},
-		"password_empty": {
-			userID:      "testid",
+		"invalid-empty-password": {
+			userID:      "admin",
 			password:    "",
-			name:        "testname",
-			mailAddress: "test@test.com",
+			name:        "admin",
+			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
-			wantError:   true,
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t, "password is empty"),
 		},
-		"name_empty": {
-			userID:      "testid",
-			password:    "testpass",
+		"invalid-empty-name": {
+			userID:      "admin",
+			password:    "password",
 			name:        "",
-			mailAddress: "test@test.com",
+			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
-			wantError:   true,
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t, "name is empty"),
 		},
-		"mailAddress_empty": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
+		"invalid-empty-mailAddress": {
+			userID:      "admin",
+			password:    "password",
+			name:        "admin",
 			mailAddress: "",
 			roleType:    RoleAdministrator,
-			wantError:   true,
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t, "mailAddress is empty"),
 		},
-		"roleType_invalid": {
-			userID:      "testid",
-			password:    "testpass",
-			name:        "testname",
-			mailAddress: "test@test.com",
-			roleType:    0,
-			wantError:   true,
+		"invalid-option-validation-error": {
+			userID:      "test",
+			password:    "",
+			name:        "",
+			mailAddress: "",
+			roleType:    RoleAdministrator,
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t, "option validation fails"),
+		},
+		"invalid-json-response": {
+			userID:      "userID",
+			password:    "password",
+			name:        "name",
+			mailAddress: "mailAdress",
+			roleType:    1,
+			expectError: true,
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newUserService()
-			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Post must never be called")
-				} else {
-					assert.Equal(t, wantSpath, spath)
-					assert.Equal(t, tc.userID, form.Get("userId"))
-					assert.Equal(t, tc.password, form.Get("password"))
-					assert.Equal(t, tc.name, form.Get("name"))
-					assert.Equal(t, tc.mailAddress, form.Get("mailAddress"))
-					assert.Equal(t, strconv.Itoa(int(tc.roleType)), form.Get("roleType"))
-				}
-				return nil, errors.New("error")
-			}
+			s.method.Post = tc.mockPostFn
 
 			user, err := s.Add(tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
-			assert.Nil(t, user)
-			assert.Error(t, err)
-		})
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
+			}
 
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, tc.wantUser.UserID, user.UserID)
+			assert.Equal(t, tc.wantUser.Name, user.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+		})
 	}
 }
 
-func TestUserService_Add_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
+func TestUserService_All(t *testing.T) {
+	cases := map[string]struct {
+		expectError bool
+		mockGetFn   func(spath string, query *QueryParams) (*http.Response, error)
+	}{
+		"success-get-users": {
+			expectError: false,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "users", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+				}, nil
+			},
+		},
+		"request-error": {
+			expectError: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "users", spath)
+				assert.Nil(t, query)
+				return nil, errors.New("error")
+			},
+		},
+		"invalid-json-response": {
+			expectError: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "users", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+		},
 	}
 
-	user, err := s.Add("userID", "password", "name", "mailAdress", 1)
-	assert.Nil(t, user)
-	assert.Error(t, err)
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := newUserService()
+			s.method.Get = tc.mockGetFn
+
+			users, err := s.All()
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, users)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.Len(t, users, 4)
+			require.NotNil(t, users[0])
+			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, RoleAdministrator, users[0].RoleType)
+		})
+	}
 }
 
 func TestUserService_Update(t *testing.T) {
-	cases := map[string]struct {
-		id        int
-		wantError bool
-	}{
-		"valid": {
-			id:        1,
-			wantError: false,
-		},
-		"invalid": {
-			id:        0,
-			wantError: true,
-		},
-	}
-
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			s := newUserService()
-			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Patch must never be called")
-				} else {
-					assert.Equal(t, "users/"+strconv.Itoa(tc.id), spath)
-				}
-				return nil, errors.New("error")
-			}
-
-			user, err := s.Update(tc.id)
-			assert.Nil(t, user)
-			assert.Error(t, err)
-		})
-
-	}
-}
-
-func TestUserService_Update_option(t *testing.T) {
 	o := newUserOptionService()
 
-	type options struct {
-		password    string
-		name        string
-		mailAddress string
-		roleType    string
-	}
 	cases := map[string]struct {
-		options   []*FormOption
-		wantError bool
-		want      options
+		id          int
+		options     []*FormOption
+		expectError bool
+		mockPatch   func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"WithoutOption": {
-			options:   []*FormOption{},
-			wantError: false,
-			want:      options{},
+		"success-update-user": {
+			id: 1,
+			options: []*FormOption{
+				o.WithFormPassword("password"),
+				o.WithFormName("admin"),
+				o.WithFormMailAddress("eguchi@nulab.example"),
+				o.WithFormRoleType(RoleAdministrator),
+			},
+			expectError: false,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "password", form.Get("password"))
+				assert.Equal(t, "admin", form.Get("name"))
+				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
+				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
+			},
 		},
-		"WithName": {
+		"invalid-id": {
+			id:          0,
+			expectError: true,
+			mockPatch:   newUnexpectedPatchFn(t, "id is invalid"),
+		},
+		"invalid-json-response": {
+			id:          1234,
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1234", spath)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+		},
+		"option-WithName": {
+			id: 1,
 			options: []*FormOption{
 				o.WithFormName("testname"),
 			},
-			wantError: false,
-			want: options{
-				name: "testname",
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testname", form.Get("name"))
+				return nil, errors.New("error")
 			},
 		},
-		"WithPassword": {
+		"option-WithPassword": {
+			id: 1,
 			options: []*FormOption{
-				o.WithFormPassword("testpasword"),
+				o.WithFormPassword("testpassword"),
 			},
-			wantError: false,
-			want: options{
-				password: "testpasword",
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testpassword", form.Get("password"))
+				return nil, errors.New("error")
 			},
 		},
-		"WithMailAddress": {
+		"option-WithMailAddress": {
+			id: 1,
 			options: []*FormOption{
 				o.WithFormMailAddress("test@test.com"),
 			},
-			wantError: false,
-			want: options{
-				mailAddress: "test@test.com",
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "test@test.com", form.Get("mailAddress"))
+				return nil, errors.New("error")
 			},
 		},
-		"WithRoleType": {
+		"option-WithRoleType": {
+			id: 1,
 			options: []*FormOption{
 				o.WithFormRoleType(RoleAdministrator),
 			},
-			wantError: false,
-			want: options{
-				roleType: "1",
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				return nil, errors.New("error")
 			},
 		},
-		"MultiOptions": {
+		"option-multi-WithFormName-WithFormPassword": {
+			id: 1,
 			options: []*FormOption{
-				o.WithFormPassword("testpasword1"),
+				o.WithFormPassword("testpassword1"),
 				o.WithFormName("testname1"),
 				o.WithFormMailAddress("test1@test.com"),
 				o.WithFormRoleType(RoleAdministrator),
 			},
-			wantError: false,
-			want: options{
-				password:    "testpasword1",
-				name:        "testname1",
-				mailAddress: "test1@test.com",
-				roleType:    "1",
+			expectError: true,
+			mockPatch: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testpassword1", form.Get("password"))
+				assert.Equal(t, "testname1", form.Get("name"))
+				assert.Equal(t, "test1@test.com", form.Get("mailAddress"))
+				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				return nil, errors.New("error")
 			},
 		},
-		"OptionError": {
+		"option-error": {
+			id: 1,
 			options: []*FormOption{
 				o.WithFormName(""),
 			},
-			wantError: true,
-			want:      options{},
+			expectError: true,
+			mockPatch:   newUnexpectedPatchFn(t, "option validation fails"),
 		},
-		"InvalidOption": {
-			options:   []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			wantError: true,
-			want:      options{},
+		"option-invalid": {
+			id:          1,
+			options:     []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+			expectError: true,
+			mockPatch:   newUnexpectedPatchFn(t, "invalid option is passed"),
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
-			id := 1
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
 			s := newUserService()
-			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Patch must never be called")
-				} else {
-					assert.Equal(t, "users/"+strconv.Itoa(id), spath)
-					assert.Equal(t, tc.want.password, form.Get("password"))
-					assert.Equal(t, tc.want.name, form.Get("name"))
-					assert.Equal(t, tc.want.mailAddress, form.Get("mailAddress"))
-					assert.Equal(t, tc.want.roleType, form.Get("roleType"))
-				}
-				return nil, errors.New("error")
+			s.method.Patch = tc.mockPatch
+
+			user, err := s.Update(tc.id, tc.options...)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
 			}
 
-			user, err := s.Update(id, tc.options...)
-			assert.Nil(t, user)
-			assert.Error(t, err)
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, RoleAdministrator, user.RoleType)
 		})
-
 	}
 }
 
-func TestUserService_Update_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserService()
-	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
+func TestUserService_Own(t *testing.T) {
+	cases := map[string]struct {
+		expectError bool
+		mockGet     func(spath string, query *QueryParams) (*http.Response, error)
+		wantUser    *User
+	}{
+		"success-get-own-user": {
+			expectError: false,
+			mockGet: newMockGetFn(t, "users/myself", &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+			}),
+			wantUser: &User{
+				UserID:      "admin",
+				Name:        "admin",
+				MailAddress: "eguchi@nulab.example",
+				RoleType:    RoleAdministrator,
+			},
+		},
+		"request-error": {
+			expectError: true,
+			mockGet: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "users/myself", spath)
+				assert.Nil(t, query)
+				return nil, errors.New("error")
+			},
+		},
+		"invalid-json-response": {
+			expectError: true,
+			mockGet: newMockGetFn(t, "users/myself", &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+			}),
+		},
 	}
 
-	user, err := s.Update(1234)
-	assert.Nil(t, user)
-	assert.Error(t, err)
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := newUserService()
+			s.method.Get = tc.mockGet
+
+			user, err := s.Own()
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, tc.wantUser.UserID, user.UserID)
+			assert.Equal(t, tc.wantUser.Name, user.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+		})
+	}
 }
 
 func TestUserService_Delete(t *testing.T) {
-	type want struct {
-		spath string
-	}
 	cases := map[string]struct {
-		id        int
-		wantError bool
-		want      want
+		id          int
+		expectError bool
+		mockDelete  func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"id_1": {
-			id:        1,
-			wantError: false,
-			want: want{
-				spath: "users/1",
+		"success-id-1": {
+			id:          1,
+			expectError: false,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Nil(t, form)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			},
 		},
-		"id_100": {
-			id:        100,
-			wantError: false,
-			want: want{
-				spath: "users/100",
+		"success-id-100": {
+			id:          100,
+			expectError: false,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/100", spath)
+				assert.Nil(t, form)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			},
 		},
-
-		"id_0": {
-			id:        0,
-			wantError: true,
-			want:      want{},
+		"invalid-id-0": {
+			id:          0,
+			expectError: true,
+			mockDelete:  newUnexpectedDeleteFn(t, "id is invalid"),
+		},
+		"invalid-json-response": {
+			id:          1234,
+			expectError: true,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "users/1234", spath)
+				assert.Nil(t, form)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newUserService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Delete must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Nil(t, form)
-				}
-				return nil, errors.New("error")
-			}
+			s.method.Delete = tc.mockDelete
 
 			user, err := s.Delete(tc.id)
-			assert.Nil(t, user)
-			assert.Error(t, err)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, user)
 		})
-
 	}
-}
-
-func TestUserService_Delete_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	user, err := s.Delete(1234)
-	assert.Nil(t, user)
-	assert.Error(t, err)
 }
 
 func TestProjectUserService_All(t *testing.T) {
-	type want struct {
-		spath               string
-		excludeGroupMembers string
-	}
 	cases := map[string]struct {
 		projectKey          string
 		excludeGroupMembers bool
-		wantError           bool
-		want                want
+		expectError         bool
+		mockGet             func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"projectKey_valid": {
+		"success-projectKey-valid": {
 			projectKey:          "TEST",
 			excludeGroupMembers: false,
-			wantError:           false,
-			want: want{
-				spath:               "projects/TEST/users",
-				excludeGroupMembers: "false",
+			expectError:         false,
+			mockGet: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/users", spath)
+				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+				}, nil
 			},
 		},
-		"projectKey_empty": {
-			projectKey:          "",
-			excludeGroupMembers: false,
-			wantError:           true,
-			want:                want{},
-		},
-		"excludeGroupMembers_true": {
+		"success-excludeGroupMembers-true": {
 			projectKey:          "TEST2",
 			excludeGroupMembers: true,
-			wantError:           false,
-			want: want{
-				spath:               "projects/TEST2/users",
-				excludeGroupMembers: "true",
+			expectError:         false,
+			mockGet: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST2/users", spath)
+				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+				}, nil
 			},
 		},
-		"excludeGroupMembers_false": {
+		"success-excludeGroupMembers-false": {
 			projectKey:          "TEST3",
 			excludeGroupMembers: false,
-			wantError:           false,
-			want: want{
-				spath:               "projects/TEST3/users",
-				excludeGroupMembers: "false",
+			expectError:         false,
+			mockGet: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST3/users", spath)
+				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+				}, nil
 			},
+		},
+		"invalid-projectKey-empty": {
+			projectKey:  "",
+			expectError: true,
+			mockGet:     newUnexpectedGetFn(t, "projectKey is empty"),
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Get must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Equal(t, tc.want.excludeGroupMembers, query.Get("excludeGroupMembers"))
-				}
-				return nil, errors.New("error")
+			s.method.Get = tc.mockGet
+
+			users, err := s.All(tc.projectKey, tc.excludeGroupMembers)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, users)
+				return
 			}
 
-			s.All(tc.projectKey, tc.excludeGroupMembers)
+			assert.NoError(t, err)
+			require.Len(t, users, 4)
+			require.NotNil(t, users[0])
+			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, RoleAdministrator, users[0].RoleType)
 		})
-
 	}
 }
 
 func TestProjectUserService_Add(t *testing.T) {
-	type want struct {
-		spath  string
-		userID string
-	}
 	cases := map[string]struct {
-		projectKey string
-		userID     int
-		wantError  bool
-		want       want
+		projectKey  string
+		userID      int
+		expectError bool
+		wantSpath   string
+		wantUserID  string
 	}{
-		"projectKey_valid": {
-			projectKey: "TEST",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST/users",
-				userID: "1",
-			},
+		"projectKey-valid": {
+			projectKey:  "TEST",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST/users",
+			wantUserID:  "1",
 		},
-		"projectKey_empty": {
-			projectKey: "",
-			userID:     1,
-			wantError:  true,
-			want:       want{},
+		"projectKey-empty": {
+			projectKey:  "",
+			userID:      1,
+			expectError: true,
 		},
-		"userID_0": {
-			projectKey: "TEST1",
-			userID:     0,
-			wantError:  true,
-			want:       want{},
+		"userID-0": {
+			projectKey:  "TEST1",
+			userID:      0,
+			expectError: true,
 		},
-		"userID_1": {
-			projectKey: "TEST2",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST2/users",
-				userID: "1",
-			},
+		"userID-1": {
+			projectKey:  "TEST2",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST2/users",
+			wantUserID:  "1",
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
 			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
+				if tc.expectError {
 					t.Error("s.method.Post must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Equal(t, tc.want.userID, form.Get("userId"))
+					return nil, errors.New("unexpected call")
 				}
-				return nil, errors.New("error")
+				assert.Equal(t, tc.wantSpath, spath)
+				assert.Equal(t, tc.wantUserID, form.Get("userId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			}
 
-			s.Add(tc.projectKey, tc.userID)
-		})
+			user, err := s.Add(tc.projectKey, tc.userID)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
+			}
 
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, RoleAdministrator, user.RoleType)
+		})
 	}
 }
 
 func TestProjectUserService_Delete(t *testing.T) {
-	type want struct {
-		spath  string
-		userID string
-	}
 	cases := map[string]struct {
-		projectKey string
-		userID     int
-		wantError  bool
-		want       want
+		projectKey  string
+		userID      int
+		expectError bool
+		mockDelete  func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"projectKey_string": {
-			projectKey: "TEST",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST/users",
-				userID: "1",
+		"success-delete-user": {
+			projectKey:  "TEST",
+			userID:      1,
+			expectError: false,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/users", spath)
+				assert.Equal(t, "1", form.Get("userId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			},
 		},
-		"projectKey_number": {
-			projectKey: "1234",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/1234/users",
-				userID: "1",
+		"success-projectKey-number": {
+			projectKey:  "1234",
+			userID:      1,
+			expectError: false,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/1234/users", spath)
+				assert.Equal(t, "1", form.Get("userId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			},
 		},
-		"projectKey_empty": {
-			projectKey: "",
-			userID:     1,
-			wantError:  true,
-			want:       want{},
+		"invalid-projectKey-empty": {
+			projectKey:  "",
+			userID:      1,
+			expectError: true,
+			mockDelete:  newUnexpectedDeleteFn(t, "projectKey is empty"),
 		},
-		"userID_0": {
-			projectKey: "TEST1",
-			userID:     0,
-			wantError:  true,
-			want:       want{},
+		"invalid-userID-0": {
+			projectKey:  "TEST1",
+			userID:      0,
+			expectError: true,
+			mockDelete:  newUnexpectedDeleteFn(t, "userID is 0"),
 		},
-		"userID_1": {
-			projectKey: "TEST2",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST2/users",
-				userID: "1",
+		"success-userID-1": {
+			projectKey:  "TEST2",
+			userID:      1,
+			expectError: false,
+			mockDelete: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST2/users", spath)
+				assert.Equal(t, "1", form.Get("userId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
-					t.Error("s.method.Delete must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Equal(t, tc.want.userID, form.Get("userId"))
-				}
-				return nil, errors.New("error")
+			s.method.Delete = tc.mockDelete
+
+			user, err := s.Delete(tc.projectKey, tc.userID)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
 			}
 
-			s.Delete(tc.projectKey, tc.userID)
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, RoleAdministrator, user.RoleType)
 		})
-
 	}
 }
 
 func TestProjectUserService_AddAdmin(t *testing.T) {
-	type want struct {
-		spath  string
-		userID string
-	}
 	cases := map[string]struct {
-		projectKey string
-		userID     int
-		wantError  bool
-		want       want
+		projectKey  string
+		userID      int
+		expectError bool
+		wantSpath   string
+		wantUserID  string
 	}{
-		"projectKey_valid": {
-			projectKey: "TEST",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST/administrators",
-				userID: "1",
-			},
+		"projectKey-valid": {
+			projectKey:  "TEST",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST/administrators",
+			wantUserID:  "1",
 		},
-		"projectKey_empty": {
-			projectKey: "",
-			userID:     1,
-			wantError:  true,
-			want:       want{},
+		"projectKey-empty": {
+			projectKey:  "",
+			userID:      1,
+			expectError: true,
 		},
-		"userID_0": {
-			projectKey: "TEST1",
-			userID:     0,
-			wantError:  true,
-			want:       want{},
+		"userID-0": {
+			projectKey:  "TEST1",
+			userID:      0,
+			expectError: true,
 		},
-		"userID_1": {
-			projectKey: "TEST2",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST2/administrators",
-				userID: "1",
-			},
+		"userID-1": {
+			projectKey:  "TEST2",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST2/administrators",
+			wantUserID:  "1",
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
 			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
+				if tc.expectError {
 					t.Error("s.method.Post must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Equal(t, tc.want.userID, form.Get("userId"))
+					return nil, errors.New("unexpected call")
 				}
-				return nil, errors.New("error")
+				assert.Equal(t, tc.wantSpath, spath)
+				assert.Equal(t, tc.wantUserID, form.Get("userId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
 			}
 
-			s.AddAdmin(tc.projectKey, tc.userID)
-		})
+			user, err := s.AddAdmin(tc.projectKey, tc.userID)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, user)
+				return
+			}
 
+			assert.NoError(t, err)
+			require.NotNil(t, user)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, RoleAdministrator, user.RoleType)
+		})
 	}
 }
 
 func TestProjectUserService_AdminAll(t *testing.T) {
-	type want struct {
-		spath string
-	}
 	cases := map[string]struct {
-		projectKey string
-		wantError  bool
-		want       want
+		projectKey  string
+		expectError bool
+		wantSpath   string
 	}{
-		"projectKey_valid": {
-			projectKey: "TEST",
-			wantError:  false,
-			want: want{
-				spath: "projects/TEST/administrators",
-			},
+		"projectKey-valid": {
+			projectKey:  "TEST",
+			expectError: false,
+			wantSpath:   "projects/TEST/administrators",
 		},
-		"projectKey_empty": {
-			projectKey: "",
-			wantError:  true,
-			want:       want{},
+		"projectKey-empty": {
+			projectKey:  "",
+			expectError: true,
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
 			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				if tc.wantError {
+				if tc.expectError {
 					t.Error("s.method.Get must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Nil(t, query)
+					return nil, errors.New("unexpected call")
 				}
+				assert.Equal(t, tc.wantSpath, spath)
+				assert.Nil(t, query)
 				return nil, errors.New("error")
 			}
 
 			s.AdminAll(tc.projectKey)
 		})
-
 	}
 }
 
 func TestProjectUserService_DeleteAdmin(t *testing.T) {
-	type want struct {
-		spath  string
-		userID string
-	}
 	cases := map[string]struct {
-		projectKey string
-		userID     int
-		wantError  bool
-		want       want
+		projectKey  string
+		userID      int
+		expectError bool
+		wantSpath   string
+		wantUserID  string
 	}{
-		"projectKey_valid": {
-			projectKey: "TEST",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST/administrators",
-				userID: "1",
-			},
+		"projectKey-valid": {
+			projectKey:  "TEST",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST/administrators",
+			wantUserID:  "1",
 		},
-		"projectKey_empty": {
-			projectKey: "",
-			userID:     1,
-			wantError:  true,
-			want:       want{},
+		"projectKey-empty": {
+			projectKey:  "",
+			userID:      1,
+			expectError: true,
 		},
-		"userID_0": {
-			projectKey: "TEST1",
-			userID:     0,
-			wantError:  true,
-			want:       want{},
+		"userID-0": {
+			projectKey:  "TEST1",
+			userID:      0,
+			expectError: true,
 		},
-		"userID_1": {
-			projectKey: "TEST2",
-			userID:     1,
-			wantError:  false,
-			want: want{
-				spath:  "projects/TEST2/administrators",
-				userID: "1",
-			},
+		"userID-1": {
+			projectKey:  "TEST2",
+			userID:      1,
+			expectError: false,
+			wantSpath:   "projects/TEST2/administrators",
+			wantUserID:  "1",
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			s := newProjectUserService()
 			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				if tc.wantError {
+				if tc.expectError {
 					t.Error("s.method.Delete must never be called")
-				} else {
-					assert.Equal(t, tc.want.spath, spath)
-					assert.Equal(t, tc.want.userID, form.Get("userId"))
+					return nil, errors.New("unexpected call")
 				}
+				assert.Equal(t, tc.wantSpath, spath)
+				assert.Equal(t, tc.wantUserID, form.Get("userId"))
 				return nil, errors.New("error")
 			}
 
 			s.DeleteAdmin(tc.projectKey, tc.userID)
 		})
-
 	}
 }

@@ -1,8 +1,13 @@
 package backlog
 
 import (
+	"bytes"
+	"errors"
+	"io"
+	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -246,5 +251,121 @@ func newPullRequestService() *PullRequestService {
 func newPullRequestAttachmentService() *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
 		method: newClientMethodMock(),
+	}
+}
+
+// newUnexpectedGetFn returns a mock function for http GET that fails if called.
+func newUnexpectedGetFn(t *testing.T, reason string) func(spath string, query *QueryParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, query *QueryParams) (*http.Response, error) {
+		t.Helper()
+		t.Errorf("Get must not be called when %s", reason)
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// newMockGetFn returns a mock function for http GET that returns the given response.
+func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath string, query *QueryParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, query *QueryParams) (*http.Response, error) {
+		t.Helper()
+		assert.Equal(t, wantPath, spath)
+		assert.Nil(t, query)
+		return res, nil
+	}
+}
+
+// newUnexpectedPostFn returns a mock function for http POST that fails if called.
+func newUnexpectedPostFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		t.Errorf("Post must not be called when %s", reason)
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// newMockPostFn returns a mock function for http POST that returns the given response.
+func newMockPostFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		assert.Equal(t, wantPath, spath)
+		if formValidator != nil {
+			formValidator(form)
+		}
+		return res, nil
+	}
+}
+
+// newUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
+func newUnexpectedPatchFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		t.Errorf("Patch must not be called when %s", reason)
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// newMockPatchFn returns a mock function for http PATCH that returns the given response.
+func newMockPatchFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		assert.Equal(t, wantPath, spath)
+		if formValidator != nil {
+			formValidator(form)
+		}
+		return res, nil
+	}
+}
+
+// newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
+func newUnexpectedDeleteFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		t.Errorf("Delete must not be called when %s", reason)
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// newMockDeleteFn returns a mock function for http DELETE that returns the given response.
+func newMockDeleteFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+	t.Helper()
+	return func(spath string, form *FormParams) (*http.Response, error) {
+		t.Helper()
+		assert.Equal(t, wantPath, spath)
+		if formValidator != nil {
+			formValidator(form)
+		}
+		return res, nil
+	}
+}
+
+// newUnexpectedUploadFn returns a mock function for http Upload that fails if called.
+func newUnexpectedUploadFn(t *testing.T, reason string) func(spath, fileName string, r io.Reader) (*http.Response, error) {
+	t.Helper()
+	return func(spath, fileName string, r io.Reader) (*http.Response, error) {
+		t.Helper()
+		t.Errorf("Upload must not be called when %s", reason)
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// newMockUploadFn returns a mock function for http Upload that returns the given response.
+func newMockUploadFn(t *testing.T, wantPath, wantFileName string, body []byte) func(spath, fileName string, r io.Reader) (*http.Response, error) {
+	t.Helper()
+	return func(spath, fileName string, r io.Reader) (*http.Response, error) {
+		t.Helper()
+		assert.Equal(t, wantPath, spath)
+		assert.Equal(t, wantFileName, fileName)
+		data, _ := io.ReadAll(r)
+		assert.NotNil(t, data)
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader(body)),
+		}, nil
 	}
 }
