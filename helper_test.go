@@ -286,14 +286,11 @@ func newUnexpectedPostFn(t *testing.T, reason string) func(spath string, form *F
 }
 
 // newMockPostFn returns a mock function for http POST that returns the given response.
-func newMockPostFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
-		if formValidator != nil {
-			formValidator(form)
-		}
 		return res, nil
 	}
 }
@@ -309,14 +306,11 @@ func newUnexpectedPatchFn(t *testing.T, reason string) func(spath string, form *
 }
 
 // newMockPatchFn returns a mock function for http PATCH that returns the given response.
-func newMockPatchFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
-		if formValidator != nil {
-			formValidator(form)
-		}
 		return res, nil
 	}
 }
@@ -332,14 +326,11 @@ func newUnexpectedDeleteFn(t *testing.T, reason string) func(spath string, form 
 }
 
 // newMockDeleteFn returns a mock function for http DELETE that returns the given response.
-func newMockDeleteFn(t *testing.T, wantPath string, formValidator func(*FormParams), res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
-		if formValidator != nil {
-			formValidator(form)
-		}
 		return res, nil
 	}
 }
