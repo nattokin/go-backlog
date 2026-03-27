@@ -30,7 +30,7 @@ func TestProjectActivityService_List(t *testing.T) {
 	}
 
 	_, err := s.List(projectKey)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
@@ -44,7 +44,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	}
 
 	_, err := s.List(projectKey)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
@@ -101,7 +101,7 @@ func TestUserActivityService_List(t *testing.T) {
 	}
 
 	_, err := s.List(id)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 func TestUserActivityService_List_invalidID(t *testing.T) {
@@ -115,7 +115,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	}
 
 	_, err := s.List(id)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {

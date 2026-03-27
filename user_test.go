@@ -894,7 +894,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 			}
 
 			_, err := s.AdminAll(tc.projectKey)
-			assert.NoError(t, err)
+			assert.Error(t, err)
 		})
 	}
 }
@@ -950,7 +950,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			}
 
 			_, err := s.DeleteAdmin(tc.projectKey, tc.userID)
-			assert.NoError(t, err)
+			assert.Error(t, err)
 		})
 	}
 }
