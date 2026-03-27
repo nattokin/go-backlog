@@ -8,8 +8,9 @@ package testutil
 import (
 	"testing"
 
-	"github.com/nattokin/go-backlog"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog"
 )
 
 //
