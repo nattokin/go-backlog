@@ -40,6 +40,8 @@ import (
 //	formOpts := toFormOptions(t, opts)
 //	err := formService.applyOptions(form, formOpts...)
 //	require.NoError(t, err)
+//
+//nolint:unused // shared test helper
 func toFormOptions(t *testing.T, opts []RequestOption) []*FormOption {
 	t.Helper()
 
@@ -66,6 +68,8 @@ func toFormOptions(t *testing.T, opts []RequestOption) []*FormOption {
 //	queryOpts := toQueryOptions(t, opts)
 //	err := queryService.applyOptions(query, queryOpts...)
 //	require.NoError(t, err)
+//
+//nolint:unused // shared test helper
 func toQueryOptions(t *testing.T, opts []RequestOption) []*QueryOption {
 	t.Helper()
 
@@ -81,6 +85,8 @@ func toQueryOptions(t *testing.T, opts []RequestOption) []*QueryOption {
 // --- Option Service Helpers ---
 
 // newQueryOptionService returns a test instance of QueryOptionService.
+//
+//nolint:unused // shared test helper
 func newQueryOptionService() *QueryOptionService {
 	return &QueryOptionService{}
 }
@@ -101,6 +107,8 @@ func newActivityOptionService() *ActivityOptionService {
 }
 
 // newProjectOptionService returns a test instance of ProjectOptionService.
+//
+//nolint:unused // shared test helper
 func newProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
 		support: &optionSupport{
@@ -111,6 +119,8 @@ func newProjectOptionService() *ProjectOptionService {
 }
 
 // newUserOptionService returns a test instance of UserOptionService.
+//
+//nolint:unused // shared test helper
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
 		support: &optionSupport{
@@ -121,6 +131,8 @@ func newUserOptionService() *UserOptionService {
 }
 
 // newWikiOptionService returns a test instance of WikiOptionService.
+//
+//nolint:unused // shared test helper
 func newWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
 		support: &optionSupport{
@@ -133,6 +145,8 @@ func newWikiOptionService() *WikiOptionService {
 // --- WikiService ------------------------------------------------------------
 
 // newWikiService returns a test instance of WikiService.
+//
+//nolint:unused // shared test helper
 func newWikiService() *WikiService {
 	return &WikiService{
 		method:     newClientMethodMock(),
@@ -142,6 +156,8 @@ func newWikiService() *WikiService {
 }
 
 // newWikiAttachmentService returns a test instance of WikiAttachmentService.
+//
+//nolint:unused // shared test helper
 func newWikiAttachmentService() *WikiAttachmentService {
 	return &WikiAttachmentService{
 		method: newClientMethodMock(),
@@ -151,6 +167,8 @@ func newWikiAttachmentService() *WikiAttachmentService {
 // --- ProjectService ------------------------------------------------------------
 
 // newProjectService returns a test instance of ProjectService.
+//
+//nolint:unused // shared test helper
 func newProjectService() *ProjectService {
 	return &ProjectService{
 		method:   newClientMethodMock(),
@@ -161,6 +179,8 @@ func newProjectService() *ProjectService {
 }
 
 // newProjectActivityService returns a test instance of ProjectActivityService.
+//
+//nolint:unused // shared test helper
 func newProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
 		method: newClientMethodMock(),
@@ -169,6 +189,8 @@ func newProjectActivityService() *ProjectActivityService {
 }
 
 // newProjectUserService returns a test instance of ProjectUserService.
+//
+//nolint:unused // shared test helper
 func newProjectUserService() *ProjectUserService {
 	return &ProjectUserService{
 		method: newClientMethodMock(),
@@ -178,6 +200,8 @@ func newProjectUserService() *ProjectUserService {
 // --- UserService ------------------------------------------------------------
 
 // newUserService returns a test instance of UserService.
+//
+//nolint:unused // shared test helper
 func newUserService() *UserService {
 	return &UserService{
 		method:   newClientMethodMock(),
@@ -187,6 +211,8 @@ func newUserService() *UserService {
 }
 
 // newUserActivityService returns a test instance of UserActivityService.
+//
+//nolint:unused // shared test helper
 func newUserActivityService() *UserActivityService {
 	return &UserActivityService{
 		method: newClientMethodMock(),
@@ -197,6 +223,8 @@ func newUserActivityService() *UserActivityService {
 // --- SpaceService ------------------------------------------------------------
 
 // newSpaceService returns a test instance of SpaceService.
+//
+//nolint:unused // shared test helper
 func newSpaceService() *SpaceService {
 	return &SpaceService{
 		method:     newClientMethodMock(),
@@ -206,6 +234,8 @@ func newSpaceService() *SpaceService {
 }
 
 // newSpaceActivityService returns a test instance of SpaceActivityService.
+//
+//nolint:unused // shared test helper
 func newSpaceActivityService() *SpaceActivityService {
 	return &SpaceActivityService{
 		method: newClientMethodMock(),
@@ -214,6 +244,8 @@ func newSpaceActivityService() *SpaceActivityService {
 }
 
 // newSpaceAttachmentService returns a test instance of SpaceAttachmentService.
+//
+//nolint:unused // shared test helper
 func newSpaceAttachmentService() *SpaceAttachmentService {
 	return &SpaceAttachmentService{
 		method: newClientMethodMock(),
@@ -223,6 +255,8 @@ func newSpaceAttachmentService() *SpaceAttachmentService {
 // --- IssueService ------------------------------------------------------------
 
 // newIssueService returns a test instance of IssueService.
+//
+//nolint:unused // shared test helper
 func newIssueService() *IssueService {
 	return &IssueService{
 		method:     newClientMethodMock(),
@@ -231,6 +265,8 @@ func newIssueService() *IssueService {
 }
 
 // newIssueAttachmentService returns a test instance of IssueAttachmentService.
+//
+//nolint:unused // shared test helper
 func newIssueAttachmentService() *IssueAttachmentService {
 	return &IssueAttachmentService{
 		method: newClientMethodMock(),
@@ -240,6 +276,8 @@ func newIssueAttachmentService() *IssueAttachmentService {
 // --- PullRequestService ------------------------------------------------------------
 
 // newPullRequestService returns a test instance of PullRequestService.
+//
+//nolint:unused // shared test helper
 func newPullRequestService() *PullRequestService {
 	return &PullRequestService{
 		method:     newClientMethodMock(),
@@ -248,6 +286,8 @@ func newPullRequestService() *PullRequestService {
 }
 
 // newPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
+//
+//nolint:unused // shared test helper
 func newPullRequestAttachmentService() *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
 		method: newClientMethodMock(),
@@ -255,6 +295,8 @@ func newPullRequestAttachmentService() *PullRequestAttachmentService {
 }
 
 // newUnexpectedGetFn returns a mock function for http GET that fails if called.
+//
+//nolint:unused // shared test helper
 func newUnexpectedGetFn(t *testing.T, reason string) func(spath string, query *QueryParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, query *QueryParams) (*http.Response, error) {
@@ -265,6 +307,8 @@ func newUnexpectedGetFn(t *testing.T, reason string) func(spath string, query *Q
 }
 
 // newMockGetFn returns a mock function for http GET that returns the given response.
+//
+//nolint:unused // shared test helper
 func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath string, query *QueryParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, query *QueryParams) (*http.Response, error) {
@@ -275,6 +319,8 @@ func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath 
 }
 
 // newUnexpectedPostFn returns a mock function for http POST that fails if called.
+//
+//nolint:unused // shared test helper
 func newUnexpectedPostFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -285,6 +331,8 @@ func newUnexpectedPostFn(t *testing.T, reason string) func(spath string, form *F
 }
 
 // newMockPostFn returns a mock function for http POST that returns the given response.
+//
+//nolint:unused // shared test helper
 func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -295,6 +343,8 @@ func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath
 }
 
 // newUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
+//
+//nolint:unused // shared test helper
 func newUnexpectedPatchFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -305,6 +355,8 @@ func newUnexpectedPatchFn(t *testing.T, reason string) func(spath string, form *
 }
 
 // newMockPatchFn returns a mock function for http PATCH that returns the given response.
+//
+//nolint:unused // shared test helper
 func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -315,6 +367,8 @@ func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spat
 }
 
 // newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
+//
+//nolint:unused // shared test helper
 func newUnexpectedDeleteFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -325,6 +379,8 @@ func newUnexpectedDeleteFn(t *testing.T, reason string) func(spath string, form 
 }
 
 // newMockDeleteFn returns a mock function for http DELETE that returns the given response.
+//
+//nolint:unused // shared test helper
 func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
@@ -335,6 +391,8 @@ func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spa
 }
 
 // newUnexpectedUploadFn returns a mock function for http Upload that fails if called.
+//
+//nolint:unused // shared test helper
 func newUnexpectedUploadFn(t *testing.T, reason string) func(spath, fileName string, r io.Reader) (*http.Response, error) {
 	t.Helper()
 	return func(spath, fileName string, r io.Reader) (*http.Response, error) {
@@ -345,6 +403,8 @@ func newUnexpectedUploadFn(t *testing.T, reason string) func(spath, fileName str
 }
 
 // newMockUploadFn returns a mock function for http Upload that returns the given response.
+//
+//nolint:unused // shared test helper
 func newMockUploadFn(t *testing.T, wantPath, wantFileName string, body []byte) func(spath, fileName string, r io.Reader) (*http.Response, error) {
 	t.Helper()
 	return func(spath, fileName string, r io.Reader) (*http.Response, error) {

@@ -677,7 +677,8 @@ func TestClient_Delete(t *testing.T) {
 			assert.Equal(t, want.url, req.URL.String())
 			assert.Equal(t, want.contentType, req.Header.Get("Content-Type"))
 			content := []byte{}
-			req.Body.Read(content)
+			_, err := req.Body.Read(content)
+			assert.NoError(t, err)
 			assert.Empty(t, content)
 			return &http.Response{StatusCode: http.StatusOK}, nil
 		},
