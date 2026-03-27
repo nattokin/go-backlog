@@ -5,14 +5,20 @@ on:
     branches:
       - master
     paths:
-      - ".go"
-      - ".github/workflows/*.yml"
+        - "**.go"
+        - "go.mod"
+        - "go.sum"
+        - ".golangci.yml"
+        - ".github/workflows/*.yml"
   pull_request:
     branches:
       - master
     paths:
-      - ".go"
-      - ".github/workflows/*.yml"
+        - "**.go"
+        - "go.mod"
+        - "go.sum"
+        - ".golangci.yml"
+        - ".github/workflows/*.yml"
 
 jobs:
 
@@ -32,24 +38,10 @@ jobs:
           go-version: "1.22"
           cache: true
 
-      - name: Install tools
-        run: |
-          go install golang.org/x/tools/cmd/goimports@latest
-          go install github.com/client9/misspell/cmd/misspell@latest
-          go install github.com/gordonklaus/ineffassign@latest
-
-      - name: Run goimports
-        run: diff <(goimports -d .) <(printf "")
-
-      - name: Run gofmt
-        run: diff <(gofmt -s -d .) <(printf "")
-
-      - name: Run misspell
-        run: misspell -error .
-
-      - name: Run ineffassign
-        run: ineffassign ./...
-
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
 
 # ──────────────────────────────────────────────────────────────
 #  Test
@@ -77,9 +69,10 @@ jobs:
 
       - name: Test
         run: |
-          go test ./... 
-            -race 
-            -coverprofile=coverage.txt 
+          go test ./... \
+            -race \
+            -coverpkg=./... \
+            -coverprofile=coverage.txt \
             -covermode=atomic
 
       - name: Upload coverage to Codecov
@@ -87,7 +80,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.txt
+          files: ./coverage.txt
 
 
 # ──────────────────────────────────────────────────────────────
@@ -95,14 +88,16 @@ jobs:
 # ──────────────────────────────────────────────────────────────
 
   notification:
-    if: always()
     name: Notification
-    needs: test
+    needs:
+      - lint
+      - test
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
       - name: Slack Workflow Notification
-        uses: Gamesight/slack-workflow-status@master
+        uses: Gamesight/slack-workflow-status@v1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
