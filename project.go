@@ -31,14 +31,17 @@ type ProjectService struct {
 	Option   *ProjectOptionService
 }
 
-// All returns a list of all projects.
+// All returns a list of projects.
 //
-// This method supports options returned by methods in "*Client.Project.Option".
+// By default, it returns only projects the authenticated user has joined.
+// The "WithQueryAll" option is available only for administrators; when set to true,
+// it returns all projects in the space. When false (default), it returns joined projects only.
 //
-// Use the following methods:
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
 //
-//	WithQueryAll
-//	WithQueryArchived
+//   - WithQueryAll
+//   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
@@ -68,59 +71,6 @@ func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
 	}
 
 	return v, nil
-}
-
-// AdminAll returns all of projects. This is limited to admin.
-// If you are not an admin, only joining projects returned.
-//
-// This method supports options returned by methods in "*Client.Project.Option".
-//
-// Use the following methods:
-//
-//	WithQueryArchived
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AdminAll(opts ...*QueryOption) ([]*Project, error) {
-	validOptions := []queryType{queryArchived}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	return s.All(append(opts, s.Option.WithQueryAll(true))...)
-}
-
-// AllUnarchived returns all of joining projects unarchived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AllUnarchived() ([]*Project, error) {
-	return s.All(s.Option.WithQueryArchived(false))
-}
-
-// AdminAllUnarchived returns all of projects unarchived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AdminAllUnarchived() ([]*Project, error) {
-	return s.All(s.Option.WithQueryAll(true), s.Option.WithQueryArchived(false))
-}
-
-// AllArchived returns all of joining projects archived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AllArchived() ([]*Project, error) {
-	return s.All(s.Option.WithQueryArchived(true))
-}
-
-// AdminAllArchived returns all of projects archived.
-// If you are not an admin, only joining projects returned.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) AdminAllArchived() ([]*Project, error) {
-	return s.All(s.Option.WithQueryAll(true), s.Option.WithQueryArchived(true))
 }
 
 // One returns one of the projects searched by ID or key.

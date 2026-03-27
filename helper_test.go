@@ -270,7 +270,6 @@ func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath 
 	return func(spath string, query *QueryParams) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
-		assert.Nil(t, query)
 		return res, nil
 	}
 }
