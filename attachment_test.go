@@ -14,972 +14,994 @@ import (
 )
 
 func TestSpaceAttachmentService_Upload(t *testing.T) {
-	t.Parallel()
+	cases := map[string]struct {
+		fpath     string
+		expectErr bool
 
-	fpath := "fpath"
-	fname := "test.txt"
-
-	want := struct {
-		spath string
-		fpath string
-		fname string
-		id    int
-		name  string
-		size  int
+		mockUploadFn func(spath, fileName string, r io.Reader) (*http.Response, error)
 	}{
-		spath: "space/attachment",
-		fpath: fpath,
-		fname: fname,
-		id:    1,
-		name:  fname,
-		size:  8857,
+		"success": {
+			fpath: "fpath",
+			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+				assert.Equal(t, "space/attachment", spath)
+				assert.Equal(t, "fpath", fileName)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
+				}, nil
+			},
+		},
+
+		"error-client-failure": {
+			fpath:     "fpath",
+			expectErr: true,
+			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			fpath:     "fpath",
+			expectErr: true,
+			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+		},
 	}
 
-	s := newSpaceAttachmentService()
-	s.method.Upload = func(spath, fileName string, r io.Reader) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.fpath, fpath)
-		assert.Equal(t, want.fname, fname)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
-		}
-		return resp, nil
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := newSpaceAttachmentService()
+			s.method.Upload = tc.mockUploadFn
+
+			f, err := os.Open("testdata/testfile")
+			require.NoError(t, err)
+			defer f.Close()
+
+			attachment, err := s.Upload(tc.fpath, f)
+
+			if tc.expectErr {
+				assert.Error(t, err)
+				assert.Nil(t, attachment)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachment)
+
+			assert.Equal(t, 1, attachment.ID)
+			assert.Equal(t, "test.txt", attachment.Name)
+			assert.Equal(t, 8857, attachment.Size)
+		})
 	}
-
-	f, err := os.Open("testdata/testfile")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	attachment, err := s.Upload(fpath, f)
-	require.NoError(t, err)
-	require.NotNil(t, attachment)
-	assert.Equal(t, want.id, attachment.ID)
-	assert.Equal(t, want.name, attachment.Name)
-	assert.Equal(t, want.size, attachment.Size)
-}
-
-func TestSpaceAttachmentService_Upload_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newSpaceAttachmentService()
-	s.method.Upload = func(spath, fileName string, r io.Reader) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	f, err := os.Open("testdata/testfile")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	attachement, err := s.Upload("fpath", f)
-	assert.Error(t, err)
-	assert.Nil(t, attachement)
-}
-
-func TestSpaceAttachmentService_Upload_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newSpaceAttachmentService()
-	s.method.Upload = func(spath, fileName string, r io.Reader) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	f, err := os.Open("testdata/testfile")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	attachement, err := s.Upload("fpath", f)
-	assert.Error(t, err)
-	assert.Nil(t, attachement)
 }
 
 func TestWikiAttachmentService_Attach(t *testing.T) {
-	t.Parallel()
-
-	body := io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON)))
-	wikiID := 1234
-	spath := "wikis/1234/attachments"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      2,
-		name:    "A.png",
-		size:    196186,
-		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
-	}
-
-	s := newWikiAttachmentService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		v := *form.Values
-		assert.Equal(t, []string{"2"}, v["attachmentId[]"])
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       body,
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.Attach(wikiID, []int{2})
-
-	require.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Equal(t, want.id, attachments[0].ID)
-	assert.Equal(t, want.name, attachments[0].Name)
-	assert.Equal(t, want.size, attachments[0].Size)
-	assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-}
-
-func TestWikiAttachmentService_Attach_param(t *testing.T) {
 	cases := map[string]struct {
 		wikiID        int
 		attachmentIDs []int
-		wantError     bool
+
+		expectErr bool
+		want      []*Attachment
+
+		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"valid": {
-			wikiID:        1,
-			attachmentIDs: []int{1, 2},
-			wantError:     false,
+		"success-single": {
+			wikiID:        1234,
+			attachmentIDs: []int{2},
+			want: []*Attachment{
+				{
+					ID:   2,
+					Name: "A.png",
+					Size: 196186,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+			},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1234/attachments", spath)
+
+				v := *form.Values
+				assert.Equal(t, []string{"2"}, v["attachmentId[]"])
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentSingleListJSON)),
+					),
+				}, nil
+			},
 		},
-		"wikiID_invalid": {
+
+		"success-multiple": {
+			wikiID:        1,
+			attachmentIDs: []int{2, 5},
+			want: []*Attachment{
+				{
+					ID:   2,
+					Name: "A.png",
+					Size: 196186,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+				{
+					ID:   5,
+					Name: "B.png",
+					Size: 201257,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+			},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+					),
+				}, nil
+			},
+		},
+
+		"error-wikiID-invalid": {
 			wikiID:        0,
 			attachmentIDs: []int{1, 2},
-			wantError:     true,
+			expectErr:     true,
+			mockPostFn:    newUnexpectedPostFn(t, "invalid wikiID"),
 		},
-		"attachmentIDs_invalid": {
+
+		"error-attachmentIDs-invalid": {
 			wikiID:        1,
 			attachmentIDs: []int{0, 1, 2},
-			wantError:     true,
+			expectErr:     true,
+			mockPostFn:    newUnexpectedPostFn(t, "invalid attachmentIDs"),
 		},
-		"attachmentIDs_empty": {
+
+		"error-attachmentIDs-empty": {
 			wikiID:        1,
 			attachmentIDs: []int{},
-			wantError:     true,
+			expectErr:     true,
+			mockPostFn:    newUnexpectedPostFn(t, "empty attachmentIDs"),
+		},
+
+		"error-client": {
+			wikiID:        1234,
+			attachmentIDs: []int{2},
+			expectErr:     true,
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			wikiID:        1234,
+			attachmentIDs: []int{2},
+			expectErr:     true,
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiAttachmentService()
-			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Post = tc.mockPostFn
 
-			if attachments, err := s.Attach(tc.wikiID, tc.attachmentIDs); tc.wantError {
+			attachments, err := s.Attach(tc.wikiID, tc.attachmentIDs)
+
+			if tc.expectErr {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, attachments)
-				assert.Len(t, attachments, 2)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachments)
+
+			assert.Len(t, attachments, len(tc.want))
+
+			for i, w := range tc.want {
+				assert.Equal(t, w.ID, attachments[i].ID)
+				assert.Equal(t, w.Name, attachments[i].Name)
+				assert.Equal(t, w.Size, attachments[i].Size)
+				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
 			}
 		})
-
 	}
-}
-
-func TestWikiAttachmentService_Attach_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachments, err := s.Attach(1234, []int{2})
-
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
-}
-
-func TestWikiAttachmentService_Attach_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.Attach(1234, []int{2})
-
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
 }
 
 func TestWikiAttachmentService_List(t *testing.T) {
-	t.Parallel()
-
-	wikiID := 1234
-	spath := "wikis/1234/attachments"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      2,
-		name:    "A.png",
-		size:    196186,
-		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
-	}
-
-	s := newWikiAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List(wikiID)
-	require.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Equal(t, want.id, attachments[0].ID)
-	assert.Equal(t, want.name, attachments[0].Name)
-	assert.Equal(t, want.size, attachments[0].Size)
-	assert.ObjectsAreEqualValues(want.created, attachments[0].Created)
-}
-
-func TestWikiAttachmentService_List_param(t *testing.T) {
 	cases := map[string]struct {
-		wikiID    int
-		wantError bool
+		wikiID int
+
+		expectErr bool
+		want      []*Attachment
+
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"valid": {
-			wikiID:    1,
-			wantError: false,
+		"success": {
+			wikiID: 1234,
+			want: []*Attachment{
+				{
+					ID:   2,
+					Name: "A.png",
+					Size: 196186,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+				{
+					ID:   5,
+					Name: "B.png",
+					Size: 201257,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+			},
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1234/attachments", spath)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid-1": {
+
+		"error-wikiID-zero": {
 			wikiID:    0,
-			wantError: true,
+			expectErr: true,
+			mockGetFn: newUnexpectedGetFn(t, "invalid wikiID"),
 		},
-		"invalid-2": {
+
+		"error-wikiID-negative": {
 			wikiID:    -1,
-			wantError: true,
+			expectErr: true,
+			mockGetFn: newUnexpectedGetFn(t, "invalid wikiID"),
+		},
+
+		"error-client": {
+			wikiID:    1234,
+			expectErr: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			wikiID:    1234,
+			expectErr: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiAttachmentService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Get = tc.mockGetFn
 
-			if attachments, err := s.List(tc.wikiID); tc.wantError {
+			attachments, err := s.List(tc.wikiID)
+
+			if tc.expectErr {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, attachments)
-				assert.Len(t, attachments, 2)
-				assert.Equal(t, attachments[0].ID, 2)
-				assert.Equal(t, attachments[1].ID, 5)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachments)
+
+			assert.Len(t, attachments, len(tc.want))
+
+			for i, w := range tc.want {
+				assert.Equal(t, w.ID, attachments[i].ID)
+				assert.Equal(t, w.Name, attachments[i].Name)
+				assert.Equal(t, w.Size, attachments[i].Size)
+				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
 			}
 		})
-
 	}
-}
-
-func TestWikiAttachmentService_List_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachments, err := s.List(1234)
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
-}
-
-func TestWikiAttachmentService_List_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List(1234)
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
 }
 
 func TestWikiAttachmentService_Remove(t *testing.T) {
-	t.Parallel()
-
-	wikiID := 1234
-	attachmentID := 8
-	spath := "wikis/1234/attachments/8"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      8,
-		name:    "IMG0088.png",
-		size:    5563,
-		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
-	}
-
-	s := newWikiAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.Remove(wikiID, attachmentID)
-	assert.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Equal(t, want.id, attachments.ID)
-	assert.Equal(t, want.name, attachments.Name)
-	assert.Equal(t, want.size, attachments.Size)
-	assert.ObjectsAreEqualValues(want.created, attachments.Created)
-}
-
-func TestWikiAttachmentService_Remove_param(t *testing.T) {
 	cases := map[string]struct {
 		wikiID       int
 		attachmentID int
-		wantError    bool
+
+		expectErr bool
+		want      *Attachment
+
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"valid": {
-			wikiID:       1,
+		"success": {
+			wikiID:       1234,
 			attachmentID: 8,
-			wantError:    false,
+			want: &Attachment{
+				ID:   8,
+				Name: "IMG0088.png",
+				Size: 5563,
+				Created: time.Date(
+					2014,
+					time.October,
+					28,
+					9,
+					24,
+					43,
+					0,
+					time.UTC,
+				),
+			},
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1234/attachments/8", spath)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid-wikiID-1": {
+
+		"error-wikiID-zero": {
 			wikiID:       0,
 			attachmentID: 8,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid wikiID"),
 		},
-		"invalid-wikiID-2": {
+
+		"error-wikiID-negative": {
 			wikiID:       -1,
 			attachmentID: 8,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid wikiID"),
 		},
-		"invalid-attachmentID-1": {
+
+		"error-attachmentID-zero": {
 			wikiID:       1,
 			attachmentID: 0,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
 		},
-		"invalid-attachmentID-2": {
+
+		"error-attachmentID-negative": {
 			wikiID:       1,
 			attachmentID: -1,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
+		},
+
+		"error-client": {
+			wikiID:       1234,
+			attachmentID: 8,
+			expectErr:    true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			wikiID:       1234,
+			attachmentID: 8,
+			expectErr:    true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiAttachmentService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Delete = tc.mockDeleteFn
 
-			if attachments, err := s.Remove(tc.wikiID, tc.attachmentID); tc.wantError {
+			attachment, err := s.Remove(tc.wikiID, tc.attachmentID)
+
+			if tc.expectErr {
 				assert.Error(t, err)
-				assert.Nil(t, attachments)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, attachments)
+				assert.Nil(t, attachment)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachment)
+
+			assert.Equal(t, tc.want.ID, attachment.ID)
+			assert.Equal(t, tc.want.Name, attachment.Name)
+			assert.Equal(t, tc.want.Size, attachment.Size)
+			assert.ObjectsAreEqualValues(tc.want.Created, attachment.Created)
 		})
-
 	}
-}
-
-func TestWikiAttachmentService_Remove_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachment, err := s.Remove(1234, 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
-}
-
-func TestWikiAttachmentService_Remove_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newWikiAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachment, err := s.Remove(1234, 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
 }
 
 func TestIssueAttachmentService_List(t *testing.T) {
-	t.Parallel()
-
-	issueIDOrKey := "1234"
-	spath := "issues/1234/attachments"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      2,
-		name:    "A.png",
-		size:    196186,
-		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
-	}
-
-	s := newIssueAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List(issueIDOrKey)
-	assert.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Len(t, attachments, 2)
-	assert.Equal(t, attachments[0].ID, 2)
-	assert.Equal(t, attachments[1].ID, 5)
-}
-
-func TestIssueAttachmentService_List_param(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
-		wantError    bool
+
+		expectErr bool
+		want      []*Attachment
+
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"valid": {
-			issueIDOrKey: "1",
-			wantError:    false,
+		"success": {
+			issueIDOrKey: "1234",
+			want: []*Attachment{
+				{
+					ID:   2,
+					Name: "A.png",
+					Size: 196186,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+				{
+					ID:   5,
+					Name: "B.png",
+					Size: 201257,
+					Created: time.Date(
+						2014,
+						time.July,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+			},
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "issues/1234/attachments", spath)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid": {
+
+		"error-invalid-issueIDOrKey": {
 			issueIDOrKey: "0",
-			wantError:    true,
+			expectErr:    true,
+			mockGetFn:    newUnexpectedGetFn(t, "invalid issueIDOrKey"),
+		},
+
+		"error-client": {
+			issueIDOrKey: "1234",
+			expectErr:    true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			issueIDOrKey: "1234",
+			expectErr:    true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newIssueAttachmentService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Get = tc.mockGetFn
 
-			if attachments, err := s.List(tc.issueIDOrKey); tc.wantError {
+			attachments, err := s.List(tc.issueIDOrKey)
+
+			if tc.expectErr {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, attachments)
-				assert.Len(t, attachments, 2)
-				assert.Equal(t, attachments[0].ID, 2)
-				assert.Equal(t, attachments[1].ID, 5)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachments)
+
+			assert.Len(t, attachments, len(tc.want))
+
+			for i, w := range tc.want {
+				assert.Equal(t, w.ID, attachments[i].ID)
+				assert.Equal(t, w.Name, attachments[i].Name)
+				assert.Equal(t, w.Size, attachments[i].Size)
+				assert.Equal(t, w.Created, attachments[i].Created)
 			}
 		})
-
 	}
-}
-
-func TestIssueAttachmentService_List_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newIssueAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachments, err := s.List("1234")
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
-}
-
-func TestIssueAttachmentService_List_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newIssueAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List("1234")
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
 }
 
 func TestIssueAttachmentService_Remove(t *testing.T) {
-	t.Parallel()
-
-	issueIDOrKey := "1234"
-	attachmentID := 8
-	spath := "issues/1234/attachments/8"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      attachmentID,
-		name:    "IMG0088.png",
-		size:    5563,
-		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
-	}
-
-	s := newIssueAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-		}
-		return resp, nil
-	}
-
-	attachment, err := s.Remove(issueIDOrKey, attachmentID)
-	assert.NoError(t, err)
-	require.NotNil(t, attachment)
-	assert.Equal(t, want.id, attachment.ID)
-	assert.Equal(t, want.name, attachment.Name)
-	assert.Equal(t, want.size, attachment.Size)
-	assert.ObjectsAreEqualValues(want.created, attachment.Created)
-}
-
-func TestIssueAttachmentService_Remove_param(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		attachmentID int
-		wantError    bool
+
+		expectErr bool
+		want      *Attachment
+
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"valid": {
-			issueIDOrKey: "test",
+		"success": {
+			issueIDOrKey: "1234",
 			attachmentID: 8,
-			wantError:    false,
+			want: &Attachment{
+				ID:   8,
+				Name: "IMG0088.png",
+				Size: 5563,
+				Created: time.Date(
+					2014,
+					time.October,
+					28,
+					9,
+					24,
+					43,
+					0,
+					time.UTC,
+				),
+			},
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "issues/1234/attachments/8", spath)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid-issueKey": {
+
+		"error-empty-issueKey": {
 			issueIDOrKey: "",
 			attachmentID: 8,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid issueIDOrKey"),
 		},
-		"invalid-attachmentID": {
+
+		"error-attachmentID-zero": {
 			issueIDOrKey: "test",
 			attachmentID: 0,
-			wantError:    true,
+			expectErr:    true,
+			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
+		},
+
+		"error-client": {
+			issueIDOrKey: "1234",
+			attachmentID: 8,
+			expectErr:    true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			issueIDOrKey: "1234",
+			attachmentID: 8,
+			expectErr:    true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newIssueAttachmentService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Delete = tc.mockDeleteFn
 
-			if attachments, err := s.Remove(tc.issueIDOrKey, tc.attachmentID); tc.wantError {
+			attachment, err := s.Remove(tc.issueIDOrKey, tc.attachmentID)
+
+			if tc.expectErr {
 				assert.Error(t, err)
-				assert.Nil(t, attachments)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, attachments)
+				assert.Nil(t, attachment)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachment)
+
+			assert.Equal(t, tc.want.ID, attachment.ID)
+			assert.Equal(t, tc.want.Name, attachment.Name)
+			assert.Equal(t, tc.want.Size, attachment.Size)
+			assert.Equal(t, tc.want.Created, attachment.Created)
 		})
-
 	}
-}
-
-func TestIssueAttachmentService_Remove_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newIssueAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachment, err := s.Remove("1234", 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
-}
-
-func TestIssueAttachmentService_Remove_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newIssueAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachment, err := s.Remove("1234", 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
 }
 
 func TestPullRequestAttachmentService_List(t *testing.T) {
-	t.Parallel()
-
-	projectKey := "TEST"
-	repositoryIDOrName := "test"
-	prNumber := 1234
-	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      2,
-		name:    "A.png",
-		size:    196186,
-		created: time.Date(2014, time.September, 11, 6, 26, 5, 0, time.UTC),
-	}
-
-	s := newPullRequestAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List(projectKey, repositoryIDOrName, prNumber)
-	assert.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Len(t, attachments, 2)
-	assert.Equal(t, attachments[0].ID, 2)
-	assert.Equal(t, attachments[1].ID, 5)
-}
-
-func TestPullRequestAttachmentService_List_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey     string
 		repositoryIDOrName string
 		prNumber           int
-		wantError          bool
+
+		expectErr bool
+		want      []*Attachment
+
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"valid": {
-			projectIDOrKey:     "1",
-			repositoryIDOrName: "1",
-			prNumber:           1,
-			wantError:          false,
+		"success": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "test",
+			prNumber:           1234,
+			want: []*Attachment{
+				{
+					ID:   2,
+					Name: "A.png",
+					Size: 196186,
+					Created: time.Date(
+						2014,
+						time.September,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+				{
+					ID:   5,
+					Name: "B.png",
+					Size: 201257,
+					Created: time.Date(
+						2014,
+						time.September,
+						11,
+						6,
+						26,
+						5,
+						0,
+						time.UTC,
+					),
+				},
+			},
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(
+					t,
+					"projects/TEST/git/repositories/test/pullRequests/1234/attachments",
+					spath,
+				)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid-project": {
+
+		"error-invalid-project": {
 			projectIDOrKey:     "0",
 			repositoryIDOrName: "1",
 			prNumber:           1,
-			wantError:          true,
+			expectErr:          true,
+			mockGetFn:          newUnexpectedGetFn(t, "invalid projectIDOrKey"),
 		},
-		"invalid-repository": {
+
+		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "0",
 			prNumber:           1,
-			wantError:          true,
+			expectErr:          true,
+			mockGetFn:          newUnexpectedGetFn(t, "invalid repositoryIDOrName"),
 		},
-		"invalid-prNumber": {
+
+		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "1",
 			prNumber:           0,
-			wantError:          true,
+			expectErr:          true,
+			mockGetFn:          newUnexpectedGetFn(t, "invalid prNumber"),
+		},
+
+		"error-client": {
+			projectIDOrKey:     "1234",
+			repositoryIDOrName: "test",
+			prNumber:           10,
+			expectErr:          true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			projectIDOrKey:     "1234",
+			repositoryIDOrName: "test",
+			prNumber:           10,
+			expectErr:          true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newPullRequestAttachmentService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentListJSON))),
-				}
-				return resp, nil
+			s.method.Get = tc.mockGetFn
+
+			attachments, err := s.List(
+				tc.projectIDOrKey,
+				tc.repositoryIDOrName,
+				tc.prNumber,
+			)
+
+			if tc.expectErr {
+				assert.Error(t, err)
+				assert.Nil(t, attachments)
+				return
 			}
 
-			if attachments, err := s.List(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber); tc.wantError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Len(t, attachments, 2)
-				assert.Equal(t, attachments[0].ID, 2)
-				assert.Equal(t, attachments[1].ID, 5)
+			assert.NoError(t, err)
+			require.NotNil(t, attachments)
+
+			assert.Len(t, attachments, len(tc.want))
+
+			for i, w := range tc.want {
+				assert.Equal(t, w.ID, attachments[i].ID)
+				assert.Equal(t, w.Name, attachments[i].Name)
+				assert.Equal(t, w.Size, attachments[i].Size)
+				assert.Equal(t, w.Created, attachments[i].Created)
 			}
 		})
-
 	}
-}
-
-func TestPullRequestAttachmentService_List_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newPullRequestAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachments, err := s.List("1234", "test", 10)
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
-}
-
-func TestPullRequestAttachmentService_List_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newPullRequestAttachmentService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.List("1234", "test", 10)
-	assert.Error(t, err)
-	assert.Nil(t, attachments)
 }
 
 func TestPullRequestAttachmentService_Remove(t *testing.T) {
-	t.Parallel()
-
-	projectKey := "TEST"
-	repositoryIDOrName := "test"
-	prNumber := 1234
-	attachmentID := 8
-	spath := "projects/TEST/git/repositories/test/pullRequests/1234/attachments/8"
-
-	want := struct {
-		spath   string
-		id      int
-		name    string
-		size    int
-		created time.Time
-	}{
-		spath:   spath,
-		id:      8,
-		name:    "IMG0088.png",
-		size:    5563,
-		created: time.Date(2014, time.October, 28, 9, 24, 43, 0, time.UTC),
-	}
-
-	s := newPullRequestAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-		}
-		return resp, nil
-	}
-
-	attachments, err := s.Remove(projectKey, repositoryIDOrName, prNumber, attachmentID)
-	assert.NoError(t, err)
-	require.NotNil(t, attachments)
-	assert.Equal(t, want.id, attachments.ID)
-	assert.Equal(t, want.name, attachments.Name)
-	assert.Equal(t, want.size, attachments.Size)
-	assert.ObjectsAreEqualValues(want.created, attachments.Created)
-}
-
-func TestPullRequestAttachmentService_Remove_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey     string
 		repositoryIDOrName string
 		prNumber           int
 		attachmentID       int
-		wantError          bool
+
+		expectErr bool
+		want      *Attachment
+
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"valid": {
-			projectIDOrKey:     "1",
+		"success": {
+			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "test",
-			prNumber:           1,
+			prNumber:           1234,
 			attachmentID:       8,
-			wantError:          false,
+			want: &Attachment{
+				ID:   8,
+				Name: "IMG0088.png",
+				Size: 5563,
+				Created: time.Date(
+					2014,
+					time.October,
+					28,
+					9,
+					24,
+					43,
+					0,
+					time.UTC,
+				),
+			},
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(
+					t,
+					"projects/TEST/git/repositories/test/pullRequests/1234/attachments/8",
+					spath,
+				)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataAttachmentJSON)),
+					),
+				}, nil
+			},
 		},
-		"invalid-project": {
+
+		"error-invalid-project": {
 			projectIDOrKey:     "0",
 			repositoryIDOrName: "test",
 			prNumber:           1,
 			attachmentID:       8,
-			wantError:          true,
+			expectErr:          true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid projectIDOrKey"),
 		},
-		"invalid-repository": {
+
+		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "",
 			prNumber:           1,
 			attachmentID:       8,
-			wantError:          true,
+			expectErr:          true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid repositoryIDOrName"),
 		},
-		"invalid-prNumber": {
+
+		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "test",
 			prNumber:           0,
 			attachmentID:       8,
-			wantError:          true,
+			expectErr:          true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid prNumber"),
 		},
-		"invalid-attachmentID": {
+
+		"error-invalid-attachmentID": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "test",
 			prNumber:           1,
 			attachmentID:       0,
-			wantError:          true,
+			expectErr:          true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid attachmentID"),
+		},
+
+		"error-client": {
+			projectIDOrKey:     "1234",
+			repositoryIDOrName: "test",
+			prNumber:           10,
+			attachmentID:       8,
+			expectErr:          true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			projectIDOrKey:     "1234",
+			repositoryIDOrName: "test",
+			prNumber:           10,
+			attachmentID:       8,
+			expectErr:          true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(
+						bytes.NewReader([]byte(testdataInvalidJSON)),
+					),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newPullRequestAttachmentService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Delete = tc.mockDeleteFn
 
-			if attachment, err := s.Remove(tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID); tc.wantError {
+			attachment, err := s.Remove(
+				tc.projectIDOrKey,
+				tc.repositoryIDOrName,
+				tc.prNumber,
+				tc.attachmentID,
+			)
+
+			if tc.expectErr {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, attachment)
-				assert.Equal(t, 8, attachment.ID)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, attachment)
+
+			assert.Equal(t, tc.want.ID, attachment.ID)
+			assert.Equal(t, tc.want.Name, attachment.Name)
+			assert.Equal(t, tc.want.Size, attachment.Size)
+			assert.Equal(t, tc.want.Created, attachment.Created)
 		})
-
 	}
-}
-
-func TestPullRequestAttachmentService_Remove_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newPullRequestAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	attachment, err := s.Remove("1234", "test", 10, 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
-}
-
-func TestPullRequestAttachmentService_Remove_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newPullRequestAttachmentService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	attachment, err := s.Remove("1234", "test", 10, 8)
-	assert.Error(t, err)
-	assert.Nil(t, attachment)
 }
