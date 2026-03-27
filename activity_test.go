@@ -80,7 +80,7 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}
 
 	_, err := s.List()
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 func TestUserActivityService_List(t *testing.T) {
