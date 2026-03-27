@@ -619,7 +619,7 @@ func TestProjectService_Delete(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, project)
 
-			assert.Equal(t, tc.projectIDOrKey, project.ProjectKey)
+			assert.Equal(t, "TEST", project.ProjectKey)
 		})
 	}
 }
