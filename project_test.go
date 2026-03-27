@@ -13,753 +13,423 @@ import (
 )
 
 func TestProjectService_All(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		idList   []int
-		nameList []string
-	}{
-		idList:   []int{1, 2, 3},
-		nameList: []string{"test", "test2", "test3"},
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.All()
-	assert.NoError(t, err)
-	require.NotNil(t, projects)
-	count := len(projects)
-	require.Equal(t, len(want.idList), count)
-	for i := 0; i < count; i++ {
-		assert.Equal(t, want.idList[i], projects[i].ID)
-		assert.Equal(t, want.nameList[i], projects[i].Name)
-	}
-}
-
-func TestProjectService_All_option(t *testing.T) {
 	o := newProjectOptionService()
-	type options struct {
-		all      string
-		archived string
-	}
+
 	cases := map[string]struct {
-		options   []*QueryOption
-		wantError bool
-		want      options
+		options     []*QueryOption
+		expectError bool
+		wantIDs     []int
+		wantNames   []string
+		wantAll     string
+		wantArch    string
+		mockGetFn   func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"WithoutOption": {
-			options:   []*QueryOption{},
-			wantError: false,
-			want: options{
-				all:      "",
-				archived: "",
-			},
+		"success-without-option": {
+			options:     []*QueryOption{},
+			expectError: false,
+			wantIDs:     []int{1, 2, 3},
+			wantNames:   []string{"test", "test2", "test3"},
+			wantAll:     "",
+			wantArch:    "",
+			mockGetFn: newMockGetFn(t, "projects", &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+			}),
 		},
-		"ValidOption": {
+		"success-with-valid-option": {
 			options: []*QueryOption{
 				o.WithQueryAll(false),
 				o.WithQueryArchived(true),
 			},
-			wantError: false,
-			want: options{
-				all:      "false",
-				archived: "true",
+			expectError: false,
+			wantIDs:     []int{1, 2, 3},
+			wantNames:   []string{"test", "test2", "test3"},
+			wantAll:     "false",
+			wantArch:    "true",
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects", spath)
+				assert.Equal(t, "false", query.Get("all"))
+				assert.Equal(t, "true", query.Get("archived"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+				}, nil
 			},
 		},
-		"OptionError": {
-			options: []*QueryOption{{queryAll, nil, func(p *QueryParams) error {
-				return errors.New("error")
-			}}},
-			wantError: true,
+		"error-with-option-handler": {
+			options: []*QueryOption{{
+				queryAll,
+				nil,
+				func(p *QueryParams) error { return errors.New("error") },
+			}},
+			expectError: true,
+			mockGetFn:   newUnexpectedGetFn(t, "option error case"),
 		},
-		"InvalidOption": {
-			options:   []*QueryOption{{0, nil, func(p *QueryParams) error { return nil }}},
-			wantError: true,
+		"error-with-invalid-option": {
+			options: []*QueryOption{{
+				0,
+				nil,
+				func(p *QueryParams) error { return nil },
+			}},
+			expectError: true,
+			mockGetFn:   newUnexpectedGetFn(t, "invalid option case"),
+		},
+		"error-client-failure": {
+			options:     []*QueryOption{},
+			expectError: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+		"error-invalid-json": {
+			options:     []*QueryOption{},
+			expectError: true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				assert.Equal(t, tc.want.all, query.Get("all"))
-				assert.Equal(t, tc.want.archived, query.Get("archived"))
+			s.method.Get = tc.mockGetFn
 
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-				}
-				return resp, nil
+			projects, err := s.All(tc.options...)
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, projects)
+				return
 			}
 
-			if resp, err := s.All(tc.options...); tc.wantError {
-				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
+			assert.NoError(t, err)
+			require.NotNil(t, projects)
+			assert.Equal(t, len(tc.wantIDs), len(projects))
+
+			for i := range projects {
+				assert.Equal(t, tc.wantIDs[i], projects[i].ID)
+				assert.Equal(t, tc.wantNames[i], projects[i].Name)
 			}
 		})
-
 	}
 }
 
-func TestProjectService_AdminAll(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.all, query.Get("all"))
-		assert.Equal(t, want.archived, query.Get("archived"))
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.AdminAll()
-	assert.Error(t, err)
-	assert.Nil(t, projects)
-}
-
-func TestProjectService_AdminAll_option(t *testing.T) {
-	o := newProjectOptionService()
-	type options struct {
-		all      string
-		archived string
-	}
+func TestProjectService_One(t *testing.T) {
 	cases := map[string]struct {
-		options   []*QueryOption
-		wantError bool
-		want      options
+		projectIDOrKey string
+		expectError    bool
+		mockGetFn      func(spath string, query *QueryParams) (*http.Response, error)
 	}{
-		"WithoutOption": {
-			options:   []*QueryOption{},
-			wantError: false,
-			want: options{
-				all:      "true",
-				archived: "",
+		"success-with-projectKey": {
+			projectIDOrKey: "TEST",
+			expectError:    false,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
 			},
 		},
-		"ValidOption": {
-			options: []*QueryOption{
-				o.WithQueryArchived(true),
-			},
-			wantError: false,
-			want: options{
-				all:      "true",
-				archived: "true",
+		"success-with-projectID": {
+			projectIDOrKey: strconv.Itoa(6),
+			expectError:    false,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects/6", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
 			},
 		},
-		"OptionError": {
-			options:   []*QueryOption{{queryArchived, nil, func(p *QueryParams) error { return errors.New("error") }}},
-			wantError: true,
-			want:      options{},
+		"error-with-empty-projectIDOrKey": {
+			projectIDOrKey: "",
+			expectError:    true,
+			mockGetFn:      newUnexpectedGetFn(t, "empty key"),
 		},
-		"InvalidOption": {
-			options: []*QueryOption{
-				o.WithQueryAll(true),
+		"error-client-failure": {
+			projectIDOrKey: "TEST",
+			expectError:    true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return nil, errors.New("error")
 			},
-			wantError: true,
-			want:      options{},
+		},
+		"error-invalid-json": {
+			projectIDOrKey: "TEST",
+			expectError:    true,
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				assert.Equal(t, tc.want.all, query.Get("all"))
-				assert.Equal(t, tc.want.archived, query.Get("archived"))
+			s.method.Get = tc.mockGetFn
 
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-				}
-				return resp, nil
-			}
-
-			if resp, err := s.AdminAll(tc.options...); tc.wantError {
+			project, err := s.One(tc.projectIDOrKey)
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
+				assert.Nil(t, project)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, project)
+
+			assert.Equal(t, 6, project.ID)
+			assert.Equal(t, "TEST", project.ProjectKey)
+			assert.Equal(t, "test", project.Name)
 		})
-
 	}
-}
-
-func TestProjectService_AllArchived(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		archived: "true",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.archived, query.Get("archived"))
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.AllArchived()
-	assert.Error(t, err)
-	assert.Nil(t, projects)
-}
-
-func TestProjectService_AdminAllArchived(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "true",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.all, query.Get("all"))
-		assert.Equal(t, want.archived, query.Get("archived"))
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.AdminAllArchived()
-
-	assert.Error(t, err)
-	assert.Nil(t, projects)
-}
-
-func TestProjectService_AllUnarchived(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		archived: "false",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.archived, query.Get("archived"))
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.AllUnarchived()
-
-	assert.Error(t, err)
-	assert.Nil(t, projects)
-}
-
-func TestProjectService_AdminAllUnarchived(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath    string
-		all      string
-		archived string
-	}{
-		spath:    "projects",
-		all:      "true",
-		archived: "false",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Equal(t, want.all, query.Get("all"))
-		assert.Equal(t, want.archived, query.Get("archived"))
-
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	projects, err := s.AdminAllUnarchived()
-
-	assert.Error(t, err)
-	assert.Nil(t, projects)
-}
-
-func TestProjectService_All_clientError(t *testing.T) {
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	resp, err := s.All()
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestProjectService_One_key(t *testing.T) {
-	t.Parallel()
-
-	projectKey := "TEST"
-
-	want := struct {
-		spath string
-		key   string
-		name  string
-	}{
-		spath: "projects/" + projectKey,
-		key:   projectKey,
-		name:  "test",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Nil(t, query)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.One(projectKey)
-	require.NoError(t, err)
-	assert.Equal(t, want.key, project.ProjectKey)
-	assert.Equal(t, want.name, project.Name)
-}
-
-func TestProjectService_One_id(t *testing.T) {
-	t.Parallel()
-
-	projectID := 6
-
-	want := struct {
-		spath string
-		id    int
-		name  string
-	}{
-		spath: "projects/" + strconv.Itoa(projectID),
-		id:    projectID,
-		name:  "test",
-	}
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Nil(t, query)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.One(strconv.Itoa(projectID))
-	require.NoError(t, err)
-	assert.Equal(t, want.id, project.ID)
-	assert.Equal(t, want.name, project.Name)
-}
-
-func TestProjectService_One_key_error(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.One("")
-	assert.Error(t, err)
-	assert.Nil(t, project)
-}
-
-func TestProjectService_One_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	resp, err := s.One("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestProjectService_One_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.One("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, project)
 }
 
 func TestProjectService_Create(t *testing.T) {
-	t.Parallel()
+	o := newProjectOptionService()
 
-	key := "TEST"
-	name := "test"
-
-	want := struct {
-		spath string
-		key   string
-		name  string
-	}{
-		spath: "projects",
-		key:   key,
-		name:  name,
-	}
-
-	s := newProjectService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.NotNil(t, form)
-		assert.Equal(t, want.key, form.Get("key"))
-		assert.Equal(t, want.name, form.Get("name"))
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.Create(key, name)
-	require.NoError(t, err)
-	assert.Equal(t, want.key, project.ProjectKey)
-	assert.Equal(t, want.name, project.Name)
-}
-
-func TestProjectService_Create_param(t *testing.T) {
 	cases := map[string]struct {
-		key       string
-		name      string
-		wantError bool
+		key     string
+		name    string
+		options []*FormOption
+
+		expectErr bool
+
+		wantChartEnabled                      string
+		wantSubtaskingEnabled                 string
+		wantProjectLeaderCanEditProjectLeader string
+		wantTextFormattingRule                string
+
+		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"WithoutOption": {
-			key:       "TEST",
-			name:      "test",
-			wantError: false,
-		},
-		"KeyEnpty": {
-			key:       "",
-			name:      "test",
-			wantError: true,
-		},
-		"NameEmpty": {
-			key:       "TEST",
-			name:      "",
-			wantError: true,
-		},
-	}
+		"success-basic-create": {
+			key:  "TEST",
+			name: "test",
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects", spath)
+				assert.NotNil(t, form)
+				assert.Equal(t, "TEST", form.Get("key"))
+				assert.Equal(t, "test", form.Get("name"))
 
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			t.Parallel()
-
-			s := newProjectService()
-			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				assert.Equal(t, tc.key, form.Get("key"))
-				assert.Equal(t, tc.name, form.Get("name"))
-
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-				}
-				return resp, nil
-			}
-
-			if resp, err := s.Create(tc.key, tc.name); tc.wantError {
-				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
-			}
-		})
-
-	}
-}
-
-func TestProjectService_Create_option(t *testing.T) {
-	type options struct {
-		chartEnabled                      string
-		subtaskingEnabled                 string
-		projectLeaderCanEditProjectLeader string
-		textFormattingRule                string
-	}
-
-	o := newProjectOptionService()
-	cases := map[string]struct {
-		options   []*FormOption
-		wantError bool
-		want      options
-	}{
-		"WithoutOption": {
-			options:   []*FormOption{},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "",
-				subtaskingEnabled:                 "",
-				projectLeaderCanEditProjectLeader: "",
-				textFormattingRule:                "",
+				}, nil
 			},
 		},
-		"ValidOption": {
+
+		"success-without-option": {
+			key:     "TEST",
+			name:    "test",
+			options: []*FormOption{},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "", form.Get("chartEnabled"))
+				assert.Equal(t, "", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "", form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, "", form.Get("textFormattingRule"))
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
+			},
+		},
+
+		"success-with-valid-option": {
+			key:  "TEST",
+			name: "test",
 			options: []*FormOption{
 				o.WithFormChartEnabled(true),
 				o.WithFormSubtaskingEnabled(true),
 				o.WithFormProjectLeaderCanEditProjectLeader(true),
 				o.WithFormTextFormattingRule(FormatBacklog),
 			},
-			wantError: false,
-			want: options{
-				chartEnabled:                      "true",
-				subtaskingEnabled:                 "true",
-				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                "backlog",
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "true", form.Get("chartEnabled"))
+				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
 			},
 		},
-		"OptionError": {
+
+		"error-empty-key": {
+			key:       "",
+			name:      "test",
+			expectErr: true,
+			mockPostFn: newUnexpectedPostFn(
+				t,
+				"key validation failure",
+			),
+		},
+
+		"error-empty-name": {
+			key:       "TEST",
+			name:      "",
+			expectErr: true,
+			mockPostFn: newUnexpectedPostFn(
+				t,
+				"name validation failure",
+			),
+		},
+
+		"error-option-handler": {
+			key:  "TEST",
+			name: "test",
 			options: []*FormOption{
 				o.WithFormTextFormattingRule("invalid"),
 			},
-			wantError: true,
-			want:      options{},
+			expectErr: true,
+			mockPostFn: newUnexpectedPostFn(
+				t,
+				"option validation failure",
+			),
 		},
-		"InvalidOption": {
+
+		"error-invalid-option": {
+			key:       "TEST",
+			name:      "test",
 			options:   []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			wantError: true,
-			want:      options{},
+			expectErr: true,
+			mockPostFn: newUnexpectedPostFn(
+				t,
+				"invalid option",
+			),
+		},
+
+		"error-client-failure": {
+			key:  "TEST",
+			name: "test",
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+			expectErr: true,
+		},
+
+		"error-invalid-json": {
+			key:  "TEST",
+			name: "test",
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+			expectErr: true,
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
-				assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
-				assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
-				assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
+			s.method.Post = tc.mockPostFn
 
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-				}
-				return resp, nil
-			}
+			project, err := s.Create(tc.key, tc.name, tc.options...)
 
-			if resp, err := s.Create("TEST", "test", tc.options...); tc.wantError {
+			if tc.expectErr {
 				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
+				assert.Nil(t, project)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, project)
+
+			assert.Equal(t, tc.key, project.ProjectKey)
+			assert.Equal(t, tc.name, project.Name)
 		})
-
 	}
-}
-
-func TestProjectService_Create_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	resp, err := s.Create("TEST", "test")
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestProjectService_Create_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.Create("TEST", "test")
-	assert.Error(t, err)
-	assert.Nil(t, project)
 }
 
 func TestProjectService_Update(t *testing.T) {
-	t.Parallel()
+	o := newProjectOptionService()
 
-	projectKey := "TEST"
-
-	want := struct {
-		spath      string
-		projectKey string
-	}{
-		spath:      "projects/" + projectKey,
-		projectKey: projectKey,
-	}
-
-	s := newProjectService()
-	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.NotNil(t, form)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.Update(projectKey)
-	require.NoError(t, err)
-	assert.NotNil(t, project)
-	assert.Equal(t, want.projectKey, project.ProjectKey)
-}
-
-func TestProjectService_Update_param(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		wantError      bool
+		options        []*FormOption
+
+		expectErr bool
+
+		wantPath string
+
+		wantKey                               string
+		wantName                              string
+		wantChartEnabled                      string
+		wantSubtaskingEnabled                 string
+		wantProjectLeaderCanEditProjectLeader string
+		wantTextFormattingRule                string
+		wantArchived                          string
+
+		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		"projectIDOrKey_string": {
+		"success-basic": {
 			projectIDOrKey: "TEST",
-			wantError:      false,
-		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			wantError:      false,
-		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			wantError:      true,
-		},
-		"projectIDOrKey_zero": {
-			projectIDOrKey: "0",
-			wantError:      true,
-		},
-	}
+			wantPath:       "projects/TEST",
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST", spath)
+				assert.NotNil(t, form)
 
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			t.Parallel()
-
-			s := newProjectService()
-			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-				}
-				return resp, nil
-			}
+				}, nil
+			},
+		},
 
-			if resp, err := s.Update(tc.projectIDOrKey); tc.wantError {
-				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
-			}
-		})
+		"success-project-id": {
+			projectIDOrKey: "1234",
+			wantPath:       "projects/1234",
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/1234", spath)
 
-	}
-}
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
+			},
+		},
 
-func TestProjectService_Update_option(t *testing.T) {
-	type options struct {
-		key                               string
-		name                              string
-		chartEnabled                      string
-		subtaskingEnabled                 string
-		projectLeaderCanEditProjectLeader string
-		textFormattingRule                Format
-		archived                          string
-	}
+		"error-empty-key": {
+			projectIDOrKey: "",
+			expectErr:      true,
+			mockPatchFn: newUnexpectedPatchFn(
+				t,
+				"empty project id/key",
+			),
+		},
 
-	o := newProjectOptionService()
-	cases := map[string]struct {
-		options   []*FormOption
-		wantError bool
-		want      options
-	}{
-		"ValidOption": {
+		"error-zero-id": {
+			projectIDOrKey: "0",
+			expectErr:      true,
+			mockPatchFn: newUnexpectedPatchFn(
+				t,
+				"zero project id",
+			),
+		},
+
+		"success-with-options": {
+			projectIDOrKey: "TEST",
 			options: []*FormOption{
 				o.WithFormKey("TEST1"),
 				o.WithFormName("test1"),
@@ -769,205 +439,187 @@ func TestProjectService_Update_option(t *testing.T) {
 				o.WithFormTextFormattingRule(FormatBacklog),
 				o.WithFormArchived(true),
 			},
-			wantError: false,
-			want: options{
-				key:                               "TEST1",
-				name:                              "test1",
-				chartEnabled:                      "true",
-				subtaskingEnabled:                 "true",
-				projectLeaderCanEditProjectLeader: "true",
-				textFormattingRule:                FormatBacklog,
-				archived:                          "true",
-			},
-		},
-		"OptionError": {
-			options: []*FormOption{
-				o.WithFormKey(""),
-				o.WithFormName(""),
-				o.WithFormChartEnabled(false),
-				o.WithFormSubtaskingEnabled(false),
-				o.WithFormProjectLeaderCanEditProjectLeader(false),
-				o.WithFormTextFormattingRule("invalid"),
-				o.WithFormArchived(false),
-			},
-			wantError: true,
-			want:      options{},
-		},
-		"InvalidOption": {
-			options:   []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			wantError: true,
-			want:      options{},
-		},
-	}
+			wantKey:                               "TEST1",
+			wantName:                              "test1",
+			wantChartEnabled:                      "true",
+			wantSubtaskingEnabled:                 "true",
+			wantProjectLeaderCanEditProjectLeader: "true",
+			wantTextFormattingRule:                "backlog",
+			wantArchived:                          "true",
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 
-	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
-			t.Parallel()
+				assert.Equal(t, "TEST1", form.Get("key"))
+				assert.Equal(t, "test1", form.Get("name"))
+				assert.Equal(t, "true", form.Get("chartEnabled"))
+				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
+				assert.Equal(t, "true", form.Get("archived"))
 
-			s := newProjectService()
-			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				assert.Equal(t, tc.want.key, form.Get("key"))
-				assert.Equal(t, tc.want.name, form.Get("name"))
-				assert.Equal(t, tc.want.chartEnabled, form.Get("chartEnabled"))
-				assert.Equal(t, tc.want.subtaskingEnabled, form.Get("subtaskingEnabled"))
-				assert.Equal(t, tc.want.projectLeaderCanEditProjectLeader, form.Get("projectLeaderCanEditProjectLeader"))
-				assert.Equal(t, string(tc.want.textFormattingRule), form.Get("textFormattingRule"))
-				assert.Equal(t, tc.want.archived, form.Get("archived"))
-
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-				}
-				return resp, nil
-			}
+				}, nil
+			},
+		},
 
-			if resp, err := s.Update("TEST", tc.options...); tc.wantError {
-				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
-			}
-		})
-
-	}
-}
-
-func TestProjectService_Update_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	resp, err := s.Update("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestProjectService_Update_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.Update("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, project)
-}
-
-func TestProjectService_Delete_param(t *testing.T) {
-	cases := map[string]struct {
-		projectIDOrKey string
-		wantError      bool
-	}{
-		"projectIDOrKey_string": {
+		"error-option-validation": {
 			projectIDOrKey: "TEST",
-			wantError:      false,
+			options: []*FormOption{
+				o.WithFormTextFormattingRule("invalid"),
+			},
+			expectErr: true,
+			mockPatchFn: newUnexpectedPatchFn(
+				t,
+				"option validation failure",
+			),
 		},
-		"projectIDOrKey_number": {
-			projectIDOrKey: "1234",
-			wantError:      false,
+
+		"error-invalid-option": {
+			projectIDOrKey: "TEST",
+			options:        []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+			expectErr:      true,
+			mockPatchFn: newUnexpectedPatchFn(
+				t,
+				"invalid option",
+			),
 		},
-		"projectIDOrKey_empty": {
-			projectIDOrKey: "",
-			wantError:      true,
+
+		"error-client-failure": {
+			projectIDOrKey: "TEST",
+			expectErr:      true,
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
 		},
-		"projectIDOrKey_zero": {
-			projectIDOrKey: "0",
-			wantError:      true,
+
+		"error-invalid-json": {
+			projectIDOrKey: "TEST",
+			expectErr:      true,
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
 		},
 	}
 
-	for n, tc := range cases {
+	for name, tc := range cases {
 		tc := tc
-		t.Run(n, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-				}
-				return resp, nil
-			}
+			s.method.Patch = tc.mockPatchFn
 
-			if resp, err := s.Delete(tc.projectIDOrKey); tc.wantError {
+			project, err := s.Update(tc.projectIDOrKey, tc.options...)
+
+			if tc.expectErr {
 				assert.Error(t, err)
-				assert.Nil(t, resp)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, resp)
+				assert.Nil(t, project)
+				return
 			}
-		})
 
+			assert.NoError(t, err)
+			require.NotNil(t, project)
+		})
 	}
 }
 
 func TestProjectService_Delete(t *testing.T) {
-	t.Parallel()
+	cases := map[string]struct {
+		projectIDOrKey string
+		expectErr      bool
+		wantPath       string
 
-	projectKey := "TEST"
-
-	want := struct {
-		spath string
-		key   string
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
-		spath: "projects/" + projectKey,
-		key:   projectKey,
+		"success-project-key": {
+			projectIDOrKey: "TEST",
+			wantPath:       "projects/TEST",
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST", spath)
+				assert.NotNil(t, form)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
+			},
+		},
+
+		"success-project-id": {
+			projectIDOrKey: "1234",
+			wantPath:       "projects/1234",
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "projects/1234", spath)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+				}, nil
+			},
+		},
+
+		"error-empty-key": {
+			projectIDOrKey: "",
+			expectErr:      true,
+			mockDeleteFn: newUnexpectedDeleteFn(
+				t,
+				"empty project id/key",
+			),
+		},
+
+		"error-zero-id": {
+			projectIDOrKey: "0",
+			expectErr:      true,
+			mockDeleteFn: newUnexpectedDeleteFn(
+				t,
+				"zero project id",
+			),
+		},
+
+		"error-client-failure": {
+			projectIDOrKey: "TEST",
+			expectErr:      true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+
+		"error-invalid-json": {
+			projectIDOrKey: "TEST",
+			expectErr:      true,
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+		},
 	}
 
-	s := newProjectService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.NotNil(t, form)
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
-		}
-		return resp, nil
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := newProjectService()
+			s.method.Delete = tc.mockDeleteFn
+
+			project, err := s.Delete(tc.projectIDOrKey)
+
+			if tc.expectErr {
+				assert.Error(t, err)
+				assert.Nil(t, project)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, project)
+
+			assert.Equal(t, "TEST", project.ProjectKey)
+		})
 	}
-
-	project, err := s.Delete(projectKey)
-	require.NoError(t, err)
-	assert.Equal(t, want.key, project.ProjectKey)
-}
-
-func TestProjectService_Delete_clientError(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		return nil, errors.New("error")
-	}
-
-	resp, err := s.Delete("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestProjectService_Delete_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newProjectService()
-	s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	project, err := s.Delete("TEST")
-	assert.Error(t, err)
-	assert.Nil(t, project)
 }
