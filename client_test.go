@@ -146,103 +146,75 @@ func TestNewClient_initialization(t *testing.T) {
 	})
 }
 
-func TestClient_Method(t *testing.T) {
+func TestClient_do(t *testing.T) {
+	user := &User{
+		ID:          1,
+		UserID:      "admin",
+		Name:        "admin",
+		RoleType:    1,
+		Lang:        "ja",
+		MailAddress: "test@example",
+	}
+	now := time.Now()
+
+	wantWiki := Wiki{
+		ID:          1,
+		ProjectID:   1,
+		Name:        "Home",
+		Content:     "test",
+		Tags:        []*Tag{},
+		Attachments: []*Attachment{},
+		SharedFiles: []*SharedFile{},
+		Stars:       []*Star{},
+		CreatedUser: user,
+		Created:     now,
+		UpdatedUser: user,
+		Updated:     now,
+	}
+
+	wikiJSON, _ := json.Marshal(wantWiki)
+
+	apiErrors := &APIResponseError{
+		Errors: []*Error{
+			{
+				Message: "No project.",
+				Code:    6,
+			},
+		},
+	}
+	errJSON, _ := json.Marshal(apiErrors)
+
+	header := http.Header{}
+	header.Set("Content-Type", "application/json;charset=utf-8")
+
 	cases := map[string]struct {
-		call  func(c *Client) error
-		check func(t *testing.T, captured *httpCapture)
+		doFunc  func(*http.Request) (*http.Response, error)
+		wantErr bool
 	}{
-		"GET": {
-			call: func(c *Client) error {
-				_, err := c.method.Get("/path1", nil)
-				return err
-			},
-			check: func(t *testing.T, captured *httpCapture) {
-				assert.Equal(t, "GET", captured.Method)
-				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
-				assert.Empty(t, captured.Body)
-				assert.Empty(t, captured.Header.Get("Content-Type"))
+		"success": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     header,
+					Body:       io.NopCloser(bytes.NewReader(wikiJSON)),
+				}, nil
 			},
 		},
-
-		"POST": {
-			call: func(c *Client) error {
-				form := NewFormParams()
-				form.Add("k", "v")
-				_, err := c.method.Post("/path2", form)
-				return err
+		"http-client-error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return nil, errors.New("http client error")
 			},
-			check: func(t *testing.T, captured *httpCapture) {
-				assert.Equal(t, "POST", captured.Method)
-				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
-				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
-				assert.Contains(t, string(captured.Body), "k=v")
-			},
+			wantErr: true,
 		},
-
-		"PATCH": {
-			call: func(c *Client) error {
-				form := NewFormParams()
-				form.Add("id", "123")
-				_, err := c.method.Patch("/path3", form)
-				return err
+		"api-error-response": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: 404,
+					Header:     header,
+					Body:       io.NopCloser(bytes.NewReader(errJSON)),
+				}, nil
 			},
-			check: func(t *testing.T, captured *httpCapture) {
-				assert.Equal(t, "PATCH", captured.Method)
-				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
-				assert.Contains(t, string(captured.Body), "id=123")
-			},
-		},
-
-		"DELETE": {
-			call: func(c *Client) error {
-				form := NewFormParams()
-				form.Add("id", "321")
-				_, err := c.method.Delete("/path4", form)
-				return err
-			},
-			check: func(t *testing.T, captured *httpCapture) {
-				assert.Equal(t, "DELETE", captured.Method)
-				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
-				assert.Contains(t, string(captured.Body), "id=321")
-			},
-		},
-
-		"UPLOAD": {
-			call: func(c *Client) error {
-				buf := bytes.NewBufferString("dummyfiledata")
-				_, err := c.method.Upload("/upload-path", "file.txt", buf)
-				return err
-			},
-			check: func(t *testing.T, captured *httpCapture) {
-				assert.Equal(t, "POST", captured.Method)
-				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
-
-				ct := captured.Header.Get("Content-Type")
-				assert.Contains(t, ct, "multipart/form-data")
-				assert.Contains(t, ct, "boundary=")
-
-				boundary := strings.Split(ct, "boundary=")[1]
-				reader := multipart.NewReader(bytes.NewReader(captured.Body), boundary)
-
-				part, err := reader.NextPart()
-				require.NoError(t, err)
-
-				assert.Equal(t, "file", part.FormName())
-				assert.Equal(t, "file.txt", part.FileName())
-
-				data, err := io.ReadAll(part)
-				require.NoError(t, err)
-				assert.Equal(t, "dummyfiledata", string(data))
-
-				next, err := reader.NextPart()
-				assert.Nil(t, next)
-				assert.Equal(t, io.EOF, err)
-			},
+			wantErr: true,
 		},
 	}
 
@@ -252,12 +224,34 @@ func TestClient_Method(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, captured := makeClient(t)
+			c := newClientMock(t, "https://test.com", "test", &mockDoer{
+				t:      t,
+				doFunc: tc.doFunc,
+			})
 
-			err := tc.call(c)
+			res, err := c.do(
+				http.MethodGet,
+				"test",
+				http.Header{},
+				nil,
+				nil,
+			)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				assert.Nil(t, res)
+				return
+			}
+
 			require.NoError(t, err)
+			require.NotNil(t, res)
 
-			tc.check(t, captured)
+			var wiki Wiki
+			require.NoError(t, json.NewDecoder(res.Body).Decode(&wiki))
+
+			assert.Equal(t, wantWiki.ID, wiki.ID)
+			assert.Equal(t, wantWiki.Name, wiki.Name)
+			assert.Equal(t, wantWiki.CreatedUser.Name, wiki.CreatedUser.Name)
 		})
 	}
 }
@@ -374,73 +368,137 @@ func TestClient_newRequest(t *testing.T) {
 
 }
 
-func TestClient_do(t *testing.T) {
-	user := &User{
-		ID:          1,
-		UserID:      "admin",
-		Name:        "admin",
-		RoleType:    1,
-		Lang:        "ja",
-		MailAddress: "test@example",
-	}
-	now := time.Now()
-
-	wantWiki := Wiki{
-		ID:          1,
-		ProjectID:   1,
-		Name:        "Home",
-		Content:     "test",
-		Tags:        []*Tag{},
-		Attachments: []*Attachment{},
-		SharedFiles: []*SharedFile{},
-		Stars:       []*Star{},
-		CreatedUser: user,
-		Created:     now,
-		UpdatedUser: user,
-		Updated:     now,
-	}
-
-	wikiJSON, _ := json.Marshal(wantWiki)
-
-	apiErrors := &APIResponseError{
-		Errors: []*Error{
-			{
-				Message: "No project.",
-				Code:    6,
-			},
-		},
-	}
-	errJSON, _ := json.Marshal(apiErrors)
-
-	header := http.Header{}
-	header.Set("Content-Type", "application/json;charset=utf-8")
-
+func TestClient_Method(t *testing.T) {
 	cases := map[string]struct {
-		doFunc  func(*http.Request) (*http.Response, error)
+		call    func(c *Client) (*http.Response, error)
+		check   func(t *testing.T, captured *httpCapture)
 		wantErr bool
 	}{
-		"success": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Header:     header,
-					Body:       io.NopCloser(bytes.NewReader(wikiJSON)),
-				}, nil
+		"GET": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Get("/path1", nil)
+			},
+			check: func(t *testing.T, captured *httpCapture) {
+				assert.Equal(t, "GET", captured.Method)
+				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
+				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Empty(t, captured.Body)
+				assert.Empty(t, captured.Header.Get("Content-Type"))
 			},
 		},
-		"http-client-error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return nil, errors.New("http client error")
+
+		"POST": {
+			call: func(c *Client) (*http.Response, error) {
+				form := NewFormParams()
+				form.Add("k", "v")
+				return c.method.Post("/path2", form)
+			},
+			check: func(t *testing.T, captured *httpCapture) {
+				assert.Equal(t, "POST", captured.Method)
+				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
+				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
+				assert.Contains(t, string(captured.Body), "k=v")
+			},
+		},
+
+		"PATCH": {
+			call: func(c *Client) (*http.Response, error) {
+				form := NewFormParams()
+				form.Add("id", "123")
+				return c.method.Patch("/path3", form)
+			},
+			check: func(t *testing.T, captured *httpCapture) {
+				assert.Equal(t, "PATCH", captured.Method)
+				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
+				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Contains(t, string(captured.Body), "id=123")
+			},
+		},
+
+		"DELETE": {
+			call: func(c *Client) (*http.Response, error) {
+				form := NewFormParams()
+				form.Add("id", "321")
+				return c.method.Delete("/path4", form)
+			},
+			check: func(t *testing.T, captured *httpCapture) {
+				assert.Equal(t, "DELETE", captured.Method)
+				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
+				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Contains(t, string(captured.Body), "id=321")
+			},
+		},
+
+		"UPLOAD": {
+			call: func(c *Client) (*http.Response, error) {
+				buf := bytes.NewBufferString("dummyfiledata")
+				return c.method.Upload("/upload-path", "file.txt", buf)
+			},
+			check: func(t *testing.T, captured *httpCapture) {
+				assert.Equal(t, "POST", captured.Method)
+				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
+				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+
+				ct := captured.Header.Get("Content-Type")
+				assert.Contains(t, ct, "multipart/form-data")
+				assert.Contains(t, ct, "boundary=")
+
+				boundary := strings.Split(ct, "boundary=")[1]
+				reader := multipart.NewReader(bytes.NewReader(captured.Body), boundary)
+
+				part, err := reader.NextPart()
+				require.NoError(t, err)
+
+				assert.Equal(t, "file", part.FormName())
+				assert.Equal(t, "file.txt", part.FileName())
+
+				data, err := io.ReadAll(part)
+				require.NoError(t, err)
+				assert.Equal(t, "dummyfiledata", string(data))
+
+				next, err := reader.NextPart()
+				assert.Nil(t, next)
+				assert.Equal(t, io.EOF, err)
+			},
+		},
+
+		"GET newRequest error": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Get("", NewQueryParams())
 			},
 			wantErr: true,
 		},
-		"api-error-response": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: 404,
-					Header:     header,
-					Body:       io.NopCloser(bytes.NewReader(errJSON)),
-				}, nil
+
+		"POST newRequest error": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Post("", nil)
+			},
+			wantErr: true,
+		},
+
+		"PATCH empty params": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Patch("spath", nil)
+			},
+		},
+
+		"PATCH newRequest error": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Patch("", nil)
+			},
+			wantErr: true,
+		},
+
+		"DELETE empty params": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Delete("spath", nil)
+			},
+		},
+
+		"DELETE newRequest error": {
+			call: func(c *Client) (*http.Response, error) {
+				return c.method.Delete("", nil)
 			},
 			wantErr: true,
 		},
@@ -452,197 +510,69 @@ func TestClient_do(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://test.com", "test", &mockDoer{
-				t:      t,
-				doFunc: tc.doFunc,
-			})
+			c, captured := makeClient(t)
 
-			res, err := c.do(
-				http.MethodGet,
-				"test",
-				http.Header{},
-				nil,
-				nil,
-			)
+			resp, err := tc.call(c)
 
 			if tc.wantErr {
 				assert.Error(t, err)
-				assert.Nil(t, res)
+				assert.Nil(t, resp)
 				return
 			}
 
 			require.NoError(t, err)
-			require.NotNil(t, res)
+			require.NotNil(t, resp)
 
-			var wiki Wiki
-			require.NoError(t, json.NewDecoder(res.Body).Decode(&wiki))
-
-			assert.Equal(t, wantWiki.ID, wiki.ID)
-			assert.Equal(t, wantWiki.Name, wiki.Name)
-			assert.Equal(t, wantWiki.CreatedUser.Name, wiki.CreatedUser.Name)
+			if tc.check != nil {
+				tc.check(t, captured)
+			}
 		})
 	}
 }
 
-func TestClient_MethodGet_newRequestError(t *testing.T) {
-	t.Parallel()
-
-	c := newClientMock(t, "https://test.com", "test", nil)
-
-	resp, err := c.method.Get("", NewQueryParams())
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestClient_MethodPost_newRequestError(t *testing.T) {
-	t.Parallel()
-
-	c := newClientMock(t, "https://test.com", "test", nil)
-
-	resp, err := c.method.Post("", nil)
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestClient_MethodPatch_emptyParams(t *testing.T) {
-	t.Parallel()
-
-	baseURL := "https://test.com"
-	apiKey := "apikey"
-	spath := "spath"
-
-	c := newClientMock(t, baseURL, apiKey, &mockDoer{t: t,
-		doFunc: func(req *http.Request) (*http.Response, error) {
-			defer req.Body.Close()
-			return &http.Response{StatusCode: http.StatusOK}, nil
-		},
-	})
-
-	res, err := c.method.Patch(spath, nil)
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, res.StatusCode)
-}
-
-func TestClient_MethodPatch_newRequestError(t *testing.T) {
-	t.Parallel()
-
-	c := newClientMock(t, "https://test.com", "test", nil)
-
-	resp, err := c.method.Patch("", nil)
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestClient_MethodDelete_emptyParams(t *testing.T) {
-	t.Parallel()
-
-	c := newClientMock(t, "https://test.com", "apikey", &mockDoer{t: t,
-		doFunc: func(req *http.Request) (*http.Response, error) {
-			defer req.Body.Close()
-			return &http.Response{StatusCode: http.StatusOK}, nil
-		},
-	})
-
-	res, err := c.method.Delete("spath", nil)
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, res.StatusCode)
-}
-
-func TestClient_MethodDelete_newRequestError(t *testing.T) {
-	t.Parallel()
-
-	c := newClientMock(t, "https://test.com", "test", nil)
-
-	resp, err := c.method.Delete("", nil)
-	assert.Error(t, err)
-	assert.Nil(t, resp)
-}
-
-func TestClient_MethodUpload(t *testing.T) {
+func TestClient_MethodUpload_errors(t *testing.T) {
 	type testCase struct {
-		name       string
-		baseURL    string
-		apiKey     string
-		spath      string
-		fileName   string
-		fileData   string
-		wantMethod string
-		wantURL    string
-		wantStatus int
-		wantError  bool
-		setup      func(c *Client)
+		spath    string
+		fileName string
+		fileData string
+		setup    func(c *Client)
 	}
 
 	cases := map[string]testCase{
-		"success": {
-			name:       "success",
-			baseURL:    "https://test.com",
-			apiKey:     "apikey",
-			spath:      "spath",
-			fileName:   "filename",
-			fileData:   "testdata",
-			wantMethod: http.MethodPost,
-			wantURL:    "https://test.com/api/v2/spath?apiKey=apikey",
-			wantStatus: http.StatusOK,
-			wantError:  false,
-			setup: func(c *Client) {
-				c.doer = &mockDoer{t: t, doFunc: func(req *http.Request) (*http.Response, error) {
-					assert.Equal(t, http.MethodPost, req.Method)
-					assert.Equal(t, "https://test.com/api/v2/spath?apiKey=apikey", req.URL.String())
-					assert.Regexp(t, "^multipart/form-data; boundary=", req.Header.Get("Content-Type"))
-					return &http.Response{StatusCode: http.StatusOK}, nil
-				}}
-			},
+		"empty_fileName": {
+			spath:    "spath",
+			fileName: "",
+			fileData: "testdata",
 		},
-		"empty-fileName": {
-			name:      "empty fileName",
-			baseURL:   "https://test.com",
-			apiKey:    "test",
-			spath:     "spath",
-			fileName:  "",
-			fileData:  "testdata",
-			wantError: true,
+
+		"empty_spath": {
+			spath:    "",
+			fileName: "filename",
+			fileData: "dummy",
 		},
-		"empty-spath": {
-			name:      "empty spath",
-			baseURL:   "https://test.com",
-			apiKey:    "test",
-			spath:     "",
-			fileName:  "filename",
-			fileData:  "dummy",
-			wantError: true,
-		},
-		"createFormFile create error": {
-			baseURL:   "https://test.com",
-			apiKey:    "test",
-			spath:     "spath",
-			fileName:  "filename",
-			fileData:  "dummy",
-			wantError: true,
+
+		"createFormFile_error": {
+			spath:    "spath",
+			fileName: "filename",
+			fileData: "dummy",
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{createErr: errors.New("mock createFormFile error")}
 			},
 		},
-		"createFormFile close error": {
-			name:      "createFormFile error",
-			baseURL:   "https://test.com",
-			apiKey:    "test",
-			spath:     "spath",
-			fileName:  "filename",
-			fileData:  "invalid",
-			wantError: true,
+
+		"close_error": {
+			spath:    "spath",
+			fileName: "filename",
+			fileData: "dummy",
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{closeErr: errors.New("mock close error")}
 			},
 		},
-		"copy-error": {
-			name:      "copy error",
-			baseURL:   "https://test.com",
-			apiKey:    "test",
-			spath:     "spath",
-			fileName:  "filename",
-			fileData:  "invalid",
-			wantError: true,
+
+		"copy_error": {
+			spath:    "spath",
+			fileName: "filename",
+			fileData: "dummy",
 			setup: func(c *Client) {
 				c.wrapper = mockWrapper{copyErr: errors.New("mock copy error")}
 			},
@@ -651,27 +581,22 @@ func TestClient_MethodUpload(t *testing.T) {
 
 	for name, tc := range cases {
 		tc := tc
+
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, tc.baseURL, tc.apiKey, nil)
+			c := newClientMock(t, "https://test.com", "test", nil)
 
 			if tc.setup != nil {
 				tc.setup(c)
 			}
 
 			f := io.NopCloser(bytes.NewBufferString(tc.fileData))
+
 			resp, err := c.method.Upload(tc.spath, tc.fileName, f)
 
-			if tc.wantError {
-				assert.Error(t, err)
-				assert.Nil(t, resp)
-				return
-			}
-
-			require.NoError(t, err)
-			require.NotNil(t, resp)
-			assert.Equal(t, tc.wantStatus, resp.StatusCode)
+			assert.Error(t, err)
+			assert.Nil(t, resp)
 		})
 	}
 }
