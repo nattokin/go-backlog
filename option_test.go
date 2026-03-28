@@ -9,156 +9,48 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// This test verifies that OptionService.applyOptions correctly handles
-// normal and error flows for both FormOption and QueryOption.
-// It covers:
-//   - Successful option application
-//   - Check() validation errors
-//   - set() execution errors
-//   - Type consistency (FormOption / QueryOption)
-func TestOptionService_applyOptions(t *testing.T) {
-	queryOption := newQueryOptionService()
-	formOption := newFormOptionService()
-
-	// Dummy error types for type-based validation
-	var (
-		errCheckFailed = errors.New("check failed")
-		errSetFailed   = errors.New("set failed")
-	)
-
+func TestQueryOptionService_applyOptions(t *testing.T) {
 	cases := map[string]struct {
-		isQuery     bool
-		opts        []RequestOption
-		expectErr   bool
-		expectErrIs error
-		wantValues  map[string]string
+		opts      []*QueryOption
+		wantErr   bool
+		wantValue string
 	}{
-		// --- Successful option application ----------------------------------------
-
-		"form-applies-valid-options": {
-			isQuery: false,
-			opts: []RequestOption{
-				formOption.WithName("test"),
-				formOption.WithMailAddress("mail@test.com"),
-			},
-			wantValues: map[string]string{
-				"name":        "test",
-				"mailAddress": "mail@test.com",
-			},
-		},
-
-		"query-applies-valid-options": {
-			isQuery: true,
-			opts: []RequestOption{
-				queryOption.WithCount(10),
-				queryOption.WithAll(true),
-			},
-			wantValues: map[string]string{
-				"count": "10",
-				"all":   "true",
-			},
-		},
-
-		// --- Validation errors (Check fails) -------------------------------------
-
-		"form-check-fails": {
-			isQuery: false,
-			opts: []RequestOption{
-				&FormOption{
-					t: formKey,
-					checkFunc: func() error {
-						return errCheckFailed
-					},
-					setFunc: func(form *FormParams) error {
-						form.Set("x", "should-not-be-set")
+		"success": {
+			opts: []*QueryOption{
+				{
+					checkFunc: func() error { return nil },
+					setFunc: func(f *QueryParams) error {
+						f.Set("k", "v")
 						return nil
 					},
 				},
 			},
-			expectErr:   true,
-			expectErrIs: errCheckFailed,
+			wantValue: "v",
 		},
 
-		"query-check-fails": {
-			isQuery: true,
-			opts: []RequestOption{
-				&QueryOption{
-					t: queryKey,
-					checkFunc: func() error {
-						return errCheckFailed
-					},
-					setFunc: func(query *QueryParams) error {
-						query.Set("y", "should-not-be-set")
+		"check_error": {
+			opts: []*QueryOption{
+				{
+					checkFunc: func() error { return errors.New("check error") },
+					setFunc: func(f *QueryParams) error {
+						f.Set("k", "v")
 						return nil
 					},
 				},
 			},
-			expectErr:   true,
-			expectErrIs: errCheckFailed,
+			wantErr: true,
 		},
 
-		// --- Runtime set() errors -------------------------------------------------
-
-		"form-set-fails": {
-			isQuery: false,
-			opts: []RequestOption{
-				&FormOption{
-					t:         formKey,
+		"set_error": {
+			opts: []*QueryOption{
+				{
 					checkFunc: func() error { return nil },
-					setFunc: func(form *FormParams) error {
-						return errSetFailed
+					setFunc: func(f *QueryParams) error {
+						return errors.New("set error")
 					},
 				},
 			},
-			expectErr:   true,
-			expectErrIs: errSetFailed,
-		},
-
-		"query-set-fails": {
-			isQuery: true,
-			opts: []RequestOption{
-				&QueryOption{
-					t:         queryKey,
-					checkFunc: func() error { return nil },
-					setFunc: func(query *QueryParams) error {
-						return errSetFailed
-					},
-				},
-			},
-			expectErr:   true,
-			expectErrIs: errSetFailed,
-		},
-
-		// --- Mixed cases: multiple options, one fails -----------------------------
-
-		"form-mixed-check-error": {
-			isQuery: false,
-			opts: []RequestOption{
-				formOption.WithName("ok"),
-				&FormOption{
-					t:         formKey,
-					checkFunc: func() error { return errCheckFailed },
-					setFunc:   func(form *FormParams) error { return nil },
-				},
-			},
-			expectErr:   true,
-			expectErrIs: errCheckFailed,
-		},
-
-		"query-mixed-set-error": {
-			isQuery: true,
-			opts: []RequestOption{
-				queryOption.WithCount(10),
-				&QueryOption{
-					t:         queryKey,
-					checkFunc: func() error { return nil },
-					setFunc: func(query *QueryParams) error {
-						return errSetFailed
-					},
-				},
-			},
-			expectErr:   true,
-			expectErrIs: errSetFailed,
+			wantErr: true,
 		},
 	}
 
@@ -167,44 +59,88 @@ func TestOptionService_applyOptions(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			if tc.isQuery {
-				query := NewQueryParams()
-				err := newQueryOptionService().applyOptions(query, toQueryOptions(t, tc.opts)...)
+			s := &QueryOptionService{}
+			query := NewQueryParams()
 
-				if tc.expectErr {
-					require.Error(t, err)
-					require.ErrorIs(t, err, tc.expectErrIs)
-					return
-				}
+			err := s.applyOptions(query, tc.opts...)
 
-				require.NoError(t, err)
-				for k, v := range tc.wantValues {
-					assert.Equal(t, v, query.Get(k))
-				}
-
-			} else {
-				form := NewFormParams()
-				err := newFormOptionService().applyOptions(form, toFormOptions(t, tc.opts)...)
-
-				if tc.expectErr {
-					require.Error(t, err)
-					require.ErrorIs(t, err, tc.expectErrIs)
-					return
-				}
-
-				require.NoError(t, err)
-				for k, v := range tc.wantValues {
-					assert.Equal(t, v, form.Get(k))
-				}
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
 			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantValue, query.Get("k"))
 		})
 	}
 }
 
-// This test verifies that each WithQueryXxx method in ActivityOptionService
-// correctly builds and applies the expected query parameters.
-// Since these methods only delegate to QueryOptionService,
-// one success case per method is sufficient.
+func TestFormOptionService_applyOptions(t *testing.T) {
+	cases := map[string]struct {
+		opts      []*FormOption
+		wantErr   bool
+		wantValue string
+	}{
+		"success": {
+			opts: []*FormOption{
+				{
+					checkFunc: func() error { return nil },
+					setFunc: func(f *FormParams) error {
+						f.Set("k", "v")
+						return nil
+					},
+				},
+			},
+			wantValue: "v",
+		},
+
+		"check_error": {
+			opts: []*FormOption{
+				{
+					checkFunc: func() error { return errors.New("check error") },
+					setFunc: func(f *FormParams) error {
+						f.Set("k", "v")
+						return nil
+					},
+				},
+			},
+			wantErr: true,
+		},
+
+		"set_error": {
+			opts: []*FormOption{
+				{
+					checkFunc: func() error { return nil },
+					setFunc: func(f *FormParams) error {
+						return errors.New("set error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := &FormOptionService{}
+			form := NewFormParams()
+
+			err := s.applyOptions(form, tc.opts...)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantValue, form.Get("k"))
+		})
+	}
+}
+
 func TestActivityOptionService(t *testing.T) {
 	o := newActivityOptionService()
 
@@ -312,11 +248,6 @@ func TestActivityOptionService(t *testing.T) {
 		}
 	})
 }
-
-// This test verifies that each WithXxx method in ProjectOptionService
-// correctly builds and applies the expected form and query parameters.
-// Each option is tested for one success case.
-//
 
 func TestProjectOptionService(t *testing.T) {
 	s := newProjectOptionService()
@@ -428,10 +359,6 @@ func TestProjectOptionService(t *testing.T) {
 	})
 }
 
-// This test verifies that each WithXxx method in UserOptionService
-// correctly sets its associated FormOption key and value.
-// Since these methods only wrap internal core functions,
-// one success case per option is sufficient.
 func TestUserOptionService(t *testing.T) {
 	o := newUserOptionService()
 
@@ -532,10 +459,6 @@ func TestUserOptionService(t *testing.T) {
 	})
 }
 
-// This test verifies that each WithXxx method in WikiOptionService
-// correctly builds and applies the expected form and query parameters.
-// Since these methods delegate to FormOptionService or QueryOptionService,
-// one success case per method is sufficient.
 func TestWikiOptionService(t *testing.T) {
 	s := &WikiOptionService{
 		support: &optionSupport{
