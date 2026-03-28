@@ -70,6 +70,25 @@ const (
 ]
 `
 
+	testdataAttachmentSingleListJSON = `
+[
+    {
+        "id": 2,
+        "name": "A.png",
+        "size": 196186,
+        "createdUser": {
+            "id": 1,
+            "userId": "admin",
+            "name": "admin",
+            "roleType": 1,
+            "lang": null,
+            "mailAddress": "eguchi@nulab.example"
+        },
+        "created": "2014-07-11T06:26:05Z"
+    }
+]
+`
+
 	testdataAttachmentListJSON = `
 [
     {
