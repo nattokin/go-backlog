@@ -13,6 +13,79 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func newTestAttachment() *Attachment {
+	return &Attachment{
+		ID:   8,
+		Name: "IMG0088.png",
+		Size: 5563,
+		Created: time.Date(
+			2014,
+			time.October,
+			28,
+			9,
+			24,
+			43,
+			0,
+			time.UTC,
+		),
+	}
+}
+
+func newTestAttachmentList() []*Attachment {
+	return []*Attachment{
+		{
+			ID:   2,
+			Name: "A.png",
+			Size: 196186,
+			Created: time.Date(
+				2014,
+				time.September,
+				11,
+				6,
+				26,
+				5,
+				0,
+				time.UTC,
+			),
+		},
+		{
+			ID:   5,
+			Name: "B.png",
+			Size: 201257,
+			Created: time.Date(
+				2014,
+				time.September,
+				11,
+				6,
+				26,
+				5,
+				0,
+				time.UTC,
+			),
+		},
+	}
+}
+
+func newTestAttachmentSingleList() []*Attachment {
+	return []*Attachment{
+		{
+			ID:   2,
+			Name: "A.png",
+			Size: 196186,
+			Created: time.Date(
+				2014,
+				time.September,
+				11,
+				6,
+				26,
+				5,
+				0,
+				time.UTC,
+			),
+		},
+	}
+}
+
 func TestSpaceAttachmentService_Upload(t *testing.T) {
 	cases := map[string]struct {
 		fpath     string
@@ -96,23 +169,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"success-single": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			want: []*Attachment{
-				{
-					ID:   2,
-					Name: "A.png",
-					Size: 196186,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-			},
+			want:          newTestAttachmentSingleList(),
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 
@@ -131,38 +188,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"success-multiple": {
 			wikiID:        1,
 			attachmentIDs: []int{2, 5},
-			want: []*Attachment{
-				{
-					ID:   2,
-					Name: "A.png",
-					Size: 196186,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-				{
-					ID:   5,
-					Name: "B.png",
-					Size: 201257,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-			},
+			want:          newTestAttachmentList(),
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -261,38 +287,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	}{
 		"success": {
 			wikiID: 1234,
-			want: []*Attachment{
-				{
-					ID:   2,
-					Name: "A.png",
-					Size: 196186,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-				{
-					ID:   5,
-					Name: "B.png",
-					Size: 201257,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-			},
+			want:   newTestAttachmentList(),
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 
@@ -384,21 +379,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		"success": {
 			wikiID:       1234,
 			attachmentID: 8,
-			want: &Attachment{
-				ID:   8,
-				Name: "IMG0088.png",
-				Size: 5563,
-				Created: time.Date(
-					2014,
-					time.October,
-					28,
-					9,
-					24,
-					43,
-					0,
-					time.UTC,
-				),
-			},
+			want:         newTestAttachment(),
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments/8", spath)
 
@@ -502,38 +483,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	}{
 		"success": {
 			issueIDOrKey: "1234",
-			want: []*Attachment{
-				{
-					ID:   2,
-					Name: "A.png",
-					Size: 196186,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-				{
-					ID:   5,
-					Name: "B.png",
-					Size: 201257,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-			},
+			want:         newTestAttachmentList(),
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments", spath)
 
@@ -619,21 +569,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		"success": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
-			want: &Attachment{
-				ID:   8,
-				Name: "IMG0088.png",
-				Size: 5563,
-				Created: time.Date(
-					2014,
-					time.October,
-					28,
-					9,
-					24,
-					43,
-					0,
-					time.UTC,
-				),
-			},
+			want:         newTestAttachment(),
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments/8", spath)
 
@@ -727,38 +663,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "test",
 			prNumber:           1234,
-			want: []*Attachment{
-				{
-					ID:   2,
-					Name: "A.png",
-					Size: 196186,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-				{
-					ID:   5,
-					Name: "B.png",
-					Size: 201257,
-					Created: time.Date(
-						2014,
-						time.July,
-						11,
-						6,
-						26,
-						5,
-						0,
-						time.UTC,
-					),
-				},
-			},
+			want:               newTestAttachmentList(),
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(
 					t,
@@ -878,21 +783,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           1234,
 			attachmentID:       8,
-			want: &Attachment{
-				ID:   8,
-				Name: "IMG0088.png",
-				Size: 5563,
-				Created: time.Date(
-					2014,
-					time.October,
-					28,
-					9,
-					24,
-					43,
-					0,
-					time.UTC,
-				),
-			},
+			want:               newTestAttachment(),
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(
 					t,
