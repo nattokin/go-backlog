@@ -39,7 +39,7 @@ func newTestAttachmentList() []*Attachment {
 			Size: 196186,
 			Created: time.Date(
 				2014,
-				time.September,
+				time.July,
 				11,
 				6,
 				26,
@@ -54,7 +54,7 @@ func newTestAttachmentList() []*Attachment {
 			Size: 201257,
 			Created: time.Date(
 				2014,
-				time.September,
+				time.July,
 				11,
 				6,
 				26,
