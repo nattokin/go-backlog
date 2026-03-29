@@ -297,11 +297,11 @@ func newPullRequestAttachmentService() *PullRequestAttachmentService {
 // newUnexpectedGetFn returns a mock function for http GET that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedGetFn(t *testing.T, reason string) func(spath string, query *QueryParams) (*http.Response, error) {
+func newUnexpectedGetFn(t *testing.T) func(spath string, query *QueryParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, query *QueryParams) (*http.Response, error) {
 		t.Helper()
-		t.Errorf("Get must not be called when %s", reason)
+		t.Error("Get must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
@@ -321,11 +321,11 @@ func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath 
 // newUnexpectedPostFn returns a mock function for http POST that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedPostFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedPostFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
-		t.Errorf("Post must not be called when %s", reason)
+		t.Error("Post must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
@@ -345,11 +345,11 @@ func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath
 // newUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedPatchFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedPatchFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
-		t.Errorf("Patch must not be called when %s", reason)
+		t.Error("Patch must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
@@ -369,11 +369,11 @@ func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spat
 // newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedDeleteFn(t *testing.T, reason string) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedDeleteFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
 	t.Helper()
 	return func(spath string, form *FormParams) (*http.Response, error) {
 		t.Helper()
-		t.Errorf("Delete must not be called when %s", reason)
+		t.Error("Delete must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
@@ -393,11 +393,11 @@ func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spa
 // newUnexpectedUploadFn returns a mock function for http Upload that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedUploadFn(t *testing.T, reason string) func(spath, fileName string, r io.Reader) (*http.Response, error) {
+func newUnexpectedUploadFn(t *testing.T) func(spath, fileName string, r io.Reader) (*http.Response, error) {
 	t.Helper()
 	return func(spath, fileName string, r io.Reader) (*http.Response, error) {
 		t.Helper()
-		t.Errorf("Upload must not be called when %s", reason)
+		t.Error("Upload must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
