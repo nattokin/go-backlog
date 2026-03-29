@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -16,30 +17,37 @@ func TestProjectService_All(t *testing.T) {
 	o := newProjectOptionService()
 
 	cases := map[string]struct {
-		options     []*QueryOption
-		expectError bool
+		options []*QueryOption
+
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+
 		wantIDs     []int
 		wantNames   []string
-		mockGetFn   func(spath string, query *QueryParams) (*http.Response, error)
+		wantErrType error
 	}{
 		"success-without-option": {
-			options:     []*QueryOption{},
-			expectError: false,
+			options: []*QueryOption{},
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "projects", spath)
+				require.NotNil(t, query)
+				assert.Empty(t, query.Values)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+				}, nil
+			},
+
 			wantIDs:     []int{1, 2, 3},
 			wantNames:   []string{"test", "test2", "test3"},
-			mockGetFn: newMockGetFn(t, "projects", &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
-			}),
+			wantErrType: nil,
 		},
 		"success-with-valid-option": {
 			options: []*QueryOption{
 				o.WithQueryAll(false),
 				o.WithQueryArchived(true),
 			},
-			expectError: false,
-			wantIDs:     []int{1, 2, 3},
-			wantNames:   []string{"test", "test2", "test3"},
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.Equal(t, "false", query.Get("all"))
@@ -49,6 +57,10 @@ func TestProjectService_All(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
 				}, nil
 			},
+
+			wantIDs:     []int{1, 2, 3},
+			wantNames:   []string{"test", "test2", "test3"},
+			wantErrType: nil,
 		},
 		"error-with-option-handler": {
 			options: []*QueryOption{{
@@ -56,8 +68,8 @@ func TestProjectService_All(t *testing.T) {
 				nil,
 				func(p *QueryParams) error { return errors.New("error") },
 			}},
-			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t),
+
+			wantErrType: errors.New(""),
 		},
 		"error-with-invalid-option": {
 			options: []*QueryOption{{
@@ -65,25 +77,29 @@ func TestProjectService_All(t *testing.T) {
 				nil,
 				func(p *QueryParams) error { return nil },
 			}},
-			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t),
+
+			wantErrType: &InvalidQueryOptionError{},
 		},
 		"error-client-failure": {
-			options:     []*QueryOption{},
-			expectError: true,
+			options: []*QueryOption{},
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
+
+			wantErrType: errors.New(""),
 		},
 		"error-invalid-json": {
-			options:     []*QueryOption{},
-			expectError: true,
+			options: []*QueryOption{},
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -93,11 +109,19 @@ func TestProjectService_All(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Get = tc.mockGetFn
+
+			// default: unexpected API call
+			s.method.Get = newUnexpectedGetFn(t)
+
+			if tc.mockGetFn != nil {
+				s.method.Get = tc.mockGetFn
+			}
 
 			projects, err := s.All(tc.options...)
-			if tc.expectError {
-				assert.Error(t, err)
+
+			if tc.wantErrType != nil {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 				assert.Nil(t, projects)
 				return
 			}
@@ -117,12 +141,14 @@ func TestProjectService_All(t *testing.T) {
 func TestProjectService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		expectError    bool
-		mockGetFn      func(spath string, query *QueryParams) (*http.Response, error)
+
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+
+		wantErrType error
 	}{
 		"success-with-projectKey": {
 			projectIDOrKey: "TEST",
-			expectError:    false,
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.Nil(t, query)
@@ -131,10 +157,12 @@ func TestProjectService_One(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 		"success-with-projectID": {
 			projectIDOrKey: strconv.Itoa(6),
-			expectError:    false,
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "projects/6", spath)
 				assert.Nil(t, query)
@@ -143,28 +171,34 @@ func TestProjectService_One(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 		"error-with-empty-projectIDOrKey": {
 			projectIDOrKey: "",
-			expectError:    true,
-			mockGetFn:      newUnexpectedGetFn(t),
+
+			wantErrType: &ValidationError{},
 		},
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
+
+			wantErrType: errors.New(""),
 		},
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -174,11 +208,19 @@ func TestProjectService_One(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Get = tc.mockGetFn
+
+			// default: unexpected API call
+			s.method.Get = newUnexpectedGetFn(t)
+
+			if tc.mockGetFn != nil {
+				s.method.Get = tc.mockGetFn
+			}
 
 			project, err := s.One(tc.projectIDOrKey)
-			if tc.expectError {
-				assert.Error(t, err)
+
+			if tc.wantErrType != nil {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 				assert.Nil(t, project)
 				return
 			}
@@ -197,15 +239,18 @@ func TestProjectService_Create(t *testing.T) {
 	o := newProjectOptionService()
 
 	cases := map[string]struct {
-		key         string
-		name        string
-		options     []*FormOption
-		expectError bool
-		mockPostFn  func(spath string, form *FormParams) (*http.Response, error)
+		key     string
+		name    string
+		options []*FormOption
+
+		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+
+		wantErrType error
 	}{
 		"success-basic-create": {
 			key:  "TEST",
 			name: "test",
+
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.NotNil(t, form)
@@ -217,12 +262,15 @@ func TestProjectService_Create(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"success-without-option": {
 			key:     "TEST",
 			name:    "test",
 			options: []*FormOption{},
+
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
 				assert.Equal(t, "", form.Get("subtaskingEnabled"))
@@ -234,17 +282,21 @@ func TestProjectService_Create(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"success-with-valid-option": {
 			key:  "TEST",
 			name: "test",
+
 			options: []*FormOption{
 				o.WithFormChartEnabled(true),
 				o.WithFormSubtaskingEnabled(true),
 				o.WithFormProjectLeaderCanEditProjectLeader(true),
 				o.WithFormTextFormattingRule(FormatBacklog),
 			},
+
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("chartEnabled"))
 				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
@@ -256,61 +308,67 @@ func TestProjectService_Create(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"error-empty-key": {
-			key:         "",
-			name:        "test",
-			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t),
+			key:  "",
+			name: "test",
+
+			wantErrType: &ValidationError{},
 		},
 
 		"error-empty-name": {
-			key:         "TEST",
-			name:        "",
-			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t),
+			key:  "TEST",
+			name: "",
+
+			wantErrType: &ValidationError{},
 		},
 
-		"error-option-handler": {
+		"error-option-validation": {
 			key:  "TEST",
 			name: "test",
+
 			options: []*FormOption{
 				o.WithFormTextFormattingRule("invalid"),
 			},
-			expectError: true,
-			mockPostFn: newUnexpectedPostFn(
-				t,
-			),
+
+			wantErrType: &ValidationError{},
 		},
 
 		"error-invalid-option": {
-			key:         "TEST",
-			name:        "test",
-			options:     []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t),
+			key:  "TEST",
+			name: "test",
+
+			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+
+			wantErrType: &InvalidFormOptionError{},
 		},
 
 		"error-client-failure": {
 			key:  "TEST",
 			name: "test",
+
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-			expectError: true,
+
+			wantErrType: errors.New(""),
 		},
 
 		"error-invalid-json": {
 			key:  "TEST",
 			name: "test",
+
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
-			expectError: true,
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -320,12 +378,19 @@ func TestProjectService_Create(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Post = tc.mockPostFn
+
+			// default: unexpected API call
+			s.method.Post = newUnexpectedPostFn(t)
+
+			if tc.mockPostFn != nil {
+				s.method.Post = tc.mockPostFn
+			}
 
 			project, err := s.Create(tc.key, tc.name, tc.options...)
 
-			if tc.expectError {
-				assert.Error(t, err)
+			if tc.wantErrType != nil {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 				assert.Nil(t, project)
 				return
 			}
@@ -345,11 +410,14 @@ func TestProjectService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		options        []*FormOption
-		expectError    bool
-		mockPatchFn    func(spath string, form *FormParams) (*http.Response, error)
+
+		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
+
+		wantErrType error
 	}{
 		"success-basic": {
 			projectIDOrKey: "TEST",
+
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
@@ -359,10 +427,13 @@ func TestProjectService_Update(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"success-project-id": {
 			projectIDOrKey: "1234",
+
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
@@ -371,22 +442,25 @@ func TestProjectService_Update(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"error-empty-key": {
 			projectIDOrKey: "",
-			expectError:    true,
-			mockPatchFn:    newUnexpectedPatchFn(t),
+
+			wantErrType: &ValidationError{},
 		},
 
 		"error-zero-id": {
 			projectIDOrKey: "0",
-			expectError:    true,
-			mockPatchFn:    newUnexpectedPatchFn(t),
+
+			wantErrType: &ValidationError{},
 		},
 
 		"success-with-options": {
 			projectIDOrKey: "TEST",
+
 			options: []*FormOption{
 				o.WithFormKey("TEST1"),
 				o.WithFormName("test1"),
@@ -396,8 +470,8 @@ func TestProjectService_Update(t *testing.T) {
 				o.WithFormTextFormattingRule(FormatBacklog),
 				o.WithFormArchived(true),
 			},
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "TEST1", form.Get("key"))
 				assert.Equal(t, "test1", form.Get("name"))
 				assert.Equal(t, "true", form.Get("chartEnabled"))
@@ -411,41 +485,49 @@ func TestProjectService_Update(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
+
+			wantErrType: nil,
 		},
 
 		"error-option-validation": {
 			projectIDOrKey: "TEST",
+
 			options: []*FormOption{
 				o.WithFormTextFormattingRule("invalid"),
 			},
-			expectError: true,
-			mockPatchFn: newUnexpectedPatchFn(t),
+
+			wantErrType: &ValidationError{},
 		},
 
 		"error-invalid-option": {
 			projectIDOrKey: "TEST",
-			options:        []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			expectError:    true,
-			mockPatchFn:    newUnexpectedPatchFn(t),
+
+			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+
+			wantErrType: &InvalidFormOptionError{},
 		},
 
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
+
+			wantErrType: errors.New(""),
 		},
 
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -455,12 +537,19 @@ func TestProjectService_Update(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Patch = tc.mockPatchFn
+
+			// default: unexpected API call
+			s.method.Patch = newUnexpectedPatchFn(t)
+
+			if tc.mockPatchFn != nil {
+				s.method.Patch = tc.mockPatchFn
+			}
 
 			project, err := s.Update(tc.projectIDOrKey, tc.options...)
 
-			if tc.expectError {
-				assert.Error(t, err)
+			if tc.wantErrType != nil {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 				assert.Nil(t, project)
 				return
 			}
@@ -474,11 +563,14 @@ func TestProjectService_Update(t *testing.T) {
 func TestProjectService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		expectError    bool
-		mockDeleteFn   func(spath string, form *FormParams) (*http.Response, error)
+
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+
+		wantErrType error
 	}{
 		"success-project-key": {
 			projectIDOrKey: "TEST",
+
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
@@ -488,10 +580,12 @@ func TestProjectService_Delete(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
-		},
 
+			wantErrType: nil,
+		},
 		"success-project-id": {
 			projectIDOrKey: "1234",
+
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
@@ -500,37 +594,39 @@ func TestProjectService_Delete(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
 				}, nil
 			},
-		},
 
+			wantErrType: nil,
+		},
 		"error-empty-key": {
 			projectIDOrKey: "",
-			expectError:    true,
-			mockDeleteFn:   newUnexpectedDeleteFn(t),
-		},
 
+			wantErrType: &ValidationError{},
+		},
 		"error-zero-id": {
 			projectIDOrKey: "0",
-			expectError:    true,
-			mockDeleteFn:   newUnexpectedDeleteFn(t),
-		},
 
+			wantErrType: &ValidationError{},
+		},
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-		},
 
+			wantErrType: errors.New(""),
+		},
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
-			expectError:    true,
+
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -540,12 +636,19 @@ func TestProjectService_Delete(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
-			s.method.Delete = tc.mockDeleteFn
+
+			// default: unexpected API call
+			s.method.Delete = newUnexpectedDeleteFn(t)
+
+			if tc.mockDeleteFn != nil {
+				s.method.Delete = tc.mockDeleteFn
+			}
 
 			project, err := s.Delete(tc.projectIDOrKey)
 
-			if tc.expectError {
-				assert.Error(t, err)
+			if tc.wantErrType != nil {
+				require.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 				assert.Nil(t, project)
 				return
 			}
