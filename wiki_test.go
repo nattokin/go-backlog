@@ -21,55 +21,53 @@ func TestWikiService_All(t *testing.T) {
 	o := newWikiOptionService()
 
 	cases := map[string]struct {
-		// Input arguments
 		projectIDOrKey string
-		options        []*QueryOption // Variable arguments
+		options        []*QueryOption
 
-		// HTTP mock settings
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 
-		// API request assertion
-		wantSpath               string
-		wantQueryProjectIDOrKey string
-		expectAPICall           bool
-
-		// Expected results (Error handling)
-		wantError   bool
 		wantErrType error
-
-		// Expected results (Success case only)
-		wantIDs   []int
-		wantNames []string
+		wantIDs     []int
+		wantNames   []string
 	}{
 		"success-project-id": {
-			projectIDOrKey:          "103",
-			httpStatus:              http.StatusOK,
-			httpBody:                testdataWikiListJSON,
-			wantSpath:               "wikis",
-			wantQueryProjectIDOrKey: "103",
-			expectAPICall:           true,
-			wantIDs:                 []int{testWiki1ID, testWiki2ID},
-			wantNames:               []string{testWiki1Name, testWiki2Name},
+			projectIDOrKey: "103",
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "103", query.Get("projectIdOrKey"))
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+				}, nil
+			},
+
+			wantIDs:   []int{testWiki1ID, testWiki2ID},
+			wantNames: []string{testWiki1Name, testWiki2Name},
 		},
 		"success-with-options": {
 			projectIDOrKey: "PRJ_KEY",
 			options: []*QueryOption{
 				o.WithQueryKeyword("test"),
 			},
-			httpStatus:              http.StatusOK,
-			httpBody:                testdataWikiListJSON,
-			wantSpath:               "wikis",
-			wantQueryProjectIDOrKey: "PRJ_KEY",
-			expectAPICall:           true,
-			wantIDs:                 []int{testWiki1ID, testWiki2ID},
-			wantNames:               []string{testWiki1Name, testWiki2Name},
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
+				assert.Equal(t, "test", query.Get("keyword"))
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+				}, nil
+			},
+
+			wantIDs:   []int{testWiki1ID, testWiki2ID},
+			wantNames: []string{testWiki1Name, testWiki2Name},
 		},
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
-			expectAPICall:  false,
-			wantError:      true,
 			wantErrType:    &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
@@ -81,34 +79,38 @@ func TestWikiService_All(t *testing.T) {
 					return nil
 				},
 			}},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &InvalidQueryOptionError{},
+			wantErrType: &InvalidQueryOptionError{},
 		},
 		"validation-error-option-set-fail": {
 			projectIDOrKey: "PRJ",
 			options:        []*QueryOption{newQueryOptionWithSetError(queryKeyword)},
-			expectAPICall:  false,
-			wantError:      true,
+			wantErrType:    errors.New(""),
 		},
 		"client-error-network-failure": {
-			projectIDOrKey:          "1",
-			options:                 []*QueryOption{},
-			httpError:               errors.New("network error"),
-			wantSpath:               "wikis",
-			wantQueryProjectIDOrKey: "1",
-			expectAPICall:           true,
-			wantError:               true,
+			projectIDOrKey: "1",
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "1", query.Get("projectIdOrKey"))
+				return nil, errors.New("network error")
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			projectIDOrKey:          "1",
-			options:                 []*QueryOption{},
-			httpStatus:              http.StatusOK,
-			httpBody:                testdataInvalidJSON,
-			wantSpath:               "wikis",
-			wantQueryProjectIDOrKey: "1",
-			expectAPICall:           true,
-			wantError:               true,
+			projectIDOrKey: "1",
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "1", query.Get("projectIdOrKey"))
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -117,46 +119,31 @@ func TestWikiService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
 			s := newWikiService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				calledAPICall = true
 
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
-					assert.Equal(t, tc.wantQueryProjectIDOrKey, query.Get("projectIdOrKey"))
-				}
+			// default: unexpected API call
+			s.method.Get = newUnexpectedGetFn(t)
 
-				resp := &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+			if tc.mockGetFn != nil {
+				s.method.Get = tc.mockGetFn
 			}
 
 			wikis, err := s.All(tc.projectIDOrKey, tc.options...)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, wikis)
+				assert.IsType(t, tc.wantErrType, err)
+				return
 			}
 
-			if tc.wantError {
-				assert.Error(t, err)
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
-				assert.Nil(t, wikis)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, wikis)
+			require.NoError(t, err)
+			require.NotNil(t, wikis)
 
-				assert.Len(t, wikis, len(tc.wantIDs))
-				for i := range wikis {
-					assert.Equal(t, tc.wantIDs[i], wikis[i].ID)
-					assert.Equal(t, tc.wantNames[i], wikis[i].Name)
-				}
+			assert.Len(t, wikis, len(tc.wantIDs))
+			for i := range wikis {
+				assert.Equal(t, tc.wantIDs[i], wikis[i].ID)
+				assert.Equal(t, tc.wantNames[i], wikis[i].Name)
 			}
 		})
 	}
@@ -164,66 +151,69 @@ func TestWikiService_All(t *testing.T) {
 
 func TestWikiService_Count(t *testing.T) {
 	cases := map[string]struct {
-		// Input arguments
 		projectIDOrKey string
 
-		// HTTP mock settings
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 
-		// API request assertion
-		wantSpath      string
-		wantQueryParam string
-		expectAPICall  bool
-
-		// Expected results (Error handling)
-		wantError   bool
 		wantErrType error
-
-		// Expected results (Success case only)
-		wantCount int
+		wantCount   int
 	}{
 		"success-project-id": {
 			projectIDOrKey: "103",
-			httpStatus:     http.StatusOK,
-			httpBody:       `{"count": 34}`,
-			wantSpath:      "wikis/count",
-			wantQueryParam: "103",
-			expectAPICall:  true,
-			wantCount:      34,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/count", spath)
+				assert.Equal(t, "103", query.Get("projectIdOrKey"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count": 34}`))),
+				}, nil
+			},
+
+			wantCount: 34,
 		},
 		"success-project-key": {
 			projectIDOrKey: "PRJ_KEY",
-			httpStatus:     http.StatusOK,
-			httpBody:       `{"count": 10}`,
-			wantSpath:      "wikis/count",
-			wantQueryParam: "PRJ_KEY",
-			expectAPICall:  true,
-			wantCount:      10,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/count", spath)
+				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count": 10}`))),
+				}, nil
+			},
+
+			wantCount: 10,
 		},
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
-			expectAPICall:  false,
-			wantError:      true,
 			wantErrType:    &ValidationError{},
 		},
 		"client-error-network-failure": {
 			projectIDOrKey: "1",
-			httpError:      errors.New("network error"),
-			wantSpath:      "wikis/count",
-			wantQueryParam: "1",
-			expectAPICall:  true,
-			wantError:      true,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/count", spath)
+				assert.Equal(t, "1", query.Get("projectIdOrKey"))
+				return nil, errors.New("network error")
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
 			projectIDOrKey: "1",
-			httpStatus:     http.StatusOK,
-			httpBody:       testdataInvalidJSON,
-			wantSpath:      "wikis/count",
-			wantQueryParam: "1",
-			expectAPICall:  true,
-			wantError:      true,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/count", spath)
+				assert.Equal(t, "1", query.Get("projectIdOrKey"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -232,102 +222,84 @@ func TestWikiService_Count(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
 			s := newWikiService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				calledAPICall = true
-
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
-					assert.Equal(t, tc.wantQueryParam, query.Get("projectIdOrKey"))
-				}
-
-				resp := &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+			s.method.Get = newUnexpectedGetFn(t)
+			if tc.mockGetFn != nil {
+				s.method.Get = tc.mockGetFn
 			}
 
 			count, err := s.Count(tc.projectIDOrKey)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Equal(t, 0, count)
+				assert.IsType(t, tc.wantErrType, err)
+				return
 			}
 
-			if tc.wantError {
-				assert.Error(t, err)
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
-				assert.Equal(t, 0, count)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.wantCount, count)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.wantCount, count)
 		})
 	}
 }
 
 func TestWikiService_One(t *testing.T) {
 	cases := map[string]struct {
-		// Input arguments
 		wikiID int
 
-		// HTTP mock settings
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 
-		// API request assertion
-		wantSpath     string
-		expectAPICall bool
-
-		// Expected results (Error handling)
-		wantError   bool
-		wantErrType error
-
-		// Expected results (Success case only)
+		wantErrType  error
 		wantWikiID   int
 		wantWikiName string
 	}{
 		"success-normal": {
-			wikiID:        34,
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataWikiMaximumJSON,
-			wantSpath:     "wikis/34",
-			expectAPICall: true,
-			wantWikiID:    34,
-			wantWikiName:  "Maximum Wiki Page",
+			wikiID: 34,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
+			},
+
+			wantWikiID:   34,
+			wantWikiName: "Maximum Wiki Page",
 		},
 		"validation-error-id-zero": {
-			wikiID:        0,
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wikiID:      0,
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-id-negative": {
-			wikiID:        -1,
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wikiID:      -1,
+			wantErrType: &ValidationError{},
 		},
 		"client-error-network-failure": {
-			wikiID:        1,
-			httpError:     errors.New("network error"),
-			wantSpath:     "wikis/1",
-			expectAPICall: true,
-			wantError:     true,
+			wikiID: 1,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1", spath)
+				assert.Nil(t, query)
+				return nil, errors.New("network error")
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			wikiID:        1,
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataInvalidJSON,
-			wantSpath:     "wikis/1",
-			expectAPICall: true,
-			wantError:     true,
+			wikiID: 1,
+
+			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1", spath)
+				assert.Nil(t, query)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -336,46 +308,23 @@ func TestWikiService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
 			s := newWikiService()
-
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				calledAPICall = true
-
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
-					assert.Nil(t, query)
-				}
-
-				resp := &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+			s.method.Get = newUnexpectedGetFn(t)
+			if tc.mockGetFn != nil {
+				s.method.Get = tc.mockGetFn
 			}
 
 			wiki, err := s.One(tc.wikiID)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
-			}
-
-			if tc.wantError {
+			if tc.wantErrType != nil {
 				assert.Error(t, err)
-
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
-
 				assert.Nil(t, wiki)
+				assert.IsType(t, tc.wantErrType, err)
 				return
 			}
 
 			assert.NoError(t, err)
 			require.NotNil(t, wiki)
-
 			assert.Equal(t, tc.wantWikiID, wiki.ID)
 			assert.Equal(t, tc.wantWikiName, wiki.Name)
 		})
@@ -385,23 +334,14 @@ func TestWikiService_One(t *testing.T) {
 func TestWikiService_Create(t *testing.T) {
 	o := newWikiOptionService()
 
-	type wantAPI struct {
-		called bool
-		spath  string
-		form   map[string]string
-	}
-
 	cases := map[string]struct {
 		projectID int
 		name      string
 		content   string
 		opts      []*FormOption
 
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
 
-		wantAPI     wantAPI
 		wantWiki    *Wiki
 		wantErrType error
 	}{
@@ -410,17 +350,17 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMinimumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis",
-				form: map[string]string{
-					"projectId": "56",
-					"name":      "Minimum Wiki Page",
-					"content":   "This is a minimal wiki page.",
-				},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "56", form.Get("projectId"))
+				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
+				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(bytes.NewReader(
+						[]byte(testdataWikiMinimumJSON),
+					)),
+				}, nil
 			},
 
 			wantWiki: &Wiki{
@@ -435,18 +375,18 @@ func TestWikiService_Create(t *testing.T) {
 			content:   "This is a minimal wiki page.",
 			opts:      []*FormOption{o.WithFormMailNotify(true)},
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMinimumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis",
-				form: map[string]string{
-					"projectId":  "56",
-					"name":       "Minimum Wiki Page",
-					"content":    "This is a minimal wiki page.",
-					"mailNotify": "true",
-				},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "56", form.Get("projectId"))
+				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
+				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
+				assert.Equal(t, "true", form.Get("mailNotify"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(bytes.NewReader(
+						[]byte(testdataWikiMinimumJSON),
+					)),
+				}, nil
 			},
 
 			wantWiki: &Wiki{
@@ -456,36 +396,21 @@ func TestWikiService_Create(t *testing.T) {
 			},
 		},
 		"validation-error-projectID-zero": {
-			projectID: 0,
-			name:      "Test",
-			content:   "test",
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			projectID:   0,
+			name:        "Test",
+			content:     "test",
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-name-empty": {
-			projectID: 1,
-			name:      "",
-			content:   "test",
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			projectID:   1,
+			name:        "",
+			content:     "test",
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-content-empty": {
-			projectID: 1,
-			name:      "Test",
-			content:   "",
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			projectID:   1,
+			name:        "Test",
+			content:     "",
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
@@ -496,28 +421,16 @@ func TestWikiService_Create(t *testing.T) {
 				{
 					formMailAddress,
 					nil,
-					func(p *FormParams) error {
-						return nil
-					},
+					func(p *FormParams) error { return nil },
 				},
 			},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
 			wantErrType: &InvalidFormOptionError{},
 		},
 		"validation-error-option-set-fail": {
-			projectID: 1,
-			name:      "Test",
-			content:   "content",
-			opts:      []*FormOption{newFormOptionWithSetError(formMailNotify)},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			projectID:   1,
+			name:        "Test",
+			content:     "content",
+			opts:        []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"client-error-network-failure": {
@@ -525,16 +438,12 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			httpError: errors.New("network error"),
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis",
-				form: map[string]string{
-					"projectId": "1",
-					"name":      "Test",
-					"content":   "content",
-				},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "1", form.Get("projectId"))
+				assert.Equal(t, "Test", form.Get("name"))
+				assert.Equal(t, "content", form.Get("content"))
+				return nil, errors.New("network error")
 			},
 
 			wantErrType: errors.New(""),
@@ -544,17 +453,17 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataInvalidJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis",
-				form: map[string]string{
-					"projectId": "1",
-					"name":      "Test",
-					"content":   "content",
-				},
+			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis", spath)
+				assert.Equal(t, "1", form.Get("projectId"))
+				assert.Equal(t, "Test", form.Get("name"))
+				assert.Equal(t, "content", form.Get("content"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(bytes.NewReader(
+						[]byte(testdataInvalidJSON),
+					)),
+				}, nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -566,29 +475,14 @@ func TestWikiService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			called := false
 			s := newWikiService()
+			s.method.Post = newUnexpectedPostFn(t)
 
-			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				called = true
-
-				if tc.wantAPI.called {
-					assert.Equal(t, tc.wantAPI.spath, spath)
-
-					for k, v := range tc.wantAPI.form {
-						assert.Equal(t, v, form.Get(k))
-					}
-				}
-
-				return &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}, tc.httpError
+			if tc.mockPostFn != nil {
+				s.method.Post = tc.mockPostFn
 			}
 
 			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.opts...)
-
-			assert.Equal(t, tc.wantAPI.called, called)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -610,22 +504,13 @@ func TestWikiService_Create(t *testing.T) {
 func TestWikiService_Update(t *testing.T) {
 	o := newWikiOptionService()
 
-	type wantAPI struct {
-		called bool
-		spath  string
-		form   map[string]string
-	}
-
 	cases := map[string]struct {
 		wikiID int
 		option *FormOption
 		opts   []*FormOption
 
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
 
-		wantAPI     wantAPI
 		wantErrType error
 		wantWiki    *Wiki
 	}{
@@ -633,15 +518,13 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 34,
 			option: o.WithFormName("New Page Name"),
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMaximumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/34",
-				form: map[string]string{
-					"name": "New Page Name",
-				},
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "New Page Name", form.Get("name"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
 			},
 
 			wantWiki: &Wiki{
@@ -658,17 +541,15 @@ func TestWikiService_Update(t *testing.T) {
 				o.WithFormMailNotify(true),
 			},
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMaximumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/34",
-				form: map[string]string{
-					"name":       "Full Options Name",
-					"content":    "Full Options Content",
-					"mailNotify": "true",
-				},
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "Full Options Name", form.Get("name"))
+				assert.Equal(t, "Full Options Content", form.Get("content"))
+				assert.Equal(t, "true", form.Get("mailNotify"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
 			},
 
 			wantWiki: &Wiki{
@@ -678,23 +559,13 @@ func TestWikiService_Update(t *testing.T) {
 			},
 		},
 		"validation-error-required-option": {
-			wikiID: 12,
-			option: o.WithFormMailNotify(true),
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      12,
+			option:      o.WithFormMailNotify(true),
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-wikiID": {
-			wikiID: 0,
-			option: o.WithFormName("New Name"),
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      0,
+			option:      o.WithFormName("New Name"),
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
@@ -706,35 +577,21 @@ func TestWikiService_Update(t *testing.T) {
 					return nil
 				},
 			},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
 			wantErrType: &InvalidFormOptionError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID: 12,
-			option: newFormOptionWithSetError(formName),
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      12,
+			option:      newFormOptionWithSetError(formName),
 			wantErrType: errors.New(""),
 		},
 		"client-error-network-failure": {
 			wikiID: 13,
 			option: o.WithFormName("New Name"),
 
-			httpError: errors.New("network error"),
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/13",
-				form: map[string]string{
-					"name": "New Name",
-				},
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/13", spath)
+				assert.Equal(t, "New Name", form.Get("name"))
+				return nil, errors.New("network error")
 			},
 
 			wantErrType: errors.New(""),
@@ -743,15 +600,13 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 14,
 			option: o.WithFormName("New Name"),
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataInvalidJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/14",
-				form: map[string]string{
-					"name": "New Name",
-				},
+			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/14", spath)
+				assert.Equal(t, "New Name", form.Get("name"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -763,29 +618,14 @@ func TestWikiService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			called := false
 			s := newWikiService()
+			s.method.Patch = newUnexpectedPatchFn(t)
 
-			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				called = true
-
-				if tc.wantAPI.called {
-					assert.Equal(t, tc.wantAPI.spath, spath)
-
-					for k, v := range tc.wantAPI.form {
-						assert.Equal(t, v, form.Get(k))
-					}
-				}
-
-				return &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}, tc.httpError
+			if tc.mockPatchFn != nil {
+				s.method.Patch = tc.mockPatchFn
 			}
 
 			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
-
-			assert.Equal(t, tc.wantAPI.called, called)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -808,21 +648,12 @@ func TestWikiService_Delete(t *testing.T) {
 	o := newWikiOptionService()
 	projectOption := newProjectOptionService()
 
-	type wantAPI struct {
-		called bool
-		spath  string
-		form   map[string]string
-	}
-
 	cases := map[string]struct {
 		wikiID int
 		opts   []*FormOption
 
-		httpStatus int
-		httpBody   string
-		httpError  error
+		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 
-		wantAPI     wantAPI
 		wantWikiID  int
 		wantErrType error
 	}{
@@ -830,15 +661,13 @@ func TestWikiService_Delete(t *testing.T) {
 			wikiID: 34,
 			opts:   []*FormOption{o.WithFormMailNotify(true)},
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMaximumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/34",
-				form: map[string]string{
-					"mailNotify": "true",
-				},
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "true", form.Get("mailNotify"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
 			},
 
 			wantWikiID: 34,
@@ -846,42 +675,27 @@ func TestWikiService_Delete(t *testing.T) {
 		"success-no-option": {
 			wikiID: 1,
 
-			httpStatus: http.StatusOK,
-			httpBody:   testdataWikiMaximumJSON,
-
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/1",
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/1", spath)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
 			},
 
 			wantWikiID: 34,
 		},
 		"validation-error-id-zero": {
-			wikiID: 0,
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      0,
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-id-negative": {
-			wikiID: -1,
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      -1,
 			wantErrType: &ValidationError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID: 1,
-			opts:   []*FormOption{newFormOptionWithSetError(formMailNotify)},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
+			wikiID:      1,
+			opts:        []*FormOption{newFormOptionWithSetError(formMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"validation-error-invalid-option-type": {
@@ -889,32 +703,27 @@ func TestWikiService_Delete(t *testing.T) {
 			opts: []*FormOption{
 				projectOption.WithFormKey("Invalid Option"),
 			},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
 			wantErrType: &InvalidFormOptionError{},
 		},
 		"client-error-network-failure": {
-			wikiID:    34,
-			httpError: errors.New("network error"),
+			wikiID: 34,
 
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/34",
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				return nil, errors.New("network error")
 			},
 
 			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			wikiID:     34,
-			httpStatus: http.StatusOK,
-			httpBody:   testdataInvalidJSON,
+			wikiID: 34,
 
-			wantAPI: wantAPI{
-				called: true,
-				spath:  "wikis/34",
+			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -926,29 +735,14 @@ func TestWikiService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			called := false
 			s := newWikiService()
+			s.method.Delete = newUnexpectedDeleteFn(t)
 
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				called = true
-
-				if tc.wantAPI.called {
-					assert.Equal(t, tc.wantAPI.spath, spath)
-
-					for k, v := range tc.wantAPI.form {
-						assert.Equal(t, v, form.Get(k))
-					}
-				}
-
-				return &http.Response{
-					StatusCode: tc.httpStatus,
-					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}, tc.httpError
+			if tc.mockDeleteFn != nil {
+				s.method.Delete = tc.mockDeleteFn
 			}
 
 			wiki, err := s.Delete(tc.wikiID, tc.opts...)
-
-			assert.Equal(t, tc.wantAPI.called, called)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
