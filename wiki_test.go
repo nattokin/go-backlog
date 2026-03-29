@@ -302,7 +302,6 @@ func TestWikiService_One(t *testing.T) {
 			wantWikiID:    34,
 			wantWikiName:  "Maximum Wiki Page",
 		},
-
 		"validation-error-id-zero": {
 			wikiID:        0,
 			expectAPICall: false,
@@ -430,7 +429,6 @@ func TestWikiService_Create(t *testing.T) {
 				Content: "This is a minimal wiki page.",
 			},
 		},
-
 		"success-with-mailNotify": {
 			projectID: 56,
 			name:      "Minimum Wiki Page",
@@ -457,7 +455,6 @@ func TestWikiService_Create(t *testing.T) {
 				Content: "This is a minimal wiki page.",
 			},
 		},
-
 		"validation-error-projectID-zero": {
 			projectID: 0,
 			name:      "Test",
@@ -469,7 +466,6 @@ func TestWikiService_Create(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-name-empty": {
 			projectID: 1,
 			name:      "",
@@ -481,7 +477,6 @@ func TestWikiService_Create(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-content-empty": {
 			projectID: 1,
 			name:      "Test",
@@ -493,20 +488,6 @@ func TestWikiService_Create(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
-		"validation-error-option-set-fail": {
-			projectID: 1,
-			name:      "Test",
-			content:   "content",
-			opts:      []*FormOption{newFormOptionWithSetError(formMailNotify)},
-
-			wantAPI: wantAPI{
-				called: false,
-			},
-
-			wantErrType: errors.New(""),
-		},
-
 		"validation-error-invalid-option-type": {
 			projectID: 1,
 			name:      "Test",
@@ -527,7 +508,18 @@ func TestWikiService_Create(t *testing.T) {
 
 			wantErrType: &InvalidFormOptionError{},
 		},
+		"validation-error-option-set-fail": {
+			projectID: 1,
+			name:      "Test",
+			content:   "content",
+			opts:      []*FormOption{newFormOptionWithSetError(formMailNotify)},
 
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: errors.New(""),
+		},
 		"client-error-network-failure": {
 			projectID: 1,
 			name:      "Test",
@@ -547,7 +539,6 @@ func TestWikiService_Create(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-
 		"api-error-invalid-json": {
 			projectID: 1,
 			name:      "Test",
@@ -659,7 +650,6 @@ func TestWikiService_Update(t *testing.T) {
 				Content: "This is a muximal wiki page.",
 			},
 		},
-
 		"success-full-options": {
 			wikiID: 34,
 			option: o.WithFormName("Full Options Name"),
@@ -687,7 +677,6 @@ func TestWikiService_Update(t *testing.T) {
 				Content: "This is a muximal wiki page.",
 			},
 		},
-
 		"validation-error-required-option": {
 			wikiID: 12,
 			option: o.WithFormMailNotify(true),
@@ -698,7 +687,6 @@ func TestWikiService_Update(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-invalid-wikiID": {
 			wikiID: 0,
 			option: o.WithFormName("New Name"),
@@ -709,7 +697,6 @@ func TestWikiService_Update(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
 			option: &FormOption{
@@ -726,7 +713,16 @@ func TestWikiService_Update(t *testing.T) {
 
 			wantErrType: &InvalidFormOptionError{},
 		},
+		"validation-error-option-set-fail": {
+			wikiID: 12,
+			option: newFormOptionWithSetError(formName),
 
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: errors.New(""),
+		},
 		"client-error-network-failure": {
 			wikiID: 13,
 			option: o.WithFormName("New Name"),
@@ -743,7 +739,6 @@ func TestWikiService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-
 		"api-error-invalid-json": {
 			wikiID: 14,
 			option: o.WithFormName("New Name"),
@@ -848,7 +843,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantWikiID: 34,
 		},
-
 		"success-no-option": {
 			wikiID: 1,
 
@@ -862,7 +856,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantWikiID: 34,
 		},
-
 		"validation-error-id-zero": {
 			wikiID: 0,
 
@@ -872,7 +865,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-id-negative": {
 			wikiID: -1,
 
@@ -882,7 +874,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-
 		"validation-error-option-set-fail": {
 			wikiID: 1,
 			opts:   []*FormOption{newFormOptionWithSetError(formMailNotify)},
@@ -893,7 +884,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-
 		"validation-error-invalid-option-type": {
 			wikiID: 1,
 			opts: []*FormOption{
@@ -906,7 +896,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantErrType: &InvalidFormOptionError{},
 		},
-
 		"client-error-network-failure": {
 			wikiID:    34,
 			httpError: errors.New("network error"),
@@ -918,7 +907,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-
 		"api-error-invalid-json": {
 			wikiID:     34,
 			httpStatus: http.StatusOK,
