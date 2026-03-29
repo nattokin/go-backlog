@@ -710,6 +710,23 @@ func TestWikiService_Update(t *testing.T) {
 			wantErrType: &ValidationError{},
 		},
 
+		"validation-error-invalid-option-type": {
+			wikiID: 12,
+			option: &FormOption{
+				t:         formRoleType,
+				checkFunc: nil,
+				setFunc: func(p *FormParams) error {
+					return nil
+				},
+			},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &InvalidFormOptionError{},
+		},
+
 		"client-error-network-failure": {
 			wikiID: 13,
 			option: o.WithFormName("New Name"),
