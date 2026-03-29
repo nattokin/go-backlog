@@ -20,8 +20,6 @@ func TestProjectService_All(t *testing.T) {
 		expectError bool
 		wantIDs     []int
 		wantNames   []string
-		wantAll     string
-		wantArch    string
 		mockGetFn   func(spath string, query *QueryParams) (*http.Response, error)
 	}{
 		"success-without-option": {
@@ -29,8 +27,6 @@ func TestProjectService_All(t *testing.T) {
 			expectError: false,
 			wantIDs:     []int{1, 2, 3},
 			wantNames:   []string{"test", "test2", "test3"},
-			wantAll:     "",
-			wantArch:    "",
 			mockGetFn: newMockGetFn(t, "projects", &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
@@ -44,8 +40,6 @@ func TestProjectService_All(t *testing.T) {
 			expectError: false,
 			wantIDs:     []int{1, 2, 3},
 			wantNames:   []string{"test", "test2", "test3"},
-			wantAll:     "false",
-			wantArch:    "true",
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.Equal(t, "false", query.Get("all"))
@@ -63,7 +57,7 @@ func TestProjectService_All(t *testing.T) {
 				func(p *QueryParams) error { return errors.New("error") },
 			}},
 			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t, "option error case"),
+			mockGetFn:   newUnexpectedGetFn(t),
 		},
 		"error-with-invalid-option": {
 			options: []*QueryOption{{
@@ -72,7 +66,7 @@ func TestProjectService_All(t *testing.T) {
 				func(p *QueryParams) error { return nil },
 			}},
 			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t, "invalid option case"),
+			mockGetFn:   newUnexpectedGetFn(t),
 		},
 		"error-client-failure": {
 			options:     []*QueryOption{},
@@ -153,7 +147,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-with-empty-projectIDOrKey": {
 			projectIDOrKey: "",
 			expectError:    true,
-			mockGetFn:      newUnexpectedGetFn(t, "empty key"),
+			mockGetFn:      newUnexpectedGetFn(t),
 		},
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
@@ -203,18 +197,11 @@ func TestProjectService_Create(t *testing.T) {
 	o := newProjectOptionService()
 
 	cases := map[string]struct {
-		key     string
-		name    string
-		options []*FormOption
-
-		expectErr bool
-
-		wantChartEnabled                      string
-		wantSubtaskingEnabled                 string
-		wantProjectLeaderCanEditProjectLeader string
-		wantTextFormattingRule                string
-
-		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+		key         string
+		name        string
+		options     []*FormOption
+		expectError bool
+		mockPostFn  func(spath string, form *FormParams) (*http.Response, error)
 	}{
 		"success-basic-create": {
 			key:  "TEST",
@@ -272,23 +259,17 @@ func TestProjectService_Create(t *testing.T) {
 		},
 
 		"error-empty-key": {
-			key:       "",
-			name:      "test",
-			expectErr: true,
-			mockPostFn: newUnexpectedPostFn(
-				t,
-				"key validation failure",
-			),
+			key:         "",
+			name:        "test",
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 
 		"error-empty-name": {
-			key:       "TEST",
-			name:      "",
-			expectErr: true,
-			mockPostFn: newUnexpectedPostFn(
-				t,
-				"name validation failure",
-			),
+			key:         "TEST",
+			name:        "",
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 
 		"error-option-handler": {
@@ -297,22 +278,18 @@ func TestProjectService_Create(t *testing.T) {
 			options: []*FormOption{
 				o.WithFormTextFormattingRule("invalid"),
 			},
-			expectErr: true,
+			expectError: true,
 			mockPostFn: newUnexpectedPostFn(
 				t,
-				"option validation failure",
 			),
 		},
 
 		"error-invalid-option": {
-			key:       "TEST",
-			name:      "test",
-			options:   []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			expectErr: true,
-			mockPostFn: newUnexpectedPostFn(
-				t,
-				"invalid option",
-			),
+			key:         "TEST",
+			name:        "test",
+			options:     []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+			expectError: true,
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 
 		"error-client-failure": {
@@ -321,7 +298,7 @@ func TestProjectService_Create(t *testing.T) {
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-			expectErr: true,
+			expectError: true,
 		},
 
 		"error-invalid-json": {
@@ -333,7 +310,7 @@ func TestProjectService_Create(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
 				}, nil
 			},
-			expectErr: true,
+			expectError: true,
 		},
 	}
 
@@ -347,7 +324,7 @@ func TestProjectService_Create(t *testing.T) {
 
 			project, err := s.Create(tc.key, tc.name, tc.options...)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, project)
 				return
@@ -368,24 +345,11 @@ func TestProjectService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		options        []*FormOption
-
-		expectErr bool
-
-		wantPath string
-
-		wantKey                               string
-		wantName                              string
-		wantChartEnabled                      string
-		wantSubtaskingEnabled                 string
-		wantProjectLeaderCanEditProjectLeader string
-		wantTextFormattingRule                string
-		wantArchived                          string
-
-		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
+		expectError    bool
+		mockPatchFn    func(spath string, form *FormParams) (*http.Response, error)
 	}{
 		"success-basic": {
 			projectIDOrKey: "TEST",
-			wantPath:       "projects/TEST",
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
@@ -399,7 +363,6 @@ func TestProjectService_Update(t *testing.T) {
 
 		"success-project-id": {
 			projectIDOrKey: "1234",
-			wantPath:       "projects/1234",
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
@@ -412,20 +375,14 @@ func TestProjectService_Update(t *testing.T) {
 
 		"error-empty-key": {
 			projectIDOrKey: "",
-			expectErr:      true,
-			mockPatchFn: newUnexpectedPatchFn(
-				t,
-				"empty project id/key",
-			),
+			expectError:    true,
+			mockPatchFn:    newUnexpectedPatchFn(t),
 		},
 
 		"error-zero-id": {
 			projectIDOrKey: "0",
-			expectErr:      true,
-			mockPatchFn: newUnexpectedPatchFn(
-				t,
-				"zero project id",
-			),
+			expectError:    true,
+			mockPatchFn:    newUnexpectedPatchFn(t),
 		},
 
 		"success-with-options": {
@@ -439,13 +396,6 @@ func TestProjectService_Update(t *testing.T) {
 				o.WithFormTextFormattingRule(FormatBacklog),
 				o.WithFormArchived(true),
 			},
-			wantKey:                               "TEST1",
-			wantName:                              "test1",
-			wantChartEnabled:                      "true",
-			wantSubtaskingEnabled:                 "true",
-			wantProjectLeaderCanEditProjectLeader: "true",
-			wantTextFormattingRule:                "backlog",
-			wantArchived:                          "true",
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 
 				assert.Equal(t, "TEST1", form.Get("key"))
@@ -468,26 +418,20 @@ func TestProjectService_Update(t *testing.T) {
 			options: []*FormOption{
 				o.WithFormTextFormattingRule("invalid"),
 			},
-			expectErr: true,
-			mockPatchFn: newUnexpectedPatchFn(
-				t,
-				"option validation failure",
-			),
+			expectError: true,
+			mockPatchFn: newUnexpectedPatchFn(t),
 		},
 
 		"error-invalid-option": {
 			projectIDOrKey: "TEST",
 			options:        []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
-			expectErr:      true,
-			mockPatchFn: newUnexpectedPatchFn(
-				t,
-				"invalid option",
-			),
+			expectError:    true,
+			mockPatchFn:    newUnexpectedPatchFn(t),
 		},
 
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
-			expectErr:      true,
+			expectError:    true,
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -495,7 +439,7 @@ func TestProjectService_Update(t *testing.T) {
 
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
-			expectErr:      true,
+			expectError:    true,
 			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -515,7 +459,7 @@ func TestProjectService_Update(t *testing.T) {
 
 			project, err := s.Update(tc.projectIDOrKey, tc.options...)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, project)
 				return
@@ -530,14 +474,11 @@ func TestProjectService_Update(t *testing.T) {
 func TestProjectService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		expectErr      bool
-		wantPath       string
-
-		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+		expectError    bool
+		mockDeleteFn   func(spath string, form *FormParams) (*http.Response, error)
 	}{
 		"success-project-key": {
 			projectIDOrKey: "TEST",
-			wantPath:       "projects/TEST",
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
@@ -551,7 +492,6 @@ func TestProjectService_Delete(t *testing.T) {
 
 		"success-project-id": {
 			projectIDOrKey: "1234",
-			wantPath:       "projects/1234",
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
@@ -564,25 +504,19 @@ func TestProjectService_Delete(t *testing.T) {
 
 		"error-empty-key": {
 			projectIDOrKey: "",
-			expectErr:      true,
-			mockDeleteFn: newUnexpectedDeleteFn(
-				t,
-				"empty project id/key",
-			),
+			expectError:    true,
+			mockDeleteFn:   newUnexpectedDeleteFn(t),
 		},
 
 		"error-zero-id": {
 			projectIDOrKey: "0",
-			expectErr:      true,
-			mockDeleteFn: newUnexpectedDeleteFn(
-				t,
-				"zero project id",
-			),
+			expectError:    true,
+			mockDeleteFn:   newUnexpectedDeleteFn(t),
 		},
 
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
-			expectErr:      true,
+			expectError:    true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -590,7 +524,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
-			expectErr:      true,
+			expectError:    true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -610,7 +544,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 			project, err := s.Delete(tc.projectIDOrKey)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, project)
 				return

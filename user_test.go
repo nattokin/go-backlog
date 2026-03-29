@@ -45,7 +45,7 @@ func TestUserService_One(t *testing.T) {
 		"invalid-id-0": {
 			id:          0,
 			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t, "id is invalid"),
+			mockGetFn:   newUnexpectedGetFn(t),
 		},
 	}
 
@@ -82,8 +82,8 @@ func TestUserService_Add(t *testing.T) {
 		mailAddress string
 		roleType    Role
 		expectError bool
-		mockPostFn  func(spath string, form *FormParams) (*http.Response, error)
 		wantUser    *User
+		mockPostFn  func(spath string, form *FormParams) (*http.Response, error)
 	}{
 		"success-add-user": {
 			userID:      "admin",
@@ -130,7 +130,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t, "userID is empty"),
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 		"invalid-empty-password": {
 			userID:      "admin",
@@ -139,7 +139,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t, "password is empty"),
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 		"invalid-empty-name": {
 			userID:      "admin",
@@ -148,7 +148,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t, "name is empty"),
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 		"invalid-empty-mailAddress": {
 			userID:      "admin",
@@ -157,7 +157,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "",
 			roleType:    RoleAdministrator,
 			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t, "mailAddress is empty"),
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 		"invalid-option-validation-error": {
 			userID:      "test",
@@ -166,7 +166,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "",
 			roleType:    RoleAdministrator,
 			expectError: true,
-			mockPostFn:  newUnexpectedPostFn(t, "option validation fails"),
+			mockPostFn:  newUnexpectedPostFn(t),
 		},
 		"invalid-json-response": {
 			userID:      "userID",
@@ -305,7 +305,7 @@ func TestUserService_Update(t *testing.T) {
 		"invalid-id": {
 			id:          0,
 			expectError: true,
-			mockPatch:   newUnexpectedPatchFn(t, "id is invalid"),
+			mockPatch:   newUnexpectedPatchFn(t),
 		},
 		"invalid-json-response": {
 			id:          1234,
@@ -390,13 +390,13 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormName(""),
 			},
 			expectError: true,
-			mockPatch:   newUnexpectedPatchFn(t, "option validation fails"),
+			mockPatch:   newUnexpectedPatchFn(t),
 		},
 		"option-invalid": {
 			id:          1,
 			options:     []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
 			expectError: true,
-			mockPatch:   newUnexpectedPatchFn(t, "invalid option is passed"),
+			mockPatch:   newUnexpectedPatchFn(t),
 		},
 	}
 
@@ -428,8 +428,8 @@ func TestUserService_Update(t *testing.T) {
 func TestUserService_Own(t *testing.T) {
 	cases := map[string]struct {
 		expectError bool
-		mockGet     func(spath string, query *QueryParams) (*http.Response, error)
 		wantUser    *User
+		mockGet     func(spath string, query *QueryParams) (*http.Response, error)
 	}{
 		"success-get-own-user": {
 			expectError: false,
@@ -519,7 +519,7 @@ func TestUserService_Delete(t *testing.T) {
 		"invalid-id-0": {
 			id:          0,
 			expectError: true,
-			mockDelete:  newUnexpectedDeleteFn(t, "id is invalid"),
+			mockDelete:  newUnexpectedDeleteFn(t),
 		},
 		"invalid-json-response": {
 			id:          1234,
@@ -605,7 +605,7 @@ func TestProjectUserService_All(t *testing.T) {
 		"invalid-projectKey-empty": {
 			projectKey:  "",
 			expectError: true,
-			mockGet:     newUnexpectedGetFn(t, "projectKey is empty"),
+			mockGet:     newUnexpectedGetFn(t),
 		},
 	}
 
@@ -742,13 +742,13 @@ func TestProjectUserService_Delete(t *testing.T) {
 			projectKey:  "",
 			userID:      1,
 			expectError: true,
-			mockDelete:  newUnexpectedDeleteFn(t, "projectKey is empty"),
+			mockDelete:  newUnexpectedDeleteFn(t),
 		},
 		"invalid-userID-0": {
 			projectKey:  "TEST1",
 			userID:      0,
 			expectError: true,
-			mockDelete:  newUnexpectedDeleteFn(t, "userID is 0"),
+			mockDelete:  newUnexpectedDeleteFn(t),
 		},
 		"success-userID-1": {
 			projectKey:  "TEST2",

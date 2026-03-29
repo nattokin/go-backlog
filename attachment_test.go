@@ -88,8 +88,9 @@ func newTestAttachmentSingleList() []*Attachment {
 
 func TestSpaceAttachmentService_Upload(t *testing.T) {
 	cases := map[string]struct {
-		fpath     string
-		expectErr bool
+		fpath string
+
+		expectError bool
 
 		mockUploadFn func(spath, fileName string, r io.Reader) (*http.Response, error)
 	}{
@@ -107,16 +108,16 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		},
 
 		"error-client-failure": {
-			fpath:     "fpath",
-			expectErr: true,
+			fpath:       "fpath",
+			expectError: true,
 			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			fpath:     "fpath",
-			expectErr: true,
+			fpath:       "fpath",
+			expectError: true,
 			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -140,7 +141,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 
 			attachment, err := s.Upload(tc.fpath, f)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
 				return
@@ -161,8 +162,8 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		wikiID        int
 		attachmentIDs []int
 
-		expectErr bool
-		want      []*Attachment
+		expectError bool
+		want        []*Attachment
 
 		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
@@ -202,28 +203,28 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"error-wikiID-invalid": {
 			wikiID:        0,
 			attachmentIDs: []int{1, 2},
-			expectErr:     true,
-			mockPostFn:    newUnexpectedPostFn(t, "invalid wikiID"),
+			expectError:   true,
+			mockPostFn:    newUnexpectedPostFn(t),
 		},
 
 		"error-attachmentIDs-invalid": {
 			wikiID:        1,
 			attachmentIDs: []int{0, 1, 2},
-			expectErr:     true,
-			mockPostFn:    newUnexpectedPostFn(t, "invalid attachmentIDs"),
+			expectError:   true,
+			mockPostFn:    newUnexpectedPostFn(t),
 		},
 
 		"error-attachmentIDs-empty": {
 			wikiID:        1,
 			attachmentIDs: []int{},
-			expectErr:     true,
-			mockPostFn:    newUnexpectedPostFn(t, "empty attachmentIDs"),
+			expectError:   true,
+			mockPostFn:    newUnexpectedPostFn(t),
 		},
 
 		"error-client": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			expectErr:     true,
+			expectError:   true,
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -232,7 +233,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"error-invalid-json": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			expectErr:     true,
+			expectError:   true,
 			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -255,7 +256,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 
 			attachments, err := s.Attach(tc.wikiID, tc.attachmentIDs)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
 				return
@@ -280,8 +281,8 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		expectErr bool
-		want      []*Attachment
+		expectError bool
+		want        []*Attachment
 
 		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
@@ -301,28 +302,28 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		},
 
 		"error-wikiID-zero": {
-			wikiID:    0,
-			expectErr: true,
-			mockGetFn: newUnexpectedGetFn(t, "invalid wikiID"),
+			wikiID:      0,
+			expectError: true,
+			mockGetFn:   newUnexpectedGetFn(t),
 		},
 
 		"error-wikiID-negative": {
-			wikiID:    -1,
-			expectErr: true,
-			mockGetFn: newUnexpectedGetFn(t, "invalid wikiID"),
+			wikiID:      -1,
+			expectError: true,
+			mockGetFn:   newUnexpectedGetFn(t),
 		},
 
 		"error-client": {
-			wikiID:    1234,
-			expectErr: true,
+			wikiID:      1234,
+			expectError: true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			wikiID:    1234,
-			expectErr: true,
+			wikiID:      1234,
+			expectError: true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -345,7 +346,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 
 			attachments, err := s.List(tc.wikiID)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
 				return
@@ -371,8 +372,8 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		wikiID       int
 		attachmentID int
 
-		expectErr bool
-		want      *Attachment
+		expectError bool
+		want        *Attachment
 
 		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
@@ -395,35 +396,35 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		"error-wikiID-zero": {
 			wikiID:       0,
 			attachmentID: 8,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid wikiID"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-wikiID-negative": {
 			wikiID:       -1,
 			attachmentID: 8,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid wikiID"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-zero": {
 			wikiID:       1,
 			attachmentID: 0,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-negative": {
 			wikiID:       1,
 			attachmentID: -1,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
 			wikiID:       1234,
 			attachmentID: 8,
-			expectErr:    true,
+			expectError:  true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -432,7 +433,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		"error-invalid-json": {
 			wikiID:       1234,
 			attachmentID: 8,
-			expectErr:    true,
+			expectError:  true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -455,7 +456,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 
 			attachment, err := s.Remove(tc.wikiID, tc.attachmentID)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
 				return
@@ -476,8 +477,8 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 
-		expectErr bool
-		want      []*Attachment
+		expectError bool
+		want        []*Attachment
 
 		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
@@ -498,13 +499,13 @@ func TestIssueAttachmentService_List(t *testing.T) {
 
 		"error-invalid-issueIDOrKey": {
 			issueIDOrKey: "0",
-			expectErr:    true,
-			mockGetFn:    newUnexpectedGetFn(t, "invalid issueIDOrKey"),
+			expectError:  true,
+			mockGetFn:    newUnexpectedGetFn(t),
 		},
 
 		"error-client": {
 			issueIDOrKey: "1234",
-			expectErr:    true,
+			expectError:  true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -512,7 +513,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 
 		"error-invalid-json": {
 			issueIDOrKey: "1234",
-			expectErr:    true,
+			expectError:  true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -535,7 +536,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 
 			attachments, err := s.List(tc.issueIDOrKey)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
 				return
@@ -561,8 +562,8 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		issueIDOrKey string
 		attachmentID int
 
-		expectErr bool
-		want      *Attachment
+		expectError bool
+		want        *Attachment
 
 		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
@@ -585,21 +586,21 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		"error-empty-issueKey": {
 			issueIDOrKey: "",
 			attachmentID: 8,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid issueIDOrKey"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-zero": {
 			issueIDOrKey: "test",
 			attachmentID: 0,
-			expectErr:    true,
-			mockDeleteFn: newUnexpectedDeleteFn(t, "invalid attachmentID"),
+			expectError:  true,
+			mockDeleteFn: newUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
-			expectErr:    true,
+			expectError:  true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -608,7 +609,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		"error-invalid-json": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
-			expectErr:    true,
+			expectError:  true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -631,7 +632,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 
 			attachment, err := s.Remove(tc.issueIDOrKey, tc.attachmentID)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
 				return
@@ -654,8 +655,8 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		repositoryIDOrName string
 		prNumber           int
 
-		expectErr bool
-		want      []*Attachment
+		expectError bool
+		want        []*Attachment
 
 		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
 	}{
@@ -684,31 +685,31 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			projectIDOrKey:     "0",
 			repositoryIDOrName: "1",
 			prNumber:           1,
-			expectErr:          true,
-			mockGetFn:          newUnexpectedGetFn(t, "invalid projectIDOrKey"),
+			expectError:        true,
+			mockGetFn:          newUnexpectedGetFn(t),
 		},
 
 		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "0",
 			prNumber:           1,
-			expectErr:          true,
-			mockGetFn:          newUnexpectedGetFn(t, "invalid repositoryIDOrName"),
+			expectError:        true,
+			mockGetFn:          newUnexpectedGetFn(t),
 		},
 
 		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "1",
 			prNumber:           0,
-			expectErr:          true,
-			mockGetFn:          newUnexpectedGetFn(t, "invalid prNumber"),
+			expectError:        true,
+			mockGetFn:          newUnexpectedGetFn(t),
 		},
 
 		"error-client": {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
 			prNumber:           10,
-			expectErr:          true,
+			expectError:        true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -718,7 +719,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
 			prNumber:           10,
-			expectErr:          true,
+			expectError:        true,
 			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -745,7 +746,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 				tc.prNumber,
 			)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
 				return
@@ -773,8 +774,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		prNumber           int
 		attachmentID       int
 
-		expectErr bool
-		want      *Attachment
+		expectError bool
+		want        *Attachment
 
 		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
 	}{
@@ -805,8 +806,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           1,
 			attachmentID:       8,
-			expectErr:          true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid projectIDOrKey"),
+			expectError:        true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-repository": {
@@ -814,8 +815,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "",
 			prNumber:           1,
 			attachmentID:       8,
-			expectErr:          true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid repositoryIDOrName"),
+			expectError:        true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-prNumber": {
@@ -823,8 +824,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           0,
 			attachmentID:       8,
-			expectErr:          true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid prNumber"),
+			expectError:        true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-attachmentID": {
@@ -832,8 +833,8 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           1,
 			attachmentID:       0,
-			expectErr:          true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t, "invalid attachmentID"),
+			expectError:        true,
+			mockDeleteFn:       newUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
@@ -841,7 +842,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           10,
 			attachmentID:       8,
-			expectErr:          true,
+			expectError:        true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
@@ -852,7 +853,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           10,
 			attachmentID:       8,
-			expectErr:          true,
+			expectError:        true,
 			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -880,7 +881,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 				tc.attachmentID,
 			)
 
-			if tc.expectErr {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
 				return

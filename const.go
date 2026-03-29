@@ -23,8 +23,6 @@ const (
 	RoleGuestViewer
 )
 
-//
-
 const (
 	_ formType = iota
 	formArchived
