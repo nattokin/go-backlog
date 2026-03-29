@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -12,7 +13,14 @@ import (
 )
 
 func TestWikiService_All(t *testing.T) {
-	type testCase struct {
+	const testWiki1ID = 112
+	const testWiki2ID = 115
+	const testWiki1Name = "test1"
+	const testWiki2Name = "test2"
+
+	o := newWikiOptionService()
+
+	cases := map[string]struct {
 		// Input arguments
 		projectIDOrKey string
 		options        []*QueryOption // Variable arguments
@@ -34,16 +42,7 @@ func TestWikiService_All(t *testing.T) {
 		// Expected results (Success case only)
 		wantIDs   []int
 		wantNames []string
-	}
-
-	// Constants extracted from testdataWikiListJSON
-	const testWiki1ID = 112
-	const testWiki2ID = 115
-	const testWiki1Name = "test1"
-	const testWiki2Name = "test2"
-
-	o := newWikiOptionService()
-	cases := map[string]testCase{
+	}{
 		"success-project-id": {
 			projectIDOrKey:          "103",
 			httpStatus:              http.StatusOK,
@@ -67,14 +66,12 @@ func TestWikiService_All(t *testing.T) {
 			wantIDs:                 []int{testWiki1ID, testWiki2ID},
 			wantNames:               []string{testWiki1Name, testWiki2Name},
 		},
-		// 1. Validation Error: projectIDOrKey is empty (validateProjectIDOrKey cover)
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
 			expectAPICall:  false,
 			wantError:      true,
 			wantErrType:    &ValidationError{},
 		},
-		// 2. Validation Error: Invalid Option Type (option.validate cover)
 		"validation-error-invalid-option-type": {
 			projectIDOrKey: "PRJ",
 			options: []*QueryOption{{
@@ -88,14 +85,12 @@ func TestWikiService_All(t *testing.T) {
 			wantError:     true,
 			wantErrType:   &InvalidQueryOptionError{},
 		},
-		// 3. Option Set Error (option.set cover)
 		"validation-error-option-set-fail": {
 			projectIDOrKey: "PRJ",
 			options:        []*QueryOption{newQueryOptionWithSetError(queryKeyword)},
 			expectAPICall:  false,
 			wantError:      true,
 		},
-		// --- Existing Failure Cases ---
 		"client-error-network-failure": {
 			projectIDOrKey:          "1",
 			options:                 []*QueryOption{},
@@ -127,7 +122,6 @@ func TestWikiService_All(t *testing.T) {
 			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
 				calledAPICall = true
 
-				// Assert the API request when expected
 				if tc.expectAPICall {
 					assert.Equal(t, tc.wantSpath, spath)
 					assert.Equal(t, tc.wantQueryProjectIDOrKey, query.Get("projectIdOrKey"))
@@ -148,7 +142,6 @@ func TestWikiService_All(t *testing.T) {
 				assert.False(t, calledAPICall)
 			}
 
-			// Assert result
 			if tc.wantError {
 				assert.Error(t, err)
 				if tc.wantErrType != nil {
@@ -159,7 +152,6 @@ func TestWikiService_All(t *testing.T) {
 				assert.NoError(t, err)
 				require.NotNil(t, wikis)
 
-				// Assert the list content
 				assert.Len(t, wikis, len(tc.wantIDs))
 				for i := range wikis {
 					assert.Equal(t, tc.wantIDs[i], wikis[i].ID)
@@ -171,9 +163,7 @@ func TestWikiService_All(t *testing.T) {
 }
 
 func TestWikiService_Count(t *testing.T) {
-	t.Parallel()
-
-	type testCase struct {
+	cases := map[string]struct {
 		// Input arguments
 		projectIDOrKey string
 
@@ -193,9 +183,7 @@ func TestWikiService_Count(t *testing.T) {
 
 		// Expected results (Success case only)
 		wantCount int
-	}
-
-	cases := map[string]testCase{
+	}{
 		"success-project-id": {
 			projectIDOrKey: "103",
 			httpStatus:     http.StatusOK,
@@ -214,7 +202,6 @@ func TestWikiService_Count(t *testing.T) {
 			expectAPICall:  true,
 			wantCount:      10,
 		},
-		// --- Failure Cases ---
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
 			expectAPICall:  false,
@@ -232,7 +219,7 @@ func TestWikiService_Count(t *testing.T) {
 		"api-error-invalid-json": {
 			projectIDOrKey: "1",
 			httpStatus:     http.StatusOK,
-			httpBody:       testdataInvalidJSON, // JSON structure does not match `{"count": N}`
+			httpBody:       testdataInvalidJSON,
 			wantSpath:      "wikis/count",
 			wantQueryParam: "1",
 			expectAPICall:  true,
@@ -250,7 +237,6 @@ func TestWikiService_Count(t *testing.T) {
 			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
 				calledAPICall = true
 
-				// Assert the API request when expected
 				if tc.expectAPICall {
 					assert.Equal(t, tc.wantSpath, spath)
 					assert.Equal(t, tc.wantQueryParam, query.Get("projectIdOrKey"))
@@ -271,7 +257,6 @@ func TestWikiService_Count(t *testing.T) {
 				assert.False(t, calledAPICall)
 			}
 
-			// Assert result
 			if tc.wantError {
 				assert.Error(t, err)
 				if tc.wantErrType != nil {
@@ -287,9 +272,7 @@ func TestWikiService_Count(t *testing.T) {
 }
 
 func TestWikiService_One(t *testing.T) {
-	t.Parallel()
-
-	type testCase struct {
+	cases := map[string]struct {
 		// Input arguments
 		wikiID int
 
@@ -307,21 +290,18 @@ func TestWikiService_One(t *testing.T) {
 		wantErrType error
 
 		// Expected results (Success case only)
-		wantID   int
-		wantName string
-	}
-
-	cases := map[string]testCase{
+		wantWikiID   int
+		wantWikiName string
+	}{
 		"success-normal": {
 			wikiID:        34,
 			httpStatus:    http.StatusOK,
 			httpBody:      testdataWikiMaximumJSON,
 			wantSpath:     "wikis/34",
 			expectAPICall: true,
-			wantID:        34,
-			wantName:      "Maximum Wiki Page",
+			wantWikiID:    34,
+			wantWikiName:  "Maximum Wiki Page",
 		},
-		// --- Failure Cases ---
 		"validation-error-id-zero": {
 			wikiID:        0,
 			expectAPICall: false,
@@ -358,13 +338,13 @@ func TestWikiService_One(t *testing.T) {
 
 			calledAPICall := false
 			s := newWikiService()
+
 			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
 				calledAPICall = true
 
-				// Assert the API request when expected
 				if tc.expectAPICall {
 					assert.Equal(t, tc.wantSpath, spath)
-					assert.Nil(t, query) // One() does not use query params
+					assert.Nil(t, query)
 				}
 
 				resp := &http.Response{
@@ -382,157 +362,202 @@ func TestWikiService_One(t *testing.T) {
 				assert.False(t, calledAPICall)
 			}
 
-			// Assert result
 			if tc.wantError {
 				assert.Error(t, err)
+
 				if tc.wantErrType != nil {
 					assert.IsType(t, tc.wantErrType, err)
 				}
+
 				assert.Nil(t, wiki)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, wiki)
-				assert.Equal(t, tc.wantID, wiki.ID)
-				assert.Equal(t, tc.wantName, wiki.Name)
+				return
 			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, wiki)
+
+			assert.Equal(t, tc.wantWikiID, wiki.ID)
+			assert.Equal(t, tc.wantWikiName, wiki.Name)
 		})
 	}
 }
 
 func TestWikiService_Create(t *testing.T) {
-	t.Parallel()
-
 	o := newWikiOptionService()
 
-	type testCase struct {
-		// Input arguments
+	type wantAPI struct {
+		called bool
+		spath  string
+		form   map[string]string
+	}
+
+	cases := map[string]struct {
 		projectID int
 		name      string
 		content   string
-		options   []*FormOption
+		opts      []*FormOption
 
-		// HTTP mock settings
 		httpStatus int
 		httpBody   string
 		httpError  error
 
-		// API request assertion
-		wantSpath      string
-		wantProjectID  string
-		wantMailNotify string
-		expectAPICall  bool
-
-		// Expected results (Error handling)
-		wantError   bool
+		wantAPI     wantAPI
+		wantWiki    *Wiki
 		wantErrType error
-
-		// Expected results (Success case only)
-		wantID      int
-		wantName    string
-		wantContent string
-	}
-
-	cases := map[string]testCase{
+	}{
 		"success-minimum": {
-			projectID:     56,
-			name:          "Minimum Wiki Page",
-			content:       "This is a minimal wiki page.",
-			options:       []*FormOption{},
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataWikiMinimumJSON,
-			wantSpath:     "wikis",
-			wantProjectID: "56",
-			expectAPICall: true,
-			wantID:        34,
-			wantName:      "Minimum Wiki Page",
-			wantContent:   "This is a minimal wiki page.",
+			projectID: 56,
+			name:      "Minimum Wiki Page",
+			content:   "This is a minimal wiki page.",
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMinimumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis",
+				form: map[string]string{
+					"projectId": "56",
+					"name":      "Minimum Wiki Page",
+					"content":   "This is a minimal wiki page.",
+				},
+			},
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Minimum Wiki Page",
+				Content: "This is a minimal wiki page.",
+			},
 		},
 		"success-with-mailNotify": {
-			projectID:      56,
-			name:           "Minimum Wiki Page",
-			content:        "This is a minimal wiki page.",
-			options:        []*FormOption{o.WithFormMailNotify(true)},
-			httpStatus:     http.StatusOK,
-			httpBody:       testdataWikiMinimumJSON,
-			wantSpath:      "wikis",
-			wantProjectID:  "56",
-			wantMailNotify: "true",
-			expectAPICall:  true,
-			wantID:         34,
-			wantName:       "Minimum Wiki Page",
-			wantContent:    "This is a minimal wiki page.",
+			projectID: 56,
+			name:      "Minimum Wiki Page",
+			content:   "This is a minimal wiki page.",
+			opts:      []*FormOption{o.WithFormMailNotify(true)},
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMinimumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis",
+				form: map[string]string{
+					"projectId":  "56",
+					"name":       "Minimum Wiki Page",
+					"content":    "This is a minimal wiki page.",
+					"mailNotify": "true",
+				},
+			},
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Minimum Wiki Page",
+				Content: "This is a minimal wiki page.",
+			},
 		},
-		// --- Failure Cases (omitting success-only fields) ---
 		"validation-error-projectID-zero": {
-			projectID:     0,
-			name:          "Test",
-			content:       "test",
-			options:       []*FormOption{},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			projectID: 0,
+			name:      "Test",
+			content:   "test",
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-name-empty": {
-			projectID:     1,
-			name:          "",
-			content:       "test",
-			options:       []*FormOption{},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			projectID: 1,
+			name:      "",
+			content:   "test",
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-content-empty": {
-			projectID:     1,
-			name:          "Test",
-			content:       "",
-			options:       []*FormOption{},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
-		},
-		"validation-error-option-set-fail": {
-			projectID:     1,
-			name:          "Test",
-			content:       "content",
-			options:       []*FormOption{newFormOptionWithSetError(formMailNotify)},
-			expectAPICall: false,
-			wantError:     true,
+			projectID: 1,
+			name:      "Test",
+			content:   "",
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
 			projectID: 1,
 			name:      "Test",
 			content:   "content",
-			options: []*FormOption{{
-				formMailAddress,
-				nil,
-				func(p *FormParams) error {
-					return nil
+			opts: []*FormOption{
+				{
+					formMailAddress,
+					nil,
+					func(p *FormParams) error {
+						return nil
+					},
 				},
-			}},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &InvalidFormOptionError{},
+			},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &InvalidFormOptionError{},
+		},
+		"validation-error-option-set-fail": {
+			projectID: 1,
+			name:      "Test",
+			content:   "content",
+			opts:      []*FormOption{newFormOptionWithSetError(formMailNotify)},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"client-error-network-failure": {
-			projectID:     1,
-			name:          "Test",
-			content:       "content",
-			httpError:     errors.New("network error"),
-			wantSpath:     "wikis",
-			wantProjectID: "1",
-			expectAPICall: true,
-			wantError:     true,
+			projectID: 1,
+			name:      "Test",
+			content:   "content",
+
+			httpError: errors.New("network error"),
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis",
+				form: map[string]string{
+					"projectId": "1",
+					"name":      "Test",
+					"content":   "content",
+				},
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			projectID:     1,
-			name:          "Test",
-			content:       "content",
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataInvalidJSON,
-			wantSpath:     "wikis",
-			wantProjectID: "1",
-			expectAPICall: true,
-			wantError:     true,
+			projectID: 1,
+			name:      "Test",
+			content:   "content",
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataInvalidJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis",
+				form: map[string]string{
+					"projectId": "1",
+					"name":      "Test",
+					"content":   "content",
+				},
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -541,106 +566,90 @@ func TestWikiService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
+			called := false
 			s := newWikiService()
+
 			s.method.Post = func(spath string, form *FormParams) (*http.Response, error) {
-				calledAPICall = true
+				called = true
 
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
-					assert.Equal(t, tc.wantProjectID, form.Get("projectId"))
+				if tc.wantAPI.called {
+					assert.Equal(t, tc.wantAPI.spath, spath)
 
-					// 💡 修正箇所: tc.wantName/wantContent -> tc.name/content に変更
-					assert.Equal(t, tc.name, form.Get("name"))
-					assert.Equal(t, tc.content, form.Get("content"))
-
-					if tc.wantMailNotify != "" {
-						assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
-					} else {
-						assert.Empty(t, form.Get("mailNotify"))
+					for k, v := range tc.wantAPI.form {
+						assert.Equal(t, v, form.Get(k))
 					}
 				}
 
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: tc.httpStatus,
 					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+				}, tc.httpError
 			}
 
-			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.options...)
+			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.opts...)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
-			}
+			assert.Equal(t, tc.wantAPI.called, called)
 
-			if tc.wantError {
+			if tc.wantErrType != nil {
 				assert.Error(t, err)
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
 				assert.Nil(t, wiki)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, wiki)
-				assert.Equal(t, tc.wantID, wiki.ID)
-				assert.Equal(t, tc.wantName, wiki.Name)
-				assert.Equal(t, tc.wantContent, wiki.Content)
+				assert.IsType(t, tc.wantErrType, err)
+				return
 			}
+
+			require.NoError(t, err)
+			require.NotNil(t, wiki)
+
+			assert.Equal(t, tc.wantWiki.ID, wiki.ID)
+			assert.Equal(t, tc.wantWiki.Name, wiki.Name)
+			assert.Equal(t, tc.wantWiki.Content, wiki.Content)
 		})
 	}
 }
 
 func TestWikiService_Update(t *testing.T) {
-	t.Parallel()
-
 	o := newWikiOptionService()
 
-	type testCase struct {
-		// Input arguments
-		wikiID int
-		option *FormOption   // Required option argument
-		opts   []*FormOption // Variable arguments (additional options)
+	type wantAPI struct {
+		called bool
+		spath  string
+		form   map[string]string
+	}
 
-		// HTTP mock settings
+	cases := map[string]struct {
+		wikiID int
+		option *FormOption
+		opts   []*FormOption
+
 		httpStatus int
 		httpBody   string
 		httpError  error
 
-		// API request assertion
-		wantSpath          string
-		expectAPICall      bool
-		wantFormName       string
-		wantFormContent    string
-		wantFormMailNotify string
-
-		// Expected results (Error handling)
-		wantError   bool
+		wantAPI     wantAPI
 		wantErrType error
-
-		// Expected results (Success case only)
-		wantID      int
-		wantName    string
-		wantContent string
-	}
-
-	cases := map[string]testCase{
+		wantWiki    *Wiki
+	}{
 		"success-name-only": {
-			wikiID:        34,
-			option:        o.WithFormName("New Page Name"),
-			opts:          []*FormOption{},
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataWikiMaximumJSON,
-			wantSpath:     "wikis/34",
-			expectAPICall: true,
-			wantFormName:  "New Page Name",
-			wantID:        34,
-			wantName:      "Maximum Wiki Page",
-			wantContent:   "This is a muximal wiki page.",
+			wikiID: 34,
+			option: o.WithFormName("New Page Name"),
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/34",
+				form: map[string]string{
+					"name": "New Page Name",
+				},
+			},
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Maximum Wiki Page",
+				Content: "This is a muximal wiki page.",
+			},
 		},
-		// Test Viewpoint 1: Specify all available options
 		"success-full-options": {
 			wikiID: 34,
 			option: o.WithFormName("Full Options Name"),
@@ -648,94 +657,104 @@ func TestWikiService_Update(t *testing.T) {
 				o.WithFormContent("Full Options Content"),
 				o.WithFormMailNotify(true),
 			},
-			httpStatus:         http.StatusOK,
-			httpBody:           testdataWikiMaximumJSON,
-			wantSpath:          "wikis/34",
-			expectAPICall:      true,
-			wantFormName:       "Full Options Name",
-			wantFormContent:    "Full Options Content",
-			wantFormMailNotify: "true",
-			wantID:             34,
-			wantName:           "Maximum Wiki Page",
-			wantContent:        "This is a muximal wiki page.",
-		},
-		// Test Viewpoint 2: Verify correct handling when mandatory option is in opts...
-		"success-option-opts-split": {
-			wikiID: 35,
-			option: o.WithFormMailNotify(true), // Non-mandatory option in the required argument slot
-			opts: []*FormOption{
-				o.WithFormName("Split Option Name"), // Mandatory option in the variadic argument slot
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/34",
+				form: map[string]string{
+					"name":       "Full Options Name",
+					"content":    "Full Options Content",
+					"mailNotify": "true",
+				},
 			},
-			httpStatus:         http.StatusOK,
-			httpBody:           testdataWikiMaximumJSON,
-			wantSpath:          "wikis/35",
-			expectAPICall:      true,
-			wantFormName:       "Split Option Name",
-			wantFormMailNotify: "true",
-			wantID:             34,
-			wantName:           "Maximum Wiki Page",
-			wantContent:        "This is a muximal wiki page.",
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Maximum Wiki Page",
+				Content: "This is a muximal wiki page.",
+			},
 		},
-		// --- Failure Cases (omitting success-only fields) ---
 		"validation-error-required-option": {
 			wikiID: 12,
-			// All provided options (option and opts...) do not set mandatory fields (name/content)
-			option:        o.WithFormMailNotify(true),
-			opts:          []*FormOption{},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			option: o.WithFormMailNotify(true),
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-wikiID": {
-			wikiID:        0,
-			option:        o.WithFormName("New Name"),
-			opts:          []*FormOption{},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wikiID: 0,
+			option: o.WithFormName("New Name"),
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 12,
-			option: o.WithFormName("New Name"),
-			opts: []*FormOption{{
-				formMailAddress,
-				nil,
-				func(p *FormParams) error {
+			option: &FormOption{
+				t:         formRoleType,
+				checkFunc: nil,
+				setFunc: func(p *FormParams) error {
 					return nil
 				},
-			}},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &InvalidFormOptionError{},
+			},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &InvalidFormOptionError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID:        12,
-			option:        o.WithFormName("New Name"),
-			opts:          []*FormOption{newFormOptionWithSetError(formMailNotify)},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   errors.New("set error"),
+			wikiID: 12,
+			option: newFormOptionWithSetError(formName),
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"client-error-network-failure": {
-			wikiID:        13,
-			option:        o.WithFormName("New Name"),
-			opts:          []*FormOption{},
-			httpError:     errors.New("network error"),
-			wantSpath:     "wikis/13",
-			expectAPICall: true,
-			wantFormName:  "New Name",
-			wantError:     true,
+			wikiID: 13,
+			option: o.WithFormName("New Name"),
+
+			httpError: errors.New("network error"),
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/13",
+				form: map[string]string{
+					"name": "New Name",
+				},
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			wikiID:        14,
-			option:        o.WithFormName("New Name"),
-			opts:          []*FormOption{},
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataInvalidJSON,
-			wantSpath:     "wikis/14",
-			expectAPICall: true,
-			wantFormName:  "New Name",
-			wantError:     true,
+			wikiID: 14,
+			option: o.WithFormName("New Name"),
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataInvalidJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/14",
+				form: map[string]string{
+					"name": "New Name",
+				},
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -744,152 +763,161 @@ func TestWikiService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
+			called := false
 			s := newWikiService()
+
 			s.method.Patch = func(spath string, form *FormParams) (*http.Response, error) {
-				calledAPICall = true
+				called = true
 
-				// Assert the API request when expected
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
+				if tc.wantAPI.called {
+					assert.Equal(t, tc.wantAPI.spath, spath)
 
-					// Assert form payload
-					assert.Equal(t, tc.wantFormName, form.Get("name"))
-					assert.Equal(t, tc.wantFormContent, form.Get("content"))
-					if tc.wantFormMailNotify != "" {
-						assert.Equal(t, tc.wantFormMailNotify, form.Get("mailNotify"))
-					} else {
-						assert.Empty(t, form.Get("mailNotify"))
+					for k, v := range tc.wantAPI.form {
+						assert.Equal(t, v, form.Get(k))
 					}
 				}
 
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: tc.httpStatus,
 					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+				}, tc.httpError
 			}
 
 			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
+			assert.Equal(t, tc.wantAPI.called, called)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, wiki)
+				assert.IsType(t, tc.wantErrType, err)
+				return
 			}
 
-			// Assert result
-			if tc.wantError {
-				assert.Error(t, err)
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
-				assert.Nil(t, wiki)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, wiki)
-				assert.Equal(t, tc.wantID, wiki.ID)
-				assert.Equal(t, tc.wantName, wiki.Name)
-				assert.Equal(t, tc.wantContent, wiki.Content)
-			}
+			require.NoError(t, err)
+			require.NotNil(t, wiki)
+
+			assert.Equal(t, tc.wantWiki.ID, wiki.ID)
+			assert.Equal(t, tc.wantWiki.Name, wiki.Name)
+			assert.Equal(t, tc.wantWiki.Content, wiki.Content)
 		})
 	}
 }
 
 func TestWikiService_Delete(t *testing.T) {
-	t.Parallel()
-
 	o := newWikiOptionService()
-	projectOption := newProjectOptionService() // For testing InvalidFormOptionError
+	projectOption := newProjectOptionService()
 
-	type testCase struct {
-		// Input arguments
+	type wantAPI struct {
+		called bool
+		spath  string
+		form   map[string]string
+	}
+
+	cases := map[string]struct {
 		wikiID int
-		opts   []*FormOption // Variable arguments
+		opts   []*FormOption
 
-		// HTTP mock settings
 		httpStatus int
 		httpBody   string
 		httpError  error
 
-		// API request assertion
-		wantSpath      string
-		wantMailNotify string
-		expectAPICall  bool
-
-		// Expected results (Error handling)
-		wantError   bool
+		wantAPI     wantAPI
+		wantWikiID  int
 		wantErrType error
-
-		// Expected results (Success case only)
-		wantID int
-	}
-
-	cases := map[string]testCase{
+	}{
 		"success-with-option": {
-			wikiID:         34,
-			opts:           []*FormOption{o.WithFormMailNotify(true)},
-			httpStatus:     http.StatusOK,
-			httpBody:       testdataWikiMaximumJSON,
-			wantSpath:      "wikis/34",
-			wantMailNotify: "true",
-			expectAPICall:  true,
-			wantID:         34,
+			wikiID: 34,
+			opts:   []*FormOption{o.WithFormMailNotify(true)},
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/34",
+				form: map[string]string{
+					"mailNotify": "true",
+				},
+			},
+
+			wantWikiID: 34,
 		},
 		"success-no-option": {
-			wikiID:        1,
-			opts:          []*FormOption{},
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataWikiMaximumJSON,
-			wantSpath:     "wikis/1",
-			expectAPICall: true,
-			wantID:        34, // ID from JSON body
+			wikiID: 1,
+
+			httpStatus: http.StatusOK,
+			httpBody:   testdataWikiMaximumJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/1",
+			},
+
+			wantWikiID: 34,
 		},
-		// --- Failure Cases (omitting success-only fields) ---
 		"validation-error-id-zero": {
-			wikiID:        0,
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wikiID: 0,
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-id-negative": {
-			wikiID:        -1,
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &ValidationError{},
+			wikiID: -1,
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &ValidationError{},
 		},
 		"validation-error-option-set-fail": {
-			wikiID:        1,
-			opts:          []*FormOption{newFormOptionWithSetError(formMailNotify)},
-			expectAPICall: false,
-			wantError:     true,
+			wikiID: 1,
+			opts:   []*FormOption{newFormOptionWithSetError(formMailNotify)},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"validation-error-invalid-option-type": {
 			wikiID: 1,
 			opts: []*FormOption{
-				// Use ProjectOptionService to correctly trigger InvalidFormOptionError in WikiService
 				projectOption.WithFormKey("Invalid Option"),
 			},
-			expectAPICall: false,
-			wantError:     true,
-			wantErrType:   &InvalidFormOptionError{},
+
+			wantAPI: wantAPI{
+				called: false,
+			},
+
+			wantErrType: &InvalidFormOptionError{},
 		},
 		"client-error-network-failure": {
-			wikiID:        34,
-			opts:          []*FormOption{},
-			httpError:     errors.New("network error"),
-			wantSpath:     "wikis/34",
-			expectAPICall: true,
-			wantError:     true,
+			wikiID:    34,
+			httpError: errors.New("network error"),
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/34",
+			},
+
+			wantErrType: errors.New(""),
 		},
 		"api-error-invalid-json": {
-			wikiID:        34,
-			opts:          []*FormOption{},
-			httpStatus:    http.StatusOK,
-			httpBody:      testdataInvalidJSON,
-			wantSpath:     "wikis/34",
-			expectAPICall: true,
-			wantError:     true,
+			wikiID:     34,
+			httpStatus: http.StatusOK,
+			httpBody:   testdataInvalidJSON,
+
+			wantAPI: wantAPI{
+				called: true,
+				spath:  "wikis/34",
+			},
+
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -898,48 +926,41 @@ func TestWikiService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			calledAPICall := false
+			called := false
 			s := newWikiService()
-			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
-				calledAPICall = true
 
-				// Assert the API request when expected
-				if tc.expectAPICall {
-					assert.Equal(t, tc.wantSpath, spath)
-					if tc.wantMailNotify != "" {
-						assert.Equal(t, tc.wantMailNotify, form.Get("mailNotify"))
-					} else {
-						assert.Empty(t, form.Get("mailNotify"))
+			s.method.Delete = func(spath string, form *FormParams) (*http.Response, error) {
+				called = true
+
+				if tc.wantAPI.called {
+					assert.Equal(t, tc.wantAPI.spath, spath)
+
+					for k, v := range tc.wantAPI.form {
+						assert.Equal(t, v, form.Get(k))
 					}
 				}
 
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: tc.httpStatus,
 					Body:       io.NopCloser(bytes.NewReader([]byte(tc.httpBody))),
-				}
-				return resp, tc.httpError
+				}, tc.httpError
 			}
 
 			wiki, err := s.Delete(tc.wikiID, tc.opts...)
 
-			if tc.expectAPICall {
-				assert.True(t, calledAPICall)
-			} else {
-				assert.False(t, calledAPICall)
+			assert.Equal(t, tc.wantAPI.called, called)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, wiki)
+				assert.IsType(t, tc.wantErrType, err)
+				return
 			}
 
-			// Assert result
-			if tc.wantError {
-				assert.Error(t, err)
-				if tc.wantErrType != nil {
-					assert.IsType(t, tc.wantErrType, err)
-				}
-				assert.Nil(t, wiki)
-			} else {
-				assert.NoError(t, err)
-				require.NotNil(t, wiki)
-				assert.Equal(t, tc.wantID, wiki.ID)
-			}
+			require.NoError(t, err)
+			require.NotNil(t, wiki)
+
+			assert.Equal(t, tc.wantWikiID, wiki.ID)
 		})
 	}
 }
