@@ -3,22 +3,26 @@ name: Test
 on:
   push:
     branches:
-      - master
+      - main
+      - beta
     paths:
-        - "**.go"
-        - "go.mod"
-        - "go.sum"
-        - ".golangci.yml"
-        - ".github/workflows/*.yml"
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".golangci.yml"
+      - ".github/workflows/*.yml"
+
   pull_request:
     branches:
-      - master
+      - main
+      - beta
+      - 'feature/**'
     paths:
-        - "**.go"
-        - "go.mod"
-        - "go.sum"
-        - ".golangci.yml"
-        - ".github/workflows/*.yml"
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".golangci.yml"
+      - ".github/workflows/*.yml"
 
 jobs:
 
