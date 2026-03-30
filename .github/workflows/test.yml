@@ -35,17 +35,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version-file: ".go-version"
           cache: true
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: latest
+          version: v2.11.4
 
 # ──────────────────────────────────────────────────────────────
 #  Test
@@ -58,28 +57,27 @@ jobs:
 
     strategy:
       matrix:
-        go-version: ["1.21", "1.22"]
+        go-version: ["1.23", "1.24"]
 
     steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v5
-
       - name: Build
         run: go build ./...
 
-      - name: Prepare packages
-        run: echo "PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')" >> $GITHUB_ENV
-
       - name: Test
-        run: go test $PKGS -race -coverpkg=$PKGS -coverprofile=coverage.txt -covermode=atomic
+        run: |
+          PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')
+          go test $PKGS -race -coverpkg=$PKGS -coverprofile=coverage.txt -covermode=atomic
 
       - name: Upload coverage to Codecov
-        if: matrix.go-version == '1.22'
+        if: matrix.go-version == '1.24'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
