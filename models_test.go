@@ -26,8 +26,7 @@ func TestFormat_String(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
+t.Run(n, func(t *testing.T) {
 			assert.Equal(t, tc.format.String(), tc.want)
 		})
 
@@ -54,8 +53,7 @@ func TestOrder_String(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
+t.Run(n, func(t *testing.T) {
 			assert.Equal(t, tc.format.String(), tc.want)
 		})
 
@@ -98,8 +96,7 @@ func TestRole_String(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
+t.Run(n, func(t *testing.T) {
 			assert.Equal(t, tc.roleType.String(), tc.want)
 		})
 

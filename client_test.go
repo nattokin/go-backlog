@@ -51,7 +51,7 @@ func TestNewClient_validation(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			c, err := NewClient(tc.baseURL, tc.token, nil)
 
 			if tc.wantError {
@@ -219,9 +219,7 @@ func TestClient_do(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", &mockDoer{
@@ -348,8 +346,7 @@ func TestClient_newRequest(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-		tc := tc
-		t.Run(n, func(t *testing.T) {
+t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", nil)
@@ -505,9 +502,7 @@ func TestClient_Method(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			c, captured := makeClient(t)
@@ -580,9 +575,7 @@ func TestClient_MethodUpload_errors(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", nil)
@@ -670,8 +663,7 @@ func Test_checkResponse(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			resp := &http.Response{

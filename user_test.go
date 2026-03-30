@@ -55,8 +55,7 @@ func TestUserService_One(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -217,8 +216,7 @@ func TestUserService_Add(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -302,8 +300,7 @@ func TestUserService_All(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -489,8 +486,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -570,8 +566,7 @@ func TestUserService_Own(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -660,8 +655,7 @@ func TestUserService_Delete(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newUserService()
@@ -786,8 +780,7 @@ func TestProjectUserService_All(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
@@ -898,8 +891,7 @@ func TestProjectUserService_Add(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
@@ -1030,8 +1022,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
@@ -1141,8 +1132,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
@@ -1200,8 +1190,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
@@ -1270,8 +1259,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
+t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectUserService()
