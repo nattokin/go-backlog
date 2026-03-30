@@ -44,7 +44,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.64.0
 
 # ──────────────────────────────────────────────────────────────
 #  Test
@@ -71,11 +71,10 @@ jobs:
       - name: Build
         run: go build ./...
 
-      - name: Prepare packages
-        run: echo "PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')" >> $GITHUB_ENV
-
       - name: Test
-        run: go test $PKGS -race -coverpkg=$PKGS -coverprofile=coverage.txt -covermode=atomic
+        run: |
+          PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')
+          go test $PKGS -race -coverpkg=$PKGS -coverprofile=coverage.txt -covermode=atomic
 
       - name: Upload coverage to Codecov
         if: matrix.go-version == '1.24'
