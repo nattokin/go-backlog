@@ -78,7 +78,7 @@ func TestProjectService_All(t *testing.T) {
 				func(p *QueryParams) error { return nil },
 			}},
 
-			wantErrType: &InvalidQueryOptionError{},
+			wantErrType: &InvalidOptionError[queryType]{},
 		},
 		"error-client-failure": {
 			options: []*QueryOption{},
@@ -343,7 +343,7 @@ func TestProjectService_Create(t *testing.T) {
 
 			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
 
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 
 		"error-client-failure": {
@@ -504,7 +504,7 @@ func TestProjectService_Update(t *testing.T) {
 
 			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
 
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 
 		"error-client-failure": {

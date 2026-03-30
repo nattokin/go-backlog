@@ -484,7 +484,7 @@ func TestUserService_Update(t *testing.T) {
 			id:      1,
 			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
 
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 	}
 

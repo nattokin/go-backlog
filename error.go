@@ -41,42 +41,37 @@ func (e *APIResponseError) Error() string {
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
-// InvalidQueryOptionError represents an error for an invalid query option.
-type InvalidQueryOptionError struct {
-	Invalid   queryType
-	ValidList []queryType
+/*
+OptionType is a constraint for option enum types used in WebAPI requests.
+
+Currently the supported option types are:
+  - queryType (query parameters)
+  - formType  (form parameters)
+
+Both types implement Value() string, which returns the API parameter value.
+This constraint allows InvalidOptionError to be implemented as a single
+generic error type while keeping the allowed option kinds restricted to
+query and form parameters.
+*/
+type OptionType interface {
+	queryType | formType
+	Value() string
 }
 
-func newInvalidQueryOptionError(invalid queryType, validList []queryType) *InvalidQueryOptionError {
-	return &InvalidQueryOptionError{
+// InvalidOptionError represents an error for an invalid option value.
+type InvalidOptionError[T OptionType] struct {
+	Invalid   T
+	ValidList []T
+}
+
+func newInvalidOptionError[T OptionType](invalid T, validList []T) *InvalidOptionError[T] {
+	return &InvalidOptionError[T]{
 		Invalid:   invalid,
 		ValidList: validList,
 	}
 }
 
-func (e *InvalidQueryOptionError) Error() string {
-	types := make([]string, len(e.ValidList))
-	for k, v := range e.ValidList {
-		types[k] = v.Value()
-	}
-
-	return fmt.Sprintf("invalid option:%s, allowed options:%s", e.Invalid.Value(), strings.Join(types, ","))
-}
-
-// InvalidFormOptionError represents an error for an invalid form option.
-type InvalidFormOptionError struct {
-	Invalid   formType
-	ValidList []formType
-}
-
-func newInvalidFormOptionError(invalid formType, validList []formType) *InvalidFormOptionError {
-	return &InvalidFormOptionError{
-		Invalid:   invalid,
-		ValidList: validList,
-	}
-}
-
-func (e *InvalidFormOptionError) Error() string {
+func (e *InvalidOptionError[T]) Error() string {
 	types := make([]string, len(e.ValidList))
 	for k, v := range e.ValidList {
 		types[k] = v.Value()

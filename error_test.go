@@ -38,8 +38,8 @@ func TestAPIResponseError_Error(t *testing.T) {
 	assert.Equal(t, want, e.Error())
 }
 
-func TestInvalidFormOptionError_Error(t *testing.T) {
-	e := &InvalidFormOptionError{
+func TestInvalidOptionError_Error_form(t *testing.T) {
+	e := &InvalidOptionError[formType]{
 		Invalid: formKey,
 		ValidList: []formType{
 			formName,
@@ -50,8 +50,8 @@ func TestInvalidFormOptionError_Error(t *testing.T) {
 	assert.EqualError(t, e, "invalid option:key, allowed options:name,key,chartEnabled")
 }
 
-func TestInvalidQueryOptionError_Error(t *testing.T) {
-	e := &InvalidQueryOptionError{
+func TestInvalidOptionError_Error_query(t *testing.T) {
+	e := &InvalidOptionError[queryType]{
 		Invalid: queryActivityTypeIDs,
 		ValidList: []queryType{
 			queryAll,
