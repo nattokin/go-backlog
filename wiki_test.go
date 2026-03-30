@@ -79,7 +79,7 @@ func TestWikiService_All(t *testing.T) {
 					return nil
 				},
 			}},
-			wantErrType: &InvalidQueryOptionError{},
+			wantErrType: &InvalidOptionError[queryType]{},
 		},
 		"validation-error-option-set-fail": {
 			projectIDOrKey: "PRJ",
@@ -424,7 +424,7 @@ func TestWikiService_Create(t *testing.T) {
 					func(p *FormParams) error { return nil },
 				},
 			},
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 		"validation-error-option-set-fail": {
 			projectID:   1,
@@ -577,7 +577,7 @@ func TestWikiService_Update(t *testing.T) {
 					return nil
 				},
 			},
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 		"validation-error-option-set-fail": {
 			wikiID:      12,
@@ -703,7 +703,7 @@ func TestWikiService_Delete(t *testing.T) {
 			opts: []*FormOption{
 				projectOption.WithFormKey("Invalid Option"),
 			},
-			wantErrType: &InvalidFormOptionError{},
+			wantErrType: &InvalidOptionError[formType]{},
 		},
 		"client-error-network-failure": {
 			wikiID: 34,

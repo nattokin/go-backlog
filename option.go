@@ -118,7 +118,7 @@ func (o *QueryOption) validate(validTypes []queryType) error {
 			return nil
 		}
 	}
-	return newInvalidQueryOptionError(o.t, validTypes)
+	return newInvalidOptionError(o.t, validTypes)
 }
 
 // --- FormOption --------------------------------------------------------------
@@ -156,7 +156,7 @@ func (o *FormOption) validate(validTypes []formType) error {
 			return nil
 		}
 	}
-	return newInvalidFormOptionError(o.t, validTypes)
+	return newInvalidOptionError(o.t, validTypes)
 }
 
 //
