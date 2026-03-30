@@ -87,7 +87,7 @@ func TestFormOption(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			form := NewFormParams()
@@ -193,7 +193,7 @@ func TestFormOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -227,7 +227,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -304,7 +304,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -356,7 +356,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()

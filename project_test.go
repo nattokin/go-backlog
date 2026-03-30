@@ -104,7 +104,7 @@ func TestProjectService_All(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
@@ -202,7 +202,7 @@ func TestProjectService_One(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
@@ -371,7 +371,7 @@ func TestProjectService_Create(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
@@ -529,7 +529,7 @@ func TestProjectService_Update(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()
@@ -627,7 +627,7 @@ func TestProjectService_Delete(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newProjectService()

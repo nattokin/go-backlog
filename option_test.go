@@ -55,7 +55,7 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := &QueryOptionService{}
@@ -120,7 +120,7 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := &FormOptionService{}
@@ -167,7 +167,7 @@ func TestActivityOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				query := NewQueryParams()
@@ -198,7 +198,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				query := NewQueryParams()
@@ -224,7 +224,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				query := NewQueryParams()
@@ -272,7 +272,7 @@ func TestProjectOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -303,7 +303,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				query := NewQueryParams()
@@ -339,7 +339,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -369,7 +369,7 @@ func TestUserOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -400,7 +400,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -436,7 +436,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -471,7 +471,7 @@ func TestWikiOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				query := NewQueryParams()
@@ -502,7 +502,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()
@@ -528,7 +528,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				form := NewFormParams()

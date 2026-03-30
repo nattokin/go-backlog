@@ -115,7 +115,7 @@ func TestWikiService_All(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()
@@ -217,7 +217,7 @@ func TestWikiService_Count(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()
@@ -302,7 +302,7 @@ func TestWikiService_One(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()
@@ -468,7 +468,7 @@ func TestWikiService_Create(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()
@@ -610,7 +610,7 @@ func TestWikiService_Update(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()
@@ -726,7 +726,7 @@ func TestWikiService_Delete(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newWikiService()

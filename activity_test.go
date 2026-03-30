@@ -251,7 +251,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-t.Run(n, func(t *testing.T) {
+		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
 			s := newSpaceActivityService()

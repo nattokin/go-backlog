@@ -87,7 +87,7 @@ func TestQueryOption(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			query := NewQueryParams()
@@ -153,7 +153,7 @@ func TestQueryOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
@@ -220,7 +220,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
@@ -259,7 +259,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
@@ -350,7 +350,7 @@ t.Run(name, func(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-t.Run(name, func(t *testing.T) {
+			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				q := NewQueryParams()
