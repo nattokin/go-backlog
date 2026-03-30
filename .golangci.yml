@@ -1,15 +1,21 @@
+version: "2"
+
 run:
   timeout: 5m
 
 linters:
+  default: none
   enable:
-    - gofmt
-    - goimports
     - govet
     - ineffassign
     - misspell
     - staticcheck
 
-linters-settings:
-  goimports:
-    local-prefixes: github.com/nattokin/go-backlog
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/nattokin/go-backlog
