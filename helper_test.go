@@ -1,15 +1,11 @@
 package backlog
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"net/http"
 	"net/url"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 //
@@ -25,63 +21,6 @@ import (
 // Do not import external `testutil` here — this file is for
 // package-local (internal) unit tests only.
 //
-
-// toFormOptions converts a slice of RequestOption interfaces into
-// a slice of *FormOption safely.
-//
-// This helper is useful when testing form-related applyOptions
-// or when verifying mixed RequestOption slices.
-//
-// Example:
-//
-//	opts := []RequestOption{
-//		formService.WithName("example"),
-//		formService.WithArchived(true),
-//	}
-//	formOpts := toFormOptions(t, opts)
-//	err := formService.applyOptions(form, formOpts...)
-//	require.NoError(t, err)
-//
-//nolint:unused // shared test helper
-func toFormOptions(t *testing.T, opts []RequestOption) []*FormOption {
-	t.Helper()
-
-	formOpts := make([]*FormOption, 0, len(opts))
-	for _, opt := range opts {
-		fopt, ok := opt.(*FormOption)
-		require.Truef(t, ok, "expected *FormOption, got %T", opt)
-		formOpts = append(formOpts, fopt)
-	}
-	return formOpts
-}
-
-// toQueryOptions converts a slice of RequestOption interfaces into
-// a slice of *QueryOption safely.
-//
-// It is mainly used for verifying query parameter behaviors within
-// internal option service tests.
-//
-// Example:
-//
-//	opts := []RequestOption{
-//		queryService.WithAll(true),
-//	}
-//	queryOpts := toQueryOptions(t, opts)
-//	err := queryService.applyOptions(query, queryOpts...)
-//	require.NoError(t, err)
-//
-//nolint:unused // shared test helper
-func toQueryOptions(t *testing.T, opts []RequestOption) []*QueryOption {
-	t.Helper()
-
-	queryOpts := make([]*QueryOption, 0, len(opts))
-	for _, opt := range opts {
-		qopt, ok := opt.(*QueryOption)
-		require.Truef(t, ok, "expected *QueryOption, got %T", opt)
-		queryOpts = append(queryOpts, qopt)
-	}
-	return queryOpts
-}
 
 // --- Option Service Helpers ---
 
@@ -307,18 +246,6 @@ func newUnexpectedGetFn(t *testing.T) func(spath string, query url.Values) (*htt
 	}
 }
 
-// newMockGetFn returns a mock function for http GET that returns the given response.
-//
-//nolint:unused // shared test helper
-func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath string, query url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(spath string, query url.Values) (*http.Response, error) {
-		t.Helper()
-		assert.Equal(t, wantPath, spath)
-		return res, nil
-	}
-}
-
 // newUnexpectedPostFn returns a mock function for http POST that fails if called.
 //
 //nolint:unused // shared test helper
@@ -328,18 +255,6 @@ func newUnexpectedPostFn(t *testing.T) func(spath string, form url.Values) (*htt
 		t.Helper()
 		t.Error("Post must not be called")
 		return nil, errors.New("unexpected call")
-	}
-}
-
-// newMockPostFn returns a mock function for http POST that returns the given response.
-//
-//nolint:unused // shared test helper
-func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		assert.Equal(t, wantPath, spath)
-		return res, nil
 	}
 }
 
@@ -355,18 +270,6 @@ func newUnexpectedPatchFn(t *testing.T) func(spath string, form url.Values) (*ht
 	}
 }
 
-// newMockPatchFn returns a mock function for http PATCH that returns the given response.
-//
-//nolint:unused // shared test helper
-func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		assert.Equal(t, wantPath, spath)
-		return res, nil
-	}
-}
-
 // newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
 //
 //nolint:unused // shared test helper
@@ -379,18 +282,6 @@ func newUnexpectedDeleteFn(t *testing.T) func(spath string, form url.Values) (*h
 	}
 }
 
-// newMockDeleteFn returns a mock function for http DELETE that returns the given response.
-//
-//nolint:unused // shared test helper
-func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		assert.Equal(t, wantPath, spath)
-		return res, nil
-	}
-}
-
 // newUnexpectedUploadFn returns a mock function for http Upload that fails if called.
 //
 //nolint:unused // shared test helper
@@ -400,23 +291,5 @@ func newUnexpectedUploadFn(t *testing.T) func(spath, fileName string, r io.Reade
 		t.Helper()
 		t.Error("Upload must not be called")
 		return nil, errors.New("unexpected call")
-	}
-}
-
-// newMockUploadFn returns a mock function for http Upload that returns the given response.
-//
-//nolint:unused // shared test helper
-func newMockUploadFn(t *testing.T, wantPath, wantFileName string, body []byte) func(spath, fileName string, r io.Reader) (*http.Response, error) {
-	t.Helper()
-	return func(spath, fileName string, r io.Reader) (*http.Response, error) {
-		t.Helper()
-		assert.Equal(t, wantPath, spath)
-		assert.Equal(t, wantFileName, fileName)
-		data, _ := io.ReadAll(r)
-		assert.NotNil(t, data)
-		return &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader(body)),
-		}, nil
 	}
 }
