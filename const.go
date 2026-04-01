@@ -24,32 +24,30 @@ const (
 )
 
 const (
-	_ formType = iota
-	formArchived
-	formChartEnabled
-	formContent
-	formKey
-	formName
-	formMailAddress
-	formMailNotify
-	formPassword
-	formProjectLeaderCanEditProjectLeader
-	formRoleType
-	formSubtaskingEnabled
-	formTextFormattingRule
-	formUserID
-	formSendMail
+	formArchived                          formType = "archived"
+	formChartEnabled                      formType = "chartEnabled"
+	formContent                           formType = "content"
+	formKey                               formType = "key"
+	formName                              formType = "name"
+	formMailAddress                       formType = "mailAddress"
+	formMailNotify                        formType = "mailNotify"
+	formPassword                          formType = "password"
+	formProjectLeaderCanEditProjectLeader formType = "projectLeaderCanEditProjectLeader"
+	formRoleType                          formType = "roleType"
+	formSubtaskingEnabled                 formType = "subtaskingEnabled"
+	formTextFormattingRule                formType = "textFormattingRule"
+	formUserID                            formType = "userId"
+	formSendMail                          formType = "sendMail"
 )
 
 const (
-	_ queryType = iota
-	queryActivityTypeIDs
-	queryAll
-	queryArchived
-	queryCount
-	queryKey
-	queryKeyword
-	queryMaxID
-	queryMinID
-	queryOrder
+	queryActivityTypeIDs queryType = "activityTypeId[]"
+	queryAll             queryType = "all"
+	queryArchived        queryType = "archived"
+	queryCount           queryType = "count"
+	queryKey             queryType = "key"
+	queryKeyword         queryType = "keyword"
+	queryMaxID           queryType = "maxId"
+	queryMinID           queryType = "minId"
+	queryOrder           queryType = "order"
 )

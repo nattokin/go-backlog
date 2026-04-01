@@ -74,7 +74,7 @@ func TestProjectService_All(t *testing.T) {
 		},
 		"error-with-invalid-option": {
 			options: []*QueryOption{{
-				0,
+				"invalid",
 				nil,
 				func(p url.Values) error { return nil },
 			}},
@@ -340,7 +340,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			options: []*FormOption{{0, nil, func(p url.Values) error { return nil }}},
+			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},
@@ -500,7 +500,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-invalid-option": {
 			projectIDOrKey: "TEST",
 
-			options: []*FormOption{{0, nil, func(p url.Values) error { return nil }}},
+			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},

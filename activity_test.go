@@ -234,7 +234,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			want:      want{},
 		},
 		"InvalidOption": {
-			options: []*QueryOption{{0, nil, func(p url.Values) error {
+			options: []*QueryOption{{"invalid", nil, func(p url.Values) error {
 				return nil
 			}},
 			},
