@@ -52,7 +52,7 @@ func TestQueryOption(t *testing.T) {
 		},
 		"queryType-invalid": {
 			option: &QueryOption{
-				t: 0,
+				t: "invalid",
 				setFunc: func(query url.Values) error {
 					return nil
 				},

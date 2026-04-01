@@ -23,50 +23,21 @@ type optionRegistry struct {
 // --- QueryOption Types -------------------------------------------------------------
 
 // queryType represents the distinct query parameter keys for Backlog API requests.
-type queryType int
+type queryType string
 
 // Value returns the string representation of the query parameter key for the API request.
 func (t queryType) Value() string {
-	var m = map[queryType]string{
-		queryActivityTypeIDs: "activityTypeId[]",
-		queryAll:             "all",
-		queryArchived:        "archived",
-		queryCount:           "count",
-		queryKey:             "key",
-		queryKeyword:         "keyword",
-		queryMaxID:           "maxId",
-		queryMinID:           "minId",
-		queryOrder:           "order",
-	}
-
-	return m[t]
+	return string(t)
 }
 
 // --- FormOption Types -------------------------------------------------------------
 
 // formType represents the distinct form field keys available for Backlog API requests.
-type formType int
+type formType string
 
 // Value returns the string representation of the form field key for the API request.
 func (t formType) Value() string {
-	var m = map[formType]string{
-		formArchived:                          "archived",
-		formChartEnabled:                      "chartEnabled",
-		formContent:                           "content",
-		formKey:                               "key",
-		formName:                              "name",
-		formMailAddress:                       "mailAddress",
-		formMailNotify:                        "mailNotify",
-		formPassword:                          "password",
-		formProjectLeaderCanEditProjectLeader: "projectLeaderCanEditProjectLeader",
-		formRoleType:                          "roleType",
-		formSubtaskingEnabled:                 "subtaskingEnabled",
-		formTextFormattingRule:                "textFormattingRule",
-		formUserID:                            "userId",
-		formSendMail:                          "sendMail",
-	}
-
-	return m[t]
+	return string(t)
 }
 
 //

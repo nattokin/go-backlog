@@ -52,7 +52,7 @@ func TestFormOption(t *testing.T) {
 		},
 		"queryType-invalid": {
 			option: &FormOption{
-				t: 0,
+				t: "invalid",
 				setFunc: func(form url.Values) error {
 					return nil
 				},

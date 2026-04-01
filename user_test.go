@@ -486,7 +486,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"option-invalid": {
 			id:      1,
-			options: []*FormOption{{0, nil, func(p url.Values) error { return nil }}},
+			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},
