@@ -219,8 +219,6 @@ func TestClient_do(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -348,7 +346,6 @@ func TestClient_newRequest(t *testing.T) {
 	}
 
 	for n, tc := range cases {
-		tc := tc
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
@@ -505,8 +502,6 @@ func TestClient_Method(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -580,8 +575,6 @@ func TestClient_MethodUpload_errors(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -670,7 +663,6 @@ func Test_checkResponse(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

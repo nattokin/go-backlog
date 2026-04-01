@@ -129,7 +129,6 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -247,8 +246,6 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -337,8 +334,6 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -447,8 +442,6 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -527,8 +520,6 @@ func TestIssueAttachmentService_List(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -623,8 +614,6 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -733,8 +722,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -867,8 +854,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
-
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

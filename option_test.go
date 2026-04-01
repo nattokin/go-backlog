@@ -56,7 +56,6 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -122,7 +121,6 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -170,7 +168,6 @@ func TestActivityOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -202,7 +199,6 @@ func TestActivityOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -229,7 +225,6 @@ func TestActivityOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -278,7 +273,6 @@ func TestProjectOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -310,7 +304,6 @@ func TestProjectOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -347,7 +340,6 @@ func TestProjectOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -378,7 +370,6 @@ func TestUserOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -410,7 +401,6 @@ func TestUserOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -447,7 +437,6 @@ func TestUserOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -483,7 +472,6 @@ func TestWikiOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -515,7 +503,6 @@ func TestWikiOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -542,7 +529,6 @@ func TestWikiOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 

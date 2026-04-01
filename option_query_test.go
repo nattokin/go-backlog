@@ -88,7 +88,6 @@ func TestQueryOption(t *testing.T) {
 	}
 
 	for name, tc := range cases {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -155,7 +154,6 @@ func TestQueryOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -223,7 +221,6 @@ func TestQueryOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -263,7 +260,6 @@ func TestQueryOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
@@ -355,7 +351,6 @@ func TestQueryOptionService(t *testing.T) {
 		}
 
 		for name, tc := range cases {
-			tc := tc
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
