@@ -253,7 +253,7 @@ type Repository struct {
 	Updated      time.Time `json:"updated,omitempty"`
 }
 
-// Resolution represents a resolushon.
+// Resolution represents a resolution.
 type Resolution struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
