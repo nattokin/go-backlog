@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/url"
 	"path"
 	"strconv"
 )
@@ -86,7 +87,7 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 		return nil, errors.New("attachmentIDs must not be empty")
 	}
 
-	form := NewFormParams()
+	form := url.Values{}
 	for _, id := range attachmentIDs {
 		if err := validateAttachmentID(id); err != nil {
 			return nil, err

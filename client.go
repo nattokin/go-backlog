@@ -76,58 +76,11 @@ type Client struct {
 // Each function delegates to Client.do() but can be replaced in tests
 // for fine-grained unit testing of individual services.
 type method struct {
-	Get    func(spath string, query *QueryParams) (*http.Response, error)
-	Post   func(spath string, form *FormParams) (*http.Response, error)
-	Patch  func(spath string, form *FormParams) (*http.Response, error)
-	Delete func(spath string, form *FormParams) (*http.Response, error)
+	Get    func(spath string, query url.Values) (*http.Response, error)
+	Post   func(spath string, form url.Values) (*http.Response, error)
+	Patch  func(spath string, form url.Values) (*http.Response, error)
+	Delete func(spath string, form url.Values) (*http.Response, error)
 	Upload func(spath, fileName string, r io.Reader) (*http.Response, error)
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Parameter types
-// ──────────────────────────────────────────────────────────────
-
-// FormParams represents form-encoded parameters used in Backlog API POST,
-// PATCH, and DELETE requests. It wraps url.Values to provide helper methods
-// for constructing form data and converting it to io.Reader for HTTP bodies.
-//
-// Typical usage:
-//
-//	form := NewFormParams()
-//	form.Add("name", "ProjectX")
-//	resp, err := c.method.Post("projects", form)
-type FormParams struct {
-	*url.Values
-}
-
-// NewFormParams creates and returns a new, initialized FormParams instance.
-// It is primarily used to prepare form data for POST, PATCH, and DELETE requests.
-func NewFormParams() *FormParams {
-	return &FormParams{&url.Values{}}
-}
-
-// NewReader returns an io.Reader containing the URL-encoded form data.
-// This is used to provide the request body to an HTTP client.
-func (p *FormParams) NewReader() io.Reader {
-	return strings.NewReader(p.Encode())
-}
-
-// QueryParams represents query string parameters used in Backlog API GET requests.
-// It wraps url.Values to simplify parameter creation and encoding.
-//
-// Typical usage:
-//
-//	query := NewQueryParams()
-//	query.Add("projectId", "123")
-//	resp, err := c.method.Get("issues", query)
-type QueryParams struct {
-	*url.Values
-}
-
-// NewQueryParams creates and returns a new, initialized QueryParams instance.
-// It is typically used to construct URL query strings for GET requests.
-func NewQueryParams() *QueryParams {
-	return &QueryParams{&url.Values{}}
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -209,32 +162,32 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 
 	// --- Inject HTTP method wrappers ------------------------------------------
 	c.method = &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
+		Get: func(spath string, query url.Values) (*http.Response, error) {
 			return c.do(http.MethodGet, spath, nil, nil, query)
 		},
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
+		Post: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodPost, spath, header, strings.NewReader(form.Encode()), nil)
 		},
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
+		Patch: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodPatch, spath, header, strings.NewReader(form.Encode()), nil)
 		},
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
+		Delete: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodDelete, spath, header, strings.NewReader(form.Encode()), nil)
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			if fileName == "" {
@@ -268,15 +221,15 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 	// --- Initialize shared option services --------------------------------------
 	// Option services provide reusable form and query parameter builders
 	// used across multiple Backlog API services.
-	optionSupport := &optionSupport{
+	optionRegistry := &optionRegistry{
 		query: &QueryOptionService{},
 		form:  &FormOptionService{},
 	}
 
-	// ActivityOptionService wraps shared optionSupport to be reused
+	// ActivityOptionService wraps shared optionRegistry to be reused
 	// by activity-related services such as ProjectActivityService or SpaceActivityService.
 	activityOptionService := &ActivityOptionService{
-		support: optionSupport,
+		registry: optionRegistry,
 	}
 
 	// --- Initialize IssueService -------------------------------------------------
@@ -300,7 +253,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 
@@ -335,7 +288,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 
@@ -347,7 +300,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			method: c.method,
 		},
 		Option: &WikiOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 
@@ -359,13 +312,13 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 // ──────────────────────────────────────────────────────────────
 
 // newRequest builds a new HTTP request with token-based authentication.
-func (c *Client) newRequest(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Request, error) {
+func (c *Client) newRequest(method, spath string, header http.Header, body io.Reader, query url.Values) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
 	}
 
 	if query == nil {
-		query = NewQueryParams()
+		query = url.Values{}
 	}
 	query.Set("apiKey", c.token)
 
@@ -383,7 +336,7 @@ func (c *Client) newRequest(method, spath string, header http.Header, body io.Re
 
 // do executes the given HTTP request using the injected Doer.
 // All HTTP calls pass through this function, ensuring consistent error handling.
-func (c *Client) do(method, spath string, header http.Header, body io.Reader, query *QueryParams) (*http.Response, error) {
+func (c *Client) do(method, spath string, header http.Header, body io.Reader, query url.Values) (*http.Response, error) {
 	req, err := c.newRequest(method, spath, header, body, query)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"net/url"
 	"path"
 	"strconv"
 )
@@ -14,7 +15,7 @@ func getActivityList(m *method, spath string, options ...*QueryOption) ([]*Activ
 		}
 	}
 
-	query := NewQueryParams()
+	query := url.Values{}
 	for _, option := range options {
 		if err := option.Check(); err != nil {
 			return nil, err
