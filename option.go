@@ -761,8 +761,8 @@ func validateID(id int, key string) error {
 // This function is used internally to validate activity-related query parameters
 // (e.g., "activityTypeId[]") according to Backlog API constraints.
 func validateActivityID(id int, key string) error {
-	if id < 1 || id > 26 {
-		return newValidationError(fmt.Sprintf("invalid %s: must be between 1 and 26", key))
+	if id < 1 || id > maxActivityTypeID {
+		return newValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, maxActivityTypeID))
 	}
 	return nil
 }

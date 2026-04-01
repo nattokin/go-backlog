@@ -51,3 +51,5 @@ const (
 	queryMinID           queryType = "minId"
 	queryOrder           queryType = "order"
 )
+
+const maxActivityTypeID = 26
