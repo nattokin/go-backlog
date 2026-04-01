@@ -221,15 +221,15 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 	// --- Initialize shared option services --------------------------------------
 	// Option services provide reusable form and query parameter builders
 	// used across multiple Backlog API services.
-	optionSupport := &optionSupport{
+	optionRegistry := &optionRegistry{
 		query: &QueryOptionService{},
 		form:  &FormOptionService{},
 	}
 
-	// ActivityOptionService wraps shared optionSupport to be reused
+	// ActivityOptionService wraps shared optionRegistry to be reused
 	// by activity-related services such as ProjectActivityService or SpaceActivityService.
 	activityOptionService := &ActivityOptionService{
-		support: optionSupport,
+		registry: optionRegistry,
 	}
 
 	// --- Initialize IssueService -------------------------------------------------
@@ -253,7 +253,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 
@@ -288,7 +288,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 
@@ -300,7 +300,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			method: c.method,
 		},
 		Option: &WikiOptionService{
-			support: optionSupport,
+			registry: optionRegistry,
 		},
 	}
 

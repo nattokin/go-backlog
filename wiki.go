@@ -43,7 +43,7 @@ func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki,
 		}
 	}
 
-	o := s.Option.support.query
+	o := s.Option.registry.query
 	query := url.Values{}
 	err := o.applyOptions(query, opts...)
 	if err != nil {
@@ -135,7 +135,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...*FormO
 		}
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form, append(opts, o.WithName(name), o.WithContent(content))...)
 	if err != nil {
@@ -192,7 +192,7 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 		return nil, newValidationError("requires an option to modify wiki content or name (WithFormName or WithFormContent)")
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form, options...)
 	if err != nil {
@@ -235,7 +235,7 @@ func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 		}
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form, opts...)
 	if err != nil {

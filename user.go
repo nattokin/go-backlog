@@ -142,7 +142,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 		return nil, newValidationError("userID must not be empty")
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form,
 		o.WithPassword(password),
@@ -172,7 +172,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, opts ...*FormOption) (*User, error) {
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	if err := o.applyOptions(form, o.WithUserID(id)); err != nil {
 		return nil, err

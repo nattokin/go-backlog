@@ -462,7 +462,7 @@ func TestUserOptionService(t *testing.T) {
 
 func TestWikiOptionService(t *testing.T) {
 	s := &WikiOptionService{
-		support: &optionSupport{
+		registry: &optionRegistry{
 			form:  newFormOptionService(),
 			query: newQueryOptionService(),
 		},

@@ -6,10 +6,10 @@ import (
 	"strconv"
 )
 
-// optionSupport provides shared access to the query/form option builders.
+// optionRegistry provides shared access to the query/form option builders.
 // It is intended for internal composition by each XxxOptionService (e.g. WikiOptionService).
 // This struct should be initialized by the Client when setting up each service.
-type optionSupport struct {
+type optionRegistry struct {
 	query *QueryOptionService
 	form  *FormOptionService
 }
@@ -562,10 +562,10 @@ func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
 // for operations within the ActivityService.
 //
 // It exposes only those options that are valid for the Backlog Activity API.
-// Internally, it delegates to an optionSupport instance,
+// Internally, it delegates to an optionRegistry instance,
 // which holds the generic QueryOptionService (Form options are not used here).
 type ActivityOptionService struct {
-	support *optionSupport
+	registry *optionRegistry
 }
 
 // --- Query Options -----------------------------------------------------------
@@ -575,30 +575,30 @@ type ActivityOptionService struct {
 //
 // Example: typeIds=1&typeIds=2&typeIds=3
 func (s *ActivityOptionService) WithQueryActivityTypeIDs(typeIDs []int) *QueryOption {
-	return s.support.query.WithActivityTypeIDs(typeIDs)
+	return s.registry.query.WithActivityTypeIDs(typeIDs)
 }
 
 // WithQueryMinID returns a query option to filter activities
 // that have IDs greater than or equal to the given value.
 func (s *ActivityOptionService) WithQueryMinID(id int) *QueryOption {
-	return s.support.query.WithMinID(id)
+	return s.registry.query.WithMinID(id)
 }
 
 // WithQueryMaxID returns a query option to filter activities
 // that have IDs less than or equal to the given value.
 func (s *ActivityOptionService) WithQueryMaxID(id int) *QueryOption {
-	return s.support.query.WithMaxID(id)
+	return s.registry.query.WithMaxID(id)
 }
 
 // WithQueryCount returns a query option to limit the number of activities
 // returned by the API (max 100).
 func (s *ActivityOptionService) WithQueryCount(count int) *QueryOption {
-	return s.support.query.WithCount(count)
+	return s.registry.query.WithCount(count)
 }
 
 // WithQueryOrder returns a query option to specify the result order (asc or desc).
 func (s *ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
-	return s.support.query.WithOrder(order)
+	return s.registry.query.WithOrder(order)
 }
 
 // --- Form Options -----------------------------------------------------------
@@ -615,10 +615,10 @@ func (s *ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
 // for operations within the ProjectService.
 //
 // It exposes only those options that are valid for the Backlog Project API.
-// Internally, it delegates to an optionSupport instance,
+// Internally, it delegates to an optionRegistry instance,
 // which holds the generic FormOptionService and QueryOptionService.
 type ProjectOptionService struct {
-	support *optionSupport
+	registry *optionRegistry
 }
 
 // --- Query Options -----------------------------------------------------------
@@ -626,54 +626,54 @@ type ProjectOptionService struct {
 // WithQueryAll returns a query option that includes archived projects
 // in the result list.
 func (s *ProjectOptionService) WithQueryAll(enabled bool) *QueryOption {
-	return s.support.query.WithAll(enabled)
+	return s.registry.query.WithAll(enabled)
 }
 
 // WithQueryArchived returns a query option that filters projects
 // by their archived status.
 func (s *ProjectOptionService) WithQueryArchived(enabled bool) *QueryOption {
-	return s.support.query.WithArchived(enabled)
+	return s.registry.query.WithArchived(enabled)
 }
 
 // --- Form Options ------------------------------------------------------------
 
 // WithFormArchived returns a form option to set the project's archived status.
 func (s *ProjectOptionService) WithFormArchived(enabled bool) *FormOption {
-	return s.support.form.WithArchived(enabled)
+	return s.registry.form.WithArchived(enabled)
 }
 
 // WithFormChartEnabled returns a form option to enable or disable charts
 // for the project.
 func (s *ProjectOptionService) WithFormChartEnabled(enabled bool) *FormOption {
-	return s.support.form.WithChartEnabled(enabled)
+	return s.registry.form.WithChartEnabled(enabled)
 }
 
 // WithFormKey returns a form option to set the project's key.
 func (s *ProjectOptionService) WithFormKey(key string) *FormOption {
-	return s.support.form.WithKey(key)
+	return s.registry.form.WithKey(key)
 }
 
 // WithFormName returns a form option to set the project's name.
 func (s *ProjectOptionService) WithFormName(name string) *FormOption {
-	return s.support.form.WithName(name)
+	return s.registry.form.WithName(name)
 }
 
 // WithFormProjectLeaderCanEditProjectLeader returns a form option to set
 // whether the project leader can edit the project leader field.
 func (s *ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
-	return s.support.form.WithProjectLeaderCanEditProjectLeader(enabled)
+	return s.registry.form.WithProjectLeaderCanEditProjectLeader(enabled)
 }
 
 // WithFormSubtaskingEnabled returns a form option to enable or disable
 // subtasking for the project.
 func (s *ProjectOptionService) WithFormSubtaskingEnabled(enabled bool) *FormOption {
-	return s.support.form.WithSubtaskingEnabled(enabled)
+	return s.registry.form.WithSubtaskingEnabled(enabled)
 }
 
 // WithFormTextFormattingRule returns a form option to set the text formatting
 // rule (Backlog or Markdown) for the project.
 func (s *ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOption {
-	return s.support.form.WithTextFormattingRule(format)
+	return s.registry.form.WithTextFormattingRule(format)
 }
 
 //
@@ -686,10 +686,10 @@ func (s *ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOp
 // for operations within the UserService.
 //
 // It exposes only those options that are valid for the Backlog User API.
-// Internally, it delegates to an optionSupport instance,
+// Internally, it delegates to an optionRegistry instance,
 // which holds the generic FormOptionService and QueryOptionService.
 type UserOptionService struct {
-	support *optionSupport
+	registry *optionRegistry
 }
 
 // --- Query Options -----------------------------------------------------------
@@ -700,33 +700,33 @@ type UserOptionService struct {
 
 // WithFormMailAddress returns a form option to set the user's mail address.
 func (s *UserOptionService) WithFormMailAddress(mail string) *FormOption {
-	return s.support.form.WithMailAddress(mail)
+	return s.registry.form.WithMailAddress(mail)
 }
 
 // WithFormName returns a form option to set the user's display name.
 func (s *UserOptionService) WithFormName(name string) *FormOption {
-	return s.support.form.WithName(name)
+	return s.registry.form.WithName(name)
 }
 
 // WithFormPassword returns a form option to set the user's password.
 func (s *UserOptionService) WithFormPassword(password string) *FormOption {
-	return s.support.form.WithPassword(password)
+	return s.registry.form.WithPassword(password)
 }
 
 // WithFormRoleType returns a form option to set the user's role type.
 func (s *UserOptionService) WithFormRoleType(role Role) *FormOption {
-	return s.support.form.WithRoleType(role)
+	return s.registry.form.WithRoleType(role)
 }
 
 // WithFormSendMail returns a form option to specify whether to send
 // an invitation email to the newly created user.
 func (s *UserOptionService) WithFormSendMail(enabled bool) *FormOption {
-	return s.support.form.WithSendMail(enabled)
+	return s.registry.form.WithSendMail(enabled)
 }
 
 // WithFormUserID returns a form option to set the user's ID (login name).
 func (s *UserOptionService) WithFormUserID(id int) *FormOption {
-	return s.support.form.WithUserID(id)
+	return s.registry.form.WithUserID(id)
 }
 
 //
@@ -739,35 +739,35 @@ func (s *UserOptionService) WithFormUserID(id int) *FormOption {
 // for operations within the WikiService.
 //
 // It exposes only those options that are valid for the Backlog Wiki API.
-// Internally, it delegates to an optionSupport instance,
+// Internally, it delegates to an optionRegistry instance,
 // which holds the generic FormOptionService and QueryOptionService.
 type WikiOptionService struct {
-	support *optionSupport
+	registry *optionRegistry
 }
 
 // --- Query Options -----------------------------------------------------------
 
 // WithQueryKeyword returns a query option to search wiki pages by keyword.
 func (s *WikiOptionService) WithQueryKeyword(keyword string) *QueryOption {
-	return s.support.query.WithKeyword(keyword)
+	return s.registry.query.WithKeyword(keyword)
 }
 
 // --- Form Options ------------------------------------------------------------
 
 // WithFormContent returns a form option to set the wiki page content.
 func (s *WikiOptionService) WithFormContent(content string) *FormOption {
-	return s.support.form.WithContent(content)
+	return s.registry.form.WithContent(content)
 }
 
 // WithFormMailNotify returns a form option to enable or disable mail notifications
 // for wiki updates or deletions.
 func (s *WikiOptionService) WithFormMailNotify(enabled bool) *FormOption {
-	return s.support.form.WithMailNotify(enabled)
+	return s.registry.form.WithMailNotify(enabled)
 }
 
 // WithFormName returns a form option to set the wiki page name.
 func (s *WikiOptionService) WithFormName(name string) *FormOption {
-	return s.support.form.WithName(name)
+	return s.registry.form.WithName(name)
 }
 
 //

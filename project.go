@@ -53,7 +53,7 @@ func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
 		}
 	}
 
-	o := s.Option.support.query
+	o := s.Option.registry.query
 	query := url.Values{}
 	err := o.applyOptions(query, opts...)
 	if err != nil {
@@ -117,7 +117,7 @@ func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project
 		}
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form, append(
 		[]*FormOption{o.WithKey(key), o.WithName(name)}, opts...,
@@ -170,7 +170,7 @@ func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (
 		}
 	}
 
-	o := s.Option.support.form
+	o := s.Option.registry.form
 	form := url.Values{}
 	err := o.applyOptions(form, options...)
 	if err != nil {

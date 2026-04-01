@@ -100,7 +100,7 @@ func newFormOptionService() *FormOptionService {
 // newActivityOptionService returns a test instance of ActivityOptionService.
 func newActivityOptionService() *ActivityOptionService {
 	return &ActivityOptionService{
-		support: &optionSupport{
+		registry: &optionRegistry{
 			query: newQueryOptionService(),
 			form:  newFormOptionService(),
 		},
@@ -112,7 +112,7 @@ func newActivityOptionService() *ActivityOptionService {
 //nolint:unused // shared test helper
 func newProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
-		support: &optionSupport{
+		registry: &optionRegistry{
 			query: newQueryOptionService(),
 			form:  newFormOptionService(),
 		},
@@ -124,7 +124,7 @@ func newProjectOptionService() *ProjectOptionService {
 //nolint:unused // shared test helper
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
-		support: &optionSupport{
+		registry: &optionRegistry{
 			query: newQueryOptionService(),
 			form:  newFormOptionService(),
 		},
@@ -136,7 +136,7 @@ func newUserOptionService() *UserOptionService {
 //nolint:unused // shared test helper
 func newWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
-		support: &optionSupport{
+		registry: &optionRegistry{
 			query: newQueryOptionService(),
 			form:  newFormOptionService(),
 		},
