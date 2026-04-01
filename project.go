@@ -118,7 +118,7 @@ func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, append(
 		[]*FormOption{o.WithKey(key), o.WithName(name)}, opts...,
 	)...)
@@ -171,7 +171,7 @@ func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, options...)
 	if err != nil {
 		return nil, err
@@ -201,7 +201,7 @@ func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
-	resp, err := s.method.Delete(spath, NewFormParams())
+	resp, err := s.method.Delete(spath, url.Values{})
 	if err != nil {
 		return nil, err
 	}

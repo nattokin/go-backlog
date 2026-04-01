@@ -341,7 +341,7 @@ func TestWikiService_Create(t *testing.T) {
 		content   string
 		opts      []*FormOption
 
-		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantWiki    *Wiki
 		wantErrType error
@@ -351,7 +351,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
@@ -376,7 +376,7 @@ func TestWikiService_Create(t *testing.T) {
 			content:   "This is a minimal wiki page.",
 			opts:      []*FormOption{o.WithFormMailNotify(true)},
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
@@ -422,7 +422,7 @@ func TestWikiService_Create(t *testing.T) {
 				{
 					formMailAddress,
 					nil,
-					func(p *FormParams) error { return nil },
+					func(p url.Values) error { return nil },
 				},
 			},
 			wantErrType: &InvalidOptionError[formType]{},
@@ -439,7 +439,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
@@ -454,7 +454,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
@@ -510,7 +510,7 @@ func TestWikiService_Update(t *testing.T) {
 		option *FormOption
 		opts   []*FormOption
 
-		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantWiki    *Wiki
@@ -519,7 +519,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 34,
 			option: o.WithFormName("New Page Name"),
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "New Page Name", form.Get("name"))
 				return &http.Response{
@@ -542,7 +542,7 @@ func TestWikiService_Update(t *testing.T) {
 				o.WithFormMailNotify(true),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "Full Options Content", form.Get("content"))
@@ -574,7 +574,7 @@ func TestWikiService_Update(t *testing.T) {
 			option: &FormOption{
 				t:         formRoleType,
 				checkFunc: nil,
-				setFunc: func(p *FormParams) error {
+				setFunc: func(p url.Values) error {
 					return nil
 				},
 			},
@@ -589,7 +589,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 13,
 			option: o.WithFormName("New Name"),
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/13", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
 				return nil, errors.New("network error")
@@ -601,7 +601,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 14,
 			option: o.WithFormName("New Name"),
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/14", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
 				return &http.Response{
@@ -653,7 +653,7 @@ func TestWikiService_Delete(t *testing.T) {
 		wikiID int
 		opts   []*FormOption
 
-		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantWikiID  int
 		wantErrType error
@@ -662,7 +662,7 @@ func TestWikiService_Delete(t *testing.T) {
 			wikiID: 34,
 			opts:   []*FormOption{o.WithFormMailNotify(true)},
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
@@ -676,7 +676,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"success-no-option": {
 			wikiID: 1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -709,7 +709,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"client-error-network-failure": {
 			wikiID: 34,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				return nil, errors.New("network error")
 			},
@@ -719,7 +719,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"api-error-invalid-json": {
 			wikiID: 34,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,

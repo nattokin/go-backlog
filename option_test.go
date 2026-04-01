@@ -86,7 +86,7 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			opts: []*FormOption{
 				{
 					checkFunc: func() error { return nil },
-					setFunc: func(f *FormParams) error {
+					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
 						return nil
 					},
@@ -99,7 +99,7 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			opts: []*FormOption{
 				{
 					checkFunc: func() error { return errors.New("check error") },
-					setFunc: func(f *FormParams) error {
+					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
 						return nil
 					},
@@ -112,7 +112,7 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			opts: []*FormOption{
 				{
 					checkFunc: func() error { return nil },
-					setFunc: func(f *FormParams) error {
+					setFunc: func(f url.Values) error {
 						return errors.New("set error")
 					},
 				},
@@ -127,7 +127,7 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			t.Parallel()
 
 			s := &FormOptionService{}
-			form := NewFormParams()
+			form := url.Values{}
 
 			err := s.applyOptions(form, tc.opts...)
 
@@ -282,7 +282,7 @@ func TestProjectOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
@@ -351,7 +351,7 @@ func TestProjectOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
@@ -382,7 +382,7 @@ func TestUserOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
@@ -414,7 +414,7 @@ func TestUserOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
@@ -451,7 +451,7 @@ func TestUserOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
@@ -519,7 +519,7 @@ func TestWikiOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
@@ -546,7 +546,7 @@ func TestWikiOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.set(form)
 				require.NoError(t, err)
 				assert.Equal(t, "true", form.Get(tc.key))

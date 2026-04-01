@@ -82,13 +82,13 @@ func newClientMethodMock() *method {
 		Get: func(spath string, query url.Values) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
+		Post: func(spath string, form url.Values) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
+		Patch: func(spath string, form url.Values) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
+		Delete: func(spath string, form url.Values) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
@@ -153,7 +153,7 @@ func newFormOptionWithCheckError(t formType) *FormOption {
 		checkFunc: func() error {
 			return errors.New("check error")
 		},
-		setFunc: func(_ *FormParams) error { return nil },
+		setFunc: func(_ url.Values) error { return nil },
 	}
 }
 
@@ -162,7 +162,7 @@ func newFormOptionWithSetError(t formType) *FormOption {
 	return &FormOption{
 		t:         t,
 		checkFunc: func() error { return nil },
-		setFunc: func(_ *FormParams) error {
+		setFunc: func(_ url.Values) error {
 			return errors.New("set error")
 		},
 	}

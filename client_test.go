@@ -389,7 +389,7 @@ func TestClient_Method(t *testing.T) {
 
 		"POST": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("k", "v")
 				return c.method.Post("/path2", form)
 			},
@@ -404,7 +404,7 @@ func TestClient_Method(t *testing.T) {
 
 		"PATCH": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("id", "123")
 				return c.method.Patch("/path3", form)
 			},
@@ -418,7 +418,7 @@ func TestClient_Method(t *testing.T) {
 
 		"DELETE": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("id", "321")
 				return c.method.Delete("/path4", form)
 			},

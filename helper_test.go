@@ -322,9 +322,9 @@ func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath 
 // newUnexpectedPostFn returns a mock function for http POST that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedPostFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedPostFn(t *testing.T) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		t.Error("Post must not be called")
 		return nil, errors.New("unexpected call")
@@ -334,9 +334,9 @@ func newUnexpectedPostFn(t *testing.T) func(spath string, form *FormParams) (*ht
 // newMockPostFn returns a mock function for http POST that returns the given response.
 //
 //nolint:unused // shared test helper
-func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
 		return res, nil
@@ -346,9 +346,9 @@ func newMockPostFn(t *testing.T, wantPath string, res *http.Response) func(spath
 // newUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedPatchFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedPatchFn(t *testing.T) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		t.Error("Patch must not be called")
 		return nil, errors.New("unexpected call")
@@ -358,9 +358,9 @@ func newUnexpectedPatchFn(t *testing.T) func(spath string, form *FormParams) (*h
 // newMockPatchFn returns a mock function for http PATCH that returns the given response.
 //
 //nolint:unused // shared test helper
-func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
 		return res, nil
@@ -370,9 +370,9 @@ func newMockPatchFn(t *testing.T, wantPath string, res *http.Response) func(spat
 // newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedDeleteFn(t *testing.T) func(spath string, form *FormParams) (*http.Response, error) {
+func newUnexpectedDeleteFn(t *testing.T) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		t.Error("Delete must not be called")
 		return nil, errors.New("unexpected call")
@@ -382,9 +382,9 @@ func newUnexpectedDeleteFn(t *testing.T) func(spath string, form *FormParams) (*
 // newMockDeleteFn returns a mock function for http DELETE that returns the given response.
 //
 //nolint:unused // shared test helper
-func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form *FormParams) (*http.Response, error) {
+func newMockDeleteFn(t *testing.T, wantPath string, res *http.Response) func(spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, form *FormParams) (*http.Response, error) {
+	return func(spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
 		return res, nil

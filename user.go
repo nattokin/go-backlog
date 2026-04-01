@@ -51,7 +51,7 @@ func getUserList(m *method, spath string, query url.Values) ([]*User, error) {
 	return v, nil
 }
 
-func addUser(m *method, spath string, form *FormParams) (*User, error) {
+func addUser(m *method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Post(spath, form)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func addUser(m *method, spath string, form *FormParams) (*User, error) {
 	return &v, nil
 }
 
-func updateUser(m *method, spath string, form *FormParams) (*User, error) {
+func updateUser(m *method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Patch(spath, form)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func updateUser(m *method, spath string, form *FormParams) (*User, error) {
 	return &v, nil
 }
 
-func deleteUser(m *method, spath string, form *FormParams) (*User, error) {
+func deleteUser(m *method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Delete(spath, form)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form,
 		o.WithPassword(password),
 		o.WithName(name),
@@ -173,7 +173,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, opts ...*FormOption) (*User, error) {
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	if err := o.applyOptions(form, o.WithUserID(id)); err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, erro
 		return nil, err
 	}
 
-	form := NewFormParams()
+	form := url.Values{}
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
@@ -261,7 +261,7 @@ func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, e
 		return nil, err
 	}
 
-	form := NewFormParams()
+	form := url.Values{}
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
@@ -281,7 +281,7 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 		return nil, err
 	}
 
-	form := NewFormParams()
+	form := url.Values{}
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
@@ -313,7 +313,7 @@ func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*Us
 		return nil, err
 	}
 
-	form := NewFormParams()
+	form := url.Values{}
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")

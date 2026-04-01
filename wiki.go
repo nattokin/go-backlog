@@ -136,7 +136,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...*FormO
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, append(opts, o.WithName(name), o.WithContent(content))...)
 	if err != nil {
 		return nil, err
@@ -193,7 +193,7 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, options...)
 	if err != nil {
 		return nil, err
@@ -236,7 +236,7 @@ func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, opts...)
 	if err != nil {
 		return nil, err

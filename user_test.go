@@ -97,7 +97,7 @@ func TestUserService_Add(t *testing.T) {
 		mailAddress string
 		roleType    Role
 
-		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -109,7 +109,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "eguchi@nulab.example",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Equal(t, "admin", form.Get("userId"))
 				assert.Equal(t, "password", form.Get("password"))
@@ -137,7 +137,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "error@example.com",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				return nil, errors.New("network failure")
 			},
@@ -206,7 +206,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "mailAdress",
 			roleType:    1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -344,7 +344,7 @@ func TestUserService_Update(t *testing.T) {
 		id      int
 		options []*FormOption
 
-		mockPatchFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -358,7 +358,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormRoleType(RoleAdministrator),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
@@ -386,7 +386,7 @@ func TestUserService_Update(t *testing.T) {
 		"invalid-json-response": {
 			id: 1234,
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
 
 				return &http.Response{
@@ -403,7 +403,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormName("testname"),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, "testname", form.Get("name"))
 				return nil, errors.New("error")
@@ -417,7 +417,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormPassword("testpassword"),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, "testpassword", form.Get("password"))
 				return nil, errors.New("error")
@@ -431,7 +431,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormMailAddress("test@test.com"),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, "test@test.com", form.Get("mailAddress"))
 				return nil, errors.New("error")
@@ -445,7 +445,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormRoleType(RoleAdministrator),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
 				return nil, errors.New("error")
@@ -462,7 +462,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithFormRoleType(RoleAdministrator),
 			},
 
-			mockPatchFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Equal(t, "testpassword1", form.Get("password"))
 				assert.Equal(t, "testname1", form.Get("name"))
@@ -483,7 +483,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"option-invalid": {
 			id:      1,
-			options: []*FormOption{{0, nil, func(p *FormParams) error { return nil }}},
+			options: []*FormOption{{0, nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},
@@ -607,14 +607,14 @@ func TestUserService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		id int
 
-		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"success-id-1": {
 			id: 1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Nil(t, form)
 				return &http.Response{
@@ -628,7 +628,7 @@ func TestUserService_Delete(t *testing.T) {
 		"success-id-100": {
 			id: 100,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
 				assert.Nil(t, form)
 				return &http.Response{
@@ -647,7 +647,7 @@ func TestUserService_Delete(t *testing.T) {
 		"invalid-json-response": {
 			id: 1234,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
 				assert.Nil(t, form)
 				return &http.Response{
@@ -825,7 +825,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		projectKey string
 		userID     int
 
-		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -834,7 +834,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			projectKey: "TEST",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -865,7 +865,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			projectKey: "TEST2",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -885,7 +885,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			projectKey: "TEST3",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -936,7 +936,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		projectKey string
 		userID     int
 
-		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -945,7 +945,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			projectKey: "TEST",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -965,7 +965,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			projectKey: "1234",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -997,7 +997,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			projectKey: "TEST2",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -1017,7 +1017,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			projectKey: "TEST3",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -1068,7 +1068,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		projectKey string
 		userID     int
 
-		mockPostFn func(spath string, form *FormParams) (*http.Response, error)
+		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -1077,7 +1077,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			projectKey: "TEST",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -1108,7 +1108,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			projectKey: "TEST2",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -1128,7 +1128,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			projectKey: "TEST3",
 			userID:     1,
 
-			mockPostFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
@@ -1228,7 +1228,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		projectKey string
 		userID     int
 
-		mockDeleteFn func(spath string, form *FormParams) (*http.Response, error)
+		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
@@ -1236,7 +1236,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			projectKey: "TEST",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return nil, errors.New("error")
@@ -1260,7 +1260,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			projectKey: "TEST2",
 			userID:     1,
 
-			mockDeleteFn: func(spath string, form *FormParams) (*http.Response, error) {
+			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return nil, errors.New("error")

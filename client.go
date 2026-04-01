@@ -77,9 +77,9 @@ type Client struct {
 // for fine-grained unit testing of individual services.
 type method struct {
 	Get    func(spath string, query url.Values) (*http.Response, error)
-	Post   func(spath string, form *FormParams) (*http.Response, error)
-	Patch  func(spath string, form *FormParams) (*http.Response, error)
-	Delete func(spath string, form *FormParams) (*http.Response, error)
+	Post   func(spath string, form url.Values) (*http.Response, error)
+	Patch  func(spath string, form url.Values) (*http.Response, error)
+	Delete func(spath string, form url.Values) (*http.Response, error)
 	Upload func(spath, fileName string, r io.Reader) (*http.Response, error)
 }
 
@@ -93,7 +93,7 @@ type method struct {
 //
 // Typical usage:
 //
-//	form := NewFormParams()
+//	form := url.Values{}
 //	form.Add("name", "ProjectX")
 //	resp, err := c.method.Post("projects", form)
 type FormParams struct {
@@ -110,6 +110,10 @@ func NewFormParams() *FormParams {
 // This is used to provide the request body to an HTTP client.
 func (p *FormParams) NewReader() io.Reader {
 	return strings.NewReader(p.Encode())
+}
+
+func convertToReader(params url.Values) io.Reader {
+	return strings.NewReader(params.Encode())
 }
 
 // QueryParams represents query string parameters used in Backlog API GET requests.
@@ -212,29 +216,29 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 		Get: func(spath string, query url.Values) (*http.Response, error) {
 			return c.do(http.MethodGet, spath, nil, nil, query)
 		},
-		Post: func(spath string, form *FormParams) (*http.Response, error) {
+		Post: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodPost, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodPost, spath, header, convertToReader(form), nil)
 		},
-		Patch: func(spath string, form *FormParams) (*http.Response, error) {
+		Patch: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodPatch, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodPatch, spath, header, convertToReader(form), nil)
 		},
-		Delete: func(spath string, form *FormParams) (*http.Response, error) {
+		Delete: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
-				form = NewFormParams()
+				form = url.Values{}
 			}
-			return c.do(http.MethodDelete, spath, header, form.NewReader(), nil)
+			return c.do(http.MethodDelete, spath, header, convertToReader(form), nil)
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			if fileName == "" {
