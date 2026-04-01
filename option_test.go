@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -19,7 +20,7 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			opts: []*QueryOption{
 				{
 					checkFunc: func() error { return nil },
-					setFunc: func(f *QueryParams) error {
+					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
 						return nil
 					},
@@ -32,7 +33,7 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			opts: []*QueryOption{
 				{
 					checkFunc: func() error { return errors.New("check error") },
-					setFunc: func(f *QueryParams) error {
+					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
 						return nil
 					},
@@ -45,7 +46,7 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			opts: []*QueryOption{
 				{
 					checkFunc: func() error { return nil },
-					setFunc: func(f *QueryParams) error {
+					setFunc: func(f url.Values) error {
 						return errors.New("set error")
 					},
 				},
@@ -60,7 +61,7 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			t.Parallel()
 
 			s := &QueryOptionService{}
-			query := NewQueryParams()
+			query := url.Values{}
 
 			err := s.applyOptions(query, tc.opts...)
 
@@ -173,7 +174,7 @@ func TestActivityOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				query := NewQueryParams()
+				query := url.Values{}
 				err := tc.option.set(query)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), query.Get(tc.key))
@@ -205,7 +206,7 @@ func TestActivityOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				query := NewQueryParams()
+				query := url.Values{}
 				err := tc.option.set(query)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, query.Get(tc.key))
@@ -232,7 +233,7 @@ func TestActivityOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				query := NewQueryParams()
+				query := url.Values{}
 				err := tc.option.set(query)
 				require.NoError(t, err)
 
@@ -242,7 +243,7 @@ func TestActivityOptionService(t *testing.T) {
 				}
 
 				// Compare joined values (manual extraction)
-				values := (*query.Values)[tc.key]
+				values := (query)[tc.key]
 				assert.Equal(t, expected, values)
 			})
 		}
@@ -313,7 +314,7 @@ func TestProjectOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				query := NewQueryParams()
+				query := url.Values{}
 				err := tc.option.set(query)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), query.Get(tc.key))
@@ -486,7 +487,7 @@ func TestWikiOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				query := NewQueryParams()
+				query := url.Values{}
 				err := tc.option.set(query)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, query.Get(tc.key))

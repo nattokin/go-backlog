@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 )
 
@@ -86,7 +87,7 @@ type optionCheckFunc func() error
 // --- QueryOption -------------------------------------------------------------
 
 // queryOptionFunc applies a query option's value to the request parameters.
-type queryOptionFunc func(query *QueryParams) error
+type queryOptionFunc func(query url.Values) error
 
 // QueryOption represents a single query parameter to be applied to a request.
 type QueryOption struct {
@@ -104,7 +105,7 @@ func (o *QueryOption) Check() error {
 }
 
 // set executes the stored function to apply the option value into the query.
-func (o *QueryOption) set(query *QueryParams) error {
+func (o *QueryOption) set(query url.Values) error {
 	if o.setFunc == nil {
 		return newValidationError("query option has no setter")
 	}
@@ -170,7 +171,7 @@ func (o *FormOption) validate(validTypes []formType) error {
 type QueryOptionService struct{}
 
 // applyOptions validates and applies one or more query options to the given query parameters.
-func (s *QueryOptionService) applyOptions(query *QueryParams, opts ...*QueryOption) error {
+func (s *QueryOptionService) applyOptions(query url.Values, opts ...*QueryOption) error {
 	for _, opt := range opts {
 		if err := opt.Check(); err != nil {
 			return err
@@ -188,7 +189,7 @@ func (s *QueryOptionService) applyOptions(query *QueryParams, opts ...*QueryOpti
 func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
 	return &QueryOption{
 		t: queryAll,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryAll.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -199,7 +200,7 @@ func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
 func (s *QueryOptionService) WithArchived(archived bool) *QueryOption {
 	return &QueryOption{
 		t: queryArchived,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryArchived.Value(), strconv.FormatBool(archived))
 			return nil
 		},
@@ -218,7 +219,7 @@ func (s *QueryOptionService) WithCount(count int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryCount.Value(), strconv.Itoa(count))
 			return nil
 		},
@@ -235,7 +236,7 @@ func (s *QueryOptionService) WithMaxID(id int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryMaxID.Value(), strconv.Itoa(id))
 			return nil
 		},
@@ -252,7 +253,7 @@ func (s *QueryOptionService) WithMinID(id int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryMinID.Value(), strconv.Itoa(id))
 			return nil
 		},
@@ -265,7 +266,7 @@ func (s *QueryOptionService) WithMinID(id int) *QueryOption {
 func (s *QueryOptionService) WithKeyword(keyword string) *QueryOption {
 	return &QueryOption{
 		t: queryKeyword,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryKeyword.Value(), keyword)
 			return nil
 		},
@@ -286,7 +287,7 @@ func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			for _, id := range typeIDs {
 				query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 			}
@@ -306,7 +307,7 @@ func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryOrder.Value(), string(order))
 			return nil
 		},

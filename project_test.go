@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -19,7 +20,7 @@ func TestProjectService_All(t *testing.T) {
 	cases := map[string]struct {
 		options []*QueryOption
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantIDs     []int
 		wantNames   []string
@@ -28,10 +29,10 @@ func TestProjectService_All(t *testing.T) {
 		"success-without-option": {
 			options: []*QueryOption{},
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				require.NotNil(t, query)
-				assert.Empty(t, query.Values)
+				assert.Empty(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
@@ -48,7 +49,7 @@ func TestProjectService_All(t *testing.T) {
 				o.WithQueryArchived(true),
 			},
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.Equal(t, "false", query.Get("all"))
 				assert.Equal(t, "true", query.Get("archived"))
@@ -66,7 +67,7 @@ func TestProjectService_All(t *testing.T) {
 			options: []*QueryOption{{
 				queryAll,
 				nil,
-				func(p *QueryParams) error { return errors.New("error") },
+				func(p url.Values) error { return errors.New("error") },
 			}},
 
 			wantErrType: errors.New(""),
@@ -75,7 +76,7 @@ func TestProjectService_All(t *testing.T) {
 			options: []*QueryOption{{
 				0,
 				nil,
-				func(p *QueryParams) error { return nil },
+				func(p url.Values) error { return nil },
 			}},
 
 			wantErrType: &InvalidOptionError[queryType]{},
@@ -83,7 +84,7 @@ func TestProjectService_All(t *testing.T) {
 		"error-client-failure": {
 			options: []*QueryOption{},
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -92,7 +93,7 @@ func TestProjectService_All(t *testing.T) {
 		"error-invalid-json": {
 			options: []*QueryOption{},
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -142,14 +143,14 @@ func TestProjectService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"success-with-projectKey": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -163,7 +164,7 @@ func TestProjectService_One(t *testing.T) {
 		"success-with-projectID": {
 			projectIDOrKey: strconv.Itoa(6),
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -182,7 +183,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-client-failure": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -191,7 +192,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-invalid-json": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -297,9 +298,9 @@ func newPullRequestAttachmentService() *PullRequestAttachmentService {
 // newUnexpectedGetFn returns a mock function for http GET that fails if called.
 //
 //nolint:unused // shared test helper
-func newUnexpectedGetFn(t *testing.T) func(spath string, query *QueryParams) (*http.Response, error) {
+func newUnexpectedGetFn(t *testing.T) func(spath string, query url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, query *QueryParams) (*http.Response, error) {
+	return func(spath string, query url.Values) (*http.Response, error) {
 		t.Helper()
 		t.Error("Get must not be called")
 		return nil, errors.New("unexpected call")
@@ -309,9 +310,9 @@ func newUnexpectedGetFn(t *testing.T) func(spath string, query *QueryParams) (*h
 // newMockGetFn returns a mock function for http GET that returns the given response.
 //
 //nolint:unused // shared test helper
-func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath string, query *QueryParams) (*http.Response, error) {
+func newMockGetFn(t *testing.T, wantPath string, res *http.Response) func(spath string, query url.Values) (*http.Response, error) {
 	t.Helper()
-	return func(spath string, query *QueryParams) (*http.Response, error) {
+	return func(spath string, query url.Values) (*http.Response, error) {
 		t.Helper()
 		assert.Equal(t, wantPath, spath)
 		return res, nil

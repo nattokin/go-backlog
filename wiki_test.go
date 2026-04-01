@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestWikiService_All(t *testing.T) {
 		projectIDOrKey string
 		options        []*QueryOption
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantIDs     []int
@@ -33,7 +34,7 @@ func TestWikiService_All(t *testing.T) {
 		"success-project-id": {
 			projectIDOrKey: "103",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
 
@@ -52,7 +53,7 @@ func TestWikiService_All(t *testing.T) {
 				o.WithQueryKeyword("test"),
 			},
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				assert.Equal(t, "test", query.Get("keyword"))
@@ -75,7 +76,7 @@ func TestWikiService_All(t *testing.T) {
 			options: []*QueryOption{{
 				t:         queryCount,
 				checkFunc: nil,
-				setFunc: func(p *QueryParams) error {
+				setFunc: func(p url.Values) error {
 					return nil
 				},
 			}},
@@ -89,7 +90,7 @@ func TestWikiService_All(t *testing.T) {
 		"client-error-network-failure": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return nil, errors.New("network error")
@@ -100,7 +101,7 @@ func TestWikiService_All(t *testing.T) {
 		"api-error-invalid-json": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 
@@ -153,7 +154,7 @@ func TestWikiService_Count(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantCount   int
@@ -161,7 +162,7 @@ func TestWikiService_Count(t *testing.T) {
 		"success-project-id": {
 			projectIDOrKey: "103",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -175,7 +176,7 @@ func TestWikiService_Count(t *testing.T) {
 		"success-project-key": {
 			projectIDOrKey: "PRJ_KEY",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -193,7 +194,7 @@ func TestWikiService_Count(t *testing.T) {
 		"client-error-network-failure": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return nil, errors.New("network error")
@@ -204,7 +205,7 @@ func TestWikiService_Count(t *testing.T) {
 		"api-error-invalid-json": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -247,7 +248,7 @@ func TestWikiService_One(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantErrType  error
 		wantWikiID   int
@@ -256,7 +257,7 @@ func TestWikiService_One(t *testing.T) {
 		"success-normal": {
 			wikiID: 34,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -279,7 +280,7 @@ func TestWikiService_One(t *testing.T) {
 		"client-error-network-failure": {
 			wikiID: 1,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
 				return nil, errors.New("network error")
@@ -290,7 +291,7 @@ func TestWikiService_One(t *testing.T) {
 		"api-error-invalid-json": {
 			wikiID: 1,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
 				return &http.Response{

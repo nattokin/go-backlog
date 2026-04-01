@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -17,7 +18,7 @@ func TestUserService_One(t *testing.T) {
 	cases := map[string]struct {
 		id int
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
@@ -252,14 +253,14 @@ func TestUserService_Add(t *testing.T) {
 
 func TestUserService_All(t *testing.T) {
 	cases := map[string]struct {
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantLen     int
 		wantFirst   *User
 		wantErrType error
 	}{
 		"success-get-users": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
 
@@ -278,7 +279,7 @@ func TestUserService_All(t *testing.T) {
 			},
 		},
 		"request-error": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
 				return nil, errors.New("error")
@@ -287,7 +288,7 @@ func TestUserService_All(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"invalid-json-response": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
 
@@ -524,13 +525,13 @@ func TestUserService_Update(t *testing.T) {
 
 func TestUserService_Own(t *testing.T) {
 	cases := map[string]struct {
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantUser    *User
 		wantErrType error
 	}{
 		"success-get-own-user": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -547,7 +548,7 @@ func TestUserService_Own(t *testing.T) {
 			},
 		},
 		"request-error": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
 				return nil, errors.New("error")
@@ -556,7 +557,7 @@ func TestUserService_Own(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"invalid-json-response": {
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -693,7 +694,7 @@ func TestProjectUserService_All(t *testing.T) {
 		projectKey          string
 		excludeGroupMembers bool
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantUsers   []*User
 		wantErrType error
@@ -702,7 +703,7 @@ func TestProjectUserService_All(t *testing.T) {
 			projectKey:          "TEST",
 			excludeGroupMembers: false,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
@@ -724,7 +725,7 @@ func TestProjectUserService_All(t *testing.T) {
 			projectKey:          "TEST2",
 			excludeGroupMembers: true,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
 				return &http.Response{
@@ -746,7 +747,7 @@ func TestProjectUserService_All(t *testing.T) {
 			projectKey:          "TEST3",
 			excludeGroupMembers: false,
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
@@ -772,7 +773,7 @@ func TestProjectUserService_All(t *testing.T) {
 		"invalid-json-response": {
 			projectKey: "TEST",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
@@ -1177,14 +1178,14 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 	cases := map[string]struct {
 		projectKey string
 
-		mockGetFn func(spath string, query *QueryParams) (*http.Response, error)
+		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"projectKey-valid": {
 			projectKey: "TEST",
 
-			mockGetFn: func(spath string, query *QueryParams) (*http.Response, error) {
+			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Nil(t, query)
 				return nil, errors.New("error")

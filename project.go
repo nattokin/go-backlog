@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"net/url"
 	"path"
 )
 
@@ -53,7 +54,7 @@ func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
 	}
 
 	o := s.Option.support.query
-	query := NewQueryParams()
+	query := url.Values{}
 	err := o.applyOptions(query, opts...)
 	if err != nil {
 		return nil, err

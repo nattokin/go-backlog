@@ -262,7 +262,7 @@ func TestClient_newRequest(t *testing.T) {
 		spath     string
 		header    http.Header
 		body      io.Reader
-		query     *QueryParams
+		query     url.Values
 		wantError bool
 	}{
 		"method-get": {
@@ -342,7 +342,7 @@ func TestClient_newRequest(t *testing.T) {
 			spath:     "test",
 			header:    nil,
 			body:      nil,
-			query:     NewQueryParams(),
+			query:     url.Values{},
 			wantError: false,
 		},
 	}
@@ -465,7 +465,7 @@ func TestClient_Method(t *testing.T) {
 
 		"GET newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get("", NewQueryParams())
+				return c.method.Get("", url.Values{})
 			},
 			wantErr: true,
 		},

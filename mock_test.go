@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -78,7 +79,7 @@ func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 // without performing real HTTP requests.
 func newClientMethodMock() *method {
 	return &method{
-		Get: func(spath string, query *QueryParams) (*http.Response, error) {
+		Get: func(spath string, query url.Values) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
 		Post: func(spath string, form *FormParams) (*http.Response, error) {
@@ -130,7 +131,7 @@ func newQueryOptionWithCheckError(t queryType) *QueryOption {
 		checkFunc: func() error {
 			return errors.New("check error")
 		},
-		setFunc: func(_ *QueryParams) error { return nil },
+		setFunc: func(_ url.Values) error { return nil },
 	}
 }
 
@@ -139,7 +140,7 @@ func newQueryOptionWithSetError(t queryType) *QueryOption {
 	return &QueryOption{
 		t:         t,
 		checkFunc: func() error { return nil },
-		setFunc: func(_ *QueryParams) error {
+		setFunc: func(_ url.Values) error {
 			return errors.New("set error")
 		},
 	}

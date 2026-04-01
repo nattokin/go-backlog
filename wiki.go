@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"net/url"
 	"path"
 	"strconv"
 )
@@ -43,7 +44,7 @@ func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki,
 	}
 
 	o := s.Option.support.query
-	query := NewQueryParams()
+	query := url.Values{}
 	err := o.applyOptions(query, opts...)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 		return 0, err
 	}
 
-	query := NewQueryParams()
+	query := url.Values{}
 	query.Set("projectIdOrKey", projectIDOrKey)
 
 	resp, err := s.method.Get("wikis/count", query)

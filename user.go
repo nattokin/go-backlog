@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"net/url"
 	"path"
 	"strconv"
 )
@@ -35,7 +36,7 @@ func getUser(m *method, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(m *method, spath string, query *QueryParams) ([]*User, error) {
+func getUserList(m *method, spath string, query url.Values) ([]*User, error) {
 	resp, err := m.Get(spath, query)
 	if err != nil {
 		return nil, err
@@ -220,7 +221,7 @@ func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool
 		return nil, err
 	}
 
-	query := NewQueryParams()
+	query := url.Values{}
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
