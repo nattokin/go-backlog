@@ -26,10 +26,13 @@ func TestUserService_One(t *testing.T) {
 		"success-id-1": {
 			id: 1,
 
-			mockGetFn: newMockGetFn(t, "users/1", &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
-			}),
+			mockGetFn: func(spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+				}, nil
+			},
 
 			wantUser: &User{
 				UserID:      "admin",
@@ -41,10 +44,13 @@ func TestUserService_One(t *testing.T) {
 		"success-id-100": {
 			id: 100,
 
-			mockGetFn: newMockGetFn(t, "users/100", &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(`{}`))),
-			}),
+			mockGetFn: func(spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/100", spath)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(`{}`))),
+				}, nil
+			},
 
 			wantUser: &User{},
 		},
