@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"encoding/json"
+	"net/url"
 	"path"
 	"strconv"
 )
@@ -43,7 +44,7 @@ func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki,
 	}
 
 	o := s.Option.support.query
-	query := NewQueryParams()
+	query := url.Values{}
 	err := o.applyOptions(query, opts...)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 		return 0, err
 	}
 
-	query := NewQueryParams()
+	query := url.Values{}
 	query.Set("projectIdOrKey", projectIDOrKey)
 
 	resp, err := s.method.Get("wikis/count", query)
@@ -135,7 +136,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...*FormO
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, append(opts, o.WithName(name), o.WithContent(content))...)
 	if err != nil {
 		return nil, err
@@ -192,7 +193,7 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, options...)
 	if err != nil {
 		return nil, err
@@ -235,7 +236,7 @@ func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 	}
 
 	o := s.Option.support.form
-	form := NewFormParams()
+	form := url.Values{}
 	err := o.applyOptions(form, opts...)
 	if err != nil {
 		return nil, err

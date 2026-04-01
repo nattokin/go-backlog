@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 )
 
@@ -86,7 +87,7 @@ type optionCheckFunc func() error
 // --- QueryOption -------------------------------------------------------------
 
 // queryOptionFunc applies a query option's value to the request parameters.
-type queryOptionFunc func(query *QueryParams) error
+type queryOptionFunc func(query url.Values) error
 
 // QueryOption represents a single query parameter to be applied to a request.
 type QueryOption struct {
@@ -104,7 +105,7 @@ func (o *QueryOption) Check() error {
 }
 
 // set executes the stored function to apply the option value into the query.
-func (o *QueryOption) set(query *QueryParams) error {
+func (o *QueryOption) set(query url.Values) error {
 	if o.setFunc == nil {
 		return newValidationError("query option has no setter")
 	}
@@ -124,7 +125,7 @@ func (o *QueryOption) validate(validTypes []queryType) error {
 // --- FormOption --------------------------------------------------------------
 
 // formOptionFunc applies a form option's value to the request form body.
-type formOptionFunc func(form *FormParams) error
+type formOptionFunc func(form url.Values) error
 
 // FormOption represents a single form field to be applied to a request body.
 type FormOption struct {
@@ -142,7 +143,7 @@ func (o *FormOption) Check() error {
 }
 
 // set executes the stored function to apply the option value into the form.
-func (o *FormOption) set(form *FormParams) error {
+func (o *FormOption) set(form url.Values) error {
 	if o.setFunc == nil {
 		return newValidationError("form option has no setter")
 	}
@@ -170,7 +171,7 @@ func (o *FormOption) validate(validTypes []formType) error {
 type QueryOptionService struct{}
 
 // applyOptions validates and applies one or more query options to the given query parameters.
-func (s *QueryOptionService) applyOptions(query *QueryParams, opts ...*QueryOption) error {
+func (s *QueryOptionService) applyOptions(query url.Values, opts ...*QueryOption) error {
 	for _, opt := range opts {
 		if err := opt.Check(); err != nil {
 			return err
@@ -188,7 +189,7 @@ func (s *QueryOptionService) applyOptions(query *QueryParams, opts ...*QueryOpti
 func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
 	return &QueryOption{
 		t: queryAll,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryAll.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -199,7 +200,7 @@ func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
 func (s *QueryOptionService) WithArchived(archived bool) *QueryOption {
 	return &QueryOption{
 		t: queryArchived,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryArchived.Value(), strconv.FormatBool(archived))
 			return nil
 		},
@@ -218,7 +219,7 @@ func (s *QueryOptionService) WithCount(count int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryCount.Value(), strconv.Itoa(count))
 			return nil
 		},
@@ -235,7 +236,7 @@ func (s *QueryOptionService) WithMaxID(id int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryMaxID.Value(), strconv.Itoa(id))
 			return nil
 		},
@@ -252,7 +253,7 @@ func (s *QueryOptionService) WithMinID(id int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryMinID.Value(), strconv.Itoa(id))
 			return nil
 		},
@@ -265,7 +266,7 @@ func (s *QueryOptionService) WithMinID(id int) *QueryOption {
 func (s *QueryOptionService) WithKeyword(keyword string) *QueryOption {
 	return &QueryOption{
 		t: queryKeyword,
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryKeyword.Value(), keyword)
 			return nil
 		},
@@ -286,7 +287,7 @@ func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			for _, id := range typeIDs {
 				query.Add(queryActivityTypeIDs.Value(), strconv.Itoa(id))
 			}
@@ -306,7 +307,7 @@ func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 			}
 			return nil
 		},
-		setFunc: func(query *QueryParams) error {
+		setFunc: func(query url.Values) error {
 			query.Set(queryOrder.Value(), string(order))
 			return nil
 		},
@@ -325,7 +326,7 @@ type FormOptionService struct{}
 
 // applyOptions validates and applies one or more form options to the given form.
 // It returns the first error encountered from Check or set.
-func (s *FormOptionService) applyOptions(form *FormParams, opts ...*FormOption) error {
+func (s *FormOptionService) applyOptions(form url.Values, opts ...*FormOption) error {
 	for _, opt := range opts {
 		if err := opt.Check(); err != nil {
 			return err
@@ -343,7 +344,7 @@ func (s *FormOptionService) applyOptions(form *FormParams, opts ...*FormOption) 
 func (*FormOptionService) WithArchived(enabled bool) *FormOption {
 	return &FormOption{
 		t: formArchived,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formArchived.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -354,7 +355,7 @@ func (*FormOptionService) WithArchived(enabled bool) *FormOption {
 func (*FormOptionService) WithChartEnabled(enabled bool) *FormOption {
 	return &FormOption{
 		t: formChartEnabled,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formChartEnabled.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -365,7 +366,7 @@ func (*FormOptionService) WithChartEnabled(enabled bool) *FormOption {
 func (*FormOptionService) WithMailNotify(enabled bool) *FormOption {
 	return &FormOption{
 		t: formMailNotify,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formMailNotify.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -376,7 +377,7 @@ func (*FormOptionService) WithMailNotify(enabled bool) *FormOption {
 func (*FormOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
 	return &FormOption{
 		t: formProjectLeaderCanEditProjectLeader,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -388,7 +389,7 @@ func (*FormOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *F
 func (*FormOptionService) WithSendMail(enabled bool) *FormOption {
 	return &FormOption{
 		t: formSendMail,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -399,7 +400,7 @@ func (*FormOptionService) WithSendMail(enabled bool) *FormOption {
 func (*FormOptionService) WithSubtaskingEnabled(enabled bool) *FormOption {
 	return &FormOption{
 		t: formSubtaskingEnabled,
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
@@ -418,7 +419,7 @@ func (*FormOptionService) WithUserID(id int) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formUserID.Value(), strconv.Itoa(id))
 			return nil
 		},
@@ -437,7 +438,7 @@ func (*FormOptionService) WithContent(content string) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formContent.Value(), content)
 			return nil
 		},
@@ -454,7 +455,7 @@ func (*FormOptionService) WithKey(key string) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formKey.Value(), key)
 			return nil
 		},
@@ -472,7 +473,7 @@ func (*FormOptionService) WithMailAddress(mailAddress string) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formMailAddress.Value(), mailAddress)
 			return nil
 		},
@@ -489,7 +490,7 @@ func (*FormOptionService) WithName(name string) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formName.Value(), name)
 			return nil
 		},
@@ -507,7 +508,7 @@ func (*FormOptionService) WithPassword(password string) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formPassword.Value(), password)
 			return nil
 		},
@@ -526,7 +527,7 @@ func (*FormOptionService) WithRoleType(roleType Role) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formRoleType.Value(), strconv.Itoa(int(roleType)))
 			return nil
 		},
@@ -544,7 +545,7 @@ func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
 			}
 			return nil
 		},
-		setFunc: func(form *FormParams) error {
+		setFunc: func(form url.Values) error {
 			form.Set(formTextFormattingRule.Value(), string(format))
 			return nil
 		},
