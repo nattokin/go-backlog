@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestFormOption(t *testing.T) {
 			option: &FormOption{
 				t:         formKey,
 				checkFunc: func() error { return nil },
-				setFunc: func(form *FormParams) error {
+				setFunc: func(form url.Values) error {
 					form.Set(formKey.Value(), "success")
 					return nil
 				},
@@ -52,7 +53,7 @@ func TestFormOption(t *testing.T) {
 		"queryType-invalid": {
 			option: &FormOption{
 				t: 0,
-				setFunc: func(form *FormParams) error {
+				setFunc: func(form url.Values) error {
 					return nil
 				},
 			},
@@ -65,7 +66,7 @@ func TestFormOption(t *testing.T) {
 			option: &FormOption{
 				t:         formKey,
 				checkFunc: nil,
-				setFunc: func(form *FormParams) error {
+				setFunc: func(form url.Values) error {
 					form.Set(formKey.Value(), "checkFunc nil")
 					return nil
 				},
@@ -90,7 +91,7 @@ func TestFormOption(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			form := NewFormParams()
+			form := url.Values{}
 			err := tc.option.Check()
 			if tc.expectCheckErr {
 				require.Error(t, err)
@@ -196,7 +197,7 @@ func TestFormOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.Check()
 				require.NoError(t, err)
 				_ = tc.option.set(form)
@@ -230,7 +231,7 @@ func TestFormOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
@@ -307,7 +308,7 @@ func TestFormOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
@@ -359,7 +360,7 @@ func TestFormOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := NewFormParams()
+				form := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)

@@ -120,10 +120,10 @@ func TestNewClient_initialization(t *testing.T) {
 		assert.Same(t, c.Wiki.method, c.Space.method)
 
 		// Shared option support
-		assert.NotNil(t, c.Wiki.Option.support.query)
-		assert.NotNil(t, c.Wiki.Option.support.form)
-		assert.Same(t, c.Wiki.Option.support.query, c.Project.Option.support.query)
-		assert.Same(t, c.Wiki.Option.support.form, c.Project.Option.support.form)
+		assert.NotNil(t, c.Wiki.Option.registry.query)
+		assert.NotNil(t, c.Wiki.Option.registry.form)
+		assert.Same(t, c.Wiki.Option.registry.query, c.Project.Option.registry.query)
+		assert.Same(t, c.Wiki.Option.registry.form, c.Project.Option.registry.form)
 
 		// Activity / Attachment presence
 		assert.NotNil(t, c.Project.Activity)
@@ -260,7 +260,7 @@ func TestClient_newRequest(t *testing.T) {
 		spath     string
 		header    http.Header
 		body      io.Reader
-		query     *QueryParams
+		query     url.Values
 		wantError bool
 	}{
 		"method-get": {
@@ -340,7 +340,7 @@ func TestClient_newRequest(t *testing.T) {
 			spath:     "test",
 			header:    nil,
 			body:      nil,
-			query:     NewQueryParams(),
+			query:     url.Values{},
 			wantError: false,
 		},
 	}
@@ -386,7 +386,7 @@ func TestClient_Method(t *testing.T) {
 
 		"POST": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("k", "v")
 				return c.method.Post("/path2", form)
 			},
@@ -401,7 +401,7 @@ func TestClient_Method(t *testing.T) {
 
 		"PATCH": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("id", "123")
 				return c.method.Patch("/path3", form)
 			},
@@ -415,7 +415,7 @@ func TestClient_Method(t *testing.T) {
 
 		"DELETE": {
 			call: func(c *Client) (*http.Response, error) {
-				form := NewFormParams()
+				form := url.Values{}
 				form.Add("id", "321")
 				return c.method.Delete("/path4", form)
 			},
@@ -462,7 +462,7 @@ func TestClient_Method(t *testing.T) {
 
 		"GET newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get("", NewQueryParams())
+				return c.method.Get("", url.Values{})
 			},
 			wantErr: true,
 		},

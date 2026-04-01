@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -24,7 +25,7 @@ func TestProjectActivityService_List(t *testing.T) {
 	}
 
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
@@ -38,7 +39,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 
 	projectKey := ""
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		t.Error("s.method.Get must never be called")
 		return nil, errors.New("error")
 	}
@@ -51,7 +52,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -74,7 +75,7 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}
 
 	s := newSpaceActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
@@ -95,7 +96,7 @@ func TestUserActivityService_List(t *testing.T) {
 	}
 
 	s := newUserActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
@@ -109,7 +110,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 
 	id := 0
 	s := newUserActivityService()
-	s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
+	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		t.Error("s.method.Get must never be called")
 		return nil, errors.New("error")
 	}
@@ -233,7 +234,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			want:      want{},
 		},
 		"InvalidOption": {
-			options: []*QueryOption{{0, nil, func(p *QueryParams) error {
+			options: []*QueryOption{{0, nil, func(p url.Values) error {
 				return nil
 			}},
 			},
@@ -244,7 +245,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			options: []*QueryOption{{
 				ExportQueryCount,
 				nil,
-				func(p *QueryParams) error { return errors.New("set error") }},
+				func(p url.Values) error { return errors.New("set error") }},
 			},
 			wantError: true,
 		},
@@ -255,8 +256,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			t.Parallel()
 
 			s := newSpaceActivityService()
-			s.method.Get = func(spath string, query *QueryParams) (*http.Response, error) {
-				assert.Equal(t, tc.want.activityTypeID, (*query.Values)["activityTypeId[]"])
+			s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
 				assert.Equal(t, tc.want.minID, query.Get("minId"))
 				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
 				assert.Equal(t, tc.want.count, query.Get("count"))

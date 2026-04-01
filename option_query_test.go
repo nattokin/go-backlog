@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestQueryOption(t *testing.T) {
 			option: &QueryOption{
 				t:         queryKey,
 				checkFunc: func() error { return nil },
-				setFunc: func(query *QueryParams) error {
+				setFunc: func(query url.Values) error {
 					query.Set(queryKey.Value(), "success")
 					return nil
 				},
@@ -52,7 +53,7 @@ func TestQueryOption(t *testing.T) {
 		"queryType-invalid": {
 			option: &QueryOption{
 				t: 0,
-				setFunc: func(query *QueryParams) error {
+				setFunc: func(query url.Values) error {
 					return nil
 				},
 			},
@@ -65,7 +66,7 @@ func TestQueryOption(t *testing.T) {
 			option: &QueryOption{
 				t:         queryKey,
 				checkFunc: nil,
-				setFunc: func(query *QueryParams) error {
+				setFunc: func(query url.Values) error {
 					query.Set(queryKey.Value(), "checkFunc nil")
 					return nil
 				},
@@ -90,7 +91,7 @@ func TestQueryOption(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			query := NewQueryParams()
+			query := url.Values{}
 			err := tc.option.Check()
 			if tc.expectCheckErr {
 				require.Error(t, err)
@@ -156,7 +157,7 @@ func TestQueryOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				q := NewQueryParams()
+				q := url.Values{}
 				err := tc.option.set(q)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
@@ -223,7 +224,7 @@ func TestQueryOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				q := NewQueryParams()
+				q := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
@@ -262,7 +263,7 @@ func TestQueryOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				q := NewQueryParams()
+				q := url.Values{}
 
 				err := tc.option.Check()
 				require.NoError(t, err)
@@ -353,7 +354,7 @@ func TestQueryOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				q := NewQueryParams()
+				q := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
@@ -365,7 +366,7 @@ func TestQueryOptionService(t *testing.T) {
 
 				if tc.key == queryActivityTypeIDs.Value() {
 					// Compare joined values
-					values := (*q.Values)[tc.key]
+					values := (q)[tc.key]
 					got := ""
 					for i, v := range values {
 						if i > 0 {

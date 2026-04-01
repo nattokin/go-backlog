@@ -42,7 +42,7 @@ func (e *APIResponseError) Error() string {
 }
 
 /*
-OptionType is a constraint for option enum types used in WebAPI requests.
+ReqestOptionType is a constraint for option enum types used in WebAPI requests.
 
 Currently the supported option types are:
   - queryType (query parameters)
@@ -53,18 +53,18 @@ This constraint allows InvalidOptionError to be implemented as a single
 generic error type while keeping the allowed option kinds restricted to
 query and form parameters.
 */
-type OptionType interface {
+type ReqestOptionType interface {
 	queryType | formType
 	Value() string
 }
 
 // InvalidOptionError represents an error for an invalid option value.
-type InvalidOptionError[T OptionType] struct {
+type InvalidOptionError[T ReqestOptionType] struct {
 	Invalid   T
 	ValidList []T
 }
 
-func newInvalidOptionError[T OptionType](invalid T, validList []T) *InvalidOptionError[T] {
+func newInvalidOptionError[T ReqestOptionType](invalid T, validList []T) *InvalidOptionError[T] {
 	return &InvalidOptionError[T]{
 		Invalid:   invalid,
 		ValidList: validList,
