@@ -1,5 +1,9 @@
 package backlog
 
+const (
+	apiVersion = "v2"
+)
+
 // Order defines the sort order (ascending or descending).
 const (
 	OrderAsc  Order = "asc"
