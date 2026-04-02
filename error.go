@@ -24,6 +24,21 @@ func (e *Error) Error() string {
 	return msg + ", MoreInfo:" + e.MoreInfo
 }
 
+// InternalClientError represents client-side configuration or usage errors.
+// It is distinct from API-level errors and indicates issues like missing token
+// or malformed base URL.
+type InternalClientError struct {
+	msg string
+}
+
+func (e *InternalClientError) Error() string {
+	return e.msg
+}
+
+func newInternalClientError(msg string) *InternalClientError {
+	return &InternalClientError{msg: msg}
+}
+
 // APIResponseError represents Error Response of Backlog API.
 type APIResponseError struct {
 	StatusCode int      `json:"-"` // HTTP status code (4xx or 5xx)

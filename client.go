@@ -5,35 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"path"
 	"strings"
 )
-
-const (
-	apiVersion = "v2"
-)
-
-// ──────────────────────────────────────────────────────────────
-//  Error types
-// ──────────────────────────────────────────────────────────────
-
-// InternalClientError represents client-side configuration or usage errors.
-// It is distinct from API-level errors and indicates issues like missing token
-// or malformed base URL.
-type InternalClientError struct {
-	msg string
-}
-
-func (e *InternalClientError) Error() string {
-	return e.msg
-}
-
-func newInternalClientError(msg string) *InternalClientError {
-	return &InternalClientError{msg: msg}
-}
 
 // ──────────────────────────────────────────────────────────────
 //  Doer interface (HTTP abstraction)
@@ -81,52 +57,6 @@ type method struct {
 	Patch  func(spath string, form url.Values) (*http.Response, error)
 	Delete func(spath string, form url.Values) (*http.Response, error)
 	Upload func(spath, fileName string, r io.Reader) (*http.Response, error)
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Wrapper interface for I/O abstractions
-// ──────────────────────────────────────────────────────────────
-
-type wrapper interface {
-	Copy(dst io.Writer, src io.Reader) error
-	NewMultipartWriter(w io.Writer) multipartWriter
-}
-
-type multipartWriter interface {
-	CreateFormFile(fieldname, filename string) (io.Writer, error)
-	FormDataContentType() string
-	Close() error
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Default wrapper implementations
-// ──────────────────────────────────────────────────────────────
-
-type defaultWrapper struct{}
-
-func (*defaultWrapper) Copy(dst io.Writer, src io.Reader) error {
-	_, err := io.Copy(dst, src)
-	return err
-}
-
-func (*defaultWrapper) NewMultipartWriter(w io.Writer) multipartWriter {
-	return &defaultMultipartWriter{multipart.NewWriter(w)}
-}
-
-type defaultMultipartWriter struct {
-	*multipart.Writer
-}
-
-func (mw *defaultMultipartWriter) CreateFormFile(fieldname, filename string) (io.Writer, error) {
-	return mw.Writer.CreateFormFile(fieldname, filename)
-}
-
-func (mw *defaultMultipartWriter) FormDataContentType() string {
-	return mw.Writer.FormDataContentType()
-}
-
-func (mw *defaultMultipartWriter) Close() error {
-	return mw.Writer.Close()
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -214,95 +144,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 		},
 	}
 
-	// ──────────────────────────────────────────────────────────────
-	//  Service initialization
-	// ──────────────────────────────────────────────────────────────
-
-	// --- Initialize shared option services --------------------------------------
-	// Option services provide reusable form and query parameter builders
-	// used across multiple Backlog API services.
-	optionRegistry := &optionRegistry{
-		query: &QueryOptionService{},
-		form:  &FormOptionService{},
-	}
-
-	// ActivityOptionService wraps shared optionRegistry to be reused
-	// by activity-related services such as ProjectActivityService or SpaceActivityService.
-	activityOptionService := &ActivityOptionService{
-		registry: optionRegistry,
-	}
-
-	// --- Initialize IssueService -------------------------------------------------
-	// Provides methods for issue management and file attachment operations.
-	c.Issue = &IssueService{
-		method: c.method,
-		Attachment: &IssueAttachmentService{
-			method: c.method,
-		},
-	}
-
-	// --- Initialize ProjectService ----------------------------------------------
-	// Includes sub-services for project activities, users, and project options.
-	c.Project = &ProjectService{
-		method: c.method,
-		Activity: &ProjectActivityService{
-			method: c.method,
-			Option: activityOptionService,
-		},
-		User: &ProjectUserService{
-			method: c.method,
-		},
-		Option: &ProjectOptionService{
-			registry: optionRegistry,
-		},
-	}
-
-	// --- Initialize PullRequestService ------------------------------------------
-	// Handles pull request operations and related file attachments.
-	c.PullRequest = &PullRequestService{
-		method: c.method,
-		Attachment: &PullRequestAttachmentService{
-			method: c.method,
-		},
-	}
-
-	// --- Initialize SpaceService -------------------------------------------------
-	// Provides access to space-level APIs including activities and attachments.
-	c.Space = &SpaceService{
-		method: c.method,
-		Activity: &SpaceActivityService{
-			method: c.method,
-			Option: activityOptionService,
-		},
-		Attachment: &SpaceAttachmentService{
-			method: c.method,
-		},
-	}
-
-	// --- Initialize UserService --------------------------------------------------
-	// Provides APIs related to user activities and user option settings.
-	c.User = &UserService{
-		method: c.method,
-		Activity: &UserActivityService{
-			method: c.method,
-			Option: activityOptionService,
-		},
-		Option: &UserOptionService{
-			registry: optionRegistry,
-		},
-	}
-
-	// --- Initialize WikiService --------------------------------------------------
-	// Provides wiki page APIs, including file attachments and option configurations.
-	c.Wiki = &WikiService{
-		method: c.method,
-		Attachment: &WikiAttachmentService{
-			method: c.method,
-		},
-		Option: &WikiOptionService{
-			registry: optionRegistry,
-		},
-	}
+	initServices(c)
 
 	return c, nil
 }
