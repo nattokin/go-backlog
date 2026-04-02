@@ -1,0 +1,33 @@
+name: Update parent PR description
+
+on:
+  pull_request:
+    types: [opened, edited, closed]
+
+jobs:
+  update-parent-pr:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.action == 'opened' ||
+      github.event.action == 'edited' ||
+      (github.event.action == 'closed' && github.event.pull_request.merged == true)
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update parent PR description
+        run: node .github/scripts/update-parent-pr.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          EVENT_ACTION: ${{ github.event.action }}
+          CHANGES_TITLE: ${{ toJSON(github.event.changes.title) }}
+          CHANGES_BODY: ${{ toJSON(github.event.changes.body) }}
