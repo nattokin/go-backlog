@@ -41,11 +41,13 @@ async function main() {
   const childBody   = PR_BODY  ?? '';
   const baseBranch  = PR_BASE_REF ?? '';
 
-  // Find parent PR: open PR whose base branch equals the child's base branch
-  const openPRs = await listOpenPRs(baseBranch);
+  // Find parent PR: open PR whose HEAD branch equals the child's base branch.
+  // i.e. the PR that is trying to merge `baseBranch` into something else.
+  // Note: do NOT encode the slash in branch names for GitHub API head param.
+  const openPRs = await listOpenPRsByHead(baseBranch);
   const parentPR = openPRs.find(pr => pr.number !== childNumber);
   if (!parentPR) {
-    console.log(`No parent PR found targeting branch "${baseBranch}".`);
+    console.log(`No parent PR found with head branch "${baseBranch}".`);
     return;
   }
   console.log(`Found parent PR #${parentPR.number}: ${parentPR.title}`);
@@ -73,11 +75,13 @@ main().catch(err => {
 // ──────────────────────────────────────────────────────────────
 
 /**
- * @param {string} baseBranch
+ * Find open PRs whose HEAD branch matches the given branch name.
+ * Note: GitHub API head param requires `owner:branch` format without encoding slashes.
+ * @param {string} headBranch
  * @returns {Promise<Array<{number: number, title: string, body: string|null}>>}
  */
-function listOpenPRs(baseBranch) {
-  return githubRequest('GET', `/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=open&base=${encodeURIComponent(baseBranch)}&per_page=100`);
+function listOpenPRsByHead(headBranch) {
+  return githubRequest('GET', `/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=open&head=${REPO_OWNER}:${headBranch}&per_page=100`);
 }
 
 /**
