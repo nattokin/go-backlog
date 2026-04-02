@@ -317,20 +317,22 @@ func (c *Client) newRequest(method, spath string, header http.Header, body io.Re
 		return nil, errors.New("spath must not be empty")
 	}
 
-	if query == nil {
-		query = url.Values{}
-	}
-	query.Set("apiKey", c.token)
-
 	u := *c.baseURL
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
-	u.RawQuery = query.Encode()
+	if query != nil {
+		u.RawQuery = query.Encode()
+	}
 
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header = header
+
+	if header != nil {
+		req.Header = header.Clone()
+	}
+	req.Header.Set("Authorization", "Bearer "+c.token)
+
 	return req, nil
 }
 

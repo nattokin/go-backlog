@@ -378,7 +378,8 @@ func TestClient_Method(t *testing.T) {
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Empty(t, captured.Body)
 				assert.Empty(t, captured.Header.Get("Content-Type"))
 			},
@@ -393,7 +394,8 @@ func TestClient_Method(t *testing.T) {
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 				assert.Contains(t, string(captured.Body), "k=v")
 			},
@@ -408,7 +410,8 @@ func TestClient_Method(t *testing.T) {
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "PATCH", captured.Method)
 				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=123")
 			},
 		},
@@ -422,7 +425,8 @@ func TestClient_Method(t *testing.T) {
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "DELETE", captured.Method)
 				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=321")
 			},
 		},
@@ -435,7 +439,8 @@ func TestClient_Method(t *testing.T) {
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
-				assert.Equal(t, "token123", captured.URL.Query().Get("apiKey"))
+				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 
 				ct := captured.Header.Get("Content-Type")
 				assert.Contains(t, ct, "multipart/form-data")
@@ -460,6 +465,7 @@ func TestClient_Method(t *testing.T) {
 			},
 		},
 
+		// エラーケースは変更なし
 		"GET newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
 				return c.method.Get("", url.Values{})
@@ -500,7 +506,6 @@ func TestClient_Method(t *testing.T) {
 			wantErr: true,
 		},
 	}
-
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
