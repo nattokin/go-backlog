@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Slack Workflow Notification
-        uses: Gamesight/slack-workflow-status@88ee95b73b4669825883ddf22747966204663e58 # v1
+        uses: Gamesight/slack-workflow-status@68bf00d0dbdbcb206c278399aa1ef6c14f74347a # v1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
