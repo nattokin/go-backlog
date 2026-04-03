@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"encoding/json"
 	"net/url"
 	"path"
 	"strconv"
@@ -26,10 +25,9 @@ func getUser(m *method, spath string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := User{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -41,10 +39,9 @@ func getUserList(m *method, spath string, query url.Values) ([]*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*User{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -56,10 +53,9 @@ func addUser(m *method, spath string, form url.Values) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := User{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -71,10 +67,9 @@ func updateUser(m *method, spath string, form url.Values) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := User{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -86,10 +81,9 @@ func deleteUser(m *method, spath string, form url.Values) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := User{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
