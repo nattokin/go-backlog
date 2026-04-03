@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"encoding/json"
 	"net/url"
 	"path"
 	"strconv"
@@ -29,10 +28,9 @@ func getActivityList(m *method, spath string, options ...*QueryOption) ([]*Activ
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*Activity{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 

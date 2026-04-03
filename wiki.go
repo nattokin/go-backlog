@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"encoding/json"
 	"net/url"
 	"path"
 	"strconv"
@@ -56,10 +55,9 @@ func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki,
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*Wiki{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -81,10 +79,9 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer resp.Body.Close()
 
 	v := map[string]int{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -104,10 +101,9 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Wiki{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -148,10 +144,9 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...*FormO
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Wiki{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -204,10 +199,9 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Wiki{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -247,10 +241,9 @@ func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Wiki{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 

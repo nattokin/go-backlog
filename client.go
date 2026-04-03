@@ -195,7 +195,7 @@ func (c *Client) do(method, spath string, header http.Header, body io.Reader, qu
 }
 
 // ──────────────────────────────────────────────────────────────
-//  Response validation
+//  Response helpers
 // ──────────────────────────────────────────────────────────────
 
 // checkResponse validates an HTTP response and decodes API errors if present.
@@ -228,4 +228,11 @@ func checkResponse(r *http.Response) (*http.Response, error) {
 	}
 
 	return nil, e
+}
+
+// decodeResponse decodes the JSON body of resp into v and closes the body.
+func decodeResponse(resp *http.Response, v any) error {
+	defer resp.Body.Close()
+
+	return json.NewDecoder(resp.Body).Decode(v)
 }

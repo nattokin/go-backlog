@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"encoding/json"
 	"net/url"
 	"path"
 )
@@ -64,10 +63,9 @@ func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*Project{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -87,10 +85,9 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Project{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -130,10 +127,9 @@ func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Project{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -182,10 +178,9 @@ func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Project{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -205,10 +200,9 @@ func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Project{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 

@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"encoding/json"
 	"errors"
 	"io"
 	"net/url"
@@ -31,10 +30,9 @@ func (s *SpaceAttachmentService) Upload(fileName string, r io.Reader) (*Attachme
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Attachment{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -46,10 +44,9 @@ func listAttachments(m *method, spath string) ([]*Attachment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*Attachment{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -61,10 +58,9 @@ func removeAttachment(m *method, spath string) (*Attachment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := Attachment{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -100,10 +96,9 @@ func (s *WikiAttachmentService) Attach(wikiID int, attachmentIDs []int) ([]*Atta
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	v := []*Attachment{}
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+	if err := decodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
