@@ -196,9 +196,17 @@ function normalizeDescription(body) {
 }
 
 /**
- * Upsert the child PR entry (parent row + indented lines) in ## Changes.
- * - If a row containing `(#childNumber)` exists: replace it and its indented lines.
- * - Otherwise: append to the end of the ## Changes section.
+ * Upsert the child PR entry in ## Changes.
+ *
+ * Format (no leading "- " on the parent row to avoid GitHub's duplicate link rendering):
+ *
+ *   feat!: add context.Context to WikiService (#107)
+ *   - Add ctx to Wiki.All
+ *   - Add ctx to Wiki.Create
+ *
+ * The parent row is identified by `(#childNumber)` on a non-indented, non-list line.
+ * The child lines immediately following (starting with "- ") are replaced in bulk.
+ *
  * @param {string} body
  * @param {number} childNumber
  * @param {string} childTitle
@@ -208,10 +216,10 @@ function normalizeDescription(body) {
 function upsertChildEntry(body, childNumber, childTitle, childChanges) {
   const lines = body.split('\n');
 
-  // Build the new entry lines
-  const newEntry = [`- ${childTitle} (#${childNumber})`];
+  // Build the new entry: parent row (no "- " prefix) + child lines ("- " prefix)
+  const newEntry = [`${childTitle} (#${childNumber})`];
   for (const change of childChanges) {
-    newEntry.push(`  - ${change}`);
+    newEntry.push(`- ${change}`);
   }
 
   const changesIdx = lines.findIndex(l => /^##\s+Changes\s*$/.test(l));
@@ -223,20 +231,21 @@ function upsertChildEntry(body, childNumber, childTitle, childChanges) {
     if (/^##/.test(lines[i])) { sectionEnd = i; break; }
   }
 
-  // Search for existing parent row within ## Changes section
+  // Search for existing parent row within ## Changes section.
+  // Parent row: non-empty, not starting with "- ", contains `(#childNumber)`.
   const markerPattern = new RegExp(`\\(#${childNumber}\\)`);
   let existingIdx = -1;
   for (let i = changesIdx + 1; i < sectionEnd; i++) {
-    if (/^- /.test(lines[i]) && markerPattern.test(lines[i])) {
+    if (lines[i].trim() !== '' && !/^- /.test(lines[i]) && markerPattern.test(lines[i])) {
       existingIdx = i;
       break;
     }
   }
 
   if (existingIdx !== -1) {
-    // Find the extent of the existing entry (parent row + indented rows)
+    // Find the extent of the existing entry (parent row + following "- " lines)
     let endIdx = existingIdx + 1;
-    while (endIdx < sectionEnd && /^  /.test(lines[endIdx])) endIdx++;
+    while (endIdx < sectionEnd && /^- /.test(lines[endIdx])) endIdx++;
     lines.splice(existingIdx, endIdx - existingIdx, ...newEntry);
   } else {
     // Append after last non-empty line within the section
@@ -244,7 +253,12 @@ function upsertChildEntry(body, childNumber, childTitle, childChanges) {
     for (let i = sectionEnd - 1; i > changesIdx; i--) {
       if (lines[i].trim() !== '') { insertIdx = i + 1; break; }
     }
-    lines.splice(insertIdx, 0, ...newEntry);
+    // Add a blank line before the new entry if the section is not empty
+    if (insertIdx > changesIdx + 1 && lines[insertIdx - 1].trim() !== '') {
+      lines.splice(insertIdx, 0, '', ...newEntry);
+    } else {
+      lines.splice(insertIdx, 0, ...newEntry);
+    }
   }
 
   return lines.join('\n');
