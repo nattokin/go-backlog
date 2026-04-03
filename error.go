@@ -80,15 +80,15 @@ func (e *InvalidOptionError[T]) Error() string {
 
 // ValidationError represents an argument validation error.
 type ValidationError struct {
-	Message string
+	message string
 }
 
 func newValidationError(msg string) *ValidationError {
 	return &ValidationError{
-		Message: msg,
+		message: msg,
 	}
 }
 
 func (e *ValidationError) Error() string {
-	return e.Message
+	return e.message
 }

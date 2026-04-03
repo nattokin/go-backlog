@@ -65,7 +65,7 @@ func TestInvalidOptionError_Error_query(t *testing.T) {
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
 	e := &ValidationError{
-		Message: msg,
+		message: msg,
 	}
 	assert.EqualError(t, e, msg)
 }
