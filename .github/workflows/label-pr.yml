@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Apply label based on PR title prefix
         run: node .github/scripts/label-pr.js
