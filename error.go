@@ -56,30 +56,13 @@ func (e *APIResponseError) Error() string {
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
-/*
-ReqestOptionType is a constraint for option enum types used in WebAPI requests.
-
-Currently the supported option types are:
-  - queryType (query parameters)
-  - formType  (form parameters)
-
-Both types implement Value() string, which returns the API parameter value.
-This constraint allows InvalidOptionError to be implemented as a single
-generic error type while keeping the allowed option kinds restricted to
-query and form parameters.
-*/
-type ReqestOptionType interface {
-	queryType | formType
-	Value() string
-}
-
 // InvalidOptionError represents an error for an invalid option value.
-type InvalidOptionError[T ReqestOptionType] struct {
+type InvalidOptionError[T requestOptionType] struct {
 	Invalid   T
 	ValidList []T
 }
 
-func newInvalidOptionError[T ReqestOptionType](invalid T, validList []T) *InvalidOptionError[T] {
+func newInvalidOptionError[T requestOptionType](invalid T, validList []T) *InvalidOptionError[T] {
 	return &InvalidOptionError[T]{
 		Invalid:   invalid,
 		ValidList: validList,

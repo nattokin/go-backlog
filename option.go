@@ -20,6 +20,13 @@ type optionRegistry struct {
 // ──────────────────────────────────────────────────────────────
 //
 
+// requestOptionType is a constraint for InvalidOptionError.
+// Restricted to queryType and formType.
+type requestOptionType interface {
+	queryType | formType
+	Value() string
+}
+
 // --- QueryOption Types -------------------------------------------------------------
 
 // queryType represents the distinct query parameter keys for Backlog API requests.
