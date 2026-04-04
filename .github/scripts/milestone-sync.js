@@ -2,7 +2,7 @@
 // Reads the PR description and sets the milestone on the PR
 // based on the milestone of any linked issue.
 //
-// Recognized link patterns (case-insensitive):
+// Recognized link patterns (case-insensitive), matched on the LAST LINE only:
 //   Closes #N  /  Fixes #N  /  Resolves #N  /  Part of #N
 
 const { Octokit } = require('@octokit/rest');
@@ -14,13 +14,14 @@ const repo   = process.env.REPO_NAME;
 const prNum  = parseInt(process.env.PR_NUMBER, 10);
 const body   = process.env.PR_BODY ?? '';
 
-// Extract issue numbers from the description.
+// Extract issue numbers from the last line of the description only.
 // Matches: Closes #N, Fixes #N, Resolves #N, Part of #N (case-insensitive)
 function extractIssueNumbers(text) {
+  const lastLine = text.trimEnd().split('\n').pop() ?? '';
   const pattern = /(?:closes|fixes|resolves|part\s+of)\s+#(\d+)/gi;
   const numbers = [];
   let match;
-  while ((match = pattern.exec(text)) !== null) {
+  while ((match = pattern.exec(lastLine)) !== null) {
     const n = parseInt(match[1], 10);
     if (!numbers.includes(n)) numbers.push(n);
   }
@@ -41,11 +42,11 @@ async function run() {
   const issueNumbers = extractIssueNumbers(body);
 
   if (issueNumbers.length === 0) {
-    console.log('No linked issues found in PR description. Skipping.');
+    console.log('No linked issues found in the last line of PR description. Skipping.');
     return;
   }
 
-  console.log(`Linked issues: ${issueNumbers.map(n => '#' + n).join(', ')}`);
+  console.log(`Linked issues (from last line): ${issueNumbers.map(n => '#' + n).join(', ')}`);
 
   // Use the milestone of the first linked issue that has one.
   let targetMilestone = null;
