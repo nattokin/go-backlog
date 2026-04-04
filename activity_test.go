@@ -133,7 +133,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		wantError bool
 		want      want
 	}{
-		"NoOption": {
+		"success-no-option": {
 			options:   []*QueryOption{},
 			wantError: false,
 			want: want{
@@ -144,7 +144,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithActivityTypeIDs": {
+		"success-withActivityTypeIDs": {
 			options: []*QueryOption{
 				o.WithQueryActivityTypeIDs([]int{1}),
 			},
@@ -157,7 +157,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithMinID": {
+		"success-withMinID": {
 			options: []*QueryOption{
 				o.WithQueryMinID(1),
 			},
@@ -170,7 +170,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithMaxID": {
+		"success-withMaxID": {
 			options: []*QueryOption{
 				o.WithQueryMaxID(1),
 			},
@@ -183,7 +183,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithCount": {
+		"success-withCount": {
 			options: []*QueryOption{
 				o.WithQueryCount(1),
 			},
@@ -196,7 +196,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "",
 			},
 		},
-		"WithOrder": {
+		"success-withOrder": {
 			options: []*QueryOption{
 				o.WithQueryOrder(OrderAsc),
 			},
@@ -209,7 +209,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "asc",
 			},
 		},
-		"MultipleOptions": {
+		"success-multiple-options": {
 			options: []*QueryOption{
 				o.WithQueryActivityTypeIDs([]int{1, 2}),
 				o.WithQueryMinID(1),
@@ -226,14 +226,14 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				order:          "asc",
 			},
 		},
-		"OptionError": {
+		"error-option-invalid-value": {
 			options: []*QueryOption{
 				o.WithQueryCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
-		"InvalidOption": {
+		"error-option-invalid-type": {
 			options: []*QueryOption{{"invalid", nil, func(p url.Values) error {
 				return nil
 			}},
@@ -241,7 +241,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			wantError: true,
 			want:      want{},
 		},
-		"SetErr": {
+		"error-option-set-failed": {
 			options: []*QueryOption{{
 				ExportQueryCount,
 				nil,

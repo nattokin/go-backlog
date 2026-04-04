@@ -63,7 +63,7 @@ func TestProjectService_All(t *testing.T) {
 			wantNames:   []string{"test", "test2", "test3"},
 			wantErrType: nil,
 		},
-		"error-with-option-handler": {
+		"error-option-set-failed": {
 			options: []*QueryOption{{
 				queryAll,
 				nil,
@@ -72,7 +72,7 @@ func TestProjectService_All(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"error-with-invalid-option": {
+		"error-option-invalid-type": {
 			options: []*QueryOption{{
 				"invalid",
 				nil,
@@ -81,7 +81,7 @@ func TestProjectService_All(t *testing.T) {
 
 			wantErrType: &InvalidOptionError[queryType]{},
 		},
-		"error-client-failure": {
+		"error-client-network": {
 			options: []*QueryOption{},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -90,7 +90,7 @@ func TestProjectService_All(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			options: []*QueryOption{},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -146,7 +146,7 @@ func TestProjectService_One(t *testing.T) {
 
 		wantErrType error
 	}{
-		"success-with-projectKey": {
+		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -160,7 +160,7 @@ func TestProjectService_One(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"success-with-projectID": {
+		"success-projectIDOrKey-id": {
 			projectIDOrKey: strconv.Itoa(6),
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -174,12 +174,12 @@ func TestProjectService_One(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"error-with-empty-projectIDOrKey": {
+		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
 			wantErrType: &ValidationError{},
 		},
-		"error-client-failure": {
+		"error-client-network": {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -188,7 +188,7 @@ func TestProjectService_One(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -246,7 +246,7 @@ func TestProjectService_Create(t *testing.T) {
 
 		wantErrType error
 	}{
-		"success-basic-create": {
+		"success-key-name": {
 			key:  "TEST",
 			name: "test",
 
@@ -311,21 +311,21 @@ func TestProjectService_Create(t *testing.T) {
 			wantErrType: nil,
 		},
 
-		"error-empty-key": {
+		"error-validation-key-empty": {
 			key:  "",
 			name: "test",
 
 			wantErrType: &ValidationError{},
 		},
 
-		"error-empty-name": {
+		"error-validation-name-empty": {
 			key:  "TEST",
 			name: "",
 
 			wantErrType: &ValidationError{},
 		},
 
-		"error-option-validation": {
+		"error-option-invalid-value": {
 			key:  "TEST",
 			name: "test",
 
@@ -336,7 +336,7 @@ func TestProjectService_Create(t *testing.T) {
 			wantErrType: &ValidationError{},
 		},
 
-		"error-invalid-option": {
+		"error-option-invalid-type": {
 			key:  "TEST",
 			name: "test",
 
@@ -345,7 +345,7 @@ func TestProjectService_Create(t *testing.T) {
 			wantErrType: &InvalidOptionError[formType]{},
 		},
 
-		"error-client-failure": {
+		"error-client-network": {
 			key:  "TEST",
 			name: "test",
 
@@ -356,7 +356,7 @@ func TestProjectService_Create(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			key:  "TEST",
 			name: "test",
 
@@ -413,7 +413,7 @@ func TestProjectService_Update(t *testing.T) {
 
 		wantErrType error
 	}{
-		"success-basic": {
+		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -429,7 +429,7 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: nil,
 		},
 
-		"success-project-id": {
+		"success-projectIDOrKey-id": {
 			projectIDOrKey: "1234",
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -444,13 +444,13 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: nil,
 		},
 
-		"error-empty-key": {
+		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
 			wantErrType: &ValidationError{},
 		},
 
-		"error-zero-id": {
+		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey: "0",
 
 			wantErrType: &ValidationError{},
@@ -487,7 +487,7 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: nil,
 		},
 
-		"error-option-validation": {
+		"error-option-invalid-value": {
 			projectIDOrKey: "TEST",
 
 			options: []*FormOption{
@@ -497,7 +497,7 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: &ValidationError{},
 		},
 
-		"error-invalid-option": {
+		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 
 			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
@@ -505,7 +505,7 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: &InvalidOptionError[formType]{},
 		},
 
-		"error-client-failure": {
+		"error-client-network": {
 			projectIDOrKey: "TEST",
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -515,7 +515,7 @@ func TestProjectService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -565,7 +565,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 		wantErrType error
 	}{
-		"success-project-key": {
+		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -580,7 +580,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"success-project-id": {
+		"success-projectIDOrKey-id": {
 			projectIDOrKey: "1234",
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -594,17 +594,17 @@ func TestProjectService_Delete(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"error-empty-key": {
+		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
 			wantErrType: &ValidationError{},
 		},
-		"error-zero-id": {
+		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey: "0",
 
 			wantErrType: &ValidationError{},
 		},
-		"error-client-failure": {
+		"error-client-network": {
 			projectIDOrKey: "TEST",
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -613,7 +613,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {

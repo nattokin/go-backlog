@@ -54,7 +54,7 @@ func TestUserService_One(t *testing.T) {
 
 			wantUser: &User{},
 		},
-		"invalid-id-0": {
+		"error-validation-id-zero": {
 			id: 0,
 
 			wantErrType: &ValidationError{},
@@ -135,7 +135,7 @@ func TestUserService_Add(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"post-error": {
+		"error-client-network": {
 			userID:      "errorUser",
 			password:    "password",
 			name:        "error",
@@ -149,7 +149,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"invalid-empty-userID": {
+		"error-validation-userID-empty": {
 			userID:      "",
 			password:    "password",
 			name:        "admin",
@@ -160,7 +160,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-empty-password": {
+		"error-validation-password-empty": {
 			userID:      "admin",
 			password:    "",
 			name:        "admin",
@@ -171,7 +171,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-empty-name": {
+		"error-validation-name-empty": {
 			userID:      "admin",
 			password:    "password",
 			name:        "",
@@ -182,7 +182,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-empty-mailAddress": {
+		"error-validation-mailAddress-empty": {
 			userID:      "admin",
 			password:    "password",
 			name:        "admin",
@@ -193,7 +193,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-option-validation-error": {
+		"error-validation-multiple-empty": {
 			userID:      "test",
 			password:    "",
 			name:        "",
@@ -204,7 +204,7 @@ func TestUserService_Add(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			userID:      "userID",
 			password:    "password",
 			name:        "name",
@@ -282,7 +282,7 @@ func TestUserService_All(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"request-error": {
+		"error-client-network": {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
@@ -291,7 +291,7 @@ func TestUserService_All(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
@@ -381,12 +381,12 @@ func TestUserService_Update(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"invalid-id": {
+		"error-validation-id-zero": {
 			id: 0,
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			id: 1234,
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -400,7 +400,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: &json.SyntaxError{},
 		},
-		"option-WithName": {
+		"success-option-withName": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormName("testname"),
@@ -414,7 +414,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"option-WithPassword": {
+		"success-option-withPassword": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormPassword("testpassword"),
@@ -428,7 +428,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"option-WithMailAddress": {
+		"success-option-withMailAddress": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormMailAddress("test@test.com"),
@@ -442,7 +442,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"option-WithRoleType": {
+		"success-option-withRoleType": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormRoleType(RoleAdministrator),
@@ -456,7 +456,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"option-multi-WithFormName-WithFormPassword": {
+		"success-option-multiple": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormPassword("testpassword1"),
@@ -476,7 +476,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"option-error": {
+		"error-option-invalid-value": {
 			id: 1,
 			options: []*FormOption{
 				o.WithFormName(""),
@@ -484,7 +484,7 @@ func TestUserService_Update(t *testing.T) {
 
 			wantErrType: &ValidationError{},
 		},
-		"option-invalid": {
+		"error-option-invalid-type": {
 			id:      1,
 			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
 
@@ -549,7 +549,7 @@ func TestUserService_Own(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"request-error": {
+		"error-client-network": {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
@@ -558,7 +558,7 @@ func TestUserService_Own(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
@@ -640,12 +640,12 @@ func TestUserService_Delete(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"invalid-id-0": {
+		"error-validation-id-zero": {
 			id: 0,
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			id: 1234,
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -765,12 +765,12 @@ func TestProjectUserService_All(t *testing.T) {
 				},
 			},
 		},
-		"invalid-projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			projectKey: "TEST",
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -829,7 +829,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		wantUser    *User
 		wantErrType error
 	}{
-		"projectKey-valid": {
+		"success-projectKey-valid": {
 			projectKey: "TEST",
 			userID:     1,
 
@@ -849,18 +849,18 @@ func TestProjectUserService_Add(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-0": {
+		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-1": {
+		"success-userID-1": {
 			projectKey: "TEST2",
 			userID:     1,
 
@@ -880,7 +880,7 @@ func TestProjectUserService_Add(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			projectKey: "TEST3",
 			userID:     1,
 
@@ -959,7 +959,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"success-projectKey-number": {
+		"success-projectIDOrKey-number": {
 			projectKey: "1234",
 			userID:     1,
 
@@ -979,13 +979,13 @@ func TestProjectUserService_Delete(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"invalid-projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 			userID:     1,
 
 			wantErrType: &ValidationError{},
 		},
-		"invalid-userID-0": {
+		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
@@ -1011,7 +1011,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			projectKey: "TEST3",
 			userID:     1,
 
@@ -1070,7 +1070,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		wantUser    *User
 		wantErrType error
 	}{
-		"projectKey-valid": {
+		"success-projectKey-valid": {
 			projectKey: "TEST",
 			userID:     1,
 
@@ -1090,18 +1090,18 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-0": {
+		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-1": {
+		"success-userID-1": {
 			projectKey: "TEST2",
 			userID:     1,
 
@@ -1121,7 +1121,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				RoleType:    RoleAdministrator,
 			},
 		},
-		"invalid-json-response": {
+		"error-response-invalid-json": {
 			projectKey: "TEST3",
 			userID:     1,
 
@@ -1178,7 +1178,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 
 		wantErrType error
 	}{
-		"projectKey-valid": {
+		"success-projectKey-valid": {
 			projectKey: "TEST",
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -1189,7 +1189,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 
 			wantErrType: &ValidationError{},
@@ -1227,7 +1227,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 
 		wantErrType error
 	}{
-		"projectKey-valid": {
+		"success-projectKey-valid": {
 			projectKey: "TEST",
 			userID:     1,
 
@@ -1239,19 +1239,19 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 
 			wantErrType: errors.New(""),
 		},
-		"projectKey-empty": {
+		"error-validation-projectKey-empty": {
 			projectKey: "",
 			userID:     1,
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-0": {
+		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
 			wantErrType: &ValidationError{},
 		},
-		"userID-1": {
+		"success-userID-1": {
 			projectKey: "TEST2",
 			userID:     1,
 
