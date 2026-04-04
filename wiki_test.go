@@ -23,7 +23,7 @@ func TestWikiService_All(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		options        []*QueryOption
+		options        []RequestOption
 
 		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
@@ -50,8 +50,8 @@ func TestWikiService_All(t *testing.T) {
 
 		"success-projectIDOrKey-key-with-options": {
 			projectIDOrKey: "PRJ_KEY",
-			options: []*QueryOption{
-				o.WithQueryKeyword("test"),
+			options: []RequestOption{
+				o.WithKeyword("test"),
 			},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -76,9 +76,8 @@ func TestWikiService_All(t *testing.T) {
 
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
-			options: []*QueryOption{{
-				t:         queryCount,
-				checkFunc: nil,
+			options: []RequestOption{&apiOption{
+				t: queryCount,
 				setFunc: func(p url.Values) error {
 					return nil
 				},
@@ -88,7 +87,7 @@ func TestWikiService_All(t *testing.T) {
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			options:        []*QueryOption{newQueryOptionWithSetError(queryKeyword)},
+			options:        []RequestOption{newQueryOptionWithSetError(queryKeyword)},
 			wantErrType:    errors.New(""),
 		},
 
@@ -342,7 +341,7 @@ func TestWikiService_Create(t *testing.T) {
 		projectID int
 		name      string
 		content   string
-		opts      []*FormOption
+		opts      []RequestOption
 
 		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -377,7 +376,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID: 56,
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
-			opts:      []*FormOption{o.WithFormMailNotify(true)},
+			opts:      []RequestOption{o.WithMailNotify(true)},
 
 			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
@@ -421,8 +420,8 @@ func TestWikiService_Create(t *testing.T) {
 			projectID: 1,
 			name:      "Test",
 			content:   "content",
-			opts: []*FormOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
 					formMailAddress,
 					nil,
 					func(p url.Values) error { return nil },
@@ -434,7 +433,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []*FormOption{newFormOptionWithSetError(formMailNotify)},
+			opts:        []RequestOption{newFormOptionWithSetError(formMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -509,8 +508,8 @@ func TestWikiService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		wikiID int
-		option *FormOption
-		opts   []*FormOption
+		option RequestOption
+		opts   []RequestOption
 
 		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -519,7 +518,7 @@ func TestWikiService_Update(t *testing.T) {
 	}{
 		"success-wikiID-name-only": {
 			wikiID: 34,
-			option: o.WithFormName("New Page Name"),
+			option: o.WithName("New Page Name"),
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
@@ -538,10 +537,10 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"success-wikiID-full-options": {
 			wikiID: 34,
-			option: o.WithFormName("Full Options Name"),
-			opts: []*FormOption{
-				o.WithFormContent("Full Options Content"),
-				o.WithFormMailNotify(true),
+			option: o.WithName("Full Options Name"),
+			opts: []RequestOption{
+				o.WithContent("Full Options Content"),
+				o.WithMailNotify(true),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -563,19 +562,18 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"error-validation-required-option": {
 			wikiID:      12,
-			option:      o.WithFormMailNotify(true),
+			option:      o.WithMailNotify(true),
 			wantErrType: &ValidationError{},
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
-			option:      o.WithFormName("New Name"),
+			option:      o.WithName("New Name"),
 			wantErrType: &ValidationError{},
 		},
 		"error-option-invalid-type": {
 			wikiID: 12,
-			option: &FormOption{
-				t:         formRoleType,
-				checkFunc: nil,
+			option: &apiOption{
+				t: formRoleType,
 				setFunc: func(p url.Values) error {
 					return nil
 				},
@@ -589,7 +587,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"error-client-network": {
 			wikiID: 13,
-			option: o.WithFormName("New Name"),
+			option: o.WithName("New Name"),
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/13", spath)
@@ -601,7 +599,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"error-response-invalid-json": {
 			wikiID: 14,
-			option: o.WithFormName("New Name"),
+			option: o.WithName("New Name"),
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/14", spath)
@@ -652,7 +650,7 @@ func TestWikiService_Delete(t *testing.T) {
 
 	cases := map[string]struct {
 		wikiID int
-		opts   []*FormOption
+		opts   []RequestOption
 
 		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -661,7 +659,7 @@ func TestWikiService_Delete(t *testing.T) {
 	}{
 		"success-wikiID-withMailNotify": {
 			wikiID: 34,
-			opts:   []*FormOption{o.WithFormMailNotify(true)},
+			opts:   []RequestOption{o.WithMailNotify(true)},
 
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
@@ -697,13 +695,13 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			wikiID:      1,
-			opts:        []*FormOption{newFormOptionWithSetError(formMailNotify)},
+			opts:        []RequestOption{newFormOptionWithSetError(formMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
 			wikiID: 1,
-			opts: []*FormOption{
-				projectOption.WithFormKey("Invalid Option"),
+			opts: []RequestOption{
+				projectOption.WithKey("Invalid Option"),
 			},
 			wantErrType: &InvalidOptionError[formType]{},
 		},
