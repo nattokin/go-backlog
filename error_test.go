@@ -1,9 +1,13 @@
 package backlog
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestError_Error(t *testing.T) {
@@ -68,4 +72,69 @@ func TestValidationError_Error(t *testing.T) {
 		message: msg,
 	}
 	assert.EqualError(t, e, msg)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  errors.As assertion tests
+// ──────────────────────────────────────────────────────────────
+
+// TestAPIResponseError_errorsAs verifies that APIResponseError returned from
+// checkResponse can be unwrapped with errors.As by callers.
+func TestAPIResponseError_errorsAs(t *testing.T) {
+	resp := &http.Response{
+		StatusCode: 404,
+		Body:       nil,
+	}
+	_, err := checkResponse(resp)
+	require.Error(t, err)
+
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *APIResponseError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, 404, target.StatusCode)
+}
+
+// TestValidationError_errorsAs verifies that ValidationError can be unwrapped
+// with errors.As by callers.
+func TestValidationError_errorsAs(t *testing.T) {
+	err := newValidationError("invalid argument")
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *ValidationError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, "invalid argument", target.Error())
+}
+
+// TestInvalidOptionError_errorsAs_query verifies that InvalidOptionError[queryType]
+// can be unwrapped with errors.As by callers.
+func TestInvalidOptionError_errorsAs_query(t *testing.T) {
+	err := newInvalidOptionError(queryActivityTypeIDs, []queryType{queryAll, queryArchived})
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *InvalidOptionError[queryType]
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, queryActivityTypeIDs, target.Invalid)
+}
+
+// TestInvalidOptionError_errorsAs_form verifies that InvalidOptionError[formType]
+// can be unwrapped with errors.As by callers.
+func TestInvalidOptionError_errorsAs_form(t *testing.T) {
+	err := newInvalidOptionError(formKey, []formType{formName, formChartEnabled})
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *InvalidOptionError[formType]
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, formKey, target.Invalid)
+}
+
+// TestInternalClientError_errorsAs verifies that InternalClientError can be
+// unwrapped with errors.As by callers.
+func TestInternalClientError_errorsAs(t *testing.T) {
+	err := newInternalClientError("missing token")
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *InternalClientError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, "missing token", target.Error())
 }
