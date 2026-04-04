@@ -17,6 +17,36 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check milestone and close
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF_NAME}
+
+          # Find milestone matching the tag name
+          MILESTONE=$(gh api repos/${{ github.repository }}/milestones \
+            --jq ".[] | select(.title == \"$TAG\")")
+
+          if [ -z "$MILESTONE" ]; then
+            echo "Error: No milestone found for tag '$TAG'"
+            exit 1
+          fi
+
+          MILESTONE_NUMBER=$(echo "$MILESTONE" | jq -r '.number')
+          OPEN_ISSUES=$(echo "$MILESTONE" | jq -r '.open_issues')
+
+          if [ "$OPEN_ISSUES" -ne 0 ]; then
+            echo "Error: Milestone '$TAG' has $OPEN_ISSUES open issue(s). Release aborted."
+            exit 1
+          fi
+
+          # Close the milestone
+          gh api repos/${{ github.repository }}/milestones/$MILESTONE_NUMBER \
+            --method PATCH \
+            --field state=closed
+
+          echo "Milestone '$TAG' closed successfully."
+
       - name: Generate changelog
         uses: orhun/git-cliff-action@e16f179f0be49ecdfe63753837f20b9531642772 # v4.7.0
         with:
