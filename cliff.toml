@@ -18,8 +18,8 @@ conventional_commits = true
 filter_unconventional = true
 commit_parsers = [
   { message = "^feat!", group = "⚠️ Breaking Changes" },
-  { message = "^refactor!", group = "⚠️ Breaking Changes" },
   { message = "^fix!", group = "⚠️ Breaking Changes" },
+  { message = "^refactor!", group = "⚠️ Breaking Changes" },
   { message = "^feat", group = "✨ Features" },
   { message = "^fix", group = "🐛 Bug Fixes" },
   { message = "^refactor", group = "🔨 Refactoring" },
