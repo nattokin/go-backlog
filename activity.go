@@ -6,20 +6,29 @@ import (
 	"strconv"
 )
 
-func getActivityList(m *method, spath string, options ...*QueryOption) ([]*Activity, error) {
+func getActivityList(m *method, spath string, options ...RequestOption) ([]*Activity, error) {
 	validOptions := []queryType{queryActivityTypeIDs, queryMinID, queryMaxID, queryCount, queryOrder}
-	for _, option := range options {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
 
 	query := url.Values{}
-	for _, option := range options {
-		if err := option.Check(); err != nil {
+	for _, opt := range options {
+		ao, ok := opt.(*apiOption)
+		if !ok {
+			// user-provided custom implementation
+			if err := opt.Check(); err != nil {
+				return nil, err
+			}
+			if err := opt.Set(query); err != nil {
+				return nil, err
+			}
+			continue
+		}
+		if err := ao.validateQueryType(validOptions); err != nil {
 			return nil, err
 		}
-		if err := option.set(query); err != nil {
+		if err := ao.Check(); err != nil {
+			return nil, err
+		}
+		if err := ao.Set(query); err != nil {
 			return nil, err
 		}
 	}
@@ -46,18 +55,8 @@ type ProjectActivityService struct {
 
 // List returns a list of activities in the project.
 //
-// This method supports options returned by methods in "*Client.Project.Activity.Option".
-//
-// Use the following methods:
-//
-//	WithQueryActivityTypeIDs
-//	WithQueryMinID
-//	WithQueryMaxID
-//	WithQueryCount
-//	WithQueryOrder
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(projectIDOrKey string, options ...*QueryOption) ([]*Activity, error) {
+func (s *ProjectActivityService) List(projectIDOrKey string, options ...RequestOption) ([]*Activity, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -75,18 +74,8 @@ type SpaceActivityService struct {
 
 // List returns a list of activities in your space.
 //
-// This method supports options returned by methods in "*Client.Space.Activity.Option".
-//
-// Use the following methods:
-//
-//	WithQueryActivityTypeIDs
-//	WithQueryMinID
-//	WithQueryMaxID
-//	WithQueryCount
-//	WithQueryOrder
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
-func (s *SpaceActivityService) List(options ...*QueryOption) ([]*Activity, error) {
+func (s *SpaceActivityService) List(options ...RequestOption) ([]*Activity, error) {
 	return getActivityList(s.method, "space/activities", options...)
 }
 
@@ -99,18 +88,8 @@ type UserActivityService struct {
 
 // List returns a list of user activities.
 //
-// This method supports options returned by methods in "*Client.User.Activity.Option".
-//
-// Use the following methods:
-//
-//	WithQueryActivityTypeIDs
-//	WithQueryMinID
-//	WithQueryMaxID
-//	WithQueryCount
-//	WithQueryOrder
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *UserActivityService) List(userID int, options ...*QueryOption) ([]*Activity, error) {
+func (s *UserActivityService) List(userID int, options ...RequestOption) ([]*Activity, error) {
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err

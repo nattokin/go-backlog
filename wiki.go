@@ -23,29 +23,16 @@ type WikiService struct {
 
 // All returns a list of all wikis in the specified project.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option".
-//
-// Use the following methods:
-//
-//	WithQueryKeyword
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(projectIDOrKey string, opts ...*QueryOption) ([]*Wiki, error) {
+func (s *WikiService) All(projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	validOptions := []queryType{queryKeyword}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	o := s.Option.registry.query
+	o := s.Option.registry.option
+	validTypes := []queryType{queryKeyword}
 	query := url.Values{}
-	err := o.applyOptions(query, opts...)
-	if err != nil {
+	if err := o.applyQueryOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -112,31 +99,26 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 
 // Create creates a new Wiki for the project.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option".
-//
-// Use the following methods:
-//
-//	WithFormMailNotify
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, opts ...*FormOption) (*Wiki, error) {
+func (s *WikiService) Create(projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
 	if err := validateProjectID(projectID); err != nil {
 		return nil, err
 	}
 
-	validOptions := []formType{formMailNotify}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
+	o := s.Option.registry.option
+	validTypes := []formType{formMailNotify}
+	form := url.Values{}
+	allOpts := append([]RequestOption{o.WithName(name), o.WithContent(content)}, opts...)
+	if err := o.applyFormOptions(form, validTypes, opts...); err != nil {
+		return nil, err
+	}
+	// apply mandatory name/content without validation restriction
+	for _, opt := range []RequestOption{o.WithName(name), o.WithContent(content)} {
+		if err := opt.Set(form); err != nil {
 			return nil, err
 		}
 	}
-
-	o := s.Option.registry.form
-	form := url.Values{}
-	err := o.applyOptions(form, append(opts, o.WithName(name), o.WithContent(content))...)
-	if err != nil {
-		return nil, err
-	}
+	_ = allOpts
 
 	form.Set("projectId", strconv.Itoa(projectID))
 
@@ -155,43 +137,23 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...*FormO
 
 // Update modifies an existing wiki page.
 //
-// This method requires at least one option to modify the page's name or content.
-// The initial option is passed as a mandatory argument (`option`), and any
-// additional options are passed via the variadic argument (`opts`).
-//
-// Internally, the method validates that at least one of WithFormName or WithFormContent is provided.
-//
-// This method supports options returned by methods in "*Client.Wiki.Option".
-//
-// Use the following methods:
-//
-//	WithFormName
-//	WithFormContent
-//	WithFormMailNotify
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption) (*Wiki, error) {
+func (s *WikiService) Update(wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
-	options := append([]*FormOption{option}, opts...)
+	options := append([]RequestOption{option}, opts...)
 
-	for _, option := range options {
-		if err := option.validate([]formType{formName, formContent, formMailNotify}); err != nil {
-			return nil, err
-		}
-	}
-
-	if !hasRequiredFormOption(options, []formType{formName, formContent}) {
-		return nil, newValidationError("requires an option to modify wiki content or name (WithFormName or WithFormContent)")
-	}
-
-	o := s.Option.registry.form
+	o := s.Option.registry.option
+	validTypes := []formType{formName, formContent, formMailNotify}
 	form := url.Values{}
-	err := o.applyOptions(form, options...)
-	if err != nil {
+	if err := o.applyFormOptions(form, validTypes, options...); err != nil {
 		return nil, err
+	}
+
+	if !hasRequiredOption(options, []formType{formName, formContent}) {
+		return nil, newValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
@@ -210,29 +172,16 @@ func (s *WikiService) Update(wikiID int, option *FormOption, opts ...*FormOption
 
 // Delete removes a wiki by ID.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option".
-//
-// Use the following methods:
-//
-//	WithFormMailNotify
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, opts ...*FormOption) (*Wiki, error) {
+func (s *WikiService) Delete(wikiID int, opts ...RequestOption) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
-	validOptions := []formType{formMailNotify}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	o := s.Option.registry.form
+	o := s.Option.registry.option
+	validTypes := []formType{formMailNotify}
 	form := url.Values{}
-	err := o.applyOptions(form, opts...)
-	if err != nil {
+	if err := o.applyFormOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
