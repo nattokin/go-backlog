@@ -214,13 +214,17 @@ func TestFormOptionService(t *testing.T) {
 			wantValue int
 			wantErr   bool
 		}{
-			"WithUserID-valid": {
-				option:    o.WithUserID(42),
+			"WithUserID-valid-1": {
+				option:    o.WithUserID(1),
 				key:       formUserID.Value(),
-				wantValue: 42,
-				wantErr:   false,
+				wantValue: 1,
 			},
-			"WithUserID-invalid": {
+			"WithUserID-valid-2": {
+				option:    o.WithUserID(2),
+				key:       formUserID.Value(),
+				wantValue: 2,
+			},
+			"WithUserID-invalid-0": {
 				option:  o.WithUserID(0),
 				key:     formUserID.Value(),
 				wantErr: true,
@@ -292,13 +296,23 @@ func TestFormOptionService(t *testing.T) {
 				key:     formName.Value(),
 				wantErr: true,
 			},
-			"WithPassword-valid": {
+			"WithPassword-valid-8chars": {
 				option:    o.WithPassword("abcdefgh"),
 				key:       formPassword.Value(),
 				wantValue: "abcdefgh",
 			},
-			"WithPassword-short": {
-				option:  o.WithPassword("short"),
+			"WithPassword-valid-9chars": {
+				option:    o.WithPassword("abcdefghi"),
+				key:       formPassword.Value(),
+				wantValue: "abcdefghi",
+			},
+			"WithPassword-valid-7chars": {
+				option:  o.WithPassword("abcdefg"),
+				key:     formPassword.Value(),
+				wantErr: true,
+			},
+			"WithPassword-invalid-empty": {
+				option:  o.WithPassword(""),
 				key:     formPassword.Value(),
 				wantErr: true,
 			},
@@ -329,13 +343,23 @@ func TestFormOptionService(t *testing.T) {
 			wantValue string
 			wantErr   bool
 		}{
-			"WithRoleType-valid": {
-				option:    o.WithRoleType(RoleAdministrator),
+			"WithRoleType-valid-1": {
+				option:    o.WithRoleType(1),
 				key:       formRoleType.Value(),
-				wantValue: strconv.Itoa(int(RoleAdministrator)),
+				wantValue: "1",
 			},
-			"WithRoleType-invalid": {
-				option:  o.WithRoleType(99),
+			"WithRoleType-valid-6": {
+				option:    o.WithRoleType(6),
+				key:       formRoleType.Value(),
+				wantValue: "6",
+			},
+			"WithRoleType-invalid-0": {
+				option:  o.WithRoleType(0),
+				key:     formRoleType.Value(),
+				wantErr: true,
+			},
+			"WithRoleType-invalid-7": {
+				option:  o.WithRoleType(7),
 				key:     formRoleType.Value(),
 				wantErr: true,
 			},
@@ -351,6 +375,11 @@ func TestFormOptionService(t *testing.T) {
 			},
 			"WithTextFormattingRule-invalid": {
 				option:  o.WithTextFormattingRule("invalid"),
+				key:     formTextFormattingRule.Value(),
+				wantErr: true,
+			},
+			"WithTextFormattingRule-invalid-empty": {
+				option:  o.WithTextFormattingRule(""),
 				key:     formTextFormattingRule.Value(),
 				wantErr: true,
 			},

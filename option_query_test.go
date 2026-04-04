@@ -294,7 +294,12 @@ func TestQueryOptionService(t *testing.T) {
 				wantValue: "desc",
 			},
 			"WithOrder-invalid": {
-				option:  o.WithOrder(Order("invalid")),
+				option:  o.WithOrder("invalid"),
+				key:     queryOrder.Value(),
+				wantErr: true,
+			},
+			"WithOrder-empty": {
+				option:  o.WithOrder(""),
 				key:     queryOrder.Value(),
 				wantErr: true,
 			},
