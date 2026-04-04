@@ -113,7 +113,6 @@ var Activity = activityFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-07-21T06:48:40Z"),
 		},
 	},
 }
