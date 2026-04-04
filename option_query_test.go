@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"errors"
 	"net/url"
 	"strconv"
 	"testing"
@@ -12,122 +11,17 @@ import (
 
 //
 // ──────────────────────────────────────────────────────────────
-//  TestQueryOption
+//  TestOptionService (query options)
 // ──────────────────────────────────────────────────────────────
 //
 
-func TestQueryOption(t *testing.T) {
-	cases := map[string]struct {
-		option           *QueryOption
-		expectCheckErr   bool
-		expectSetErr     bool
-		wantValue        string
-		wantCheckErrType error
-		wantSetErrType   error
-	}{
-		"Success": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(query url.Values) error {
-					query.Set(queryKey.Value(), "success")
-					return nil
-				},
-			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "success",
-		},
-		"Check-error": {
-			option:           newQueryOptionWithCheckError(queryKey),
-			expectCheckErr:   true,
-			expectSetErr:     false,
-			wantCheckErrType: errors.New("check error"),
-		},
-		"set-error": {
-			option:         newQueryOptionWithSetError(queryKey),
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: errors.New("set error"),
-		},
-		"queryType-invalid": {
-			option: &QueryOption{
-				t: "invalid",
-				setFunc: func(query url.Values) error {
-					return nil
-				},
-			},
-			expectCheckErr:   false,
-			expectSetErr:     false,
-			wantValue:        "",
-			wantCheckErrType: nil,
-		},
-		"checkFunc-nil": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: nil,
-				setFunc: func(query url.Values) error {
-					query.Set(queryKey.Value(), "checkFunc nil")
-					return nil
-				},
-			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "checkFunc nil",
-		},
-		"set-nil": {
-			option: &QueryOption{
-				t:         queryKey,
-				checkFunc: func() error { return nil },
-				setFunc:   nil,
-			},
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: newValidationError("set nil"),
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			query := url.Values{}
-			err := tc.option.Check()
-			if tc.expectCheckErr {
-				require.Error(t, err)
-				assert.IsType(t, tc.wantCheckErrType, err)
-				return
-			}
-			require.NoError(t, err)
-
-			if err := tc.option.set(query); tc.expectSetErr {
-				require.Error(t, err)
-				assert.IsType(t, tc.wantSetErrType, err)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, query.Get(tc.option.t.Value()))
-			}
-		})
-	}
-
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  TestQueryOptionService
-// ──────────────────────────────────────────────────────────────
-//
-
-// TestQueryOptionService verifies that each method of QueryOptionService
-// correctly applies the expected query parameters.
-func TestQueryOptionService(t *testing.T) {
+func TestOptionService_QueryOptions(t *testing.T) {
+	o := newOptionService()
 
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
-		o := newQueryOptionService()
-
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
@@ -158,7 +52,7 @@ func TestQueryOptionService(t *testing.T) {
 				t.Parallel()
 
 				q := url.Values{}
-				err := tc.option.set(q)
+				err := tc.option.Set(q)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
 			})
@@ -167,10 +61,8 @@ func TestQueryOptionService(t *testing.T) {
 
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
-		o := newQueryOptionService()
-
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
@@ -196,7 +88,6 @@ func TestQueryOptionService(t *testing.T) {
 				key:     queryCount.Value(),
 				wantErr: true,
 			},
-
 			// WithMinID / WithMaxID
 			"WithMinID-valid-1": {
 				option:    o.WithMinID(1),
@@ -232,7 +123,7 @@ func TestQueryOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(q)
+				_ = tc.option.Set(q)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
 			})
 		}
@@ -240,10 +131,8 @@ func TestQueryOptionService(t *testing.T) {
 
 	// --- String options ------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
-		o := newQueryOptionService()
-
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
@@ -264,10 +153,9 @@ func TestQueryOptionService(t *testing.T) {
 				t.Parallel()
 
 				q := url.Values{}
-
 				err := tc.option.Check()
 				require.NoError(t, err)
-				_ = tc.option.set(q)
+				_ = tc.option.Set(q)
 				assert.Equal(t, tc.wantValue, q.Get(tc.key))
 			})
 		}
@@ -275,10 +163,8 @@ func TestQueryOptionService(t *testing.T) {
 
 	// --- Enum or special options ----------------------------------------------------
 	t.Run("enum-or-special-options", func(t *testing.T) {
-		o := newQueryOptionService()
-
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
@@ -367,10 +253,9 @@ func TestQueryOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(q)
+				_ = tc.option.Set(q)
 
 				if tc.key == queryActivityTypeIDs.Value() {
-					// Compare joined values
 					values := (q)[tc.key]
 					got := ""
 					for i, v := range values {

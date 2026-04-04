@@ -10,15 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestQueryOptionService_applyOptions(t *testing.T) {
+func TestOptionService_applyQueryOptions(t *testing.T) {
 	cases := map[string]struct {
-		opts      []*QueryOption
+		opts      []RequestOption
 		wantErr   bool
 		wantValue string
 	}{
 		"success": {
-			opts: []*QueryOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t:         queryKeyword,
 					checkFunc: func() error { return nil },
 					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
@@ -28,10 +29,10 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			},
 			wantValue: "v",
 		},
-
 		"check_error": {
-			opts: []*QueryOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t: queryKeyword,
 					checkFunc: func() error { return errors.New("check error") },
 					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
@@ -41,10 +42,10 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
 		"set_error": {
-			opts: []*QueryOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t:         queryKeyword,
 					checkFunc: func() error { return nil },
 					setFunc: func(f url.Values) error {
 						return errors.New("set error")
@@ -59,10 +60,10 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := &QueryOptionService{}
+			s := newOptionService()
 			query := url.Values{}
 
-			err := s.applyOptions(query, tc.opts...)
+			err := s.applyQueryOptions(query, []queryType{queryKeyword}, tc.opts...)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -75,15 +76,16 @@ func TestQueryOptionService_applyOptions(t *testing.T) {
 	}
 }
 
-func TestFormOptionService_applyOptions(t *testing.T) {
+func TestOptionService_applyFormOptions(t *testing.T) {
 	cases := map[string]struct {
-		opts      []*FormOption
+		opts      []RequestOption
 		wantErr   bool
 		wantValue string
 	}{
 		"success": {
-			opts: []*FormOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t:         formName,
 					checkFunc: func() error { return nil },
 					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
@@ -93,10 +95,10 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			},
 			wantValue: "v",
 		},
-
 		"check_error": {
-			opts: []*FormOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t: formName,
 					checkFunc: func() error { return errors.New("check error") },
 					setFunc: func(f url.Values) error {
 						f.Set("k", "v")
@@ -106,10 +108,10 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
 		"set_error": {
-			opts: []*FormOption{
-				{
+			opts: []RequestOption{
+				&apiOption{
+					t:         formName,
 					checkFunc: func() error { return nil },
 					setFunc: func(f url.Values) error {
 						return errors.New("set error")
@@ -124,10 +126,10 @@ func TestFormOptionService_applyOptions(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := &FormOptionService{}
+			s := newOptionService()
 			form := url.Values{}
 
-			err := s.applyOptions(form, tc.opts...)
+			err := s.applyFormOptions(form, []formType{formName}, tc.opts...)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -146,22 +148,22 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue int
 		}{
 			"with-query-min-id": {
-				option:    o.WithQueryMinID(5),
+				option:    o.WithMinID(5),
 				key:       queryMinID.Value(),
 				wantValue: 5,
 			},
 			"with-query-max-id": {
-				option:    o.WithQueryMaxID(10),
+				option:    o.WithMaxID(10),
 				key:       queryMaxID.Value(),
 				wantValue: 10,
 			},
 			"with-query-count": {
-				option:    o.WithQueryCount(25),
+				option:    o.WithCount(25),
 				key:       queryCount.Value(),
 				wantValue: 25,
 			},
@@ -172,7 +174,7 @@ func TestActivityOptionService(t *testing.T) {
 				t.Parallel()
 
 				query := url.Values{}
-				err := tc.option.set(query)
+				err := tc.option.Set(query)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), query.Get(tc.key))
 			})
@@ -182,17 +184,17 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Enum options ---------------------------------------------------------------
 	t.Run("enum-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
 			"with-query-order-asc": {
-				option:    o.WithQueryOrder(OrderAsc),
+				option:    o.WithOrder(OrderAsc),
 				key:       queryOrder.Value(),
 				wantValue: string(OrderAsc),
 			},
 			"with-query-order-desc": {
-				option:    o.WithQueryOrder(OrderDesc),
+				option:    o.WithOrder(OrderDesc),
 				key:       queryOrder.Value(),
 				wantValue: string(OrderDesc),
 			},
@@ -203,7 +205,7 @@ func TestActivityOptionService(t *testing.T) {
 				t.Parallel()
 
 				query := url.Values{}
-				err := tc.option.set(query)
+				err := tc.option.Set(query)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, query.Get(tc.key))
 			})
@@ -213,12 +215,12 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Special options -------------------------------------------------------------
 	t.Run("special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue []int
 		}{
 			"with-query-activity-type-ids": {
-				option:    o.WithQueryActivityTypeIDs([]int{1, 2, 3}),
+				option:    o.WithActivityTypeIDs([]int{1, 2, 3}),
 				key:       queryActivityTypeIDs.Value(),
 				wantValue: []int{1, 2, 3},
 			},
@@ -229,7 +231,7 @@ func TestActivityOptionService(t *testing.T) {
 				t.Parallel()
 
 				query := url.Values{}
-				err := tc.option.set(query)
+				err := tc.option.Set(query)
 				require.NoError(t, err)
 
 				expected := make([]string, len(tc.wantValue))
@@ -237,7 +239,6 @@ func TestActivityOptionService(t *testing.T) {
 					expected[i] = strconv.Itoa(v)
 				}
 
-				// Compare joined values (manual extraction)
 				values := (query)[tc.key]
 				assert.Equal(t, expected, values)
 			})
@@ -251,22 +252,22 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Form boolean options -------------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
 			"with-form-archived": {
-				option:    s.WithFormArchived(true),
+				option:    s.WithArchived(true),
 				key:       formArchived.Value(),
 				wantValue: true,
 			},
 			"with-form-chart-enabled": {
-				option:    s.WithFormChartEnabled(true),
+				option:    s.WithChartEnabled(true),
 				key:       formChartEnabled.Value(),
 				wantValue: true,
 			},
 			"with-form-subtasking-enabled": {
-				option:    s.WithFormSubtaskingEnabled(false),
+				option:    s.WithSubtaskingEnabled(false),
 				key:       formSubtaskingEnabled.Value(),
 				wantValue: false,
 			},
@@ -277,7 +278,7 @@ func TestProjectOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
 			})
@@ -287,17 +288,17 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Query boolean options ------------------------------------------------------
 	t.Run("query-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
 			"with-query-archived": {
-				option:    s.WithQueryArchived(true),
+				option:    s.WithArchived(true),
 				key:       queryArchived.Value(),
 				wantValue: true,
 			},
 			"with-query-all": {
-				option:    s.WithQueryAll(true),
+				option:    s.WithAll(true),
 				key:       queryAll.Value(),
 				wantValue: true,
 			},
@@ -308,7 +309,7 @@ func TestProjectOptionService(t *testing.T) {
 				t.Parallel()
 
 				query := url.Values{}
-				err := tc.option.set(query)
+				err := tc.option.Set(query)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), query.Get(tc.key))
 			})
@@ -318,22 +319,22 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Form string options --------------------------------------------------------
 	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
 			"with-form-name": {
-				option:    s.WithFormName("demo-project"),
+				option:    s.WithName("demo-project"),
 				key:       formName.Value(),
 				wantValue: "demo-project",
 			},
 			"with-form-key": {
-				option:    s.WithFormKey("DEMO"),
+				option:    s.WithKey("DEMO"),
 				key:       formKey.Value(),
 				wantValue: "DEMO",
 			},
 			"with-form-text-formatting-rule": {
-				option:    s.WithFormTextFormattingRule("markdown"),
+				option:    s.WithTextFormattingRule("markdown"),
 				key:       formTextFormattingRule.Value(),
 				wantValue: "markdown",
 			},
@@ -344,7 +345,7 @@ func TestProjectOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
@@ -358,12 +359,12 @@ func TestUserOptionService(t *testing.T) {
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
 			"with-form-send-mail": {
-				option:    o.WithFormSendMail(true),
+				option:    o.WithSendMail(true),
 				key:       formSendMail.Value(),
 				wantValue: true,
 			},
@@ -374,7 +375,7 @@ func TestUserOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
 			})
@@ -384,17 +385,17 @@ func TestUserOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue int
 		}{
 			"with-form-user-id": {
-				option:    o.WithFormUserID(1),
+				option:    o.WithUserID(1),
 				key:       formUserID.Value(),
 				wantValue: 1,
 			},
 			"with-form-role-type": {
-				option:    o.WithFormRoleType(2),
+				option:    o.WithRoleType(2),
 				key:       formRoleType.Value(),
 				wantValue: 2,
 			},
@@ -405,7 +406,7 @@ func TestUserOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
 			})
@@ -415,22 +416,22 @@ func TestUserOptionService(t *testing.T) {
 	// --- String options -------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
 			"with-form-name": {
-				option:    o.WithFormName("example-user"),
+				option:    o.WithName("example-user"),
 				key:       formName.Value(),
 				wantValue: "example-user",
 			},
 			"with-form-mail-address": {
-				option:    o.WithFormMailAddress("user@example.com"),
+				option:    o.WithMailAddress("user@example.com"),
 				key:       formMailAddress.Value(),
 				wantValue: "user@example.com",
 			},
 			"with-form-password": {
-				option:    o.WithFormPassword("securepass"),
+				option:    o.WithPassword("securepass"),
 				key:       formPassword.Value(),
 				wantValue: "securepass",
 			},
@@ -441,7 +442,7 @@ func TestUserOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
@@ -455,12 +456,12 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *QueryOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
 			"with-query-keyword": {
-				option:    s.WithQueryKeyword("backlog"),
+				option:    s.WithKeyword("backlog"),
 				key:       queryKeyword.Value(),
 				wantValue: "backlog",
 			},
@@ -471,7 +472,7 @@ func TestWikiOptionService(t *testing.T) {
 				t.Parallel()
 
 				query := url.Values{}
-				err := tc.option.set(query)
+				err := tc.option.Set(query)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, query.Get(tc.key))
 			})
@@ -481,17 +482,17 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Form string options ------------------------------------------------------
 	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 		}{
 			"with-form-content": {
-				option:    s.WithFormContent("Wiki page content"),
+				option:    s.WithContent("Wiki page content"),
 				key:       formContent.Value(),
 				wantValue: "Wiki page content",
 			},
 			"with-form-name": {
-				option:    s.WithFormName("How to Use Backlog"),
+				option:    s.WithName("How to Use Backlog"),
 				key:       formName.Value(),
 				wantValue: "How to Use Backlog",
 			},
@@ -502,7 +503,7 @@ func TestWikiOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
@@ -512,12 +513,12 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Form boolean options -----------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
 			"with-form-mail-notify": {
-				option:    s.WithFormMailNotify(true),
+				option:    s.WithMailNotify(true),
 				key:       formMailNotify.Value(),
 				wantValue: true,
 			},
@@ -528,7 +529,7 @@ func TestWikiOptionService(t *testing.T) {
 				t.Parallel()
 
 				form := url.Values{}
-				err := tc.option.set(form)
+				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, "true", form.Get(tc.key))
 			})

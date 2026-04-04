@@ -12,21 +12,21 @@ import (
 
 //
 // ──────────────────────────────────────────────────────────────
-//  TestFormOption
+//  TestApiOption (formerly TestFormOption / TestQueryOption)
 // ──────────────────────────────────────────────────────────────
 //
 
-func TestFormOption(t *testing.T) {
+func TestApiOption(t *testing.T) {
 	cases := map[string]struct {
-		option           *FormOption
-		expectCheckErr   bool
-		expectSetErr     bool
-		wantValue        string
-		wantCheckErrType error
-		wantSetErrType   error
+		option         RequestOption
+		expectCheckErr bool
+		expectSetErr   bool
+		wantValue      string
+		wantCheckErr   error
+		wantSetErr     error
 	}{
 		"Success": {
-			option: &FormOption{
+			option: &apiOption{
 				t:         formKey,
 				checkFunc: func() error { return nil },
 				setFunc: func(form url.Values) error {
@@ -34,36 +34,20 @@ func TestFormOption(t *testing.T) {
 					return nil
 				},
 			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "success",
+			wantValue: "success",
 		},
 		"Check-error": {
-			option:           newFormOptionWithCheckError(formKey),
-			expectCheckErr:   true,
-			expectSetErr:     false,
-			wantCheckErrType: errors.New("check error"),
+			option:         newFormOptionWithCheckError(formKey),
+			expectCheckErr: true,
+			wantCheckErr:   errors.New("check error"),
 		},
 		"set-error": {
-			option:         newFormOptionWithSetError(formKey),
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: errors.New("set error"),
-		},
-		"queryType-invalid": {
-			option: &FormOption{
-				t: "invalid",
-				setFunc: func(form url.Values) error {
-					return nil
-				},
-			},
-			expectCheckErr:   false,
-			expectSetErr:     false,
-			wantValue:        "",
-			wantCheckErrType: nil,
+			option:       newFormOptionWithSetError(formKey),
+			expectSetErr: true,
+			wantSetErr:   errors.New("set error"),
 		},
 		"checkFunc-nil": {
-			option: &FormOption{
+			option: &apiOption{
 				t:         formKey,
 				checkFunc: nil,
 				setFunc: func(form url.Values) error {
@@ -71,19 +55,16 @@ func TestFormOption(t *testing.T) {
 					return nil
 				},
 			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "checkFunc nil",
+			wantValue: "checkFunc nil",
 		},
 		"set-nil": {
-			option: &FormOption{
+			option: &apiOption{
 				t:         formKey,
 				checkFunc: func() error { return nil },
 				setFunc:   nil,
 			},
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: newValidationError("set nil"),
+			expectSetErr: true,
+			wantSetErr:   newValidationError("option has no setter"),
 		},
 	}
 
@@ -95,39 +76,34 @@ func TestFormOption(t *testing.T) {
 			err := tc.option.Check()
 			if tc.expectCheckErr {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantCheckErrType, err)
+				assert.IsType(t, tc.wantCheckErr, err)
 				return
 			}
 			require.NoError(t, err)
 
-			if err := tc.option.set(form); tc.expectSetErr {
+			if err := tc.option.Set(form); tc.expectSetErr {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantSetErrType, err)
+				assert.IsType(t, tc.wantSetErr, err)
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, form.Get(tc.option.t.Value()))
+				ao := tc.option.(*apiOption)
+				assert.Equal(t, tc.wantValue, form.Get(ao.t.(formType).Value()))
 			}
 		})
 	}
-
 }
 
 // ──────────────────────────────────────────────────────────────
-//	TestFormOptionService
+//	TestOptionService (form options)
 // ──────────────────────────────────────────────────────────────
 
-// TestFormOptionService verifies that each method of FormOptionService
-// correctly applies its expected value to FormParams.
-//
-// The test is organized into logical groups: Boolean, Integer, String,
-// and Enum/Special options.
-func TestFormOptionService(t *testing.T) {
-	o := newFormOptionService()
+func TestOptionService_FormOptions(t *testing.T) {
+	o := newOptionService()
 
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -200,7 +176,7 @@ func TestFormOptionService(t *testing.T) {
 				form := url.Values{}
 				err := tc.option.Check()
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
 			})
 		}
@@ -209,7 +185,7 @@ func TestFormOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue int
 			wantErr   bool
@@ -242,7 +218,7 @@ func TestFormOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
 			})
 		}
@@ -251,7 +227,7 @@ func TestFormOptionService(t *testing.T) {
 	// --- String options ------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
@@ -329,7 +305,7 @@ func TestFormOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
 		}
@@ -338,7 +314,7 @@ func TestFormOptionService(t *testing.T) {
 	// --- Enum or special options ------------------------------------------------------------
 	t.Run("enum-or-special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
@@ -396,7 +372,7 @@ func TestFormOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
 		}
