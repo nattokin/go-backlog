@@ -1,0 +1,31 @@
+[changelog]
+header = ""
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+## {{ group }}
+{% for commit in commits %}
+- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/nattokin/go-backlog/commit/{{ commit.id }}))\
+  {% if commit.breaking %} (**BREAKING**){% endif %}
+{% endfor %}
+{% endfor %}
+"""
+trim = true
+footer = ""
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+commit_parsers = [
+  { message = "^feat!", group = "Breaking Changes" },
+  { message = "^refactor!", group = "Breaking Changes" },
+  { message = "^fix!", group = "Breaking Changes" },
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^refactor", group = "Refactoring" },
+  { message = "^docs", group = "Documentation" },
+  { message = "^ci", group = "CI" },
+  { message = "^chore", group = "Chores" },
+  { message = ".*", skip = true },
+]
+filter_commits = true
+tag_pattern = "v[0-9]+\\.[0-9]+\\.[0-9]+"
