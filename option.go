@@ -6,12 +6,10 @@ import (
 	"strconv"
 )
 
-// optionRegistry provides shared access to the query/form option builders.
-// It is intended for internal composition by each XxxOptionService (e.g. WikiOptionService).
-// This struct should be initialized by the Client when setting up each service.
+// optionRegistry provides shared access to the option builder.
+// It is intended for internal composition by each XxxOptionService.
 type optionRegistry struct {
-	query *QueryOptionService
-	form  *FormOptionService
+	option *OptionService
 }
 
 //
@@ -49,112 +47,138 @@ func (t formType) Value() string {
 
 //
 // ──────────────────────────────────────────────────────────────
-//  RequestOption interface and shared function types
+//  RequestOption interface
 // ──────────────────────────────────────────────────────────────
 //
 
-// RequestOption defines a common interface for all option types (e.g., FormOption, QueryOption).
-// It allows unified validation handling across different request-level options.
+// RequestOption defines a common interface for all option types.
+// It allows unified validation and application handling across different request-level options.
+// Callers can implement this interface to provide custom options (e.g. for mocking in tests).
 type RequestOption interface {
 	Check() error
+	Set(url.Values) error
 }
 
-// optionCheckFunc defines a generic validation function used by all RequestOption implementations.
-type optionCheckFunc func() error
+//
+// ──────────────────────────────────────────────────────────────
+//  apiOption — unified internal option type
+// ──────────────────────────────────────────────────────────────
+//
 
-// --- QueryOption -------------------------------------------------------------
-
-// queryOptionFunc applies a query option's value to the request parameters.
-type queryOptionFunc func(query url.Values) error
-
-// QueryOption represents a single query parameter to be applied to a request.
-type QueryOption struct {
-	t         queryType       // The underlying query parameter key type
-	checkFunc optionCheckFunc // The function that performs validation
-	setFunc   queryOptionFunc // The function that sets the value into the query
+// apiOption is the single internal representation of a request option.
+// It replaces the former QueryOption and FormOption types.
+// The t field is either a queryType or formType, used to validate allowed options.
+type apiOption struct {
+	t         any            // queryType or formType
+	checkFunc func() error   // optional validation
+	setFunc   func(url.Values) error // applies the value to query/form
 }
 
-// Check validates the QueryOption by executing its check function, if defined.
-func (o *QueryOption) Check() error {
+// Check validates the option by executing its checkFunc, if defined.
+func (o *apiOption) Check() error {
 	if o.checkFunc != nil {
 		return o.checkFunc()
 	}
 	return nil
 }
 
-// set executes the stored function to apply the option value into the query.
-func (o *QueryOption) set(query url.Values) error {
+// Set applies the option value to the given url.Values.
+func (o *apiOption) Set(v url.Values) error {
 	if o.setFunc == nil {
-		return newValidationError("query option has no setter")
+		return newValidationError("option has no setter")
 	}
-	return o.setFunc(query)
+	return o.setFunc(v)
 }
 
-// validate ensures that the QueryOption is allowed for the current API context.
-func (o *QueryOption) validate(validTypes []queryType) error {
+// validateQueryType ensures the option is an allowed query parameter type.
+func (o *apiOption) validateQueryType(validTypes []queryType) error {
+	t, ok := o.t.(queryType)
+	if !ok {
+		// formType passed where queryType expected
+		var zero queryType
+		return newInvalidOptionError(zero, validTypes)
+	}
 	for _, valid := range validTypes {
-		if o.t == valid {
+		if t == valid {
 			return nil
 		}
 	}
-	return newInvalidOptionError(o.t, validTypes)
+	return newInvalidOptionError(t, validTypes)
 }
 
-// --- FormOption --------------------------------------------------------------
-
-// formOptionFunc applies a form option's value to the request form body.
-type formOptionFunc func(form url.Values) error
-
-// FormOption represents a single form field to be applied to a request body.
-type FormOption struct {
-	t         formType        // The underlying form field type
-	checkFunc optionCheckFunc // The function that performs validation
-	setFunc   formOptionFunc  // The function that sets the value into the form
-}
-
-// Check validates the FormOption by executing its check function, if defined.
-func (o *FormOption) Check() error {
-	if o.checkFunc != nil {
-		return o.checkFunc()
+// validateFormType ensures the option is an allowed form field type.
+func (o *apiOption) validateFormType(validTypes []formType) error {
+	t, ok := o.t.(formType)
+	if !ok {
+		// queryType passed where formType expected
+		var zero formType
+		return newInvalidOptionError(zero, validTypes)
 	}
-	return nil
-}
-
-// set executes the stored function to apply the option value into the form.
-func (o *FormOption) set(form url.Values) error {
-	if o.setFunc == nil {
-		return newValidationError("form option has no setter")
-	}
-	return o.setFunc(form)
-}
-
-// validate ensures that the FormOption is allowed for the current API context.
-func (o *FormOption) validate(validTypes []formType) error {
 	for _, valid := range validTypes {
-		if o.t == valid {
+		if t == valid {
 			return nil
 		}
 	}
-	return newInvalidOptionError(o.t, validTypes)
+	return newInvalidOptionError(t, validTypes)
 }
 
 //
 // ──────────────────────────────────────────────────────────────
-//  QueryOptionService
+//  OptionService — unified builder
 // ──────────────────────────────────────────────────────────────
 //
 
-// QueryOptionService provides builders for query options.
+// OptionService provides builders for both query and form options.
 // Each XxxOptionService selectively exposes only the valid methods.
-type QueryOptionService struct{}
+type OptionService struct{}
 
-// applyOptions validates and applies one or more query options to the given query parameters.
-func (s *QueryOptionService) applyOptions(query url.Values, opts ...*QueryOption) error {
+// applyQueryOptions validates and applies query options to the given url.Values.
+func (s *OptionService) applyQueryOptions(query url.Values, validTypes []queryType, opts ...RequestOption) error {
 	for _, opt := range opts {
-		if err := opt.Check(); err != nil {
+		ao, ok := opt.(*apiOption)
+		if !ok {
+			// user-provided custom implementation: just Check + Set
+			if err := opt.Check(); err != nil {
+				return err
+			}
+			if err := opt.Set(query); err != nil {
+				return err
+			}
+			continue
+		}
+		if err := ao.validateQueryType(validTypes); err != nil {
 			return err
 		}
-		if err := opt.set(query); err != nil {
+		if err := ao.Check(); err != nil {
+			return err
+		}
+		if err := ao.Set(query); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// applyFormOptions validates and applies form options to the given url.Values.
+func (s *OptionService) applyFormOptions(form url.Values, validTypes []formType, opts ...RequestOption) error {
+	for _, opt := range opts {
+		ao, ok := opt.(*apiOption)
+		if !ok {
+			if err := opt.Check(); err != nil {
+				return err
+			}
+			if err := opt.Set(form); err != nil {
+				return err
+			}
+			continue
+		}
+		if err := ao.validateFormType(validTypes); err != nil {
+			return err
+		}
+		if err := ao.Check(); err != nil {
+			return err
+		}
+		if err := ao.Set(form); err != nil {
 			return err
 		}
 	}
@@ -164,8 +188,8 @@ func (s *QueryOptionService) applyOptions(query url.Values, opts ...*QueryOption
 // --- Boolean options ------------------------------------------------------------
 
 // WithAll returns an option to set the `all` query parameter.
-func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithAll(enabled bool) RequestOption {
+	return &apiOption{
 		t: queryAll,
 		setFunc: func(query url.Values) error {
 			query.Set(queryAll.Value(), strconv.FormatBool(enabled))
@@ -174,12 +198,69 @@ func (s *QueryOptionService) WithAll(enabled bool) *QueryOption {
 	}
 }
 
-// WithArchived returns an option to set the `archived` query parameter.
-func (s *QueryOptionService) WithArchived(archived bool) *QueryOption {
-	return &QueryOption{
-		t: queryArchived,
-		setFunc: func(query url.Values) error {
-			query.Set(queryArchived.Value(), strconv.FormatBool(archived))
+// WithArchived returns an option to set the `archived` parameter (query or form).
+func (s *OptionService) WithArchived(enabled bool) RequestOption {
+	// formArchived and queryArchived share the same string value "archived",
+	// so we use formArchived as the canonical type here and accept both in services.
+	return &apiOption{
+		t: formArchived,
+		setFunc: func(v url.Values) error {
+			v.Set(formArchived.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// WithChartEnabled returns a form option that sets the `chartEnabled` field.
+func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
+	return &apiOption{
+		t: formChartEnabled,
+		setFunc: func(form url.Values) error {
+			form.Set(formChartEnabled.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// WithMailNotify returns a form option that sets the `mailNotify` field.
+func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
+	return &apiOption{
+		t: formMailNotify,
+		setFunc: func(form url.Values) error {
+			form.Set(formMailNotify.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// WithProjectLeaderCanEditProjectLeader returns a form option.
+func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
+	return &apiOption{
+		t: formProjectLeaderCanEditProjectLeader,
+		setFunc: func(form url.Values) error {
+			form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// WithSendMail returns a form option to specify whether to send an invitation email.
+func (s *OptionService) WithSendMail(enabled bool) RequestOption {
+	return &apiOption{
+		t: formSendMail,
+		setFunc: func(form url.Values) error {
+			form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// WithSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field.
+func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
+	return &apiOption{
+		t: formSubtaskingEnabled,
+		setFunc: func(form url.Values) error {
+			form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -188,8 +269,8 @@ func (s *QueryOptionService) WithArchived(archived bool) *QueryOption {
 // --- Integer options ------------------------------------------------------------
 
 // WithCount returns an option to set the `count` query parameter.
-func (s *QueryOptionService) WithCount(count int) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithCount(count int) RequestOption {
+	return &apiOption{
 		t: queryCount,
 		checkFunc: func() error {
 			if count < 1 || 100 < count {
@@ -205,14 +286,11 @@ func (s *QueryOptionService) WithCount(count int) *QueryOption {
 }
 
 // WithMaxID returns an option to set the `maxId` query parameter.
-func (s *QueryOptionService) WithMaxID(id int) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithMaxID(id int) RequestOption {
+	return &apiOption{
 		t: queryMaxID,
 		checkFunc: func() error {
-			if err := validateActivityID(id, "maxID"); err != nil {
-				return err
-			}
-			return nil
+			return validateActivityID(id, "maxID")
 		},
 		setFunc: func(query url.Values) error {
 			query.Set(queryMaxID.Value(), strconv.Itoa(id))
@@ -222,14 +300,11 @@ func (s *QueryOptionService) WithMaxID(id int) *QueryOption {
 }
 
 // WithMinID returns an option to set the `minId` query parameter.
-func (s *QueryOptionService) WithMinID(id int) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithMinID(id int) RequestOption {
+	return &apiOption{
 		t: queryMinID,
 		checkFunc: func() error {
-			if err := validateActivityID(id, "minID"); err != nil {
-				return err
-			}
-			return nil
+			return validateActivityID(id, "minID")
 		},
 		setFunc: func(query url.Values) error {
 			query.Set(queryMinID.Value(), strconv.Itoa(id))
@@ -238,11 +313,59 @@ func (s *QueryOptionService) WithMinID(id int) *QueryOption {
 	}
 }
 
+// WithUserID returns a form option to set the user's ID.
+func (s *OptionService) WithUserID(id int) RequestOption {
+	return &apiOption{
+		t: formUserID,
+		checkFunc: func() error {
+			return validateID(id, "userID")
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formUserID.Value(), strconv.Itoa(id))
+			return nil
+		},
+	}
+}
+
 // --- String options ------------------------------------------------------------
 
+// WithContent returns a form option that sets the `content` field.
+func (s *OptionService) WithContent(content string) RequestOption {
+	return &apiOption{
+		t: formContent,
+		checkFunc: func() error {
+			if content == "" {
+				return newValidationError("content must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formContent.Value(), content)
+			return nil
+		},
+	}
+}
+
+// WithKey returns a form option that sets the `key` field.
+func (s *OptionService) WithKey(key string) RequestOption {
+	return &apiOption{
+		t: formKey,
+		checkFunc: func() error {
+			if key == "" {
+				return newValidationError("key must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formKey.Value(), key)
+			return nil
+		},
+	}
+}
+
 // WithKeyword returns an option to set the `keyword` query parameter.
-func (s *QueryOptionService) WithKeyword(keyword string) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithKeyword(keyword string) RequestOption {
+	return &apiOption{
 		t: queryKeyword,
 		setFunc: func(query url.Values) error {
 			query.Set(queryKeyword.Value(), keyword)
@@ -251,11 +374,63 @@ func (s *QueryOptionService) WithKeyword(keyword string) *QueryOption {
 	}
 }
 
+// WithMailAddress returns a form option that sets the `mailAddress` field.
+func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
+	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
+	return &apiOption{
+		t: formMailAddress,
+		checkFunc: func() error {
+			if mailAddress == "" {
+				return newValidationError("mailAddress must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formMailAddress.Value(), mailAddress)
+			return nil
+		},
+	}
+}
+
+// WithName returns a form option that sets the `name` field.
+func (s *OptionService) WithName(name string) RequestOption {
+	return &apiOption{
+		t: formName,
+		checkFunc: func() error {
+			if name == "" {
+				return newValidationError("name must not be empty")
+			}
+			return nil
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formName.Value(), name)
+			return nil
+		},
+	}
+}
+
+// WithPassword returns a form option that sets the `password` field.
+func (s *OptionService) WithPassword(password string) RequestOption {
+	return &apiOption{
+		t: formPassword,
+		checkFunc: func() error {
+			if len(password) < 8 {
+				return newValidationError("password must be at least 8 characters long")
+			}
+			return nil
+		},
+		setFunc: func(form url.Values) error {
+			form.Set(formPassword.Value(), password)
+			return nil
+		},
+	}
+}
+
 // --- Enum or special options ----------------------------------------------------
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` query parameters.
-func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
+	return &apiOption{
 		t: queryActivityTypeIDs,
 		checkFunc: func() error {
 			for _, id := range typeIDs {
@@ -275,8 +450,8 @@ func (s *QueryOptionService) WithActivityTypeIDs(typeIDs []int) *QueryOption {
 }
 
 // WithOrder returns an option to set the `order` query parameter.
-func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
-	return &QueryOption{
+func (s *OptionService) WithOrder(order Order) RequestOption {
+	return &apiOption{
 		t: queryOrder,
 		checkFunc: func() error {
 			if order != OrderAsc && order != OrderDesc {
@@ -292,212 +467,9 @@ func (s *QueryOptionService) WithOrder(order Order) *QueryOption {
 	}
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  FormOptionService
-// ──────────────────────────────────────────────────────────────
-//
-
-// FormOptionService provides builders for form options.
-// Each XxxOptionService selectively exposes only the valid subset.
-type FormOptionService struct{}
-
-// applyOptions validates and applies one or more form options to the given form.
-// It returns the first error encountered from Check or set.
-func (s *FormOptionService) applyOptions(form url.Values, opts ...*FormOption) error {
-	for _, opt := range opts {
-		if err := opt.Check(); err != nil {
-			return err
-		}
-		if err := opt.set(form); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// --- Boolean options ------------------------------------------------------------
-
-// WithArchived returns a form option that sets the `archived` field (e.g., for Project).
-func (*FormOptionService) WithArchived(enabled bool) *FormOption {
-	return &FormOption{
-		t: formArchived,
-		setFunc: func(form url.Values) error {
-			form.Set(formArchived.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithChartEnabled returns a form option that sets the `chartEnabled` field (e.g., for Project).
-func (*FormOptionService) WithChartEnabled(enabled bool) *FormOption {
-	return &FormOption{
-		t: formChartEnabled,
-		setFunc: func(form url.Values) error {
-			form.Set(formChartEnabled.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithMailNotify returns a form option that sets the `mailNotify` field (e.g., for Wiki, Issue).
-func (*FormOptionService) WithMailNotify(enabled bool) *FormOption {
-	return &FormOption{
-		t: formMailNotify,
-		setFunc: func(form url.Values) error {
-			form.Set(formMailNotify.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithProjectLeaderCanEditProjectLeader returns a form option that sets the `projectLeaderCanEditProjectLeader` field (e.g., for Project).
-func (*FormOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
-	return &FormOption{
-		t: formProjectLeaderCanEditProjectLeader,
-		setFunc: func(form url.Values) error {
-			form.Set(formProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithSendMail creates a form option to specify whether to send
-// an invitation email to the newly created user.
-func (*FormOptionService) WithSendMail(enabled bool) *FormOption {
-	return &FormOption{
-		t: formSendMail,
-		setFunc: func(form url.Values) error {
-			form.Set(formSendMail.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithSubtaskingEnabled returns a form option that sets the `subtaskingEnabled` field (e.g., for Project).
-func (*FormOptionService) WithSubtaskingEnabled(enabled bool) *FormOption {
-	return &FormOption{
-		t: formSubtaskingEnabled,
-		setFunc: func(form url.Values) error {
-			form.Set(formSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// --- Integer options ------------------------------------------------------------
-
-// WithUserID creates a form option to set the user's ID (login name).
-func (*FormOptionService) WithUserID(id int) *FormOption {
-	return &FormOption{
-		t: formUserID,
-		checkFunc: func() error {
-			if err := validateID(id, "userID"); err != nil {
-				return err
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formUserID.Value(), strconv.Itoa(id))
-			return nil
-		},
-	}
-}
-
-// --- String options -------------------------------------------------------------
-
-// WithContent returns a form option that sets the `content` field (e.g., for Wiki, Comment).
-func (*FormOptionService) WithContent(content string) *FormOption {
-	return &FormOption{
-		t: formContent,
-		checkFunc: func() error {
-			if content == "" {
-				return newValidationError("content must not be empty")
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formContent.Value(), content)
-			return nil
-		},
-	}
-}
-
-// WithKey returns a form option that sets the `key` field (e.g., for Project Key).
-func (*FormOptionService) WithKey(key string) *FormOption {
-	return &FormOption{
-		t: formKey,
-		checkFunc: func() error {
-			if key == "" {
-				return newValidationError("key must not be empty")
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formKey.Value(), key)
-			return nil
-		},
-	}
-}
-
-// WithMailAddress returns a form option that sets the `mailAddress` field (e.g., for User).
-func (*FormOptionService) WithMailAddress(mailAddress string) *FormOption {
-	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return &FormOption{
-		t: formMailAddress,
-		checkFunc: func() error {
-			if mailAddress == "" {
-				return newValidationError("mailAddress must not be empty")
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formMailAddress.Value(), mailAddress)
-			return nil
-		},
-	}
-}
-
-// WithName returns a form option that sets the `name` field (e.g., for Project Name, Wiki Name).
-func (*FormOptionService) WithName(name string) *FormOption {
-	return &FormOption{
-		t: formName,
-		checkFunc: func() error {
-			if name == "" {
-				return newValidationError("name must not be empty")
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formName.Value(), name)
-			return nil
-		},
-	}
-}
-
-// WithPassword returns a form option that sets the `password` field (e.g., for User).
-// It validates that the password meets the minimum length requirement (8 characters).
-func (*FormOptionService) WithPassword(password string) *FormOption {
-	return &FormOption{
-		t: formPassword,
-		checkFunc: func() error {
-			if len(password) < 8 {
-				return newValidationError("password must be at least 8 characters long")
-			}
-			return nil
-		},
-		setFunc: func(form url.Values) error {
-			form.Set(formPassword.Value(), password)
-			return nil
-		},
-	}
-}
-
-// --- Enum or Special options ----------------------------------------------------
-
-// WithRoleType returns a form option that sets the `roleType` field (e.g., for User).
-func (*FormOptionService) WithRoleType(roleType Role) *FormOption {
-	return &FormOption{
+// WithRoleType returns a form option that sets the `roleType` field.
+func (s *OptionService) WithRoleType(roleType Role) RequestOption {
+	return &apiOption{
 		t: formRoleType,
 		checkFunc: func() error {
 			if roleType < 1 || 6 < roleType {
@@ -512,9 +484,9 @@ func (*FormOptionService) WithRoleType(roleType Role) *FormOption {
 	}
 }
 
-// WithTextFormattingRule returns a form option that sets the `textFormattingRule` field (e.g., for Project).
-func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
-	return &FormOption{
+// WithTextFormattingRule returns a form option that sets the `textFormattingRule` field.
+func (s *OptionService) WithTextFormattingRule(format Format) RequestOption {
+	return &apiOption{
 		t: formTextFormattingRule,
 		checkFunc: func() error {
 			if format != FormatBacklog && format != FormatMarkdown {
@@ -538,50 +510,29 @@ func (*FormOptionService) WithTextFormattingRule(format Format) *FormOption {
 
 // ActivityOptionService provides a domain-specific set of option builders
 // for operations within the ActivityService.
-//
-// It exposes only those options that are valid for the Backlog Activity API.
-// Internally, it delegates to an optionRegistry instance,
-// which holds the generic QueryOptionService (Form options are not used here).
 type ActivityOptionService struct {
 	registry *optionRegistry
 }
 
-// --- Query Options -----------------------------------------------------------
-
-// WithQueryActivityTypeIDs returns a query option to filter activities
-// by one or more activity type IDs.
-//
-// Example: typeIds=1&typeIds=2&typeIds=3
-func (s *ActivityOptionService) WithQueryActivityTypeIDs(typeIDs []int) *QueryOption {
-	return s.registry.query.WithActivityTypeIDs(typeIDs)
+func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
+	return s.registry.option.WithActivityTypeIDs(typeIDs)
 }
 
-// WithQueryMinID returns a query option to filter activities
-// that have IDs greater than or equal to the given value.
-func (s *ActivityOptionService) WithQueryMinID(id int) *QueryOption {
-	return s.registry.query.WithMinID(id)
+func (s *ActivityOptionService) WithMinID(id int) RequestOption {
+	return s.registry.option.WithMinID(id)
 }
 
-// WithQueryMaxID returns a query option to filter activities
-// that have IDs less than or equal to the given value.
-func (s *ActivityOptionService) WithQueryMaxID(id int) *QueryOption {
-	return s.registry.query.WithMaxID(id)
+func (s *ActivityOptionService) WithMaxID(id int) RequestOption {
+	return s.registry.option.WithMaxID(id)
 }
 
-// WithQueryCount returns a query option to limit the number of activities
-// returned by the API (max 100).
-func (s *ActivityOptionService) WithQueryCount(count int) *QueryOption {
-	return s.registry.query.WithCount(count)
+func (s *ActivityOptionService) WithCount(count int) RequestOption {
+	return s.registry.option.WithCount(count)
 }
 
-// WithQueryOrder returns a query option to specify the result order (asc or desc).
-func (s *ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
-	return s.registry.query.WithOrder(order)
+func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
+	return s.registry.option.WithOrder(order)
 }
-
-// --- Form Options -----------------------------------------------------------
-
-// (Backlog Activity API currently does not use form parameters extensively.)
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -591,67 +542,40 @@ func (s *ActivityOptionService) WithQueryOrder(order Order) *QueryOption {
 
 // ProjectOptionService provides a domain-specific set of option builders
 // for operations within the ProjectService.
-//
-// It exposes only those options that are valid for the Backlog Project API.
-// Internally, it delegates to an optionRegistry instance,
-// which holds the generic FormOptionService and QueryOptionService.
 type ProjectOptionService struct {
 	registry *optionRegistry
 }
 
-// --- Query Options -----------------------------------------------------------
-
-// WithQueryAll returns a query option that includes archived projects
-// in the result list.
-func (s *ProjectOptionService) WithQueryAll(enabled bool) *QueryOption {
-	return s.registry.query.WithAll(enabled)
+func (s *ProjectOptionService) WithAll(enabled bool) RequestOption {
+	return s.registry.option.WithAll(enabled)
 }
 
-// WithQueryArchived returns a query option that filters projects
-// by their archived status.
-func (s *ProjectOptionService) WithQueryArchived(enabled bool) *QueryOption {
-	return s.registry.query.WithArchived(enabled)
+func (s *ProjectOptionService) WithArchived(enabled bool) RequestOption {
+	return s.registry.option.WithArchived(enabled)
 }
 
-// --- Form Options ------------------------------------------------------------
-
-// WithFormArchived returns a form option to set the project's archived status.
-func (s *ProjectOptionService) WithFormArchived(enabled bool) *FormOption {
-	return s.registry.form.WithArchived(enabled)
+func (s *ProjectOptionService) WithChartEnabled(enabled bool) RequestOption {
+	return s.registry.option.WithChartEnabled(enabled)
 }
 
-// WithFormChartEnabled returns a form option to enable or disable charts
-// for the project.
-func (s *ProjectOptionService) WithFormChartEnabled(enabled bool) *FormOption {
-	return s.registry.form.WithChartEnabled(enabled)
+func (s *ProjectOptionService) WithKey(key string) RequestOption {
+	return s.registry.option.WithKey(key)
 }
 
-// WithFormKey returns a form option to set the project's key.
-func (s *ProjectOptionService) WithFormKey(key string) *FormOption {
-	return s.registry.form.WithKey(key)
+func (s *ProjectOptionService) WithName(name string) RequestOption {
+	return s.registry.option.WithName(name)
 }
 
-// WithFormName returns a form option to set the project's name.
-func (s *ProjectOptionService) WithFormName(name string) *FormOption {
-	return s.registry.form.WithName(name)
+func (s *ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
+	return s.registry.option.WithProjectLeaderCanEditProjectLeader(enabled)
 }
 
-// WithFormProjectLeaderCanEditProjectLeader returns a form option to set
-// whether the project leader can edit the project leader field.
-func (s *ProjectOptionService) WithFormProjectLeaderCanEditProjectLeader(enabled bool) *FormOption {
-	return s.registry.form.WithProjectLeaderCanEditProjectLeader(enabled)
+func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
+	return s.registry.option.WithSubtaskingEnabled(enabled)
 }
 
-// WithFormSubtaskingEnabled returns a form option to enable or disable
-// subtasking for the project.
-func (s *ProjectOptionService) WithFormSubtaskingEnabled(enabled bool) *FormOption {
-	return s.registry.form.WithSubtaskingEnabled(enabled)
-}
-
-// WithFormTextFormattingRule returns a form option to set the text formatting
-// rule (Backlog or Markdown) for the project.
-func (s *ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOption {
-	return s.registry.form.WithTextFormattingRule(format)
+func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOption {
+	return s.registry.option.WithTextFormattingRule(format)
 }
 
 //
@@ -662,49 +586,32 @@ func (s *ProjectOptionService) WithFormTextFormattingRule(format Format) *FormOp
 
 // UserOptionService provides a domain-specific set of option builders
 // for operations within the UserService.
-//
-// It exposes only those options that are valid for the Backlog User API.
-// Internally, it delegates to an optionRegistry instance,
-// which holds the generic FormOptionService and QueryOptionService.
 type UserOptionService struct {
 	registry *optionRegistry
 }
 
-// --- Query Options -----------------------------------------------------------
-
-// (Backlog User API currently does not use query parameters extensively.)
-
-// --- Form Options ------------------------------------------------------------
-
-// WithFormMailAddress returns a form option to set the user's mail address.
-func (s *UserOptionService) WithFormMailAddress(mail string) *FormOption {
-	return s.registry.form.WithMailAddress(mail)
+func (s *UserOptionService) WithMailAddress(mail string) RequestOption {
+	return s.registry.option.WithMailAddress(mail)
 }
 
-// WithFormName returns a form option to set the user's display name.
-func (s *UserOptionService) WithFormName(name string) *FormOption {
-	return s.registry.form.WithName(name)
+func (s *UserOptionService) WithName(name string) RequestOption {
+	return s.registry.option.WithName(name)
 }
 
-// WithFormPassword returns a form option to set the user's password.
-func (s *UserOptionService) WithFormPassword(password string) *FormOption {
-	return s.registry.form.WithPassword(password)
+func (s *UserOptionService) WithPassword(password string) RequestOption {
+	return s.registry.option.WithPassword(password)
 }
 
-// WithFormRoleType returns a form option to set the user's role type.
-func (s *UserOptionService) WithFormRoleType(role Role) *FormOption {
-	return s.registry.form.WithRoleType(role)
+func (s *UserOptionService) WithRoleType(role Role) RequestOption {
+	return s.registry.option.WithRoleType(role)
 }
 
-// WithFormSendMail returns a form option to specify whether to send
-// an invitation email to the newly created user.
-func (s *UserOptionService) WithFormSendMail(enabled bool) *FormOption {
-	return s.registry.form.WithSendMail(enabled)
+func (s *UserOptionService) WithSendMail(enabled bool) RequestOption {
+	return s.registry.option.WithSendMail(enabled)
 }
 
-// WithFormUserID returns a form option to set the user's ID (login name).
-func (s *UserOptionService) WithFormUserID(id int) *FormOption {
-	return s.registry.form.WithUserID(id)
+func (s *UserOptionService) WithUserID(id int) RequestOption {
+	return s.registry.option.WithUserID(id)
 }
 
 //
@@ -715,37 +622,24 @@ func (s *UserOptionService) WithFormUserID(id int) *FormOption {
 
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.
-//
-// It exposes only those options that are valid for the Backlog Wiki API.
-// Internally, it delegates to an optionRegistry instance,
-// which holds the generic FormOptionService and QueryOptionService.
 type WikiOptionService struct {
 	registry *optionRegistry
 }
 
-// --- Query Options -----------------------------------------------------------
-
-// WithQueryKeyword returns a query option to search wiki pages by keyword.
-func (s *WikiOptionService) WithQueryKeyword(keyword string) *QueryOption {
-	return s.registry.query.WithKeyword(keyword)
+func (s *WikiOptionService) WithKeyword(keyword string) RequestOption {
+	return s.registry.option.WithKeyword(keyword)
 }
 
-// --- Form Options ------------------------------------------------------------
-
-// WithFormContent returns a form option to set the wiki page content.
-func (s *WikiOptionService) WithFormContent(content string) *FormOption {
-	return s.registry.form.WithContent(content)
+func (s *WikiOptionService) WithContent(content string) RequestOption {
+	return s.registry.option.WithContent(content)
 }
 
-// WithFormMailNotify returns a form option to enable or disable mail notifications
-// for wiki updates or deletions.
-func (s *WikiOptionService) WithFormMailNotify(enabled bool) *FormOption {
-	return s.registry.form.WithMailNotify(enabled)
+func (s *WikiOptionService) WithMailNotify(enabled bool) RequestOption {
+	return s.registry.option.WithMailNotify(enabled)
 }
 
-// WithFormName returns a form option to set the wiki page name.
-func (s *WikiOptionService) WithFormName(name string) *FormOption {
-	return s.registry.form.WithName(name)
+func (s *WikiOptionService) WithName(name string) RequestOption {
+	return s.registry.option.WithName(name)
 }
 
 //
@@ -758,15 +652,10 @@ func validateID(id int, key string) error {
 	if id < 1 {
 		return newValidationError(fmt.Sprintf("invalid %s: must not be less than 1", key))
 	}
-
 	return nil
 }
 
 // validateActivityID ensures that the given activity ID is within the valid range [1, 26].
-// If the ID is out of range, it returns a validation error indicating the parameter key.
-//
-// This function is used internally to validate activity-related query parameters
-// (e.g., "activityTypeId[]") according to Backlog API constraints.
 func validateActivityID(id int, key string) error {
 	if id < 1 || id > maxActivityTypeID {
 		return newValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, maxActivityTypeID))
@@ -774,13 +663,19 @@ func validateActivityID(id int, key string) error {
 	return nil
 }
 
-// hasRequiredFormOption checks whether the provided form options
-// include at least one of the required form types.
-func hasRequiredFormOption(options []*FormOption, requiredTypes []formType) bool {
+// hasRequiredOption checks whether the provided options include at least one of the required form types.
+func hasRequiredOption(options []RequestOption, requiredTypes []formType) bool {
 	for _, opt := range options {
-		optionType := opt.t
+		ao, ok := opt.(*apiOption)
+		if !ok {
+			continue
+		}
+		t, ok := ao.t.(formType)
+		if !ok {
+			continue
+		}
 		for _, requiredType := range requiredTypes {
-			if optionType == requiredType {
+			if t == requiredType {
 				return true
 			}
 		}
