@@ -214,13 +214,17 @@ func TestFormOptionService(t *testing.T) {
 			wantValue int
 			wantErr   bool
 		}{
-			"WithUserID-valid": {
-				option:    o.WithUserID(42),
+			"WithUserID-valid-1": {
+				option:    o.WithUserID(1),
 				key:       formUserID.Value(),
-				wantValue: 42,
-				wantErr:   false,
+				wantValue: 1,
 			},
-			"WithUserID-invalid": {
+			"WithUserID-valid-2": {
+				option:    o.WithUserID(2),
+				key:       formUserID.Value(),
+				wantValue: 2,
+			},
+			"WithUserID-invalid-0": {
 				option:  o.WithUserID(0),
 				key:     formUserID.Value(),
 				wantErr: true,

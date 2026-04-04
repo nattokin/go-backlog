@@ -450,12 +450,7 @@ func TestUserOptionService(t *testing.T) {
 }
 
 func TestWikiOptionService(t *testing.T) {
-	s := &WikiOptionService{
-		registry: &optionRegistry{
-			form:  newFormOptionService(),
-			query: newQueryOptionService(),
-		},
-	}
+	s := newWikiOptionService()
 
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {
