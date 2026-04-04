@@ -11,6 +11,11 @@ linters:
     - misspell
     - staticcheck
     - unused
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - unused
 
 formatters:
   enable:
@@ -20,10 +25,3 @@ formatters:
     goimports:
       local-prefixes:
         - github.com/nattokin/go-backlog
-
-issues:
-  exclusions:
-    rules:
-      - path: _test\.go
-        linters:
-          - unused
