@@ -12,12 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// newMockResponse creates an *http.Response object with the given status code
-// and body content. It is primarily used in unit tests to simulate API responses.
-//
-// Example:
-//
-//	resp := newMockResponse(http.StatusOK, `{"id": 1, "name": "Wiki"}`)
+// newMockResponse creates an *http.Response object with the given status code and body content.
 func newMockResponse(statusCode int, body string) *http.Response {
 	return &http.Response{
 		StatusCode: statusCode,
@@ -38,23 +33,6 @@ func (m *mockDoer) Do(req *http.Request) (*http.Response, error) {
 }
 
 // newClientMock creates and returns a test Client instance initialized with the given Doer.
-// It simplifies unit testing by allowing complete control over HTTP request–response behavior.
-//
-// If doer is nil, a default mockDoer is automatically injected that returns
-// an empty 200 OK response. This enables quick test setup without requiring
-// a custom HTTP mock for every test case.
-//
-// This helper marks itself as a test helper using t.Helper(), so any failure
-// reported inside it will correctly point to the caller's line in test output.
-//
-// Example:
-//
-//	client := newClientMock(t, "https://example.com", "dummy-token", &mockDoer{
-//		t: t,
-//		doFunc: func(req *http.Request) (*http.Response, error) {
-//			return newMockResponse(http.StatusOK, `{"id":1}`), nil
-//		},
-//	})
 func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 	t.Helper()
 
@@ -74,9 +52,6 @@ func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 }
 
 // newClientMethodMock creates and returns a mock implementation of the `method` struct.
-// Each API function (Get, Post, Patch, Delete) returns a default "not implemented" error.
-// This helper is typically used in unit tests to validate service-layer behavior
-// without performing real HTTP requests.
 func newClientMethodMock() *method {
 	return &method{
 		Get: func(spath string, query url.Values) (*http.Response, error) {
@@ -124,9 +99,9 @@ func (mw *mockMultipartWriter) CreateFormFile(fieldname, filename string) (io.Wr
 func (mw *mockMultipartWriter) FormDataContentType() string { return "mock/type" }
 func (mw *mockMultipartWriter) Close() error                { return mw.wrapper.closeErr }
 
-// newQueryOptionWithCheckError returns a QueryOption whose check function always fails.
-func newQueryOptionWithCheckError(t queryType) *QueryOption {
-	return &QueryOption{
+// newOptionWithCheckError returns a RequestOption whose check function always fails.
+func newOptionWithCheckError(t queryType) RequestOption {
+	return &apiOption{
 		t: t,
 		checkFunc: func() error {
 			return errors.New("check error")
@@ -135,9 +110,9 @@ func newQueryOptionWithCheckError(t queryType) *QueryOption {
 	}
 }
 
-// newQueryOptionWithSetError returns a QueryOption whose set function always fails.
-func newQueryOptionWithSetError(t queryType) *QueryOption {
-	return &QueryOption{
+// newOptionWithSetError returns a RequestOption whose set function always fails.
+func newOptionWithSetError(t queryType) RequestOption {
+	return &apiOption{
 		t:         t,
 		checkFunc: func() error { return nil },
 		setFunc: func(_ url.Values) error {
@@ -146,9 +121,9 @@ func newQueryOptionWithSetError(t queryType) *QueryOption {
 	}
 }
 
-// newFormOptionWithCheckError returns a FormOption whose check function always fails.
-func newFormOptionWithCheckError(t formType) *FormOption {
-	return &FormOption{
+// newFormOptionWithCheckError returns a RequestOption (form) whose check function always fails.
+func newFormOptionWithCheckError(t formType) RequestOption {
+	return &apiOption{
 		t: t,
 		checkFunc: func() error {
 			return errors.New("check error")
@@ -157,13 +132,23 @@ func newFormOptionWithCheckError(t formType) *FormOption {
 	}
 }
 
-// newFormOptionWithSetError returns a FormOption whose set function always fails.
-func newFormOptionWithSetError(t formType) *FormOption {
-	return &FormOption{
+// newFormOptionWithSetError returns a RequestOption (form) whose set function always fails.
+func newFormOptionWithSetError(t formType) RequestOption {
+	return &apiOption{
 		t:         t,
 		checkFunc: func() error { return nil },
 		setFunc: func(_ url.Values) error {
 			return errors.New("set error")
 		},
 	}
+}
+
+// newQueryOptionWithCheckError is an alias kept for backward compat in tests.
+func newQueryOptionWithCheckError(t queryType) RequestOption {
+	return newOptionWithCheckError(t)
+}
+
+// newQueryOptionWithSetError is an alias kept for backward compat in tests.
+func newQueryOptionWithSetError(t queryType) RequestOption {
+	return newOptionWithSetError(t)
 }
