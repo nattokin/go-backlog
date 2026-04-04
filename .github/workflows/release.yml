@@ -17,6 +17,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check milestone and close
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: node .github/scripts/milestone-check-and-close.js
+
       - name: Generate changelog
         uses: orhun/git-cliff-action@e16f179f0be49ecdfe63753837f20b9531642772 # v4.7.0
         with:
