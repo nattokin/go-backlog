@@ -6,21 +6,15 @@ package backlog
 
 func initServices(c *Client) {
 	// --- Initialize shared option services --------------------------------------
-	// Option services provide reusable form and query parameter builders
-	// used across multiple Backlog API services.
-	optionRegistry := &optionRegistry{
-		query: &QueryOptionService{},
-		form:  &FormOptionService{},
+	registry := &optionRegistry{
+		option: &OptionService{},
 	}
 
-	// ActivityOptionService wraps shared optionRegistry to be reused
-	// by activity-related services such as ProjectActivityService or SpaceActivityService.
 	activityOptionService := &ActivityOptionService{
-		registry: optionRegistry,
+		registry: registry,
 	}
 
 	// --- Initialize IssueService -------------------------------------------------
-	// Provides methods for issue management and file attachment operations.
 	c.Issue = &IssueService{
 		method: c.method,
 		Attachment: &IssueAttachmentService{
@@ -29,7 +23,6 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize ProjectService ----------------------------------------------
-	// Includes sub-services for project activities, users, and project options.
 	c.Project = &ProjectService{
 		method: c.method,
 		Activity: &ProjectActivityService{
@@ -40,12 +33,11 @@ func initServices(c *Client) {
 			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			registry: optionRegistry,
+			registry: registry,
 		},
 	}
 
 	// --- Initialize PullRequestService ------------------------------------------
-	// Handles pull request operations and related file attachments.
 	c.PullRequest = &PullRequestService{
 		method: c.method,
 		Attachment: &PullRequestAttachmentService{
@@ -54,7 +46,6 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize SpaceService -------------------------------------------------
-	// Provides access to space-level APIs including activities and attachments.
 	c.Space = &SpaceService{
 		method: c.method,
 		Activity: &SpaceActivityService{
@@ -67,7 +58,6 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize UserService --------------------------------------------------
-	// Provides APIs related to user activities and user option settings.
 	c.User = &UserService{
 		method: c.method,
 		Activity: &UserActivityService{
@@ -75,19 +65,18 @@ func initServices(c *Client) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			registry: optionRegistry,
+			registry: registry,
 		},
 	}
 
 	// --- Initialize WikiService --------------------------------------------------
-	// Provides wiki page APIs, including file attachments and option configurations.
 	c.Wiki = &WikiService{
 		method: c.method,
 		Attachment: &WikiAttachmentService{
 			method: c.method,
 		},
 		Option: &WikiOptionService{
-			registry: optionRegistry,
+			registry: registry,
 		},
 	}
 }
