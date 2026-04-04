@@ -79,9 +79,9 @@ func TestValidationError_Error(t *testing.T) {
 //  errors.As assertion tests
 // ──────────────────────────────────────────────────────────────
 
-// TestErrorsAs_APIResponseError verifies that APIResponseError returned from
+// TestAPIResponseError_errorsAs verifies that APIResponseError returned from
 // checkResponse can be unwrapped with errors.As by callers.
-func TestErrorsAs_APIResponseError(t *testing.T) {
+func TestAPIResponseError_errorsAs(t *testing.T) {
 	resp := &http.Response{
 		StatusCode: 404,
 		Body:       io.NopCloser(nil),
@@ -96,9 +96,9 @@ func TestErrorsAs_APIResponseError(t *testing.T) {
 	assert.Equal(t, 404, target.StatusCode)
 }
 
-// TestErrorsAs_ValidationError verifies that ValidationError can be unwrapped
+// TestValidationError_errorsAs verifies that ValidationError can be unwrapped
 // with errors.As by callers.
-func TestErrorsAs_ValidationError(t *testing.T) {
+func TestValidationError_errorsAs(t *testing.T) {
 	err := newValidationError("invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
@@ -107,9 +107,9 @@ func TestErrorsAs_ValidationError(t *testing.T) {
 	assert.Equal(t, "invalid argument", target.Error())
 }
 
-// TestErrorsAs_InvalidOptionError_query verifies that InvalidOptionError[queryType]
+// TestInvalidOptionError_errorsAs_query verifies that InvalidOptionError[queryType]
 // can be unwrapped with errors.As by callers.
-func TestErrorsAs_InvalidOptionError_query(t *testing.T) {
+func TestInvalidOptionError_errorsAs_query(t *testing.T) {
 	err := newInvalidOptionError(queryActivityTypeIDs, []queryType{queryAll, queryArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
@@ -118,9 +118,9 @@ func TestErrorsAs_InvalidOptionError_query(t *testing.T) {
 	assert.Equal(t, queryActivityTypeIDs, target.Invalid)
 }
 
-// TestErrorsAs_InvalidOptionError_form verifies that InvalidOptionError[formType]
+// TestInvalidOptionError_errorsAs_form verifies that InvalidOptionError[formType]
 // can be unwrapped with errors.As by callers.
-func TestErrorsAs_InvalidOptionError_form(t *testing.T) {
+func TestInvalidOptionError_errorsAs_form(t *testing.T) {
 	err := newInvalidOptionError(formKey, []formType{formName, formChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
@@ -129,9 +129,9 @@ func TestErrorsAs_InvalidOptionError_form(t *testing.T) {
 	assert.Equal(t, formKey, target.Invalid)
 }
 
-// TestErrorsAs_InternalClientError verifies that InternalClientError can be
+// TestInternalClientError_errorsAs verifies that InternalClientError can be
 // unwrapped with errors.As by callers.
-func TestErrorsAs_InternalClientError(t *testing.T) {
+func TestInternalClientError_errorsAs(t *testing.T) {
 	err := newInternalClientError("missing token")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
