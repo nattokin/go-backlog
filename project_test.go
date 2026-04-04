@@ -18,7 +18,7 @@ func TestProjectService_All(t *testing.T) {
 	o := newProjectOptionService()
 
 	cases := map[string]struct {
-		options []*QueryOption
+		options []RequestOption
 
 		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
@@ -27,7 +27,7 @@ func TestProjectService_All(t *testing.T) {
 		wantErrType error
 	}{
 		"success-without-option": {
-			options: []*QueryOption{},
+			options: []RequestOption{},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
@@ -44,9 +44,9 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"success-with-valid-option": {
-			options: []*QueryOption{
-				o.WithQueryAll(false),
-				o.WithQueryArchived(true),
+			options: []RequestOption{
+				o.WithAll(false),
+				o.WithArchived(true),
 			},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
@@ -64,7 +64,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"error-option-set-failed": {
-			options: []*QueryOption{{
+			options: []RequestOption{&apiOption{
 				queryAll,
 				nil,
 				func(p url.Values) error { return errors.New("error") },
@@ -73,7 +73,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
-			options: []*QueryOption{{
+			options: []RequestOption{&apiOption{
 				"invalid",
 				nil,
 				func(p url.Values) error { return nil },
@@ -82,7 +82,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: &InvalidOptionError[queryType]{},
 		},
 		"error-client-network": {
-			options: []*QueryOption{},
+			options: []RequestOption{},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -91,7 +91,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			options: []*QueryOption{},
+			options: []RequestOption{},
 
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
@@ -240,7 +240,7 @@ func TestProjectService_Create(t *testing.T) {
 	cases := map[string]struct {
 		key     string
 		name    string
-		options []*FormOption
+		options []RequestOption
 
 		mockPostFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -268,7 +268,7 @@ func TestProjectService_Create(t *testing.T) {
 		"success-without-option": {
 			key:     "TEST",
 			name:    "test",
-			options: []*FormOption{},
+			options: []RequestOption{},
 
 			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
@@ -289,11 +289,11 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			options: []*FormOption{
-				o.WithFormChartEnabled(true),
-				o.WithFormSubtaskingEnabled(true),
-				o.WithFormProjectLeaderCanEditProjectLeader(true),
-				o.WithFormTextFormattingRule(FormatBacklog),
+			options: []RequestOption{
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(FormatBacklog),
 			},
 
 			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -329,8 +329,8 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			options: []*FormOption{
-				o.WithFormTextFormattingRule("invalid"),
+			options: []RequestOption{
+				o.WithTextFormattingRule("invalid"),
 			},
 
 			wantErrType: &ValidationError{},
@@ -340,7 +340,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
+			options: []RequestOption{&apiOption{"invalid", nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},
@@ -407,7 +407,7 @@ func TestProjectService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		options        []*FormOption
+		options        []RequestOption
 
 		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -459,14 +459,14 @@ func TestProjectService_Update(t *testing.T) {
 		"success-with-options": {
 			projectIDOrKey: "TEST",
 
-			options: []*FormOption{
-				o.WithFormKey("TEST1"),
-				o.WithFormName("test1"),
-				o.WithFormChartEnabled(true),
-				o.WithFormSubtaskingEnabled(true),
-				o.WithFormProjectLeaderCanEditProjectLeader(true),
-				o.WithFormTextFormattingRule(FormatBacklog),
-				o.WithFormArchived(true),
+			options: []RequestOption{
+				o.WithKey("TEST1"),
+				o.WithName("test1"),
+				o.WithChartEnabled(true),
+				o.WithSubtaskingEnabled(true),
+				o.WithProjectLeaderCanEditProjectLeader(true),
+				o.WithTextFormattingRule(FormatBacklog),
+				o.WithArchived(true),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -490,8 +490,8 @@ func TestProjectService_Update(t *testing.T) {
 		"error-option-invalid-value": {
 			projectIDOrKey: "TEST",
 
-			options: []*FormOption{
-				o.WithFormTextFormattingRule("invalid"),
+			options: []RequestOption{
+				o.WithTextFormattingRule("invalid"),
 			},
 
 			wantErrType: &ValidationError{},
@@ -500,7 +500,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 
-			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
+			options: []RequestOption{&apiOption{"invalid", nil, func(p url.Values) error { return nil }}},
 
 			wantErrType: &InvalidOptionError[formType]{},
 		},
