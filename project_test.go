@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
 func TestProjectService_All(t *testing.T) {
@@ -35,7 +37,7 @@ func TestProjectService_All(t *testing.T) {
 				assert.Empty(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
 				}, nil
 			},
 
@@ -55,7 +57,7 @@ func TestProjectService_All(t *testing.T) {
 				assert.Equal(t, "true", query.Get("archived"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
 				}, nil
 			},
 
@@ -96,7 +98,7 @@ func TestProjectService_All(t *testing.T) {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -154,7 +156,7 @@ func TestProjectService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -168,7 +170,7 @@ func TestProjectService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -194,7 +196,7 @@ func TestProjectService_One(t *testing.T) {
 			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -258,7 +260,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -278,7 +280,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -304,7 +306,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -363,7 +365,7 @@ func TestProjectService_Create(t *testing.T) {
 			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -422,7 +424,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -437,7 +439,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -480,7 +482,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -521,7 +523,7 @@ func TestProjectService_Update(t *testing.T) {
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -574,7 +576,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -588,7 +590,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -619,7 +621,7 @@ func TestProjectService_Delete(t *testing.T) {
 			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 

@@ -11,6 +11,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
 func TestProjectActivityService_List(t *testing.T) {
@@ -55,7 +57,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+			Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 		}
 		return resp, nil
 	}
@@ -265,7 +267,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 				resp := &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
 				}
 				return resp, nil
 			}

@@ -11,14 +11,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
 func TestWikiService_All(t *testing.T) {
-	const testWiki1ID = 112
-	const testWiki2ID = 115
-	const testWiki1Name = "test1"
-	const testWiki2Name = "test2"
-
 	o := newWikiOptionService()
 
 	cases := map[string]struct {
@@ -40,12 +37,12 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
 				}, nil
 			},
 
-			wantIDs:   []int{testWiki1ID, testWiki2ID},
-			wantNames: []string{testWiki1Name, testWiki2Name},
+			wantIDs:   []int{fixture.Wiki.List[0].ID, fixture.Wiki.List[1].ID},
+			wantNames: []string{fixture.Wiki.List[0].Name, fixture.Wiki.List[1].Name},
 		},
 		"success-with-options": {
 			projectIDOrKey: "PRJ_KEY",
@@ -60,12 +57,12 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
 				}, nil
 			},
 
-			wantIDs:   []int{testWiki1ID, testWiki2ID},
-			wantNames: []string{testWiki1Name, testWiki2Name},
+			wantIDs:   []int{fixture.Wiki.List[0].ID, fixture.Wiki.List[1].ID},
+			wantNames: []string{fixture.Wiki.List[0].Name, fixture.Wiki.List[1].Name},
 		},
 		"validation-error-key-empty": {
 			projectIDOrKey: "",
@@ -107,7 +104,7 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -209,7 +206,7 @@ func TestWikiService_Count(t *testing.T) {
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -260,12 +257,12 @@ func TestWikiService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWikiID:   34,
-			wantWikiName: "Maximum Wiki Page",
+			wantWikiID:   fixture.Wiki.Maximum.ID,
+			wantWikiName: fixture.Wiki.Maximum.Name,
 		},
 		"validation-error-id-zero": {
 			wikiID:      0,
@@ -294,7 +291,7 @@ func TestWikiService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -356,15 +353,15 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataWikiMinimumJSON),
+						[]byte(fixture.Wiki.MinimumJSON),
 					)),
 				}, nil
 			},
 
 			wantWiki: &Wiki{
-				ID:      34,
-				Name:    "Minimum Wiki Page",
-				Content: "This is a minimal wiki page.",
+				ID:      fixture.Wiki.Minimum.ID,
+				Name:    fixture.Wiki.Minimum.Name,
+				Content: fixture.Wiki.Minimum.Content,
 			},
 		},
 		"success-with-mailNotify": {
@@ -382,15 +379,15 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataWikiMinimumJSON),
+						[]byte(fixture.Wiki.MinimumJSON),
 					)),
 				}, nil
 			},
 
 			wantWiki: &Wiki{
-				ID:      34,
-				Name:    "Minimum Wiki Page",
-				Content: "This is a minimal wiki page.",
+				ID:      fixture.Wiki.Minimum.ID,
+				Name:    fixture.Wiki.Minimum.Name,
+				Content: fixture.Wiki.Minimum.Content,
 			},
 		},
 		"validation-error-projectID-zero": {
@@ -459,7 +456,7 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataInvalidJSON),
+						[]byte(fixture.InvalidJSON),
 					)),
 				}, nil
 			},
@@ -520,14 +517,14 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "New Page Name", form.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
 			wantWiki: &Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
+				ID:      fixture.Wiki.Maximum.ID,
+				Name:    fixture.Wiki.Maximum.Name,
+				Content: fixture.Wiki.Maximum.Content,
 			},
 		},
 		"success-full-options": {
@@ -545,14 +542,14 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
 			wantWiki: &Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
+				ID:      fixture.Wiki.Maximum.ID,
+				Name:    fixture.Wiki.Maximum.Name,
+				Content: fixture.Wiki.Maximum.Content,
 			},
 		},
 		"validation-error-required-option": {
@@ -602,7 +599,7 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "New Name", form.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -662,11 +659,11 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWikiID: 34,
+			wantWikiID: fixture.Wiki.Maximum.ID,
 		},
 		"success-no-option": {
 			wikiID: 1,
@@ -675,11 +672,11 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "wikis/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWikiID: 34,
+			wantWikiID: fixture.Wiki.Maximum.ID,
 		},
 		"validation-error-id-zero": {
 			wikiID:      0,
@@ -718,7 +715,7 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "wikis/34", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 

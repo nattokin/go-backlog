@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
 func TestUserService_One(t *testing.T) {
@@ -30,7 +32,7 @@ func TestUserService_One(t *testing.T) {
 				assert.Equal(t, "users/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -124,7 +126,7 @@ func TestUserService_Add(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -214,7 +216,7 @@ func TestUserService_Add(t *testing.T) {
 			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -270,7 +272,7 @@ func TestUserService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
@@ -298,7 +300,7 @@ func TestUserService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -370,7 +372,7 @@ func TestUserService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -394,7 +396,7 @@ func TestUserService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -538,7 +540,7 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -564,7 +566,7 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -620,7 +622,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -634,7 +636,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -653,7 +655,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -708,7 +710,7 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
@@ -730,7 +732,7 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
@@ -752,7 +754,7 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
@@ -778,7 +780,7 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -838,7 +840,7 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -869,7 +871,7 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -889,7 +891,7 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -948,7 +950,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -968,7 +970,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -1000,7 +1002,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -1020,7 +1022,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -1079,7 +1081,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -1110,7 +1112,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -1130,7 +1132,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
