@@ -5,14 +5,14 @@ import (
 )
 
 type attachmentFixtures struct {
-	SingleJSON  string
-	Single      *backlog.Attachment
-	ListJSON    string
-	List        []*backlog.Attachment
+	SingleJSON     string
+	Single         *backlog.Attachment
+	ListJSON       string
+	List           []*backlog.Attachment
 	SingleListJSON string
-	SingleList  []*backlog.Attachment
-	UploadJSON  string
-	Upload      *backlog.Attachment
+	SingleList     []*backlog.Attachment
+	UploadJSON     string
+	Upload         *backlog.Attachment
 }
 
 // Attachment provides test fixtures for Attachment-related tests.
@@ -45,6 +45,7 @@ var Attachment = attachmentFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
+		Created: mustTime("2014-10-28T09:24:43Z"),
 	},
 	ListJSON: `
 [
@@ -89,6 +90,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
+			Created: mustTime("2014-07-11T06:26:05Z"),
 		},
 		{
 			ID:   5,
@@ -100,6 +102,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
+			Created: mustTime("2014-07-11T06:26:05Z"),
 		},
 	},
 	SingleListJSON: `
@@ -131,6 +134,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
+			Created: mustTime("2014-07-11T06:26:05Z"),
 		},
 	},
 	UploadJSON: `

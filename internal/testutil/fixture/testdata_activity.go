@@ -1,8 +1,6 @@
 package fixture
 
 import (
-	"time"
-
 	backlog "github.com/nattokin/go-backlog"
 )
 
@@ -115,10 +113,7 @@ var Activity = activityFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			// Created は time.Time のゼロ値比較が難しいため省略
+			Created: mustTime("2014-07-21T06:48:40Z"),
 		},
 	},
 }
-
-// activityCreated is the parsed time for the activity list fixture.
-var activityCreated, _ = time.Parse(time.RFC3339, "2014-07-21T06:48:40Z")
