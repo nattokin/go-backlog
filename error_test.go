@@ -3,7 +3,6 @@ package backlog
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
@@ -84,7 +83,7 @@ func TestValidationError_Error(t *testing.T) {
 func TestAPIResponseError_errorsAs(t *testing.T) {
 	resp := &http.Response{
 		StatusCode: 404,
-		Body:       io.NopCloser(nil),
+		Body:       nil,
 	}
 	_, err := checkResponse(resp)
 	require.Error(t, err)
