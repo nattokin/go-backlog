@@ -4,15 +4,18 @@
 //
 // Recognized link patterns (case-insensitive), matched on the LAST LINE only:
 //   Closes #N  /  Fixes #N  /  Resolves #N  /  Part of #N
+//
+// Uses Node.js built-in https module (no external dependencies).
 
-const { Octokit } = require('@octokit/rest');
+'use strict';
 
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+const https = require('https');
 
-const owner  = process.env.REPO_OWNER;
-const repo   = process.env.REPO_NAME;
-const prNum  = parseInt(process.env.PR_NUMBER, 10);
-const body   = process.env.PR_BODY ?? '';
+const owner = process.env.REPO_OWNER;
+const repo  = process.env.REPO_NAME;
+const prNum = parseInt(process.env.PR_NUMBER, 10);
+const body  = process.env.PR_BODY ?? '';
+const token = process.env.GITHUB_TOKEN;
 
 // Extract issue numbers from the last line of the description only.
 // Matches: Closes #N, Fixes #N, Resolves #N, Part of #N (case-insensitive)
@@ -28,9 +31,45 @@ function extractIssueNumbers(text) {
   return numbers;
 }
 
+function githubRequest(method, path, data) {
+  return new Promise((resolve, reject) => {
+    const reqBody = data ? JSON.stringify(data) : undefined;
+    const options = {
+      hostname: 'api.github.com',
+      path,
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
+        'User-Agent': 'milestone-sync-script',
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...(reqBody
+          ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(reqBody) }
+          : {}),
+      },
+    };
+
+    const req = https.request(options, res => {
+      let raw = '';
+      res.on('data', chunk => { raw += chunk; });
+      res.on('end', () => {
+        if (res.statusCode >= 400) {
+          reject(new Error(`GitHub API ${method} ${path} failed: ${res.statusCode} ${raw}`));
+          return;
+        }
+        resolve(raw ? JSON.parse(raw) : null);
+      });
+    });
+
+    req.on('error', reject);
+    if (reqBody) req.write(reqBody);
+    req.end();
+  });
+}
+
 async function getMilestone(issueNumber) {
   try {
-    const { data } = await octokit.issues.get({ owner, repo, issue_number: issueNumber });
+    const data = await githubRequest('GET', `/repos/${owner}/${repo}/issues/${issueNumber}`);
     return data.milestone ?? null;
   } catch (err) {
     console.log(`  Failed to fetch issue #${issueNumber}: ${err.message}`);
@@ -58,7 +97,7 @@ async function run() {
       targetMilestone = milestone;
       break;
     } else {
-      console.log(`  No milestone set.`);
+      console.log('  No milestone set.');
     }
   }
 
@@ -68,16 +107,13 @@ async function run() {
   }
 
   // Fetch current PR milestone to avoid unnecessary API calls.
-  const { data: pr } = await octokit.pulls.get({ owner, repo, pull_number: prNum });
+  const pr = await githubRequest('GET', `/repos/${owner}/${repo}/pulls/${prNum}`);
   if (pr.milestone && pr.milestone.number === targetMilestone.number) {
     console.log(`PR already has milestone "${targetMilestone.title}". Nothing to do.`);
     return;
   }
 
-  await octokit.issues.update({
-    owner,
-    repo,
-    issue_number: prNum,
+  await githubRequest('PATCH', `/repos/${owner}/${repo}/issues/${prNum}`, {
     milestone: targetMilestone.number,
   });
 
