@@ -24,53 +24,43 @@ import (
 
 // --- Option Service Helpers ---
 
-// newQueryOptionService returns a test instance of QueryOptionService.
-func newQueryOptionService() *QueryOptionService {
-	return &QueryOptionService{}
+// newOptionService returns a test instance of OptionService.
+func newOptionService() *OptionService {
+	return &OptionService{}
 }
 
-// newFormOptionService returns a test instance of FormOptionService.
-func newFormOptionService() *FormOptionService {
-	return &FormOptionService{}
+// newOptionRegistry returns a test instance of optionRegistry.
+func newOptionRegistry() *optionRegistry {
+	return &optionRegistry{
+		option: newOptionService(),
+	}
 }
 
 // newActivityOptionService returns a test instance of ActivityOptionService.
 func newActivityOptionService() *ActivityOptionService {
 	return &ActivityOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		registry: newOptionRegistry(),
 	}
 }
 
 // newProjectOptionService returns a test instance of ProjectOptionService.
 func newProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		registry: newOptionRegistry(),
 	}
 }
 
 // newUserOptionService returns a test instance of UserOptionService.
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		registry: newOptionRegistry(),
 	}
 }
 
 // newWikiOptionService returns a test instance of WikiOptionService.
 func newWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		registry: newOptionRegistry(),
 	}
 }
 
