@@ -365,7 +365,7 @@ func TestClient_newRequest(t *testing.T) {
 
 }
 
-func TestClient_Method(t *testing.T) {
+func TestClient_method(t *testing.T) {
 	cases := map[string]struct {
 		call    func(c *Client) (*http.Response, error)
 		check   func(t *testing.T, captured *httpCapture)
@@ -530,7 +530,7 @@ func TestClient_Method(t *testing.T) {
 	}
 }
 
-func TestClient_MethodUpload_errors(t *testing.T) {
+func TestClient_methodUpload_errors(t *testing.T) {
 	type testCase struct {
 		spath    string
 		fileName string
