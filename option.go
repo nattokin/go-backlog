@@ -41,24 +41,24 @@ type RequestOption interface {
 // ──────────────────────────────────────────────────────────────
 //
 
-// apiOption is the internal implementation of RequestOption.
+// apiParamOption is the internal implementation of RequestOption.
 //
 // It encapsulates the parameter type together with optional validation
 // and the logic required to apply the value to API request parameters.
 // OptionService builder methods return instances of this struct.
-type apiOption struct {
+type apiParamOption struct {
 	t         apiParamOptionType     // canonical API parameter type
 	checkFunc func() error           // optional validation executed before applying the option
 	setFunc   func(url.Values) error // applies the option value to the provided values
 }
 
 // Key returns the API parameter key associated with this option.
-func (o *apiOption) Key() string {
+func (o *apiParamOption) Key() string {
 	return o.t.Value()
 }
 
 // Check validates the option by executing its checkFunc, if defined.
-func (o *apiOption) Check() error {
+func (o *apiParamOption) Check() error {
 	if o.checkFunc != nil {
 		return o.checkFunc()
 	}
@@ -66,7 +66,7 @@ func (o *apiOption) Check() error {
 }
 
 // Set applies the option value to the given url.Values.
-func (o *apiOption) Set(v url.Values) error {
+func (o *apiParamOption) Set(v url.Values) error {
 	if o.setFunc == nil {
 		panic("option has no setter")
 	}
@@ -87,7 +87,7 @@ type OptionService struct{}
 
 // WithAll returns an option to set the `all` parameter.
 func (s *OptionService) WithAll(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramAll,
 		setFunc: func(v url.Values) error {
 			v.Set(paramAll.Value(), strconv.FormatBool(enabled))
@@ -100,7 +100,7 @@ func (s *OptionService) WithAll(enabled bool) RequestOption {
 func (s *OptionService) WithArchived(enabled bool) RequestOption {
 	// apiArchived and queryArchived share the same string value "archived",
 	// so we use apiArchived as the canonical type here and accept both in services.
-	return &apiOption{
+	return &apiParamOption{
 		t: paramArchived,
 		setFunc: func(v url.Values) error {
 			v.Set(paramArchived.Value(), strconv.FormatBool(enabled))
@@ -111,7 +111,7 @@ func (s *OptionService) WithArchived(enabled bool) RequestOption {
 
 // WithChartEnabled returns a option that sets the `chartEnabled` field.
 func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramChartEnabled,
 		setFunc: func(v url.Values) error {
 			v.Set(paramChartEnabled.Value(), strconv.FormatBool(enabled))
@@ -122,7 +122,7 @@ func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
 
 // WithMailNotify returns a option that sets the `mailNotify` field.
 func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramMailNotify,
 		setFunc: func(v url.Values) error {
 			v.Set(paramMailNotify.Value(), strconv.FormatBool(enabled))
@@ -133,7 +133,7 @@ func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
 
 // WithProjectLeaderCanEditProjectLeader returns a option.
 func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramProjectLeaderCanEditProjectLeader,
 		setFunc: func(v url.Values) error {
 			v.Set(paramProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
@@ -144,7 +144,7 @@ func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) Requ
 
 // WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramSendMail,
 		setFunc: func(v url.Values) error {
 			v.Set(paramSendMail.Value(), strconv.FormatBool(enabled))
@@ -155,7 +155,7 @@ func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 
 // WithSubtaskingEnabled returns a option that sets the `subtaskingEnabled` field.
 func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramSubtaskingEnabled,
 		setFunc: func(v url.Values) error {
 			v.Set(paramSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
@@ -168,7 +168,7 @@ func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramCount,
 		checkFunc: func() error {
 			if count < 1 || 100 < count {
@@ -185,7 +185,7 @@ func (s *OptionService) WithCount(count int) RequestOption {
 
 // WithMaxID returns an option to set the `maxId` parameter.
 func (s *OptionService) WithMaxID(id int) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramMaxID,
 		checkFunc: func() error {
 			return validateActivityID(id, "maxID")
@@ -199,7 +199,7 @@ func (s *OptionService) WithMaxID(id int) RequestOption {
 
 // WithMinID returns an option to set the `minId` parameter.
 func (s *OptionService) WithMinID(id int) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramMinID,
 		checkFunc: func() error {
 			return validateActivityID(id, "minID")
@@ -213,7 +213,7 @@ func (s *OptionService) WithMinID(id int) RequestOption {
 
 // WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramUserID,
 		checkFunc: func() error {
 			return validateID(id, paramUserID.Value())
@@ -229,7 +229,7 @@ func (s *OptionService) WithUserID(id int) RequestOption {
 
 // WithContent returns a option that sets the `content` field.
 func (s *OptionService) WithContent(content string) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramContent,
 		checkFunc: func() error {
 			if content == "" {
@@ -246,7 +246,7 @@ func (s *OptionService) WithContent(content string) RequestOption {
 
 // WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramKey,
 		checkFunc: func() error {
 			if key == "" {
@@ -263,7 +263,7 @@ func (s *OptionService) WithKey(key string) RequestOption {
 
 // WithKeyword returns an option to set the `keyword` parameter.
 func (s *OptionService) WithKeyword(keyword string) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramKeyword,
 		setFunc: func(v url.Values) error {
 			v.Set(paramKeyword.Value(), keyword)
@@ -275,7 +275,7 @@ func (s *OptionService) WithKeyword(keyword string) RequestOption {
 // WithMailAddress returns a option that sets the `mailAddress` field.
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return &apiOption{
+	return &apiParamOption{
 		t: paramMailAddress,
 		checkFunc: func() error {
 			if mailAddress == "" {
@@ -292,7 +292,7 @@ func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 
 // WithName returns a option that sets the `name` field.
 func (s *OptionService) WithName(name string) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramName,
 		checkFunc: func() error {
 			if name == "" {
@@ -309,7 +309,7 @@ func (s *OptionService) WithName(name string) RequestOption {
 
 // WithPassword returns a option that sets the `password` field.
 func (s *OptionService) WithPassword(password string) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramPassword,
 		checkFunc: func() error {
 			if len(password) < 8 {
@@ -328,7 +328,7 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramActivityTypeIDs,
 		checkFunc: func() error {
 			for _, id := range typeIDs {
@@ -349,7 +349,7 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 
 // WithOrder returns an option to set the `order` parameter.
 func (s *OptionService) WithOrder(order Order) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramOrder,
 		checkFunc: func() error {
 			if order != OrderAsc && order != OrderDesc {
@@ -367,7 +367,7 @@ func (s *OptionService) WithOrder(order Order) RequestOption {
 
 // WithRoleType returns a option that sets the `roleType` field.
 func (s *OptionService) WithRoleType(roleType Role) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramRoleType,
 		checkFunc: func() error {
 			if roleType < 1 || 6 < roleType {
@@ -384,7 +384,7 @@ func (s *OptionService) WithRoleType(roleType Role) RequestOption {
 
 // WithTextFormattingRule returns a option that sets the `textFormattingRule` field.
 func (s *OptionService) WithTextFormattingRule(format Format) RequestOption {
-	return &apiOption{
+	return &apiParamOption{
 		t: paramTextFormattingRule,
 		checkFunc: func() error {
 			if format != FormatBacklog && format != FormatMarkdown {

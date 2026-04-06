@@ -447,7 +447,7 @@ func TestOptionService_WithOptions(t *testing.T) {
 			expectPanic bool
 		}{
 			"setFunc-nil": {
-				option: &apiOption{
+				option: &apiParamOption{
 					t:         paramKey,
 					checkFunc: func() error { return nil },
 					setFunc:   nil,
@@ -455,7 +455,7 @@ func TestOptionService_WithOptions(t *testing.T) {
 				expectPanic: true,
 			},
 			"checkFunc-nil": {
-				option: &apiOption{
+				option: &apiParamOption{
 					t:         paramKey,
 					checkFunc: nil,
 					setFunc:   func(_ url.Values) error { return nil },

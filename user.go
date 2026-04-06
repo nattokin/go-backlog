@@ -136,10 +136,10 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramPassword, paramName, paramMailAddress, paramRoleType}
 	options := []RequestOption{
-		s.Option.registry.WithPassword(password),
-		s.Option.registry.WithName(name),
-		s.Option.registry.WithMailAddress(mailAddress),
-		s.Option.registry.WithRoleType(roleType),
+		s.Option.base.WithPassword(password),
+		s.Option.base.WithName(name),
+		s.Option.base.WithMailAddress(mailAddress),
+		s.Option.base.WithRoleType(roleType),
 	}
 	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
@@ -165,7 +165,7 @@ func (s *UserService) Update(id int, opts ...RequestOption) (*User, error) {
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramUserID, paramName, paramPassword, paramMailAddress, paramRoleType}
-	options := append([]RequestOption{s.Option.registry.WithUserID(id)}, opts...)
+	options := append([]RequestOption{s.Option.base.WithUserID(id)}, opts...)
 	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

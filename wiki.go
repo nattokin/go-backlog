@@ -116,7 +116,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...Reques
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramName, paramContent, paramMailNotify}
-	options := append([]RequestOption{s.Option.registry.WithName(name), s.Option.registry.WithContent(content)}, opts...)
+	options := append([]RequestOption{s.Option.base.WithName(name), s.Option.base.WithContent(content)}, opts...)
 	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

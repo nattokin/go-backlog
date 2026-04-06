@@ -96,7 +96,7 @@ func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Proje
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled, paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule}
-	options := append([]RequestOption{s.Option.registry.WithKey(key), s.Option.registry.WithName(name)}, opts...)
+	options := append([]RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
 	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

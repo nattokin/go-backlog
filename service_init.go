@@ -5,9 +5,11 @@ package backlog
 // ──────────────────────────────────────────────────────────────
 
 func initServices(c *Client) {
+	baseOptionService := &OptionService{}
+
 	// --- Initialize shared option services --------------------------------------
 	activityOptionService := &ActivityOptionService{
-		&OptionService{},
+		base: baseOptionService,
 	}
 
 	// --- Initialize IssueService -------------------------------------------------
@@ -29,7 +31,7 @@ func initServices(c *Client) {
 			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			&OptionService{},
+			base: baseOptionService,
 		},
 	}
 
@@ -61,7 +63,7 @@ func initServices(c *Client) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			&OptionService{},
+			base: baseOptionService,
 		},
 	}
 
@@ -72,7 +74,7 @@ func initServices(c *Client) {
 			method: c.method,
 		},
 		Option: &WikiOptionService{
-			&OptionService{},
+			base: baseOptionService,
 		},
 	}
 }
