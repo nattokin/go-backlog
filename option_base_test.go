@@ -1,7 +1,6 @@
 package backlog
 
 import (
-	"errors"
 	"net/url"
 	"strconv"
 	"testing"
@@ -12,183 +11,88 @@ import (
 
 //
 // ──────────────────────────────────────────────────────────────
-//  TestFormOption
+//  TestOptionService
 // ──────────────────────────────────────────────────────────────
 //
 
-func TestFormOption(t *testing.T) {
-	cases := map[string]struct {
-		option           *FormOption
-		expectCheckErr   bool
-		expectSetErr     bool
-		wantValue        string
-		wantCheckErrType error
-		wantSetErrType   error
-	}{
-		"Success": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return nil },
-				setFunc: func(form url.Values) error {
-					form.Set(formKey.Value(), "success")
-					return nil
-				},
-			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "success",
-		},
-		"Check-error": {
-			option:           newFormOptionWithCheckError(formKey),
-			expectCheckErr:   true,
-			expectSetErr:     false,
-			wantCheckErrType: errors.New("check error"),
-		},
-		"set-error": {
-			option:         newFormOptionWithSetError(formKey),
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: errors.New("set error"),
-		},
-		"queryType-invalid": {
-			option: &FormOption{
-				t: "invalid",
-				setFunc: func(form url.Values) error {
-					return nil
-				},
-			},
-			expectCheckErr:   false,
-			expectSetErr:     false,
-			wantValue:        "",
-			wantCheckErrType: nil,
-		},
-		"checkFunc-nil": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: nil,
-				setFunc: func(form url.Values) error {
-					form.Set(formKey.Value(), "checkFunc nil")
-					return nil
-				},
-			},
-			expectCheckErr: false,
-			expectSetErr:   false,
-			wantValue:      "checkFunc nil",
-		},
-		"set-nil": {
-			option: &FormOption{
-				t:         formKey,
-				checkFunc: func() error { return nil },
-				setFunc:   nil,
-			},
-			expectCheckErr: false,
-			expectSetErr:   true,
-			wantSetErrType: newValidationError("set nil"),
-		},
-	}
+func TestOptionService(t *testing.T) {
+	o := newOptionService()
 
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			form := url.Values{}
-			err := tc.option.Check()
-			if tc.expectCheckErr {
-				require.Error(t, err)
-				assert.IsType(t, tc.wantCheckErrType, err)
-				return
-			}
-			require.NoError(t, err)
-
-			if err := tc.option.set(form); tc.expectSetErr {
-				require.Error(t, err)
-				assert.IsType(t, tc.wantSetErrType, err)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, form.Get(tc.option.t.Value()))
-			}
-		})
-	}
-
-}
-
-// ──────────────────────────────────────────────────────────────
-//	TestFormOptionService
-// ──────────────────────────────────────────────────────────────
-
-// TestFormOptionService verifies that each method of FormOptionService
-// correctly applies its expected value to FormParams.
-//
-// The test is organized into logical groups: Boolean, Integer, String,
-// and Enum/Special options.
-func TestFormOptionService(t *testing.T) {
-	o := newFormOptionService()
-
-	// --- Boolean options ------------------------------------------------------------
+	// --- Boolean options -----------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue bool
 		}{
+			"WithAll-true": {
+				option:    o.WithAll(true),
+				key:       paramAll.Value(),
+				wantValue: true,
+			},
+			"WithAll-false": {
+				option:    o.WithAll(false),
+				key:       paramAll.Value(),
+				wantValue: false,
+			},
 			"WithArchived-true": {
 				option:    o.WithArchived(true),
-				key:       formArchived.Value(),
+				key:       paramArchived.Value(),
 				wantValue: true,
 			},
 			"WithArchived-false": {
 				option:    o.WithArchived(false),
-				key:       formArchived.Value(),
+				key:       paramArchived.Value(),
 				wantValue: false,
 			},
 			"WithChartEnabled-true": {
 				option:    o.WithChartEnabled(true),
-				key:       formChartEnabled.Value(),
+				key:       paramChartEnabled.Value(),
 				wantValue: true,
 			},
 			"WithChartEnabled-false": {
 				option:    o.WithChartEnabled(false),
-				key:       formChartEnabled.Value(),
+				key:       paramChartEnabled.Value(),
 				wantValue: false,
 			},
 			"WithMailNotify-true": {
 				option:    o.WithMailNotify(true),
-				key:       formMailNotify.Value(),
+				key:       paramMailNotify.Value(),
 				wantValue: true,
 			},
 			"WithMailNotify-false": {
 				option:    o.WithMailNotify(false),
-				key:       formMailNotify.Value(),
+				key:       paramMailNotify.Value(),
 				wantValue: false,
 			},
 			"WithProjectLeaderCanEditProjectLeader-true": {
 				option:    o.WithProjectLeaderCanEditProjectLeader(true),
-				key:       formProjectLeaderCanEditProjectLeader.Value(),
+				key:       paramProjectLeaderCanEditProjectLeader.Value(),
 				wantValue: true,
 			},
 			"WithProjectLeaderCanEditProjectLeader-false": {
 				option:    o.WithProjectLeaderCanEditProjectLeader(false),
-				key:       formProjectLeaderCanEditProjectLeader.Value(),
+				key:       paramProjectLeaderCanEditProjectLeader.Value(),
 				wantValue: false,
 			},
 			"WithSendMail-true": {
 				option:    o.WithSendMail(true),
-				key:       formSendMail.Value(),
+				key:       paramSendMail.Value(),
 				wantValue: true,
 			},
 			"WithSendMail-false": {
 				option:    o.WithSendMail(false),
-				key:       formSendMail.Value(),
+				key:       paramSendMail.Value(),
 				wantValue: false,
 			},
 			"WithSubtaskingEnabled-true": {
 				option:    o.WithSubtaskingEnabled(true),
-				key:       formSubtaskingEnabled.Value(),
+				key:       paramSubtaskingEnabled.Value(),
 				wantValue: true,
 			},
 			"WithSubtaskingEnabled-false": {
 				option:    o.WithSubtaskingEnabled(false),
-				key:       formSubtaskingEnabled.Value(),
+				key:       paramSubtaskingEnabled.Value(),
 				wantValue: false,
 			},
 		}
@@ -200,33 +104,73 @@ func TestFormOptionService(t *testing.T) {
 				form := url.Values{}
 				err := tc.option.Check()
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
 			})
 		}
 	})
 
-	// --- Integer options ------------------------------------------------------------
+	// --- Integer options -----------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue int
 			wantErr   bool
 		}{
 			"WithUserID-valid-1": {
 				option:    o.WithUserID(1),
-				key:       formUserID.Value(),
+				key:       paramUserID.Value(),
 				wantValue: 1,
 			},
 			"WithUserID-valid-2": {
 				option:    o.WithUserID(2),
-				key:       formUserID.Value(),
+				key:       paramUserID.Value(),
 				wantValue: 2,
 			},
 			"WithUserID-invalid-0": {
 				option:  o.WithUserID(0),
-				key:     formUserID.Value(),
+				key:     paramUserID.Value(),
+				wantErr: true,
+			},
+			"WithCount-valid-1": {
+				option:    o.WithCount(1),
+				key:       paramCount.Value(),
+				wantValue: 1,
+			},
+			"WithCount-valid-100": {
+				option:    o.WithCount(100),
+				key:       paramCount.Value(),
+				wantValue: 100,
+			},
+			"WithCount-invalid-0": {
+				option:  o.WithCount(0),
+				key:     paramCount.Value(),
+				wantErr: true,
+			},
+			"WithCount-invalid-101": {
+				option:  o.WithCount(101),
+				key:     paramCount.Value(),
+				wantErr: true,
+			},
+			"WithMinID-valid-1": {
+				option:    o.WithMinID(1),
+				key:       paramMinID.Value(),
+				wantValue: 1,
+			},
+			"WithMinID-invalid-0": {
+				option:  o.WithMinID(0),
+				key:     paramMinID.Value(),
+				wantErr: true,
+			},
+			"WithMaxID-valid-26": {
+				option:    o.WithMaxID(26),
+				key:       paramMaxID.Value(),
+				wantValue: 26,
+			},
+			"WithMaxID-invalid-27": {
+				option:  o.WithMaxID(27),
+				key:     paramMaxID.Value(),
 				wantErr: true,
 			},
 		}
@@ -242,7 +186,7 @@ func TestFormOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
 			})
 		}
@@ -251,69 +195,79 @@ func TestFormOptionService(t *testing.T) {
 	// --- String options ------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
 		}{
 			"WithContent-valid": {
 				option:    o.WithContent("Hello"),
-				key:       formContent.Value(),
+				key:       paramContent.Value(),
 				wantValue: "Hello",
 			},
 			"WithContent-empty": {
 				option:  o.WithContent(""),
-				key:     formContent.Value(),
+				key:     paramContent.Value(),
 				wantErr: true,
 			},
 			"WithKey-valid": {
 				option:    o.WithKey("ABC"),
-				key:       formKey.Value(),
+				key:       paramKey.Value(),
 				wantValue: "ABC",
 			},
 			"WithKey-empty": {
 				option:  o.WithKey(""),
-				key:     formKey.Value(),
+				key:     paramKey.Value(),
 				wantErr: true,
+			},
+			"WithKeyword-non-empty": {
+				option:    o.WithKeyword("backlog"),
+				key:       paramKeyword.Value(),
+				wantValue: "backlog",
+			},
+			"WithKeyword-empty": {
+				option:    o.WithKeyword(""),
+				key:       paramKeyword.Value(),
+				wantValue: "",
 			},
 			"WithMailAddress-valid": {
 				option:    o.WithMailAddress("test@example.com"),
-				key:       formMailAddress.Value(),
+				key:       paramMailAddress.Value(),
 				wantValue: "test@example.com",
 			},
 			"WithMailAddress-empty": {
 				option:  o.WithMailAddress(""),
-				key:     formMailAddress.Value(),
+				key:     paramMailAddress.Value(),
 				wantErr: true,
 			},
 			"WithName-valid": {
 				option:    o.WithName("testname"),
-				key:       formName.Value(),
+				key:       paramName.Value(),
 				wantValue: "testname",
 			},
 			"WithName-empty": {
 				option:  o.WithName(""),
-				key:     formName.Value(),
+				key:     paramName.Value(),
 				wantErr: true,
 			},
 			"WithPassword-valid-8chars": {
 				option:    o.WithPassword("abcdefgh"),
-				key:       formPassword.Value(),
+				key:       paramPassword.Value(),
 				wantValue: "abcdefgh",
 			},
 			"WithPassword-valid-9chars": {
 				option:    o.WithPassword("abcdefghi"),
-				key:       formPassword.Value(),
+				key:       paramPassword.Value(),
 				wantValue: "abcdefghi",
 			},
 			"WithPassword-valid-7chars": {
 				option:  o.WithPassword("abcdefg"),
-				key:     formPassword.Value(),
+				key:     paramPassword.Value(),
 				wantErr: true,
 			},
 			"WithPassword-invalid-empty": {
 				option:  o.WithPassword(""),
-				key:     formPassword.Value(),
+				key:     paramPassword.Value(),
 				wantErr: true,
 			},
 		}
@@ -329,58 +283,128 @@ func TestFormOptionService(t *testing.T) {
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
+				_ = tc.option.Set(form)
 				assert.Equal(t, tc.wantValue, form.Get(tc.key))
 			})
 		}
 	})
 
-	// --- Enum or special options ------------------------------------------------------------
+	// --- Enum or special options ---------------------------------------------------
 	t.Run("enum-or-special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    *FormOption
+			option    RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
 		}{
+			"WithOrder-asc": {
+				option:    o.WithOrder(OrderAsc),
+				key:       paramOrder.Value(),
+				wantValue: "asc",
+			},
+			"WithOrder-desc": {
+				option:    o.WithOrder(OrderDesc),
+				key:       paramOrder.Value(),
+				wantValue: "desc",
+			},
+			"WithOrder-invalid": {
+				option:  o.WithOrder("invalid"),
+				key:     paramOrder.Value(),
+				wantErr: true,
+			},
+			"WithOrder-empty": {
+				option:  o.WithOrder(""),
+				key:     paramOrder.Value(),
+				wantErr: true,
+			},
+			"WithActivityTypeIDs-single-min": {
+				option:    o.WithActivityTypeIDs([]int{1}),
+				key:       paramActivityTypeIDs.Value(),
+				wantValue: "1",
+			},
+			"WithActivityTypeIDs-single-max": {
+				option:    o.WithActivityTypeIDs([]int{26}),
+				key:       paramActivityTypeIDs.Value(),
+				wantValue: "26",
+			},
+			"WithActivityTypeIDs-all-range": {
+				option: o.WithActivityTypeIDs(func() []int {
+					var all []int
+					for i := 1; i <= 26; i++ {
+						all = append(all, i)
+					}
+					return all
+				}()),
+				key: paramActivityTypeIDs.Value(),
+				wantValue: func() string {
+					s := ""
+					for i := 1; i <= 26; i++ {
+						if i > 1 {
+							s += ","
+						}
+						s += strconv.Itoa(i)
+					}
+					return s
+				}(),
+			},
+			"WithActivityTypeIDs-invalid-below": {
+				option:  o.WithActivityTypeIDs([]int{0}),
+				key:     paramActivityTypeIDs.Value(),
+				wantErr: true,
+			},
+			"WithActivityTypeIDs-invalid-above": {
+				option:  o.WithActivityTypeIDs([]int{27}),
+				key:     paramActivityTypeIDs.Value(),
+				wantErr: true,
+			},
+			"WithActivityTypeIDs-invalid-mixed-low": {
+				option:  o.WithActivityTypeIDs([]int{0, 1}),
+				key:     paramActivityTypeIDs.Value(),
+				wantErr: true,
+			},
+			"WithActivityTypeIDs-invalid-mixed-high": {
+				option:  o.WithActivityTypeIDs([]int{26, 27}),
+				key:     paramActivityTypeIDs.Value(),
+				wantErr: true,
+			},
 			"WithRoleType-valid-1": {
 				option:    o.WithRoleType(1),
-				key:       formRoleType.Value(),
+				key:       paramRoleType.Value(),
 				wantValue: "1",
 			},
 			"WithRoleType-valid-6": {
 				option:    o.WithRoleType(6),
-				key:       formRoleType.Value(),
+				key:       paramRoleType.Value(),
 				wantValue: "6",
 			},
 			"WithRoleType-invalid-0": {
 				option:  o.WithRoleType(0),
-				key:     formRoleType.Value(),
+				key:     paramRoleType.Value(),
 				wantErr: true,
 			},
 			"WithRoleType-invalid-7": {
 				option:  o.WithRoleType(7),
-				key:     formRoleType.Value(),
+				key:     paramRoleType.Value(),
 				wantErr: true,
 			},
 			"WithTextFormattingRule-valid-backlog": {
 				option:    o.WithTextFormattingRule(FormatBacklog),
-				key:       formTextFormattingRule.Value(),
+				key:       paramTextFormattingRule.Value(),
 				wantValue: string(FormatBacklog),
 			},
 			"WithTextFormattingRule-valid-markdown": {
 				option:    o.WithTextFormattingRule(FormatMarkdown),
-				key:       formTextFormattingRule.Value(),
+				key:       paramTextFormattingRule.Value(),
 				wantValue: string(FormatMarkdown),
 			},
 			"WithTextFormattingRule-invalid": {
 				option:  o.WithTextFormattingRule("invalid"),
-				key:     formTextFormattingRule.Value(),
+				key:     paramTextFormattingRule.Value(),
 				wantErr: true,
 			},
 			"WithTextFormattingRule-invalid-empty": {
 				option:  o.WithTextFormattingRule(""),
-				key:     formTextFormattingRule.Value(),
+				key:     paramTextFormattingRule.Value(),
 				wantErr: true,
 			},
 		}
@@ -389,15 +413,29 @@ func TestFormOptionService(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
-				form := url.Values{}
+				q := url.Values{}
 				err := tc.option.Check()
 				if tc.wantErr {
 					assert.Error(t, err)
+					assert.Empty(t, q.Get(tc.key))
 					return
 				}
 				require.NoError(t, err)
-				_ = tc.option.set(form)
-				assert.Equal(t, tc.wantValue, form.Get(tc.key))
+				_ = tc.option.Set(q)
+
+				if tc.key == paramActivityTypeIDs.Value() {
+					values := (q)[tc.key]
+					got := ""
+					for i, v := range values {
+						if i > 0 {
+							got += ","
+						}
+						got += v
+					}
+					assert.Equal(t, tc.wantValue, got)
+				} else {
+					assert.Equal(t, tc.wantValue, q.Get(tc.key))
+				}
 			})
 		}
 	})

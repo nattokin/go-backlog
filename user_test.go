@@ -344,8 +344,8 @@ func TestUserService_Update(t *testing.T) {
 	o := newUserOptionService()
 
 	cases := map[string]struct {
-		id      int
-		options []*FormOption
+		id   int
+		opts []RequestOption
 
 		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
 
@@ -354,11 +354,11 @@ func TestUserService_Update(t *testing.T) {
 	}{
 		"success-update-user": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormPassword("password"),
-				o.WithFormName("admin"),
-				o.WithFormMailAddress("eguchi@nulab.example"),
-				o.WithFormRoleType(RoleAdministrator),
+			opts: []RequestOption{
+				o.WithPassword("password"),
+				o.WithName("admin"),
+				o.WithMailAddress("eguchi@nulab.example"),
+				o.WithRoleType(RoleAdministrator),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -402,8 +402,8 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withName": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormName("testname"),
+			opts: []RequestOption{
+				o.WithName("testname"),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -416,8 +416,8 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withPassword": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormPassword("testpassword"),
+			opts: []RequestOption{
+				o.WithPassword("testpassword"),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -430,8 +430,8 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withMailAddress": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormMailAddress("test@test.com"),
+			opts: []RequestOption{
+				o.WithMailAddress("test@test.com"),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -444,8 +444,8 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withRoleType": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormRoleType(RoleAdministrator),
+			opts: []RequestOption{
+				o.WithRoleType(RoleAdministrator),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -458,11 +458,11 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-multiple": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormPassword("testpassword1"),
-				o.WithFormName("testname1"),
-				o.WithFormMailAddress("test1@test.com"),
-				o.WithFormRoleType(RoleAdministrator),
+			opts: []RequestOption{
+				o.WithPassword("testpassword1"),
+				o.WithName("testname1"),
+				o.WithMailAddress("test1@test.com"),
+				o.WithRoleType(RoleAdministrator),
 			},
 
 			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
@@ -478,17 +478,22 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"error-option-invalid-value": {
 			id: 1,
-			options: []*FormOption{
-				o.WithFormName(""),
+			opts: []RequestOption{
+				o.WithName(""),
 			},
 
 			wantErrType: &ValidationError{},
 		},
 		"error-option-invalid-type": {
-			id:      1,
-			options: []*FormOption{{"invalid", nil, func(p url.Values) error { return nil }}},
+			id:   1,
+			opts: []RequestOption{newInvalidTypeOption()},
 
-			wantErrType: &InvalidOptionError[formType]{},
+			wantErrType: &InvalidOptionKeyError{},
+		},
+		"error-option-set-faild": {
+			id:          1,
+			opts:        []RequestOption{newFailingSetOption(paramName)},
+			wantErrType: errors.New(""),
 		},
 	}
 
@@ -505,7 +510,7 @@ func TestUserService_Update(t *testing.T) {
 				s.method.Patch = tc.mockPatchFn
 			}
 
-			user, err := s.Update(tc.id, tc.options...)
+			user, err := s.Update(tc.id, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

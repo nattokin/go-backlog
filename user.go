@@ -125,9 +125,6 @@ func (s *UserService) Own() (*User, error) {
 	return getUser(s.method, "users/myself")
 }
 
-// ToDo: func (s *UserService) Icon()
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
-
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
@@ -136,15 +133,15 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 		return nil, newValidationError("userID must not be empty")
 	}
 
-	o := s.Option.registry.form
 	form := url.Values{}
-	err := o.applyOptions(form,
-		o.WithPassword(password),
-		o.WithName(name),
-		o.WithMailAddress(mailAddress),
-		o.WithRoleType(roleType),
-	)
-	if err != nil {
+	validTypes := []apiParamOptionType{paramPassword, paramName, paramMailAddress, paramRoleType}
+	options := []RequestOption{
+		s.Option.base.WithPassword(password),
+		s.Option.base.WithName(name),
+		s.Option.base.WithMailAddress(mailAddress),
+		s.Option.base.WithRoleType(roleType),
+	}
+	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -155,37 +152,25 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 
 // Update updates a user in your space.
 //
-// This method can specify the options returned by methods in "*Client.User.Option".
-//
-// Use the following methods:
-//
-//	WithFormName
-//	WithFormPassword
-//	WithFormMailAddress
-//	WithFormRoleType
+// This method supports options returned by methods in "*Client.User.Option",
+// such as:
+//   - WithMailAddress
+//   - WithName
+//   - WithPassword
+//   - WithRoleType
+//   - WithUserID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(id int, opts ...*FormOption) (*User, error) {
-	o := s.Option.registry.form
+func (s *UserService) Update(id int, opts ...RequestOption) (*User, error) {
+
 	form := url.Values{}
-	if err := o.applyOptions(form, o.WithUserID(id)); err != nil {
-		return nil, err
-	}
-
-	validOptions := []formType{formName, formPassword, formMailAddress, formRoleType}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	err := o.applyOptions(form, opts...)
-	if err != nil {
+	validTypes := []apiParamOptionType{paramUserID, paramName, paramPassword, paramMailAddress, paramRoleType}
+	options := append([]RequestOption{s.Option.base.WithUserID(id)}, opts...)
+	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-
 	return updateUser(s.method, spath, form)
 }
 

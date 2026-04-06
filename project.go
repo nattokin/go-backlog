@@ -33,29 +33,17 @@ type ProjectService struct {
 
 // All returns a list of projects.
 //
-// By default, it returns only projects the authenticated user has joined.
-// The "WithQueryAll" option is available only for administrators; when set to true,
-// it returns all projects in the space. When false (default), it returns joined projects only.
-//
 // This method supports options returned by methods in "*Client.Project.Option",
 // such as:
-//
 //   - WithQueryAll
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(opts ...*QueryOption) ([]*Project, error) {
-	validOptions := []queryType{queryAll, queryArchived}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
+func (s *ProjectService) All(opts ...RequestOption) ([]*Project, error) {
 
-	o := s.Option.registry.query
 	query := url.Values{}
-	err := o.applyOptions(query, opts...)
-	if err != nil {
+	validTypes := []apiParamOptionType{paramAll, paramArchived}
+	if err := applyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -96,30 +84,20 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 
 // Create creates a new project.
 //
-// This method supports options returned by methods in "*Client.Project.Option".
-//
-// Use the following methods:
-//
-//	WithFormChartEnabled
-//	WithFormSubtaskingEnabled
-//	WithFormProjectLeaderCanEditProjectLeader
-//	WithFormTextFormattingRule
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
+//   - WithChartEnabled
+//   - WithProjectLeaderCanEditProjectLeader
+//   - WithSubtaskingEnabled
+//   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project, error) {
-	validOptions := []formType{formChartEnabled, formSubtaskingEnabled, formProjectLeaderCanEditProjectLeader, formTextFormattingRule}
-	for _, option := range opts {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
+func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Project, error) {
 
-	o := s.Option.registry.form
 	form := url.Values{}
-	err := o.applyOptions(form, append(
-		[]*FormOption{o.WithKey(key), o.WithName(name)}, opts...,
-	)...)
-	if err != nil {
+	validTypes := []apiParamOptionType{paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled, paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule}
+	options := append([]RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
+	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -138,38 +116,28 @@ func (s *ProjectService) Create(key, name string, opts ...*FormOption) (*Project
 
 // Update updates a project.
 //
-// This method supports options returned by methods in "*Client.Project.Option".
-//
-// Use the following methods:
-//
-//	WithFormKey
-//	WithFormName
-//	WithFormChartEnabled
-//	WithFormSubtaskingEnabled
-//	WithFormProjectLeaderCanEditProjectLeader
-//	WithFormTextFormattingRule
-//	WithFormArchived
-//	WithFormTextFormattingRule
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
+//   - WithArchived
+//   - WithChartEnabled
+//   - WithKey
+//   - WithName
+//   - WithProjectLeaderCanEditProjectLeader
+//   - WithSubtaskingEnabled
+//   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(projectIDOrKey string, options ...*FormOption) (*Project, error) {
+func (s *ProjectService) Update(projectIDOrKey string, opts ...RequestOption) (*Project, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	validOptions := []formType{
-		formKey, formName, formChartEnabled, formSubtaskingEnabled, formProjectLeaderCanEditProjectLeader, formTextFormattingRule, formArchived,
-	}
-	for _, option := range options {
-		if err := option.validate(validOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	o := s.Option.registry.form
 	form := url.Values{}
-	err := o.applyOptions(form, options...)
-	if err != nil {
+	validTypes := []apiParamOptionType{
+		paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled,
+		paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule, paramArchived,
+	}
+	if err := applyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -208,19 +176,3 @@ func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
 
 	return &v, nil
 }
-
-// Icon returns the icon image of the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
-// func (s *ProjectService) Icon(projectIDOrKey string) (io.ReadCloser, error) {
-// 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
-// 		return nil, err
-// 	}
-//
-// 	spath := path.Join("projects", projectIDOrKey, "image")
-// 	resp, err := s.method.Get(spath, nil)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return resp.Body, nil
-// }

@@ -56,26 +56,26 @@ func (e *APIResponseError) Error() string {
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
-// InvalidOptionError represents an error for an invalid option value.
-type InvalidOptionError[T requestOptionType] struct {
-	Invalid   T
-	ValidList []T
+// InvalidOptionKeyError represents an error for an invalid option value.
+type InvalidOptionKeyError struct {
+	Invalid   string
+	ValidList []string
 }
 
-func newInvalidOptionError[T requestOptionType](invalid T, validList []T) *InvalidOptionError[T] {
-	return &InvalidOptionError[T]{
+func newInvalidOptionKeyError(invalid string, validList []apiParamOptionType) *InvalidOptionKeyError {
+	validKeys := []string{}
+	for _, v := range validList {
+		validKeys = append(validKeys, v.Value())
+	}
+
+	return &InvalidOptionKeyError{
 		Invalid:   invalid,
-		ValidList: validList,
+		ValidList: validKeys,
 	}
 }
 
-func (e *InvalidOptionError[T]) Error() string {
-	types := make([]string, len(e.ValidList))
-	for k, v := range e.ValidList {
-		types[k] = v.Value()
-	}
-
-	return fmt.Sprintf("invalid option:%s, allowed options:%s", e.Invalid.Value(), strings.Join(types, ","))
+func (e *InvalidOptionKeyError) Error() string {
+	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
 }
 
 // ValidationError represents an argument validation error.

@@ -120,10 +120,10 @@ func TestNewClient_initialization(t *testing.T) {
 		assert.Same(t, c.Wiki.method, c.Space.method)
 
 		// Shared option support
-		assert.NotNil(t, c.Wiki.Option.registry.query)
-		assert.NotNil(t, c.Wiki.Option.registry.form)
-		assert.Same(t, c.Wiki.Option.registry.query, c.Project.Option.registry.query)
-		assert.Same(t, c.Wiki.Option.registry.form, c.Project.Option.registry.form)
+		assert.NotNil(t, c.Wiki.Option.base)
+		assert.NotNil(t, c.Wiki.Option.base)
+		assert.Same(t, c.Wiki.Option.base, c.Project.Option.base)
+		assert.Same(t, c.Wiki.Option.base, c.Project.Option.base)
 
 		// Activity / Attachment presence
 		assert.NotNil(t, c.Project.Activity)
@@ -365,7 +365,7 @@ func TestClient_newRequest(t *testing.T) {
 
 }
 
-func TestClient_Method(t *testing.T) {
+func TestClient_method(t *testing.T) {
 	cases := map[string]struct {
 		call    func(c *Client) (*http.Response, error)
 		check   func(t *testing.T, captured *httpCapture)
@@ -530,7 +530,7 @@ func TestClient_Method(t *testing.T) {
 	}
 }
 
-func TestClient_MethodUpload_errors(t *testing.T) {
+func TestClient_methodUpload_errors(t *testing.T) {
 	type testCase struct {
 		spath    string
 		fileName string

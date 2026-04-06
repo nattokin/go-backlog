@@ -24,53 +24,36 @@ import (
 
 // --- Option Service Helpers ---
 
-// newQueryOptionService returns a test instance of QueryOptionService.
-func newQueryOptionService() *QueryOptionService {
-	return &QueryOptionService{}
-}
-
-// newFormOptionService returns a test instance of FormOptionService.
-func newFormOptionService() *FormOptionService {
-	return &FormOptionService{}
+// newOptionService returns a test instance of OptionService.
+func newOptionService() *OptionService {
+	return &OptionService{}
 }
 
 // newActivityOptionService returns a test instance of ActivityOptionService.
 func newActivityOptionService() *ActivityOptionService {
 	return &ActivityOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		base: newOptionService(),
 	}
 }
 
 // newProjectOptionService returns a test instance of ProjectOptionService.
 func newProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		base: newOptionService(),
 	}
 }
 
 // newUserOptionService returns a test instance of UserOptionService.
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		base: newOptionService(),
 	}
 }
 
 // newWikiOptionService returns a test instance of WikiOptionService.
 func newWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
-		registry: &optionRegistry{
-			query: newQueryOptionService(),
-			form:  newFormOptionService(),
-		},
+		base: newOptionService(),
 	}
 }
 
@@ -79,7 +62,7 @@ func newWikiOptionService() *WikiOptionService {
 // newWikiService returns a test instance of WikiService.
 func newWikiService() *WikiService {
 	return &WikiService{
-		method:     newClientMethodMock(),
+		method:     newClientMethod(),
 		Attachment: newWikiAttachmentService(),
 		Option:     newWikiOptionService(),
 	}
@@ -88,7 +71,7 @@ func newWikiService() *WikiService {
 // newWikiAttachmentService returns a test instance of WikiAttachmentService.
 func newWikiAttachmentService() *WikiAttachmentService {
 	return &WikiAttachmentService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 	}
 }
 
@@ -97,7 +80,7 @@ func newWikiAttachmentService() *WikiAttachmentService {
 // newProjectService returns a test instance of ProjectService.
 func newProjectService() *ProjectService {
 	return &ProjectService{
-		method:   newClientMethodMock(),
+		method:   newClientMethod(),
 		Activity: newProjectActivityService(),
 		User:     newProjectUserService(),
 		Option:   newProjectOptionService(),
@@ -107,7 +90,7 @@ func newProjectService() *ProjectService {
 // newProjectActivityService returns a test instance of ProjectActivityService.
 func newProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -115,7 +98,7 @@ func newProjectActivityService() *ProjectActivityService {
 // newProjectUserService returns a test instance of ProjectUserService.
 func newProjectUserService() *ProjectUserService {
 	return &ProjectUserService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 	}
 }
 
@@ -124,7 +107,7 @@ func newProjectUserService() *ProjectUserService {
 // newUserService returns a test instance of UserService.
 func newUserService() *UserService {
 	return &UserService{
-		method:   newClientMethodMock(),
+		method:   newClientMethod(),
 		Activity: newUserActivityService(),
 		Option:   newUserOptionService(),
 	}
@@ -133,7 +116,7 @@ func newUserService() *UserService {
 // newUserActivityService returns a test instance of UserActivityService.
 func newUserActivityService() *UserActivityService {
 	return &UserActivityService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -143,7 +126,7 @@ func newUserActivityService() *UserActivityService {
 // newSpaceService returns a test instance of SpaceService.
 func newSpaceService() *SpaceService {
 	return &SpaceService{
-		method:     newClientMethodMock(),
+		method:     newClientMethod(),
 		Activity:   newSpaceActivityService(),
 		Attachment: newSpaceAttachmentService(),
 	}
@@ -152,7 +135,7 @@ func newSpaceService() *SpaceService {
 // newSpaceActivityService returns a test instance of SpaceActivityService.
 func newSpaceActivityService() *SpaceActivityService {
 	return &SpaceActivityService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 		Option: newActivityOptionService(),
 	}
 }
@@ -160,7 +143,7 @@ func newSpaceActivityService() *SpaceActivityService {
 // newSpaceAttachmentService returns a test instance of SpaceAttachmentService.
 func newSpaceAttachmentService() *SpaceAttachmentService {
 	return &SpaceAttachmentService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 	}
 }
 
@@ -169,7 +152,7 @@ func newSpaceAttachmentService() *SpaceAttachmentService {
 // newIssueService returns a test instance of IssueService.
 func newIssueService() *IssueService {
 	return &IssueService{
-		method:     newClientMethodMock(),
+		method:     newClientMethod(),
 		Attachment: newIssueAttachmentService(),
 	}
 }
@@ -177,7 +160,7 @@ func newIssueService() *IssueService {
 // newIssueAttachmentService returns a test instance of IssueAttachmentService.
 func newIssueAttachmentService() *IssueAttachmentService {
 	return &IssueAttachmentService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
 	}
 }
 
@@ -186,7 +169,7 @@ func newIssueAttachmentService() *IssueAttachmentService {
 // newPullRequestService returns a test instance of PullRequestService.
 func newPullRequestService() *PullRequestService {
 	return &PullRequestService{
-		method:     newClientMethodMock(),
+		method:     newClientMethod(),
 		Attachment: newPullRequestAttachmentService(),
 	}
 }
@@ -194,7 +177,29 @@ func newPullRequestService() *PullRequestService {
 // newPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
 func newPullRequestAttachmentService() *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
-		method: newClientMethodMock(),
+		method: newClientMethod(),
+	}
+}
+
+// newClientMethod creates and returns a mock implementation of the `method` struct.
+// Each API function (Get, Post, Patch, Delete) returns a default "not implemented" error.
+func newClientMethod() *method {
+	return &method{
+		Get: func(spath string, query url.Values) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Post: func(spath string, form url.Values) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Patch: func(spath string, form url.Values) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Delete: func(spath string, form url.Values) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
+		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+			return nil, errors.New("default mock not implemented")
+		},
 	}
 }
 
