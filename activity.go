@@ -6,31 +6,11 @@ import (
 	"strconv"
 )
 
-func getActivityList(m *method, spath string, options ...RequestOption) ([]*Activity, error) {
-	validOptions := []queryType{queryActivityTypeIDs, queryMinID, queryMaxID, queryCount, queryOrder}
-
+func getActivityList(registry *OptionService, m *method, spath string, opts ...RequestOption) ([]*Activity, error) {
 	query := url.Values{}
-	for _, opt := range options {
-		ao, ok := opt.(*apiOption)
-		if !ok {
-			// user-provided custom implementation
-			if err := opt.Check(); err != nil {
-				return nil, err
-			}
-			if err := opt.Set(query); err != nil {
-				return nil, err
-			}
-			continue
-		}
-		if err := ao.validateQueryType(validOptions); err != nil {
-			return nil, err
-		}
-		if err := ao.Check(); err != nil {
-			return nil, err
-		}
-		if err := ao.Set(query); err != nil {
-			return nil, err
-		}
+	validOptionKeys := []apiParamOptionType{paramActivityTypeIDs, paramMinID, paramMaxID, paramCount, paramOrder}
+	if err := applyOptions(query, validOptionKeys, opts...); err != nil {
+		return nil, err
 	}
 
 	resp, err := m.Get(spath, query)
@@ -55,14 +35,22 @@ type ProjectActivityService struct {
 
 // List returns a list of activities in the project.
 //
+// This method supports options returned by methods in "*Client.Activity.Option",
+// such as:
+//   - WithActivityTypeIDs
+//   - WithCount
+//   - WithMaxID
+//   - WithMinID
+//   - WithOrder
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(projectIDOrKey string, options ...RequestOption) ([]*Activity, error) {
+func (s *ProjectActivityService) List(projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "activities")
-	return getActivityList(s.method, spath, options...)
+	return getActivityList(s.Option.registry, s.method, spath, opts...)
 }
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
@@ -74,9 +62,17 @@ type SpaceActivityService struct {
 
 // List returns a list of activities in your space.
 //
+// This method supports options returned by methods in "*Client.Activity.Option",
+// such as:
+//   - WithActivityTypeIDs
+//   - WithCount
+//   - WithMaxID
+//   - WithMinID
+//   - WithOrder
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
-func (s *SpaceActivityService) List(options ...RequestOption) ([]*Activity, error) {
-	return getActivityList(s.method, "space/activities", options...)
+func (s *SpaceActivityService) List(opts ...RequestOption) ([]*Activity, error) {
+	return getActivityList(s.Option.registry, s.method, "space/activities", opts...)
 }
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
@@ -88,13 +84,21 @@ type UserActivityService struct {
 
 // List returns a list of user activities.
 //
+// This method supports options returned by methods in "*Client.Activity.Option",
+// such as:
+//   - WithActivityTypeIDs
+//   - WithCount
+//   - WithMaxID
+//   - WithMinID
+//   - WithOrder
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *UserActivityService) List(userID int, options ...RequestOption) ([]*Activity, error) {
+func (s *UserActivityService) List(userID int, opts ...RequestOption) ([]*Activity, error) {
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return getActivityList(s.method, spath, options...)
+	return getActivityList(s.Option.registry, s.method, spath, opts...)
 }

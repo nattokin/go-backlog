@@ -6,12 +6,8 @@ package backlog
 
 func initServices(c *Client) {
 	// --- Initialize shared option services --------------------------------------
-	registry := &optionRegistry{
-		option: &OptionService{},
-	}
-
 	activityOptionService := &ActivityOptionService{
-		registry: registry,
+		&OptionService{},
 	}
 
 	// --- Initialize IssueService -------------------------------------------------
@@ -33,7 +29,7 @@ func initServices(c *Client) {
 			method: c.method,
 		},
 		Option: &ProjectOptionService{
-			registry: registry,
+			&OptionService{},
 		},
 	}
 
@@ -65,7 +61,7 @@ func initServices(c *Client) {
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
-			registry: registry,
+			&OptionService{},
 		},
 	}
 
@@ -76,7 +72,7 @@ func initServices(c *Client) {
 			method: c.method,
 		},
 		Option: &WikiOptionService{
-			registry: registry,
+			&OptionService{},
 		},
 	}
 }

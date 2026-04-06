@@ -28,32 +28,27 @@ const (
 )
 
 const (
-	formArchived                          formType = "archived"
-	formChartEnabled                      formType = "chartEnabled"
-	formContent                           formType = "content"
-	formKey                               formType = "key"
-	formName                              formType = "name"
-	formMailAddress                       formType = "mailAddress"
-	formMailNotify                        formType = "mailNotify"
-	formPassword                          formType = "password"
-	formProjectLeaderCanEditProjectLeader formType = "projectLeaderCanEditProjectLeader"
-	formRoleType                          formType = "roleType"
-	formSubtaskingEnabled                 formType = "subtaskingEnabled"
-	formTextFormattingRule                formType = "textFormattingRule"
-	formUserID                            formType = "userId"
-	formSendMail                          formType = "sendMail"
-)
-
-const (
-	queryActivityTypeIDs queryType = "activityTypeId[]"
-	queryAll             queryType = "all"
-	queryArchived        queryType = "archived"
-	queryCount           queryType = "count"
-	queryKey             queryType = "key"
-	queryKeyword         queryType = "keyword"
-	queryMaxID           queryType = "maxId"
-	queryMinID           queryType = "minId"
-	queryOrder           queryType = "order"
+	paramActivityTypeIDs                   apiParamOptionType = "activityTypeId[]"
+	paramAll                               apiParamOptionType = "all"
+	paramArchived                          apiParamOptionType = "archived"
+	paramChartEnabled                      apiParamOptionType = "chartEnabled"
+	paramContent                           apiParamOptionType = "content"
+	paramCount                             apiParamOptionType = "count"
+	paramKey                               apiParamOptionType = "key"
+	paramKeyword                           apiParamOptionType = "keyword"
+	paramMailAddress                       apiParamOptionType = "mailAddress"
+	paramMailNotify                        apiParamOptionType = "mailNotify"
+	paramMaxID                             apiParamOptionType = "maxId"
+	paramMinID                             apiParamOptionType = "minId"
+	paramName                              apiParamOptionType = "name"
+	paramOrder                             apiParamOptionType = "order"
+	paramPassword                          apiParamOptionType = "password"
+	paramProjectLeaderCanEditProjectLeader apiParamOptionType = "projectLeaderCanEditProjectLeader"
+	paramRoleType                          apiParamOptionType = "roleType"
+	paramSendMail                          apiParamOptionType = "sendMail"
+	paramSubtaskingEnabled                 apiParamOptionType = "subtaskingEnabled"
+	paramTextFormattingRule                apiParamOptionType = "textFormattingRule"
+	paramUserID                            apiParamOptionType = "userId"
 )
 
 const maxActivityTypeID = 26

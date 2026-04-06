@@ -133,20 +133,16 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 		return nil, newValidationError("userID must not be empty")
 	}
 
-	o := s.Option.registry.option
 	form := url.Values{}
-	for _, opt := range []RequestOption{
-		o.WithPassword(password),
-		o.WithName(name),
-		o.WithMailAddress(mailAddress),
-		o.WithRoleType(roleType),
-	} {
-		if err := opt.Check(); err != nil {
-			return nil, err
-		}
-		if err := opt.Set(form); err != nil {
-			return nil, err
-		}
+	validTypes := []apiParamOptionType{paramPassword, paramName, paramMailAddress, paramRoleType}
+	options := []RequestOption{
+		s.Option.registry.WithPassword(password),
+		s.Option.registry.WithName(name),
+		s.Option.registry.WithMailAddress(mailAddress),
+		s.Option.registry.WithRoleType(roleType),
+	}
+	if err := applyOptions(form, validTypes, options...); err != nil {
+		return nil, err
 	}
 
 	form.Set("userId", userID)
@@ -156,20 +152,21 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 
 // Update updates a user in your space.
 //
+// This method supports options returned by methods in "*Client.User.Option",
+// such as:
+//   - WithMailAddress
+//   - WithName
+//   - WithPassword
+//   - WithRoleType
+//   - WithUserID
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(id int, opts ...RequestOption) (*User, error) {
-	o := s.Option.registry.option
-	form := url.Values{}
-	userIDOpt := o.WithUserID(id)
-	if err := userIDOpt.Check(); err != nil {
-		return nil, err
-	}
-	if err := userIDOpt.Set(form); err != nil {
-		return nil, err
-	}
 
-	validTypes := []formType{formName, formPassword, formMailAddress, formRoleType}
-	if err := o.applyFormOptions(form, validTypes, opts...); err != nil {
+	form := url.Values{}
+	validTypes := []apiParamOptionType{paramUserID, paramName, paramPassword, paramMailAddress, paramRoleType}
+	options := append([]RequestOption{s.Option.registry.WithUserID(id)}, opts...)
+	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 

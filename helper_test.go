@@ -29,38 +29,31 @@ func newOptionService() *OptionService {
 	return &OptionService{}
 }
 
-// newOptionRegistry returns a test instance of optionRegistry.
-func newOptionRegistry() *optionRegistry {
-	return &optionRegistry{
-		option: newOptionService(),
-	}
-}
-
 // newActivityOptionService returns a test instance of ActivityOptionService.
 func newActivityOptionService() *ActivityOptionService {
 	return &ActivityOptionService{
-		registry: newOptionRegistry(),
+		registry: newOptionService(),
 	}
 }
 
 // newProjectOptionService returns a test instance of ProjectOptionService.
 func newProjectOptionService() *ProjectOptionService {
 	return &ProjectOptionService{
-		registry: newOptionRegistry(),
+		registry: newOptionService(),
 	}
 }
 
 // newUserOptionService returns a test instance of UserOptionService.
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
-		registry: newOptionRegistry(),
+		registry: newOptionService(),
 	}
 }
 
 // newWikiOptionService returns a test instance of WikiOptionService.
 func newWikiOptionService() *WikiOptionService {
 	return &WikiOptionService{
-		registry: newOptionRegistry(),
+		registry: newOptionService(),
 	}
 }
 

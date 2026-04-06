@@ -33,12 +33,17 @@ type ProjectService struct {
 
 // All returns a list of projects.
 //
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
+//   - WithQueryAll
+//   - WithQueryArchived
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All(opts ...RequestOption) ([]*Project, error) {
-	o := s.Option.registry.option
-	validTypes := []queryType{queryAll, queryArchived}
+
 	query := url.Values{}
-	if err := o.applyQueryOptions(query, validTypes, opts...); err != nil {
+	validTypes := []apiParamOptionType{paramAll, paramArchived}
+	if err := applyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -79,22 +84,21 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 
 // Create creates a new project.
 //
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
+//   - WithChartEnabled
+//   - WithProjectLeaderCanEditProjectLeader
+//   - WithSubtaskingEnabled
+//   - WithTextFormattingRule
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Project, error) {
-	o := s.Option.registry.option
-	validTypes := []formType{formChartEnabled, formSubtaskingEnabled, formProjectLeaderCanEditProjectLeader, formTextFormattingRule}
+
 	form := url.Values{}
-	if err := o.applyFormOptions(form, validTypes, opts...); err != nil {
+	validTypes := []apiParamOptionType{paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled, paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule}
+	options := append([]RequestOption{s.Option.registry.WithKey(key), s.Option.registry.WithName(name)}, opts...)
+	if err := applyOptions(form, validTypes, options...); err != nil {
 		return nil, err
-	}
-	// apply mandatory key/name
-	for _, opt := range []RequestOption{o.WithKey(key), o.WithName(name)} {
-		if err := opt.Check(); err != nil {
-			return nil, err
-		}
-		if err := opt.Set(form); err != nil {
-			return nil, err
-		}
 	}
 
 	resp, err := s.method.Post("projects", form)
@@ -112,19 +116,28 @@ func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Proje
 
 // Update updates a project.
 //
+// This method supports options returned by methods in "*Client.Project.Option",
+// such as:
+//   - WithArchived
+//   - WithChartEnabled
+//   - WithKey
+//   - WithName
+//   - WithProjectLeaderCanEditProjectLeader
+//   - WithSubtaskingEnabled
+//   - WithTextFormattingRule
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(projectIDOrKey string, options ...RequestOption) (*Project, error) {
+func (s *ProjectService) Update(projectIDOrKey string, opts ...RequestOption) (*Project, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	o := s.Option.registry.option
-	validTypes := []formType{
-		formKey, formName, formChartEnabled, formSubtaskingEnabled,
-		formProjectLeaderCanEditProjectLeader, formTextFormattingRule, formArchived,
-	}
 	form := url.Values{}
-	if err := o.applyFormOptions(form, validTypes, options...); err != nil {
+	validTypes := []apiParamOptionType{
+		paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled,
+		paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule, paramArchived,
+	}
+	if err := applyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
 

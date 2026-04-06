@@ -120,10 +120,10 @@ func TestNewClient_initialization(t *testing.T) {
 		assert.Same(t, c.Wiki.method, c.Space.method)
 
 		// Shared option support
-		assert.NotNil(t, c.Wiki.Option.registry.query)
-		assert.NotNil(t, c.Wiki.Option.registry.form)
-		assert.Same(t, c.Wiki.Option.registry.query, c.Project.Option.registry.query)
-		assert.Same(t, c.Wiki.Option.registry.form, c.Project.Option.registry.form)
+		assert.NotNil(t, c.Wiki.Option.registry)
+		assert.NotNil(t, c.Wiki.Option.registry)
+		assert.Same(t, c.Wiki.Option.registry, c.Project.Option.registry)
+		assert.Same(t, c.Wiki.Option.registry, c.Project.Option.registry)
 
 		// Activity / Attachment presence
 		assert.NotNil(t, c.Project.Activity)

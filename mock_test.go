@@ -52,6 +52,7 @@ func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 }
 
 // newClientMethodMock creates and returns a mock implementation of the `method` struct.
+// Each API function (Get, Post, Patch, Delete) returns a default "not implemented" error.
 func newClientMethodMock() *method {
 	return &method{
 		Get: func(spath string, query url.Values) (*http.Response, error) {
@@ -99,8 +100,8 @@ func (mw *mockMultipartWriter) CreateFormFile(fieldname, filename string) (io.Wr
 func (mw *mockMultipartWriter) FormDataContentType() string { return "mock/type" }
 func (mw *mockMultipartWriter) Close() error                { return mw.wrapper.closeErr }
 
-// newOptionWithCheckError returns a RequestOption whose check function always fails.
-func newOptionWithCheckError(t queryType) RequestOption {
+// newFailingCheckOption returns a RequestOption whose check function always fails.
+func newFailingCheckOption(t apiParamOptionType) RequestOption {
 	return &apiOption{
 		t: t,
 		checkFunc: func() error {
@@ -110,8 +111,8 @@ func newOptionWithCheckError(t queryType) RequestOption {
 	}
 }
 
-// newOptionWithSetError returns a RequestOption whose set function always fails.
-func newOptionWithSetError(t queryType) RequestOption {
+// newFailingSetOption returns a RequestOption whose set function always fails.
+func newFailingSetOption(t apiParamOptionType) RequestOption {
 	return &apiOption{
 		t:         t,
 		checkFunc: func() error { return nil },
@@ -121,34 +122,11 @@ func newOptionWithSetError(t queryType) RequestOption {
 	}
 }
 
-// newFormOptionWithCheckError returns a RequestOption (form) whose check function always fails.
-func newFormOptionWithCheckError(t formType) RequestOption {
+// newInvalidTypeOption returns a RequestOption whose has invalid type.
+func newInvalidTypeOption() RequestOption {
 	return &apiOption{
-		t: t,
-		checkFunc: func() error {
-			return errors.New("check error")
-		},
-		setFunc: func(_ url.Values) error { return nil },
-	}
-}
-
-// newFormOptionWithSetError returns a RequestOption (form) whose set function always fails.
-func newFormOptionWithSetError(t formType) RequestOption {
-	return &apiOption{
-		t:         t,
+		t:         "invalid",
 		checkFunc: func() error { return nil },
-		setFunc: func(_ url.Values) error {
-			return errors.New("set error")
-		},
+		setFunc:   func(_ url.Values) error { return nil },
 	}
-}
-
-// newQueryOptionWithCheckError is an alias kept for backward compat in tests.
-func newQueryOptionWithCheckError(t queryType) RequestOption {
-	return newOptionWithCheckError(t)
-}
-
-// newQueryOptionWithSetError is an alias kept for backward compat in tests.
-func newQueryOptionWithSetError(t queryType) RequestOption {
-	return newOptionWithSetError(t)
 }

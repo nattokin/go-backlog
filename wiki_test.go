@@ -23,7 +23,7 @@ func TestWikiService_All(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		options        []RequestOption
+		opts           []RequestOption
 
 		mockGetFn func(spath string, query url.Values) (*http.Response, error)
 
@@ -50,7 +50,7 @@ func TestWikiService_All(t *testing.T) {
 
 		"success-projectIDOrKey-key-with-options": {
 			projectIDOrKey: "PRJ_KEY",
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithKeyword("test"),
 			},
 
@@ -75,19 +75,14 @@ func TestWikiService_All(t *testing.T) {
 		},
 
 		"error-option-invalid-type": {
-			projectIDOrKey: "PRJ",
-			options: []RequestOption{&apiOption{
-				t: queryCount,
-				setFunc: func(p url.Values) error {
-					return nil
-				},
-			}},
-			wantErrType: &InvalidOptionError[queryType]{},
+			projectIDOrKey: "invalid",
+			opts:           []RequestOption{newInvalidTypeOption()},
+			wantErrType:    &InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			options:        []RequestOption{newQueryOptionWithSetError(queryKeyword)},
+			opts:           []RequestOption{newFailingSetOption(paramKeyword)},
 			wantErrType:    errors.New(""),
 		},
 
@@ -133,7 +128,7 @@ func TestWikiService_All(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			wikis, err := s.All(tc.projectIDOrKey, tc.options...)
+			wikis, err := s.All(tc.projectIDOrKey, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -417,23 +412,17 @@ func TestWikiService_Create(t *testing.T) {
 			wantErrType: &ValidationError{},
 		},
 		"error-option-invalid-type": {
-			projectID: 1,
-			name:      "Test",
-			content:   "content",
-			opts: []RequestOption{
-				&apiOption{
-					formMailAddress,
-					nil,
-					func(p url.Values) error { return nil },
-				},
-			},
-			wantErrType: &InvalidOptionError[formType]{},
+			projectID:   1,
+			name:        "Test",
+			content:     "content",
+			opts:        []RequestOption{newInvalidTypeOption()},
+			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []RequestOption{newFormOptionWithSetError(formMailNotify)},
+			opts:        []RequestOption{newFailingSetOption(paramMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -535,6 +524,48 @@ func TestWikiService_Update(t *testing.T) {
 				Content: "This is a muximal wiki page.",
 			},
 		},
+		"success-wikiID-content-only": {
+			wikiID: 34,
+			option: o.WithContent("Full Options Content"),
+
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "Full Options Content", form.Get("content"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
+			},
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Maximum Wiki Page",
+				Content: "This is a muximal wiki page.",
+			},
+		},
+		"success-wikiID-mailNotify-name": {
+			wikiID: 34,
+			option: o.WithMailNotify(true),
+			opts: []RequestOption{
+				o.WithName("Full Options Name"),
+			},
+
+			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "Full Options Name", form.Get("name"))
+				assert.Equal(t, "true", form.Get("mailNotify"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+				}, nil
+			},
+
+			wantWiki: &Wiki{
+				ID:      34,
+				Name:    "Maximum Wiki Page",
+				Content: "This is a muximal wiki page.",
+			},
+		},
 		"success-wikiID-full-options": {
 			wikiID: 34,
 			option: o.WithName("Full Options Name"),
@@ -572,17 +603,15 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"error-option-invalid-type": {
 			wikiID: 12,
-			option: &apiOption{
-				t: formRoleType,
-				setFunc: func(p url.Values) error {
-					return nil
-				},
+			option: newInvalidTypeOption(),
+			opts: []RequestOption{
+				o.WithName("New Name"),
 			},
-			wantErrType: &InvalidOptionError[formType]{},
+			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			wikiID:      12,
-			option:      newFormOptionWithSetError(formName),
+			option:      newFailingSetOption(paramName),
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -646,7 +675,6 @@ func TestWikiService_Update(t *testing.T) {
 
 func TestWikiService_Delete(t *testing.T) {
 	o := newWikiOptionService()
-	projectOption := newProjectOptionService()
 
 	cases := map[string]struct {
 		wikiID int
@@ -695,15 +723,13 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			wikiID:      1,
-			opts:        []RequestOption{newFormOptionWithSetError(formMailNotify)},
+			opts:        []RequestOption{newFailingSetOption(paramMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
-			wikiID: 1,
-			opts: []RequestOption{
-				projectOption.WithKey("Invalid Option"),
-			},
-			wantErrType: &InvalidOptionError[formType]{},
+			wikiID:      1,
+			opts:        []RequestOption{newInvalidTypeOption()},
+			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			wikiID: 34,

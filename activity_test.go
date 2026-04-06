@@ -129,12 +129,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		order          string
 	}
 	cases := map[string]struct {
-		options   []RequestOption
+		opts      []RequestOption
 		wantError bool
 		want      want
 	}{
 		"success-no-option": {
-			options:   []RequestOption{},
+			opts:      []RequestOption{},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
@@ -145,7 +145,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withActivityTypeIDs": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
@@ -158,7 +158,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withMinID": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithMinID(1),
 			},
 			wantError: false,
@@ -171,7 +171,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withMaxID": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithMaxID(1),
 			},
 			wantError: false,
@@ -184,7 +184,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withCount": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithCount(1),
 			},
 			wantError: false,
@@ -197,7 +197,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withOrder": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithOrder(OrderAsc),
 			},
 			wantError: false,
@@ -210,7 +210,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-multiple-options": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -227,24 +227,20 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"error-option-invalid-value": {
-			options: []RequestOption{
+			opts: []RequestOption{
 				o.WithCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-invalid-type": {
-			options: []RequestOption{&apiOption{"invalid", nil, func(p url.Values) error {
-				return nil
-			}}},
+			opts:      []RequestOption{newInvalidTypeOption()},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-set-failed": {
-			options: []RequestOption{&apiOption{
-				ExportQueryCount,
-				nil,
-				func(p url.Values) error { return errors.New("set error") }},
+			opts: []RequestOption{
+				newFailingSetOption(paramCount),
 			},
 			wantError: true,
 		},
@@ -269,7 +265,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				return resp, nil
 			}
 
-			if resp, err := s.List(tc.options...); tc.wantError {
+			if resp, err := s.List(tc.opts...); tc.wantError {
 				require.Error(t, err)
 				assert.Nil(t, resp)
 			} else {
