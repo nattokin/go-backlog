@@ -162,7 +162,7 @@ func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*
 	config := &httpRequestConfig{}
 	for _, option := range opts {
 		if option != nil {
-			option.Set(config)
+			option.set(config)
 		}
 	}
 

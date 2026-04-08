@@ -11,7 +11,7 @@ import (
 // ──────────────────────────────────────────────────────────────
 
 type httpRequestOption struct {
-	Set func(config *httpRequestConfig)
+	set func(config *httpRequestConfig)
 }
 
 type httpRequestConfig struct {
@@ -22,7 +22,7 @@ type httpRequestConfig struct {
 
 func withHeader(header http.Header) *httpRequestOption {
 	return &httpRequestOption{
-		Set: func(config *httpRequestConfig) {
+		set: func(config *httpRequestConfig) {
 			config.Header = header
 		},
 	}
@@ -30,7 +30,7 @@ func withHeader(header http.Header) *httpRequestOption {
 
 func withBody(body io.Reader) *httpRequestOption {
 	return &httpRequestOption{
-		Set: func(config *httpRequestConfig) {
+		set: func(config *httpRequestConfig) {
 			config.Body = body
 		},
 	}
@@ -38,7 +38,7 @@ func withBody(body io.Reader) *httpRequestOption {
 
 func withQuery(query url.Values) *httpRequestOption {
 	return &httpRequestOption{
-		Set: func(config *httpRequestConfig) {
+		set: func(config *httpRequestConfig) {
 			config.Query = query
 		},
 	}
