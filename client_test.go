@@ -85,7 +85,7 @@ func TestNewClient_initialization(t *testing.T) {
 		require.NoError(t, err)
 
 		{
-			req, _ := c.newRequest(http.MethodGet, "test", nil, nil, nil)
+			req, _ := c.newRequest(http.MethodGet, "test")
 			res, err := c.doer.Do(req)
 			require.Error(t, err)
 			assert.Nil(t, res)
@@ -230,9 +230,6 @@ func TestClient_do(t *testing.T) {
 			res, err := c.do(
 				http.MethodGet,
 				"test",
-				http.Header{},
-				nil,
-				nil,
 			)
 
 			if tc.wantErr {
@@ -350,7 +347,13 @@ func TestClient_newRequest(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", nil)
-			request, err := c.newRequest(tc.method, tc.spath, tc.header, tc.body, tc.query)
+			request, err := c.newRequest(
+				tc.method,
+				tc.spath,
+				withHeader(tc.header),
+				withBody(tc.body),
+				withQuery(tc.query),
+			)
 
 			if tc.wantError {
 				assert.Error(t, err)
