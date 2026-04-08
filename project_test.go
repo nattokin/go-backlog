@@ -649,3 +649,63 @@ func TestProjectService_Delete(t *testing.T) {
 		})
 	}
 }
+
+// TestProjectService_contextPropagation verifies that the context passed to each
+// ProjectService method is correctly relayed to the underlying method call.
+func TestProjectService_contextPropagation(t *testing.T) {
+	t.Parallel()
+
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	o := newProjectOptionService()
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, s *ProjectService)
+	}{
+		{"All", func(t *testing.T, s *ProjectService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.All(ctx) //nolint:errcheck
+		}},
+		{"One", func(t *testing.T, s *ProjectService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.One(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Create", func(t *testing.T, s *ProjectService) {
+			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
+		}},
+		{"Update", func(t *testing.T, s *ProjectService) {
+			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Update(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Delete", func(t *testing.T, s *ProjectService) {
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Delete(ctx, "TEST") //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, newProjectService())
+		})
+	}
+}

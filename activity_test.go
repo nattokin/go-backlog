@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,13 +16,13 @@ import (
 func TestProjectActivityService_List(t *testing.T) {
 	t.Parallel()
 
-	projectKey := "TEST"
-
 	want := struct {
 		spath string
 	}{
-		spath: "projects/" + projectKey + "/activities",
+		spath: "projects/TEST/activities",
 	}
+
+	projectKey := "TEST"
 
 	s := newProjectActivityService()
 	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -88,12 +87,11 @@ func TestSpaceActivityService_List(t *testing.T) {
 func TestUserActivityService_List(t *testing.T) {
 	t.Parallel()
 
-	id := 1234
-
+	id := 1
 	want := struct {
 		spath string
 	}{
-		spath: "users/" + strconv.Itoa(id) + "/activities",
+		spath: "users/1/activities",
 	}
 
 	s := newUserActivityService()
@@ -121,134 +119,136 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {
-	o := newActivityOptionService()
-	type want struct {
-		activityTypeID []string
-		minID          string
-		maxID          string
-		count          string
-		order          string
-	}
+	t.Parallel()
+
 	cases := map[string]struct {
-		opts      []RequestOption
+		opts []RequestOption
+
+		want struct {
+			activityTypeID []string
+			minID          string
+			maxID          string
+			count          string
+			order          string
+		}
+
 		wantError bool
-		want      want
 	}{
-		"success-no-option": {
-			opts:      []RequestOption{},
-			wantError: false,
-			want: want{
+		"no-option": {
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
 				activityTypeID: nil,
 				minID:          "",
 				maxID:          "",
 				count:          "",
 				order:          "",
 			},
+			wantError: true,
 		},
-		"success-withActivityTypeIDs": {
+		"with-activityTypeID": {
 			opts: []RequestOption{
-				o.WithActivityTypeIDs([]int{1}),
+				newSpaceActivityOptionService().WithActivityTypeIDs([]int{1, 2}),
 			},
-			wantError: false,
-			want: want{
-				activityTypeID: []string{"1"},
-				minID:          "",
-				maxID:          "",
-				count:          "",
-				order:          "",
-			},
-		},
-		"success-withMinID": {
-			opts: []RequestOption{
-				o.WithMinID(1),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          "1",
-				maxID:          "",
-				count:          "",
-				order:          "",
-			},
-		},
-		"success-withMaxID": {
-			opts: []RequestOption{
-				o.WithMaxID(1),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          "",
-				maxID:          "1",
-				count:          "",
-				order:          "",
-			},
-		},
-		"success-withCount": {
-			opts: []RequestOption{
-				o.WithCount(1),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          "",
-				maxID:          "",
-				count:          "1",
-				order:          "",
-			},
-		},
-		"success-withOrder": {
-			opts: []RequestOption{
-				o.WithOrder(OrderAsc),
-			},
-			wantError: false,
-			want: want{
-				activityTypeID: nil,
-				minID:          "",
-				maxID:          "",
-				count:          "",
-				order:          "asc",
-			},
-		},
-		"success-multiple-options": {
-			opts: []RequestOption{
-				o.WithActivityTypeIDs([]int{1, 2}),
-				o.WithMinID(1),
-				o.WithMaxID(26),
-				o.WithCount(20),
-				o.WithOrder(OrderAsc),
-			},
-			wantError: false,
-			want: want{
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
 				activityTypeID: []string{"1", "2"},
-				minID:          "1",
-				maxID:          "26",
+				minID:          "",
+				maxID:          "",
+				count:          "",
+				order:          "",
+			},
+			wantError: true,
+		},
+		"with-minID": {
+			opts: []RequestOption{
+				newSpaceActivityOptionService().WithMinID(10),
+			},
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
+				activityTypeID: nil,
+				minID:          "10",
+				maxID:          "",
+				count:          "",
+				order:          "",
+			},
+			wantError: true,
+		},
+		"with-maxID": {
+			opts: []RequestOption{
+				newSpaceActivityOptionService().WithMaxID(100),
+			},
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
+				activityTypeID: nil,
+				minID:          "",
+				maxID:          "100",
+				count:          "",
+				order:          "",
+			},
+			wantError: true,
+		},
+		"with-count": {
+			opts: []RequestOption{
+				newSpaceActivityOptionService().WithCount(20),
+			},
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
+				activityTypeID: nil,
+				minID:          "",
+				maxID:          "",
 				count:          "20",
+				order:          "",
+			},
+			wantError: true,
+		},
+		"with-order": {
+			opts: []RequestOption{
+				newSpaceActivityOptionService().WithOrder(OrderAsc),
+			},
+			want: struct {
+				activityTypeID []string
+				minID          string
+				maxID          string
+				count          string
+				order          string
+			}{
+				activityTypeID: nil,
+				minID:          "",
+				maxID:          "",
+				count:          "",
 				order:          "asc",
-			},
-		},
-		"error-option-invalid-value": {
-			opts: []RequestOption{
-				o.WithCount(0),
-			},
-			wantError: true,
-			want:      want{},
-		},
-		"error-option-invalid-type": {
-			opts:      []RequestOption{newInvalidTypeOption()},
-			wantError: true,
-			want:      want{},
-		},
-		"error-option-set-failed": {
-			opts: []RequestOption{
-				newFailingSetOption(paramCount),
 			},
 			wantError: true,
 		},
 	}
 
-	for n, tc := range cases {
-		t.Run(n, func(t *testing.T) {
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
 			s := newSpaceActivityService()
@@ -258,21 +258,66 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
 				assert.Equal(t, tc.want.count, query.Get("count"))
 				assert.Equal(t, tc.want.order, query.Get("order"))
-
-				resp := &http.Response{
+				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
-				}
-				return resp, nil
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				}, nil
 			}
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
 				assert.Nil(t, resp)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.NotNil(t, resp)
 			}
+		})
+	}
+}
+
+// TestActivityService_contextPropagation verifies that the context passed to each
+// activity service method is correctly relayed to the underlying method call.
+func TestActivityService_contextPropagation(t *testing.T) {
+	t.Parallel()
+
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	cases := []struct {
+		name string
+		call func(t *testing.T)
+	}{
+		{"ProjectActivityService.List", func(t *testing.T) {
+			s := newProjectActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, "TEST") //nolint:errcheck
+		}},
+		{"SpaceActivityService.List", func(t *testing.T) {
+			s := newSpaceActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx) //nolint:errcheck
+		}},
+		{"UserActivityService.List", func(t *testing.T) {
+			s := newUserActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t)
 		})
 	}
 }

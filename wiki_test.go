@@ -784,3 +784,72 @@ func TestWikiService_Delete(t *testing.T) {
 		})
 	}
 }
+
+// TestWikiService_contextPropagation verifies that the context passed to each
+// WikiService method is correctly relayed to the underlying method call.
+// A sentinel value is embedded in the context and its pointer identity is
+// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
+func TestWikiService_contextPropagation(t *testing.T) {
+	t.Parallel()
+
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	o := newWikiOptionService()
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, s *WikiService)
+	}{
+		{"All", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.All(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Count", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Count(ctx, "TEST") //nolint:errcheck
+		}},
+		{"One", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.One(ctx, 1) //nolint:errcheck
+		}},
+		{"Create", func(t *testing.T, s *WikiService) {
+			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Create(ctx, 1, "name", "content") //nolint:errcheck
+		}},
+		{"Update", func(t *testing.T, s *WikiService) {
+			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
+		}},
+		{"Delete", func(t *testing.T, s *WikiService) {
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Delete(ctx, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, newWikiService())
+		})
+	}
+}
