@@ -118,6 +118,23 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestUserActivityService_List_invalidJson(t *testing.T) {
+	t.Parallel()
+
+	s := newUserActivityService()
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+		}
+		return resp, nil
+	}
+
+	activities, err := s.List(context.Background(), 1)
+	assert.Nil(t, activities)
+	assert.Error(t, err)
+}
+
 func TestBaseActivityService_GetList(t *testing.T) {
 	t.Parallel()
 
@@ -277,6 +294,8 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 // TestActivityService_contextPropagation verifies that the context passed to each
 // activity service method is correctly relayed to the underlying method call.
+// A sentinel value is embedded in the context and its pointer identity is
+// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
 func TestActivityService_contextPropagation(t *testing.T) {
 	t.Parallel()
 
