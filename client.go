@@ -93,7 +93,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 	// --- Inject HTTP method wrappers ------------------------------------------
 	c.method = &method{
 		Get: func(spath string, query url.Values) (*http.Response, error) {
-			return c.do(http.MethodGet, spath, nil, nil, query)
+			return c.do(http.MethodGet, spath, withQuery(query))
 		},
 		Post: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
@@ -101,7 +101,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodPost, spath, header, strings.NewReader(form.Encode()), nil)
+			return c.do(http.MethodPost, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
 		Patch: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
@@ -109,7 +109,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodPatch, spath, header, strings.NewReader(form.Encode()), nil)
+			return c.do(http.MethodPatch, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
 		Delete: func(spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
@@ -117,7 +117,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodDelete, spath, header, strings.NewReader(form.Encode()), nil)
+			return c.do(http.MethodDelete, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
 		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
 			if fileName == "" {
@@ -140,7 +140,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			header := http.Header{}
 			header.Set("Content-Type", mw.FormDataContentType())
 
-			return c.do(http.MethodPost, spath, header, &buf, nil)
+			return c.do(http.MethodPost, spath, withHeader(header), withBody(&buf))
 		},
 	}
 
@@ -154,24 +154,31 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 // ──────────────────────────────────────────────────────────────
 
 // newRequest builds a new HTTP request with token-based authentication.
-func (c *Client) newRequest(method, spath string, header http.Header, body io.Reader, query url.Values) (*http.Request, error) {
+func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
 	}
 
-	u := *c.baseURL
-	u.Path = path.Join(u.Path, "api", apiVersion, spath)
-	if query != nil {
-		u.RawQuery = query.Encode()
+	config := &httpRequestConfig{}
+	for _, option := range opts {
+		if option != nil {
+			option.Set(config)
+		}
 	}
 
-	req, err := http.NewRequest(method, u.String(), body)
+	u := *c.baseURL
+	u.Path = path.Join(u.Path, "api", apiVersion, spath)
+	if config.Query != nil {
+		u.RawQuery = config.Query.Encode()
+	}
+
+	req, err := http.NewRequest(method, u.String(), config.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	if header != nil {
-		req.Header = header.Clone()
+	if config.Header != nil {
+		req.Header = config.Header.Clone()
 	}
 	req.Header.Set("Authorization", "Bearer "+c.token)
 
@@ -180,8 +187,8 @@ func (c *Client) newRequest(method, spath string, header http.Header, body io.Re
 
 // do executes the given HTTP request using the injected Doer.
 // All HTTP calls pass through this function, ensuring consistent error handling.
-func (c *Client) do(method, spath string, header http.Header, body io.Reader, query url.Values) (*http.Response, error) {
-	req, err := c.newRequest(method, spath, header, body, query)
+func (c *Client) do(method, spath string, opts ...*httpRequestOption) (*http.Response, error) {
+	req, err := c.newRequest(method, spath, opts...)
 	if err != nil {
 		return nil, err
 	}
