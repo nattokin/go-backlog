@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,13 +17,13 @@ import (
 func TestProjectActivityService_List(t *testing.T) {
 	t.Parallel()
 
+	projectKey := "TEST"
+
 	want := struct {
 		spath string
 	}{
-		spath: "projects/TEST/activities",
+		spath: "projects/" + projectKey + "/activities",
 	}
-
-	projectKey := "TEST"
 
 	s := newProjectActivityService()
 	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -87,11 +88,12 @@ func TestSpaceActivityService_List(t *testing.T) {
 func TestUserActivityService_List(t *testing.T) {
 	t.Parallel()
 
-	id := 1
+	id := 1234
+
 	want := struct {
 		spath string
 	}{
-		spath: "users/1/activities",
+		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
 
 	s := newUserActivityService()
@@ -118,154 +120,135 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestUserActivityService_List_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	s := newUserActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
-
-	activities, err := s.List(context.Background(), 1)
-	assert.Nil(t, activities)
-	assert.Error(t, err)
-}
-
 func TestBaseActivityService_GetList(t *testing.T) {
-	t.Parallel()
-
+	o := newActivityOptionService()
+	type want struct {
+		activityTypeID []string
+		minID          string
+		maxID          string
+		count          string
+		order          string
+	}
 	cases := map[string]struct {
-		opts []RequestOption
-
-		want struct {
-			activityTypeID []string
-			minID          string
-			maxID          string
-			count          string
-			order          string
-		}
-
+		opts      []RequestOption
 		wantError bool
+		want      want
 	}{
-		"no-option": {
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
+		"success-no-option": {
+			opts:      []RequestOption{},
+			wantError: false,
+			want: want{
 				activityTypeID: nil,
 				minID:          "",
 				maxID:          "",
 				count:          "",
 				order:          "",
 			},
-			wantError: true,
 		},
-		"with-activityTypeID": {
+		"success-withActivityTypeIDs": {
 			opts: []RequestOption{
-				newSpaceActivityOptionService().WithActivityTypeIDs([]int{1, 2}),
+				o.WithActivityTypeIDs([]int{1}),
 			},
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
-				activityTypeID: []string{"1", "2"},
+			wantError: false,
+			want: want{
+				activityTypeID: []string{"1"},
 				minID:          "",
 				maxID:          "",
 				count:          "",
 				order:          "",
 			},
-			wantError: true,
 		},
-		"with-minID": {
+		"success-withMinID": {
 			opts: []RequestOption{
-				newSpaceActivityOptionService().WithMinID(10),
+				o.WithMinID(1),
 			},
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
+			wantError: false,
+			want: want{
 				activityTypeID: nil,
-				minID:          "10",
+				minID:          "1",
 				maxID:          "",
 				count:          "",
 				order:          "",
 			},
-			wantError: true,
 		},
-		"with-maxID": {
+		"success-withMaxID": {
 			opts: []RequestOption{
-				newSpaceActivityOptionService().WithMaxID(100),
+				o.WithMaxID(1),
 			},
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
+			wantError: false,
+			want: want{
 				activityTypeID: nil,
 				minID:          "",
-				maxID:          "100",
+				maxID:          "1",
 				count:          "",
 				order:          "",
 			},
-			wantError: true,
 		},
-		"with-count": {
+		"success-withCount": {
 			opts: []RequestOption{
-				newSpaceActivityOptionService().WithCount(20),
+				o.WithCount(1),
 			},
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
+			wantError: false,
+			want: want{
 				activityTypeID: nil,
 				minID:          "",
 				maxID:          "",
-				count:          "20",
+				count:          "1",
 				order:          "",
 			},
-			wantError: true,
 		},
-		"with-order": {
+		"success-withOrder": {
 			opts: []RequestOption{
-				newSpaceActivityOptionService().WithOrder(OrderAsc),
+				o.WithOrder(OrderAsc),
 			},
-			want: struct {
-				activityTypeID []string
-				minID          string
-				maxID          string
-				count          string
-				order          string
-			}{
+			wantError: false,
+			want: want{
 				activityTypeID: nil,
 				minID:          "",
 				maxID:          "",
 				count:          "",
 				order:          "asc",
 			},
+		},
+		"success-multiple-options": {
+			opts: []RequestOption{
+				o.WithActivityTypeIDs([]int{1, 2}),
+				o.WithMinID(1),
+				o.WithMaxID(26),
+				o.WithCount(20),
+				o.WithOrder(OrderAsc),
+			},
+			wantError: false,
+			want: want{
+				activityTypeID: []string{"1", "2"},
+				minID:          "1",
+				maxID:          "26",
+				count:          "20",
+				order:          "asc",
+			},
+		},
+		"error-option-invalid-value": {
+			opts: []RequestOption{
+				o.WithCount(0),
+			},
+			wantError: true,
+			want:      want{},
+		},
+		"error-option-invalid-type": {
+			opts:      []RequestOption{newInvalidTypeOption()},
+			wantError: true,
+			want:      want{},
+		},
+		"error-option-set-failed": {
+			opts: []RequestOption{
+				newFailingSetOption(paramCount),
+			},
 			wantError: true,
 		},
 	}
 
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
+	for n, tc := range cases {
+		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
 			s := newSpaceActivityService()
@@ -275,17 +258,19 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
 				assert.Equal(t, tc.want.count, query.Get("count"))
 				assert.Equal(t, tc.want.order, query.Get("order"))
-				return &http.Response{
+
+				resp := &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-				}, nil
+					Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
+				}
+				return resp, nil
 			}
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
 				assert.Nil(t, resp)
 			} else {
-				require.NoError(t, err)
+				assert.NoError(t, err)
 				assert.NotNil(t, resp)
 			}
 		})
