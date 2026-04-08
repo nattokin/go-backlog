@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -52,11 +53,11 @@ type Client struct {
 // Each function delegates to Client.do() but can be replaced in tests
 // for fine-grained unit testing of individual services.
 type method struct {
-	Get    func(spath string, query url.Values) (*http.Response, error)
-	Post   func(spath string, form url.Values) (*http.Response, error)
-	Patch  func(spath string, form url.Values) (*http.Response, error)
-	Delete func(spath string, form url.Values) (*http.Response, error)
-	Upload func(spath, fileName string, r io.Reader) (*http.Response, error)
+	Get    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+	Post   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Patch  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Delete func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Upload func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -92,34 +93,34 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 
 	// --- Inject HTTP method wrappers ------------------------------------------
 	c.method = &method{
-		Get: func(spath string, query url.Values) (*http.Response, error) {
-			return c.do(http.MethodGet, spath, withQuery(query))
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			return c.do(ctx, http.MethodGet, spath, withQuery(query))
 		},
-		Post: func(spath string, form url.Values) (*http.Response, error) {
+		Post: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodPost, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
+			return c.do(ctx, http.MethodPost, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
-		Patch: func(spath string, form url.Values) (*http.Response, error) {
+		Patch: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodPatch, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
+			return c.do(ctx, http.MethodPatch, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
-		Delete: func(spath string, form url.Values) (*http.Response, error) {
+		Delete: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if form == nil {
 				form = url.Values{}
 			}
-			return c.do(http.MethodDelete, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
+			return c.do(ctx, http.MethodDelete, spath, withHeader(header), withBody(strings.NewReader(form.Encode())))
 		},
-		Upload: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+		Upload: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 			if fileName == "" {
 				return nil, newInternalClientError("fileName is required")
 			}
@@ -140,7 +141,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 			header := http.Header{}
 			header.Set("Content-Type", mw.FormDataContentType())
 
-			return c.do(http.MethodPost, spath, withHeader(header), withBody(&buf))
+			return c.do(ctx, http.MethodPost, spath, withHeader(header), withBody(&buf))
 		},
 	}
 
@@ -187,7 +188,7 @@ func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*
 
 // do executes the given HTTP request using the injected Doer.
 // All HTTP calls pass through this function, ensuring consistent error handling.
-func (c *Client) do(method, spath string, opts ...*httpRequestOption) (*http.Response, error) {
+func (c *Client) do(ctx context.Context, method, spath string, opts ...*httpRequestOption) (*http.Response, error) {
 	req, err := c.newRequest(method, spath, opts...)
 	if err != nil {
 		return nil, err

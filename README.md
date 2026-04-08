@@ -32,6 +32,7 @@ go get github.com/nattokin/go-backlog
 package main
 
 import (
+    "context"
 	"fmt"
 	"log"
 
@@ -52,7 +53,7 @@ func main() {
 
     // The wiki ID.
     wikiID := 12345
-    r, err := c.Wiki.One(wikiID)
+    r, err := c.Wiki.One(context.Background(), wikiID)
     if err != nil {
         log.Fatalln(err)
     }
@@ -66,6 +67,7 @@ func main() {
 package main
 
 import (
+    "context"
 	"fmt"
 	"log"
 
@@ -86,7 +88,7 @@ func main() {
 
     // The project ID or Key.
     projectIDOrKey := "PROJECTKEY"
-    r, err := c.Wiki.All(projectIDOrKey)
+    r, err := c.Wiki.All(context.Background(), projectIDOrKey)
 
     if err != nil {
         log.Fatalln(err)

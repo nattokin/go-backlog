@@ -1,19 +1,20 @@
 package backlog
 
 import (
+	"context"
 	"net/url"
 	"path"
 	"strconv"
 )
 
-func getActivityList(base *OptionService, m *method, spath string, opts ...RequestOption) ([]*Activity, error) {
+func getActivityList(ctx context.Context, base *OptionService, m *method, spath string, opts ...RequestOption) ([]*Activity, error) {
 	query := url.Values{}
 	validOptionKeys := []apiParamOptionType{paramActivityTypeIDs, paramMinID, paramMaxID, paramCount, paramOrder}
 	if err := applyOptions(query, validOptionKeys, opts...); err != nil {
 		return nil, err
 	}
 
-	resp, err := m.Get(spath, query)
+	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -44,13 +45,13 @@ type ProjectActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
+func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "activities")
-	return getActivityList(s.Option.base, s.method, spath, opts...)
+	return getActivityList(ctx, s.Option.base, s.method, spath, opts...)
 }
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
@@ -71,8 +72,8 @@ type SpaceActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
-func (s *SpaceActivityService) List(opts ...RequestOption) ([]*Activity, error) {
-	return getActivityList(s.Option.base, s.method, "space/activities", opts...)
+func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*Activity, error) {
+	return getActivityList(ctx, s.Option.base, s.method, "space/activities", opts...)
 }
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
@@ -93,12 +94,12 @@ type UserActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *UserActivityService) List(userID int, opts ...RequestOption) ([]*Activity, error) {
+func (s *UserActivityService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*Activity, error) {
 	uID := UserID(userID)
 	if err := uID.validate(); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return getActivityList(s.Option.base, s.method, spath, opts...)
+	return getActivityList(ctx, s.Option.base, s.method, spath, opts...)
 }

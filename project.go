@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"context"
 	"net/url"
 	"path"
 )
@@ -39,7 +40,7 @@ type ProjectService struct {
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(opts ...RequestOption) ([]*Project, error) {
+func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
 
 	query := url.Values{}
 	validTypes := []apiParamOptionType{paramAll, paramArchived}
@@ -47,7 +48,7 @@ func (s *ProjectService) All(opts ...RequestOption) ([]*Project, error) {
 		return nil, err
 	}
 
-	resp, err := s.method.Get("projects", query)
+	resp, err := s.method.Get(ctx, "projects", query)
 	if err != nil {
 		return nil, err
 	}
@@ -63,13 +64,13 @@ func (s *ProjectService) All(opts ...RequestOption) ([]*Project, error) {
 // One returns one of the projects searched by ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
-func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
+func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Project, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
-	resp, err := s.method.Get(spath, nil)
+	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func (s *ProjectService) One(projectIDOrKey string) (*Project, error) {
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Project, error) {
+func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*Project, error) {
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled, paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule}
@@ -101,7 +102,7 @@ func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Proje
 		return nil, err
 	}
 
-	resp, err := s.method.Post("projects", form)
+	resp, err := s.method.Post(ctx, "projects", form)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +128,7 @@ func (s *ProjectService) Create(key, name string, opts ...RequestOption) (*Proje
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(projectIDOrKey string, opts ...RequestOption) (*Project, error) {
+func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*Project, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func (s *ProjectService) Update(projectIDOrKey string, opts ...RequestOption) (*
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
-	resp, err := s.method.Patch(spath, form)
+	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -158,13 +159,13 @@ func (s *ProjectService) Update(projectIDOrKey string, opts ...RequestOption) (*
 // Delete deletes a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
-func (s *ProjectService) Delete(projectIDOrKey string) (*Project, error) {
+func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Project, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
-	resp, err := s.method.Delete(spath, url.Values{})
+	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
 	}

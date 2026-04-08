@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -24,7 +25,7 @@ func main() {
 	// projectKey := "ProjectKey"
 
 	// Get count of how many Wiki in project.
-	count, err := c.Wiki.Count(projectID)
+	count, err := c.Wiki.Count(context.Background(), projectID)
 	// count, err := c.Wiki.Count(projectKey)
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -19,7 +20,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.Delete(1234)
+	r, err := c.Wiki.Delete(context.Background(), 1234)
 	if err != nil {
 		log.Fatalln(err)
 	}

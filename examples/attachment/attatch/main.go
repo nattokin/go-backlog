@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -22,7 +23,7 @@ func main() {
 	attachmentIDs := []int{0123, 0124, 0125}
 
 	// Attach uploded files to Wiki.
-	r, err := c.Wiki.Attachment.Attach(12345, attachmentIDs)
+	r, err := c.Wiki.Attachment.Attach(context.Background(), 12345, attachmentIDs)
 	if err != nil {
 		log.Fatalln(err)
 	}

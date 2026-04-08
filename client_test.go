@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -228,6 +229,7 @@ func TestClient_do(t *testing.T) {
 			})
 
 			res, err := c.do(
+				context.Background(),
 				http.MethodGet,
 				"test",
 			)
@@ -376,7 +378,7 @@ func TestClient_method(t *testing.T) {
 	}{
 		"GET": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get("/path1", nil)
+				return c.method.Get(context.Background(), "/path1", nil)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "GET", captured.Method)
@@ -392,7 +394,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("k", "v")
-				return c.method.Post("/path2", form)
+				return c.method.Post(context.Background(), "/path2", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
@@ -408,7 +410,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "123")
-				return c.method.Patch("/path3", form)
+				return c.method.Patch(context.Background(), "/path3", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "PATCH", captured.Method)
@@ -423,7 +425,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "321")
-				return c.method.Delete("/path4", form)
+				return c.method.Delete(context.Background(), "/path4", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "DELETE", captured.Method)
@@ -437,7 +439,7 @@ func TestClient_method(t *testing.T) {
 		"UPLOAD": {
 			call: func(c *Client) (*http.Response, error) {
 				buf := bytes.NewBufferString("dummyfiledata")
-				return c.method.Upload("/upload-path", "file.txt", buf)
+				return c.method.Upload(context.Background(), "/upload-path", "file.txt", buf)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
@@ -471,40 +473,40 @@ func TestClient_method(t *testing.T) {
 		// エラーケースは変更なし
 		"GET newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get("", url.Values{})
+				return c.method.Get(context.Background(), "", url.Values{})
 			},
 			wantErr: true,
 		},
 
 		"POST newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Post("", nil)
+				return c.method.Post(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"PATCH empty params": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Patch("spath", nil)
+				return c.method.Patch(context.Background(), "spath", nil)
 			},
 		},
 
 		"PATCH newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Patch("", nil)
+				return c.method.Patch(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"DELETE empty params": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Delete("spath", nil)
+				return c.method.Delete(context.Background(), "spath", nil)
 			},
 		},
 
 		"DELETE newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Delete("", nil)
+				return c.method.Delete(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
@@ -594,7 +596,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 
 			f := io.NopCloser(bytes.NewBufferString(tc.fileData))
 
-			resp, err := c.method.Upload(tc.spath, tc.fileName, f)
+			resp, err := c.method.Upload(context.Background(), tc.spath, tc.fileName, f)
 
 			assert.Error(t, err)
 			assert.Nil(t, resp)
