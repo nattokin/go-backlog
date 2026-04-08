@@ -155,7 +155,7 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 // ──────────────────────────────────────────────────────────────
 
 // newRequest builds a new HTTP request with token-based authentication.
-func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, spath string, opts ...*httpRequestOption) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
 	}
@@ -173,7 +173,7 @@ func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*
 		u.RawQuery = config.Query.Encode()
 	}
 
-	req, err := http.NewRequest(method, u.String(), config.Body)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), config.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (c *Client) newRequest(method, spath string, opts ...*httpRequestOption) (*
 // do executes the given HTTP request using the injected Doer.
 // All HTTP calls pass through this function, ensuring consistent error handling.
 func (c *Client) do(ctx context.Context, method, spath string, opts ...*httpRequestOption) (*http.Response, error) {
-	req, err := c.newRequest(method, spath, opts...)
+	req, err := c.newRequest(ctx, method, spath, opts...)
 	if err != nil {
 		return nil, err
 	}

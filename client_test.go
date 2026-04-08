@@ -86,7 +86,7 @@ func TestNewClient_initialization(t *testing.T) {
 		require.NoError(t, err)
 
 		{
-			req, _ := c.newRequest(http.MethodGet, "test")
+			req, _ := c.newRequest(context.Background(), http.MethodGet, "test")
 			res, err := c.doer.Do(req)
 			require.Error(t, err)
 			assert.Nil(t, res)
@@ -350,6 +350,7 @@ func TestClient_newRequest(t *testing.T) {
 
 			c := newClientMock(t, "https://test.com", "test", nil)
 			request, err := c.newRequest(
+				context.Background(),
 				tc.method,
 				tc.spath,
 				withHeader(tc.header),
