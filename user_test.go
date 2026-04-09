@@ -1299,8 +1299,6 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 // A sentinel value is embedded in the context and its pointer identity is
 // asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
 func TestUserService_contextPropagation(t *testing.T) {
-	t.Parallel()
-
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
