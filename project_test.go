@@ -653,8 +653,6 @@ func TestProjectService_Delete(t *testing.T) {
 // TestProjectService_contextPropagation verifies that the context passed to each
 // ProjectService method is correctly relayed to the underlying method call.
 func TestProjectService_contextPropagation(t *testing.T) {
-	t.Parallel()
-
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
