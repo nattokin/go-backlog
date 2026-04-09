@@ -7,6 +7,26 @@ import (
 )
 
 // ──────────────────────────────────────────────────────────────
+//  Client options
+// ──────────────────────────────────────────────────────────────
+
+type clientOption struct {
+	set func(config *clientConfig)
+}
+
+type clientConfig struct {
+	Doer Doer
+}
+
+func WithDoer(doer Doer) *clientOption {
+	return &clientOption{
+		set: func(config *clientConfig) {
+			config.Doer = doer
+		},
+	}
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Http request otions
 // ──────────────────────────────────────────────────────────────
 

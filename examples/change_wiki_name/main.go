@@ -28,7 +28,7 @@ func main() {
 	projectKey := scanner(stdin, "project name:")
 
 	// Get all Wikis in the project.
-	c, err := backlog.NewClient(baseURL, token, nil)
+	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}

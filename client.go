@@ -65,9 +65,12 @@ type method struct {
 // ──────────────────────────────────────────────────────────────
 
 // NewClient creates and initializes a Backlog API Client.
-// A custom Doer (e.g., *http.Client or mock) may be provided for testing.
-// If doer is nil, http.DefaultClient is used.
-func NewClient(baseURL, token string, doer Doer) (*Client, error) {
+// It requires a baseURL and an API token.
+//
+// This function supports options returned by package-level functions,
+// such as:
+//   - WithDoer
+func NewClient(baseURL, token string, opts ...*clientOption) (*Client, error) {
 	if token == "" {
 		return nil, newInternalClientError("missing token")
 	}
@@ -80,13 +83,20 @@ func NewClient(baseURL, token string, doer Doer) (*Client, error) {
 		return nil, err
 	}
 
-	if doer == nil {
-		doer = http.DefaultClient
+	config := &clientConfig{}
+	for _, option := range opts {
+		if option != nil {
+			option.set(config)
+		}
+	}
+
+	if config.Doer == nil {
+		config.Doer = http.DefaultClient
 	}
 
 	c := &Client{
 		baseURL: u,
-		doer:    doer,
+		doer:    config.Doer,
 		token:   token,
 		wrapper: &defaultWrapper{},
 	}
