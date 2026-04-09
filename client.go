@@ -70,7 +70,7 @@ type method struct {
 // This function supports options returned by package-level functions,
 // such as:
 //   - WithDoer
-func NewClient(baseURL, token string, opts ...*clientOption) (*Client, error) {
+func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 	if token == "" {
 		return nil, newInternalClientError("missing token")
 	}
