@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -19,7 +20,7 @@ func main() {
 	}
 	// ID or Key of the project.
 	projectKey := "PROJECTKEY"
-	r, err := c.Wiki.All(projectKey)
+	r, err := c.Wiki.All(context.Background(), projectKey)
 	// projectID := "1234"
 	// r, err := c.Wiki.All(projectID)
 

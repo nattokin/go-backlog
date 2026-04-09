@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -20,7 +21,7 @@ func main() {
 	}
 
 	// You get all attachments of the Wiki.
-	r, err := c.Wiki.Attachment.List(12345)
+	r, err := c.Wiki.Attachment.List(context.Background(), 12345)
 	if err != nil {
 		log.Fatalln(err)
 	}

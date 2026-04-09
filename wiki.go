@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"context"
 	"net/url"
 	"path"
 	"strconv"
@@ -28,7 +29,7 @@ type WikiService struct {
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
+func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (s *WikiService) All(projectIDOrKey string, opts ...RequestOption) ([]*Wiki
 
 	query.Set("projectIdOrKey", projectIDOrKey)
 
-	resp, err := s.method.Get("wikis", query)
+	resp, err := s.method.Get(ctx, "wikis", query)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +58,7 @@ func (s *WikiService) All(projectIDOrKey string, opts ...RequestOption) ([]*Wiki
 // Count returns the number of wikis in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
-func (s *WikiService) Count(projectIDOrKey string) (int, error) {
+func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return 0, err
 	}
@@ -65,7 +66,7 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 	query := url.Values{}
 	query.Set("projectIdOrKey", projectIDOrKey)
 
-	resp, err := s.method.Get("wikis/count", query)
+	resp, err := s.method.Get(ctx, "wikis/count", query)
 	if err != nil {
 		return 0, err
 	}
@@ -81,13 +82,13 @@ func (s *WikiService) Count(projectIDOrKey string) (int, error) {
 // One returns a specific wiki by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
-func (s *WikiService) One(wikiID int) (*Wiki, error) {
+func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
-	resp, err := s.method.Get(spath, nil)
+	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (s *WikiService) One(wikiID int) (*Wiki, error) {
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
+func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
 	if err := validateProjectID(projectID); err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...Reques
 
 	form.Set("projectId", strconv.Itoa(projectID))
 
-	resp, err := s.method.Post("wikis", form)
+	resp, err := s.method.Post(ctx, "wikis", form)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +146,7 @@ func (s *WikiService) Create(projectID int, name, content string, opts ...Reques
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
+func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -163,7 +164,7 @@ func (s *WikiService) Update(wikiID int, option RequestOption, opts ...RequestOp
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
-	resp, err := s.method.Patch(spath, form)
+	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,7 @@ func (s *WikiService) Update(wikiID int, option RequestOption, opts ...RequestOp
 //   - WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(wikiID int, opts ...RequestOption) (*Wiki, error) {
+func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOption) (*Wiki, error) {
 	if err := validateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -195,7 +196,7 @@ func (s *WikiService) Delete(wikiID int, opts ...RequestOption) (*Wiki, error) {
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
-	resp, err := s.method.Delete(spath, form)
+	resp, err := s.method.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}

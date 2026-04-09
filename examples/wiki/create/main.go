@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -21,7 +22,7 @@ func main() {
 
 	// Create a new Wiki by ID of the project.
 	// You get struct where represented the Wiki created.
-	r, err := c.Wiki.Create(12345, "name", "content")
+	r, err := c.Wiki.Create(context.Background(), 12345, "name", "content")
 	if err != nil {
 		log.Fatalln(err)
 	}

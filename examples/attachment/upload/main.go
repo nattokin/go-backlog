@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -26,7 +27,7 @@ func main() {
 	}
 	defer f.Close()
 
-	r, err := c.Space.Attachment.Upload(f.Name(), f)
+	r, err := c.Space.Attachment.Upload(context.Background(), f.Name(), f)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -25,12 +26,12 @@ func TestProjectActivityService_List(t *testing.T) {
 	}
 
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
 
-	_, err := s.List(projectKey)
+	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
 }
 
@@ -39,12 +40,12 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 
 	projectKey := ""
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		t.Error("s.method.Get must never be called")
 		return nil, errors.New("error")
 	}
 
-	_, err := s.List(projectKey)
+	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
 }
 
@@ -52,7 +53,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
 	s := newProjectActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		resp := &http.Response{
 			StatusCode: http.StatusOK,
 			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -60,7 +61,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 		return resp, nil
 	}
 
-	projects, err := s.List("TEST")
+	projects, err := s.List(context.Background(), "TEST")
 	assert.Nil(t, projects)
 	assert.Error(t, err)
 }
@@ -75,12 +76,12 @@ func TestSpaceActivityService_List(t *testing.T) {
 	}
 
 	s := newSpaceActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
 
-	_, err := s.List()
+	_, err := s.List(context.Background())
 	assert.Error(t, err)
 }
 
@@ -96,12 +97,12 @@ func TestUserActivityService_List(t *testing.T) {
 	}
 
 	s := newUserActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		assert.Equal(t, want.spath, spath)
 		return nil, errors.New("error")
 	}
 
-	_, err := s.List(id)
+	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
 }
 
@@ -110,12 +111,12 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 
 	id := 0
 	s := newUserActivityService()
-	s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		t.Error("s.method.Get must never be called")
 		return nil, errors.New("error")
 	}
 
-	_, err := s.List(id)
+	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
 }
 
@@ -251,7 +252,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			t.Parallel()
 
 			s := newSpaceActivityService()
-			s.method.Get = func(spath string, query url.Values) (*http.Response, error) {
+			s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
 				assert.Equal(t, tc.want.minID, query.Get("minId"))
 				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
@@ -265,13 +266,60 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				return resp, nil
 			}
 
-			if resp, err := s.List(tc.opts...); tc.wantError {
+			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
 				assert.Nil(t, resp)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, resp)
 			}
+		})
+	}
+}
+
+// TestActivityService_contextPropagation verifies that the context passed to each
+// activity service method is correctly relayed to the underlying method call.
+// A sentinel value is embedded in the context and its pointer identity is
+// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
+func TestActivityService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	cases := []struct {
+		name string
+		call func(t *testing.T)
+	}{
+		{"ProjectActivityService.List", func(t *testing.T) {
+			s := newProjectActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, "TEST") //nolint:errcheck
+		}},
+		{"SpaceActivityService.List", func(t *testing.T) {
+			s := newSpaceActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx) //nolint:errcheck
+		}},
+		{"UserActivityService.List", func(t *testing.T) {
+			s := newUserActivityService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t)
 		})
 	}
 }

@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -93,11 +94,11 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 
 		expectError bool
 
-		mockUploadFn func(spath, fileName string, r io.Reader) (*http.Response, error)
+		mockUploadFn func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
 	}{
 		"success": {
 			fpath: "fpath",
-			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 				assert.Equal(t, "space/attachment", spath)
 				assert.Equal(t, "fpath", fileName)
 
@@ -111,7 +112,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		"error-client-failure": {
 			fpath:       "fpath",
 			expectError: true,
-			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -119,7 +120,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		"error-invalid-json": {
 			fpath:       "fpath",
 			expectError: true,
-			mockUploadFn: func(spath, fileName string, r io.Reader) (*http.Response, error) {
+			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -139,7 +140,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			require.NoError(t, err)
 			defer f.Close()
 
-			attachment, err := s.Upload(tc.fpath, f)
+			attachment, err := s.Upload(context.Background(), tc.fpath, f)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -165,13 +166,13 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		expectError bool
 		want        []*Attachment
 
-		mockPostFn func(spath string, form url.Values) (*http.Response, error)
+		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
 			want:          newTestAttachmentSingleList(),
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 
 				v := form
@@ -190,7 +191,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			wikiID:        1,
 			attachmentIDs: []int{2, 5},
 			want:          newTestAttachmentList(),
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -225,7 +226,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
 			expectError:   true,
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -234,7 +235,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
 			expectError:   true,
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -252,7 +253,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			s := newWikiAttachmentService()
 			s.method.Post = tc.mockPostFn
 
-			attachments, err := s.Attach(tc.wikiID, tc.attachmentIDs)
+			attachments, err := s.Attach(context.Background(), tc.wikiID, tc.attachmentIDs)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -282,12 +283,12 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		expectError bool
 		want        []*Attachment
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
 			wikiID: 1234,
 			want:   newTestAttachmentList(),
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 
 				return &http.Response{
@@ -314,7 +315,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		"error-client": {
 			wikiID:      1234,
 			expectError: true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -322,7 +323,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		"error-invalid-json": {
 			wikiID:      1234,
 			expectError: true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -340,7 +341,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			s := newWikiAttachmentService()
 			s.method.Get = tc.mockGetFn
 
-			attachments, err := s.List(tc.wikiID)
+			attachments, err := s.List(context.Background(), tc.wikiID)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -371,13 +372,13 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		expectError bool
 		want        *Attachment
 
-		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			wikiID:       1234,
 			attachmentID: 8,
 			want:         newTestAttachment(),
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments/8", spath)
 
 				return &http.Response{
@@ -421,7 +422,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			wikiID:       1234,
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -430,7 +431,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			wikiID:       1234,
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -448,7 +449,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			s := newWikiAttachmentService()
 			s.method.Delete = tc.mockDeleteFn
 
-			attachment, err := s.Remove(tc.wikiID, tc.attachmentID)
+			attachment, err := s.Remove(context.Background(), tc.wikiID, tc.attachmentID)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -474,12 +475,12 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		expectError bool
 		want        []*Attachment
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "1234",
 			want:         newTestAttachmentList(),
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments", spath)
 
 				return &http.Response{
@@ -500,7 +501,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		"error-client": {
 			issueIDOrKey: "1234",
 			expectError:  true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -508,7 +509,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		"error-invalid-json": {
 			issueIDOrKey: "1234",
 			expectError:  true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -526,7 +527,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			s := newIssueAttachmentService()
 			s.method.Get = tc.mockGetFn
 
-			attachments, err := s.List(tc.issueIDOrKey)
+			attachments, err := s.List(context.Background(), tc.issueIDOrKey)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -557,13 +558,13 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		expectError bool
 		want        *Attachment
 
-		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
 			want:         newTestAttachment(),
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments/8", spath)
 
 				return &http.Response{
@@ -593,7 +594,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -602,7 +603,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -620,7 +621,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			s := newIssueAttachmentService()
 			s.method.Delete = tc.mockDeleteFn
 
-			attachment, err := s.Remove(tc.issueIDOrKey, tc.attachmentID)
+			attachment, err := s.Remove(context.Background(), tc.issueIDOrKey, tc.attachmentID)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -648,14 +649,14 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		expectError bool
 		want        []*Attachment
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "test",
 			prNumber:           1234,
 			want:               newTestAttachmentList(),
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
 					"projects/TEST/git/repositories/test/pullRequests/1234/attachments",
@@ -700,7 +701,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           10,
 			expectError:        true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -710,7 +711,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           10,
 			expectError:        true,
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -728,7 +729,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			s := newPullRequestAttachmentService()
 			s.method.Get = tc.mockGetFn
 
-			attachments, err := s.List(
+			attachments, err := s.List(context.Background(),
 				tc.projectIDOrKey,
 				tc.repositoryIDOrName,
 				tc.prNumber,
@@ -765,7 +766,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		expectError bool
 		want        *Attachment
 
-		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			projectIDOrKey:     "TEST",
@@ -773,7 +774,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1234,
 			attachmentID:       8,
 			want:               newTestAttachment(),
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
 					"projects/TEST/git/repositories/test/pullRequests/1234/attachments/8",
@@ -831,7 +832,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           10,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
@@ -842,7 +843,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           10,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
@@ -861,6 +862,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			s.method.Delete = tc.mockDeleteFn
 
 			attachment, err := s.Remove(
+				context.Background(),
 				tc.projectIDOrKey,
 				tc.repositoryIDOrName,
 				tc.prNumber,
@@ -880,6 +882,93 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			assert.Equal(t, tc.want.Name, attachment.Name)
 			assert.Equal(t, tc.want.Size, attachment.Size)
 			assert.Equal(t, tc.want.Created, attachment.Created)
+		})
+	}
+}
+
+// TestAttachmentService_contextPropagation verifies that the context passed to
+// each attachment service method is correctly relayed to the underlying method call.
+// A sentinel value is embedded in the context and its pointer identity is
+// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
+func TestAttachmentService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	cases := []struct {
+		name string
+		call func(t *testing.T)
+	}{
+		{"SpaceAttachmentService.Upload", func(t *testing.T) {
+			s := newSpaceAttachmentService()
+			s.method.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
+		}},
+		{"WikiAttachmentService.Attach", func(t *testing.T) {
+			s := newWikiAttachmentService()
+			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
+		}},
+		{"WikiAttachmentService.List", func(t *testing.T) {
+			s := newWikiAttachmentService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+		{"WikiAttachmentService.Remove", func(t *testing.T) {
+			s := newWikiAttachmentService()
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Remove(ctx, 1, 1) //nolint:errcheck
+		}},
+		{"IssueAttachmentService.List", func(t *testing.T) {
+			s := newIssueAttachmentService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, "TEST-1") //nolint:errcheck
+		}},
+		{"IssueAttachmentService.Remove", func(t *testing.T) {
+			s := newIssueAttachmentService()
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
+		}},
+		{"PullRequestAttachmentService.List", func(t *testing.T) {
+			s := newPullRequestAttachmentService()
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
+		}},
+		{"PullRequestAttachmentService.Remove", func(t *testing.T) {
+			s := newPullRequestAttachmentService()
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t)
 		})
 	}
 }

@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -25,7 +26,7 @@ func TestWikiService_All(t *testing.T) {
 		projectIDOrKey string
 		opts           []RequestOption
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantIDs     []int
@@ -34,7 +35,7 @@ func TestWikiService_All(t *testing.T) {
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: "103",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
 
@@ -54,7 +55,7 @@ func TestWikiService_All(t *testing.T) {
 				o.WithKeyword("test"),
 			},
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				assert.Equal(t, "test", query.Get("keyword"))
@@ -89,7 +90,7 @@ func TestWikiService_All(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return nil, errors.New("network error")
@@ -101,7 +102,7 @@ func TestWikiService_All(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 
@@ -128,7 +129,7 @@ func TestWikiService_All(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			wikis, err := s.All(tc.projectIDOrKey, tc.opts...)
+			wikis, err := s.All(context.Background(), tc.projectIDOrKey, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -153,7 +154,7 @@ func TestWikiService_Count(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantCount   int
@@ -161,7 +162,7 @@ func TestWikiService_Count(t *testing.T) {
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: "103",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -175,7 +176,7 @@ func TestWikiService_Count(t *testing.T) {
 		"success-projectIDOrKey-key": {
 			projectIDOrKey: "PRJ_KEY",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -193,7 +194,7 @@ func TestWikiService_Count(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return nil, errors.New("network error")
@@ -204,7 +205,7 @@ func TestWikiService_Count(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "1",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return &http.Response{
@@ -227,7 +228,7 @@ func TestWikiService_Count(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			count, err := s.Count(tc.projectIDOrKey)
+			count, err := s.Count(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -246,7 +247,7 @@ func TestWikiService_One(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType  error
 		wantWikiID   int
@@ -255,7 +256,7 @@ func TestWikiService_One(t *testing.T) {
 		"success-wikiID-normal": {
 			wikiID: 34,
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -278,7 +279,7 @@ func TestWikiService_One(t *testing.T) {
 		"error-client-network": {
 			wikiID: 1,
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
 				return nil, errors.New("network error")
@@ -289,7 +290,7 @@ func TestWikiService_One(t *testing.T) {
 		"error-response-invalid-json": {
 			wikiID: 1,
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -312,7 +313,7 @@ func TestWikiService_One(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			wiki, err := s.One(tc.wikiID)
+			wiki, err := s.One(context.Background(), tc.wikiID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -338,7 +339,7 @@ func TestWikiService_Create(t *testing.T) {
 		content   string
 		opts      []RequestOption
 
-		mockPostFn func(spath string, form url.Values) (*http.Response, error)
+		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantWiki    *Wiki
 		wantErrType error
@@ -348,7 +349,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
@@ -373,7 +374,7 @@ func TestWikiService_Create(t *testing.T) {
 			content:   "This is a minimal wiki page.",
 			opts:      []RequestOption{o.WithMailNotify(true)},
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
@@ -430,7 +431,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
@@ -445,7 +446,7 @@ func TestWikiService_Create(t *testing.T) {
 			name:      "Test",
 			content:   "content",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
@@ -473,7 +474,7 @@ func TestWikiService_Create(t *testing.T) {
 				s.method.Post = tc.mockPostFn
 			}
 
-			wiki, err := s.Create(tc.projectID, tc.name, tc.content, tc.opts...)
+			wiki, err := s.Create(context.Background(), tc.projectID, tc.name, tc.content, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -500,7 +501,7 @@ func TestWikiService_Update(t *testing.T) {
 		option RequestOption
 		opts   []RequestOption
 
-		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
+		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 		wantWiki    *Wiki
@@ -509,7 +510,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 34,
 			option: o.WithName("New Page Name"),
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "New Page Name", form.Get("name"))
 				return &http.Response{
@@ -528,7 +529,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 34,
 			option: o.WithContent("Full Options Content"),
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				return &http.Response{
@@ -550,7 +551,7 @@ func TestWikiService_Update(t *testing.T) {
 				o.WithName("Full Options Name"),
 			},
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
@@ -574,7 +575,7 @@ func TestWikiService_Update(t *testing.T) {
 				o.WithMailNotify(true),
 			},
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "Full Options Content", form.Get("content"))
@@ -618,7 +619,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 13,
 			option: o.WithName("New Name"),
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/13", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
 				return nil, errors.New("network error")
@@ -630,7 +631,7 @@ func TestWikiService_Update(t *testing.T) {
 			wikiID: 14,
 			option: o.WithName("New Name"),
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/14", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
 				return &http.Response{
@@ -654,7 +655,7 @@ func TestWikiService_Update(t *testing.T) {
 				s.method.Patch = tc.mockPatchFn
 			}
 
-			wiki, err := s.Update(tc.wikiID, tc.option, tc.opts...)
+			wiki, err := s.Update(context.Background(), tc.wikiID, tc.option, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -680,7 +681,7 @@ func TestWikiService_Delete(t *testing.T) {
 		wikiID int
 		opts   []RequestOption
 
-		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantWikiID  int
 		wantErrType error
@@ -689,7 +690,7 @@ func TestWikiService_Delete(t *testing.T) {
 			wikiID: 34,
 			opts:   []RequestOption{o.WithMailNotify(true)},
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
@@ -703,7 +704,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"success-wikiID-no-option": {
 			wikiID: 1,
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -734,7 +735,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"error-client-network": {
 			wikiID: 34,
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				return nil, errors.New("network error")
 			},
@@ -744,7 +745,7 @@ func TestWikiService_Delete(t *testing.T) {
 		"error-response-invalid-json": {
 			wikiID: 34,
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -767,7 +768,7 @@ func TestWikiService_Delete(t *testing.T) {
 				s.method.Delete = tc.mockDeleteFn
 			}
 
-			wiki, err := s.Delete(tc.wikiID, tc.opts...)
+			wiki, err := s.Delete(context.Background(), tc.wikiID, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -780,6 +781,73 @@ func TestWikiService_Delete(t *testing.T) {
 			require.NotNil(t, wiki)
 
 			assert.Equal(t, tc.wantWikiID, wiki.ID)
+		})
+	}
+}
+
+// TestWikiService_contextPropagation verifies that the context passed to each
+// WikiService method is correctly relayed to the underlying method call.
+// A sentinel value is embedded in the context and its pointer identity is
+// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
+func TestWikiService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	o := newWikiOptionService()
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, s *WikiService)
+	}{
+		{"All", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.All(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Count", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Count(ctx, "TEST") //nolint:errcheck
+		}},
+		{"One", func(t *testing.T, s *WikiService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.One(ctx, 1) //nolint:errcheck
+		}},
+		{"Create", func(t *testing.T, s *WikiService) {
+			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Create(ctx, 1, "name", "content") //nolint:errcheck
+		}},
+		{"Update", func(t *testing.T, s *WikiService) {
+			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
+		}},
+		{"Delete", func(t *testing.T, s *WikiService) {
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Delete(ctx, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, newWikiService())
 		})
 	}
 }

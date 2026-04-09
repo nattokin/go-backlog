@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -20,7 +21,7 @@ func TestProjectService_All(t *testing.T) {
 	cases := map[string]struct {
 		opts []RequestOption
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantIDs     []int
 		wantNames   []string
@@ -29,7 +30,7 @@ func TestProjectService_All(t *testing.T) {
 		"success-without-option": {
 			opts: []RequestOption{},
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				require.NotNil(t, query)
 				assert.Empty(t, query)
@@ -49,7 +50,7 @@ func TestProjectService_All(t *testing.T) {
 				o.WithArchived(true),
 			},
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.Equal(t, "false", query.Get("all"))
 				assert.Equal(t, "true", query.Get("archived"))
@@ -76,7 +77,7 @@ func TestProjectService_All(t *testing.T) {
 		"error-client-network": {
 			opts: []RequestOption{},
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -85,7 +86,7 @@ func TestProjectService_All(t *testing.T) {
 		"error-response-invalid-json": {
 			opts: []RequestOption{},
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -109,7 +110,7 @@ func TestProjectService_All(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			projects, err := s.All(tc.opts...)
+			projects, err := s.All(context.Background(), tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -134,14 +135,14 @@ func TestProjectService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
-		mockGetFn func(spath string, query url.Values) (*http.Response, error)
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -155,7 +156,7 @@ func TestProjectService_One(t *testing.T) {
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: strconv.Itoa(6),
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6", spath)
 				assert.Nil(t, query)
 				return &http.Response{
@@ -174,7 +175,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -183,7 +184,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
-			mockGetFn: func(spath string, query url.Values) (*http.Response, error) {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -207,7 +208,7 @@ func TestProjectService_One(t *testing.T) {
 				s.method.Get = tc.mockGetFn
 			}
 
-			project, err := s.One(tc.projectIDOrKey)
+			project, err := s.One(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -234,7 +235,7 @@ func TestProjectService_Create(t *testing.T) {
 		name string
 		opts []RequestOption
 
-		mockPostFn func(spath string, form url.Values) (*http.Response, error)
+		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
@@ -242,7 +243,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				assert.NotNil(t, form)
 				assert.Equal(t, "TEST", form.Get("key"))
@@ -262,7 +263,7 @@ func TestProjectService_Create(t *testing.T) {
 			name: "test",
 			opts: []RequestOption{},
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
 				assert.Equal(t, "", form.Get("subtaskingEnabled"))
 				assert.Equal(t, "", form.Get("projectLeaderCanEditProjectLeader"))
@@ -288,7 +289,7 @@ func TestProjectService_Create(t *testing.T) {
 				o.WithTextFormattingRule(FormatBacklog),
 			},
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("chartEnabled"))
 				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
 				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
@@ -341,7 +342,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -352,7 +353,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			mockPostFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -376,7 +377,7 @@ func TestProjectService_Create(t *testing.T) {
 				s.method.Post = tc.mockPostFn
 			}
 
-			project, err := s.Create(tc.key, tc.name, tc.opts...)
+			project, err := s.Create(context.Background(), tc.key, tc.name, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -401,14 +402,14 @@ func TestProjectService_Update(t *testing.T) {
 		projectIDOrKey string
 		opts           []RequestOption
 
-		mockPatchFn func(spath string, form url.Values) (*http.Response, error)
+		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
 
@@ -424,7 +425,7 @@ func TestProjectService_Update(t *testing.T) {
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: "1234",
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
 				return &http.Response{
@@ -461,7 +462,7 @@ func TestProjectService_Update(t *testing.T) {
 				o.WithArchived(true),
 			},
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "TEST1", form.Get("key"))
 				assert.Equal(t, "test1", form.Get("name"))
 				assert.Equal(t, "true", form.Get("chartEnabled"))
@@ -500,7 +501,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -510,7 +511,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
-			mockPatchFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -534,7 +535,7 @@ func TestProjectService_Update(t *testing.T) {
 				s.method.Patch = tc.mockPatchFn
 			}
 
-			project, err := s.Update(tc.projectIDOrKey, tc.opts...)
+			project, err := s.Update(context.Background(), tc.projectIDOrKey, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -553,14 +554,14 @@ func TestProjectService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
-		mockDeleteFn func(spath string, form url.Values) (*http.Response, error)
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
 		"success-projectIDOrKey-key": {
 			projectIDOrKey: "TEST",
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
 
@@ -575,7 +576,7 @@ func TestProjectService_Delete(t *testing.T) {
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: "1234",
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
 
 				return &http.Response{
@@ -599,7 +600,7 @@ func TestProjectService_Delete(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 
@@ -608,7 +609,7 @@ func TestProjectService_Delete(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 
-			mockDeleteFn: func(spath string, form url.Values) (*http.Response, error) {
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
@@ -632,7 +633,7 @@ func TestProjectService_Delete(t *testing.T) {
 				s.method.Delete = tc.mockDeleteFn
 			}
 
-			project, err := s.Delete(tc.projectIDOrKey)
+			project, err := s.Delete(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -645,6 +646,64 @@ func TestProjectService_Delete(t *testing.T) {
 			require.NotNil(t, project)
 
 			assert.Equal(t, "TEST", project.ProjectKey)
+		})
+	}
+}
+
+// TestProjectService_contextPropagation verifies that the context passed to each
+// ProjectService method is correctly relayed to the underlying method call.
+func TestProjectService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	o := newProjectOptionService()
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, s *ProjectService)
+	}{
+		{"All", func(t *testing.T, s *ProjectService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.All(ctx) //nolint:errcheck
+		}},
+		{"One", func(t *testing.T, s *ProjectService) {
+			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.One(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Create", func(t *testing.T, s *ProjectService) {
+			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
+		}},
+		{"Update", func(t *testing.T, s *ProjectService) {
+			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Update(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Delete", func(t *testing.T, s *ProjectService) {
+			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s.Delete(ctx, "TEST") //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, newProjectService())
 		})
 	}
 }

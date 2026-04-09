@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -21,7 +22,7 @@ func main() {
 
 	// Delete a Wiki by ID of the Wiki.
 	// You get struct where represented the Wiki deleted.
-	r, err := c.Wiki.Delete(1234)
+	r, err := c.Wiki.Delete(context.Background(), 1234)
 	if err != nil {
 		log.Fatalln(err)
 	}

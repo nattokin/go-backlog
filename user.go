@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"context"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,8 +21,8 @@ func (id UserID) String() string {
 	return strconv.Itoa(int(id))
 }
 
-func getUser(m *method, spath string) (*User, error) {
-	resp, err := m.Get(spath, nil)
+func getUser(ctx context.Context, m *method, spath string) (*User, error) {
+	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +35,8 @@ func getUser(m *method, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(m *method, spath string, query url.Values) ([]*User, error) {
-	resp, err := m.Get(spath, query)
+func getUserList(ctx context.Context, m *method, spath string, query url.Values) ([]*User, error) {
+	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +49,8 @@ func getUserList(m *method, spath string, query url.Values) ([]*User, error) {
 	return v, nil
 }
 
-func addUser(m *method, spath string, form url.Values) (*User, error) {
-	resp, err := m.Post(spath, form)
+func addUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+	resp, err := m.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +63,8 @@ func addUser(m *method, spath string, form url.Values) (*User, error) {
 	return &v, nil
 }
 
-func updateUser(m *method, spath string, form url.Values) (*User, error) {
-	resp, err := m.Patch(spath, form)
+func updateUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+	resp, err := m.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +77,8 @@ func updateUser(m *method, spath string, form url.Values) (*User, error) {
 	return &v, nil
 }
 
-func deleteUser(m *method, spath string, form url.Values) (*User, error) {
-	resp, err := m.Delete(spath, form)
+func deleteUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+	resp, err := m.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
@@ -101,34 +102,34 @@ type UserService struct {
 // All returns all users in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
-func (s *UserService) All() ([]*User, error) {
-	return getUserList(s.method, "users", nil)
+func (s *UserService) All(ctx context.Context) ([]*User, error) {
+	return getUserList(ctx, s.method, "users", nil)
 }
 
 // One returns a user in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
-func (s *UserService) One(id int) (*User, error) {
+func (s *UserService) One(ctx context.Context, id int) (*User, error) {
 	uID := UserID(id)
 	if err := uID.validate(); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", uID.String())
-	return getUser(s.method, spath)
+	return getUser(ctx, s.method, spath)
 }
 
 // Own returns your own user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
-func (s *UserService) Own() (*User, error) {
-	return getUser(s.method, "users/myself")
+func (s *UserService) Own(ctx context.Context) (*User, error) {
+	return getUser(ctx, s.method, "users/myself")
 }
 
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(userID, password, name, mailAddress string, roleType Role) (*User, error) {
+func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	if userID == "" {
 		return nil, newValidationError("userID must not be empty")
 	}
@@ -147,7 +148,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 
 	form.Set("userId", userID)
 
-	return addUser(s.method, "users", form)
+	return addUser(ctx, s.method, "users", form)
 }
 
 // Update updates a user in your space.
@@ -161,7 +162,7 @@ func (s *UserService) Add(userID, password, name, mailAddress string, roleType R
 //   - WithUserID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(id int, opts ...RequestOption) (*User, error) {
+func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*User, error) {
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{paramUserID, paramName, paramPassword, paramMailAddress, paramRoleType}
@@ -171,20 +172,20 @@ func (s *UserService) Update(id int, opts ...RequestOption) (*User, error) {
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return updateUser(s.method, spath, form)
+	return updateUser(ctx, s.method, spath, form)
 }
 
 // Delete deletes a user from your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
-func (s *UserService) Delete(id int) (*User, error) {
+func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 	uID := UserID(id)
 	if err := uID.validate(); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", uID.String())
-	return deleteUser(s.method, spath, nil)
+	return deleteUser(ctx, s.method, spath, nil)
 }
 
 // ProjectUserService has methods for user of project.
@@ -195,7 +196,7 @@ type ProjectUserService struct {
 // All returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
+func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -204,13 +205,13 @@ func (s *ProjectUserService) All(projectIDOrKey string, excludeGroupMembers bool
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return getUserList(s.method, spath, query)
+	return getUserList(ctx, s.method, spath, query)
 }
 
 // Add adds a user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
-func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -224,13 +225,13 @@ func (s *ProjectUserService) Add(projectIDOrKey string, userID int) (*User, erro
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return addUser(s.method, spath, form)
+	return addUser(ctx, s.method, spath, form)
 }
 
 // Delete deletes a user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
-func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -244,13 +245,13 @@ func (s *ProjectUserService) Delete(projectIDOrKey string, userID int) (*User, e
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return deleteUser(s.method, spath, form)
+	return deleteUser(ctx, s.method, spath, form)
 }
 
 // AddAdmin adds a admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
-func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -264,25 +265,25 @@ func (s *ProjectUserService) AddAdmin(projectIDOrKey string, userID int) (*User,
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return addUser(s.method, spath, form)
+	return addUser(ctx, s.method, spath, form)
 }
 
 // AdminAll returns a list of all admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
-func (s *ProjectUserService) AdminAll(projectIDOrKey string) ([]*User, error) {
+func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return getUserList(s.method, spath, nil)
+	return getUserList(ctx, s.method, spath, nil)
 }
 
 // DeleteAdmin removes an admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
-func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
 	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -296,5 +297,5 @@ func (s *ProjectUserService) DeleteAdmin(projectIDOrKey string, userID int) (*Us
 	form.Set("userId", uID.String())
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return deleteUser(s.method, spath, form)
+	return deleteUser(ctx, s.method, spath, form)
 }
