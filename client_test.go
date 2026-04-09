@@ -53,7 +53,7 @@ func TestNewClient_validation(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			c, err := NewClient(tc.baseURL, tc.token, nil)
+			c, err := NewClient(tc.baseURL, tc.token)
 
 			if tc.wantError {
 				assert.Error(t, err)
@@ -82,7 +82,7 @@ func TestNewClient_initialization(t *testing.T) {
 		mockDoer := &mockDoer{t: t,
 			doFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
-		c, err := NewClient(baseURL, token, mockDoer)
+		c, err := NewClient(baseURL, token, WithDoer(mockDoer))
 		require.NoError(t, err)
 
 		{
@@ -98,7 +98,7 @@ func TestNewClient_initialization(t *testing.T) {
 	t.Run("without-Doer", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := NewClient(baseURL, token, nil)
+		c, err := NewClient(baseURL, token)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 

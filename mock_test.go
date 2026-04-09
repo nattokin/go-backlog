@@ -48,7 +48,7 @@ func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 		}
 	}
 
-	c, err := NewClient(baseURL, token, doer)
+	c, err := NewClient(baseURL, token, WithDoer(doer))
 	require.NoError(t, err)
 
 	return c
