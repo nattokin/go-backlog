@@ -1,30 +1,31 @@
 package backlog
 
+import "github.com/nattokin/go-backlog/internal/model"
+
 const (
 	apiVersion = "v2"
 )
 
 // Order defines the sort order (ascending or descending).
 const (
-	OrderAsc  Order = "asc"
-	OrderDesc Order = "desc"
+	OrderAsc  = model.OrderAsc
+	OrderDesc = model.OrderDesc
 )
 
 // Format defines the text formatting rule for the Backlog wiki.
 const (
-	FormatMarkdown Format = "markdown"
-	FormatBacklog  Format = "backlog"
+	FormatMarkdown = model.FormatMarkdown
+	FormatBacklog  = model.FormatBacklog
 )
 
 // Role defines the type of user role within a project.
 const (
-	_ Role = iota
-	RoleAdministrator
-	RoleNormalUser
-	RoleReporter
-	RoleViewer
-	RoleGuestReporter
-	RoleGuestViewer
+	RoleAdministrator = model.RoleAdministrator
+	RoleNormalUser    = model.RoleNormalUser
+	RoleReporter      = model.RoleReporter
+	RoleViewer        = model.RoleViewer
+	RoleGuestReporter = model.RoleGuestReporter
+	RoleGuestViewer   = model.RoleGuestViewer
 )
 
 const (
