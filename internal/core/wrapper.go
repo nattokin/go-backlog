@@ -1,4 +1,4 @@
-package backlog
+package core
 
 import (
 	"io"
@@ -9,12 +9,12 @@ import (
 //  Wrapper interface for I/O abstractions
 // ──────────────────────────────────────────────────────────────
 
-type wrapper interface {
+type Wrapper interface {
 	Copy(dst io.Writer, src io.Reader) error
-	NewMultipartWriter(w io.Writer) multipartWriter
+	NewMultipartWriter(w io.Writer) MultipartWriter
 }
 
-type multipartWriter interface {
+type MultipartWriter interface {
 	CreateFormFile(fieldname, filename string) (io.Writer, error)
 	FormDataContentType() string
 	Close() error
@@ -24,14 +24,14 @@ type multipartWriter interface {
 //  Default wrapper implementations
 // ──────────────────────────────────────────────────────────────
 
-type defaultWrapper struct{}
+type DefaultWrapper struct{}
 
-func (*defaultWrapper) Copy(dst io.Writer, src io.Reader) error {
+func (*DefaultWrapper) Copy(dst io.Writer, src io.Reader) error {
 	_, err := io.Copy(dst, src)
 	return err
 }
 
-func (*defaultWrapper) NewMultipartWriter(w io.Writer) multipartWriter {
+func (*DefaultWrapper) NewMultipartWriter(w io.Writer) MultipartWriter {
 	return &defaultMultipartWriter{multipart.NewWriter(w)}
 }
 

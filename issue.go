@@ -1,5 +1,7 @@
 package backlog
 
+import "github.com/nattokin/go-backlog/internal/core"
+
 func validateIssueIDOrKey(issueIDOrKey string) error {
 	if issueIDOrKey == "" {
 		return newValidationError("issueIDOrKey must not be empty")
@@ -12,7 +14,7 @@ func validateIssueIDOrKey(issueIDOrKey string) error {
 
 // IssueService handles communication with the issue-related methods of the Backlog API.
 type IssueService struct {
-	method *method
+	method *core.Method
 
 	Attachment *IssueAttachmentService
 }

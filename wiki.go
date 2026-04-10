@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func validateWikiID(wikiID int) error {
@@ -16,7 +18,7 @@ func validateWikiID(wikiID int) error {
 
 // WikiService handles communication with the wiki-related methods of the Backlog API.
 type WikiService struct {
-	method *method
+	method *core.Method
 
 	Attachment *WikiAttachmentService
 	Option     *WikiOptionService
@@ -48,7 +50,7 @@ func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...Re
 	}
 
 	v := []*Wiki{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +74,7 @@ func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, er
 	}
 
 	v := map[string]int{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -94,7 +96,7 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 	}
 
 	v := Wiki{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -130,7 +132,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 	}
 
 	v := Wiki{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -170,7 +172,7 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 	}
 
 	v := Wiki{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -202,7 +204,7 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOpt
 	}
 
 	v := Wiki{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 

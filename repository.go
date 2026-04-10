@@ -1,5 +1,7 @@
 package backlog
 
+import "github.com/nattokin/go-backlog/internal/core"
+
 func validateRepositoryIDOrName(repositoryIDOrName string) error {
 	if repositoryIDOrName == "" {
 		return newValidationError("repositoryIDOrName must not be empty")
@@ -14,5 +16,5 @@ func validateRepositoryIDOrName(repositoryIDOrName string) error {
 //
 //nolint:unused // API not implemented yet
 type RepositoryService struct {
-	method *method
+	method *core.Method
 }

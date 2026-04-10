@@ -1,6 +1,10 @@
 package backlog
 
-import "io"
+import (
+	"io"
+
+	"github.com/nattokin/go-backlog/internal/core"
+)
 
 type mockWrapper struct {
 	createErr error
@@ -8,7 +12,7 @@ type mockWrapper struct {
 	closeErr  error
 }
 
-func (w mockWrapper) NewMultipartWriter(_ io.Writer) multipartWriter {
+func (w mockWrapper) NewMultipartWriter(_ io.Writer) core.MultipartWriter {
 	return &mockMultipartWriter{wrapper: w}
 }
 

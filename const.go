@@ -2,10 +2,6 @@ package backlog
 
 import "github.com/nattokin/go-backlog/internal/model"
 
-const (
-	apiVersion = "v2"
-)
-
 // Order defines the sort order (ascending or descending).
 const (
 	OrderAsc  = model.OrderAsc

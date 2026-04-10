@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 // UserID is the unique identifier for a user.
@@ -21,70 +23,70 @@ func (id UserID) String() string {
 	return strconv.Itoa(int(id))
 }
 
-func getUser(ctx context.Context, m *method, spath string) (*User, error) {
+func getUser(ctx context.Context, m *core.Method, spath string) (*User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	v := User{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func getUserList(ctx context.Context, m *method, spath string, query url.Values) ([]*User, error) {
+func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
 
 	v := []*User{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func addUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+func addUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
 	v := User{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func updateUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+func updateUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
 	v := User{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func deleteUser(ctx context.Context, m *method, spath string, form url.Values) (*User, error) {
+func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
 	resp, err := m.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
 	v := User{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -93,7 +95,7 @@ func deleteUser(ctx context.Context, m *method, spath string, form url.Values) (
 
 // UserService has methods for user
 type UserService struct {
-	method *method
+	method *core.Method
 
 	Activity *UserActivityService
 	Option   *UserOptionService
@@ -190,7 +192,7 @@ func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
-	method *method
+	method *core.Method
 }
 
 // All returns all users in the project.
