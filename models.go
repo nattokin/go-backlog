@@ -1,450 +1,77 @@
 package backlog
 
 import (
-	"fmt"
-	"time"
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
-// Activity represents a recent update or change in the project or space.
-type Activity struct {
-	ID            int              `json:"id,omitempty"`
-	Project       *Project         `json:"project,omitempty"`
-	Type          int              `json:"type,omitempty"`
-	Content       *ActivityContent `json:"content,omitempty"`
-	Notifications []*Notification  `json:"notifications,omitempty"`
-	CreatedUser   *User            `json:"createdUser,omitempty"`
-}
+type Activity = model.Activity
 
-// ActivityContent represents the detailed content of an activity.
-type ActivityContent struct {
-	ID          int      `json:"id,omitempty"`
-	KeyID       int      `json:"key_id,omitempty"`
-	Summary     string   `json:"summary,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Comment     *Comment `json:"comment,omitempty"`
-}
+type ActivityContent = model.ActivityContent
 
-// Attachment represents an attached file.
-type Attachment struct {
-	ID          int       `json:"id,omitempty"`
-	Name        string    `json:"name,omitempty"`
-	Size        int       `json:"size,omitempty"`
-	CreatedUser *User     `json:"createdUser,omitempty"`
-	Created     time.Time `json:"created,omitempty"`
-}
+type Attachment = model.Attachment
 
-// Category represents an issue category.
-type Category []struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
+type Category = model.Category
 
-// ChangeLog represents a history of changes made to an issue.
-type ChangeLog struct {
-	Field         string `json:"field,omitempty"`
-	NewValue      string `json:"newValue,omitempty"`
-	OriginalValue string `json:"originalValue,omitempty"`
-}
+type ChangeLog model.ChangeLog
 
-// Comment represents any one comment.
-type Comment struct {
-	ID            int             `json:"id,omitempty"`
-	Content       string          `json:"content,omitempty"`
-	ChangeLogs    []*ChangeLog    `json:"changeLog,omitempty"`
-	CreatedUser   *User           `json:"createdUser,omitempty"`
-	Created       time.Time       `json:"created,omitempty"`
-	Updated       time.Time       `json:"updated,omitempty"`
-	Stars         *Star           `json:"stars,omitempty"`
-	Notifications []*Notification `json:"notifications,omitempty"`
-}
+type Comment = model.Comment
 
-// CustomField represents a custom field defined in the project.
-type CustomField struct {
-	ID                     int                `json:"id,omitempty"`
-	TypeID                 int                `json:"typeId,omitempty"`
-	Name                   string             `json:"name,omitempty"`
-	Description            string             `json:"description,omitempty"`
-	Required               bool               `json:"required,omitempty"`
-	ApplicableIssueTypeIDs []int              `json:"applicableIssueTypes,omitempty"`
-	AllowAddItem           bool               `json:"allowAddItem,omitempty"`
-	Items                  []*CustomFieldItem `json:"items,omitempty"`
-}
+type CustomField = model.CustomField
 
-// CustomFieldItem represents one of Items in CustomField.
-type CustomFieldItem struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
+type CustomFieldItem model.CustomFieldItem
 
-// DiskUsageBase represents base of disk usage.
-type DiskUsageBase struct {
-	Issue      int `json:"issue,omitempty"`
-	Wiki       int `json:"wiki,omitempty"`
-	File       int `json:"file,omitempty"`
-	Subversion int `json:"subversion,omitempty"`
-	Git        int `json:"git,omitempty"`
-	GitLFS     int `json:"gitLFS,omitempty"`
-}
+type DiskUsageBase = model.DiskUsageBase
 
-// DiskUsageSpace represents space's disk usage.
-type DiskUsageSpace struct {
-	DiskUsageBase
-	Capacity int                 `json:"capacity,omitempty"`
-	Details  []*DiskUsageProject `json:"details,omitempty"`
-}
+type DiskUsageSpace = model.DiskUsageSpace
 
-// DiskUsageProject represents project's disk usage.
-type DiskUsageProject struct {
-	DiskUsageBase
-	ProjectID int `json:"projectId,omitempty"`
-}
+type DiskUsageProject = model.DiskUsageProject
 
-// Licence represents licence.
-type Licence struct {
-	Active                            bool      `json:"active,omitempty"`
-	AttachmentLimit                   int       `json:"attachmentLimit,omitempty"`
-	AttachmentLimitPerFile            int       `json:"attachmentLimitPerFile,omitempty"`
-	AttachmentNumLimit                int       `json:"attachmentNumLimit,omitempty"`
-	Attribute                         bool      `json:"attribute,omitempty"`
-	AttributeLimit                    int       `json:"attributeLimit,omitempty"`
-	Burndown                          bool      `json:"burndown,omitempty"`
-	CommentLimit                      int       `json:"commentLimit,omitempty"`
-	ComponentLimit                    int       `json:"componentLimit,omitempty"`
-	FileSharing                       bool      `json:"fileSharing,omitempty"`
-	Gantt                             bool      `json:"gantt,omitempty"`
-	Git                               bool      `json:"git,omitempty"`
-	IssueLimit                        int       `json:"issueLimit,omitempty"`
-	LicenceTypeID                     int       `json:"licenceTypeId,omitempty"`
-	LimitDate                         time.Time `json:"limitDate,omitempty"`
-	NulabAccount                      bool      `json:"nulabAccount,omitempty"`
-	ParentChildIssue                  bool      `json:"parentChildIssue,omitempty"`
-	PostIssueByMail                   bool      `json:"postIssueByMail,omitempty"`
-	ProjectGroup                      bool      `json:"projectGroup,omitempty"`
-	ProjectLimit                      int       `json:"projectLimit,omitempty"`
-	PullRequestAttachmentLimitPerFile int       `json:"pullRequestAttachmentLimitPerFile,omitempty"`
-	PullRequestAttachmentNumLimit     int       `json:"pullRequestAttachmentNumLimit,omitempty"`
-	RemoteAddress                     bool      `json:"remoteAddress,omitempty"`
-	RemoteAddressLimit                int       `json:"remoteAddressLimit,omitempty"`
-	StartedOn                         time.Time `json:"startedOn,omitempty"`
-	StorageLimit                      int64     `json:"storageLimit,omitempty"`
-	Subversion                        bool      `json:"subversion,omitempty"`
-	SubversionExternal                bool      `json:"subversionExternal,omitempty"`
-	UserLimit                         int       `json:"userLimit,omitempty"`
-	VersionLimit                      int       `json:"versionLimit,omitempty"`
-	WikiAttachment                    bool      `json:"wikiAttachment,omitempty"`
-	WikiAttachmentLimitPerFile        int       `json:"wikiAttachmentLimitPerFile,omitempty"`
-	WikiAttachmentNumLimit            int       `json:"wikiAttachmentNumLimit,omitempty"`
-}
+type Licence = model.Licence
 
-// Notification represents some notification.
-type Notification struct {
-	ID                  int          `json:"id,omitempty"`
-	AlreadyRead         bool         `json:"alreadyRead,omitempty"`
-	Reason              int          `json:"reason,omitempty"`
-	ResourceAlreadyRead bool         `json:"resourceAlreadyRead,omitempty"`
-	Project             *Project     `json:"project,omitempty"`
-	Issue               *Issue       `json:"issue,omitempty"`
-	Comment             *Comment     `json:"comment,omitempty"`
-	PullRequest         *PullRequest `json:"pullRequest,omitempty"`
-	PullRequestComment  *Comment     `json:"pullRequestComment,omitempty"`
-	Sender              *User        `json:"sender,omitempty"`
-	Created             time.Time    `json:"created,omitempty"`
-}
+type Notification = model.Notification
 
-// Issue represents a issue of Backlog.
-type Issue struct {
-	ID             int            `json:"id,omitempty"`
-	ProjectID      int            `json:"projectId,omitempty"`
-	IssueKey       string         `json:"issueKey,omitempty"`
-	KeyID          int            `json:"keyId,omitempty"`
-	IssueType      *IssueType     `json:"issueType,omitempty"`
-	Summary        string         `json:"summary,omitempty"`
-	Description    string         `json:"description,omitempty"`
-	Resolutions    []*Resolution  `json:"resolutions,omitempty"`
-	Priority       *Priority      `json:"priority,omitempty"`
-	Status         *Status        `json:"status,omitempty"`
-	Assignee       *User          `json:"assignee,omitempty"`
-	Category       *Category      `json:"category,omitempty"`
-	Versions       *Version       `json:"versions,omitempty"`
-	Milestone      *Version       `json:"milestone,omitempty"`
-	StartDate      time.Time      `json:"startDate,omitempty"`
-	DueDate        time.Time      `json:"dueDate,omitempty"`
-	EstimatedHours int            `json:"estimatedHours,omitempty"`
-	ActualHours    int            `json:"actualHours,omitempty"`
-	ParentIssueID  int            `json:"parentIssueId,omitempty"`
-	CreatedUser    *User          `json:"createdUser,omitempty"`
-	Created        time.Time      `json:"created,omitempty"`
-	UpdatedUser    *User          `json:"updatedUser,omitempty"`
-	Updated        time.Time      `json:"updated,omitempty"`
-	CustomFields   []*CustomField `json:"customFields,omitempty"`
-	Attachments    []*Attachment  `json:"attachments,omitempty"`
-	SharedFiles    []*SharedFile  `json:"sharedFiles,omitempty"`
-	Stars          []*Star        `json:"stars,omitempty"`
-}
+type Issue = model.Issue
 
-// IssueType represents type of Issue.
-type IssueType struct {
-	ID           int    `json:"id,omitempty"`
-	ProjectID    int    `json:"projectId,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Color        string `json:"color,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
+type IssueType = model.IssueType
 
-// Priority represents a priority.
-type Priority struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
+type Priority = model.Priority
 
-// Project represents a project of Backlog.
-type Project struct {
-	ID                                int    `json:"id,omitempty"`
-	ProjectKey                        string `json:"projectKey,omitempty"`
-	Name                              string `json:"name,omitempty"`
-	ChartEnabled                      bool   `json:"chartEnabled,omitempty"`
-	SubtaskingEnabled                 bool   `json:"subtaskingEnabled,omitempty"`
-	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
-	TextFormattingRule                Format `json:"textFormattingRule,omitempty"`
-	Archived                          bool   `json:"archived,omitempty"`
-}
+type Project = model.Project
 
-// PullRequest represents pull request of Backlog git.
-type PullRequest struct {
-	ID           int           `json:"id,omitempty"`
-	ProjectID    int           `json:"projectId,omitempty"`
-	RepositoryID int           `json:"repositoryId,omitempty"`
-	Number       int           `json:"number,omitempty"`
-	Summary      string        `json:"summary,omitempty"`
-	Description  string        `json:"description,omitempty"`
-	Base         string        `json:"base,omitempty"`
-	Branch       string        `json:"branch,omitempty"`
-	Status       *Status       `json:"status,omitempty"`
-	Assignee     *User         `json:"assignee,omitempty"`
-	Issue        *Issue        `json:"issue,omitempty"`
-	BaseCommit   interface{}   `json:"baseCommit,omitempty"`
-	BranchCommit interface{}   `json:"branchCommit,omitempty"`
-	CloseAt      time.Time     `json:"closeAt,omitempty"`
-	MergeAt      time.Time     `json:"mergeAt,omitempty"`
-	CreatedUser  *User         `json:"createdUser,omitempty"`
-	Created      time.Time     `json:"created,omitempty"`
-	UpdatedUser  *User         `json:"updatedUser,omitempty"`
-	Updated      time.Time     `json:"updated,omitempty"`
-	Attachments  []*Attachment `json:"attachments,omitempty"`
-	Stars        []*Star       `json:"stars,omitempty"`
-}
+type PullRequest = model.PullRequest
 
-// Repository represents repository of Backlog git.
-type Repository struct {
-	ID           int       `json:"id,omitempty"`
-	ProjectID    int       `json:"projectId,omitempty"`
-	Name         string    `json:"name,omitempty"`
-	Description  string    `json:"description,omitempty"`
-	HookURL      string    `json:"hookUrl,omitempty"`
-	HTTPURL      string    `json:"httpUrl,omitempty"`
-	SSHURL       string    `json:"sshUrl,omitempty"`
-	DisplayOrder int       `json:"displayOrder,omitempty"`
-	PushedAt     time.Time `json:"pushedAt,omitempty"`
-	CreatedUser  *User     `json:"createdUser,omitempty"`
-	Created      time.Time `json:"created,omitempty"`
-	UpdatedUser  *User     `json:"updatedUser,omitempty"`
-	Updated      time.Time `json:"updated,omitempty"`
-}
+type Repository model.Repository
 
-// Resolution represents a resolution.
-type Resolution struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
+type Resolution = model.Resolution
 
-// SharedFile represents a file shared within the project or space.
-type SharedFile struct {
-	ID          int       `json:"id,omitempty"`
-	Type        string    `json:"type,omitempty"`
-	Dir         string    `json:"dir,omitempty"`
-	Name        string    `json:"name,omitempty"`
-	Size        int       `json:"size,omitempty"`
-	CreatedUser *User     `json:"createdUser,omitempty"`
-	Created     time.Time `json:"created,omitempty"`
-	UpdatedUser *User     `json:"updatedUser,omitempty"`
-	Updated     time.Time `json:"updated,omitempty"`
-}
+type SharedFile = model.SharedFile
 
-// Space represents space of Backlog.
-type Space struct {
-	SpaceKey           string    `json:"spaceKey,omitempty"`
-	Name               string    `json:"name,omitempty"`
-	OwnerID            int       `json:"ownerId,omitempty"`
-	Lang               string    `json:"lang,omitempty"`
-	Timezone           string    `json:"timezone,omitempty"`
-	ReportSendTime     string    `json:"reportSendTime,omitempty"`
-	TextFormattingRule Format    `json:"textFormattingRule,omitempty"`
-	Created            time.Time `json:"created,omitempty"`
-	Updated            time.Time `json:"updated,omitempty"`
-}
+type Space = model.Space
 
-// SpaceNotification represents a notification of Space.
-type SpaceNotification struct {
-	Content string    `json:"content,omitempty"`
-	Updated time.Time `json:"updated,omitempty"`
-}
+type SpaceNotification = model.SpaceNotification
 
-// Star represents any Star.
-type Star struct {
-	ID        int       `json:"id,omitempty"`
-	Comment   string    `json:"comment,omitempty"`
-	URL       string    `json:"url,omitempty"`
-	Title     string    `json:"title,omitempty"`
-	Presenter *User     `json:"presenter,omitempty"`
-	Created   time.Time `json:"created,omitempty"`
-}
+type Star = model.Star
 
-// Status represents any status.
-type Status struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
+type Status = model.Status
 
-// Tag represents one of tags in Wiki.
-type Tag struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
+type Tag = model.Tag
 
-// Team represents team.
-type Team struct {
-	ID           int       `json:"id,omitempty"`
-	Name         string    `json:"name,omitempty"`
-	Members      []*User   `json:"members,omitempty"`
-	DisplayOrder int       `json:"displayOrder,omitempty"`
-	CreatedUser  *User     `json:"createdUser,omitempty"`
-	Created      time.Time `json:"created,omitempty"`
-	UpdatedUser  *User     `json:"updatedUser,omitempty"`
-	Updated      time.Time `json:"updated,omitempty"`
-}
+type Team = model.Team
 
-// User represents user.
-type User struct {
-	ID          int    `json:"id,omitempty"`
-	UserID      string `json:"userId,omitempty"`
-	Name        string `json:"name,omitempty"`
-	RoleType    Role   `json:"roleType,omitempty"`
-	Lang        string `json:"lang,omitempty"`
-	MailAddress string `json:"mailAddress,omitempty"`
-}
+type User = model.User
 
-// Version represents any version.
-type Version struct {
-	ID             int       `json:"id,omitempty"`
-	ProjectID      int       `json:"projectId,omitempty"`
-	Name           string    `json:"name,omitempty"`
-	Description    string    `json:"description,omitempty"`
-	StartDate      time.Time `json:"startDate,omitempty"`
-	ReleaseDueDate time.Time `json:"releaseDueDate,omitempty"`
-	Archived       bool      `json:"archived,omitempty"`
-	DisplayOrder   int       `json:"displayOrder,omitempty"`
-}
+type Version = model.Version
 
-// WatchingItem represents an item of watching list.
-type WatchingItem struct {
-	ID                  int       `json:"id,omitempty"`
-	ResourceAlreadyRead bool      `json:"resourceAlreadyRead,omitempty"`
-	Note                string    `json:"note,omitempty"`
-	Type                string    `json:"type,omitempty"`
-	Issue               *Issue    `json:"issue,omitempty"`
-	LastContentUpdated  time.Time `json:"lastContentUpdated,omitempty"`
-	Created             time.Time `json:"created,omitempty"`
-	Updated             time.Time `json:"updated,omitempty"`
-}
+type WatchingItem = model.WatchingItem
 
-// Webhook represents webhook of Backlog.
-type Webhook struct {
-	ID              int       `json:"id,omitempty"`
-	Name            string    `json:"name,omitempty"`
-	Description     string    `json:"description,omitempty"`
-	HookURL         string    `json:"hookUrl,omitempty"`
-	AllEvent        bool      `json:"allEvent,omitempty"`
-	ActivityTypeIds []int     `json:"activityTypeIds,omitempty"`
-	CreatedUser     *User     `json:"createdUser,omitempty"`
-	Created         time.Time `json:"created,omitempty"`
-	UpdatedUser     *User     `json:"updatedUser,omitempty"`
-	Updated         time.Time `json:"updated,omitempty"`
-}
+type Webhook = model.Webhook
 
-// Wiki represents Backlog Wiki.
-type Wiki struct {
-	ID          int           `json:"id,omitempty"`
-	ProjectID   int           `json:"projectId,omitempty"`
-	Name        string        `json:"name,omitempty"`
-	Content     string        `json:"content,omitempty"`
-	Tags        []*Tag        `json:"tags,omitempty"`
-	Attachments []*Attachment `json:"attachments,omitempty"`
-	SharedFiles []*SharedFile `json:"sharedFiles,omitempty"`
-	Stars       []*Star       `json:"stars,omitempty"`
-	CreatedUser *User         `json:"createdUser,omitempty"`
-	Created     time.Time     `json:"created,omitempty"`
-	UpdatedUser *User         `json:"updatedUser,omitempty"`
-	Updated     time.Time     `json:"updated,omitempty"`
-}
+type Wiki = model.Wiki
 
-// WikiHistory represents a version history entry for a wiki page.
-type WikiHistory struct {
-	PageID      int       `json:"pageId,omitempty"`
-	Version     int       `json:"version,omitempty"`
-	Name        string    `json:"name,omitempty"`
-	Content     string    `json:"content,omitempty"`
-	CreatedUser *User     `json:"createdUser,omitempty"`
-	Created     time.Time `json:"created,omitempty"`
-}
+type WikiHistory = model.WikiHistory
 
-// Format defines the text formatting rule for the Backlog wiki.
-type Format string
+type Format = model.Format
 
-func (f Format) String() string {
-	switch f {
-	case FormatMarkdown:
-		return "Markdown"
-	case FormatBacklog:
-		return "Backlog"
-	default:
-		return fmt.Sprintf("unknown Format type %s", string(f))
-	}
-}
+type Order = model.Order
 
-// Order defines the sort order (ascending or descending).
-type Order string
-
-func (o Order) String() string {
-	switch o {
-	case OrderAsc:
-		return "Asc"
-	case OrderDesc:
-		return "Desc"
-	default:
-		return fmt.Sprintf("unknown Order type %s", string(o))
-	}
-}
-
-// Role defines the type of user role within a project.
-type Role int
-
-func (r Role) String() string {
-	switch r {
-	case RoleAdministrator:
-		return "Administrator"
-	case RoleNormalUser:
-		return "NormalUser"
-	case RoleReporter:
-		return "Reporter"
-	case RoleViewer:
-		return "Viewer"
-	case RoleGuestReporter:
-		return "GuestReporter"
-	case RoleGuestViewer:
-		return "GuestViewer"
-	default:
-		return fmt.Sprintf("unknown Role type %d", r)
-	}
-}
+type Role = model.Role
