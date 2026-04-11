@@ -23,5 +23,3 @@ const (
 	RoleGuestReporter = model.RoleGuestReporter
 	RoleGuestViewer   = model.RoleGuestViewer
 )
-
-const MaxActivityTypeID = 26
