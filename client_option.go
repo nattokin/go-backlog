@@ -6,8 +6,6 @@ import "github.com/nattokin/go-backlog/internal/core"
 //  Client options
 // ──────────────────────────────────────────────────────────────
 
-// ClientOption defines a functional option for configuring a Client.
-// It is used to change the default behavior of the Client.
 type ClientOption = core.ClientOption
 
 // WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.

@@ -32,8 +32,6 @@ type Doer interface {
 //  Client structure and initialization
 // ──────────────────────────────────────────────────────────────
 
-// Client represents a Backlog API client.
-// It wraps an underlying HTTP Doer and provides typed services for API access.
 type Client struct {
 	BaseURL *url.URL
 	Token   string
@@ -94,56 +92,11 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 
 	// --- Inject HTTP Method Wrappers ------------------------------------------
 	c.Method = &Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
-		},
-		Post: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-			header := http.Header{}
-			header.Set("Content-Type", "application/x-www-form-urlencoded")
-			if form == nil {
-				form = url.Values{}
-			}
-			return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
-		},
-		Patch: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-			header := http.Header{}
-			header.Set("Content-Type", "application/x-www-form-urlencoded")
-			if form == nil {
-				form = url.Values{}
-			}
-			return c.Do(ctx, http.MethodPatch, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
-		},
-		Delete: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-			header := http.Header{}
-			header.Set("Content-Type", "application/x-www-form-urlencoded")
-			if form == nil {
-				form = url.Values{}
-			}
-			return c.Do(ctx, http.MethodDelete, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
-		},
-		Upload: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
-			if fileName == "" {
-				return nil, NewInternalClientError("fileName is required")
-			}
-			var buf bytes.Buffer
-			mw := c.Wrapper.NewMultipartWriter(&buf)
-
-			fw, err := mw.CreateFormFile("file", fileName)
-			if err != nil {
-				return nil, err
-			}
-			if err = c.Wrapper.Copy(fw, r); err != nil {
-				return nil, err
-			}
-			if err := mw.Close(); err != nil {
-				return nil, err
-			}
-
-			header := http.Header{}
-			header.Set("Content-Type", mw.FormDataContentType())
-
-			return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(&buf))
-		},
+		Get:    c.Get,
+		Post:   c.Post,
+		Patch:  c.Patch,
+		Delete: c.Delete,
+		Upload: c.Upload,
 	}
 
 	return c, nil
@@ -153,8 +106,8 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 //  HTTP request creation and execution
 // ──────────────────────────────────────────────────────────────
 
-// newRequest builds a new HTTP request with Token-based authentication.
-func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*httpRequestOption) (*http.Request, error) {
+// NewRequest builds a new HTTP request with Token-based authentication.
+func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
 	}
@@ -185,9 +138,9 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	return req, nil
 }
 
-// do executes the given HTTP request using the injected Doer.
+// Do executes the given HTTP request using the injected Doer.
 // All HTTP calls pass through this function, ensuring consistent error handling.
-func (c *Client) Do(ctx context.Context, Method, spath string, opts ...*httpRequestOption) (*http.Response, error) {
+func (c *Client) Do(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Response, error) {
 	req, err := c.NewRequest(ctx, Method, spath, opts...)
 	if err != nil {
 		return nil, err
@@ -199,6 +152,61 @@ func (c *Client) Do(ctx context.Context, Method, spath string, opts ...*httpRequ
 	}
 
 	return CheckResponse(resp)
+}
+
+func (c *Client) Get(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+	return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
+}
+
+func (c *Client) Post(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if form == nil {
+		form = url.Values{}
+	}
+	return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
+}
+
+func (c *Client) Patch(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if form == nil {
+		form = url.Values{}
+	}
+	return c.Do(ctx, http.MethodPatch, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
+}
+
+func (c *Client) Delete(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if form == nil {
+		form = url.Values{}
+	}
+	return c.Do(ctx, http.MethodDelete, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
+}
+
+func (c *Client) Upload(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
+	if fileName == "" {
+		return nil, NewInternalClientError("fileName is required")
+	}
+	var buf bytes.Buffer
+	mw := c.Wrapper.NewMultipartWriter(&buf)
+
+	fw, err := mw.CreateFormFile("file", fileName)
+	if err != nil {
+		return nil, err
+	}
+	if err = c.Wrapper.Copy(fw, r); err != nil {
+		return nil, err
+	}
+	if err := mw.Close(); err != nil {
+		return nil, err
+	}
+
+	header := http.Header{}
+	header.Set("Content-Type", mw.FormDataContentType())
+
+	return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(&buf))
 }
 
 // ──────────────────────────────────────────────────────────────

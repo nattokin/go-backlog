@@ -38,7 +38,7 @@ func WithDoer(doer Doer) *ClientOption {
 //  Http request otions
 // ──────────────────────────────────────────────────────────────
 
-type httpRequestOption struct {
+type HttpRequestOption struct {
 	set func(config *httpRequestConfig)
 }
 
@@ -48,24 +48,24 @@ type httpRequestConfig struct {
 	Query  url.Values
 }
 
-func WithHeader(header http.Header) *httpRequestOption {
-	return &httpRequestOption{
+func WithHeader(header http.Header) *HttpRequestOption {
+	return &HttpRequestOption{
 		set: func(config *httpRequestConfig) {
 			config.Header = header
 		},
 	}
 }
 
-func WithBody(body io.Reader) *httpRequestOption {
-	return &httpRequestOption{
+func WithBody(body io.Reader) *HttpRequestOption {
+	return &HttpRequestOption{
 		set: func(config *httpRequestConfig) {
 			config.Body = body
 		},
 	}
 }
 
-func WithQuery(query url.Values) *httpRequestOption {
-	return &httpRequestOption{
+func WithQuery(query url.Values) *HttpRequestOption {
+	return &HttpRequestOption{
 		set: func(config *httpRequestConfig) {
 			config.Query = query
 		},

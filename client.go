@@ -1,8 +1,6 @@
 package backlog
 
 import (
-	"net/http"
-
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
@@ -10,12 +8,7 @@ import (
 //  Doer interface (HTTP abstraction)
 // ──────────────────────────────────────────────────────────────
 
-// Doer defines the minimal interface required to perform HTTP requests.
-// It is compatible with *http.Client and allows injection of mock clients
-// for unit or integration testing.
-type Doer interface {
-	Do(req *http.Request) (*http.Response, error)
-}
+type Doer = core.Doer
 
 // ──────────────────────────────────────────────────────────────
 //  Client structure and initialization
