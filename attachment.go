@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func validateAttachmentID(attachmentID int) error {
@@ -18,7 +20,7 @@ func validateAttachmentID(attachmentID int) error {
 
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
-	method *method
+	method *core.Method
 }
 
 // Upload uploads any file to the space.
@@ -33,35 +35,35 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 	}
 
 	v := Attachment{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func listAttachments(ctx context.Context, m *method, spath string) ([]*Attachment, error) {
+func listAttachments(ctx context.Context, m *core.Method, spath string) ([]*Attachment, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	v := []*Attachment{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func removeAttachment(ctx context.Context, m *method, spath string) (*Attachment, error) {
+func removeAttachment(ctx context.Context, m *core.Method, spath string) (*Attachment, error) {
 	resp, err := m.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	v := Attachment{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +72,7 @@ func removeAttachment(ctx context.Context, m *method, spath string) (*Attachment
 
 // WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
-	method *method
+	method *core.Method
 }
 
 // Attach attaches files uploaded to the space to the specified wiki.
@@ -99,7 +101,7 @@ func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachme
 	}
 
 	v := []*Attachment{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -135,7 +137,7 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {
-	method *method
+	method *core.Method
 }
 
 // List returns a list of all attachments in the issue.
@@ -167,7 +169,7 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 
 // PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
 type PullRequestAttachmentService struct {
-	method *method
+	method *core.Method
 }
 
 // List returns a list of all attachments in the pull request.

@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/url"
 	"path"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func validateProjectID(projectID int) error {
@@ -25,7 +27,7 @@ func validateProjectIDOrKey(projectIDOrKey string) error {
 
 // ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
-	method *method
+	method *core.Method
 
 	Activity *ProjectActivityService
 	User     *ProjectUserService
@@ -54,7 +56,7 @@ func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Pro
 	}
 
 	v := []*Project{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +78,7 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 	}
 
 	v := Project{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -108,7 +110,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 	}
 
 	v := Project{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -149,7 +151,7 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 	}
 
 	v := Project{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +173,7 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Pr
 	}
 
 	v := Project{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 

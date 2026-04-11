@@ -14,21 +14,21 @@ func initServices(c *Client) {
 
 	// --- Initialize IssueService -------------------------------------------------
 	c.Issue = &IssueService{
-		method: c.method,
+		method: c.core.Method,
 		Attachment: &IssueAttachmentService{
-			method: c.method,
+			method: c.core.Method,
 		},
 	}
 
 	// --- Initialize ProjectService ----------------------------------------------
 	c.Project = &ProjectService{
-		method: c.method,
+		method: c.core.Method,
 		Activity: &ProjectActivityService{
-			method: c.method,
+			method: c.core.Method,
 			Option: activityOptionService,
 		},
 		User: &ProjectUserService{
-			method: c.method,
+			method: c.core.Method,
 		},
 		Option: &ProjectOptionService{
 			base: baseOptionService,
@@ -37,29 +37,29 @@ func initServices(c *Client) {
 
 	// --- Initialize PullRequestService ------------------------------------------
 	c.PullRequest = &PullRequestService{
-		method: c.method,
+		method: c.core.Method,
 		Attachment: &PullRequestAttachmentService{
-			method: c.method,
+			method: c.core.Method,
 		},
 	}
 
 	// --- Initialize SpaceService -------------------------------------------------
 	c.Space = &SpaceService{
-		method: c.method,
+		method: c.core.Method,
 		Activity: &SpaceActivityService{
-			method: c.method,
+			method: c.core.Method,
 			Option: activityOptionService,
 		},
 		Attachment: &SpaceAttachmentService{
-			method: c.method,
+			method: c.core.Method,
 		},
 	}
 
 	// --- Initialize UserService --------------------------------------------------
 	c.User = &UserService{
-		method: c.method,
+		method: c.core.Method,
 		Activity: &UserActivityService{
-			method: c.method,
+			method: c.core.Method,
 			Option: activityOptionService,
 		},
 		Option: &UserOptionService{
@@ -69,9 +69,9 @@ func initServices(c *Client) {
 
 	// --- Initialize WikiService --------------------------------------------------
 	c.Wiki = &WikiService{
-		method: c.method,
+		method: c.core.Method,
 		Attachment: &WikiAttachmentService{
-			method: c.method,
+			method: c.core.Method,
 		},
 		Option: &WikiOptionService{
 			base: baseOptionService,

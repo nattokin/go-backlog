@@ -17,6 +17,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestNewClient_validation(t *testing.T) {
@@ -66,8 +68,8 @@ func TestNewClient_validation(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.NotNil(t, c)
-			assert.Equal(t, tc.baseURL, c.baseURL.String())
-			assert.Equal(t, tc.token, c.token)
+			assert.Equal(t, tc.baseURL, c.core.BaseURL.String())
+			assert.Equal(t, tc.token, c.core.Token)
 		})
 	}
 }
@@ -86,8 +88,8 @@ func TestNewClient_initialization(t *testing.T) {
 		require.NoError(t, err)
 
 		{
-			req, _ := c.newRequest(context.Background(), http.MethodGet, "test")
-			res, err := c.doer.Do(req)
+			req, _ := c.core.NewRequest(context.Background(), http.MethodGet, "test")
+			res, err := c.core.Doer.Do(req)
 			require.Error(t, err)
 			assert.Nil(t, res)
 			assert.Equal(t, "mockDoer error", err.Error())
@@ -102,9 +104,9 @@ func TestNewClient_initialization(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
-		assert.Equal(t, token, c.token)
-		assert.Equal(t, http.DefaultClient, c.doer)
-		assert.IsType(t, &defaultWrapper{}, c.wrapper)
+		assert.Equal(t, token, c.core.Token)
+		assert.Equal(t, http.DefaultClient, c.core.Doer)
+		assert.IsType(t, &core.DefaultWrapper{}, c.core.Wrapper)
 
 		// Service initialization
 		assert.NotNil(t, c.Wiki)
@@ -228,7 +230,7 @@ func TestClient_do(t *testing.T) {
 				doFunc: tc.doFunc,
 			})
 
-			res, err := c.do(
+			res, err := c.core.Do(
 				context.Background(),
 				http.MethodGet,
 				"test",
@@ -349,13 +351,13 @@ func TestClient_newRequest(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", nil)
-			request, err := c.newRequest(
+			request, err := c.core.NewRequest(
 				context.Background(),
 				tc.method,
 				tc.spath,
-				withHeader(tc.header),
-				withBody(tc.body),
-				withQuery(tc.query),
+				core.WithHeader(tc.header),
+				core.WithBody(tc.body),
+				core.WithQuery(tc.query),
 			)
 
 			if tc.wantError {
@@ -379,7 +381,7 @@ func TestClient_method(t *testing.T) {
 	}{
 		"GET": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get(context.Background(), "/path1", nil)
+				return c.core.Method.Get(context.Background(), "/path1", nil)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "GET", captured.Method)
@@ -395,7 +397,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("k", "v")
-				return c.method.Post(context.Background(), "/path2", form)
+				return c.core.Method.Post(context.Background(), "/path2", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
@@ -411,7 +413,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "123")
-				return c.method.Patch(context.Background(), "/path3", form)
+				return c.core.Method.Patch(context.Background(), "/path3", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "PATCH", captured.Method)
@@ -426,7 +428,7 @@ func TestClient_method(t *testing.T) {
 			call: func(c *Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "321")
-				return c.method.Delete(context.Background(), "/path4", form)
+				return c.core.Method.Delete(context.Background(), "/path4", form)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "DELETE", captured.Method)
@@ -440,7 +442,7 @@ func TestClient_method(t *testing.T) {
 		"UPLOAD": {
 			call: func(c *Client) (*http.Response, error) {
 				buf := bytes.NewBufferString("dummyfiledata")
-				return c.method.Upload(context.Background(), "/upload-path", "file.txt", buf)
+				return c.core.Method.Upload(context.Background(), "/upload-path", "file.txt", buf)
 			},
 			check: func(t *testing.T, captured *httpCapture) {
 				assert.Equal(t, "POST", captured.Method)
@@ -474,40 +476,40 @@ func TestClient_method(t *testing.T) {
 		// エラーケースは変更なし
 		"GET newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Get(context.Background(), "", url.Values{})
+				return c.core.Method.Get(context.Background(), "", url.Values{})
 			},
 			wantErr: true,
 		},
 
 		"POST newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Post(context.Background(), "", nil)
+				return c.core.Method.Post(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"PATCH empty params": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Patch(context.Background(), "spath", nil)
+				return c.core.Method.Patch(context.Background(), "spath", nil)
 			},
 		},
 
 		"PATCH newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Patch(context.Background(), "", nil)
+				return c.core.Method.Patch(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"DELETE empty params": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Delete(context.Background(), "spath", nil)
+				return c.core.Method.Delete(context.Background(), "spath", nil)
 			},
 		},
 
 		"DELETE newRequest error": {
 			call: func(c *Client) (*http.Response, error) {
-				return c.method.Delete(context.Background(), "", nil)
+				return c.core.Method.Delete(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
@@ -562,7 +564,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *Client) {
-				c.wrapper = mockWrapper{createErr: errors.New("mock createFormFile error")}
+				c.core.Wrapper = mockWrapper{createErr: errors.New("mock createFormFile error")}
 			},
 		},
 
@@ -571,7 +573,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *Client) {
-				c.wrapper = mockWrapper{closeErr: errors.New("mock close error")}
+				c.core.Wrapper = mockWrapper{closeErr: errors.New("mock close error")}
 			},
 		},
 
@@ -580,7 +582,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *Client) {
-				c.wrapper = mockWrapper{copyErr: errors.New("mock copy error")}
+				c.core.Wrapper = mockWrapper{copyErr: errors.New("mock copy error")}
 			},
 		},
 	}
@@ -597,7 +599,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 
 			f := io.NopCloser(bytes.NewBufferString(tc.fileData))
 
-			resp, err := c.method.Upload(context.Background(), tc.spath, tc.fileName, f)
+			resp, err := c.core.Method.Upload(context.Background(), tc.spath, tc.fileName, f)
 
 			assert.Error(t, err)
 			assert.Nil(t, resp)
@@ -683,7 +685,7 @@ func Test_checkResponse(t *testing.T) {
 			}
 
 			// Use the exported function from backlog package
-			r, err := checkResponse(resp)
+			r, err := core.CheckResponse(resp)
 
 			// 1. Validate response pointer
 			if tc.wantNilResponse {

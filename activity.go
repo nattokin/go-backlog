@@ -5,9 +5,11 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
-func getActivityList(ctx context.Context, base *OptionService, m *method, spath string, opts ...RequestOption) ([]*Activity, error) {
+func getActivityList(ctx context.Context, m *core.Method, spath string, opts ...RequestOption) ([]*Activity, error) {
 	query := url.Values{}
 	validOptionKeys := []apiParamOptionType{paramActivityTypeIDs, paramMinID, paramMaxID, paramCount, paramOrder}
 	if err := applyOptions(query, validOptionKeys, opts...); err != nil {
@@ -20,7 +22,7 @@ func getActivityList(ctx context.Context, base *OptionService, m *method, spath 
 	}
 
 	v := []*Activity{}
-	if err := decodeResponse(resp, &v); err != nil {
+	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -29,7 +31,7 @@ func getActivityList(ctx context.Context, base *OptionService, m *method, spath 
 
 // ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
-	method *method
+	method *core.Method
 
 	Option *ActivityOptionService
 }
@@ -51,12 +53,12 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "activities")
-	return getActivityList(ctx, s.Option.base, s.method, spath, opts...)
+	return getActivityList(ctx, s.method, spath, opts...)
 }
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {
-	method *method
+	method *core.Method
 
 	Option *ActivityOptionService
 }
@@ -73,12 +75,12 @@ type SpaceActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*Activity, error) {
-	return getActivityList(ctx, s.Option.base, s.method, "space/activities", opts...)
+	return getActivityList(ctx, s.method, "space/activities", opts...)
 }
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
 type UserActivityService struct {
-	method *method
+	method *core.Method
 
 	Option *ActivityOptionService
 }
@@ -101,5 +103,5 @@ func (s *UserActivityService) List(ctx context.Context, userID int, opts ...Requ
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return getActivityList(ctx, s.Option.base, s.method, spath, opts...)
+	return getActivityList(ctx, s.method, spath, opts...)
 }

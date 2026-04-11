@@ -1,0 +1,69 @@
+package core
+
+import (
+	"io"
+	"net/http"
+	"net/url"
+)
+
+// ──────────────────────────────────────────────────────────────
+//  Client options
+// ──────────────────────────────────────────────────────────────
+
+// ClientOption defines a functional option for configuring a Client.
+// It is used to change the default behavior of the Client.
+type ClientOption struct {
+	set func(config *clientConfig)
+}
+
+// clientConfig holds the internal configuration settings for the Client.
+type clientConfig struct {
+	// Doer is the HTTP client used to make requests.
+	Doer Doer
+}
+
+func WithDoer(doer Doer) *ClientOption {
+	return &ClientOption{
+		set: func(config *clientConfig) {
+			config.Doer = doer
+		},
+	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Http request otions
+// ──────────────────────────────────────────────────────────────
+
+type HttpRequestOption struct {
+	set func(config *httpRequestConfig)
+}
+
+type httpRequestConfig struct {
+	Header http.Header
+	Body   io.Reader
+	Query  url.Values
+}
+
+func WithHeader(header http.Header) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Header = header
+		},
+	}
+}
+
+func WithBody(body io.Reader) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Body = body
+		},
+	}
+}
+
+func WithQuery(query url.Values) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Query = query
+		},
+	}
+}

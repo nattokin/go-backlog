@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestError_Error(t *testing.T) {
@@ -85,7 +87,7 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 		StatusCode: 404,
 		Body:       nil,
 	}
-	_, err := checkResponse(resp)
+	_, err := core.CheckResponse(resp)
 	require.Error(t, err)
 
 	wrapped := fmt.Errorf("wrap: %w", err)
@@ -131,7 +133,7 @@ func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
 // TestInternalClientError_errorsAs verifies that InternalClientError can be
 // unwrapped with errors.As by callers.
 func TestInternalClientError_errorsAs(t *testing.T) {
-	err := newInternalClientError("missing token")
+	err := core.NewInternalClientError("missing token")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *InternalClientError
