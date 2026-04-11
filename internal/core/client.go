@@ -106,7 +106,6 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 //  HTTP request creation and execution
 // ──────────────────────────────────────────────────────────────
 
-// NewRequest builds a new HTTP request with Token-based authentication.
 func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
 		return nil, errors.New("spath must not be empty")
