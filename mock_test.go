@@ -61,20 +61,20 @@ func newClientMock(t *testing.T, baseURL, token string, doer Doer) *Client {
 // newFailingCheckOption returns a RequestOption whose check function always fails.
 func newFailingCheckOption(t apiParamOptionType) *apiParamOption {
 	return &apiParamOption{
-		t: t,
-		checkFunc: func() error {
+		Type: t,
+		CheckFunc: func() error {
 			return errors.New("check error")
 		},
-		setFunc: func(_ url.Values) error { return nil },
+		SetFunc: func(_ url.Values) error { return nil },
 	}
 }
 
 // newFailingSetOption returns a RequestOption whose set function always fails.
 func newFailingSetOption(t apiParamOptionType) *apiParamOption {
 	return &apiParamOption{
-		t:         t,
-		checkFunc: func() error { return nil },
-		setFunc: func(_ url.Values) error {
+		Type:      t,
+		CheckFunc: func() error { return nil },
+		SetFunc: func(_ url.Values) error {
 			return errors.New("set error")
 		},
 	}
@@ -83,8 +83,8 @@ func newFailingSetOption(t apiParamOptionType) *apiParamOption {
 // newInvalidTypeOption returns a RequestOption whose has invalid type.
 func newInvalidTypeOption() *apiParamOption {
 	return &apiParamOption{
-		t:         "invalid",
-		checkFunc: func() error { return nil },
-		setFunc:   func(_ url.Values) error { return nil },
+		Type:      "invalid",
+		CheckFunc: func() error { return nil },
+		SetFunc:   func(_ url.Values) error { return nil },
 	}
 }

@@ -4,10 +4,10 @@ import "github.com/nattokin/go-backlog/internal/core"
 
 func validateRepositoryIDOrName(repositoryIDOrName string) error {
 	if repositoryIDOrName == "" {
-		return newValidationError("repositoryIDOrName must not be empty")
+		return core.NewValidationError("repositoryIDOrName must not be empty")
 	}
 	if repositoryIDOrName == "0" {
-		return newValidationError("repositoryIDOrName must not be '0'")
+		return core.NewValidationError("repositoryIDOrName must not be '0'")
 	}
 	return nil
 }

@@ -23,29 +23,3 @@ const (
 	RoleGuestReporter = model.RoleGuestReporter
 	RoleGuestViewer   = model.RoleGuestViewer
 )
-
-const (
-	paramActivityTypeIDs                   apiParamOptionType = "activityTypeId[]"
-	paramAll                               apiParamOptionType = "all"
-	paramArchived                          apiParamOptionType = "archived"
-	paramChartEnabled                      apiParamOptionType = "chartEnabled"
-	paramContent                           apiParamOptionType = "content"
-	paramCount                             apiParamOptionType = "count"
-	paramKey                               apiParamOptionType = "key"
-	paramKeyword                           apiParamOptionType = "keyword"
-	paramMailAddress                       apiParamOptionType = "mailAddress"
-	paramMailNotify                        apiParamOptionType = "mailNotify"
-	paramMaxID                             apiParamOptionType = "maxId"
-	paramMinID                             apiParamOptionType = "minId"
-	paramName                              apiParamOptionType = "name"
-	paramOrder                             apiParamOptionType = "order"
-	paramPassword                          apiParamOptionType = "password"
-	paramProjectLeaderCanEditProjectLeader apiParamOptionType = "projectLeaderCanEditProjectLeader"
-	paramRoleType                          apiParamOptionType = "roleType"
-	paramSendMail                          apiParamOptionType = "sendMail"
-	paramSubtaskingEnabled                 apiParamOptionType = "subtaskingEnabled"
-	paramTextFormattingRule                apiParamOptionType = "textFormattingRule"
-	paramUserID                            apiParamOptionType = "userId"
-)
-
-const maxActivityTypeID = 26

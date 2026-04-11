@@ -1,5 +1,7 @@
 package backlog
 
+import "github.com/nattokin/go-backlog/internal/core"
+
 //
 // ──────────────────────────────────────────────────────────────
 //  ActivityOptionService
@@ -9,7 +11,7 @@ package backlog
 // ActivityOptionService provides a domain-specific set of option builders
 // for operations within the ActivityService.
 type ActivityOptionService struct {
-	base *OptionService
+	base *core.OptionService
 }
 
 func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
@@ -41,7 +43,7 @@ func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
 // ProjectOptionService provides a domain-specific set of option builders
 // for operations within the ProjectService.
 type ProjectOptionService struct {
-	base *OptionService
+	base *core.OptionService
 }
 
 func (s *ProjectOptionService) WithAll(enabled bool) RequestOption {
@@ -85,7 +87,7 @@ func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOpti
 // UserOptionService provides a domain-specific set of option builders
 // for operations within the UserService.
 type UserOptionService struct {
-	base *OptionService
+	base *core.OptionService
 }
 
 func (s *UserOptionService) WithMailAddress(mail string) RequestOption {
@@ -121,7 +123,7 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.
 type WikiOptionService struct {
-	base *OptionService
+	base *core.OptionService
 }
 
 func (s *WikiOptionService) WithKeyword(keyword string) RequestOption {

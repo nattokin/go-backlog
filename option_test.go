@@ -3,6 +3,8 @@ package backlog
 import (
 	"net/url"
 	"testing"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func Test_apiParamOption(t *testing.T) {
@@ -10,19 +12,19 @@ func Test_apiParamOption(t *testing.T) {
 		option      RequestOption
 		expectPanic bool
 	}{
-		"setFunc-nil": {
+		"SetFunc-nil": {
 			option: &apiParamOption{
-				t:         paramKey,
-				checkFunc: func() error { return nil },
-				setFunc:   nil,
+				Type:      core.ParamKey,
+				CheckFunc: func() error { return nil },
+				SetFunc:   nil,
 			},
 			expectPanic: true,
 		},
-		"checkFunc-nil": {
+		"CheckFunc-nil": {
 			option: &apiParamOption{
-				t:         paramKey,
-				checkFunc: nil,
-				setFunc:   func(_ url.Values) error { return nil },
+				Type:      core.ParamKey,
+				CheckFunc: nil,
+				SetFunc:   func(_ url.Values) error { return nil },
 			},
 			expectPanic: false,
 		},
@@ -44,7 +46,7 @@ func Test_apiParamOption(t *testing.T) {
 			}()
 
 			v := url.Values{}
-			applyOptions(v, []apiParamOptionType{paramKey}, tc.option)
+			core.ApplyOptions(v, []apiParamOptionType{core.ParamKey}, tc.option)
 		})
 	}
 

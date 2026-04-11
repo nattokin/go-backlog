@@ -46,11 +46,11 @@ func TestAPIResponseError_Error(t *testing.T) {
 
 func TestInvalidOptionKeyError_Error_form(t *testing.T) {
 	e := &InvalidOptionKeyError{
-		Invalid: paramKey.Value(),
+		Invalid: core.ParamKey.Value(),
 		ValidList: []string{
-			paramName.Value(),
-			paramKey.Value(),
-			paramChartEnabled.Value(),
+			core.ParamName.Value(),
+			core.ParamKey.Value(),
+			core.ParamChartEnabled.Value(),
 		},
 	}
 	assert.EqualError(t, e, "invalid option key:key, allowed option keys:name,key,chartEnabled")
@@ -58,11 +58,11 @@ func TestInvalidOptionKeyError_Error_form(t *testing.T) {
 
 func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 	e := &InvalidOptionKeyError{
-		Invalid: paramActivityTypeIDs.Value(),
+		Invalid: core.ParamActivityTypeIDs.Value(),
 		ValidList: []string{
-			paramAll.Value(),
-			paramArchived.Value(),
-			paramOrder.Value(),
+			core.ParamAll.Value(),
+			core.ParamArchived.Value(),
+			core.ParamOrder.Value(),
 		},
 	}
 	assert.EqualError(t, e, "invalid option key:activityTypeId[], allowed option keys:all,archived,order")
@@ -70,9 +70,7 @@ func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
-	e := &ValidationError{
-		message: msg,
-	}
+	e := core.NewValidationError(msg)
 	assert.EqualError(t, e, msg)
 }
 
@@ -100,7 +98,7 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 // TestValidationError_errorsAs verifies that ValidationError can be unwrapped
 // with errors.As by callers.
 func TestValidationError_errorsAs(t *testing.T) {
-	err := newValidationError("invalid argument")
+	err := core.NewValidationError("invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *ValidationError
@@ -111,23 +109,23 @@ func TestValidationError_errorsAs(t *testing.T) {
 // TestInvalidOptionKeyError_errorsAs_query verifies that InvalidOptionKeyError
 // can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
-	err := newInvalidOptionKeyError(paramActivityTypeIDs.Value(), []apiParamOptionType{paramAll, paramArchived})
+	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []apiParamOptionType{core.ParamAll, core.ParamArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, paramActivityTypeIDs.Value(), target.Invalid)
+	assert.Equal(t, core.ParamActivityTypeIDs.Value(), target.Invalid)
 }
 
 // TestInvalidOptionKeyError_errorsAs_form verifies that InvalidOptionKeyError
 // can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
-	err := newInvalidOptionKeyError(paramKey.Value(), []apiParamOptionType{paramName, paramChartEnabled})
+	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []apiParamOptionType{core.ParamName, core.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, paramKey.Value(), target.Invalid)
+	assert.Equal(t, core.ParamKey.Value(), target.Invalid)
 }
 
 // TestInternalClientError_errorsAs verifies that InternalClientError can be

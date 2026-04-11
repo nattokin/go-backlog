@@ -11,7 +11,7 @@ import (
 
 func validateWikiID(wikiID int) error {
 	if wikiID < 1 {
-		return newValidationError("wikiID must not be less than 1")
+		return core.NewValidationError("wikiID must not be less than 1")
 	}
 	return nil
 }
@@ -37,8 +37,8 @@ func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...Re
 	}
 
 	query := url.Values{}
-	validTypes := []apiParamOptionType{paramKeyword}
-	if err := applyOptions(query, validTypes, opts...); err != nil {
+	validTypes := []apiParamOptionType{core.ParamKeyword}
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -118,9 +118,9 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramName, paramContent, paramMailNotify}
+	validTypes := []apiParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]RequestOption{s.Option.base.WithName(name), s.Option.base.WithContent(content)}, opts...)
-	if err := applyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -154,14 +154,14 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramName, paramContent, paramMailNotify}
+	validTypes := []apiParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]RequestOption{option}, opts...)
 
-	if !hasRequiredOption(options, []apiParamOptionType{paramName, paramContent}) {
-		return nil, newValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
+	if !core.HasRequiredOption(options, []apiParamOptionType{core.ParamName, core.ParamContent}) {
+		return nil, core.NewValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
 	}
 
-	if err := applyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -192,8 +192,8 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOpt
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramMailNotify}
-	if err := applyOptions(form, validTypes, opts...); err != nil {
+	validTypes := []apiParamOptionType{core.ParamMailNotify}
+	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
 

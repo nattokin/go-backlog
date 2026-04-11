@@ -10,17 +10,17 @@ import (
 
 func validateProjectID(projectID int) error {
 	if projectID < 1 {
-		return newValidationError("projectID must not be less than 1")
+		return core.NewValidationError("projectID must not be less than 1")
 	}
 	return nil
 }
 
 func validateProjectIDOrKey(projectIDOrKey string) error {
 	if projectIDOrKey == "" {
-		return newValidationError("projectIDOrKey must not be empty")
+		return core.NewValidationError("projectIDOrKey must not be empty")
 	}
 	if projectIDOrKey == "0" {
-		return newValidationError("projectIDOrKey must not be '0'")
+		return core.NewValidationError("projectIDOrKey must not be '0'")
 	}
 	return nil
 }
@@ -45,8 +45,8 @@ type ProjectService struct {
 func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
 
 	query := url.Values{}
-	validTypes := []apiParamOptionType{paramAll, paramArchived}
-	if err := applyOptions(query, validTypes, opts...); err != nil {
+	validTypes := []apiParamOptionType{core.ParamAll, core.ParamArchived}
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -98,9 +98,9 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*Project, error) {
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled, paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule}
+	validTypes := []apiParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
 	options := append([]RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
-	if err := applyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -137,10 +137,10 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 
 	form := url.Values{}
 	validTypes := []apiParamOptionType{
-		paramKey, paramName, paramChartEnabled, paramSubtaskingEnabled,
-		paramProjectLeaderCanEditProjectLeader, paramTextFormattingRule, paramArchived,
+		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
+		core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule, core.ParamArchived,
 	}
-	if err := applyOptions(form, validTypes, opts...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
 

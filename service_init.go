@@ -1,11 +1,13 @@
 package backlog
 
+import "github.com/nattokin/go-backlog/internal/core"
+
 // ──────────────────────────────────────────────────────────────
 //  Service initialization
 // ──────────────────────────────────────────────────────────────
 
 func initServices(c *Client) {
-	baseOptionService := &OptionService{}
+	baseOptionService := &core.OptionService{}
 
 	// --- Initialize shared option services --------------------------------------
 	activityOptionService := &ActivityOptionService{

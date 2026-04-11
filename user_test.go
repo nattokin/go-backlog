@@ -13,6 +13,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestUserService_One(t *testing.T) {
@@ -493,7 +495,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			id:          1,
-			opts:        []RequestOption{newFailingSetOption(paramName)},
+			opts:        []RequestOption{newFailingSetOption(core.ParamName)},
 			wantErrType: errors.New(""),
 		},
 	}
