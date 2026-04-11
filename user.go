@@ -14,7 +14,7 @@ type UserID int
 
 func (id UserID) validate() error {
 	if id < 1 {
-		return newValidationError("userID must not be less than 1")
+		return core.NewValidationError("userID must not be less than 1")
 	}
 	return nil
 }
@@ -133,18 +133,18 @@ func (s *UserService) Own(ctx context.Context) (*User, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	if userID == "" {
-		return nil, newValidationError("userID must not be empty")
+		return nil, core.NewValidationError("userID must not be empty")
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramPassword, paramName, paramMailAddress, paramRoleType}
+	validTypes := []apiParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
 	options := []RequestOption{
 		s.Option.base.WithPassword(password),
 		s.Option.base.WithName(name),
 		s.Option.base.WithMailAddress(mailAddress),
 		s.Option.base.WithRoleType(roleType),
 	}
-	if err := applyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -167,9 +167,9 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*User, error) {
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{paramUserID, paramName, paramPassword, paramMailAddress, paramRoleType}
+	validTypes := []apiParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
 	options := append([]RequestOption{s.Option.base.WithUserID(id)}, opts...)
-	if err := applyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 

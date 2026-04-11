@@ -1,9 +1,11 @@
-package backlog
+package core
 
 import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
 //
@@ -20,10 +22,10 @@ type OptionService struct{}
 
 // WithAll returns an option to set the `all` parameter.
 func (s *OptionService) WithAll(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramAll,
-		setFunc: func(v url.Values) error {
-			v.Set(paramAll.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamAll,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamAll.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -33,10 +35,10 @@ func (s *OptionService) WithAll(enabled bool) RequestOption {
 func (s *OptionService) WithArchived(enabled bool) RequestOption {
 	// apiArchived and queryArchived share the same string value "archived",
 	// so we use apiArchived as the canonical type here and accept both in services.
-	return &apiParamOption{
-		t: paramArchived,
-		setFunc: func(v url.Values) error {
-			v.Set(paramArchived.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamArchived,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamArchived.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -44,10 +46,10 @@ func (s *OptionService) WithArchived(enabled bool) RequestOption {
 
 // WithChartEnabled returns a option that sets the `chartEnabled` field.
 func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramChartEnabled,
-		setFunc: func(v url.Values) error {
-			v.Set(paramChartEnabled.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamChartEnabled,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamChartEnabled.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -55,10 +57,10 @@ func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
 
 // WithMailNotify returns a option that sets the `mailNotify` field.
 func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramMailNotify,
-		setFunc: func(v url.Values) error {
-			v.Set(paramMailNotify.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamMailNotify,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamMailNotify.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -66,10 +68,10 @@ func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
 
 // WithProjectLeaderCanEditProjectLeader returns a option.
 func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramProjectLeaderCanEditProjectLeader,
-		setFunc: func(v url.Values) error {
-			v.Set(paramProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamProjectLeaderCanEditProjectLeader,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamProjectLeaderCanEditProjectLeader.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -77,10 +79,10 @@ func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) Requ
 
 // WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramSendMail,
-		setFunc: func(v url.Values) error {
-			v.Set(paramSendMail.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamSendMail,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamSendMail.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -88,10 +90,10 @@ func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 
 // WithSubtaskingEnabled returns a option that sets the `subtaskingEnabled` field.
 func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
-	return &apiParamOption{
-		t: paramSubtaskingEnabled,
-		setFunc: func(v url.Values) error {
-			v.Set(paramSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
+	return &APIParamOption{
+		Type: ParamSubtaskingEnabled,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamSubtaskingEnabled.Value(), strconv.FormatBool(enabled))
 			return nil
 		},
 	}
@@ -101,16 +103,16 @@ func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
-	return &apiParamOption{
-		t: paramCount,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamCount,
+		CheckFunc: func() error {
 			if count < 1 || 100 < count {
-				return newValidationError("count must be between 1 and 100")
+				return NewValidationError("count must be between 1 and 100")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramCount.Value(), strconv.Itoa(count))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamCount.Value(), strconv.Itoa(count))
 			return nil
 		},
 	}
@@ -118,13 +120,13 @@ func (s *OptionService) WithCount(count int) RequestOption {
 
 // WithMaxID returns an option to set the `maxId` parameter.
 func (s *OptionService) WithMaxID(id int) RequestOption {
-	return &apiParamOption{
-		t: paramMaxID,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamMaxID,
+		CheckFunc: func() error {
 			return validateActivityID(id, "maxID")
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramMaxID.Value(), strconv.Itoa(id))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamMaxID.Value(), strconv.Itoa(id))
 			return nil
 		},
 	}
@@ -132,13 +134,13 @@ func (s *OptionService) WithMaxID(id int) RequestOption {
 
 // WithMinID returns an option to set the `minId` parameter.
 func (s *OptionService) WithMinID(id int) RequestOption {
-	return &apiParamOption{
-		t: paramMinID,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamMinID,
+		CheckFunc: func() error {
 			return validateActivityID(id, "minID")
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramMinID.Value(), strconv.Itoa(id))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamMinID.Value(), strconv.Itoa(id))
 			return nil
 		},
 	}
@@ -146,16 +148,16 @@ func (s *OptionService) WithMinID(id int) RequestOption {
 
 // WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
-	return &apiParamOption{
-		t: paramUserID,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamUserID,
+		CheckFunc: func() error {
 			if id < 1 {
-				return newValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramUserID))
+				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", ParamUserID))
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramUserID.Value(), strconv.Itoa(id))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamUserID.Value(), strconv.Itoa(id))
 			return nil
 		},
 	}
@@ -165,16 +167,16 @@ func (s *OptionService) WithUserID(id int) RequestOption {
 
 // WithContent returns a option that sets the `content` field.
 func (s *OptionService) WithContent(content string) RequestOption {
-	return &apiParamOption{
-		t: paramContent,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamContent,
+		CheckFunc: func() error {
 			if content == "" {
-				return newValidationError("content must not be empty")
+				return NewValidationError("content must not be empty")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramContent.Value(), content)
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamContent.Value(), content)
 			return nil
 		},
 	}
@@ -182,16 +184,16 @@ func (s *OptionService) WithContent(content string) RequestOption {
 
 // WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
-	return &apiParamOption{
-		t: paramKey,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamKey,
+		CheckFunc: func() error {
 			if key == "" {
-				return newValidationError("key must not be empty")
+				return NewValidationError("key must not be empty")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramKey.Value(), key)
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamKey.Value(), key)
 			return nil
 		},
 	}
@@ -199,10 +201,10 @@ func (s *OptionService) WithKey(key string) RequestOption {
 
 // WithKeyword returns an option to set the `keyword` parameter.
 func (s *OptionService) WithKeyword(keyword string) RequestOption {
-	return &apiParamOption{
-		t: paramKeyword,
-		setFunc: func(v url.Values) error {
-			v.Set(paramKeyword.Value(), keyword)
+	return &APIParamOption{
+		Type: ParamKeyword,
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamKeyword.Value(), keyword)
 			return nil
 		},
 	}
@@ -211,16 +213,16 @@ func (s *OptionService) WithKeyword(keyword string) RequestOption {
 // WithMailAddress returns a option that sets the `mailAddress` field.
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return &apiParamOption{
-		t: paramMailAddress,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamMailAddress,
+		CheckFunc: func() error {
 			if mailAddress == "" {
-				return newValidationError("mailAddress must not be empty")
+				return NewValidationError("mailAddress must not be empty")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramMailAddress.Value(), mailAddress)
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamMailAddress.Value(), mailAddress)
 			return nil
 		},
 	}
@@ -228,16 +230,16 @@ func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 
 // WithName returns a option that sets the `name` field.
 func (s *OptionService) WithName(name string) RequestOption {
-	return &apiParamOption{
-		t: paramName,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamName,
+		CheckFunc: func() error {
 			if name == "" {
-				return newValidationError("name must not be empty")
+				return NewValidationError("name must not be empty")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramName.Value(), name)
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamName.Value(), name)
 			return nil
 		},
 	}
@@ -245,16 +247,16 @@ func (s *OptionService) WithName(name string) RequestOption {
 
 // WithPassword returns a option that sets the `password` field.
 func (s *OptionService) WithPassword(password string) RequestOption {
-	return &apiParamOption{
-		t: paramPassword,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamPassword,
+		CheckFunc: func() error {
 			if len(password) < 8 {
-				return newValidationError("password must be at least 8 characters long")
+				return NewValidationError("password must be at least 8 characters long")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramPassword.Value(), password)
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamPassword.Value(), password)
 			return nil
 		},
 	}
@@ -264,9 +266,9 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return &apiParamOption{
-		t: paramActivityTypeIDs,
-		checkFunc: func() error {
+	return &APIParamOption{
+		Type: ParamActivityTypeIDs,
+		CheckFunc: func() error {
 			for _, id := range typeIDs {
 				if err := validateActivityID(id, "activityTypeIds"); err != nil {
 					return err
@@ -274,9 +276,9 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
+		SetFunc: func(v url.Values) error {
 			for _, id := range typeIDs {
-				v.Add(paramActivityTypeIDs.Value(), strconv.Itoa(id))
+				v.Add(ParamActivityTypeIDs.Value(), strconv.Itoa(id))
 			}
 			return nil
 		},
@@ -284,53 +286,53 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 }
 
 // WithOrder returns an option to set the `order` parameter.
-func (s *OptionService) WithOrder(order Order) RequestOption {
-	return &apiParamOption{
-		t: paramOrder,
-		checkFunc: func() error {
-			if order != OrderAsc && order != OrderDesc {
-				msg := fmt.Sprintf("order must be only '%s' or '%s'", string(OrderAsc), string(OrderDesc))
-				return newValidationError(msg)
+func (s *OptionService) WithOrder(order model.Order) RequestOption {
+	return &APIParamOption{
+		Type: ParamOrder,
+		CheckFunc: func() error {
+			if order != model.OrderAsc && order != model.OrderDesc {
+				msg := fmt.Sprintf("order must be only '%s' or '%s'", string(model.OrderAsc), string(model.OrderDesc))
+				return NewValidationError(msg)
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramOrder.Value(), string(order))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamOrder.Value(), string(order))
 			return nil
 		},
 	}
 }
 
 // WithRoleType returns a option that sets the `roleType` field.
-func (s *OptionService) WithRoleType(roleType Role) RequestOption {
-	return &apiParamOption{
-		t: paramRoleType,
-		checkFunc: func() error {
+func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
+	return &APIParamOption{
+		Type: ParamRoleType,
+		CheckFunc: func() error {
 			if roleType < 1 || 6 < roleType {
-				return newValidationError("roleType must be between 1 and 6")
+				return NewValidationError("roleType must be between 1 and 6")
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramRoleType.Value(), strconv.Itoa(int(roleType)))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamRoleType.Value(), strconv.Itoa(int(roleType)))
 			return nil
 		},
 	}
 }
 
 // WithTextFormattingRule returns a option that sets the `textFormattingRule` field.
-func (s *OptionService) WithTextFormattingRule(format Format) RequestOption {
-	return &apiParamOption{
-		t: paramTextFormattingRule,
-		checkFunc: func() error {
-			if format != FormatBacklog && format != FormatMarkdown {
-				msg := fmt.Sprintf("format must be only '%s' or '%s'", string(FormatBacklog), string(FormatMarkdown))
-				return newValidationError(msg)
+func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOption {
+	return &APIParamOption{
+		Type: ParamTextFormattingRule,
+		CheckFunc: func() error {
+			if format != model.FormatBacklog && format != model.FormatMarkdown {
+				msg := fmt.Sprintf("format must be only '%s' or '%s'", string(model.FormatBacklog), string(model.FormatMarkdown))
+				return NewValidationError(msg)
 			}
 			return nil
 		},
-		setFunc: func(v url.Values) error {
-			v.Set(paramTextFormattingRule.Value(), string(format))
+		SetFunc: func(v url.Values) error {
+			v.Set(ParamTextFormattingRule.Value(), string(format))
 			return nil
 		},
 	}
@@ -344,8 +346,8 @@ func (s *OptionService) WithTextFormattingRule(format Format) RequestOption {
 
 // validateActivityID ensures that the given activity ID is within the valid range [1, 26].
 func validateActivityID(id int, key string) error {
-	if id < 1 || id > maxActivityTypeID {
-		return newValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, maxActivityTypeID))
+	if id < 1 || id > MaxActivityTypeID {
+		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
 	return nil
 }

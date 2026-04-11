@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestProjectActivityService_List(t *testing.T) {
@@ -241,7 +243,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"error-option-set-failed": {
 			opts: []RequestOption{
-				newFailingSetOption(paramCount),
+				newFailingSetOption(core.ParamCount),
 			},
 			wantError: true,
 		},

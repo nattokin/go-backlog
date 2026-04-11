@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestActivityOptionService(t *testing.T) {
@@ -21,17 +23,17 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-min-id": {
 				option:    o.WithMinID(5),
-				key:       paramMinID.Value(),
+				key:       core.ParamMinID.Value(),
 				wantValue: 5,
 			},
 			"with-query-max-id": {
 				option:    o.WithMaxID(10),
-				key:       paramMaxID.Value(),
+				key:       core.ParamMaxID.Value(),
 				wantValue: 10,
 			},
 			"with-query-count": {
 				option:    o.WithCount(25),
-				key:       paramCount.Value(),
+				key:       core.ParamCount.Value(),
 				wantValue: 25,
 			},
 		}
@@ -57,12 +59,12 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-order-asc": {
 				option:    o.WithOrder(OrderAsc),
-				key:       paramOrder.Value(),
+				key:       core.ParamOrder.Value(),
 				wantValue: string(OrderAsc),
 			},
 			"with-query-order-desc": {
 				option:    o.WithOrder(OrderDesc),
-				key:       paramOrder.Value(),
+				key:       core.ParamOrder.Value(),
 				wantValue: string(OrderDesc),
 			},
 		}
@@ -88,7 +90,7 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-activity-type-ids": {
 				option:    o.WithActivityTypeIDs([]int{1, 2, 3}),
-				key:       paramActivityTypeIDs.Value(),
+				key:       core.ParamActivityTypeIDs.Value(),
 				wantValue: []int{1, 2, 3},
 			},
 		}
@@ -125,17 +127,17 @@ func TestProjectOptionService(t *testing.T) {
 		}{
 			"with-form-archived": {
 				option:    s.WithArchived(true),
-				key:       paramArchived.Value(),
+				key:       core.ParamArchived.Value(),
 				wantValue: true,
 			},
 			"with-form-chart-enabled": {
 				option:    s.WithChartEnabled(true),
-				key:       paramChartEnabled.Value(),
+				key:       core.ParamChartEnabled.Value(),
 				wantValue: true,
 			},
 			"with-form-subtasking-enabled": {
 				option:    s.WithSubtaskingEnabled(false),
-				key:       paramSubtaskingEnabled.Value(),
+				key:       core.ParamSubtaskingEnabled.Value(),
 				wantValue: false,
 			},
 		}
@@ -161,12 +163,12 @@ func TestProjectOptionService(t *testing.T) {
 		}{
 			"with-query-archived": {
 				option:    s.WithArchived(true),
-				key:       paramArchived.Value(),
+				key:       core.ParamArchived.Value(),
 				wantValue: true,
 			},
 			"with-query-all": {
 				option:    s.WithAll(true),
-				key:       paramAll.Value(),
+				key:       core.ParamAll.Value(),
 				wantValue: true,
 			},
 		}
@@ -192,17 +194,17 @@ func TestProjectOptionService(t *testing.T) {
 		}{
 			"with-form-name": {
 				option:    s.WithName("demo-project"),
-				key:       paramName.Value(),
+				key:       core.ParamName.Value(),
 				wantValue: "demo-project",
 			},
 			"with-form-key": {
 				option:    s.WithKey("DEMO"),
-				key:       paramKey.Value(),
+				key:       core.ParamKey.Value(),
 				wantValue: "DEMO",
 			},
 			"with-form-text-formatting-rule": {
 				option:    s.WithTextFormattingRule("markdown"),
-				key:       paramTextFormattingRule.Value(),
+				key:       core.ParamTextFormattingRule.Value(),
 				wantValue: "markdown",
 			},
 		}
@@ -232,7 +234,7 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-send-mail": {
 				option:    o.WithSendMail(true),
-				key:       paramSendMail.Value(),
+				key:       core.ParamSendMail.Value(),
 				wantValue: true,
 			},
 		}
@@ -258,12 +260,12 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-user-id": {
 				option:    o.WithUserID(1),
-				key:       paramUserID.Value(),
+				key:       core.ParamUserID.Value(),
 				wantValue: 1,
 			},
 			"with-form-role-type": {
 				option:    o.WithRoleType(2),
-				key:       paramRoleType.Value(),
+				key:       core.ParamRoleType.Value(),
 				wantValue: 2,
 			},
 		}
@@ -289,17 +291,17 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-name": {
 				option:    o.WithName("example-user"),
-				key:       paramName.Value(),
+				key:       core.ParamName.Value(),
 				wantValue: "example-user",
 			},
 			"with-form-mail-address": {
 				option:    o.WithMailAddress("user@example.com"),
-				key:       paramMailAddress.Value(),
+				key:       core.ParamMailAddress.Value(),
 				wantValue: "user@example.com",
 			},
 			"with-form-password": {
 				option:    o.WithPassword("securepass"),
-				key:       paramPassword.Value(),
+				key:       core.ParamPassword.Value(),
 				wantValue: "securepass",
 			},
 		}
@@ -329,7 +331,7 @@ func TestWikiOptionService(t *testing.T) {
 		}{
 			"with-query-keyword": {
 				option:    s.WithKeyword("backlog"),
-				key:       paramKeyword.Value(),
+				key:       core.ParamKeyword.Value(),
 				wantValue: "backlog",
 			},
 		}
@@ -355,12 +357,12 @@ func TestWikiOptionService(t *testing.T) {
 		}{
 			"with-form-content": {
 				option:    s.WithContent("Wiki page content"),
-				key:       paramContent.Value(),
+				key:       core.ParamContent.Value(),
 				wantValue: "Wiki page content",
 			},
 			"with-form-name": {
 				option:    s.WithName("How to Use Backlog"),
-				key:       paramName.Value(),
+				key:       core.ParamName.Value(),
 				wantValue: "How to Use Backlog",
 			},
 		}
@@ -386,7 +388,7 @@ func TestWikiOptionService(t *testing.T) {
 		}{
 			"with-form-mail-notify": {
 				option:    s.WithMailNotify(true),
-				key:       paramMailNotify.Value(),
+				key:       core.ParamMailNotify.Value(),
 				wantValue: true,
 			},
 		}

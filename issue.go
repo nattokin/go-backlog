@@ -4,10 +4,10 @@ import "github.com/nattokin/go-backlog/internal/core"
 
 func validateIssueIDOrKey(issueIDOrKey string) error {
 	if issueIDOrKey == "" {
-		return newValidationError("issueIDOrKey must not be empty")
+		return core.NewValidationError("issueIDOrKey must not be empty")
 	}
 	if issueIDOrKey == "0" {
-		return newValidationError("issueIDOrKey must not be '0'")
+		return core.NewValidationError("issueIDOrKey must not be '0'")
 	}
 	return nil
 }

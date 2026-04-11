@@ -11,8 +11,8 @@ import (
 
 func getActivityList(ctx context.Context, m *core.Method, spath string, opts ...RequestOption) ([]*Activity, error) {
 	query := url.Values{}
-	validOptionKeys := []apiParamOptionType{paramActivityTypeIDs, paramMinID, paramMaxID, paramCount, paramOrder}
-	if err := applyOptions(query, validOptionKeys, opts...); err != nil {
+	validOptionKeys := []apiParamOptionType{core.ParamActivityTypeIDs, core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
+	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
 		return nil, err
 	}
 

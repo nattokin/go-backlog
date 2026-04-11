@@ -13,6 +13,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestProjectService_All(t *testing.T) {
@@ -65,7 +67,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"error-option-set-failed": {
-			opts: []RequestOption{newFailingSetOption(paramAll)},
+			opts: []RequestOption{newFailingSetOption(core.ParamAll)},
 
 			wantErrType: errors.New(""),
 		},

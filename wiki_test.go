@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestWikiService_All(t *testing.T) {
@@ -83,7 +85,7 @@ func TestWikiService_All(t *testing.T) {
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			opts:           []RequestOption{newFailingSetOption(paramKeyword)},
+			opts:           []RequestOption{newFailingSetOption(core.ParamKeyword)},
 			wantErrType:    errors.New(""),
 		},
 
@@ -423,7 +425,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []RequestOption{newFailingSetOption(paramMailNotify)},
+			opts:        []RequestOption{newFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -612,7 +614,7 @@ func TestWikiService_Update(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			wikiID:      12,
-			option:      newFailingSetOption(paramName),
+			option:      newFailingSetOption(core.ParamName),
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -724,7 +726,7 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			wikiID:      1,
-			opts:        []RequestOption{newFailingSetOption(paramMailNotify)},
+			opts:        []RequestOption{newFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {

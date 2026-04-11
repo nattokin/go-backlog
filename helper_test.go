@@ -28,8 +28,8 @@ import (
 // --- Option Service Helpers ---
 
 // newOptionService returns a test instance of OptionService.
-func newOptionService() *OptionService {
-	return &OptionService{}
+func newOptionService() *core.OptionService {
+	return &core.OptionService{}
 }
 
 // newActivityOptionService returns a test instance of ActivityOptionService.

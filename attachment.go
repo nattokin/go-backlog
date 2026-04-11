@@ -13,7 +13,7 @@ import (
 
 func validateAttachmentID(attachmentID int) error {
 	if attachmentID < 1 {
-		return newValidationError("attachmentID must not be less than 1")
+		return core.NewValidationError("attachmentID must not be less than 1")
 	}
 	return nil
 }
