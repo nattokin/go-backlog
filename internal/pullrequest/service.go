@@ -17,5 +17,8 @@ type PullRequestService struct {
 // ──────────────────────────────────────────────────────────────
 
 func NewPullRequestService(method *core.Method) *PullRequestService {
-	return &PullRequestService{method: method}
+	return &PullRequestService{
+		method:     method,
+		Attachment: attachment.NewPullRequestAttachmentService(method),
+	}
 }
