@@ -73,8 +73,9 @@ jobs:
 
       - name: Test
         run: |
-          PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil' | tr '\n' ',')
-          go test ${PKGS%,} -race -coverpkg=${PKGS%,} -coverprofile=coverage.txt -covermode=atomic
+          PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')
+          COVERPKGS=$(echo "$PKGS" | tr '\n' ',')
+          go test $PKGS -race -coverpkg=${COVERPKGS%,} -coverprofile=coverage.txt -covermode=atomic
 
       - name: Upload coverage to Codecov
         if: matrix.go-version == '1.24'
