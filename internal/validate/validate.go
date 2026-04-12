@@ -36,6 +36,23 @@ func ValidateProjectIDOrKey(projectIDOrKey string) error {
 	return nil
 }
 
+func ValidatePRNumber(prNumber int) error {
+	if prNumber < 1 {
+		return core.NewValidationError("prNumber must not be less than 1")
+	}
+	return nil
+}
+
+func ValidateRepositoryIDOrName(repositoryIDOrName string) error {
+	if repositoryIDOrName == "" {
+		return core.NewValidationError("repositoryIDOrName must not be empty")
+	}
+	if repositoryIDOrName == "0" {
+		return core.NewValidationError("repositoryIDOrName must not be '0'")
+	}
+	return nil
+}
+
 func ValidateWikiID(wikiID int) error {
 	if wikiID < 1 {
 		return core.NewValidationError("wikiID must not be less than 1")

@@ -4,6 +4,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
+	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
@@ -37,12 +38,7 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize PullRequestService ------------------------------------------
-	c.PullRequest = &PullRequestService{
-		method: c.core.Method,
-		Attachment: &PullRequestAttachmentService{
-			method: c.core.Method,
-		},
-	}
+	c.PullRequest = pullrequest.NewPullRequestService(c.core.Method)
 
 	// --- Initialize SpaceService -------------------------------------------------
 	c.Space = space.NewSpaceService(c.core.Method, baseOptionService)
