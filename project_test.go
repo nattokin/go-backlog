@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectService_All(t *testing.T) {
@@ -67,12 +68,12 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"error-option-set-failed": {
-			opts: []RequestOption{newFailingSetOption(core.ParamAll)},
+			opts: []RequestOption{mock.NewFailingSetOption(core.ParamAll)},
 
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
-			opts: []RequestOption{newInvalidTypeOption()},
+			opts: []RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
@@ -106,7 +107,7 @@ func TestProjectService_All(t *testing.T) {
 			s := newProjectService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -204,7 +205,7 @@ func TestProjectService_One(t *testing.T) {
 			s := newProjectService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -335,7 +336,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []RequestOption{newInvalidTypeOption()},
+			opts: []RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
@@ -373,7 +374,7 @@ func TestProjectService_Create(t *testing.T) {
 			s := newProjectService()
 
 			// default: unexpected API call
-			s.method.Post = newUnexpectedPostFn(t)
+			s.method.Post = mock.NewUnexpectedPostFn(t)
 
 			if tc.mockPostFn != nil {
 				s.method.Post = tc.mockPostFn
@@ -495,7 +496,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 
-			opts: []RequestOption{newInvalidTypeOption()},
+			opts: []RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
@@ -531,7 +532,7 @@ func TestProjectService_Update(t *testing.T) {
 			s := newProjectService()
 
 			// default: unexpected API call
-			s.method.Patch = newUnexpectedPatchFn(t)
+			s.method.Patch = mock.NewUnexpectedPatchFn(t)
 
 			if tc.mockPatchFn != nil {
 				s.method.Patch = tc.mockPatchFn
@@ -629,7 +630,7 @@ func TestProjectService_Delete(t *testing.T) {
 			s := newProjectService()
 
 			// default: unexpected API call
-			s.method.Delete = newUnexpectedDeleteFn(t)
+			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
 
 			if tc.mockDeleteFn != nil {
 				s.method.Delete = tc.mockDeleteFn

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"testing"
 
 	"github.com/nattokin/go-backlog/internal/core"
 )
@@ -50,31 +49,6 @@ func newProjectOptionService() *ProjectOptionService {
 func newUserOptionService() *UserOptionService {
 	return &UserOptionService{
 		base: newOptionService(),
-	}
-}
-
-// newWikiOptionService returns a test instance of WikiOptionService.
-func newWikiOptionService() *WikiOptionService {
-	return &WikiOptionService{
-		base: newOptionService(),
-	}
-}
-
-// --- WikiService ------------------------------------------------------------
-
-// newWikiService returns a test instance of WikiService.
-func newWikiService() *WikiService {
-	return &WikiService{
-		method:     newClientMethod(),
-		Attachment: newWikiAttachmentService(),
-		Option:     newWikiOptionService(),
-	}
-}
-
-// newWikiAttachmentService returns a test instance of WikiAttachmentService.
-func newWikiAttachmentService() *WikiAttachmentService {
-	return &WikiAttachmentService{
-		method: newClientMethod(),
 	}
 }
 
@@ -203,55 +177,5 @@ func newClientMethod() *core.Method {
 		Upload: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 			return nil, errors.New("default mock not implemented")
 		},
-	}
-}
-
-// newUnexpectedGetFn returns a mock function for http GET that fails if called.
-func newUnexpectedGetFn(t *testing.T) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		t.Helper()
-		t.Error("Get must not be called")
-		return nil, errors.New("unexpected call")
-	}
-}
-
-// newUnexpectedPostFn returns a mock function for http POST that fails if called.
-func newUnexpectedPostFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		t.Error("Post must not be called")
-		return nil, errors.New("unexpected call")
-	}
-}
-
-// newUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
-func newUnexpectedPatchFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		t.Error("Patch must not be called")
-		return nil, errors.New("unexpected call")
-	}
-}
-
-// newUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
-func newUnexpectedDeleteFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-	t.Helper()
-	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		t.Helper()
-		t.Error("Delete must not be called")
-		return nil, errors.New("unexpected call")
-	}
-}
-
-// newUnexpectedUploadFn returns a mock function for http Upload that fails if called.
-func newUnexpectedUploadFn(t *testing.T) func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
-	t.Helper()
-	return func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
-		t.Helper()
-		t.Error("Upload must not be called")
-		return nil, errors.New("unexpected call")
 	}
 }

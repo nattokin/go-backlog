@@ -1,6 +1,9 @@
 package backlog
 
-import "github.com/nattokin/go-backlog/internal/core"
+import (
+	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/wiki"
+)
 
 // ──────────────────────────────────────────────────────────────
 //  Service initialization
@@ -70,13 +73,5 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize WikiService --------------------------------------------------
-	c.Wiki = &WikiService{
-		method: c.core.Method,
-		Attachment: &WikiAttachmentService{
-			method: c.core.Method,
-		},
-		Option: &WikiOptionService{
-			base: baseOptionService,
-		},
-	}
+	c.Wiki = wiki.NewWikiService(c.core.Method, baseOptionService)
 }

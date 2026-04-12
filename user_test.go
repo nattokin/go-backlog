@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestUserService_One(t *testing.T) {
@@ -71,7 +72,7 @@ func TestUserService_One(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -159,7 +160,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: newUnexpectedPostFn(t),
+			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &ValidationError{},
 		},
@@ -170,7 +171,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: newUnexpectedPostFn(t),
+			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &ValidationError{},
 		},
@@ -181,7 +182,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: newUnexpectedPostFn(t),
+			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &ValidationError{},
 		},
@@ -192,7 +193,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: newUnexpectedPostFn(t),
+			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &ValidationError{},
 		},
@@ -203,7 +204,7 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "",
 			roleType:    RoleAdministrator,
 
-			mockPostFn: newUnexpectedPostFn(t),
+			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &ValidationError{},
 		},
@@ -232,7 +233,7 @@ func TestUserService_Add(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Post = newUnexpectedPostFn(t)
+			s.method.Post = mock.NewUnexpectedPostFn(t)
 
 			if tc.mockPostFn != nil {
 				s.method.Post = tc.mockPostFn
@@ -316,7 +317,7 @@ func TestUserService_All(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -489,13 +490,13 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"error-option-invalid-type": {
 			id:   1,
-			opts: []RequestOption{newInvalidTypeOption()},
+			opts: []RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			id:          1,
-			opts:        []RequestOption{newFailingSetOption(core.ParamName)},
+			opts:        []RequestOption{mock.NewFailingSetOption(core.ParamName)},
 			wantErrType: errors.New(""),
 		},
 	}
@@ -507,7 +508,7 @@ func TestUserService_Update(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Patch = newUnexpectedPatchFn(t)
+			s.method.Patch = mock.NewUnexpectedPatchFn(t)
 
 			if tc.mockPatchFn != nil {
 				s.method.Patch = tc.mockPatchFn
@@ -587,7 +588,7 @@ func TestUserService_Own(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -676,7 +677,7 @@ func TestUserService_Delete(t *testing.T) {
 			s := newUserService()
 
 			// default: unexpected API call
-			s.method.Delete = newUnexpectedDeleteFn(t)
+			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
 
 			if tc.mockDeleteFn != nil {
 				s.method.Delete = tc.mockDeleteFn
@@ -801,7 +802,7 @@ func TestProjectUserService_All(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -912,7 +913,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Post = newUnexpectedPostFn(t)
+			s.method.Post = mock.NewUnexpectedPostFn(t)
 
 			if tc.mockPostFn != nil {
 				s.method.Post = tc.mockPostFn
@@ -1043,7 +1044,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Delete = newUnexpectedDeleteFn(t)
+			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
 
 			if tc.mockDeleteFn != nil {
 				s.method.Delete = tc.mockDeleteFn
@@ -1153,7 +1154,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Post = newUnexpectedPostFn(t)
+			s.method.Post = mock.NewUnexpectedPostFn(t)
 
 			if tc.mockPostFn != nil {
 				s.method.Post = tc.mockPostFn
@@ -1211,7 +1212,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
+			s.method.Get = mock.NewUnexpectedGetFn(t)
 
 			if tc.mockGetFn != nil {
 				s.method.Get = tc.mockGetFn
@@ -1280,7 +1281,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			s := newProjectUserService()
 
 			// default: unexpected API call
-			s.method.Delete = newUnexpectedDeleteFn(t)
+			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
 
 			if tc.mockDeleteFn != nil {
 				s.method.Delete = tc.mockDeleteFn

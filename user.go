@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // UserID is the unique identifier for a user.
@@ -199,7 +200,7 @@ type ProjectUserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -214,7 +215,7 @@ func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, exc
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
 func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -234,7 +235,7 @@ func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, use
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
 func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -254,7 +255,7 @@ func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -274,7 +275,7 @@ func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -286,7 +287,7 @@ func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 

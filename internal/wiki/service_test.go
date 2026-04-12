@@ -1,4 +1,4 @@
-package backlog
+package wiki_test
 
 import (
 	"bytes"
@@ -14,6 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestWikiService_All(t *testing.T) {
@@ -22,11 +26,11 @@ func TestWikiService_All(t *testing.T) {
 	const testWiki1Name = "test1"
 	const testWiki2Name = "test2"
 
-	o := newWikiOptionService()
+	o := wiki.NewWikiOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []RequestOption
+		opts           []core.RequestOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -43,7 +47,7 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
 				}, nil
 			},
 
@@ -53,7 +57,7 @@ func TestWikiService_All(t *testing.T) {
 
 		"success-projectIDOrKey-key-with-options": {
 			projectIDOrKey: "PRJ_KEY",
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithKeyword("test"),
 			},
 
@@ -64,7 +68,7 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
 				}, nil
 			},
 
@@ -74,18 +78,18 @@ func TestWikiService_All(t *testing.T) {
 
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-			wantErrType:    &ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 
 		"error-option-invalid-type": {
 			projectIDOrKey: "invalid",
-			opts:           []RequestOption{newInvalidTypeOption()},
-			wantErrType:    &InvalidOptionKeyError{},
+			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			opts:           []RequestOption{newFailingSetOption(core.ParamKeyword)},
+			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamKeyword)},
 			wantErrType:    errors.New(""),
 		},
 
@@ -110,7 +114,7 @@ func TestWikiService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -122,14 +126,13 @@ func TestWikiService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-
 			// default: unexpected API call
-			s.method.Get = newUnexpectedGetFn(t)
-
+			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
 			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+				method.Get = tc.mockGetFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			wikis, err := s.All(context.Background(), tc.projectIDOrKey, tc.opts...)
 
@@ -191,7 +194,7 @@ func TestWikiService_Count(t *testing.T) {
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-			wantErrType:    &ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "1",
@@ -212,7 +215,7 @@ func TestWikiService_Count(t *testing.T) {
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -224,11 +227,13 @@ func TestWikiService_Count(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-			s.method.Get = newUnexpectedGetFn(t)
+			// default: unexpected API call
+			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
 			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+				method.Get = tc.mockGetFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			count, err := s.Count(context.Background(), tc.projectIDOrKey)
 
@@ -263,7 +268,7 @@ func TestWikiService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
@@ -272,11 +277,11 @@ func TestWikiService_One(t *testing.T) {
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-wikiID-negative": {
 			wikiID:      -1,
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {
 			wikiID: 1,
@@ -297,7 +302,7 @@ func TestWikiService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -309,11 +314,13 @@ func TestWikiService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-			s.method.Get = newUnexpectedGetFn(t)
+			// default: unexpected API call
+			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
 			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+				method.Get = tc.mockGetFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			wiki, err := s.One(context.Background(), tc.wikiID)
 
@@ -333,17 +340,17 @@ func TestWikiService_One(t *testing.T) {
 }
 
 func TestWikiService_Create(t *testing.T) {
-	o := newWikiOptionService()
+	o := wiki.NewWikiOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		projectID int
 		name      string
 		content   string
-		opts      []RequestOption
+		opts      []core.RequestOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantWiki    *Wiki
+		wantWiki    *model.Wiki
 		wantErrType error
 	}{
 		"success-projectID-name-content-minimum": {
@@ -359,12 +366,12 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataWikiMinimumJSON),
+						[]byte(fixture.Wiki.MinimumJSON),
 					)),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Minimum Wiki Page",
 				Content: "This is a minimal wiki page.",
@@ -374,7 +381,7 @@ func TestWikiService_Create(t *testing.T) {
 			projectID: 56,
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
-			opts:      []RequestOption{o.WithMailNotify(true)},
+			opts:      []core.RequestOption{o.WithMailNotify(true)},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
@@ -385,12 +392,12 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataWikiMinimumJSON),
+						[]byte(fixture.Wiki.MinimumJSON),
 					)),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Minimum Wiki Page",
 				Content: "This is a minimal wiki page.",
@@ -400,32 +407,32 @@ func TestWikiService_Create(t *testing.T) {
 			projectID:   0,
 			name:        "Test",
 			content:     "test",
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-name-empty": {
 			projectID:   1,
 			name:        "",
 			content:     "test",
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-content-empty": {
 			projectID:   1,
 			name:        "Test",
 			content:     "",
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []RequestOption{newInvalidTypeOption()},
-			wantErrType: &InvalidOptionKeyError{},
+			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []RequestOption{newFailingSetOption(core.ParamMailNotify)},
+			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -456,7 +463,7 @@ func TestWikiService_Create(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(bytes.NewReader(
-						[]byte(testdataInvalidJSON),
+						[]byte(fixture.InvalidJSON),
 					)),
 				}, nil
 			},
@@ -469,12 +476,13 @@ func TestWikiService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-			s.method.Post = newUnexpectedPostFn(t)
-
+			// default: unexpected API call
+			method := &core.Method{Post: mock.NewUnexpectedPostFn(t)}
 			if tc.mockPostFn != nil {
-				s.method.Post = tc.mockPostFn
+				method.Post = tc.mockPostFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			wiki, err := s.Create(context.Background(), tc.projectID, tc.name, tc.content, tc.opts...)
 
@@ -496,17 +504,17 @@ func TestWikiService_Create(t *testing.T) {
 }
 
 func TestWikiService_Update(t *testing.T) {
-	o := newWikiOptionService()
+	o := wiki.NewWikiOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		wikiID int
-		option RequestOption
-		opts   []RequestOption
+		option core.RequestOption
+		opts   []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
-		wantWiki    *Wiki
+		wantWiki    *model.Wiki
 	}{
 		"success-wikiID-name-only": {
 			wikiID: 34,
@@ -517,11 +525,11 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "New Page Name", form.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Maximum Wiki Page",
 				Content: "This is a muximal wiki page.",
@@ -536,11 +544,11 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Maximum Wiki Page",
 				Content: "This is a muximal wiki page.",
@@ -549,7 +557,7 @@ func TestWikiService_Update(t *testing.T) {
 		"success-wikiID-mailNotify-name": {
 			wikiID: 34,
 			option: o.WithMailNotify(true),
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithName("Full Options Name"),
 			},
 
@@ -559,11 +567,11 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Maximum Wiki Page",
 				Content: "This is a muximal wiki page.",
@@ -572,7 +580,7 @@ func TestWikiService_Update(t *testing.T) {
 		"success-wikiID-full-options": {
 			wikiID: 34,
 			option: o.WithName("Full Options Name"),
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithContent("Full Options Content"),
 				o.WithMailNotify(true),
 			},
@@ -584,11 +592,11 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
-			wantWiki: &Wiki{
+			wantWiki: &model.Wiki{
 				ID:      34,
 				Name:    "Maximum Wiki Page",
 				Content: "This is a muximal wiki page.",
@@ -597,24 +605,24 @@ func TestWikiService_Update(t *testing.T) {
 		"error-validation-required-option": {
 			wikiID:      12,
 			option:      o.WithMailNotify(true),
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
 			option:      o.WithName("New Name"),
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			wikiID: 12,
-			option: newInvalidTypeOption(),
-			opts: []RequestOption{
+			option: mock.NewInvalidTypeOption(),
+			opts: []core.RequestOption{
 				o.WithName("New Name"),
 			},
-			wantErrType: &InvalidOptionKeyError{},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			wikiID:      12,
-			option:      newFailingSetOption(core.ParamName),
+			option:      mock.NewFailingSetOption(core.ParamName),
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -638,7 +646,7 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "New Name", form.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -650,12 +658,13 @@ func TestWikiService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-			s.method.Patch = newUnexpectedPatchFn(t)
-
+			// default: unexpected API call
+			method := &core.Method{Patch: mock.NewUnexpectedPatchFn(t)}
 			if tc.mockPatchFn != nil {
-				s.method.Patch = tc.mockPatchFn
+				method.Patch = tc.mockPatchFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			wiki, err := s.Update(context.Background(), tc.wikiID, tc.option, tc.opts...)
 
@@ -677,11 +686,11 @@ func TestWikiService_Update(t *testing.T) {
 }
 
 func TestWikiService_Delete(t *testing.T) {
-	o := newWikiOptionService()
+	o := wiki.NewWikiOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		wikiID int
-		opts   []RequestOption
+		opts   []core.RequestOption
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -690,14 +699,14 @@ func TestWikiService_Delete(t *testing.T) {
 	}{
 		"success-wikiID-withMailNotify": {
 			wikiID: 34,
-			opts:   []RequestOption{o.WithMailNotify(true)},
+			opts:   []core.RequestOption{o.WithMailNotify(true)},
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
@@ -710,7 +719,7 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "wikis/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataWikiMaximumJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 
@@ -718,21 +727,21 @@ func TestWikiService_Delete(t *testing.T) {
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-wikiID-negative": {
 			wikiID:      -1,
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-option-set-faild": {
 			wikiID:      1,
-			opts:        []RequestOption{newFailingSetOption(core.ParamMailNotify)},
+			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
 			wikiID:      1,
-			opts:        []RequestOption{newInvalidTypeOption()},
-			wantErrType: &InvalidOptionKeyError{},
+			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			wikiID: 34,
@@ -751,7 +760,7 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "wikis/34", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -763,12 +772,13 @@ func TestWikiService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiService()
-			s.method.Delete = newUnexpectedDeleteFn(t)
-
+			// default: unexpected API call
+			method := &core.Method{Delete: mock.NewUnexpectedDeleteFn(t)}
 			if tc.mockDeleteFn != nil {
-				s.method.Delete = tc.mockDeleteFn
+				method.Delete = tc.mockDeleteFn
 			}
+
+			s := wiki.NewWikiService(method, nil)
 
 			wiki, err := s.Delete(context.Background(), tc.wikiID, tc.opts...)
 
@@ -796,52 +806,58 @@ func TestWikiService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := newWikiOptionService()
+	o := wiki.NewWikiOptionService(&core.OptionService{})
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, s *WikiService)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"All", func(t *testing.T, s *WikiService) {
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"All", func(t *testing.T, m *core.Method) {
+			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.All(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Count", func(t *testing.T, s *WikiService) {
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"Count", func(t *testing.T, m *core.Method) {
+			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.Count(ctx, "TEST") //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, s *WikiService) {
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"One", func(t *testing.T, m *core.Method) {
+			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T, s *WikiService) {
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"Create", func(t *testing.T, m *core.Method) {
+			m.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.Create(ctx, 1, "name", "content") //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T, s *WikiService) {
-			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"Update", func(t *testing.T, m *core.Method) {
+			m.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
-		{"Delete", func(t *testing.T, s *WikiService) {
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
+			s := wiki.NewWikiService(m, nil)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
 	}
@@ -849,7 +865,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, newWikiService())
+			tc.call(t, &core.Method{})
 		})
 	}
 }
