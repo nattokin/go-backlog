@@ -526,8 +526,9 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newIssueAttachmentService()
-			s.method.Get = tc.mockGetFn
+			s := attachment.NewIssueAttachmentService(&core.Method{
+				Get: tc.mockGetFn,
+			})
 
 			attachments, err := s.List(context.Background(), tc.issueIDOrKey)
 
@@ -620,8 +621,9 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newIssueAttachmentService()
-			s.method.Delete = tc.mockDeleteFn
+			s := attachment.NewIssueAttachmentService(&core.Method{
+				Delete: tc.mockDeleteFn,
+			})
 
 			attachment, err := s.Remove(context.Background(), tc.issueIDOrKey, tc.attachmentID)
 
@@ -938,19 +940,21 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
 		{"IssueAttachmentService.List", func(t *testing.T) {
-			s := newIssueAttachmentService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewIssueAttachmentService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
 		{"IssueAttachmentService.Remove", func(t *testing.T) {
-			s := newIssueAttachmentService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewIssueAttachmentService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
 		{"PullRequestAttachmentService.List", func(t *testing.T) {
