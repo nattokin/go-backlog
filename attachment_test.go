@@ -137,8 +137,9 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newSpaceAttachmentService()
-			s.method.Upload = tc.mockUploadFn
+			s := attachment.NewSpaceAttachmentService(&core.Method{
+				Upload: tc.mockUploadFn,
+			})
 
 			f, err := os.Open("testdata/testfile")
 			require.NoError(t, err)
@@ -901,11 +902,12 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 		call func(t *testing.T)
 	}{
 		{"SpaceAttachmentService.Upload", func(t *testing.T) {
-			s := newSpaceAttachmentService()
-			s.method.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewSpaceAttachmentService(&core.Method{
+				Upload: func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
 		{"WikiAttachmentService.Attach", func(t *testing.T) {

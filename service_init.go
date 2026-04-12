@@ -1,7 +1,9 @@
 package backlog
 
 import (
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -13,9 +15,7 @@ func initServices(c *Client) {
 	baseOptionService := &core.OptionService{}
 
 	// --- Initialize shared option services --------------------------------------
-	activityOptionService := &ActivityOptionService{
-		base: baseOptionService,
-	}
+	activityOptionService := activity.NewActivityOptionService(baseOptionService)
 
 	// --- Initialize IssueService -------------------------------------------------
 	c.Issue = &IssueService{
@@ -49,16 +49,7 @@ func initServices(c *Client) {
 	}
 
 	// --- Initialize SpaceService -------------------------------------------------
-	c.Space = &SpaceService{
-		method: c.core.Method,
-		Activity: &SpaceActivityService{
-			method: c.core.Method,
-			Option: activityOptionService,
-		},
-		Attachment: &SpaceAttachmentService{
-			method: c.core.Method,
-		},
-	}
+	c.Space = space.NewSpaceService(c.core.Method, baseOptionService)
 
 	// --- Initialize UserService --------------------------------------------------
 	c.User = &UserService{
