@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
@@ -11,31 +12,7 @@ import (
 // ──────────────────────────────────────────────────────────────
 //
 
-// ActivityOptionService provides a domain-specific set of option builders
-// for operations within the ActivityService.
-type ActivityOptionService struct {
-	base *core.OptionService
-}
-
-func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return s.base.WithActivityTypeIDs(typeIDs)
-}
-
-func (s *ActivityOptionService) WithMinID(id int) RequestOption {
-	return s.base.WithMinID(id)
-}
-
-func (s *ActivityOptionService) WithMaxID(id int) RequestOption {
-	return s.base.WithMaxID(id)
-}
-
-func (s *ActivityOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
-}
-
-func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(order)
-}
+type ActivityOptionService = activity.ActivityOptionService
 
 //
 // ──────────────────────────────────────────────────────────────

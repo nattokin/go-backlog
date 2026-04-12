@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -78,11 +79,12 @@ func TestSpaceActivityService_List(t *testing.T) {
 		spath: "space/activities",
 	}
 
-	s := newSpaceActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
+	s := activity.NewSpaceActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			return nil, errors.New("error")
+		},
+	}, &core.OptionService{})
 
 	_, err := s.List(context.Background())
 	assert.Error(t, err)
@@ -124,7 +126,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {
-	o := newActivityOptionService()
+	o := activity.NewActivityOptionService(&core.OptionService{})
 	type want struct {
 		activityTypeID []string
 		minID          string
@@ -254,20 +256,21 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := newSpaceActivityService()
-			s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
-				assert.Equal(t, tc.want.minID, query.Get("minId"))
-				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
-				assert.Equal(t, tc.want.count, query.Get("count"))
-				assert.Equal(t, tc.want.order, query.Get("order"))
+			s := activity.NewSpaceActivityService(&core.Method{
+				Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+					assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
+					assert.Equal(t, tc.want.minID, query.Get("minId"))
+					assert.Equal(t, tc.want.maxID, query.Get("maxId"))
+					assert.Equal(t, tc.want.count, query.Get("count"))
+					assert.Equal(t, tc.want.order, query.Get("order"))
 
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
-				}
-				return resp, nil
-			}
+					resp := &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
+					}
+					return resp, nil
+				},
+			}, &core.OptionService{})
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
@@ -302,11 +305,12 @@ func TestActivityService_contextPropagation(t *testing.T) {
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T) {
-			s := newSpaceActivityService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := activity.NewSpaceActivityService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, &core.OptionService{})
 			s.List(ctx) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T) {

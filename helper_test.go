@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
@@ -29,13 +30,6 @@ import (
 // newOptionService returns a test instance of OptionService.
 func newOptionService() *core.OptionService {
 	return &core.OptionService{}
-}
-
-// newActivityOptionService returns a test instance of ActivityOptionService.
-func newActivityOptionService() *ActivityOptionService {
-	return &ActivityOptionService{
-		base: newOptionService(),
-	}
 }
 
 // newProjectOptionService returns a test instance of ProjectOptionService.
@@ -68,7 +62,7 @@ func newProjectService() *ProjectService {
 func newProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
 		method: newClientMethod(),
-		Option: newActivityOptionService(),
+		Option: activity.NewActivityOptionService(&core.OptionService{}),
 	}
 }
 
@@ -94,28 +88,11 @@ func newUserService() *UserService {
 func newUserActivityService() *UserActivityService {
 	return &UserActivityService{
 		method: newClientMethod(),
-		Option: newActivityOptionService(),
+		Option: activity.NewActivityOptionService(&core.OptionService{}),
 	}
 }
 
 // --- SpaceService ------------------------------------------------------------
-
-// newSpaceService returns a test instance of SpaceService.
-func newSpaceService() *SpaceService {
-	return &SpaceService{
-		method:     newClientMethod(),
-		Activity:   newSpaceActivityService(),
-		Attachment: newSpaceAttachmentService(),
-	}
-}
-
-// newSpaceActivityService returns a test instance of SpaceActivityService.
-func newSpaceActivityService() *SpaceActivityService {
-	return &SpaceActivityService{
-		method: newClientMethod(),
-		Option: newActivityOptionService(),
-	}
-}
 
 // newSpaceAttachmentService returns a test instance of SpaceAttachmentService.
 func newSpaceAttachmentService() *SpaceAttachmentService {

@@ -3,6 +3,7 @@ package attachment
 import (
 	"context"
 	"errors"
+	"io"
 	"net/url"
 	"path"
 	"strconv"
@@ -39,6 +40,38 @@ func RemoveAttachment(ctx context.Context, m *core.Method, spath string) (*model
 
 	return v, nil
 }
+
+// ──────────────────────────────────────────────────────────────
+//  SpaceAttachmentService
+// ──────────────────────────────────────────────────────────────
+
+// SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
+type SpaceAttachmentService struct {
+	method *core.Method
+}
+
+// Upload uploads any file to the space.
+//
+// The file name must not be empty.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
+func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
+	resp, err := s.method.Upload(ctx, "space/attachment", fileName, r)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.Attachment{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
+// ──────────────────────────────────────────────────────────────
+//  WikiAttachmentService
+// ──────────────────────────────────────────────────────────────
 
 // WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
@@ -103,6 +136,16 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
 	return RemoveAttachment(ctx, s.method, spath)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
+func NewSpaceAttachmentService(method *core.Method) *SpaceAttachmentService {
+	return &SpaceAttachmentService{
+		method: method,
+	}
 }
 
 func NewWikiAttachmentService(method *core.Method) *WikiAttachmentService {
