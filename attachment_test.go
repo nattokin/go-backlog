@@ -13,6 +13,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/attachment"
+	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func newTestAttachment() *Attachment {
@@ -205,21 +209,21 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			wikiID:        0,
 			attachmentIDs: []int{1, 2},
 			expectError:   true,
-			mockPostFn:    newUnexpectedPostFn(t),
+			mockPostFn:    mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-attachmentIDs-invalid": {
 			wikiID:        1,
 			attachmentIDs: []int{0, 1, 2},
 			expectError:   true,
-			mockPostFn:    newUnexpectedPostFn(t),
+			mockPostFn:    mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-attachmentIDs-empty": {
 			wikiID:        1,
 			attachmentIDs: []int{},
 			expectError:   true,
-			mockPostFn:    newUnexpectedPostFn(t),
+			mockPostFn:    mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-client": {
@@ -250,8 +254,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiAttachmentService()
-			s.method.Post = tc.mockPostFn
+			s := attachment.NewWikiAttachmentService(&core.Method{Post: tc.mockPostFn})
 
 			attachments, err := s.Attach(context.Background(), tc.wikiID, tc.attachmentIDs)
 
@@ -303,13 +306,13 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		"error-wikiID-zero": {
 			wikiID:      0,
 			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t),
+			mockGetFn:   mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-wikiID-negative": {
 			wikiID:      -1,
 			expectError: true,
-			mockGetFn:   newUnexpectedGetFn(t),
+			mockGetFn:   mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-client": {
@@ -338,8 +341,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiAttachmentService()
-			s.method.Get = tc.mockGetFn
+			s := attachment.NewWikiAttachmentService(&core.Method{Get: tc.mockGetFn})
 
 			attachments, err := s.List(context.Background(), tc.wikiID)
 
@@ -394,28 +396,28 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			wikiID:       0,
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-wikiID-negative": {
 			wikiID:       -1,
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-zero": {
 			wikiID:       1,
 			attachmentID: 0,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-negative": {
 			wikiID:       1,
 			attachmentID: -1,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
@@ -446,8 +448,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newWikiAttachmentService()
-			s.method.Delete = tc.mockDeleteFn
+			s := attachment.NewWikiAttachmentService(&core.Method{Delete: tc.mockDeleteFn})
 
 			attachment, err := s.Remove(context.Background(), tc.wikiID, tc.attachmentID)
 
@@ -495,7 +496,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		"error-invalid-issueIDOrKey": {
 			issueIDOrKey: "0",
 			expectError:  true,
-			mockGetFn:    newUnexpectedGetFn(t),
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-client": {
@@ -580,14 +581,14 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			issueIDOrKey: "",
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-attachmentID-zero": {
 			issueIDOrKey: "test",
 			attachmentID: 0,
 			expectError:  true,
-			mockDeleteFn: newUnexpectedDeleteFn(t),
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
@@ -677,7 +678,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "1",
 			prNumber:           1,
 			expectError:        true,
-			mockGetFn:          newUnexpectedGetFn(t),
+			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-invalid-repository": {
@@ -685,7 +686,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "0",
 			prNumber:           1,
 			expectError:        true,
-			mockGetFn:          newUnexpectedGetFn(t),
+			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-invalid-prNumber": {
@@ -693,7 +694,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "1",
 			prNumber:           0,
 			expectError:        true,
-			mockGetFn:          newUnexpectedGetFn(t),
+			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-client": {
@@ -796,7 +797,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t),
+			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-repository": {
@@ -805,7 +806,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t),
+			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-prNumber": {
@@ -814,7 +815,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           0,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t),
+			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-invalid-attachmentID": {
@@ -823,7 +824,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       0,
 			expectError:        true,
-			mockDeleteFn:       newUnexpectedDeleteFn(t),
+			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
@@ -908,27 +909,30 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
 		{"WikiAttachmentService.Attach", func(t *testing.T) {
-			s := newWikiAttachmentService()
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewWikiAttachmentService(&core.Method{
+				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
 		}},
 		{"WikiAttachmentService.List", func(t *testing.T) {
-			s := newWikiAttachmentService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewWikiAttachmentService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.List(ctx, 1) //nolint:errcheck
 		}},
 		{"WikiAttachmentService.Remove", func(t *testing.T) {
-			s := newWikiAttachmentService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewWikiAttachmentService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
 		{"IssueAttachmentService.List", func(t *testing.T) {

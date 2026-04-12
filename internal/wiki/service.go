@@ -1,4 +1,4 @@
-package backlog
+package wiki
 
 import (
 	"context"
@@ -6,21 +6,17 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
-
-func validateWikiID(wikiID int) error {
-	if wikiID < 1 {
-		return core.NewValidationError("wikiID must not be less than 1")
-	}
-	return nil
-}
 
 // WikiService handles communication with the wiki-related methods of the Backlog API.
 type WikiService struct {
 	method *core.Method
 
-	Attachment *WikiAttachmentService
+	Attachment *attachment.WikiAttachmentService
 	Option     *WikiOptionService
 }
 
@@ -31,13 +27,13 @@ type WikiService struct {
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	query := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamKeyword}
+	validTypes := []core.APIParamOptionType{core.ParamKeyword}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
@@ -49,7 +45,7 @@ func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...Re
 		return nil, err
 	}
 
-	v := []*Wiki{}
+	v := []*model.Wiki{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -61,7 +57,7 @@ func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...Re
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return 0, err
 	}
 
@@ -84,8 +80,8 @@ func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, er
 // One returns a specific wiki by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
-func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
-	if err := validateWikiID(wikiID); err != nil {
+func (s *WikiService) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
+	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
@@ -95,7 +91,7 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 		return nil, err
 	}
 
-	v := Wiki{}
+	v := model.Wiki{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -112,14 +108,14 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
-	if err := validateProjectID(projectID); err != nil {
+func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...core.RequestOption) (*model.Wiki, error) {
+	if err := validate.ValidateProjectID(projectID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]RequestOption{s.Option.base.WithName(name), s.Option.base.WithContent(content)}, opts...)
+	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
+	options := append([]core.RequestOption{s.Option.base.WithName(name), s.Option.base.WithContent(content)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -131,7 +127,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 		return nil, err
 	}
 
-	v := Wiki{}
+	v := model.Wiki{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -148,16 +144,16 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
-	if err := validateWikiID(wikiID); err != nil {
+func (s *WikiService) Update(ctx context.Context, wikiID int, option core.RequestOption, opts ...core.RequestOption) (*model.Wiki, error) {
+	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]RequestOption{option}, opts...)
+	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
+	options := append([]core.RequestOption{option}, opts...)
 
-	if !core.HasRequiredOption(options, []apiParamOptionType{core.ParamName, core.ParamContent}) {
+	if !core.HasRequiredOption(options, []core.APIParamOptionType{core.ParamName, core.ParamContent}) {
 		return nil, core.NewValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
 	}
 
@@ -171,7 +167,7 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 		return nil, err
 	}
 
-	v := Wiki{}
+	v := model.Wiki{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -186,13 +182,13 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 //   - WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOption) (*Wiki, error) {
-	if err := validateWikiID(wikiID); err != nil {
+func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.RequestOption) (*model.Wiki, error) {
+	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamMailNotify}
+	validTypes := []core.APIParamOptionType{core.ParamMailNotify}
 	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}
@@ -203,10 +199,30 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOpt
 		return nil, err
 	}
 
-	v := Wiki{}
+	v := model.Wiki{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
+// NewWikiService returns a new WikiService.
+func NewWikiService(method *core.Method, option *core.OptionService) *WikiService {
+	return &WikiService{
+		method:     method,
+		Attachment: attachment.NewWikiAttachmentService(method),
+		Option:     NewWikiOptionService(option),
+	}
+}
+
+// NewWikiOptionService returns a new WikiOptionService.
+func NewWikiOptionService(option *core.OptionService) *WikiOptionService {
+	return &WikiOptionService{
+		base: option,
+	}
 }

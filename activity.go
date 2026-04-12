@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 func getActivityList(ctx context.Context, m *core.Method, spath string, opts ...RequestOption) ([]*Activity, error) {
@@ -48,7 +49,7 @@ type ProjectActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 

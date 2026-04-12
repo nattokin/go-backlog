@@ -1,6 +1,9 @@
 package backlog
 
-import "github.com/nattokin/go-backlog/internal/core"
+import (
+	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/wiki"
+)
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -122,22 +125,4 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.
-type WikiOptionService struct {
-	base *core.OptionService
-}
-
-func (s *WikiOptionService) WithKeyword(keyword string) RequestOption {
-	return s.base.WithKeyword(keyword)
-}
-
-func (s *WikiOptionService) WithContent(content string) RequestOption {
-	return s.base.WithContent(content)
-}
-
-func (s *WikiOptionService) WithMailNotify(enabled bool) RequestOption {
-	return s.base.WithMailNotify(enabled)
-}
-
-func (s *WikiOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
-}
+type WikiOptionService = wiki.WikiOptionService

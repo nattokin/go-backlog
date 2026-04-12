@@ -1,0 +1,34 @@
+package validate
+
+import "github.com/nattokin/go-backlog/internal/core"
+
+func ValidateAttachmentID(attachmentID int) error {
+	if attachmentID < 1 {
+		return core.NewValidationError("attachmentID must not be less than 1")
+	}
+	return nil
+}
+
+func ValidateProjectID(projectID int) error {
+	if projectID < 1 {
+		return core.NewValidationError("projectID must not be less than 1")
+	}
+	return nil
+}
+
+func ValidateProjectIDOrKey(projectIDOrKey string) error {
+	if projectIDOrKey == "" {
+		return core.NewValidationError("projectIDOrKey must not be empty")
+	}
+	if projectIDOrKey == "0" {
+		return core.NewValidationError("projectIDOrKey must not be '0'")
+	}
+	return nil
+}
+
+func ValidateWikiID(wikiID int) error {
+	if wikiID < 1 {
+		return core.NewValidationError("wikiID must not be less than 1")
+	}
+	return nil
+}

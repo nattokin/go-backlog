@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestActivityOptionService(t *testing.T) {
@@ -320,7 +321,7 @@ func TestUserOptionService(t *testing.T) {
 }
 
 func TestWikiOptionService(t *testing.T) {
-	s := newWikiOptionService()
+	s := wiki.NewWikiOptionService(&core.OptionService{})
 
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {

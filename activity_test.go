@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectActivityService_List(t *testing.T) {
@@ -237,13 +238,13 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			want:      want{},
 		},
 		"error-option-invalid-type": {
-			opts:      []RequestOption{newInvalidTypeOption()},
+			opts:      []RequestOption{mock.NewInvalidTypeOption()},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-set-failed": {
 			opts: []RequestOption{
-				newFailingSetOption(core.ParamCount),
+				mock.NewFailingSetOption(core.ParamCount),
 			},
 			wantError: true,
 		},

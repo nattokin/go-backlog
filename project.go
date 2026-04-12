@@ -6,24 +6,8 @@ import (
 	"path"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
-
-func validateProjectID(projectID int) error {
-	if projectID < 1 {
-		return core.NewValidationError("projectID must not be less than 1")
-	}
-	return nil
-}
-
-func validateProjectIDOrKey(projectIDOrKey string) error {
-	if projectIDOrKey == "" {
-		return core.NewValidationError("projectIDOrKey must not be empty")
-	}
-	if projectIDOrKey == "0" {
-		return core.NewValidationError("projectIDOrKey must not be '0'")
-	}
-	return nil
-}
 
 // ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
@@ -67,7 +51,7 @@ func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Pro
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Project, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -131,7 +115,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*Project, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
@@ -162,7 +146,7 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Project, error) {
-	if err := validateProjectIDOrKey(projectIDOrKey); err != nil {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
