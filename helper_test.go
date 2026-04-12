@@ -92,15 +92,6 @@ func newUserActivityService() *UserActivityService {
 	}
 }
 
-// --- SpaceService ------------------------------------------------------------
-
-// newSpaceAttachmentService returns a test instance of SpaceAttachmentService.
-func newSpaceAttachmentService() *SpaceAttachmentService {
-	return &SpaceAttachmentService{
-		method: newClientMethod(),
-	}
-}
-
 // --- IssueService ------------------------------------------------------------
 
 // newIssueService returns a test instance of IssueService.
