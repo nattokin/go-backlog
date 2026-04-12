@@ -92,23 +92,6 @@ func newUserActivityService() *UserActivityService {
 	}
 }
 
-// --- PullRequestService ------------------------------------------------------------
-
-// newPullRequestService returns a test instance of PullRequestService.
-func newPullRequestService() *PullRequestService {
-	return &PullRequestService{
-		method:     newClientMethod(),
-		Attachment: newPullRequestAttachmentService(),
-	}
-}
-
-// newPullRequestAttachmentService returns a test instance of PullRequestAttachmentService.
-func newPullRequestAttachmentService() *PullRequestAttachmentService {
-	return &PullRequestAttachmentService{
-		method: newClientMethod(),
-	}
-}
-
 // newClientMethod creates and returns a mock implementation of the `method` struct.
 // Each API function (Get, Post, Patch, Delete) returns a default "not implemented" error.
 func newClientMethod() *core.Method {

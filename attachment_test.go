@@ -730,8 +730,9 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newPullRequestAttachmentService()
-			s.method.Get = tc.mockGetFn
+			s := attachment.NewPullRequestAttachmentService(&core.Method{
+				Get: tc.mockGetFn,
+			})
 
 			attachments, err := s.List(context.Background(),
 				tc.projectIDOrKey,
@@ -862,8 +863,9 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newPullRequestAttachmentService()
-			s.method.Delete = tc.mockDeleteFn
+			s := attachment.NewPullRequestAttachmentService(&core.Method{
+				Delete: tc.mockDeleteFn,
+			})
 
 			attachment, err := s.Remove(
 				context.Background(),
@@ -958,19 +960,21 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
 		{"PullRequestAttachmentService.List", func(t *testing.T) {
-			s := newPullRequestAttachmentService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewPullRequestAttachmentService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
 		}},
 		{"PullRequestAttachmentService.Remove", func(t *testing.T) {
-			s := newPullRequestAttachmentService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := attachment.NewPullRequestAttachmentService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			})
 			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
 	}
