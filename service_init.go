@@ -3,6 +3,7 @@ package backlog
 import (
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
@@ -18,12 +19,7 @@ func initServices(c *Client) {
 	activityOptionService := activity.NewActivityOptionService(baseOptionService)
 
 	// --- Initialize IssueService -------------------------------------------------
-	c.Issue = &IssueService{
-		method: c.core.Method,
-		Attachment: &IssueAttachmentService{
-			method: c.core.Method,
-		},
-	}
+	c.Issue = issue.NewIssueService(c.core.Method, baseOptionService)
 
 	// --- Initialize ProjectService ----------------------------------------------
 	c.Project = &ProjectService{

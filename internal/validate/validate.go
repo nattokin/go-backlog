@@ -9,6 +9,16 @@ func ValidateAttachmentID(attachmentID int) error {
 	return nil
 }
 
+func ValidateIssueIDOrKey(issueIDOrKey string) error {
+	if issueIDOrKey == "" {
+		return core.NewValidationError("issueIDOrKey must not be empty")
+	}
+	if issueIDOrKey == "0" {
+		return core.NewValidationError("issueIDOrKey must not be '0'")
+	}
+	return nil
+}
+
 func ValidateProjectID(projectID int) error {
 	if projectID < 1 {
 		return core.NewValidationError("projectID must not be less than 1")

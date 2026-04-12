@@ -92,23 +92,6 @@ func newUserActivityService() *UserActivityService {
 	}
 }
 
-// --- IssueService ------------------------------------------------------------
-
-// newIssueService returns a test instance of IssueService.
-func newIssueService() *IssueService {
-	return &IssueService{
-		method:     newClientMethod(),
-		Attachment: newIssueAttachmentService(),
-	}
-}
-
-// newIssueAttachmentService returns a test instance of IssueAttachmentService.
-func newIssueAttachmentService() *IssueAttachmentService {
-	return &IssueAttachmentService{
-		method: newClientMethod(),
-	}
-}
-
 // --- PullRequestService ------------------------------------------------------------
 
 // newPullRequestService returns a test instance of PullRequestService.
