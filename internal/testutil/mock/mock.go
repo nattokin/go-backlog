@@ -18,14 +18,45 @@ import (
 // ──────────────────────────────────────────────────────────────
 
 type MockDoer struct {
-	Type   *testing.T
+	T      *testing.T
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
 
 func (m *MockDoer) Do(req *http.Request) (*http.Response, error) {
-	assert.NotNil(m.Type, req)
+	assert.NotNil(m.T, req)
 	return m.DoFunc(req)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  Wrapper mock
+// ──────────────────────────────────────────────────────────────
+
+type MockWrapper struct {
+	CreateErr error
+	CopyErr   error
+	CloseErr  error
+}
+
+func (w MockWrapper) NewMultipartWriter(_ io.Writer) core.MultipartWriter {
+	return &MockMultipartWriter{wrapper: w}
+}
+
+func (w MockWrapper) Copy(_ io.Writer, _ io.Reader) error {
+	return w.CopyErr
+}
+
+type MockMultipartWriter struct {
+	wrapper MockWrapper
+}
+
+func (mw *MockMultipartWriter) CreateFormFile(fieldname, filename string) (io.Writer, error) {
+	if mw.wrapper.CreateErr != nil {
+		return nil, mw.wrapper.CreateErr
+	}
+	return io.Discard, nil
+}
+func (mw *MockMultipartWriter) FormDataContentType() string { return "mock/type" }
+func (mw *MockMultipartWriter) Close() error                { return mw.wrapper.CloseErr }
 
 // ──────────────────────────────────────────────────────────────
 //  RequestOption mock

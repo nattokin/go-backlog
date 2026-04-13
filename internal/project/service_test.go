@@ -1,4 +1,4 @@
-package backlog
+package project_test
 
 import (
 	"bytes"
@@ -15,7 +15,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -40,7 +42,7 @@ func TestProjectService_All(t *testing.T) {
 				assert.Empty(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
 				}, nil
 			},
 
@@ -60,7 +62,7 @@ func TestProjectService_All(t *testing.T) {
 				assert.Equal(t, "true", query.Get("archived"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
 				}, nil
 			},
 
@@ -76,7 +78,7 @@ func TestProjectService_All(t *testing.T) {
 		"error-option-invalid-type": {
 			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
-			wantErrType: &InvalidOptionKeyError{},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			opts: []core.RequestOption{},
@@ -93,7 +95,7 @@ func TestProjectService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -151,7 +153,7 @@ func TestProjectService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -165,7 +167,7 @@ func TestProjectService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -174,7 +176,7 @@ func TestProjectService_One(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -191,7 +193,7 @@ func TestProjectService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -255,7 +257,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -275,7 +277,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -290,7 +292,7 @@ func TestProjectService_Create(t *testing.T) {
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(FormatBacklog),
+				o.WithTextFormattingRule(model.FormatBacklog),
 			},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -301,7 +303,7 @@ func TestProjectService_Create(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -312,14 +314,14 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "",
 			name: "test",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"error-validation-name-empty": {
 			key:  "TEST",
 			name: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"error-option-invalid-value": {
@@ -330,7 +332,7 @@ func TestProjectService_Create(t *testing.T) {
 				o.WithTextFormattingRule("invalid"),
 			},
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"error-option-invalid-type": {
@@ -339,7 +341,7 @@ func TestProjectService_Create(t *testing.T) {
 
 			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
-			wantErrType: &InvalidOptionKeyError{},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -360,7 +362,7 @@ func TestProjectService_Create(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -419,7 +421,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -434,7 +436,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -444,13 +446,13 @@ func TestProjectService_Update(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey: "0",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"success-with-options": {
@@ -462,7 +464,7 @@ func TestProjectService_Update(t *testing.T) {
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(FormatBacklog),
+				o.WithTextFormattingRule(model.FormatBacklog),
 				o.WithArchived(true),
 			},
 
@@ -477,7 +479,7 @@ func TestProjectService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -491,7 +493,7 @@ func TestProjectService_Update(t *testing.T) {
 				o.WithTextFormattingRule("invalid"),
 			},
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 
 		"error-option-invalid-type": {
@@ -499,7 +501,7 @@ func TestProjectService_Update(t *testing.T) {
 
 			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
-			wantErrType: &InvalidOptionKeyError{},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -518,7 +520,7 @@ func TestProjectService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -571,7 +573,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -585,7 +587,7 @@ func TestProjectService_Delete(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataProjectJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 
@@ -594,12 +596,12 @@ func TestProjectService_Delete(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey: "0",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -616,7 +618,7 @@ func TestProjectService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 

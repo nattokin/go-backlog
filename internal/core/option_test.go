@@ -1,4 +1,4 @@
-package backlog
+package core_test
 
 import (
 	"net/url"

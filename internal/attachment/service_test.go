@@ -1,4 +1,4 @@
-package backlog
+package attachment_test
 
 import (
 	"bytes"
@@ -16,11 +16,13 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func newTestAttachment() *Attachment {
-	return &Attachment{
+func newTestAttachment() *model.Attachment {
+	return &model.Attachment{
 		ID:   8,
 		Name: "IMG0088.png",
 		Size: 5563,
@@ -37,8 +39,8 @@ func newTestAttachment() *Attachment {
 	}
 }
 
-func newTestAttachmentList() []*Attachment {
-	return []*Attachment{
+func newTestAttachmentList() []*model.Attachment {
+	return []*model.Attachment{
 		{
 			ID:   2,
 			Name: "A.png",
@@ -72,8 +74,8 @@ func newTestAttachmentList() []*Attachment {
 	}
 }
 
-func newTestAttachmentSingleList() []*Attachment {
-	return []*Attachment{
+func newTestAttachmentSingleList() []*model.Attachment {
+	return []*model.Attachment{
 		{
 			ID:   2,
 			Name: "A.png",
@@ -108,7 +110,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataAttachmentUploadJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.UploadJSON))),
 				}, nil
 			},
 		},
@@ -127,7 +129,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 		},
@@ -141,7 +143,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 				Upload: tc.mockUploadFn,
 			})
 
-			f, err := os.Open("testdata/testfile")
+			f, err := os.Open("../../testdata/testfile")
 			require.NoError(t, err)
 			defer f.Close()
 
@@ -169,7 +171,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		attachmentIDs []int
 
 		expectError bool
-		want        []*Attachment
+		want        []*model.Attachment
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -186,7 +188,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentSingleListJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.SingleListJSON)),
 					),
 				}, nil
 			},
@@ -200,7 +202,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
 					),
 				}, nil
 			},
@@ -244,7 +246,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -285,7 +287,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		wikiID int
 
 		expectError bool
-		want        []*Attachment
+		want        []*model.Attachment
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -298,7 +300,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
 					),
 				}, nil
 			},
@@ -331,7 +333,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -373,7 +375,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		attachmentID int
 
 		expectError bool
-		want        *Attachment
+		want        *model.Attachment
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -387,7 +389,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.SingleJSON)),
 					),
 				}, nil
 			},
@@ -438,7 +440,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -475,7 +477,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		issueIDOrKey string
 
 		expectError bool
-		want        []*Attachment
+		want        []*model.Attachment
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -488,7 +490,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
 					),
 				}, nil
 			},
@@ -515,7 +517,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -559,7 +561,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		attachmentID int
 
 		expectError bool
-		want        *Attachment
+		want        *model.Attachment
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -573,7 +575,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.SingleJSON)),
 					),
 				}, nil
 			},
@@ -610,7 +612,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -651,7 +653,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		prNumber           int
 
 		expectError bool
-		want        []*Attachment
+		want        []*model.Attachment
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -670,7 +672,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentListJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
 					),
 				}, nil
 			},
@@ -719,7 +721,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
@@ -769,7 +771,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		attachmentID       int
 
 		expectError bool
-		want        *Attachment
+		want        *model.Attachment
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -789,7 +791,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataAttachmentJSON)),
+						bytes.NewReader([]byte(fixture.Attachment.SingleJSON)),
 					),
 				}, nil
 			},
@@ -852,7 +854,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body: io.NopCloser(
-						bytes.NewReader([]byte(testdataInvalidJSON)),
+						bytes.NewReader([]byte(fixture.InvalidJSON)),
 					),
 				}, nil
 			},
