@@ -9,7 +9,7 @@ import (
 
 func Test_apiParamOption(t *testing.T) {
 	cases := map[string]struct {
-		option      RequestOption
+		option      core.RequestOption
 		expectPanic bool
 	}{
 		"SetFunc-nil": {

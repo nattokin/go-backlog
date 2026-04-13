@@ -21,7 +21,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue int
 		}{
@@ -57,7 +57,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Enum options ---------------------------------------------------------------
 	t.Run("enum-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -88,7 +88,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Special options -------------------------------------------------------------
 	t.Run("special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue []int
 		}{
@@ -125,7 +125,7 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Form boolean options -------------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -161,7 +161,7 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Query boolean options ------------------------------------------------------
 	t.Run("query-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -192,7 +192,7 @@ func TestProjectOptionService(t *testing.T) {
 	// --- Form string options --------------------------------------------------------
 	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -232,7 +232,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -258,7 +258,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue int
 		}{
@@ -289,7 +289,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- String options -------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -329,7 +329,7 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -355,7 +355,7 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Form string options ------------------------------------------------------
 	t.Run("form-string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -386,7 +386,7 @@ func TestWikiOptionService(t *testing.T) {
 	// --- Form boolean options -----------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue bool
 		}{
