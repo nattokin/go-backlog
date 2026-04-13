@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
+	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -29,9 +30,7 @@ func initServices(c *Client) {
 			method: c.core.Method,
 			Option: activityOptionService,
 		},
-		User: &ProjectUserService{
-			method: c.core.Method,
-		},
+		User: user.NewProjectUserService(c.core.Method, baseOptionService),
 		Option: &ProjectOptionService{
 			base: baseOptionService,
 		},
@@ -44,16 +43,7 @@ func initServices(c *Client) {
 	c.Space = space.NewSpaceService(c.core.Method, baseOptionService)
 
 	// --- Initialize UserService --------------------------------------------------
-	c.User = &UserService{
-		method: c.core.Method,
-		Activity: &UserActivityService{
-			method: c.core.Method,
-			Option: activityOptionService,
-		},
-		Option: &UserOptionService{
-			base: baseOptionService,
-		},
-	}
+	c.User = user.NewUserService(c.core.Method, baseOptionService)
 
 	// --- Initialize WikiService --------------------------------------------------
 	c.Wiki = wiki.NewWikiService(c.core.Method, baseOptionService)

@@ -16,6 +16,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/user"
 )
 
 func TestUserService_One(t *testing.T) {
@@ -69,14 +70,14 @@ func TestUserService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := user.NewUserService(method, nil)
 
 			user, err := s.One(context.Background(), tc.id)
 
@@ -230,14 +231,14 @@ func TestUserService_Add(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Post = mock.NewUnexpectedPostFn(t)
-
-			if tc.mockPostFn != nil {
-				s.method.Post = tc.mockPostFn
+			method := &core.Method{
+				Post: mock.NewUnexpectedPostFn(t),
 			}
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
+			s := user.NewUserService(method, nil)
 
 			user, err := s.Add(context.Background(), tc.userID, tc.password, tc.name, tc.mailAddress, tc.roleType)
 
@@ -314,14 +315,14 @@ func TestUserService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := user.NewUserService(method, nil)
 
 			users, err := s.All(context.Background())
 
@@ -345,7 +346,7 @@ func TestUserService_All(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	o := newUserOptionService()
+	o := user.NewUserOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		id   int
@@ -505,14 +506,14 @@ func TestUserService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Patch = mock.NewUnexpectedPatchFn(t)
-
-			if tc.mockPatchFn != nil {
-				s.method.Patch = tc.mockPatchFn
+			method := &core.Method{
+				Patch: mock.NewUnexpectedPatchFn(t),
 			}
+			if tc.mockPatchFn != nil {
+				method.Patch = tc.mockPatchFn
+			}
+			s := user.NewUserService(method, nil)
 
 			user, err := s.Update(context.Background(), tc.id, tc.opts...)
 
@@ -585,14 +586,14 @@ func TestUserService_Own(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedPatchFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := user.NewUserService(method, nil)
 
 			user, err := s.Own(context.Background())
 
@@ -674,14 +675,14 @@ func TestUserService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newUserService()
-
 			// default: unexpected API call
-			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
-
-			if tc.mockDeleteFn != nil {
-				s.method.Delete = tc.mockDeleteFn
+			method := &core.Method{
+				Delete: mock.NewUnexpectedPatchFn(t),
 			}
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
+			s := user.NewUserService(method, nil)
 
 			user, err := s.Delete(context.Background(), tc.id)
 
@@ -799,14 +800,14 @@ func TestProjectUserService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			users, err := s.All(context.Background(), tc.projectKey, tc.excludeGroupMembers)
 
@@ -910,14 +911,14 @@ func TestProjectUserService_Add(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Post = mock.NewUnexpectedPostFn(t)
-
-			if tc.mockPostFn != nil {
-				s.method.Post = tc.mockPostFn
+			method := &core.Method{
+				Post: mock.NewUnexpectedPostFn(t),
 			}
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			user, err := s.Add(context.Background(), tc.projectKey, tc.userID)
 
@@ -1041,14 +1042,14 @@ func TestProjectUserService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
-
-			if tc.mockDeleteFn != nil {
-				s.method.Delete = tc.mockDeleteFn
+			method := &core.Method{
+				Delete: mock.NewUnexpectedDeleteFn(t),
 			}
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			user, err := s.Delete(context.Background(), tc.projectKey, tc.userID)
 
@@ -1151,14 +1152,14 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Post = mock.NewUnexpectedPostFn(t)
-
-			if tc.mockPostFn != nil {
-				s.method.Post = tc.mockPostFn
+			method := &core.Method{
+				Post: mock.NewUnexpectedPostFn(t),
 			}
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			user, err := s.AddAdmin(context.Background(), tc.projectKey, tc.userID)
 
@@ -1209,14 +1210,14 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			users, err := s.AdminAll(context.Background(), tc.projectKey)
 
@@ -1278,14 +1279,14 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectUserService()
-
 			// default: unexpected API call
-			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
-
-			if tc.mockDeleteFn != nil {
-				s.method.Delete = tc.mockDeleteFn
+			method := &core.Method{
+				Delete: mock.NewUnexpectedDeleteFn(t),
 			}
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
+			s := user.NewProjectUserService(method, nil)
 
 			user, err := s.DeleteAdmin(context.Background(), tc.projectKey, tc.userID)
 
@@ -1306,106 +1307,118 @@ func TestUserService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := newUserOptionService()
+	o := user.NewUserOptionService(&core.OptionService{})
 
 	cases := []struct {
 		name string
 		call func(t *testing.T)
 	}{
 		{"UserService.All", func(t *testing.T) {
-			s := newUserService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.All(ctx) //nolint:errcheck
 		}},
 		{"UserService.One", func(t *testing.T) {
-			s := newUserService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
 		{"UserService.Own", func(t *testing.T) {
-			s := newUserService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Own(ctx) //nolint:errcheck
 		}},
 		{"UserService.Add", func(t *testing.T) {
-			s := newUserService()
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Add(ctx, "u", "p", "n", "m@m.com", RoleAdministrator) //nolint:errcheck
 		}},
 		{"UserService.Update", func(t *testing.T) {
-			s := newUserService()
-			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Patch: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
 		{"UserService.Delete", func(t *testing.T) {
-			s := newUserService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewUserService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
 		{"ProjectUserService.All", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.All(ctx, "TEST", false) //nolint:errcheck
 		}},
 		{"ProjectUserService.Add", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Add(ctx, "TEST", 1) //nolint:errcheck
 		}},
 		{"ProjectUserService.Delete", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Delete(ctx, "TEST", 1) //nolint:errcheck
 		}},
 		{"ProjectUserService.AddAdmin", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
 		{"ProjectUserService.AdminAll", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.AdminAll(ctx, "TEST") //nolint:errcheck
 		}},
 		{"ProjectUserService.DeleteAdmin", func(t *testing.T) {
-			s := newProjectUserService()
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := user.NewProjectUserService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
 	}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -225,7 +226,7 @@ func TestProjectOptionService(t *testing.T) {
 }
 
 func TestUserOptionService(t *testing.T) {
-	o := newUserOptionService()
+	o := user.NewUserOptionService(&core.OptionService{})
 
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {

@@ -53,6 +53,13 @@ func ValidateRepositoryIDOrName(repositoryIDOrName string) error {
 	return nil
 }
 
+func ValidateUserID(userID int) error {
+	if userID < 1 {
+		return core.NewValidationError("userID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateWikiID(wikiID int) error {
 	if wikiID < 1 {
 		return core.NewValidationError("wikiID must not be less than 1")

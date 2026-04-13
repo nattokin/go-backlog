@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -14,7 +15,7 @@ type ProjectService struct {
 	method *core.Method
 
 	Activity *ProjectActivityService
-	User     *ProjectUserService
+	User     *user.ProjectUserService
 	Option   *ProjectOptionService
 }
 
