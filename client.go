@@ -85,7 +85,8 @@ func initServices(c *Client) {
 
 type ClientOption = core.ClientOption
 
-// WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.\n// This is useful for providing a custom *http.Client or a mock implementation during testing.
+// WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
+// This is useful for providing a custom *http.Client or a mock implementation during testing.
 //
 // If this option is not provided, http.DefaultClient is used by default.
 func WithDoer(doer Doer) *core.ClientOption {
