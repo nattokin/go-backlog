@@ -109,7 +109,7 @@ func TestValidationError_errorsAs(t *testing.T) {
 // TestInvalidOptionKeyError_errorsAs_query verifies that InvalidOptionKeyError
 // can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
-	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []apiParamOptionType{core.ParamAll, core.ParamArchived})
+	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []core.APIParamOptionType{core.ParamAll, core.ParamArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *InvalidOptionKeyError
@@ -120,7 +120,7 @@ func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 // TestInvalidOptionKeyError_errorsAs_form verifies that InvalidOptionKeyError
 // can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
-	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []apiParamOptionType{core.ParamName, core.ParamChartEnabled})
+	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []core.APIParamOptionType{core.ParamName, core.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *InvalidOptionKeyError

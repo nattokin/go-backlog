@@ -7,13 +7,13 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-func Test_apiParamOption(t *testing.T) {
+func TestAPIParamOption(t *testing.T) {
 	cases := map[string]struct {
 		option      core.RequestOption
 		expectPanic bool
 	}{
 		"SetFunc-nil": {
-			option: &apiParamOption{
+			option: &core.APIParamOption{
 				Type:      core.ParamKey,
 				CheckFunc: func() error { return nil },
 				SetFunc:   nil,
@@ -21,7 +21,7 @@ func Test_apiParamOption(t *testing.T) {
 			expectPanic: true,
 		},
 		"CheckFunc-nil": {
-			option: &apiParamOption{
+			option: &core.APIParamOption{
 				Type:      core.ParamKey,
 				CheckFunc: nil,
 				SetFunc:   func(_ url.Values) error { return nil },
@@ -46,7 +46,7 @@ func Test_apiParamOption(t *testing.T) {
 			}()
 
 			v := url.Values{}
-			core.ApplyOptions(v, []apiParamOptionType{core.ParamKey}, tc.option)
+			core.ApplyOptions(v, []core.APIParamOptionType{core.ParamKey}, tc.option)
 		})
 	}
 

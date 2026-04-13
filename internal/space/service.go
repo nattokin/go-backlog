@@ -22,7 +22,7 @@ type SpaceService struct {
 func NewSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
 	return &SpaceService{
 		method:     method,
-		Activity:   activity.NewSpaceActivityService(method, &core.OptionService{}),
+		Activity:   activity.NewSpaceActivityService(method, option),
 		Attachment: attachment.NewSpaceAttachmentService(method),
 	}
 }
