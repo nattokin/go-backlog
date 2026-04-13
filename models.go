@@ -12,13 +12,13 @@ type Attachment = model.Attachment
 
 type Category = model.Category
 
-type ChangeLog model.ChangeLog
+type ChangeLog = model.ChangeLog
 
 type Comment = model.Comment
 
 type CustomField = model.CustomField
 
-type CustomFieldItem model.CustomFieldItem
+type CustomFieldItem = model.CustomFieldItem
 
 type DiskUsageBase = model.DiskUsageBase
 
@@ -40,7 +40,7 @@ type Project = model.Project
 
 type PullRequest = model.PullRequest
 
-type Repository model.Repository
+type Repository = model.Repository
 
 type Resolution = model.Resolution
 
