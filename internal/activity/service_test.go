@@ -1,4 +1,4 @@
-package backlog
+package activity_test
 
 import (
 	"bytes"
@@ -15,6 +15,8 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -62,7 +64,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+				Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 			}
 			return resp, nil
 		},
@@ -209,7 +211,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		},
 		"success-withOrder": {
 			opts: []core.RequestOption{
-				o.WithOrder(OrderAsc),
+				o.WithOrder(model.OrderAsc),
 			},
 			wantError: false,
 			want: want{
@@ -226,7 +228,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				o.WithMinID(1),
 				o.WithMaxID(26),
 				o.WithCount(20),
-				o.WithOrder(OrderAsc),
+				o.WithOrder(model.OrderAsc),
 			},
 			wantError: false,
 			want: want{
@@ -271,7 +273,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 
 					resp := &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(testdataActivityListJSON))),
+						Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
 					}
 					return resp, nil
 				},
