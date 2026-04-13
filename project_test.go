@@ -15,11 +15,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectService_All(t *testing.T) {
-	o := newProjectOptionService()
+	o := project.NewProjectOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		opts []RequestOption
@@ -104,14 +105,14 @@ func TestProjectService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := project.NewProjectService(method, nil)
 
 			projects, err := s.All(context.Background(), tc.opts...)
 
@@ -202,14 +203,14 @@ func TestProjectService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectService()
-
 			// default: unexpected API call
-			s.method.Get = mock.NewUnexpectedGetFn(t)
-
-			if tc.mockGetFn != nil {
-				s.method.Get = tc.mockGetFn
+			method := &core.Method{
+				Get: mock.NewUnexpectedGetFn(t),
 			}
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+			s := project.NewProjectService(method, nil)
 
 			project, err := s.One(context.Background(), tc.projectIDOrKey)
 
@@ -231,7 +232,7 @@ func TestProjectService_One(t *testing.T) {
 }
 
 func TestProjectService_Create(t *testing.T) {
-	o := newProjectOptionService()
+	o := project.NewProjectOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		key  string
@@ -371,14 +372,14 @@ func TestProjectService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectService()
-
 			// default: unexpected API call
-			s.method.Post = mock.NewUnexpectedPostFn(t)
-
-			if tc.mockPostFn != nil {
-				s.method.Post = tc.mockPostFn
+			method := &core.Method{
+				Post: mock.NewUnexpectedPostFn(t),
 			}
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
+			s := project.NewProjectService(method, nil)
 
 			project, err := s.Create(context.Background(), tc.key, tc.name, tc.opts...)
 
@@ -399,7 +400,7 @@ func TestProjectService_Create(t *testing.T) {
 }
 
 func TestProjectService_Update(t *testing.T) {
-	o := newProjectOptionService()
+	o := project.NewProjectOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -529,14 +530,14 @@ func TestProjectService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectService()
-
 			// default: unexpected API call
-			s.method.Patch = mock.NewUnexpectedPatchFn(t)
-
-			if tc.mockPatchFn != nil {
-				s.method.Patch = tc.mockPatchFn
+			method := &core.Method{
+				Patch: mock.NewUnexpectedPatchFn(t),
 			}
+			if tc.mockPatchFn != nil {
+				method.Patch = tc.mockPatchFn
+			}
+			s := project.NewProjectService(method, nil)
 
 			project, err := s.Update(context.Background(), tc.projectIDOrKey, tc.opts...)
 
@@ -627,14 +628,14 @@ func TestProjectService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := newProjectService()
-
 			// default: unexpected API call
-			s.method.Delete = mock.NewUnexpectedDeleteFn(t)
-
-			if tc.mockDeleteFn != nil {
-				s.method.Delete = tc.mockDeleteFn
+			method := &core.Method{
+				Delete: mock.NewUnexpectedDeleteFn(t),
 			}
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
+			s := project.NewProjectService(method, nil)
 
 			project, err := s.Delete(context.Background(), tc.projectIDOrKey)
 
@@ -660,53 +661,62 @@ func TestProjectService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := newProjectOptionService()
+	o := project.NewProjectOptionService(&core.OptionService{})
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, s *ProjectService)
+		call func(t *testing.T)
 	}{
-		{"All", func(t *testing.T, s *ProjectService) {
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+		{"All", func(t *testing.T) {
+			s := project.NewProjectService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, s *ProjectService) {
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+		{"One", func(t *testing.T) {
+			s := project.NewProjectService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T, s *ProjectService) {
-			s.method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+		{"Create", func(t *testing.T) {
+			s := project.NewProjectService(&core.Method{
+				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T, s *ProjectService) {
-			s.method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+		{"Update", func(t *testing.T) {
+			s := project.NewProjectService(&core.Method{
+				Patch: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Delete", func(t *testing.T, s *ProjectService) {
-			s.method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+		{"Delete", func(t *testing.T) {
+			s := project.NewProjectService(&core.Method{
+				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, nil)
 			s.Delete(ctx, "TEST") //nolint:errcheck
-		}},
-	}
+		}}}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, newProjectService())
+			tc.call(t)
 		})
 	}
 }

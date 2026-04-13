@@ -18,7 +18,7 @@ import (
 //
 
 func TestOptionService(t *testing.T) {
-	o := newOptionService()
+	o := &core.OptionService{}
 
 	// --- Boolean options -----------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {

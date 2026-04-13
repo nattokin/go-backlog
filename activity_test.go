@@ -29,11 +29,12 @@ func TestProjectActivityService_List(t *testing.T) {
 		spath: "projects/" + projectKey + "/activities",
 	}
 
-	s := newProjectActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
+	s := activity.NewProjectActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			return nil, errors.New("error")
+		},
+	}, &core.OptionService{})
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -43,11 +44,12 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	t.Parallel()
 
 	projectKey := ""
-	s := newProjectActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		t.Error("s.method.Get must never be called")
-		return nil, errors.New("error")
-	}
+	s := activity.NewProjectActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			t.Error("s.method.Get must never be called")
+			return nil, errors.New("error")
+		},
+	}, &core.OptionService{})
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -56,14 +58,15 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := newProjectActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
-		}
-		return resp, nil
-	}
+	s := activity.NewProjectActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			resp := &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+			}
+			return resp, nil
+		},
+	}, &core.OptionService{})
 
 	projects, err := s.List(context.Background(), "TEST")
 	assert.Nil(t, projects)
@@ -299,11 +302,12 @@ func TestActivityService_contextPropagation(t *testing.T) {
 		call func(t *testing.T)
 	}{
 		{"ProjectActivityService.List", func(t *testing.T) {
-			s := newProjectActivityService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := activity.NewProjectActivityService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, &core.OptionService{})
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T) {

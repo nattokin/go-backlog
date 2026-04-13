@@ -1,11 +1,13 @@
-package backlog
+package project
 
 import (
 	"context"
 	"net/url"
 	"path"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
@@ -14,7 +16,7 @@ import (
 type ProjectService struct {
 	method *core.Method
 
-	Activity *ProjectActivityService
+	Activity *activity.ProjectActivityService
 	User     *user.ProjectUserService
 	Option   *ProjectOptionService
 }
@@ -27,10 +29,10 @@ type ProjectService struct {
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
+func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamAll, core.ParamArchived}
+	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
@@ -40,7 +42,7 @@ func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Pro
 		return nil, err
 	}
 
-	v := []*Project{}
+	v := []*model.Project{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -51,7 +53,7 @@ func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Pro
 // One returns one of the projects searched by ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
-func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Project, error) {
+func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -62,7 +64,7 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 		return nil, err
 	}
 
-	v := Project{}
+	v := model.Project{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -80,11 +82,11 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*Project, error) {
+func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
-	options := append([]RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
+	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
+	options := append([]core.RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -94,7 +96,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 		return nil, err
 	}
 
-	v := Project{}
+	v := model.Project{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -115,13 +117,13 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*Project, error) {
+func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{
+	validTypes := []core.APIParamOptionType{
 		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
 		core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule, core.ParamArchived,
 	}
@@ -135,7 +137,7 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 		return nil, err
 	}
 
-	v := Project{}
+	v := model.Project{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -146,7 +148,7 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 // Delete deletes a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
-func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Project, error) {
+func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -157,10 +159,23 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Pr
 		return nil, err
 	}
 
-	v := Project{}
+	v := model.Project{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
+// NewProjectService returns a new ProjectService.
+func NewProjectService(method *core.Method, option *core.OptionService) *ProjectService {
+	return &ProjectService{
+		method:   method,
+		Activity: activity.NewProjectActivityService(method, option),
+		Option:   NewProjectOptionService(option),
+	}
 }
