@@ -8,11 +8,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
-type apiParamOptionType = core.APIParamOptionType
-
 type RequestOption = core.RequestOption
-
-type apiParamOption = core.APIParamOption
 
 type ActivityOptionService = activity.ActivityOptionService
 

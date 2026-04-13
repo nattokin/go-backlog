@@ -26,12 +26,12 @@ type Client struct {
 	core *core.Client
 
 	// Service endpoints
-	Issue       *IssueService
+	Issue       *issue.IssueService
 	Project     *project.ProjectService
-	PullRequest *PullRequestService
-	Space       *SpaceService
+	PullRequest *pullrequest.PullRequestService
+	Space       *space.SpaceService
 	User        *user.UserService
-	Wiki        *WikiService
+	Wiki        *wiki.WikiService
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ type Client struct {
 // This function supports options returned by package-level functions,
 // such as:
 //   - WithDoer
-func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
+func NewClient(baseURL, token string, opts ...*core.ClientOption) (*Client, error) {
 	core, err := core.NewClient(baseURL, token, opts...)
 	if err != nil {
 		return nil, err
@@ -85,10 +85,9 @@ func initServices(c *Client) {
 
 type ClientOption = core.ClientOption
 
-// WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
-// This is useful for providing a custom *http.Client or a mock implementation during testing.
+// WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.\n// This is useful for providing a custom *http.Client or a mock implementation during testing.
 //
 // If this option is not provided, http.DefaultClient is used by default.
-func WithDoer(doer Doer) *ClientOption {
+func WithDoer(doer Doer) *core.ClientOption {
 	return core.WithDoer(doer)
 }

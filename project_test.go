@@ -23,7 +23,7 @@ func TestProjectService_All(t *testing.T) {
 	o := project.NewProjectOptionService(&core.OptionService{})
 
 	cases := map[string]struct {
-		opts []RequestOption
+		opts []core.RequestOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -32,7 +32,7 @@ func TestProjectService_All(t *testing.T) {
 		wantErrType error
 	}{
 		"success-without-option": {
-			opts: []RequestOption{},
+			opts: []core.RequestOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
@@ -49,7 +49,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"success-with-valid-option": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithAll(false),
 				o.WithArchived(true),
 			},
@@ -69,17 +69,17 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: nil,
 		},
 		"error-option-set-failed": {
-			opts: []RequestOption{mock.NewFailingSetOption(core.ParamAll)},
+			opts: []core.RequestOption{mock.NewFailingSetOption(core.ParamAll)},
 
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
-			opts: []RequestOption{mock.NewInvalidTypeOption()},
+			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-client-network": {
-			opts: []RequestOption{},
+			opts: []core.RequestOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -88,7 +88,7 @@ func TestProjectService_All(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			opts: []RequestOption{},
+			opts: []core.RequestOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return &http.Response{
@@ -237,7 +237,7 @@ func TestProjectService_Create(t *testing.T) {
 	cases := map[string]struct {
 		key  string
 		name string
-		opts []RequestOption
+		opts []core.RequestOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -265,7 +265,7 @@ func TestProjectService_Create(t *testing.T) {
 		"success-without-option": {
 			key:  "TEST",
 			name: "test",
-			opts: []RequestOption{},
+			opts: []core.RequestOption{},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
@@ -286,7 +286,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
@@ -326,7 +326,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithTextFormattingRule("invalid"),
 			},
 
@@ -337,7 +337,7 @@ func TestProjectService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []RequestOption{mock.NewInvalidTypeOption()},
+			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
@@ -404,7 +404,7 @@ func TestProjectService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []RequestOption
+		opts           []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -456,7 +456,7 @@ func TestProjectService_Update(t *testing.T) {
 		"success-with-options": {
 			projectIDOrKey: "TEST",
 
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithKey("TEST1"),
 				o.WithName("test1"),
 				o.WithChartEnabled(true),
@@ -487,7 +487,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-option-invalid-value": {
 			projectIDOrKey: "TEST",
 
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithTextFormattingRule("invalid"),
 			},
 
@@ -497,7 +497,7 @@ func TestProjectService_Update(t *testing.T) {
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 
-			opts: []RequestOption{mock.NewInvalidTypeOption()},
+			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},

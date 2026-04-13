@@ -350,7 +350,7 @@ func TestUserService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		id   int
-		opts []RequestOption
+		opts []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -359,7 +359,7 @@ func TestUserService_Update(t *testing.T) {
 	}{
 		"success-update-user": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithPassword("password"),
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
@@ -407,7 +407,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withName": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithName("testname"),
 			},
 
@@ -421,7 +421,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withPassword": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithPassword("testpassword"),
 			},
 
@@ -435,7 +435,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withMailAddress": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithMailAddress("test@test.com"),
 			},
 
@@ -449,7 +449,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withRoleType": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithRoleType(RoleAdministrator),
 			},
 
@@ -463,7 +463,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-multiple": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithPassword("testpassword1"),
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
@@ -483,7 +483,7 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"error-option-invalid-value": {
 			id: 1,
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithName(""),
 			},
 
@@ -491,13 +491,13 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"error-option-invalid-type": {
 			id:   1,
-			opts: []RequestOption{mock.NewInvalidTypeOption()},
+			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			id:          1,
-			opts:        []RequestOption{mock.NewFailingSetOption(core.ParamName)},
+			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamName)},
 			wantErrType: errors.New(""),
 		},
 	}

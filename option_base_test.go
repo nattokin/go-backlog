@@ -23,7 +23,7 @@ func TestOptionService(t *testing.T) {
 	// --- Boolean options -----------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -115,7 +115,7 @@ func TestOptionService(t *testing.T) {
 	// --- Integer options -----------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue int
 			wantErr   bool
@@ -197,7 +197,7 @@ func TestOptionService(t *testing.T) {
 	// --- String options ------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 			wantErr   bool
@@ -294,7 +294,7 @@ func TestOptionService(t *testing.T) {
 	// --- Enum or special options ---------------------------------------------------
 	t.Run("enum-or-special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    RequestOption
+			option    core.RequestOption
 			key       string
 			wantValue string
 			wantErr   bool

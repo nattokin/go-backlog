@@ -140,12 +140,12 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		order          string
 	}
 	cases := map[string]struct {
-		opts      []RequestOption
+		opts      []core.RequestOption
 		wantError bool
 		want      want
 	}{
 		"success-no-option": {
-			opts:      []RequestOption{},
+			opts:      []core.RequestOption{},
 			wantError: false,
 			want: want{
 				activityTypeID: nil,
@@ -156,7 +156,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withActivityTypeIDs": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
@@ -169,7 +169,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withMinID": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithMinID(1),
 			},
 			wantError: false,
@@ -182,7 +182,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withMaxID": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithMaxID(1),
 			},
 			wantError: false,
@@ -195,7 +195,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withCount": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithCount(1),
 			},
 			wantError: false,
@@ -208,7 +208,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-withOrder": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithOrder(OrderAsc),
 			},
 			wantError: false,
@@ -221,7 +221,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"success-multiple-options": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -238,19 +238,19 @@ func TestBaseActivityService_GetList(t *testing.T) {
 			},
 		},
 		"error-option-invalid-value": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				o.WithCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-invalid-type": {
-			opts:      []RequestOption{mock.NewInvalidTypeOption()},
+			opts:      []core.RequestOption{mock.NewInvalidTypeOption()},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-set-failed": {
-			opts: []RequestOption{
+			opts: []core.RequestOption{
 				mock.NewFailingSetOption(core.ParamCount),
 			},
 			wantError: true,
