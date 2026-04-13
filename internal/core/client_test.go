@@ -190,7 +190,7 @@ func TestClient_Do(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", &mock.MockDoer{
-				T:   t,
+				T:      t,
 				DoFunc: tc.doFunc,
 			})
 
