@@ -1,4 +1,4 @@
-package backlog
+package core_test
 
 import (
 	"net/url"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
 //
@@ -300,12 +301,12 @@ func TestOptionService(t *testing.T) {
 			wantErr   bool
 		}{
 			"WithOrder-asc": {
-				option:    o.WithOrder(OrderAsc),
+				option:    o.WithOrder(model.OrderAsc),
 				key:       core.ParamOrder.Value(),
 				wantValue: "asc",
 			},
 			"WithOrder-desc": {
-				option:    o.WithOrder(OrderDesc),
+				option:    o.WithOrder(model.OrderDesc),
 				key:       core.ParamOrder.Value(),
 				wantValue: "desc",
 			},
@@ -390,14 +391,14 @@ func TestOptionService(t *testing.T) {
 				wantErr: true,
 			},
 			"WithTextFormattingRule-valid-backlog": {
-				option:    o.WithTextFormattingRule(FormatBacklog),
+				option:    o.WithTextFormattingRule(model.FormatBacklog),
 				key:       core.ParamTextFormattingRule.Value(),
-				wantValue: string(FormatBacklog),
+				wantValue: string(model.FormatBacklog),
 			},
 			"WithTextFormattingRule-valid-markdown": {
-				option:    o.WithTextFormattingRule(FormatMarkdown),
+				option:    o.WithTextFormattingRule(model.FormatMarkdown),
 				key:       core.ParamTextFormattingRule.Value(),
-				wantValue: string(FormatMarkdown),
+				wantValue: string(model.FormatMarkdown),
 			},
 			"WithTextFormattingRule-invalid": {
 				option:  o.WithTextFormattingRule("invalid"),

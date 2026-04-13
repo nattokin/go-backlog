@@ -1,4 +1,4 @@
-package backlog
+package core_test
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestError_Error(t *testing.T) {
-	e := &Error{
+	e := &core.Error{
 		Message:  "No project.",
 		Code:     6,
 		MoreInfo: "more info",
@@ -24,9 +24,9 @@ func TestError_Error(t *testing.T) {
 }
 
 func TestAPIResponseError_Error(t *testing.T) {
-	e := &APIResponseError{
+	e := &core.APIResponseError{
 		StatusCode: 404,
-		Errors: []*Error{
+		Errors: []*core.Error{
 			{
 				Message:  "1st error",
 				Code:     5,
@@ -45,7 +45,7 @@ func TestAPIResponseError_Error(t *testing.T) {
 }
 
 func TestInvalidOptionKeyError_Error_form(t *testing.T) {
-	e := &InvalidOptionKeyError{
+	e := &core.InvalidOptionKeyError{
 		Invalid: core.ParamKey.Value(),
 		ValidList: []string{
 			core.ParamName.Value(),
@@ -57,7 +57,7 @@ func TestInvalidOptionKeyError_Error_form(t *testing.T) {
 }
 
 func TestInvalidOptionKeyError_Error_query(t *testing.T) {
-	e := &InvalidOptionKeyError{
+	e := &core.InvalidOptionKeyError{
 		Invalid: core.ParamActivityTypeIDs.Value(),
 		ValidList: []string{
 			core.ParamAll.Value(),
@@ -90,7 +90,7 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *APIResponseError
+	var target *core.APIResponseError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, 404, target.StatusCode)
 }
@@ -101,7 +101,7 @@ func TestValidationError_errorsAs(t *testing.T) {
 	err := core.NewValidationError("invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *ValidationError
+	var target *core.ValidationError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "invalid argument", target.Error())
 }
@@ -112,7 +112,7 @@ func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []core.APIParamOptionType{core.ParamAll, core.ParamArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *InvalidOptionKeyError
+	var target *core.InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, core.ParamActivityTypeIDs.Value(), target.Invalid)
 }
@@ -123,7 +123,7 @@ func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
 	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []core.APIParamOptionType{core.ParamName, core.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *InvalidOptionKeyError
+	var target *core.InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, core.ParamKey.Value(), target.Invalid)
 }
@@ -134,7 +134,7 @@ func TestInternalClientError_errorsAs(t *testing.T) {
 	err := core.NewInternalClientError("missing token")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *InternalClientError
+	var target *core.InternalClientError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "missing token", target.Error())
 }

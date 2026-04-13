@@ -1,26 +1,28 @@
-package backlog
+package model_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestFormat_String(t *testing.T) {
 	cases := map[string]struct {
-		format Format
+		format model.Format
 		want   string
 	}{
 		"Markdown": {
-			format: FormatMarkdown,
+			format: model.FormatMarkdown,
 			want:   "Markdown",
 		},
 		"Backlog": {
-			format: FormatBacklog,
+			format: model.FormatBacklog,
 			want:   "Backlog",
 		},
 		"Unknown": {
-			format: Format("test"),
+			format: model.Format("test"),
 			want:   "unknown Format type test",
 		},
 	}
@@ -35,19 +37,19 @@ func TestFormat_String(t *testing.T) {
 
 func TestOrder_String(t *testing.T) {
 	cases := map[string]struct {
-		format Order
+		format model.Order
 		want   string
 	}{
 		"Markdown": {
-			format: OrderAsc,
+			format: model.OrderAsc,
 			want:   "Asc",
 		},
 		"Backlog": {
-			format: OrderDesc,
+			format: model.OrderDesc,
 			want:   "Desc",
 		},
 		"Unknown": {
-			format: Order("test"),
+			format: model.Order("test"),
 			want:   "unknown Order type test",
 		},
 	}
@@ -62,35 +64,35 @@ func TestOrder_String(t *testing.T) {
 
 func TestRole_String(t *testing.T) {
 	cases := map[string]struct {
-		roleType Role
+		roleType model.Role
 		want     string
 	}{
 		"Administrator": {
-			roleType: RoleAdministrator,
+			roleType: model.RoleAdministrator,
 			want:     "Administrator",
 		},
 		"NormalUser": {
-			roleType: RoleNormalUser,
+			roleType: model.RoleNormalUser,
 			want:     "NormalUser",
 		},
 		"Reporter": {
-			roleType: RoleReporter,
+			roleType: model.RoleReporter,
 			want:     "Reporter",
 		},
 		"Viewer": {
-			roleType: RoleViewer,
+			roleType: model.RoleViewer,
 			want:     "Viewer",
 		},
 		"GuestReporter": {
-			roleType: RoleGuestReporter,
+			roleType: model.RoleGuestReporter,
 			want:     "GuestReporter",
 		},
 		"GuestViewer": {
-			roleType: RoleGuestViewer,
+			roleType: model.RoleGuestViewer,
 			want:     "GuestViewer",
 		},
 		"Unknown": {
-			roleType: Role(0),
+			roleType: model.Role(0),
 			want:     "unknown Role type 0",
 		},
 	}

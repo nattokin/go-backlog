@@ -1,4 +1,4 @@
-package backlog
+package user_test
 
 import (
 	"bytes"
@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 	"github.com/nattokin/go-backlog/internal/user"
 )
@@ -25,7 +27,7 @@ func TestUserService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-id-1": {
@@ -35,15 +37,15 @@ func TestUserService_One(t *testing.T) {
 				assert.Equal(t, "users/1", spath)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"success-id-100": {
@@ -57,12 +59,12 @@ func TestUserService_One(t *testing.T) {
 				}, nil
 			},
 
-			wantUser: &User{},
+			wantUser: &model.User{},
 		},
 		"error-validation-id-zero": {
 			id: 0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 	}
 
@@ -105,11 +107,11 @@ func TestUserService_Add(t *testing.T) {
 		password    string
 		name        string
 		mailAddress string
-		roleType    Role
+		roleType    model.Role
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-add-user": {
@@ -117,7 +119,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "admin",
 			mailAddress: "eguchi@nulab.example",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
@@ -125,19 +127,19 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-client-network": {
@@ -145,7 +147,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "error",
 			mailAddress: "error@example.com",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
@@ -159,55 +161,55 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "admin",
 			mailAddress: "admin@example.com",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: mock.NewUnexpectedPostFn(t),
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-password-empty": {
 			userID:      "admin",
 			password:    "",
 			name:        "admin",
 			mailAddress: "admin@example.com",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: mock.NewUnexpectedPostFn(t),
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-name-empty": {
 			userID:      "admin",
 			password:    "password",
 			name:        "",
 			mailAddress: "admin@example.com",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: mock.NewUnexpectedPostFn(t),
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-mailAddress-empty": {
 			userID:      "admin",
 			password:    "password",
 			name:        "admin",
 			mailAddress: "",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: mock.NewUnexpectedPostFn(t),
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-multiple-empty": {
 			userID:      "test",
 			password:    "",
 			name:        "",
 			mailAddress: "",
-			roleType:    RoleAdministrator,
+			roleType:    model.RoleAdministrator,
 
 			mockPostFn: mock.NewUnexpectedPostFn(t),
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			userID:      "userID",
@@ -219,7 +221,7 @@ func TestUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -265,7 +267,7 @@ func TestUserService_All(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantLen     int
-		wantFirst   *User
+		wantFirst   *model.User
 		wantErrType error
 	}{
 		"success-get-users": {
@@ -275,16 +277,16 @@ func TestUserService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
 			wantLen: 4,
-			wantFirst: &User{
+			wantFirst: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-client-network": {
@@ -303,7 +305,7 @@ func TestUserService_All(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -354,7 +356,7 @@ func TestUserService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-update-user": {
@@ -363,7 +365,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithPassword("password"),
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
-				o.WithRoleType(RoleAdministrator),
+				o.WithRoleType(model.RoleAdministrator),
 			},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -371,25 +373,25 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-validation-id-zero": {
 			id: 0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			id: 1234,
@@ -399,7 +401,7 @@ func TestUserService_Update(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -450,12 +452,12 @@ func TestUserService_Update(t *testing.T) {
 		"success-option-withRoleType": {
 			id: 1,
 			opts: []core.RequestOption{
-				o.WithRoleType(RoleAdministrator),
+				o.WithRoleType(model.RoleAdministrator),
 			},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
-				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
 				return nil, errors.New("error")
 			},
 
@@ -467,7 +469,7 @@ func TestUserService_Update(t *testing.T) {
 				o.WithPassword("testpassword1"),
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
-				o.WithRoleType(RoleAdministrator),
+				o.WithRoleType(model.RoleAdministrator),
 			},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -475,7 +477,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "testpassword1", form.Get("password"))
 				assert.Equal(t, "testname1", form.Get("name"))
 				assert.Equal(t, "test1@test.com", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
 				return nil, errors.New("error")
 			},
 
@@ -487,13 +489,13 @@ func TestUserService_Update(t *testing.T) {
 				o.WithName(""),
 			},
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			id:   1,
 			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
 
-			wantErrType: &InvalidOptionKeyError{},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			id:          1,
@@ -539,7 +541,7 @@ func TestUserService_Own(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-get-own-user": {
@@ -548,15 +550,15 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-client-network": {
@@ -574,7 +576,7 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -630,7 +632,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -644,7 +646,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
@@ -653,7 +655,7 @@ func TestUserService_Delete(t *testing.T) {
 		"error-validation-id-zero": {
 			id: 0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			id: 1234,
@@ -663,7 +665,7 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -706,7 +708,7 @@ func TestProjectUserService_All(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUsers   []*User
+		wantUsers   []*model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -718,16 +720,16 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
-			wantUsers: []*User{
+			wantUsers: []*model.User{
 				{
 					UserID:      "admin",
 					Name:        "admin",
 					MailAddress: "eguchi@nulab.example",
-					RoleType:    RoleAdministrator,
+					RoleType:    model.RoleAdministrator,
 				},
 			},
 		},
@@ -740,16 +742,16 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
-			wantUsers: []*User{
+			wantUsers: []*model.User{
 				{
 					UserID:      "admin",
 					Name:        "admin",
 					MailAddress: "eguchi@nulab.example",
-					RoleType:    RoleAdministrator,
+					RoleType:    model.RoleAdministrator,
 				},
 			},
 		},
@@ -762,23 +764,23 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserListJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
 				}, nil
 			},
 
-			wantUsers: []*User{
+			wantUsers: []*model.User{
 				{
 					UserID:      "admin",
 					Name:        "admin",
 					MailAddress: "eguchi@nulab.example",
-					RoleType:    RoleAdministrator,
+					RoleType:    model.RoleAdministrator,
 				},
 			},
 		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			projectKey: "TEST",
@@ -788,7 +790,7 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -836,7 +838,7 @@ func TestProjectUserService_Add(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -848,27 +850,27 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"success-userID-1": {
 			projectKey: "TEST2",
@@ -879,15 +881,15 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-response-invalid-json": {
@@ -899,7 +901,7 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -946,7 +948,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-delete-user": {
@@ -958,15 +960,15 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"success-projectIDOrKey-number": {
@@ -978,28 +980,28 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 			userID:     1,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"success-userID-1": {
 			projectKey: "TEST2",
@@ -1010,15 +1012,15 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-response-invalid-json": {
@@ -1030,7 +1032,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -1077,7 +1079,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *User
+		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -1089,27 +1091,27 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"success-userID-1": {
 			projectKey: "TEST2",
@@ -1120,15 +1122,15 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataUserJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 
-			wantUser: &User{
+			wantUser: &model.User{
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    RoleAdministrator,
+				RoleType:    model.RoleAdministrator,
 			},
 		},
 		"error-response-invalid-json": {
@@ -1140,7 +1142,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(testdataInvalidJSON))),
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
 				}, nil
 			},
 
@@ -1202,7 +1204,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 	}
 
@@ -1253,13 +1255,13 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			projectKey: "",
 			userID:     1,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-userID-zero": {
 			projectKey: "TEST1",
 			userID:     0,
 
-			wantErrType: &ValidationError{},
+			wantErrType: &core.ValidationError{},
 		},
 		"success-userID-1": {
 			projectKey: "TEST2",
@@ -1347,7 +1349,7 @@ func TestUserService_contextPropagation(t *testing.T) {
 					return nil, errors.New("stop")
 				},
 			}, nil)
-			s.Add(ctx, "u", "p", "n", "m@m.com", RoleAdministrator) //nolint:errcheck
+			s.Add(ctx, "u", "p", "n", "m@m.com", model.RoleAdministrator) //nolint:errcheck
 		}},
 		{"UserService.Update", func(t *testing.T) {
 			s := user.NewUserService(&core.Method{
