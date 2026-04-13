@@ -10,6 +10,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
@@ -119,7 +120,7 @@ func TestActivityOptionService(t *testing.T) {
 }
 
 func TestProjectOptionService(t *testing.T) {
-	s := newProjectOptionService()
+	s := project.NewProjectOptionService(&core.OptionService{})
 
 	// --- Form boolean options -------------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
