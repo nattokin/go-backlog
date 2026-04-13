@@ -82,7 +82,7 @@ func TestNewClient_initialization(t *testing.T) {
 	t.Run("with-Doer", func(t *testing.T) {
 		t.Parallel()
 
-		mockDoer := &mock.MockDoer{Type: t,
+		mockDoer := &mock.MockDoer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
 		c, err := core.NewClient(baseURL, token, core.WithDoer(mockDoer))
@@ -190,7 +190,7 @@ func TestClient_Do(t *testing.T) {
 			t.Parallel()
 
 			c := newClientMock(t, "https://test.com", "test", &mock.MockDoer{
-				Type:   t,
+				T:   t,
 				DoFunc: tc.doFunc,
 			})
 
@@ -719,7 +719,7 @@ func makeClient(t *testing.T) (*core.Client, *httpCapture) {
 	captured := &httpCapture{}
 
 	c := newClientMock(t, "https://example.com", "token123", &mock.MockDoer{
-		Type: t,
+		T: t,
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			var bodyBytes []byte
 			if req.Body != nil {
@@ -751,7 +751,7 @@ func newClientMock(t *testing.T, baseURL, token string, doer core.Doer) *core.Cl
 
 	if doer == nil {
 		doer = &mock.MockDoer{
-			Type: t,
+			T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,

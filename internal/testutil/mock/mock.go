@@ -18,12 +18,12 @@ import (
 // ──────────────────────────────────────────────────────────────
 
 type MockDoer struct {
-	Type   *testing.T
+	T      *testing.T
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
 
 func (m *MockDoer) Do(req *http.Request) (*http.Response, error) {
-	assert.NotNil(m.Type, req)
+	assert.NotNil(m.T, req)
 	return m.DoFunc(req)
 }
 
