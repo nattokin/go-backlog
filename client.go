@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/user"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -24,7 +25,7 @@ type Client struct {
 	Project     *ProjectService
 	PullRequest *PullRequestService
 	Space       *SpaceService
-	User        *UserService
+	User        *user.UserService
 	Wiki        *WikiService
 }
 

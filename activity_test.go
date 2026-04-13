@@ -101,11 +101,12 @@ func TestUserActivityService_List(t *testing.T) {
 		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
 
-	s := newUserActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
+	s := activity.NewUserActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			assert.Equal(t, want.spath, spath)
+			return nil, errors.New("error")
+		},
+	}, &core.OptionService{})
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -115,11 +116,12 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	t.Parallel()
 
 	id := 0
-	s := newUserActivityService()
-	s.method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		t.Error("s.method.Get must never be called")
-		return nil, errors.New("error")
-	}
+	s := activity.NewUserActivityService(&core.Method{
+		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+			t.Error("s.method.Get must never be called")
+			return nil, errors.New("error")
+		},
+	}, &core.OptionService{})
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -314,11 +316,13 @@ func TestActivityService_contextPropagation(t *testing.T) {
 			s.List(ctx) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T) {
-			s := newUserActivityService()
-			s.method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			s := activity.NewUserActivityService(&core.Method{
+				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+					assert.Same(t, sentinel, got.Value(ctxKey{}))
+					return nil, errors.New("stop")
+				},
+			}, &core.OptionService{})
+
 			s.List(ctx, 1) //nolint:errcheck
 		}},
 	}

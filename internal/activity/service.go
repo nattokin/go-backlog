@@ -3,9 +3,12 @@ package activity
 import (
 	"context"
 	"net/url"
+	"path"
+	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 func GetActivityList(ctx context.Context, m *core.Method, spath string, opts ...core.RequestOption) ([]*model.Activity, error) {
@@ -50,12 +53,46 @@ func (s *SpaceActivityService) List(ctx context.Context, opts ...core.RequestOpt
 	return GetActivityList(ctx, s.method, "space/activities", opts...)
 }
 
+// UserActivityService handles communication with the user activities-related methods of the Backlog API.
+type UserActivityService struct {
+	method *core.Method
+
+	Option *ActivityOptionService
+}
+
+// List returns a list of user activities.
+//
+// This method supports options returned by methods in "*Client.Activity.Option",
+// such as:
+//   - WithActivityTypeIDs
+//   - WithCount
+//   - WithMaxID
+//   - WithMinID
+//   - WithOrder
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
+func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
+	if err := validate.ValidateUserID(userID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("users", strconv.Itoa(userID), "activities")
+	return GetActivityList(ctx, s.method, spath, opts...)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
 func NewSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
+		method: method,
+		Option: &ActivityOptionService{},
+	}
+}
+
+func NewUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
+	return &UserActivityService{
 		method: method,
 		Option: &ActivityOptionService{},
 	}

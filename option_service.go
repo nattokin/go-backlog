@@ -3,6 +3,7 @@ package backlog
 import (
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -64,35 +65,7 @@ func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOpti
 // ──────────────────────────────────────────────────────────────
 //
 
-// UserOptionService provides a domain-specific set of option builders
-// for operations within the UserService.
-type UserOptionService struct {
-	base *core.OptionService
-}
-
-func (s *UserOptionService) WithMailAddress(mail string) RequestOption {
-	return s.base.WithMailAddress(mail)
-}
-
-func (s *UserOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
-}
-
-func (s *UserOptionService) WithPassword(password string) RequestOption {
-	return s.base.WithPassword(password)
-}
-
-func (s *UserOptionService) WithRoleType(role Role) RequestOption {
-	return s.base.WithRoleType(role)
-}
-
-func (s *UserOptionService) WithSendMail(enabled bool) RequestOption {
-	return s.base.WithSendMail(enabled)
-}
-
-func (s *UserOptionService) WithUserID(id int) RequestOption {
-	return s.base.WithUserID(id)
-}
+type UserOptionService = user.UserOptionService
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -100,6 +73,4 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 // ──────────────────────────────────────────────────────────────
 //
 
-// WikiOptionService provides a domain-specific set of option builders
-// for operations within the WikiService.
 type WikiOptionService = wiki.WikiOptionService

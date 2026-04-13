@@ -1,4 +1,4 @@
-package backlog
+package user
 
 import (
 	"context"
@@ -6,31 +6,19 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// UserID is the unique identifier for a user.
-type UserID int
-
-func (id UserID) validate() error {
-	if id < 1 {
-		return core.NewValidationError("userID must not be less than 1")
-	}
-	return nil
-}
-
-func (id UserID) String() string {
-	return strconv.Itoa(int(id))
-}
-
-func getUser(ctx context.Context, m *core.Method, spath string) (*User, error) {
+func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	v := User{}
+	v := model.User{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -38,13 +26,13 @@ func getUser(ctx context.Context, m *core.Method, spath string) (*User, error) {
 	return &v, nil
 }
 
-func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*User, error) {
+func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
 
-	v := []*User{}
+	v := []*model.User{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -52,13 +40,13 @@ func getUserList(ctx context.Context, m *core.Method, spath string, query url.Va
 	return v, nil
 }
 
-func addUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
+func addUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
-	v := User{}
+	v := model.User{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -66,13 +54,13 @@ func addUser(ctx context.Context, m *core.Method, spath string, form url.Values)
 	return &v, nil
 }
 
-func updateUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
+func updateUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
-	v := User{}
+	v := model.User{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -80,13 +68,13 @@ func updateUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 	return &v, nil
 }
 
-func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*User, error) {
+func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
 	}
 
-	v := User{}
+	v := model.User{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
@@ -98,48 +86,47 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 type UserService struct {
 	method *core.Method
 
-	Activity *UserActivityService
+	Activity *activity.UserActivityService
 	Option   *UserOptionService
 }
 
 // All returns all users in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
-func (s *UserService) All(ctx context.Context) ([]*User, error) {
+func (s *UserService) All(ctx context.Context) ([]*model.User, error) {
 	return getUserList(ctx, s.method, "users", nil)
 }
 
 // One returns a user in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
-func (s *UserService) One(ctx context.Context, id int) (*User, error) {
-	uID := UserID(id)
-	if err := uID.validate(); err != nil {
+func (s *UserService) One(ctx context.Context, id int) (*model.User, error) {
+	if err := validate.ValidateUserID(id); err != nil {
 		return nil, err
 	}
 
-	spath := path.Join("users", uID.String())
+	spath := path.Join("users", strconv.Itoa(id))
 	return getUser(ctx, s.method, spath)
 }
 
 // Own returns your own user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
-func (s *UserService) Own(ctx context.Context) (*User, error) {
+func (s *UserService) Own(ctx context.Context) (*model.User, error) {
 	return getUser(ctx, s.method, "users/myself")
 }
 
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
+func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
 	if userID == "" {
 		return nil, core.NewValidationError("userID must not be empty")
 	}
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
-	options := []RequestOption{
+	validTypes := []core.APIParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
+	options := []core.RequestOption{
 		s.Option.base.WithPassword(password),
 		s.Option.base.WithName(name),
 		s.Option.base.WithMailAddress(mailAddress),
@@ -161,15 +148,15 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //   - WithMailAddress
 //   - WithName
 //   - WithPassword
-//   - WithRoleType
+//   - Withmodel.RoleType
 //   - WithUserID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*User, error) {
+func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
 
 	form := url.Values{}
-	validTypes := []apiParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
-	options := append([]RequestOption{s.Option.base.WithUserID(id)}, opts...)
+	validTypes := []core.APIParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
+	options := append([]core.RequestOption{s.Option.base.WithUserID(id)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -181,13 +168,12 @@ func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption)
 // Delete deletes a user from your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
-func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
-	uID := UserID(id)
-	if err := uID.validate(); err != nil {
+func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
+	if err := validate.ValidateUserID(id); err != nil {
 		return nil, err
 	}
 
-	spath := path.Join("users", uID.String())
+	spath := path.Join("users", strconv.Itoa(id))
 	return deleteUser(ctx, s.method, spath, nil)
 }
 
@@ -199,7 +185,7 @@ type ProjectUserService struct {
 // All returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
+func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -214,18 +200,17 @@ func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, exc
 // Add adds a user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
-func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	uID := UserID(userID)
-	if err := uID.validate(); err != nil {
+	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	form.Set("userId", uID.String())
+	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return addUser(ctx, s.method, spath, form)
@@ -234,18 +219,17 @@ func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, use
 // Delete deletes a user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
-func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	uID := UserID(userID)
-	if err := uID.validate(); err != nil {
+	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	form.Set("userId", uID.String())
+	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return deleteUser(ctx, s.method, spath, form)
@@ -254,18 +238,17 @@ func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, 
 // AddAdmin adds a admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
-func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	uID := UserID(userID)
-	if err := uID.validate(); err != nil {
+	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	form.Set("userId", uID.String())
+	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return addUser(ctx, s.method, spath, form)
@@ -274,7 +257,7 @@ func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string
 // AdminAll returns a list of all admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
-func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*User, error) {
+func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -286,19 +269,38 @@ func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string
 // DeleteAdmin removes an admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
-func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
+func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	uID := UserID(userID)
-	if err := uID.validate(); err != nil {
+	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	form.Set("userId", uID.String())
+	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return deleteUser(ctx, s.method, spath, form)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
+// NewUserService returns a new UserService.
+func NewUserService(method *core.Method, option *core.OptionService) *UserService {
+	return &UserService{
+		method:   method,
+		Activity: activity.NewUserActivityService(method, option),
+		Option:   NewUserOptionService(option),
+	}
+}
+
+// NewProjectUserService returns a new ProjectUserService.
+func NewProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
+	return &ProjectUserService{
+		method: method,
+	}
 }

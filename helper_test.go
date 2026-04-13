@@ -9,6 +9,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/user"
 )
 
 //
@@ -39,13 +40,6 @@ func newProjectOptionService() *ProjectOptionService {
 	}
 }
 
-// newUserOptionService returns a test instance of UserOptionService.
-func newUserOptionService() *UserOptionService {
-	return &UserOptionService{
-		base: newOptionService(),
-	}
-}
-
 // --- ProjectService ------------------------------------------------------------
 
 // newProjectService returns a test instance of ProjectService.
@@ -53,7 +47,7 @@ func newProjectService() *ProjectService {
 	return &ProjectService{
 		method:   newClientMethod(),
 		Activity: newProjectActivityService(),
-		User:     newProjectUserService(),
+		User:     user.NewProjectUserService(newClientMethod(), &core.OptionService{}),
 		Option:   newProjectOptionService(),
 	}
 }
@@ -61,32 +55,6 @@ func newProjectService() *ProjectService {
 // newProjectActivityService returns a test instance of ProjectActivityService.
 func newProjectActivityService() *ProjectActivityService {
 	return &ProjectActivityService{
-		method: newClientMethod(),
-		Option: activity.NewActivityOptionService(&core.OptionService{}),
-	}
-}
-
-// newProjectUserService returns a test instance of ProjectUserService.
-func newProjectUserService() *ProjectUserService {
-	return &ProjectUserService{
-		method: newClientMethod(),
-	}
-}
-
-// --- UserService ------------------------------------------------------------
-
-// newUserService returns a test instance of UserService.
-func newUserService() *UserService {
-	return &UserService{
-		method:   newClientMethod(),
-		Activity: newUserActivityService(),
-		Option:   newUserOptionService(),
-	}
-}
-
-// newUserActivityService returns a test instance of UserActivityService.
-func newUserActivityService() *UserActivityService {
-	return &UserActivityService{
 		method: newClientMethod(),
 		Option: activity.NewActivityOptionService(&core.OptionService{}),
 	}
