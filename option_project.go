@@ -1,4 +1,4 @@
-package project
+package backlog
 
 import (
 	"github.com/nattokin/go-backlog/internal/core"
@@ -47,8 +47,7 @@ func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) core.
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-// NewProjectOptionService returns a new ProjectOptionService.
-func NewProjectOptionService(option *core.OptionService) *ProjectOptionService {
+func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
 	return &ProjectOptionService{
 		base: option,
 	}

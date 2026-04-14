@@ -1,4 +1,4 @@
-package core_test
+package backlog_test
 
 import (
 	"net/url"
@@ -8,16 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/activity"
+	"github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/project"
-	"github.com/nattokin/go-backlog/internal/user"
-	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestActivityOptionService(t *testing.T) {
-	o := activity.NewActivityOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("test.com", "token")
+	require.NoError(t, err)
+	o := c.User.Activity.Option
 
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
@@ -121,7 +120,9 @@ func TestActivityOptionService(t *testing.T) {
 }
 
 func TestProjectOptionService(t *testing.T) {
-	s := project.NewProjectOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("test.com", "token")
+	require.NoError(t, err)
+	s := c.Project.Option
 
 	// --- Form boolean options -------------------------------------------------------
 	t.Run("form-boolean-options", func(t *testing.T) {
@@ -228,7 +229,9 @@ func TestProjectOptionService(t *testing.T) {
 }
 
 func TestUserOptionService(t *testing.T) {
-	o := user.NewUserOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("test.com", "token")
+	require.NoError(t, err)
+	o := c.User.Option
 
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
@@ -325,7 +328,9 @@ func TestUserOptionService(t *testing.T) {
 }
 
 func TestWikiOptionService(t *testing.T) {
-	s := wiki.NewWikiOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("test.com", "token")
+	require.NoError(t, err)
+	s := c.Wiki.Option
 
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {

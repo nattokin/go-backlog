@@ -5,7 +5,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
-	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/user"
@@ -19,10 +18,6 @@ import (
 type IssueAttachmentService = attachment.IssueAttachmentService
 
 type IssueService = issue.IssueService
-
-type ProjectActivityService = activity.ProjectActivityService
-
-type ProjectService = project.ProjectService
 
 type PullRequestAttachmentService = attachment.PullRequestAttachmentService
 

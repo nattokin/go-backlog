@@ -177,14 +177,10 @@ func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
 	return deleteUser(ctx, s.method, spath, nil)
 }
 
-// ProjectUserService has methods for user of project.
 type ProjectUserService struct {
 	method *core.Method
 }
 
-// All returns all users in the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -197,9 +193,6 @@ func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, exc
 	return getUserList(ctx, s.method, spath, query)
 }
 
-// Add adds a user to the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
 func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -216,9 +209,6 @@ func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, use
 	return addUser(ctx, s.method, spath, form)
 }
 
-// Delete deletes a user from the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
 func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -235,9 +225,6 @@ func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, 
 	return deleteUser(ctx, s.method, spath, form)
 }
 
-// AddAdmin adds a admin user to the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -254,9 +241,6 @@ func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string
 	return addUser(ctx, s.method, spath, form)
 }
 
-// AdminAll returns a list of all admin users in the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -266,9 +250,6 @@ func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string
 	return getUserList(ctx, s.method, spath, nil)
 }
 
-// DeleteAdmin removes an admin user from the project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -289,7 +270,6 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-// NewUserService returns a new UserService.
 func NewUserService(method *core.Method, option *core.OptionService) *UserService {
 	return &UserService{
 		method:   method,
@@ -298,7 +278,6 @@ func NewUserService(method *core.Method, option *core.OptionService) *UserServic
 	}
 }
 
-// NewProjectUserService returns a new ProjectUserService.
 func NewProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
 		method: method,
