@@ -92,6 +92,27 @@ type WikiAttachmentService struct {
 	base *attachment.WikiAttachmentService
 }
 
+// Attach attaches files uploaded to the space to the specified wiki.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
+func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
+	return s.base.Attach(ctx, wikiID, attachmentIDs)
+}
+
+// List returns a list of all attachments in the wiki.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
+func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
+	return s.base.List(ctx, wikiID)
+}
+
+// Remove removes a file attached to the wiki.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
+func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
+	return s.base.Remove(ctx, wikiID, attachmentID)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────

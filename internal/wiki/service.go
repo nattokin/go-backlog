@@ -6,7 +6,6 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -173,11 +172,5 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.Reque
 func NewWikiService(method *core.Method, option *core.OptionService) *WikiService {
 	return &WikiService{
 		method: method,
-	}
-}
-
-func NewWikiOptionService(option *core.OptionService) *WikiOptionService {
-	return &WikiOptionService{
-		base: option,
 	}
 }
