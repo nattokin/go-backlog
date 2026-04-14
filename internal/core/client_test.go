@@ -189,7 +189,7 @@ func TestClient_Do(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://test.com", "test", &mock.MockDoer{
+			c := newClientMock(t, "https://example.backlog.com", "test", &mock.MockDoer{
 				T:      t,
 				DoFunc: tc.doFunc,
 			})
@@ -314,7 +314,7 @@ func TestClient_NewRequest(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://test.com", "test", nil)
+			c := newClientMock(t, "https://example.backlog.com", "test", nil)
 			request, err := c.NewRequest(
 				context.Background(),
 				tc.method,
@@ -555,7 +555,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://test.com", "test", nil)
+			c := newClientMock(t, "https://example.backlog.com", "test", nil)
 
 			if tc.setup != nil {
 				tc.setup(c)

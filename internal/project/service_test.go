@@ -22,7 +22,7 @@ import (
 )
 
 func TestProjectService_All(t *testing.T) {
-	o := project.NewProjectOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		opts []core.RequestOption
@@ -234,7 +234,7 @@ func TestProjectService_One(t *testing.T) {
 }
 
 func TestProjectService_Create(t *testing.T) {
-	o := project.NewProjectOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		key  string
@@ -402,7 +402,7 @@ func TestProjectService_Create(t *testing.T) {
 }
 
 func TestProjectService_Update(t *testing.T) {
-	o := project.NewProjectOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -663,7 +663,7 @@ func TestProjectService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := project.NewProjectOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := []struct {
 		name string

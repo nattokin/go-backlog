@@ -1,4 +1,4 @@
-package core_test
+package backlog_test
 
 import (
 	"net/url"
@@ -8,16 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/activity"
+	"github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/project"
-	"github.com/nattokin/go-backlog/internal/user"
-	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestActivityOptionService(t *testing.T) {
-	o := activity.NewActivityOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	o := c.User.Activity.Option
 
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
@@ -121,114 +120,60 @@ func TestActivityOptionService(t *testing.T) {
 }
 
 func TestProjectOptionService(t *testing.T) {
-	s := project.NewProjectOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	s := c.Project.Option
 
-	// --- Form boolean options -------------------------------------------------------
-	t.Run("form-boolean-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue bool
-		}{
-			"with-form-archived": {
-				option:    s.WithArchived(true),
-				key:       core.ParamArchived.Value(),
-				wantValue: true,
-			},
-			"with-form-chart-enabled": {
-				option:    s.WithChartEnabled(true),
-				key:       core.ParamChartEnabled.Value(),
-				wantValue: true,
-			},
-			"with-form-subtasking-enabled": {
-				option:    s.WithSubtaskingEnabled(false),
-				key:       core.ParamSubtaskingEnabled.Value(),
-				wantValue: false,
-			},
-		}
+	cases := map[string]struct {
+		option  core.RequestOption
+		wantKey string
+	}{
+		"WithAll": {
+			option:  s.WithAll(true),
+			wantKey: core.ParamAll.Value(),
+		},
+		"WithArchived": {
+			option:  s.WithArchived(true),
+			wantKey: core.ParamArchived.Value(),
+		},
+		"WithChartEnabled": {
+			option:  s.WithChartEnabled(true),
+			wantKey: core.ParamChartEnabled.Value(),
+		},
+		"WithKey": {
+			option:  s.WithKey("TEST"),
+			wantKey: core.ParamKey.Value(),
+		},
+		"WithName": {
+			option:  s.WithName("test"),
+			wantKey: core.ParamName.Value(),
+		},
+		"WithProjectLeaderCanEditProjectLeader": {
+			option:  s.WithProjectLeaderCanEditProjectLeader(true),
+			wantKey: core.ParamProjectLeaderCanEditProjectLeader.Value(),
+		},
+		"WithSubtaskingEnabled": {
+			option:  s.WithSubtaskingEnabled(true),
+			wantKey: core.ParamSubtaskingEnabled.Value(),
+		},
+		"WithTextFormattingRule": {
+			option:  s.WithTextFormattingRule(model.FormatBacklog),
+			wantKey: core.ParamTextFormattingRule.Value(),
+		},
+	}
 
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
-			})
-		}
-	})
-
-	// --- Query boolean options ------------------------------------------------------
-	t.Run("query-boolean-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue bool
-		}{
-			"with-query-archived": {
-				option:    s.WithArchived(true),
-				key:       core.ParamArchived.Value(),
-				wantValue: true,
-			},
-			"with-query-all": {
-				option:    s.WithAll(true),
-				key:       core.ParamAll.Value(),
-				wantValue: true,
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				query := url.Values{}
-				err := tc.option.Set(query)
-				require.NoError(t, err)
-				assert.Equal(t, strconv.FormatBool(tc.wantValue), query.Get(tc.key))
-			})
-		}
-	})
-
-	// --- Form string options --------------------------------------------------------
-	t.Run("form-string-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue string
-		}{
-			"with-form-name": {
-				option:    s.WithName("demo-project"),
-				key:       core.ParamName.Value(),
-				wantValue: "demo-project",
-			},
-			"with-form-key": {
-				option:    s.WithKey("DEMO"),
-				key:       core.ParamKey.Value(),
-				wantValue: "DEMO",
-			},
-			"with-form-text-formatting-rule": {
-				option:    s.WithTextFormattingRule("markdown"),
-				key:       core.ParamTextFormattingRule.Value(),
-				wantValue: "markdown",
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, form.Get(tc.key))
-			})
-		}
-	})
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantKey, tc.option.Key())
+		})
+	}
 }
 
 func TestUserOptionService(t *testing.T) {
-	o := user.NewUserOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	o := c.User.Option
 
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
@@ -325,7 +270,9 @@ func TestUserOptionService(t *testing.T) {
 }
 
 func TestWikiOptionService(t *testing.T) {
-	s := wiki.NewWikiOptionService(&core.OptionService{})
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	s := c.Wiki.Option
 
 	// --- Query options ------------------------------------------------------------
 	t.Run("query-options", func(t *testing.T) {

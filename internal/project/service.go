@@ -5,30 +5,15 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/user"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
 	method *core.Method
-
-	Activity *activity.ProjectActivityService
-	User     *user.ProjectUserService
-	Option   *ProjectOptionService
 }
 
-// All returns a list of projects.
-//
-// This method supports options returned by methods in "*Client.Project.Option",
-// such as:
-//   - WithQueryAll
-//   - WithQueryArchived
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
@@ -50,9 +35,6 @@ func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([
 	return v, nil
 }
 
-// One returns one of the projects searched by ID or key.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -72,21 +54,12 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model
 	return &v, nil
 }
 
-// Create creates a new project.
-//
-// This method supports options returned by methods in "*Client.Project.Option",
-// such as:
-//   - WithChartEnabled
-//   - WithProjectLeaderCanEditProjectLeader
-//   - WithSubtaskingEnabled
-//   - WithTextFormattingRule
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
+	option := &core.OptionService{}
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
-	options := append([]core.RequestOption{s.Option.base.WithKey(key), s.Option.base.WithName(name)}, opts...)
+	options := append([]core.RequestOption{option.WithKey(key), option.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -104,19 +77,6 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...c
 	return &v, nil
 }
 
-// Update updates a project.
-//
-// This method supports options returned by methods in "*Client.Project.Option",
-// such as:
-//   - WithArchived
-//   - WithChartEnabled
-//   - WithKey
-//   - WithName
-//   - WithProjectLeaderCanEditProjectLeader
-//   - WithSubtaskingEnabled
-//   - WithTextFormattingRule
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -145,9 +105,6 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 	return &v, nil
 }
 
-// Delete deletes a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -171,11 +128,8 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-// NewProjectService returns a new ProjectService.
 func NewProjectService(method *core.Method, option *core.OptionService) *ProjectService {
 	return &ProjectService{
-		method:   method,
-		Activity: activity.NewProjectActivityService(method, option),
-		Option:   NewProjectOptionService(option),
+		method: method,
 	}
 }

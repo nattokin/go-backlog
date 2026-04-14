@@ -36,7 +36,7 @@ func TestProjectActivityService_List(t *testing.T) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}, &core.OptionService{})
+	})
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -51,7 +51,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
-	}, &core.OptionService{})
+	})
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -68,7 +68,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 			}
 			return resp, nil
 		},
-	}, &core.OptionService{})
+	})
 
 	projects, err := s.List(context.Background(), "TEST")
 	assert.Nil(t, projects)
@@ -309,7 +309,7 @@ func TestActivityService_contextPropagation(t *testing.T) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
 				},
-			}, &core.OptionService{})
+			})
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T) {
