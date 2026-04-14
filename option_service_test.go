@@ -14,7 +14,7 @@ import (
 )
 
 func TestActivityOptionService(t *testing.T) {
-	c, err := backlog.NewClient("test.com", "token")
+	c, err := backlog.NewClient("https://test.com", "token")
 	require.NoError(t, err)
 	o := c.User.Activity.Option
 
@@ -120,7 +120,7 @@ func TestActivityOptionService(t *testing.T) {
 }
 
 func TestProjectOptionService(t *testing.T) {
-	c, err := backlog.NewClient("test.com", "token")
+	c, err := backlog.NewClient("https://test.com", "token")
 	require.NoError(t, err)
 	s := c.Project.Option
 
@@ -229,7 +229,7 @@ func TestProjectOptionService(t *testing.T) {
 }
 
 func TestUserOptionService(t *testing.T) {
-	c, err := backlog.NewClient("test.com", "token")
+	c, err := backlog.NewClient("https://test.com", "token")
 	require.NoError(t, err)
 	o := c.User.Option
 
@@ -328,7 +328,7 @@ func TestUserOptionService(t *testing.T) {
 }
 
 func TestWikiOptionService(t *testing.T) {
-	c, err := backlog.NewClient("test.com", "token")
+	c, err := backlog.NewClient("https://test.com", "token")
 	require.NoError(t, err)
 	s := c.Wiki.Option
 
