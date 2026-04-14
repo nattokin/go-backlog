@@ -111,3 +111,38 @@ func TestProjectService(t *testing.T) {
 		})
 	}
 }
+
+func TestProjectActivityService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"List": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/activities", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Activity.List(ctx, "TEST")
+				require.NoError(t, err)
+				assert.Len(t, got, 1)
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
