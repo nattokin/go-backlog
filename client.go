@@ -6,7 +6,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/user"
-	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -30,7 +29,7 @@ type Client struct {
 	PullRequest *pullrequest.PullRequestService
 	Space       *space.SpaceService
 	User        *user.UserService
-	Wiki        *wiki.WikiService
+	Wiki        *WikiService
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -75,7 +74,7 @@ func initServices(c *Client) {
 
 	c.User = user.NewUserService(c.core.Method, baseOptionService)
 
-	c.Wiki = wiki.NewWikiService(c.core.Method, baseOptionService)
+	c.Wiki = newWikiService(c.core.Method, baseOptionService)
 }
 
 // ──────────────────────────────────────────────────────────────
