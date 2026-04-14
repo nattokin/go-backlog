@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -57,8 +58,11 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
-				require.NoError(t, req.ParseForm())
-				assert.Equal(t, "1", req.PostForm.Get("userId"))
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
@@ -106,8 +110,11 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
-				require.NoError(t, req.ParseForm())
-				assert.Equal(t, "1", req.PostForm.Get("userId"))
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "1", form.Get("userId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
