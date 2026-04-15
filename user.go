@@ -25,28 +25,32 @@ type UserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
 func (s *UserService) All(ctx context.Context) ([]*model.User, error) {
-	return s.base.All(ctx)
+	v, err := s.base.All(ctx)
+	return v, convertError(err)
 }
 
 // One returns a user in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
 func (s *UserService) One(ctx context.Context, id int) (*model.User, error) {
-	return s.base.One(ctx, id)
+	v, err := s.base.One(ctx, id)
+	return v, convertError(err)
 }
 
 // Own returns your own user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
 func (s *UserService) Own(ctx context.Context) (*model.User, error) {
-	return s.base.Own(ctx)
+	v, err := s.base.Own(ctx)
+	return v, convertError(err)
 }
 
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
-	return s.base.Add(ctx, userID, password, name, mailAddress, roleType)
+	v, err := s.base.Add(ctx, userID, password, name, mailAddress, roleType)
+	return v, convertError(err)
 }
 
 // Update updates a user in your space.
@@ -60,14 +64,16 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*model.User, error) {
-	return s.base.Update(ctx, id, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, id, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // Delete deletes a user from your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
 func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
-	return s.base.Delete(ctx, id)
+	v, err := s.base.Delete(ctx, id)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -93,7 +99,8 @@ type UserActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, userID, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, userID, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // ProjectUserService has methods for user of project.
@@ -105,42 +112,48 @@ type ProjectUserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
-	return s.base.All(ctx, projectIDOrKey, excludeGroupMembers)
+	v, err := s.base.All(ctx, projectIDOrKey, excludeGroupMembers)
+	return v, convertError(err)
 }
 
 // Add adds a user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
 func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	return s.base.Add(ctx, projectIDOrKey, userID)
+	v, err := s.base.Add(ctx, projectIDOrKey, userID)
+	return v, convertError(err)
 }
 
 // Delete deletes a user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
 func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	return s.base.Delete(ctx, projectIDOrKey, userID)
+	v, err := s.base.Delete(ctx, projectIDOrKey, userID)
+	return v, convertError(err)
 }
 
 // AddAdmin adds a admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	return s.base.AddAdmin(ctx, projectIDOrKey, userID)
+	v, err := s.base.AddAdmin(ctx, projectIDOrKey, userID)
+	return v, convertError(err)
 }
 
 // AdminAll returns a list of all admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
-	return s.base.AdminAll(ctx, projectIDOrKey)
+	v, err := s.base.AdminAll(ctx, projectIDOrKey)
+	return v, convertError(err)
 }
 
 // DeleteAdmin removes an admin user from the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	return s.base.DeleteAdmin(ctx, projectIDOrKey, userID)
+	v, err := s.base.DeleteAdmin(ctx, projectIDOrKey, userID)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

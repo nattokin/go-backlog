@@ -29,14 +29,16 @@ type PullRequestAttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
 func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
-	return s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber)
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber)
+	return v, convertError(err)
 }
 
 // Remove removes a file attached to the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
 func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
-	return s.base.Remove(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
+	v, err := s.base.Remove(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

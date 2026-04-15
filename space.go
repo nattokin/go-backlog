@@ -46,7 +46,8 @@ type SpaceActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
@@ -60,7 +61,8 @@ type SpaceAttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
 func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
-	return s.base.Upload(ctx, fileName, r)
+	v, err := s.base.Upload(ctx, fileName, r)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
