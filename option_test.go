@@ -21,7 +21,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue int
 		}{
@@ -57,7 +57,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Enum options ---------------------------------------------------------------
 	t.Run("enum-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue string
 		}{
@@ -88,7 +88,7 @@ func TestActivityOptionService(t *testing.T) {
 	// --- Special options -------------------------------------------------------------
 	t.Run("special-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue []int
 		}{

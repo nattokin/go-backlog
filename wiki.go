@@ -28,8 +28,8 @@ type WikiService struct {
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
-	return s.base.All(ctx, projectIDOrKey, opts...)
+func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*model.Wiki, error) {
+	return s.base.All(ctx, projectIDOrKey, toCoreOptions(opts)...)
 }
 
 // Count returns the number of wiki pages in the project.
@@ -53,8 +53,8 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*model.Wiki, error) 
 //   - WithMailNotify
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
-func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...core.RequestOption) (*model.Wiki, error) {
-	return s.base.Create(ctx, projectID, name, content, opts...)
+func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...RequestOption) (*model.Wiki, error) {
+	return s.base.Create(ctx, projectID, name, content, toCoreOptions(opts)...)
 }
 
 // Update updates a wiki page.
@@ -66,15 +66,15 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *WikiService) Update(ctx context.Context, wikiID int, option core.RequestOption, opts ...core.RequestOption) (*model.Wiki, error) {
-	return s.base.Update(ctx, wikiID, option, opts...)
+func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*model.Wiki, error) {
+	return s.base.Update(ctx, wikiID, option, toCoreOptions(opts)...)
 }
 
 // Delete deletes a wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.RequestOption) (*model.Wiki, error) {
-	return s.base.Delete(ctx, wikiID, opts...)
+func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOption) (*model.Wiki, error) {
+	return s.base.Delete(ctx, wikiID, toCoreOptions(opts)...)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -118,22 +118,22 @@ type WikiOptionService struct {
 }
 
 // WithKeyword filters wiki pages by keyword.
-func (s *WikiOptionService) WithKeyword(keyword string) core.RequestOption {
+func (s *WikiOptionService) WithKeyword(keyword string) RequestOption {
 	return s.base.WithKeyword(keyword)
 }
 
 // WithContent sets the content of a wiki page.
-func (s *WikiOptionService) WithContent(content string) core.RequestOption {
+func (s *WikiOptionService) WithContent(content string) RequestOption {
 	return s.base.WithContent(content)
 }
 
 // WithMailNotify sets whether to send a mail notification.
-func (s *WikiOptionService) WithMailNotify(enabled bool) core.RequestOption {
+func (s *WikiOptionService) WithMailNotify(enabled bool) RequestOption {
 	return s.base.WithMailNotify(enabled)
 }
 
 // WithName sets the name of a wiki page.
-func (s *WikiOptionService) WithName(name string) core.RequestOption {
+func (s *WikiOptionService) WithName(name string) RequestOption {
 	return s.base.WithName(name)
 }
 

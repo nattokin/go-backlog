@@ -59,8 +59,8 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //   - WithRoleType
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
-	return s.base.Update(ctx, id, opts...)
+func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*model.User, error) {
+	return s.base.Update(ctx, id, toCoreOptions(opts)...)
 }
 
 // Delete deletes a user from your space.
@@ -92,8 +92,8 @@ type UserActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, userID, opts...)
+func (s *UserActivityService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*model.Activity, error) {
+	return s.base.List(ctx, userID, toCoreOptions(opts)...)
 }
 
 // ProjectUserService has methods for user of project.
@@ -154,32 +154,32 @@ type UserOptionService struct {
 }
 
 // WithMailAddress sets the mail address of a user.
-func (s *UserOptionService) WithMailAddress(mail string) core.RequestOption {
+func (s *UserOptionService) WithMailAddress(mail string) RequestOption {
 	return s.base.WithMailAddress(mail)
 }
 
 // WithName sets the name of a user.
-func (s *UserOptionService) WithName(name string) core.RequestOption {
+func (s *UserOptionService) WithName(name string) RequestOption {
 	return s.base.WithName(name)
 }
 
 // WithPassword sets the password of a user.
-func (s *UserOptionService) WithPassword(password string) core.RequestOption {
+func (s *UserOptionService) WithPassword(password string) RequestOption {
 	return s.base.WithPassword(password)
 }
 
 // WithRoleType sets the role type of a user.
-func (s *UserOptionService) WithRoleType(role model.Role) core.RequestOption {
+func (s *UserOptionService) WithRoleType(role model.Role) RequestOption {
 	return s.base.WithRoleType(role)
 }
 
 // WithSendMail sets whether to send a mail notification.
-func (s *UserOptionService) WithSendMail(enabled bool) core.RequestOption {
+func (s *UserOptionService) WithSendMail(enabled bool) RequestOption {
 	return s.base.WithSendMail(enabled)
 }
 
 // WithUserID sets the user ID.
-func (s *UserOptionService) WithUserID(id int) core.RequestOption {
+func (s *UserOptionService) WithUserID(id int) RequestOption {
 	return s.base.WithUserID(id)
 }
 

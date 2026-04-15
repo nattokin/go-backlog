@@ -304,7 +304,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -330,7 +330,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue int
 		}{
@@ -361,7 +361,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- String options -------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue string
 		}{

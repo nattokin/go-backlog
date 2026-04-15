@@ -208,7 +208,7 @@ func TestWikiOptionService(t *testing.T) {
 	s := c.Wiki.Option
 
 	cases := map[string]struct {
-		option  core.RequestOption
+		option  backlog.RequestOption
 		wantKey string
 	}{
 		"WithKeyword": {

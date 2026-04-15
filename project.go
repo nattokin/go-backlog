@@ -30,8 +30,8 @@ type ProjectService struct {
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
-	return s.base.All(ctx, opts...)
+func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*model.Project, error) {
+	return s.base.All(ctx, toCoreOptions(opts)...)
 }
 
 // One returns one of the projects searched by ID or key.
@@ -51,8 +51,8 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
-	return s.base.Create(ctx, key, name, opts...)
+func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*model.Project, error) {
+	return s.base.Create(ctx, key, name, toCoreOptions(opts)...)
 }
 
 // Update updates a project.
@@ -68,8 +68,8 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...c
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
-	return s.base.Update(ctx, projectIDOrKey, opts...)
+func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*model.Project, error) {
+	return s.base.Update(ctx, projectIDOrKey, toCoreOptions(opts)...)
 }
 
 // Delete deletes a project.
@@ -99,8 +99,8 @@ type ProjectActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, projectIDOrKey, opts...)
+func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*model.Activity, error) {
+	return s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -114,42 +114,42 @@ type ProjectOptionService struct {
 }
 
 // WithAll sets whether to include all projects.
-func (s *ProjectOptionService) WithAll(enabled bool) core.RequestOption {
+func (s *ProjectOptionService) WithAll(enabled bool) RequestOption {
 	return s.base.WithAll(enabled)
 }
 
 // WithArchived sets whether to include archived projects.
-func (s *ProjectOptionService) WithArchived(enabled bool) core.RequestOption {
+func (s *ProjectOptionService) WithArchived(enabled bool) RequestOption {
 	return s.base.WithArchived(enabled)
 }
 
 // WithChartEnabled sets whether the project uses a chart.
-func (s *ProjectOptionService) WithChartEnabled(enabled bool) core.RequestOption {
+func (s *ProjectOptionService) WithChartEnabled(enabled bool) RequestOption {
 	return s.base.WithChartEnabled(enabled)
 }
 
 // WithKey sets the project key.
-func (s *ProjectOptionService) WithKey(key string) core.RequestOption {
+func (s *ProjectOptionService) WithKey(key string) RequestOption {
 	return s.base.WithKey(key)
 }
 
 // WithName sets the project name.
-func (s *ProjectOptionService) WithName(name string) core.RequestOption {
+func (s *ProjectOptionService) WithName(name string) RequestOption {
 	return s.base.WithName(name)
 }
 
 // WithProjectLeaderCanEditProjectLeader sets whether a project leader can edit other project leaders.
-func (s *ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) core.RequestOption {
+func (s *ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
 	return s.base.WithProjectLeaderCanEditProjectLeader(enabled)
 }
 
 // WithSubtaskingEnabled sets whether subtasking is enabled.
-func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) core.RequestOption {
+func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 	return s.base.WithSubtaskingEnabled(enabled)
 }
 
 // WithTextFormattingRule sets the text formatting rule.
-func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) core.RequestOption {
+func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) RequestOption {
 	return s.base.WithTextFormattingRule(format)
 }
 

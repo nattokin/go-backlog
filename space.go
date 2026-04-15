@@ -45,8 +45,8 @@ type SpaceActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
-func (s *SpaceActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, opts...)
+func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*model.Activity, error) {
+	return s.base.List(ctx, toCoreOptions(opts)...)
 }
 
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.

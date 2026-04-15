@@ -155,7 +155,7 @@ func TestProjectOptionService(t *testing.T) {
 	s := c.Project.Option
 
 	cases := map[string]struct {
-		option  core.RequestOption
+		option  backlog.RequestOption
 		wantKey string
 	}{
 		"WithAll": {
