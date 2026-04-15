@@ -133,7 +133,7 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 }
 
 func TestBaseActivityService_GetList(t *testing.T) {
-	o := activity.NewActivityOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 	type want struct {
 		activityTypeID []string
 		minID          string

@@ -103,7 +103,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 	return &ProjectService{
 		base:     project.NewService(method),
 		Activity: newProjectActivityService(method),
-		User:     newProjectUserService(method, option),
+		User:     newProjectUserService(method),
 		Option:   newProjectOptionService(option),
 	}
 }
