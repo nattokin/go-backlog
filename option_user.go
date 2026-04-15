@@ -1,10 +1,12 @@
-package user
+package backlog
 
 import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+// UserOptionService provides a domain-specific set of option builders
+// for operations within the UserService.
 type UserOptionService struct {
 	base *core.OptionService
 }
@@ -37,7 +39,7 @@ func (s *UserOptionService) WithUserID(id int) core.RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewUserOptionService(option *core.OptionService) *UserOptionService {
+func newUserOptionService(option *core.OptionService) *UserOptionService {
 	return &UserOptionService{
 		base: option,
 	}
