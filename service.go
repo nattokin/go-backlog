@@ -4,7 +4,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/user"
 )
@@ -12,10 +11,6 @@ import (
 // ──────────────────────────────────────────────────────────────
 //  Implemented services (aliases to internal packages)
 // ──────────────────────────────────────────────────────────────
-
-type PullRequestAttachmentService = attachment.PullRequestAttachmentService
-
-type PullRequestService = pullrequest.PullRequestService
 
 type SpaceActivityService = activity.SpaceActivityService
 

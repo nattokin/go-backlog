@@ -74,14 +74,10 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 //  PullRequestAttachmentService
 // ──────────────────────────────────────────────────────────────
 
-// PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
 type PullRequestAttachmentService struct {
 	method *core.Method
 }
 
-// List returns a list of all attachments in the pull request.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
 func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -97,9 +93,6 @@ func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey 
 	return ListAttachments(ctx, s.method, spath)
 }
 
-// Remove removes a file attached to the pull request.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
 func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
