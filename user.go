@@ -154,7 +154,7 @@ func newUserActivityService(method *core.Method, option *core.OptionService) *Us
 	}
 }
 
-func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
+func newProjectUserService(method *core.Method) *ProjectUserService {
 	return &ProjectUserService{
 		base: user.NewProjectService(method),
 	}
