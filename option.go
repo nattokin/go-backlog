@@ -7,6 +7,10 @@ import (
 
 type RequestOption = core.RequestOption
 
+// ──────────────────────────────────────────────────────────────
+//  ActivityOptionService
+// ──────────────────────────────────────────────────────────────
+
 // ActivityOptionService provides option builders for activity list operations.
 type ActivityOptionService struct {
 	base *core.OptionService
@@ -36,6 +40,10 @@ func (s *ActivityOptionService) WithCount(count int) core.RequestOption {
 func (s *ActivityOptionService) WithOrder(order model.Order) core.RequestOption {
 	return s.base.WithOrder(order)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
 
 func newActivityOptionService(option *core.OptionService) *ActivityOptionService {
 	return &ActivityOptionService{base: option}

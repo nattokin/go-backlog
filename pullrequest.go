@@ -9,6 +9,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  PullRequestService
+// ──────────────────────────────────────────────────────────────
+
 // PullRequestService handles communication with the pull request-related methods of the Backlog API.
 type PullRequestService struct {
 	base *pullrequest.Service

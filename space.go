@@ -11,6 +11,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/space"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  SpaceService
+// ──────────────────────────────────────────────────────────────
+
 // SpaceService handles communication with the space-related methods of the Backlog API.
 type SpaceService struct {
 	base *space.Service
@@ -18,6 +22,10 @@ type SpaceService struct {
 	Activity   *SpaceActivityService
 	Attachment *SpaceAttachmentService
 }
+
+// ──────────────────────────────────────────────────────────────
+//  SpaceActivityService
+// ──────────────────────────────────────────────────────────────
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {

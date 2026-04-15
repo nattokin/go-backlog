@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
@@ -197,6 +198,41 @@ func TestWikiAttachmentService(t *testing.T) {
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
+		})
+	}
+}
+
+func TestWikiOptionService(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	s := c.Wiki.Option
+
+	cases := map[string]struct {
+		option  core.RequestOption
+		wantKey string
+	}{
+		"WithKeyword": {
+			option:  s.WithKeyword("backlog"),
+			wantKey: core.ParamKeyword.Value(),
+		},
+		"WithContent": {
+			option:  s.WithContent("Wiki page content"),
+			wantKey: core.ParamContent.Value(),
+		},
+		"WithName": {
+			option:  s.WithName("How to Use Backlog"),
+			wantKey: core.ParamName.Value(),
+		},
+		"WithMailNotify": {
+			option:  s.WithMailNotify(true),
+			wantKey: core.ParamMailNotify.Value(),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantKey, tc.option.Key())
 		})
 	}
 }

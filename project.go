@@ -9,6 +9,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  ProjectService
+// ──────────────────────────────────────────────────────────────
+
 // ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
 	base *project.Service
@@ -75,6 +79,10 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 	return s.base.Delete(ctx, projectIDOrKey)
 }
 
+// ──────────────────────────────────────────────────────────────
+//  ProjectActivityService
+// ──────────────────────────────────────────────────────────────
+
 // ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
 	base *activity.ProjectService
@@ -96,6 +104,56 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectOptionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectOptionService provides a domain-specific set of option builders
+// for operations within the ProjectService.
+type ProjectOptionService struct {
+	base *core.OptionService
+}
+
+// WithAll sets whether to include all projects.
+func (s *ProjectOptionService) WithAll(enabled bool) core.RequestOption {
+	return s.base.WithAll(enabled)
+}
+
+// WithArchived sets whether to include archived projects.
+func (s *ProjectOptionService) WithArchived(enabled bool) core.RequestOption {
+	return s.base.WithArchived(enabled)
+}
+
+// WithChartEnabled sets whether the project uses a chart.
+func (s *ProjectOptionService) WithChartEnabled(enabled bool) core.RequestOption {
+	return s.base.WithChartEnabled(enabled)
+}
+
+// WithKey sets the project key.
+func (s *ProjectOptionService) WithKey(key string) core.RequestOption {
+	return s.base.WithKey(key)
+}
+
+// WithName sets the project name.
+func (s *ProjectOptionService) WithName(name string) core.RequestOption {
+	return s.base.WithName(name)
+}
+
+// WithProjectLeaderCanEditProjectLeader sets whether a project leader can edit other project leaders.
+func (s *ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) core.RequestOption {
+	return s.base.WithProjectLeaderCanEditProjectLeader(enabled)
+}
+
+// WithSubtaskingEnabled sets whether subtasking is enabled.
+func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) core.RequestOption {
+	return s.base.WithSubtaskingEnabled(enabled)
+}
+
+// WithTextFormattingRule sets the text formatting rule.
+func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) core.RequestOption {
+	return s.base.WithTextFormattingRule(format)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
@@ -103,7 +161,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 	return &ProjectService{
 		base:     project.NewService(method),
 		Activity: newProjectActivityService(method),
-		User:     newProjectUserService(method),
+		User:     newProjectUserService(method, option),
 		Option:   newProjectOptionService(option),
 	}
 }
@@ -111,5 +169,11 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 func newProjectActivityService(method *core.Method) *ProjectActivityService {
 	return &ProjectActivityService{
 		base: activity.NewProjectService(method),
+	}
+}
+
+func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
+	return &ProjectOptionService{
+		base: option,
 	}
 }
