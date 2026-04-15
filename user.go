@@ -135,6 +135,42 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 	return s.base.DeleteAdmin(ctx, projectIDOrKey, userID)
 }
 
+// UserOptionService provides a domain-specific set of option builders
+// for operations within the UserService.
+type UserOptionService struct {
+	base *core.OptionService
+}
+
+// WithMailAddress sets the mail address of a user.
+func (s *UserOptionService) WithMailAddress(mail string) core.RequestOption {
+	return s.base.WithMailAddress(mail)
+}
+
+// WithName sets the name of a user.
+func (s *UserOptionService) WithName(name string) core.RequestOption {
+	return s.base.WithName(name)
+}
+
+// WithPassword sets the password of a user.
+func (s *UserOptionService) WithPassword(password string) core.RequestOption {
+	return s.base.WithPassword(password)
+}
+
+// WithRoleType sets the role type of a user.
+func (s *UserOptionService) WithRoleType(role model.Role) core.RequestOption {
+	return s.base.WithRoleType(role)
+}
+
+// WithSendMail sets whether to send a mail notification.
+func (s *UserOptionService) WithSendMail(enabled bool) core.RequestOption {
+	return s.base.WithSendMail(enabled)
+}
+
+// WithUserID sets the user ID.
+func (s *UserOptionService) WithUserID(id int) core.RequestOption {
+	return s.base.WithUserID(id)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
@@ -154,8 +190,14 @@ func newUserActivityService(method *core.Method, option *core.OptionService) *Us
 	}
 }
 
-func newProjectUserService(method *core.Method) *ProjectUserService {
+func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
 		base: user.NewProjectService(method),
+	}
+}
+
+func newUserOptionService(option *core.OptionService) *UserOptionService {
+	return &UserOptionService{
+		base: option,
 	}
 }
