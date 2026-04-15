@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/user"
@@ -24,7 +23,7 @@ type Client struct {
 	core *core.Client
 
 	// Service endpoints
-	Issue       *issue.IssueService
+	Issue       *IssueService
 	Project     *ProjectService
 	PullRequest *pullrequest.PullRequestService
 	Space       *space.SpaceService
@@ -64,7 +63,7 @@ func NewClient(baseURL, token string, opts ...*core.ClientOption) (*Client, erro
 func initServices(c *Client) {
 	baseOptionService := &core.OptionService{}
 
-	c.Issue = issue.NewIssueService(c.core.Method, baseOptionService)
+	c.Issue = newIssueService(c.core.Method, baseOptionService)
 
 	c.Project = newProjectService(c.core.Method, baseOptionService)
 
