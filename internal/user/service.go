@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
+func get(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, er
 	return &v, nil
 }
 
-func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
+func getList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func getUserList(ctx context.Context, m *core.Method, spath string, query url.Va
 	return v, nil
 }
 
-func addUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func add(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func addUser(ctx context.Context, m *core.Method, spath string, form url.Values)
 	return &v, nil
 }
 
-func updateUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func update(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func updateUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 	return &v, nil
 }
 
-func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func delete(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -83,12 +83,10 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 
 type Service struct {
 	method *core.Method
-
-	Option *UserOptionService
 }
 
 func (s *Service) All(ctx context.Context) ([]*model.User, error) {
-	return getUserList(ctx, s.method, "users", nil)
+	return getList(ctx, s.method, "users", nil)
 }
 
 func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
@@ -97,11 +95,11 @@ func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return getUser(ctx, s.method, spath)
+	return get(ctx, s.method, spath)
 }
 
 func (s *Service) Own(ctx context.Context) (*model.User, error) {
-	return getUser(ctx, s.method, "users/myself")
+	return get(ctx, s.method, "users/myself")
 }
 
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
@@ -124,7 +122,7 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 
 	form.Set("userId", userID)
 
-	return addUser(ctx, s.method, "users", form)
+	return add(ctx, s.method, "users", form)
 }
 
 func (s *Service) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
@@ -137,7 +135,7 @@ func (s *Service) Update(ctx context.Context, id int, opts ...core.RequestOption
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return updateUser(ctx, s.method, spath, form)
+	return update(ctx, s.method, spath, form)
 }
 
 func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
@@ -146,7 +144,7 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return deleteUser(ctx, s.method, spath, nil)
+	return delete(ctx, s.method, spath, nil)
 }
 
 type ProjectService struct {
@@ -162,7 +160,7 @@ func (s *ProjectService) All(ctx context.Context, projectIDOrKey string, exclude
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return getUserList(ctx, s.method, spath, query)
+	return getList(ctx, s.method, spath, query)
 }
 
 func (s *ProjectService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
@@ -178,7 +176,7 @@ func (s *ProjectService) Add(ctx context.Context, projectIDOrKey string, userID 
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return addUser(ctx, s.method, spath, form)
+	return add(ctx, s.method, spath, form)
 }
 
 func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
@@ -194,7 +192,7 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string, user
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return deleteUser(ctx, s.method, spath, form)
+	return delete(ctx, s.method, spath, form)
 }
 
 func (s *ProjectService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
@@ -210,7 +208,7 @@ func (s *ProjectService) AddAdmin(ctx context.Context, projectIDOrKey string, us
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return addUser(ctx, s.method, spath, form)
+	return add(ctx, s.method, spath, form)
 }
 
 func (s *ProjectService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
@@ -219,7 +217,7 @@ func (s *ProjectService) AdminAll(ctx context.Context, projectIDOrKey string) ([
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return getUserList(ctx, s.method, spath, nil)
+	return getList(ctx, s.method, spath, nil)
 }
 
 func (s *ProjectService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
@@ -235,21 +233,20 @@ func (s *ProjectService) DeleteAdmin(ctx context.Context, projectIDOrKey string,
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return deleteUser(ctx, s.method, spath, form)
+	return delete(ctx, s.method, spath, form)
 }
 
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewService(method *core.Method, option *core.OptionService) *Service {
+func NewService(method *core.Method) *Service {
 	return &Service{
 		method: method,
-		Option: NewUserOptionService(option),
 	}
 }
 
-func NewProjectService(method *core.Method, option *core.OptionService) *ProjectService {
+func NewProjectService(method *core.Method) *ProjectService {
 	return &ProjectService{
 		method: method,
 	}

@@ -128,7 +128,7 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewService(method *core.Method, option *core.OptionService) *Service {
+func NewService(method *core.Method) *Service {
 	return &Service{
 		method: method,
 	}

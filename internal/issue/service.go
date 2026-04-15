@@ -12,7 +12,7 @@ type Service struct {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewService(method *core.Method, option *core.OptionService) *Service {
+func NewService(method *core.Method) *Service {
 	return &Service{
 		method: method,
 	}

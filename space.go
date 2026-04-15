@@ -61,7 +61,7 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 
 func newSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
 	return &SpaceService{
-		base:       space.NewService(method, option),
+		base:       space.NewService(method),
 		Activity:   newSpaceActivityService(method, option),
 		Attachment: newSpaceAttachmentService(method),
 	}
@@ -69,8 +69,8 @@ func newSpaceService(method *core.Method, option *core.OptionService) *SpaceServ
 
 func newSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
-		base:   activity.NewSpaceService(method, option),
-		Option: &ActivityOptionService{},
+		base:   activity.NewSpaceService(method),
+		Option: activity.NewActivityOptionService(option),
 	}
 }
 

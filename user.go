@@ -141,7 +141,7 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 
 func newUserService(method *core.Method, option *core.OptionService) *UserService {
 	return &UserService{
-		base:     user.NewService(method, option),
+		base:     user.NewService(method),
 		Activity: newUserActivityService(method, option),
 		Option:   newUserOptionService(option),
 	}
@@ -149,13 +149,13 @@ func newUserService(method *core.Method, option *core.OptionService) *UserServic
 
 func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
 	return &UserActivityService{
-		base:   activity.NewUserService(method, option),
+		base:   activity.NewUserService(method),
 		Option: &ActivityOptionService{},
 	}
 }
 
 func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
-		base: user.NewProjectService(method, option),
+		base: user.NewProjectService(method),
 	}
 }

@@ -39,9 +39,9 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newIssueService(method *core.Method, option *core.OptionService) *IssueService {
+func newIssueService(method *core.Method) *IssueService {
 	return &IssueService{
-		base:       issue.NewService(method, option),
+		base:       issue.NewService(method),
 		Attachment: newIssueAttachmentService(method),
 	}
 }

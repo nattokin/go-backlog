@@ -132,7 +132,7 @@ func TestWikiService_All(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			wikis, err := s.All(context.Background(), tc.projectIDOrKey, tc.opts...)
 
@@ -233,7 +233,7 @@ func TestWikiService_Count(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			count, err := s.Count(context.Background(), tc.projectIDOrKey)
 
@@ -320,7 +320,7 @@ func TestWikiService_One(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			wiki, err := s.One(context.Background(), tc.wikiID)
 
@@ -482,7 +482,7 @@ func TestWikiService_Create(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			wiki, err := s.Create(context.Background(), tc.projectID, tc.name, tc.content, tc.opts...)
 
@@ -664,7 +664,7 @@ func TestWikiService_Update(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			wiki, err := s.Update(context.Background(), tc.wikiID, tc.option, tc.opts...)
 
@@ -778,7 +778,7 @@ func TestWikiService_Delete(t *testing.T) {
 				method.Delete = tc.mockDeleteFn
 			}
 
-			s := wiki.NewWikiService(method, nil)
+			s := wiki.NewService(method)
 
 			wiki, err := s.Delete(context.Background(), tc.wikiID, tc.opts...)
 
@@ -817,7 +817,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.All(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Count", func(t *testing.T, m *core.Method) {
@@ -825,7 +825,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.Count(ctx, "TEST") //nolint:errcheck
 		}},
 		{"One", func(t *testing.T, m *core.Method) {
@@ -833,7 +833,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
 		{"Create", func(t *testing.T, m *core.Method) {
@@ -841,7 +841,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.Create(ctx, 1, "name", "content") //nolint:errcheck
 		}},
 		{"Update", func(t *testing.T, m *core.Method) {
@@ -849,7 +849,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
 		{"Delete", func(t *testing.T, m *core.Method) {
@@ -857,7 +857,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := wiki.NewWikiService(m, nil)
+			s := wiki.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
 	}

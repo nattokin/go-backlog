@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-func GetActivityList(ctx context.Context, m *core.Method, spath string, opts ...core.RequestOption) ([]*model.Activity, error) {
+func getList(ctx context.Context, m *core.Method, spath string, opts ...core.RequestOption) ([]*model.Activity, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamActivityTypeIDs, core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
 	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
@@ -41,7 +41,7 @@ func (s *ProjectService) List(ctx context.Context, projectIDOrKey string, opts .
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "activities")
-	return GetActivityList(ctx, s.method, spath, opts...)
+	return getList(ctx, s.method, spath, opts...)
 }
 
 type SpaceService struct {
@@ -49,7 +49,7 @@ type SpaceService struct {
 }
 
 func (s *SpaceService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
-	return GetActivityList(ctx, s.method, "space/activities", opts...)
+	return getList(ctx, s.method, "space/activities", opts...)
 }
 
 type UserService struct {
@@ -62,7 +62,7 @@ func (s *UserService) List(ctx context.Context, userID int, opts ...core.Request
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return GetActivityList(ctx, s.method, spath, opts...)
+	return getList(ctx, s.method, spath, opts...)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -75,13 +75,13 @@ func NewProjectService(method *core.Method) *ProjectService {
 	}
 }
 
-func NewSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
+func NewSpaceService(method *core.Method) *SpaceService {
 	return &SpaceService{
 		method: method,
 	}
 }
 
-func NewUserService(method *core.Method, option *core.OptionService) *UserService {
+func NewUserService(method *core.Method) *UserService {
 	return &UserService{
 		method: method,
 	}

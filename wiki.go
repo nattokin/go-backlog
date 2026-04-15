@@ -111,7 +111,7 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 
 func newWikiService(method *core.Method, option *core.OptionService) *WikiService {
 	return &WikiService{
-		base:       wiki.NewService(method, option),
+		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
 		Option:     newWikiOptionService(option),
 	}

@@ -31,7 +31,7 @@ func TestProjectActivityService_List(t *testing.T) {
 		spath: "projects/" + projectKey + "/activities",
 	}
 
-	s := activity.NewProjectActivityService(&core.Method{
+	s := activity.NewProjectService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
@@ -46,7 +46,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	t.Parallel()
 
 	projectKey := ""
-	s := activity.NewProjectActivityService(&core.Method{
+	s := activity.NewProjectService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
@@ -60,7 +60,7 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := activity.NewProjectActivityService(&core.Method{
+	s := activity.NewProjectService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			resp := &http.Response{
 				StatusCode: http.StatusOK,
@@ -84,12 +84,12 @@ func TestSpaceActivityService_List(t *testing.T) {
 		spath: "space/activities",
 	}
 
-	s := activity.NewSpaceActivityService(&core.Method{
+	s := activity.NewSpaceService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}, &core.OptionService{})
+	})
 
 	_, err := s.List(context.Background())
 	assert.Error(t, err)
@@ -106,12 +106,12 @@ func TestUserActivityService_List(t *testing.T) {
 		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
 
-	s := activity.NewUserActivityService(&core.Method{
+	s := activity.NewUserService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			assert.Equal(t, want.spath, spath)
 			return nil, errors.New("error")
 		},
-	}, &core.OptionService{})
+	})
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -121,12 +121,12 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	t.Parallel()
 
 	id := 0
-	s := activity.NewUserActivityService(&core.Method{
+	s := activity.NewUserService(&core.Method{
 		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 			t.Error("s.method.Get must never be called")
 			return nil, errors.New("error")
 		},
-	}, &core.OptionService{})
+	})
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -263,7 +263,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := activity.NewSpaceActivityService(&core.Method{
+			s := activity.NewSpaceService(&core.Method{
 				Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 					assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
 					assert.Equal(t, tc.want.minID, query.Get("minId"))
@@ -277,7 +277,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 					}
 					return resp, nil
 				},
-			}, &core.OptionService{})
+			})
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
@@ -304,7 +304,7 @@ func TestActivityService_contextPropagation(t *testing.T) {
 		call func(t *testing.T)
 	}{
 		{"ProjectActivityService.List", func(t *testing.T) {
-			s := activity.NewProjectActivityService(&core.Method{
+			s := activity.NewProjectService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -313,21 +313,21 @@ func TestActivityService_contextPropagation(t *testing.T) {
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T) {
-			s := activity.NewSpaceActivityService(&core.Method{
+			s := activity.NewSpaceService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
 				},
-			}, &core.OptionService{})
+			})
 			s.List(ctx) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T) {
-			s := activity.NewUserActivityService(&core.Method{
+			s := activity.NewUserService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
 				},
-			}, &core.OptionService{})
+			})
 
 			s.List(ctx, 1) //nolint:errcheck
 		}},

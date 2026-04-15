@@ -99,12 +99,12 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectService(method *core.Method, baseOptionService *core.OptionService) *ProjectService {
+func newProjectService(method *core.Method, option *core.OptionService) *ProjectService {
 	return &ProjectService{
-		base:     project.NewService(method, baseOptionService),
+		base:     project.NewService(method),
 		Activity: newProjectActivityService(method),
-		User:     newProjectUserService(method, baseOptionService),
-		Option:   newProjectOptionService(baseOptionService),
+		User:     newProjectUserService(method, option),
+		Option:   newProjectOptionService(option),
 	}
 }
 

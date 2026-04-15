@@ -169,7 +169,7 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...core.RequestOp
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewService(method *core.Method, option *core.OptionService) *Service {
+func NewService(method *core.Method) *Service {
 	return &Service{
 		method: method,
 	}
