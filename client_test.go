@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -52,7 +51,7 @@ func TestNewClient(t *testing.T) {
 	t.Run("error-core.NewClient", func(t *testing.T) {
 		c, err := NewClient("", "")
 		require.Error(t, err)
-		assert.IsType(t, &core.InternalClientError{}, err)
+		assert.IsType(t, &InternalClientError{}, err)
 		assert.Nil(t, c)
 	})
 }
