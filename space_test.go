@@ -27,13 +27,14 @@ func TestSpaceActivityService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/activities", req.URL.Path)
+				assert.Equal(t, "20", req.URL.Query().Get("count"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Space.Activity.List(ctx)
+				got, err := c.Space.Activity.List(ctx, c.Space.Activity.Option.WithCount(20))
 				require.NoError(t, err)
 				assert.Len(t, got, 1)
 			},

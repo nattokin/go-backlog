@@ -10,8 +10,6 @@ import (
 //  Client options
 // ──────────────────────────────────────────────────────────────
 
-// ClientOption defines a functional option for configuring a Client.
-// It is used to change the default behavior of the Client.
 type ClientOption struct {
 	set func(config *clientConfig)
 }

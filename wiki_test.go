@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,13 +27,14 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis", req.URL.Path)
+				assert.Equal(t, "backlog", req.URL.Query().Get("keyword"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Wiki.All(ctx, "TEST")
+				got, err := c.Wiki.All(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 			},
@@ -75,13 +77,14 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "56", req.PostForm.Get("projectId"))
 				assert.Equal(t, "Test Wiki", req.PostForm.Get("name"))
 				assert.Equal(t, "content", req.PostForm.Get("content"))
+				assert.Equal(t, "true", req.PostForm.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MinimumJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content")
+				got, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content", c.Wiki.Option.WithMailNotify(true))
 				require.NoError(t, err)
 				assert.Equal(t, "Minimum Wiki Page", got.Name)
 			},
@@ -107,13 +110,18 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Wiki.Delete(ctx, 34)
+				got, err := c.Wiki.Delete(ctx, 34, c.Wiki.Option.WithMailNotify(true))
 				require.NoError(t, err)
 				assert.Equal(t, 34, got.ID)
 			},
@@ -208,7 +216,7 @@ func TestWikiOptionService(t *testing.T) {
 	s := c.Wiki.Option
 
 	cases := map[string]struct {
-		option  core.RequestOption
+		option  backlog.RequestOption
 		wantKey string
 	}{
 		"WithKeyword": {

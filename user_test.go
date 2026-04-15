@@ -217,13 +217,15 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPatch, req.Method)
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "updated-user", req.PostForm.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.Update(ctx, 1)
+				got, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
 			},
@@ -272,13 +274,14 @@ func TestUserActivityService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/activities", req.URL.Path)
+				assert.Equal(t, "5", req.URL.Query().Get("minId"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.Activity.List(ctx, 1)
+				got, err := c.User.Activity.List(ctx, 1, c.User.Activity.Option.WithMinID(5))
 				require.NoError(t, err)
 				assert.Len(t, got, 1)
 			},
@@ -304,7 +307,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Boolean options ------------------------------------------------------------
 	t.Run("boolean-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue bool
 		}{
@@ -330,7 +333,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue int
 		}{
@@ -361,7 +364,7 @@ func TestUserOptionService(t *testing.T) {
 	// --- String options -------------------------------------------------------------
 	t.Run("string-options", func(t *testing.T) {
 		cases := map[string]struct {
-			option    core.RequestOption
+			option    backlog.RequestOption
 			key       string
 			wantValue string
 		}{

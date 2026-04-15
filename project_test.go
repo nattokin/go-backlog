@@ -27,13 +27,14 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
+				assert.Equal(t, "true", req.URL.Query().Get("archived"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.All(ctx)
+				got, err := c.Project.All(ctx, c.Project.Option.WithArchived(true))
 				require.NoError(t, err)
 				assert.Len(t, got, 3)
 			},
@@ -60,13 +61,14 @@ func TestProjectService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "TEST", req.PostForm.Get("key"))
 				assert.Equal(t, "test", req.PostForm.Get("name"))
+				assert.Equal(t, "true", req.PostForm.Get("chartEnabled"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Create(ctx, "TEST", "test")
+				got, err := c.Project.Create(ctx, "TEST", "test", c.Project.Option.WithChartEnabled(true))
 				require.NoError(t, err)
 				assert.Equal(t, "TEST", got.ProjectKey)
 			},
@@ -75,13 +77,15 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPatch, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "new-name", req.PostForm.Get("name"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Update(ctx, "TEST")
+				got, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
 				require.NoError(t, err)
 				assert.Equal(t, "TEST", got.ProjectKey)
 			},
@@ -125,13 +129,14 @@ func TestProjectActivityService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/activities", req.URL.Path)
+				assert.Equal(t, "10", req.URL.Query().Get("count"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Activity.List(ctx, "TEST")
+				got, err := c.Project.Activity.List(ctx, "TEST", c.Project.Activity.Option.WithCount(10))
 				require.NoError(t, err)
 				assert.Len(t, got, 1)
 			},
@@ -155,7 +160,7 @@ func TestProjectOptionService(t *testing.T) {
 	s := c.Project.Option
 
 	cases := map[string]struct {
-		option  core.RequestOption
+		option  backlog.RequestOption
 		wantKey string
 	}{
 		"WithAll": {
