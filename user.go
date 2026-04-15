@@ -150,7 +150,7 @@ func newUserService(method *core.Method, option *core.OptionService) *UserServic
 func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
 	return &UserActivityService{
 		base:   activity.NewUserService(method),
-		Option: &ActivityOptionService{},
+		Option: newActivityOptionService(option),
 	}
 }
 

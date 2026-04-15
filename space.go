@@ -70,7 +70,7 @@ func newSpaceService(method *core.Method, option *core.OptionService) *SpaceServ
 func newSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
 		base:   activity.NewSpaceService(method),
-		Option: activity.NewActivityOptionService(option),
+		Option: newActivityOptionService(option),
 	}
 }
 
