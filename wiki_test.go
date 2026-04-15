@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -109,8 +110,11 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
-				require.NoError(t, req.ParseForm())
-				assert.Equal(t, "true", req.PostForm.Get("mailNotify"))
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "true", form.Get("mailNotify"))
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
