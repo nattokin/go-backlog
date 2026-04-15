@@ -31,11 +31,11 @@ func GetActivityList(ctx context.Context, m *core.Method, spath string, opts ...
 	return v, nil
 }
 
-type ProjectActivityService struct {
+type ProjectService struct {
 	method *core.Method
 }
 
-func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Activity, error) {
+func (s *ProjectService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Activity, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -44,19 +44,19 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 	return GetActivityList(ctx, s.method, spath, opts...)
 }
 
-type SpaceActivityService struct {
+type SpaceService struct {
 	method *core.Method
 }
 
-func (s *SpaceActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
+func (s *SpaceService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
 	return GetActivityList(ctx, s.method, "space/activities", opts...)
 }
 
-type UserActivityService struct {
+type UserService struct {
 	method *core.Method
 }
 
-func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
+func (s *UserService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
 	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}
@@ -69,20 +69,20 @@ func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewProjectActivityService(method *core.Method) *ProjectActivityService {
-	return &ProjectActivityService{
+func NewProjectService(method *core.Method) *ProjectService {
+	return &ProjectService{
 		method: method,
 	}
 }
 
-func NewSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
-	return &SpaceActivityService{
+func NewSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
+	return &SpaceService{
 		method: method,
 	}
 }
 
-func NewUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
-	return &UserActivityService{
+func NewUserService(method *core.Method, option *core.OptionService) *UserService {
+	return &UserService{
 		method: method,
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-type PullRequestService struct {
+type Service struct {
 	method *core.Method
 }
 
@@ -12,8 +12,8 @@ type PullRequestService struct {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewPullRequestService(method *core.Method) *PullRequestService {
-	return &PullRequestService{
+func NewService(method *core.Method) *Service {
+	return &Service{
 		method: method,
 	}
 }
