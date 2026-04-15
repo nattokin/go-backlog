@@ -73,7 +73,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/users", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "newuser", req.PostForm.Get("userId"))
-				assert.Equal(t, "pass", req.PostForm.Get("password"))
+				assert.Equal(t, "password", req.PostForm.Get("password"))
 				assert.Equal(t, "New User", req.PostForm.Get("name"))
 				assert.Equal(t, "new@example.com", req.PostForm.Get("mailAddress"))
 				return &http.Response{
@@ -82,7 +82,7 @@ func TestUserService(t *testing.T) {
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.Add(ctx, "newuser", "pass", "New User", "new@example.com", 2)
+				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", 2)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
 			},
