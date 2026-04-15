@@ -44,24 +44,10 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 	return GetActivityList(ctx, s.method, spath, opts...)
 }
 
-// SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {
 	method *core.Method
-
-	Option *ActivityOptionService
 }
 
-// List returns a list of activities in your space.
-//
-// This method supports options returned by methods in "*Client.Activity.Option",
-// such as:
-//   - WithActivityTypeIDs
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
 	return GetActivityList(ctx, s.method, "space/activities", opts...)
 }
@@ -106,7 +92,6 @@ func NewProjectActivityService(method *core.Method) *ProjectActivityService {
 func NewSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
 		method: method,
-		Option: &ActivityOptionService{},
 	}
 }
 

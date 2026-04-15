@@ -115,16 +115,10 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 //  SpaceAttachmentService
 // ──────────────────────────────────────────────────────────────
 
-// SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
 	method *core.Method
 }
 
-// Upload uploads any file to the space.
-//
-// The file name must not be empty.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
 func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
 	resp, err := s.method.Upload(ctx, "space/attachment", fileName, r)
 	if err != nil {
