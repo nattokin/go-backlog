@@ -86,11 +86,13 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 // ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
 	base *activity.ProjectService
+
+	Option *ActivityOptionService
 }
 
 // List returns a list of activities in the project.
 //
-// This method supports options returned by methods in "*Client.Activity.Option",
+// This method supports options returned by methods in "*Client.Project.Activity.Option",
 // such as:
 //   - WithActivityTypeIDs
 //   - WithCount
@@ -160,15 +162,16 @@ func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) core.
 func newProjectService(method *core.Method, option *core.OptionService) *ProjectService {
 	return &ProjectService{
 		base:     project.NewService(method),
-		Activity: newProjectActivityService(method),
+		Activity: newProjectActivityService(method, option),
 		User:     newProjectUserService(method, option),
 		Option:   newProjectOptionService(option),
 	}
 }
 
-func newProjectActivityService(method *core.Method) *ProjectActivityService {
+func newProjectActivityService(method *core.Method, option *core.OptionService) *ProjectActivityService {
 	return &ProjectActivityService{
-		base: activity.NewProjectService(method),
+		base:   activity.NewProjectService(method),
+		Option: newActivityOptionService(option),
 	}
 }
 
