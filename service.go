@@ -1,18 +1,8 @@
 package backlog
 
 import (
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/user"
 )
-
-// ──────────────────────────────────────────────────────────────
-//  Implemented services (aliases to internal packages)
-// ──────────────────────────────────────────────────────────────
-
-type UserActivityService = activity.UserActivityService
-
-type UserService = user.UserService
 
 // ──────────────────────────────────────────────────────────────
 //  Unimplemented service stubs (to be extracted to internal/*)

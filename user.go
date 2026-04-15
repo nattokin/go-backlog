@@ -3,10 +3,102 @@ package backlog
 import (
 	"context"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/user"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  UserService
+// ──────────────────────────────────────────────────────────────
+
+// UserService has methods for user.
+type UserService struct {
+	base *user.UserService
+
+	Activity *UserActivityService
+	Option   *UserOptionService
+}
+
+// All returns all users in your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
+func (s *UserService) All(ctx context.Context) ([]*model.User, error) {
+	return s.base.All(ctx)
+}
+
+// One returns a user in your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
+func (s *UserService) One(ctx context.Context, id int) (*model.User, error) {
+	return s.base.One(ctx, id)
+}
+
+// Own returns your own user.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
+func (s *UserService) Own(ctx context.Context) (*model.User, error) {
+	return s.base.Own(ctx)
+}
+
+// Add adds a user to your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
+func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
+	return s.base.Add(ctx, userID, password, name, mailAddress, roleType)
+}
+
+// Update updates a user in your space.
+//
+// This method supports options returned by methods in "*Client.User.Option",
+// such as:
+//   - WithMailAddress
+//   - WithName
+//   - WithPassword
+//   - WithRoleType
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
+func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
+	return s.base.Update(ctx, id, opts...)
+}
+
+// Delete deletes a user from your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
+func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
+	return s.base.Delete(ctx, id)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  UserActivityService
+// ──────────────────────────────────────────────────────────────
+
+// UserActivityService handles communication with the user activities-related methods of the Backlog API.
+type UserActivityService struct {
+	base *activity.UserActivityService
+
+	Option *ActivityOptionService
+}
+
+// List returns a list of user activities.
+//
+// This method supports options returned by methods in "*Client.User.Activity.Option",
+// such as:
+//   - WithActivityTypeIDs
+//   - WithCount
+//   - WithMaxID
+//   - WithMinID
+//   - WithOrder
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
+func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
+	return s.base.List(ctx, userID, opts...)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ProjectUserService
+// ──────────────────────────────────────────────────────────────
 
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
@@ -58,6 +150,21 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
+
+func newUserService(method *core.Method, option *core.OptionService) *UserService {
+	return &UserService{
+		base:     user.NewUserService(method, option),
+		Activity: newUserActivityService(method, option),
+		Option:   newUserOptionService(option),
+	}
+}
+
+func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
+	return &UserActivityService{
+		base:   activity.NewUserActivityService(method, option),
+		Option: &ActivityOptionService{},
+	}
+}
 
 func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{

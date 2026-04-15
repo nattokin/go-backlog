@@ -348,7 +348,7 @@ func TestUserService_All(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	o := user.NewUserOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		id   int
@@ -1309,7 +1309,7 @@ func TestUserService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := user.NewUserOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := []struct {
 		name string
