@@ -45,14 +45,10 @@ func RemoveAttachment(ctx context.Context, m *core.Method, spath string) (*model
 //  IssueAttachmentService
 // ──────────────────────────────────────────────────────────────
 
-// IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {
 	method *core.Method
 }
 
-// List returns a list of all attachments in the issue.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
 func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
@@ -62,9 +58,6 @@ func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) 
 	return ListAttachments(ctx, s.method, spath)
 }
 
-// Remove removes a file attached to the issue.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment
 func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
