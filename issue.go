@@ -3,7 +3,6 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
@@ -52,9 +51,3 @@ func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 		base: attachment.NewIssueService(method),
 	}
 }
-
-// ──────────────────────────────────────────────────────────────
-//  (kept for reference: activity.ProjectService is used in project.go)
-// ──────────────────────────────────────────────────────────────
-
-var _ = activity.NewProjectService // suppress unused import if needed
