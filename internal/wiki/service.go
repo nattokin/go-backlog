@@ -11,11 +11,11 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-type WikiService struct {
+type Service struct {
 	method *core.Method
 }
 
-func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
+func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...co
 	return v, nil
 }
 
-func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, error) {
+func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return 0, err
 	}
@@ -62,7 +62,7 @@ func (s *WikiService) Count(ctx context.Context, projectIDOrKey string) (int, er
 	return v["count"], nil
 }
 
-func (s *WikiService) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
+func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*model.Wiki, error) 
 	return &v, nil
 }
 
-func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...core.RequestOption) (*model.Wiki, error) {
+func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateProjectID(projectID); err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 	return &v, nil
 }
 
-func (s *WikiService) Update(ctx context.Context, wikiID int, option core.RequestOption, opts ...core.RequestOption) (*model.Wiki, error) {
+func (s *Service) Update(ctx context.Context, wikiID int, option core.RequestOption, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option core.Reques
 	return &v, nil
 }
 
-func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.RequestOption) (*model.Wiki, error) {
+func (s *Service) Delete(ctx context.Context, wikiID int, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -169,8 +169,8 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.Reque
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewWikiService(method *core.Method, option *core.OptionService) *WikiService {
-	return &WikiService{
+func NewService(method *core.Method, option *core.OptionService) *Service {
+	return &Service{
 		method: method,
 	}
 }

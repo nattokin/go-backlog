@@ -3,30 +3,23 @@ package backlog
 import (
 	"context"
 
+	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  IssueService
-// ──────────────────────────────────────────────────────────────
-
 // IssueService handles communication with the issue-related methods of the Backlog API.
 type IssueService struct {
-	base *issue.IssueService
+	base *issue.Service
 
 	Attachment *IssueAttachmentService
 }
 
-// ──────────────────────────────────────────────────────────────
-//  IssueAttachmentService
-// ──────────────────────────────────────────────────────────────
-
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {
-	base *attachment.IssueAttachmentService
+	base *attachment.IssueService
 }
 
 // List returns a list of all attachments in the issue.
@@ -49,13 +42,19 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 
 func newIssueService(method *core.Method, option *core.OptionService) *IssueService {
 	return &IssueService{
-		base:       issue.NewIssueService(method, option),
+		base:       issue.NewService(method, option),
 		Attachment: newIssueAttachmentService(method),
 	}
 }
 
 func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 	return &IssueAttachmentService{
-		base: attachment.NewIssueAttachmentService(method),
+		base: attachment.NewIssueService(method),
 	}
 }
+
+// ──────────────────────────────────────────────────────────────
+//  (kept for reference: activity.ProjectService is used in project.go)
+// ──────────────────────────────────────────────────────────────
+
+var _ = activity.NewProjectService // suppress unused import if needed
