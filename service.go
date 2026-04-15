@@ -4,10 +4,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  Unimplemented service stubs (to be extracted to internal/*)
-// ──────────────────────────────────────────────────────────────
-
 // CategoryService handles communication with the category-related methods of the Backlog API.
 //
 //nolint:unused // API not implemented yet

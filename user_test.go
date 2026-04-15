@@ -6,12 +6,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
@@ -292,4 +294,103 @@ func TestUserActivityService(t *testing.T) {
 			tc.call(t, c)
 		})
 	}
+}
+
+func TestUserOptionService(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	o := c.User.Option
+
+	// --- Boolean options ------------------------------------------------------------
+	t.Run("boolean-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    core.RequestOption
+			key       string
+			wantValue bool
+		}{
+			"with-form-send-mail": {
+				option:    o.WithSendMail(true),
+				key:       core.ParamSendMail.Value(),
+				wantValue: true,
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
+			})
+		}
+	})
+
+	// --- Integer options ------------------------------------------------------------
+	t.Run("integer-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    core.RequestOption
+			key       string
+			wantValue int
+		}{
+			"with-form-user-id": {
+				option:    o.WithUserID(1),
+				key:       core.ParamUserID.Value(),
+				wantValue: 1,
+			},
+			"with-form-role-type": {
+				option:    o.WithRoleType(2),
+				key:       core.ParamRoleType.Value(),
+				wantValue: 2,
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
+			})
+		}
+	})
+
+	// --- String options -------------------------------------------------------------
+	t.Run("string-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    core.RequestOption
+			key       string
+			wantValue string
+		}{
+			"with-form-name": {
+				option:    o.WithName("example-user"),
+				key:       core.ParamName.Value(),
+				wantValue: "example-user",
+			},
+			"with-form-mail-address": {
+				option:    o.WithMailAddress("user@example.com"),
+				key:       core.ParamMailAddress.Value(),
+				wantValue: "user@example.com",
+			},
+			"with-form-password": {
+				option:    o.WithPassword("securepass"),
+				key:       core.ParamPassword.Value(),
+				wantValue: "securepass",
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, tc.wantValue, form.Get(tc.key))
+			})
+		}
+	})
 }

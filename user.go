@@ -9,6 +9,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/user"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  UserService
+// ──────────────────────────────────────────────────────────────
+
 // UserService has methods for user.
 type UserService struct {
 	base *user.Service
@@ -65,6 +69,10 @@ func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOp
 func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
 	return s.base.Delete(ctx, id)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  UserActivityService
+// ──────────────────────────────────────────────────────────────
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
 type UserActivityService struct {
@@ -134,6 +142,10 @@ func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string
 func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	return s.base.DeleteAdmin(ctx, projectIDOrKey, userID)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  UserOptionService
+// ──────────────────────────────────────────────────────────────
 
 // UserOptionService provides a domain-specific set of option builders
 // for operations within the UserService.

@@ -9,6 +9,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  WikiService
+// ──────────────────────────────────────────────────────────────
+
 // WikiService handles communication with the wiki-related methods of the Backlog API.
 type WikiService struct {
 	base *wiki.Service
@@ -73,6 +77,10 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.Reque
 	return s.base.Delete(ctx, wikiID, opts...)
 }
 
+// ──────────────────────────────────────────────────────────────
+//  WikiAttachmentService
+// ──────────────────────────────────────────────────────────────
+
 // WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
 	base *attachment.WikiService
@@ -98,6 +106,10 @@ func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.
 func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
 	return s.base.Remove(ctx, wikiID, attachmentID)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  WikiOptionService
+// ──────────────────────────────────────────────────────────────
 
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.

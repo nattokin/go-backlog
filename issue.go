@@ -9,12 +9,20 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  IssueService
+// ──────────────────────────────────────────────────────────────
+
 // IssueService handles communication with the issue-related methods of the Backlog API.
 type IssueService struct {
 	base *issue.Service
 
 	Attachment *IssueAttachmentService
 }
+
+// ──────────────────────────────────────────────────────────────
+//  IssueAttachmentService
+// ──────────────────────────────────────────────────────────────
 
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {

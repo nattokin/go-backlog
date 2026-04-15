@@ -9,6 +9,10 @@ import (
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
+// ──────────────────────────────────────────────────────────────
+//  ProjectService
+// ──────────────────────────────────────────────────────────────
+
 // ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
 	base *project.Service
@@ -75,6 +79,10 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 	return s.base.Delete(ctx, projectIDOrKey)
 }
 
+// ──────────────────────────────────────────────────────────────
+//  ProjectActivityService
+// ──────────────────────────────────────────────────────────────
+
 // ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
 	base *activity.ProjectService
@@ -94,6 +102,10 @@ type ProjectActivityService struct {
 func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Activity, error) {
 	return s.base.List(ctx, projectIDOrKey, opts...)
 }
+
+// ──────────────────────────────────────────────────────────────
+//  ProjectOptionService
+// ──────────────────────────────────────────────────────────────
 
 // ProjectOptionService provides a domain-specific set of option builders
 // for operations within the ProjectService.
