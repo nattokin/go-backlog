@@ -9,24 +9,16 @@ import (
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  PullRequestService
-// ──────────────────────────────────────────────────────────────
-
 // PullRequestService handles communication with the pull request-related methods of the Backlog API.
 type PullRequestService struct {
-	base *pullrequest.PullRequestService
+	base *pullrequest.Service
 
 	Attachment *PullRequestAttachmentService
 }
 
-// ──────────────────────────────────────────────────────────────
-//  PullRequestAttachmentService
-// ──────────────────────────────────────────────────────────────
-
 // PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
 type PullRequestAttachmentService struct {
-	base *attachment.PullRequestAttachmentService
+	base *attachment.PullRequestService
 }
 
 // List returns a list of all attachments in the pull request.
@@ -49,13 +41,13 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 
 func newPullRequestService(method *core.Method) *PullRequestService {
 	return &PullRequestService{
-		base:       pullrequest.NewPullRequestService(method),
+		base:       pullrequest.NewService(method),
 		Attachment: newPullRequestAttachmentService(method),
 	}
 }
 
 func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
-		base: attachment.NewPullRequestAttachmentService(method),
+		base: attachment.NewPullRequestService(method),
 	}
 }

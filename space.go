@@ -11,25 +11,17 @@ import (
 	"github.com/nattokin/go-backlog/internal/space"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  SpaceService
-// ──────────────────────────────────────────────────────────────
-
 // SpaceService handles communication with the space-related methods of the Backlog API.
 type SpaceService struct {
-	base *space.SpaceService
+	base *space.Service
 
 	Activity   *SpaceActivityService
 	Attachment *SpaceAttachmentService
 }
 
-// ──────────────────────────────────────────────────────────────
-//  SpaceActivityService
-// ──────────────────────────────────────────────────────────────
-
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {
-	base *activity.SpaceActivityService
+	base *activity.SpaceService
 
 	Option *ActivityOptionService
 }
@@ -49,13 +41,9 @@ func (s *SpaceActivityService) List(ctx context.Context, opts ...core.RequestOpt
 	return s.base.List(ctx, opts...)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  SpaceAttachmentService
-// ──────────────────────────────────────────────────────────────
-
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
-	base *attachment.SpaceAttachmentService
+	base *attachment.SpaceService
 }
 
 // Upload uploads any file to the space.
@@ -73,7 +61,7 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 
 func newSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
 	return &SpaceService{
-		base:       space.NewSpaceService(method, option),
+		base:       space.NewService(method),
 		Activity:   newSpaceActivityService(method, option),
 		Attachment: newSpaceAttachmentService(method),
 	}
@@ -81,13 +69,13 @@ func newSpaceService(method *core.Method, option *core.OptionService) *SpaceServ
 
 func newSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
-		base:   activity.NewSpaceActivityService(method, option),
-		Option: &ActivityOptionService{},
+		base:   activity.NewSpaceService(method),
+		Option: activity.NewActivityOptionService(option),
 	}
 }
 
 func newSpaceAttachmentService(method *core.Method) *SpaceAttachmentService {
 	return &SpaceAttachmentService{
-		base: attachment.NewSpaceAttachmentService(method),
+		base: attachment.NewSpaceService(method),
 	}
 }

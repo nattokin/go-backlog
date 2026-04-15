@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
+func get(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, er
 	return &v, nil
 }
 
-func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
+func getList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func getUserList(ctx context.Context, m *core.Method, spath string, query url.Va
 	return v, nil
 }
 
-func addUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func add(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func addUser(ctx context.Context, m *core.Method, spath string, form url.Values)
 	return &v, nil
 }
 
-func updateUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func update(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func updateUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 	return &v, nil
 }
 
-func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
+func delete(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
 	resp, err := m.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -81,28 +81,28 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 	return &v, nil
 }
 
-type UserService struct {
+type Service struct {
 	method *core.Method
 }
 
-func (s *UserService) All(ctx context.Context) ([]*model.User, error) {
-	return getUserList(ctx, s.method, "users", nil)
+func (s *Service) All(ctx context.Context) ([]*model.User, error) {
+	return getList(ctx, s.method, "users", nil)
 }
 
-func (s *UserService) One(ctx context.Context, id int) (*model.User, error) {
+func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
 	if err := validate.ValidateUserID(id); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return getUser(ctx, s.method, spath)
+	return get(ctx, s.method, spath)
 }
 
-func (s *UserService) Own(ctx context.Context) (*model.User, error) {
-	return getUser(ctx, s.method, "users/myself")
+func (s *Service) Own(ctx context.Context) (*model.User, error) {
+	return get(ctx, s.method, "users/myself")
 }
 
-func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
+func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
 	if userID == "" {
 		return nil, core.NewValidationError("userID must not be empty")
 	}
@@ -122,10 +122,10 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 
 	form.Set("userId", userID)
 
-	return addUser(ctx, s.method, "users", form)
+	return add(ctx, s.method, "users", form)
 }
 
-func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
+func (s *Service) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
@@ -135,23 +135,23 @@ func (s *UserService) Update(ctx context.Context, id int, opts ...core.RequestOp
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return updateUser(ctx, s.method, spath, form)
+	return update(ctx, s.method, spath, form)
 }
 
-func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
+func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	if err := validate.ValidateUserID(id); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return deleteUser(ctx, s.method, spath, nil)
+	return delete(ctx, s.method, spath, nil)
 }
 
-type ProjectUserService struct {
+type ProjectService struct {
 	method *core.Method
 }
 
-func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
+func (s *ProjectService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -160,10 +160,10 @@ func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, exc
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return getUserList(ctx, s.method, spath, query)
+	return getList(ctx, s.method, spath, query)
 }
 
-func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
+func (s *ProjectService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -176,10 +176,10 @@ func (s *ProjectUserService) Add(ctx context.Context, projectIDOrKey string, use
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return addUser(ctx, s.method, spath, form)
+	return add(ctx, s.method, spath, form)
 }
 
-func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
+func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -192,10 +192,10 @@ func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, 
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	return deleteUser(ctx, s.method, spath, form)
+	return delete(ctx, s.method, spath, form)
 }
 
-func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
+func (s *ProjectService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -208,19 +208,19 @@ func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return addUser(ctx, s.method, spath, form)
+	return add(ctx, s.method, spath, form)
 }
 
-func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
+func (s *ProjectService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return getUserList(ctx, s.method, spath, nil)
+	return getList(ctx, s.method, spath, nil)
 }
 
-func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
+func (s *ProjectService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -233,21 +233,21 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 	form.Set("userId", strconv.Itoa(userID))
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return deleteUser(ctx, s.method, spath, form)
+	return delete(ctx, s.method, spath, form)
 }
 
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewUserService(method *core.Method, option *core.OptionService) *UserService {
-	return &UserService{
+func NewService(method *core.Method) *Service {
+	return &Service{
 		method: method,
 	}
 }
 
-func NewProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
-	return &ProjectUserService{
+func NewProjectService(method *core.Method) *ProjectService {
+	return &ProjectService{
 		method: method,
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-type SpaceService struct {
+type Service struct {
 	method *core.Method
 }
 
@@ -12,8 +12,8 @@ type SpaceService struct {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
-	return &SpaceService{
+func NewService(method *core.Method) *Service {
+	return &Service{
 		method: method,
 	}
 }

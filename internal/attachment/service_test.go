@@ -139,7 +139,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewSpaceAttachmentService(&core.Method{
+			s := attachment.NewSpaceService(&core.Method{
 				Upload: tc.mockUploadFn,
 			})
 
@@ -257,7 +257,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewWikiAttachmentService(&core.Method{Post: tc.mockPostFn})
+			s := attachment.NewWikiService(&core.Method{Post: tc.mockPostFn})
 
 			attachments, err := s.Attach(context.Background(), tc.wikiID, tc.attachmentIDs)
 
@@ -344,7 +344,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewWikiAttachmentService(&core.Method{Get: tc.mockGetFn})
+			s := attachment.NewWikiService(&core.Method{Get: tc.mockGetFn})
 
 			attachments, err := s.List(context.Background(), tc.wikiID)
 
@@ -451,7 +451,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewWikiAttachmentService(&core.Method{Delete: tc.mockDeleteFn})
+			s := attachment.NewWikiService(&core.Method{Delete: tc.mockDeleteFn})
 
 			attachment, err := s.Remove(context.Background(), tc.wikiID, tc.attachmentID)
 
@@ -528,7 +528,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewIssueAttachmentService(&core.Method{
+			s := attachment.NewIssueService(&core.Method{
 				Get: tc.mockGetFn,
 			})
 
@@ -623,7 +623,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewIssueAttachmentService(&core.Method{
+			s := attachment.NewIssueService(&core.Method{
 				Delete: tc.mockDeleteFn,
 			})
 
@@ -732,7 +732,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewPullRequestAttachmentService(&core.Method{
+			s := attachment.NewPullRequestService(&core.Method{
 				Get: tc.mockGetFn,
 			})
 
@@ -865,7 +865,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := attachment.NewPullRequestAttachmentService(&core.Method{
+			s := attachment.NewPullRequestService(&core.Method{
 				Delete: tc.mockDeleteFn,
 			})
 
@@ -896,8 +896,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 
 // TestAttachmentService_contextPropagation verifies that the context passed to
 // each attachment service method is correctly relayed to the underlying method call.
-// A sentinel value is embedded in the context and its pointer identity is
-// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
 func TestAttachmentService_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
@@ -907,8 +905,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T)
 	}{
-		{"SpaceAttachmentService.Upload", func(t *testing.T) {
-			s := attachment.NewSpaceAttachmentService(&core.Method{
+		{"SpaceService.Upload", func(t *testing.T) {
+			s := attachment.NewSpaceService(&core.Method{
 				Upload: func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -916,8 +914,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
-		{"WikiAttachmentService.Attach", func(t *testing.T) {
-			s := attachment.NewWikiAttachmentService(&core.Method{
+		{"WikiService.Attach", func(t *testing.T) {
+			s := attachment.NewWikiService(&core.Method{
 				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -925,8 +923,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
 		}},
-		{"WikiAttachmentService.List", func(t *testing.T) {
-			s := attachment.NewWikiAttachmentService(&core.Method{
+		{"WikiService.List", func(t *testing.T) {
+			s := attachment.NewWikiService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -934,8 +932,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.List(ctx, 1) //nolint:errcheck
 		}},
-		{"WikiAttachmentService.Remove", func(t *testing.T) {
-			s := attachment.NewWikiAttachmentService(&core.Method{
+		{"WikiService.Remove", func(t *testing.T) {
+			s := attachment.NewWikiService(&core.Method{
 				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -943,8 +941,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
-		{"IssueAttachmentService.List", func(t *testing.T) {
-			s := attachment.NewIssueAttachmentService(&core.Method{
+		{"IssueService.List", func(t *testing.T) {
+			s := attachment.NewIssueService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -952,8 +950,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
-		{"IssueAttachmentService.Remove", func(t *testing.T) {
-			s := attachment.NewIssueAttachmentService(&core.Method{
+		{"IssueService.Remove", func(t *testing.T) {
+			s := attachment.NewIssueService(&core.Method{
 				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -961,8 +959,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
-		{"PullRequestAttachmentService.List", func(t *testing.T) {
-			s := attachment.NewPullRequestAttachmentService(&core.Method{
+		{"PullRequestService.List", func(t *testing.T) {
+			s := attachment.NewPullRequestService(&core.Method{
 				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")
@@ -970,8 +968,8 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			})
 			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
 		}},
-		{"PullRequestAttachmentService.Remove", func(t *testing.T) {
-			s := attachment.NewPullRequestAttachmentService(&core.Method{
+		{"PullRequestService.Remove", func(t *testing.T) {
+			s := attachment.NewPullRequestService(&core.Method{
 				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 					assert.Same(t, sentinel, got.Value(ctxKey{}))
 					return nil, errors.New("stop")

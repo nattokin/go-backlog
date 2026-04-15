@@ -9,13 +9,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  ProjectService
-// ──────────────────────────────────────────────────────────────
-
 // ProjectService handles communication with the project-related methods of the Backlog API.
 type ProjectService struct {
-	base *project.ProjectService
+	base *project.Service
 
 	Activity *ProjectActivityService
 	User     *ProjectUserService
@@ -79,13 +75,9 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 	return s.base.Delete(ctx, projectIDOrKey)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  ProjectActivityService
-// ──────────────────────────────────────────────────────────────
-
 // ProjectActivityService handles communication with the project activities-related methods of the Backlog API.
 type ProjectActivityService struct {
-	base *activity.ProjectActivityService
+	base *activity.ProjectService
 }
 
 // List returns a list of activities in the project.
@@ -109,7 +101,7 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 
 func newProjectService(method *core.Method, option *core.OptionService) *ProjectService {
 	return &ProjectService{
-		base:     project.NewProjectService(method, option),
+		base:     project.NewService(method),
 		Activity: newProjectActivityService(method),
 		User:     newProjectUserService(method, option),
 		Option:   newProjectOptionService(option),
@@ -118,6 +110,6 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 
 func newProjectActivityService(method *core.Method) *ProjectActivityService {
 	return &ProjectActivityService{
-		base: activity.NewProjectActivityService(method),
+		base: activity.NewProjectService(method),
 	}
 }

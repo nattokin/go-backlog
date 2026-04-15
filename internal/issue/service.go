@@ -4,7 +4,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-type IssueService struct {
+type Service struct {
 	method *core.Method
 }
 
@@ -12,8 +12,8 @@ type IssueService struct {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewIssueService(method *core.Method, option *core.OptionService) *IssueService {
-	return &IssueService{
+func NewService(method *core.Method) *Service {
+	return &Service{
 		method: method,
 	}
 }

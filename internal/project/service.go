@@ -10,11 +10,11 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-type ProjectService struct {
+type Service struct {
 	method *core.Method
 }
 
-func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
+func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
@@ -35,7 +35,7 @@ func (s *ProjectService) All(ctx context.Context, opts ...core.RequestOption) ([
 	return v, nil
 }
 
-func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
+func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model
 	return &v, nil
 }
 
-func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
+func (s *Service) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
 	option := &core.OptionService{}
 
 	form := url.Values{}
@@ -77,7 +77,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...c
 	return &v, nil
 }
 
-func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts
 	return &v, nil
 }
 
-func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
+func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -128,8 +128,8 @@ func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*mo
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewProjectService(method *core.Method, option *core.OptionService) *ProjectService {
-	return &ProjectService{
+func NewService(method *core.Method) *Service {
+	return &Service{
 		method: method,
 	}
 }

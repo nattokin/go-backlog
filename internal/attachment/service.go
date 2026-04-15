@@ -42,14 +42,14 @@ func RemoveAttachment(ctx context.Context, m *core.Method, spath string) (*model
 }
 
 // ──────────────────────────────────────────────────────────────
-//  IssueAttachmentService
+//  IssueService
 // ──────────────────────────────────────────────────────────────
 
-type IssueAttachmentService struct {
+type IssueService struct {
 	method *core.Method
 }
 
-func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
+func (s *IssueService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) 
 	return ListAttachments(ctx, s.method, spath)
 }
 
-func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
+func (s *IssueService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
 	}
@@ -71,14 +71,14 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 }
 
 // ──────────────────────────────────────────────────────────────
-//  PullRequestAttachmentService
+//  PullRequestService
 // ──────────────────────────────────────────────────────────────
 
-type PullRequestAttachmentService struct {
+type PullRequestService struct {
 	method *core.Method
 }
 
-func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
+func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey 
 	return ListAttachments(ctx, s.method, spath)
 }
 
-func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
+func (s *PullRequestService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -112,14 +112,14 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 }
 
 // ──────────────────────────────────────────────────────────────
-//  SpaceAttachmentService
+//  SpaceService
 // ──────────────────────────────────────────────────────────────
 
-type SpaceAttachmentService struct {
+type SpaceService struct {
 	method *core.Method
 }
 
-func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
+func (s *SpaceService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
 	resp, err := s.method.Upload(ctx, "space/attachment", fileName, r)
 	if err != nil {
 		return nil, err
@@ -134,14 +134,14 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 }
 
 // ──────────────────────────────────────────────────────────────
-//  WikiAttachmentService
+//  WikiService
 // ──────────────────────────────────────────────────────────────
 
-type WikiAttachmentService struct {
+type WikiService struct {
 	method *core.Method
 }
 
-func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
+func (s *WikiService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachme
 	return v, nil
 }
 
-func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
+func (s *WikiService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.
 	return ListAttachments(ctx, s.method, spath)
 }
 
-func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
+func (s *WikiService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -196,26 +196,26 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func NewPullRequestAttachmentService(method *core.Method) *PullRequestAttachmentService {
-	return &PullRequestAttachmentService{
+func NewPullRequestService(method *core.Method) *PullRequestService {
+	return &PullRequestService{
 		method: method,
 	}
 }
 
-func NewIssueAttachmentService(method *core.Method) *IssueAttachmentService {
-	return &IssueAttachmentService{
+func NewIssueService(method *core.Method) *IssueService {
+	return &IssueService{
 		method: method,
 	}
 }
 
-func NewSpaceAttachmentService(method *core.Method) *SpaceAttachmentService {
-	return &SpaceAttachmentService{
+func NewSpaceService(method *core.Method) *SpaceService {
+	return &SpaceService{
 		method: method,
 	}
 }
 
-func NewWikiAttachmentService(method *core.Method) *WikiAttachmentService {
-	return &WikiAttachmentService{
+func NewWikiService(method *core.Method) *WikiService {
+	return &WikiService{
 		method: method,
 	}
 }

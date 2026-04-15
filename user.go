@@ -9,13 +9,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/user"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  UserService
-// ──────────────────────────────────────────────────────────────
-
 // UserService has methods for user.
 type UserService struct {
-	base *user.UserService
+	base *user.Service
 
 	Activity *UserActivityService
 	Option   *UserOptionService
@@ -70,13 +66,9 @@ func (s *UserService) Delete(ctx context.Context, id int) (*model.User, error) {
 	return s.base.Delete(ctx, id)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  UserActivityService
-// ──────────────────────────────────────────────────────────────
-
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
 type UserActivityService struct {
-	base *activity.UserActivityService
+	base *activity.UserService
 
 	Option *ActivityOptionService
 }
@@ -96,13 +88,9 @@ func (s *UserActivityService) List(ctx context.Context, userID int, opts ...core
 	return s.base.List(ctx, userID, opts...)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  ProjectUserService
-// ──────────────────────────────────────────────────────────────
-
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
-	base *user.ProjectUserService
+	base *user.ProjectService
 }
 
 // All returns all users in the project.
@@ -153,7 +141,7 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 
 func newUserService(method *core.Method, option *core.OptionService) *UserService {
 	return &UserService{
-		base:     user.NewUserService(method, option),
+		base:     user.NewService(method),
 		Activity: newUserActivityService(method, option),
 		Option:   newUserOptionService(option),
 	}
@@ -161,13 +149,13 @@ func newUserService(method *core.Method, option *core.OptionService) *UserServic
 
 func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
 	return &UserActivityService{
-		base:   activity.NewUserActivityService(method, option),
+		base:   activity.NewUserService(method),
 		Option: &ActivityOptionService{},
 	}
 }
 
 func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
-		base: user.NewProjectUserService(method, option),
+		base: user.NewProjectService(method),
 	}
 }

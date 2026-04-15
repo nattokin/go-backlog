@@ -9,13 +9,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  WikiService
-// ──────────────────────────────────────────────────────────────
-
 // WikiService handles communication with the wiki-related methods of the Backlog API.
 type WikiService struct {
-	base *wiki.WikiService
+	base *wiki.Service
 
 	Attachment *WikiAttachmentService
 	Option     *WikiOptionService
@@ -83,13 +79,9 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...core.Reque
 	return s.base.Delete(ctx, wikiID, opts...)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  WikiAttachmentService
-// ──────────────────────────────────────────────────────────────
-
 // WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
-	base *attachment.WikiAttachmentService
+	base *attachment.WikiService
 }
 
 // Attach attaches files uploaded to the space to the specified wiki.
@@ -119,7 +111,7 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 
 func newWikiService(method *core.Method, option *core.OptionService) *WikiService {
 	return &WikiService{
-		base:       wiki.NewWikiService(method, option),
+		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
 		Option:     newWikiOptionService(option),
 	}
@@ -127,6 +119,6 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 
 func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
-		base: attachment.NewWikiAttachmentService(method),
+		base: attachment.NewWikiService(method),
 	}
 }
