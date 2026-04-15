@@ -1,12 +1,6 @@
-package wiki
+package backlog
 
 import "github.com/nattokin/go-backlog/internal/core"
-
-//
-// ──────────────────────────────────────────────────────────────
-//  WikiOptionService
-// ──────────────────────────────────────────────────────────────
-//
 
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.
@@ -28,4 +22,14 @@ func (s *WikiOptionService) WithMailNotify(enabled bool) core.RequestOption {
 
 func (s *WikiOptionService) WithName(name string) core.RequestOption {
 	return s.base.WithName(name)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
+func newWikiOptionService(option *core.OptionService) *WikiOptionService {
+	return &WikiOptionService{
+		base: option,
+	}
 }

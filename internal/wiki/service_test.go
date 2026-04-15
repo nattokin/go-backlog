@@ -26,7 +26,7 @@ func TestWikiService_All(t *testing.T) {
 	const testWiki1Name = "test1"
 	const testWiki2Name = "test2"
 
-	o := wiki.NewWikiOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -340,7 +340,7 @@ func TestWikiService_One(t *testing.T) {
 }
 
 func TestWikiService_Create(t *testing.T) {
-	o := wiki.NewWikiOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		projectID int
@@ -504,7 +504,7 @@ func TestWikiService_Create(t *testing.T) {
 }
 
 func TestWikiService_Update(t *testing.T) {
-	o := wiki.NewWikiOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		wikiID int
@@ -686,7 +686,7 @@ func TestWikiService_Update(t *testing.T) {
 }
 
 func TestWikiService_Delete(t *testing.T) {
-	o := wiki.NewWikiOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		wikiID int
@@ -806,7 +806,7 @@ func TestWikiService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	o := wiki.NewWikiOptionService(&core.OptionService{})
+	o := &core.OptionService{}
 
 	cases := []struct {
 		name string

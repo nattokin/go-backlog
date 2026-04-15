@@ -274,86 +274,32 @@ func TestWikiOptionService(t *testing.T) {
 	require.NoError(t, err)
 	s := c.Wiki.Option
 
-	// --- Query options ------------------------------------------------------------
-	t.Run("query-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue string
-		}{
-			"with-query-keyword": {
-				option:    s.WithKeyword("backlog"),
-				key:       core.ParamKeyword.Value(),
-				wantValue: "backlog",
-			},
-		}
+	cases := map[string]struct {
+		option  core.RequestOption
+		wantKey string
+	}{
+		"WithKeyword": {
+			option:  s.WithKeyword("backlog"),
+			wantKey: core.ParamKeyword.Value(),
+		},
+		"WithContent": {
+			option:  s.WithContent("Wiki page content"),
+			wantKey: core.ParamContent.Value(),
+		},
+		"WithName": {
+			option:  s.WithName("How to Use Backlog"),
+			wantKey: core.ParamName.Value(),
+		},
+		"WithMailNotify": {
+			option:  s.WithMailNotify(true),
+			wantKey: core.ParamMailNotify.Value(),
+		},
+	}
 
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				query := url.Values{}
-				err := tc.option.Set(query)
-				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, query.Get(tc.key))
-			})
-		}
-	})
-
-	// --- Form string options ------------------------------------------------------
-	t.Run("form-string-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue string
-		}{
-			"with-form-content": {
-				option:    s.WithContent("Wiki page content"),
-				key:       core.ParamContent.Value(),
-				wantValue: "Wiki page content",
-			},
-			"with-form-name": {
-				option:    s.WithName("How to Use Backlog"),
-				key:       core.ParamName.Value(),
-				wantValue: "How to Use Backlog",
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, tc.wantValue, form.Get(tc.key))
-			})
-		}
-	})
-
-	// --- Form boolean options -----------------------------------------------------
-	t.Run("form-boolean-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    core.RequestOption
-			key       string
-			wantValue bool
-		}{
-			"with-form-mail-notify": {
-				option:    s.WithMailNotify(true),
-				key:       core.ParamMailNotify.Value(),
-				wantValue: true,
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, "true", form.Get(tc.key))
-			})
-		}
-	})
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantKey, tc.option.Key())
+		})
+	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/user"
-	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -32,10 +31,6 @@ type SpaceService = space.SpaceService
 type UserActivityService = activity.UserActivityService
 
 type UserService = user.UserService
-
-type WikiAttachmentService = attachment.WikiAttachmentService
-
-type WikiService = wiki.WikiService
 
 // ──────────────────────────────────────────────────────────────
 //  Unimplemented service stubs (to be extracted to internal/*)

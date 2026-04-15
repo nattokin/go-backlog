@@ -157,14 +157,10 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 //  WikiAttachmentService
 // ──────────────────────────────────────────────────────────────
 
-// WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
 	method *core.Method
 }
 
-// Attach attaches files uploaded to the space to the specified wiki.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
 func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
@@ -195,9 +191,6 @@ func (s *WikiAttachmentService) Attach(ctx context.Context, wikiID int, attachme
 	return v, nil
 }
 
-// List returns a list of all attachments in the wiki.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
 func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
@@ -207,9 +200,6 @@ func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*model.
 	return ListAttachments(ctx, s.method, spath)
 }
 
-// Remove removes a file attached to the wiki.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
 func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
