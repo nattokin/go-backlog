@@ -83,8 +83,6 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, form url.Valu
 
 type UserService struct {
 	method *core.Method
-
-	Option *UserOptionService
 }
 
 func (s *UserService) All(ctx context.Context) ([]*model.User, error) {
@@ -245,7 +243,6 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 func NewUserService(method *core.Method, option *core.OptionService) *UserService {
 	return &UserService{
 		method: method,
-		Option: NewUserOptionService(option),
 	}
 }
 
