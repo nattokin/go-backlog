@@ -28,7 +28,7 @@ func (e *Error) Error() string {
 
 // APIResponseError represents Error Response of Backlog API.
 type APIResponseError struct {
-	StatusCode int      // HTTP status code (4xx or 5xx)
+	StatusCode int // HTTP status code (4xx or 5xx)
 	Errors     []*Error
 }
 
