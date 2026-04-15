@@ -129,3 +129,74 @@ func TestWikiService(t *testing.T) {
 		})
 	}
 }
+
+func TestWikiAttachmentService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"Attach": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, []string{"2", "5"}, req.PostForm["attachmentId[]"])
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 2, got[0].ID)
+				assert.Equal(t, 5, got[1].ID)
+			},
+		},
+		"List": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.Attachment.List(ctx, 34)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 2, got[0].ID)
+				assert.Equal(t, 5, got[1].ID)
+			},
+		},
+		"Remove": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/attachments/8", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
+				require.NoError(t, err)
+				assert.Equal(t, 8, got.ID)
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
