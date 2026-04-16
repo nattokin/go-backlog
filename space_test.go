@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -37,6 +38,20 @@ func TestSpaceActivityService(t *testing.T) {
 				got, err := c.Space.Activity.List(ctx, c.Space.Activity.Option.WithCount(20))
 				require.NoError(t, err)
 				assert.Len(t, got, 1)
+			},
+		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Space.Activity.List(ctx)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}
@@ -78,5 +93,22 @@ func TestSpaceAttachmentService(t *testing.T) {
 		assert.Equal(t, 1, got.ID)
 		assert.Equal(t, "test.txt", got.Name)
 		assert.Equal(t, 8857, got.Size)
+	})
+
+	t.Run("Upload/error", func(t *testing.T) {
+		doFunc := func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusUnauthorized,
+				Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+			}, nil
+		}
+
+		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+		require.NoError(t, err)
+
+		_, err = c.Space.Attachment.Upload(ctx, "testfile", strings.NewReader("data"))
+		require.Error(t, err)
+		var target *backlog.APIResponseError
+		assert.True(t, errors.As(err, &target))
 	})
 }

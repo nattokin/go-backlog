@@ -3,10 +3,12 @@ package backlog_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,6 +41,20 @@ func TestProjectUserService(t *testing.T) {
 				assert.Len(t, got, 4)
 			},
 		},
+		"All/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.All(ctx, "TEST", false)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Add": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
@@ -54,6 +70,20 @@ func TestProjectUserService(t *testing.T) {
 				got, err := c.Project.User.Add(ctx, "TEST", 1)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+			},
+		},
+		"Add/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.Add(ctx, "TEST", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Delete": {
@@ -76,6 +106,20 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "admin", got.UserID)
 			},
 		},
+		"Delete/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.Delete(ctx, "TEST", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"AddAdmin": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
@@ -93,6 +137,20 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "admin", got.UserID)
 			},
 		},
+		"AddAdmin/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"AdminAll": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -106,6 +164,20 @@ func TestProjectUserService(t *testing.T) {
 				got, err := c.Project.User.AdminAll(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
+			},
+		},
+		"AdminAll/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.AdminAll(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"DeleteAdmin": {
@@ -126,6 +198,20 @@ func TestProjectUserService(t *testing.T) {
 				got, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+			},
+		},
+		"DeleteAdmin/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}
@@ -163,6 +249,20 @@ func TestUserService(t *testing.T) {
 				assert.Len(t, got, 4)
 			},
 		},
+		"All/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.All(ctx)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"One": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -178,6 +278,20 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "admin", got.UserID)
 			},
 		},
+		"One/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.One(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Own": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -191,6 +305,20 @@ func TestUserService(t *testing.T) {
 				got, err := c.User.Own(ctx)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+			},
+		},
+		"Own/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Own(ctx)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Add": {
@@ -213,6 +341,20 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "admin", got.UserID)
 			},
 		},
+		"Add/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", 2)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Update": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPatch, req.Method)
@@ -228,6 +370,20 @@ func TestUserService(t *testing.T) {
 				got, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+			},
+		},
+		"Update/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Update(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Delete": {
@@ -248,6 +404,20 @@ func TestUserService(t *testing.T) {
 				got, err := c.User.Delete(ctx, 1)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+			},
+		},
+		"Delete/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Delete(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}
@@ -284,6 +454,20 @@ func TestUserActivityService(t *testing.T) {
 				got, err := c.User.Activity.List(ctx, 1, c.User.Activity.Option.WithMinID(5))
 				require.NoError(t, err)
 				assert.Len(t, got, 1)
+			},
+		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Activity.List(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}
