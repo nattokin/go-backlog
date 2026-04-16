@@ -143,3 +143,21 @@ func TestInternalClientError_Error(t *testing.T) {
 	require.True(t, errors.As(err, &target))
 	assert.NotEmpty(t, target.Error())
 }
+
+// ──────────────────────────────────────────────────────────────
+//  convertError (indirect via service methods)
+// ──────────────────────────────────────────────────────────────
+
+func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
+	sentinel := errors.New("network error")
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
+			return nil, sentinel
+		}}),
+	)
+	require.NoError(t, err)
+	_, err = c.Wiki.All(context.Background(), "PROJECT")
+	assert.True(t, errors.Is(err, sentinel))
+}
