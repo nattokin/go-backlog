@@ -1,13 +1,11 @@
 package backlog
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// Error represents one of Backlog API response errors.
+// Error represents one of the individual error entries in a Backlog API response.
+// It is a data structure used for decoding API responses and is not an error itself.
 type Error struct {
 	// Message is the detailed error message from the API.
 	Message  string
@@ -15,66 +13,61 @@ type Error struct {
 	MoreInfo string
 }
 
-// Error returns the API error message.
-func (e *Error) Error() string {
-	msg := fmt.Sprintf("Message:%s, Code:%d", e.Message, e.Code)
-
-	if e.MoreInfo == "" {
-		return msg
-	}
-
-	return msg + ", MoreInfo:" + e.MoreInfo
-}
-
-// APIResponseError represents Error Response of Backlog API.
+// APIResponseError represents an error response from the Backlog API.
 type APIResponseError struct {
-	StatusCode int // HTTP status code (4xx or 5xx)
-	Errors     []*Error
+	core *core.APIResponseError
 }
 
-// Error returns all error messages in APIResponseError.
-func (e *APIResponseError) Error() string {
-	msgs := make([]string, len(e.Errors))
+// Error implements the error interface.
+func (e *APIResponseError) Error() string { return e.core.Error() }
 
-	for i, err := range e.Errors {
-		msgs[i] = err.Error()
+// StatusCode returns the HTTP status code of the error response.
+func (e *APIResponseError) StatusCode() int { return e.core.StatusCode }
+
+// Errors returns the individual error entries in the response.
+func (e *APIResponseError) Errors() []*Error {
+	out := make([]*Error, len(e.core.Errors))
+	for i, ce := range e.core.Errors {
+		out[i] = &Error{
+			Message:  ce.Message,
+			Code:     ce.Code,
+			MoreInfo: ce.MoreInfo,
+		}
 	}
-
-	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
+	return out
 }
 
-// InvalidOptionKeyError represents an error for an invalid option value.
+// InvalidOptionKeyError represents an error for an invalid option key.
 type InvalidOptionKeyError struct {
-	Invalid   string
-	ValidList []string
+	core *core.InvalidOptionKeyError
 }
 
-// Error returns the error message for an invalid option key.
-func (e *InvalidOptionKeyError) Error() string {
-	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
-}
+// Error implements the error interface.
+func (e *InvalidOptionKeyError) Error() string { return e.core.Error() }
+
+// Invalid returns the invalid option key that was provided.
+func (e *InvalidOptionKeyError) Invalid() string { return e.core.Invalid }
+
+// ValidList returns the list of allowed option keys.
+func (e *InvalidOptionKeyError) ValidList() []string { return e.core.ValidList }
 
 // ValidationError represents an argument validation error.
 type ValidationError struct {
-	message string
+	core *core.ValidationError
 }
 
-// Error returns the validation error message.
-func (e *ValidationError) Error() string {
-	return e.message
-}
+// Error implements the error interface.
+func (e *ValidationError) Error() string { return e.core.Error() }
 
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like missing Token
 // or malformed base URL.
 type InternalClientError struct {
-	msg string
+	core *core.InternalClientError
 }
 
-// Error returns the internal client error message.
-func (e *InternalClientError) Error() string {
-	return e.msg
-}
+// Error implements the error interface.
+func (e *InternalClientError) Error() string { return e.core.Error() }
 
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
@@ -89,27 +82,13 @@ func convertError(err error) error {
 
 	switch e := err.(type) {
 	case *core.APIResponseError:
-		out := &APIResponseError{
-			StatusCode: e.StatusCode,
-			Errors:     make([]*Error, len(e.Errors)),
-		}
-		for i, ce := range e.Errors {
-			out.Errors[i] = &Error{
-				Message:  ce.Message,
-				Code:     ce.Code,
-				MoreInfo: ce.MoreInfo,
-			}
-		}
-		return out
+		return &APIResponseError{core: e}
 	case *core.InvalidOptionKeyError:
-		return &InvalidOptionKeyError{
-			Invalid:   e.Invalid,
-			ValidList: e.ValidList,
-		}
+		return &InvalidOptionKeyError{core: e}
 	case *core.ValidationError:
-		return &ValidationError{message: e.Error()}
+		return &ValidationError{core: e}
 	case *core.InternalClientError:
-		return &InternalClientError{msg: e.Error()}
+		return &InternalClientError{core: e}
 	default:
 		return err
 	}
