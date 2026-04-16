@@ -45,11 +45,11 @@ type InvalidOptionKeyError struct {
 // Error implements the error interface.
 func (e *InvalidOptionKeyError) Error() string { return e.core.Error() }
 
-// Invalid returns the invalid option key that was provided.
-func (e *InvalidOptionKeyError) Invalid() string { return e.core.Invalid }
+// InvalidKey returns the invalid option key that was provided.
+func (e *InvalidOptionKeyError) InvalidKey() string { return e.core.Invalid }
 
-// ValidList returns the list of allowed option keys.
-func (e *InvalidOptionKeyError) ValidList() []string { return e.core.ValidList }
+// AllowKeys returns the list of allowed option keys.
+func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 
 // ValidationError represents an argument validation error.
 type ValidationError struct {
