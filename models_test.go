@@ -199,6 +199,51 @@ func Test_versionFromModel(t *testing.T) {
 	}
 }
 
+func Test_versionsFromModel(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input []*model.Version
+		want  []*Version
+	}{
+		"with_elements": {
+			input: []*model.Version{
+				{ID: 1, Name: "v1.0"},
+				{ID: 2, Name: "v2.0"},
+			},
+			want: []*Version{
+				{ID: 1, Name: "v1.0"},
+				{ID: 2, Name: "v2.0"},
+			},
+		},
+		"empty": {
+			input: []*model.Version{},
+			want:  []*Version{},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, versionsFromModel(tc.input))
+		})
+	}
+}
+
+func Test_issueFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, issueFromModel(nil))
+}
+
+func Test_pullRequestFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, pullRequestFromModel(nil))
+}
+
 func Test_starFromModel_nil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, starFromModel(nil))
