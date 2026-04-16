@@ -23,8 +23,8 @@ type Issue struct {
 	Status         *Status        `json:"status,omitempty"`
 	Assignee       *User          `json:"assignee,omitempty"`
 	Category       []*Category    `json:"category,omitempty"`
-	Versions       *Version       `json:"versions,omitempty"`
-	Milestone      *Version       `json:"milestone,omitempty"`
+	Versions       []*Version     `json:"versions,omitempty"`
+	Milestone      []*Version     `json:"milestone,omitempty"`
 	StartDate      time.Time      `json:"startDate,omitempty"`
 	DueDate        time.Time      `json:"dueDate,omitempty"`
 	EstimatedHours int            `json:"estimatedHours,omitempty"`

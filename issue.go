@@ -35,8 +35,8 @@ type Issue struct {
 	Status         *Status
 	Assignee       *User
 	Category       []*Category
-	Versions       *Version
-	Milestone      *Version
+	Versions       []*Version
+	Milestone      []*Version
 	StartDate      time.Time
 	DueDate        time.Time
 	EstimatedHours int
@@ -215,8 +215,8 @@ func issueFromModel(m *model.Issue) *Issue {
 		Status:         statusFromModel(m.Status),
 		Assignee:       userFromModel(m.Assignee),
 		Category:       categories,
-		Versions:       versionFromModel(m.Versions),
-		Milestone:      versionFromModel(m.Milestone),
+		Versions:       versionsFromModel(m.Versions),
+		Milestone:      versionsFromModel(m.Milestone),
 		StartDate:      m.StartDate,
 		DueDate:        m.DueDate,
 		EstimatedHours: m.EstimatedHours,

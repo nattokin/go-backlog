@@ -437,3 +437,14 @@ func versionFromModel(m *model.Version) *Version {
 		DisplayOrder:   m.DisplayOrder,
 	}
 }
+
+func versionsFromModel(m []*model.Version) []*Version {
+	if m == nil {
+		return nil
+	}
+	result := make([]*Version, len(m))
+	for i, v := range m {
+		result[i] = versionFromModel(v)
+	}
+	return result
+}
