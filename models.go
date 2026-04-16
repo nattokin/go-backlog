@@ -421,30 +421,3 @@ func tagFromModel(m *model.Tag) *Tag {
 		Name: m.Name,
 	}
 }
-
-func versionFromModel(m *model.Version) *Version {
-	if m == nil {
-		return nil
-	}
-	return &Version{
-		ID:             m.ID,
-		ProjectID:      m.ProjectID,
-		Name:           m.Name,
-		Description:    m.Description,
-		StartDate:      m.StartDate,
-		ReleaseDueDate: m.ReleaseDueDate,
-		Archived:       m.Archived,
-		DisplayOrder:   m.DisplayOrder,
-	}
-}
-
-func versionsFromModel(m []*model.Version) []*Version {
-	if m == nil {
-		return nil
-	}
-	result := make([]*Version, len(m))
-	for i, v := range m {
-		result[i] = versionFromModel(v)
-	}
-	return result
-}

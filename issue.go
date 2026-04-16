@@ -130,6 +130,33 @@ func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
+func versionFromModel(m *model.Version) *Version {
+	if m == nil {
+		return nil
+	}
+	return &Version{
+		ID:             m.ID,
+		ProjectID:      m.ProjectID,
+		Name:           m.Name,
+		Description:    m.Description,
+		StartDate:      m.StartDate,
+		ReleaseDueDate: m.ReleaseDueDate,
+		Archived:       m.Archived,
+		DisplayOrder:   m.DisplayOrder,
+	}
+}
+
+func versionsFromModel(m []*model.Version) []*Version {
+	if m == nil {
+		return nil
+	}
+	result := make([]*Version, len(m))
+	for i, v := range m {
+		result[i] = versionFromModel(v)
+	}
+	return result
+}
+
 func issueFromModel(m *model.Issue) *Issue {
 	if m == nil {
 		return nil
@@ -147,14 +174,6 @@ func issueFromModel(m *model.Issue) *Issue {
 			continue
 		}
 		categories[i] = &Category{ID: v.ID, Name: v.Name, DisplayOrder: v.DisplayOrder}
-	}
-	versions := make([]*Version, len(m.Versions))
-	for i, v := range m.Versions {
-		versions[i] = versionFromModel(v)
-	}
-	milestone := make([]*Version, len(m.Milestone))
-	for i, v := range m.Milestone {
-		milestone[i] = versionFromModel(v)
 	}
 	customFields := make([]*CustomField, len(m.CustomFields))
 	for i, v := range m.CustomFields {
@@ -195,8 +214,8 @@ func issueFromModel(m *model.Issue) *Issue {
 		Status:         statusFromModel(m.Status),
 		Assignee:       userFromModel(m.Assignee),
 		Category:       categories,
-		Versions:       versions,
-		Milestone:      milestone,
+		Versions:       versionsFromModel(m.Versions),
+		Milestone:      versionsFromModel(m.Milestone),
 		StartDate:      m.StartDate,
 		DueDate:        m.DueDate,
 		EstimatedHours: m.EstimatedHours,
