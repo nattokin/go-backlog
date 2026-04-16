@@ -34,7 +34,52 @@ var Activity = activityFixtures{
             "description": "",
             "comment": {
                 "id": 7237,
-                "content": ""
+                "content": "test comment",
+                "changeLog": [
+                    {
+                        "field": "status",
+                        "newValue": "4",
+                        "originalValue": "1"
+                    },
+                    {
+                        "field": "milestone",
+                        "newValue": "R2014-07-23",
+                        "originalValue": ""
+                    }
+                ],
+                "createdUser": {
+                    "id": 1,
+                    "userId": "admin",
+                    "name": "admin",
+                    "roleType": 1,
+                    "lang": "ja",
+                    "mailAddress": "eguchi@nulab.example"
+                },
+                "created": "2014-07-21T06:48:40Z",
+                "updated": "2014-07-21T06:48:40Z",
+                "stars": {
+                    "id": 75,
+                    "comment": "ok",
+                    "url": "https://xx.backlogtool.com/view/BLG-1",
+                    "title": "[BLG-1] first issue | Show issue - Backlog",
+                    "presenter": {
+                        "id": 1,
+                        "userId": "admin",
+                        "name": "admin",
+                        "roleType": 1,
+                        "lang": "ja",
+                        "mailAddress": "eguchi@nulab.example"
+                    },
+                    "created": "2014-01-23T10:55:19Z"
+                },
+                "notifications": [
+                    {
+                        "id": 25,
+                        "alreadyRead": false,
+                        "reason": 2,
+                        "resourceAlreadyRead": false
+                    }
+                ]
             },
             "changes": [
                 {
@@ -91,11 +136,49 @@ var Activity = activityFixtures{
 			},
 			Type: 2,
 			Content: &backlog.ActivityContent{
-				ID:      4809,
-				KeyID:   121,
-				Summary: "Comment",
+				ID:          4809,
+				KeyID:       121,
+				Summary:     "Comment",
+				Description: "",
 				Comment: &backlog.Comment{
-					ID: 7237,
+					ID:      7237,
+					Content: "test comment",
+					ChangeLogs: []*backlog.ChangeLog{
+						{Field: "status", NewValue: "4", OriginalValue: "1"},
+						{Field: "milestone", NewValue: "R2014-07-23", OriginalValue: ""},
+					},
+					CreatedUser: &backlog.User{
+						ID:          1,
+						UserID:      "admin",
+						Name:        "admin",
+						RoleType:    backlog.RoleAdministrator,
+						Lang:        "ja",
+						MailAddress: "eguchi@nulab.example",
+					},
+					Created: mustTime("2014-07-21T06:48:40Z"),
+					Updated: mustTime("2014-07-21T06:48:40Z"),
+					Stars: &backlog.Star{
+						ID:      75,
+						Comment: "ok",
+						URL:     "https://xx.backlogtool.com/view/BLG-1",
+						Title:   "[BLG-1] first issue | Show issue - Backlog",
+						Presenter: &backlog.User{
+							ID:          1,
+							UserID:      "admin",
+							Name:        "admin",
+							RoleType:    backlog.RoleAdministrator,
+							Lang:        "ja",
+							MailAddress: "eguchi@nulab.example",
+						},
+						Created: mustTime("2014-01-23T10:55:19Z"),
+					},
+					Notifications: []*backlog.Notification{
+						{
+							ID:          25,
+							AlreadyRead: false,
+							Reason:      2,
+						},
+					},
 				},
 			},
 			Notifications: []*backlog.Notification{
