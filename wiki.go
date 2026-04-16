@@ -248,27 +248,3 @@ func wikisFromModel(ms []*model.Wiki) []*Wiki {
 	}
 	return result
 }
-
-//nolint:unused
-func wikiHistoryFromModel(m *model.WikiHistory) *WikiHistory {
-	if m == nil {
-		return nil
-	}
-	return &WikiHistory{
-		PageID:      m.PageID,
-		Version:     m.Version,
-		Name:        m.Name,
-		Content:     m.Content,
-		CreatedUser: userFromModel(m.CreatedUser),
-		Created:     m.Created,
-	}
-}
-
-//nolint:unused
-func wikiHistoriesFromModel(ms []*model.WikiHistory) []*WikiHistory {
-	result := make([]*WikiHistory, len(ms))
-	for i, v := range ms {
-		result[i] = wikiHistoryFromModel(v)
-	}
-	return result
-}

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 // Repository represents repository of Backlog git.
@@ -33,30 +32,4 @@ type Repository struct {
 //nolint:unused // API not implemented yet
 type RepositoryService struct {
 	method *core.Method
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Helpers
-// ──────────────────────────────────────────────────────────────
-
-//nolint:unused
-func repositoryFromModel(m *model.Repository) *Repository {
-	if m == nil {
-		return nil
-	}
-	return &Repository{
-		ID:           m.ID,
-		ProjectID:    m.ProjectID,
-		Name:         m.Name,
-		Description:  m.Description,
-		HookURL:      m.HookURL,
-		HTTPURL:      m.HTTPURL,
-		SSHURL:       m.SSHURL,
-		DisplayOrder: m.DisplayOrder,
-		PushedAt:     m.PushedAt,
-		CreatedUser:  userFromModel(m.CreatedUser),
-		Created:      m.Created,
-		UpdatedUser:  userFromModel(m.UpdatedUser),
-		Updated:      m.Updated,
-	}
 }
