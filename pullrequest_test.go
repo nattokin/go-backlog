@@ -3,8 +3,10 @@ package backlog_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,6 +40,20 @@ func TestPullRequestAttachmentService(t *testing.T) {
 				assert.Equal(t, 5, got[1].ID)
 			},
 		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such repository.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.PullRequest.Attachment.List(ctx, "TEST", "repo", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Remove": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
@@ -51,6 +67,20 @@ func TestPullRequestAttachmentService(t *testing.T) {
 				got, err := c.PullRequest.Attachment.Remove(ctx, "TEST", "repo", 1, 8)
 				require.NoError(t, err)
 				assert.Equal(t, 8, got.ID)
+			},
+		},
+		"Remove/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such attachment.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.PullRequest.Attachment.Remove(ctx, "TEST", "repo", 1, 8)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}

@@ -50,9 +50,6 @@ func (t APIParamOptionType) Value() string {
 // ──────────────────────────────────────────────────────────────
 //
 
-// RequestOption defines a common interface for all option types.
-// It allows unified validation and application handling across different request-level options.
-// Callers can implement this interface to provide custom options (e.g. for mocking in tests).
 type RequestOption interface {
 	Key() string
 	Check() error

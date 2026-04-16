@@ -33,14 +33,16 @@ type IssueAttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
 func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
-	return s.base.List(ctx, issueIDOrKey)
+	v, err := s.base.List(ctx, issueIDOrKey)
+	return v, convertError(err)
 }
 
 // Remove removes a file attached to the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment
 func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
-	return s.base.Remove(ctx, issueIDOrKey, attachmentID)
+	v, err := s.base.Remove(ctx, issueIDOrKey, attachmentID)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

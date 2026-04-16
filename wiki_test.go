@@ -3,9 +3,11 @@ package backlog_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,6 +41,20 @@ func TestWikiService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
+		"All/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.All(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Count": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -54,6 +70,20 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, 34, got)
 			},
 		},
+		"Count/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No project.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Count(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"One": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -67,6 +97,20 @@ func TestWikiService(t *testing.T) {
 				got, err := c.Wiki.One(ctx, 34)
 				require.NoError(t, err)
 				assert.Equal(t, 34, got.ID)
+			},
+		},
+		"One/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.One(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Create": {
@@ -89,6 +133,20 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "Minimum Wiki Page", got.Name)
 			},
 		},
+		"Create/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Update": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPatch, req.Method)
@@ -104,6 +162,20 @@ func TestWikiService(t *testing.T) {
 				got, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
 				require.NoError(t, err)
 				assert.Equal(t, 34, got.ID)
+			},
+		},
+		"Update/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Delete": {
@@ -124,6 +196,20 @@ func TestWikiService(t *testing.T) {
 				got, err := c.Wiki.Delete(ctx, 34, c.Wiki.Option.WithMailNotify(true))
 				require.NoError(t, err)
 				assert.Equal(t, 34, got.ID)
+			},
+		},
+		"Delete/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Delete(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}
@@ -165,6 +251,20 @@ func TestWikiAttachmentService(t *testing.T) {
 				assert.Equal(t, 5, got[1].ID)
 			},
 		},
+		"Attach/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -182,6 +282,20 @@ func TestWikiAttachmentService(t *testing.T) {
 				assert.Equal(t, 5, got[1].ID)
 			},
 		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Attachment.List(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Remove": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
@@ -195,6 +309,20 @@ func TestWikiAttachmentService(t *testing.T) {
 				got, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
 				require.NoError(t, err)
 				assert.Equal(t, 8, got.ID)
+			},
+		},
+		"Remove/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such attachment.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 	}

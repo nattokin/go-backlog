@@ -31,14 +31,16 @@ type ProjectService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*model.Project, error) {
-	return s.base.All(ctx, toCoreOptions(opts)...)
+	v, err := s.base.All(ctx, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // One returns one of the projects searched by ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	return s.base.One(ctx, projectIDOrKey)
+	v, err := s.base.One(ctx, projectIDOrKey)
+	return v, convertError(err)
 }
 
 // Create creates a new project.
@@ -52,7 +54,8 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*model.Project, error) {
-	return s.base.Create(ctx, key, name, toCoreOptions(opts)...)
+	v, err := s.base.Create(ctx, key, name, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // Update updates a project.
@@ -69,14 +72,16 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*model.Project, error) {
-	return s.base.Update(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // Delete deletes a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	return s.base.Delete(ctx, projectIDOrKey)
+	v, err := s.base.Delete(ctx, projectIDOrKey)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -102,7 +107,8 @@ type ProjectActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	return v, convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
