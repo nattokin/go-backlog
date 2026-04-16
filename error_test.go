@@ -15,30 +15,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// convertError is unexported, so tests drive it indirectly via service methods
-// which call convertError on every error path. errors.As is used to extract
-// the typed wrapper value for assertion.
-
-// callWikiAllWithStatus runs Wiki.All with a doer that returns the given HTTP
-// status code and a single-element errors array, then returns the error.
-func callWikiAllWithStatus(t *testing.T, statusCode int) error {
-	t.Helper()
-	body := `{"errors":[{"message":"not found","code":6,"moreInfo":""}]}`
-	c, err := backlog.NewClient(
-		"https://example.backlog.com",
-		"token",
-		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: statusCode,
-				Body:       io.NopCloser(strings.NewReader(body)),
-			}, nil
-		}}),
-	)
-	require.NoError(t, err)
-	_, err = c.Wiki.All(context.Background(), "PROJECT")
-	return err
-}
-
 // ──────────────────────────────────────────────────────────────
 //  APIResponseError
 // ──────────────────────────────────────────────────────────────
@@ -75,16 +51,6 @@ func TestAPIResponseError_Errors(t *testing.T) {
 // ──────────────────────────────────────────────────────────────
 //  InvalidOptionKeyError
 // ──────────────────────────────────────────────────────────────
-
-// callWikiAllWithInvalidOption drives convertError via an invalid option key.
-// WithContent is not valid for Wiki.All, triggering InvalidOptionKeyError.
-func callWikiAllWithInvalidOption(t *testing.T) error {
-	t.Helper()
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
-	require.NoError(t, err)
-	_, err = c.Wiki.All(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
-	return err
-}
 
 func TestInvalidOptionKeyError_Error(t *testing.T) {
 	err := callWikiAllWithInvalidOption(t)
@@ -160,4 +126,42 @@ func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
 	require.NoError(t, err)
 	_, err = c.Wiki.All(context.Background(), "PROJECT")
 	assert.True(t, errors.Is(err, sentinel))
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Test helpers
+// ──────────────────────────────────────────────────────────────
+
+// convertError is unexported, so tests drive it indirectly via service methods
+// which call convertError on every error path. errors.As is used to extract
+// the typed wrapper value for assertion.
+
+// callWikiAllWithStatus runs Wiki.All with a doer that returns the given HTTP
+// status code and a single-element errors array, then returns the error.
+func callWikiAllWithStatus(t *testing.T, statusCode int) error {
+	t.Helper()
+	body := `{"errors":[{"message":"not found","code":6,"moreInfo":""}]}`
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: statusCode,
+				Body:       io.NopCloser(strings.NewReader(body)),
+			}, nil
+		}}),
+	)
+	require.NoError(t, err)
+	_, err = c.Wiki.All(context.Background(), "PROJECT")
+	return err
+}
+
+// callWikiAllWithInvalidOption drives convertError via an invalid option key.
+// WithContent is not valid for Wiki.All, triggering InvalidOptionKeyError.
+func callWikiAllWithInvalidOption(t *testing.T) error {
+	t.Helper()
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	_, err = c.Wiki.All(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
+	return err
 }
