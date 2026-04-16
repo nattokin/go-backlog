@@ -234,14 +234,214 @@ func Test_versionsFromModel(t *testing.T) {
 	}
 }
 
-func Test_issueFromModel_nil(t *testing.T) {
+func Test_issueFromModel(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, issueFromModel(nil))
+
+	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	updated := time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)
+
+	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: model.RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+
+	cases := map[string]struct {
+		input *model.Issue
+		want  *Issue
+	}{
+		"full": {
+			input: &model.Issue{
+				ID:        1,
+				ProjectID: 10,
+				IssueKey:  "BLG-1",
+				KeyID:     1,
+				IssueType: &model.IssueType{ID: 2, ProjectID: 10, Name: "Task", Color: "#7ea800", DisplayOrder: 0},
+				Summary:   "test issue",
+				Description: "desc",
+				Resolutions: []*model.Resolution{
+					{ID: 0, Name: "Fixed"},
+					{ID: 1, Name: "Won't Fix"},
+				},
+				Priority:  &model.Priority{ID: 3, Name: "Normal"},
+				Status:    &model.Status{ID: 1, Name: "Open"},
+				Assignee:  user,
+				Category: []*model.Category{
+					{ID: 5, Name: "Frontend", DisplayOrder: 0},
+				},
+				Versions: []*model.Version{
+					{ID: 30, Name: "v1.0"},
+				},
+				Milestone: []*model.Version{
+					{ID: 31, Name: "v1.1"},
+				},
+				StartDate:      created,
+				DueDate:        updated,
+				EstimatedHours: 8,
+				ActualHours:    4,
+				ParentIssueID:  0,
+				CreatedUser:    user,
+				Created:        created,
+				UpdatedUser:    user,
+				Updated:        updated,
+				CustomFields: []*model.CustomField{
+					{ID: 1, TypeID: 6, Name: "OS", Items: []*model.CustomFieldItem{
+						{ID: 1, Name: "Windows", DisplayOrder: 0},
+					}},
+				},
+				Attachments: []*model.Attachment{
+					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: user, Created: created},
+				},
+				SharedFiles: []*model.SharedFile{
+					{ID: 20, Type: "file", Dir: "/", Name: "shared.txt", Size: 200, CreatedUser: user, Created: created},
+				},
+				Stars: []*model.Star{
+					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: user, Created: created},
+				},
+			},
+			want: &Issue{
+				ID:        1,
+				ProjectID: 10,
+				IssueKey:  "BLG-1",
+				KeyID:     1,
+				IssueType: &IssueType{ID: 2, ProjectID: 10, Name: "Task", Color: "#7ea800", DisplayOrder: 0},
+				Summary:   "test issue",
+				Description: "desc",
+				Resolutions: []*Resolution{
+					{ID: 0, Name: "Fixed"},
+					{ID: 1, Name: "Won't Fix"},
+				},
+				Priority:  &Priority{ID: 3, Name: "Normal"},
+				Status:    &Status{ID: 1, Name: "Open"},
+				Assignee:  wantUser,
+				Category: []*Category{
+					{ID: 5, Name: "Frontend", DisplayOrder: 0},
+				},
+				Versions: []*Version{
+					{ID: 30, Name: "v1.0"},
+				},
+				Milestone: []*Version{
+					{ID: 31, Name: "v1.1"},
+				},
+				StartDate:      created,
+				DueDate:        updated,
+				EstimatedHours: 8,
+				ActualHours:    4,
+				ParentIssueID:  0,
+				CreatedUser:    wantUser,
+				Created:        created,
+				UpdatedUser:    wantUser,
+				Updated:        updated,
+				CustomFields: []*CustomField{
+					{ID: 1, TypeID: 6, Name: "OS", Items: []*CustomFieldItem{
+						{ID: 1, Name: "Windows", DisplayOrder: 0},
+					}},
+				},
+				Attachments: []*Attachment{
+					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
+				},
+				SharedFiles: []*SharedFile{
+					{ID: 20, Type: "file", Dir: "/", Name: "shared.txt", Size: 200, CreatedUser: wantUser, Created: created},
+				},
+				Stars: []*Star{
+					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
+				},
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, issueFromModel(tc.input))
+		})
+	}
 }
 
-func Test_pullRequestFromModel_nil(t *testing.T) {
+func Test_pullRequestFromModel(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, pullRequestFromModel(nil))
+
+	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	updated := time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)
+	closeAt := time.Date(2024, 5, 1, 0, 0, 0, 0, time.UTC)
+	mergeAt := time.Date(2024, 5, 2, 0, 0, 0, 0, time.UTC)
+
+	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: model.RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+
+	cases := map[string]struct {
+		input *model.PullRequest
+		want  *PullRequest
+	}{
+		"full": {
+			input: &model.PullRequest{
+				ID:           2,
+				ProjectID:    3,
+				RepositoryID: 5,
+				Number:       1,
+				Summary:      "test PR",
+				Description:  "PR desc",
+				Base:         "main",
+				Branch:       "feature",
+				Status:       &model.Status{ID: 1, Name: "Open"},
+				Assignee:     user,
+				Issue:        &model.Issue{ID: 10, Summary: "related issue"},
+				BaseCommit:   "abc123",
+				BranchCommit: "def456",
+				CloseAt:      closeAt,
+				MergeAt:      mergeAt,
+				CreatedUser:  user,
+				Created:      created,
+				UpdatedUser:  user,
+				Updated:      updated,
+				Attachments: []*model.Attachment{
+					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: user, Created: created},
+				},
+				Stars: []*model.Star{
+					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: user, Created: created},
+				},
+			},
+			want: &PullRequest{
+				ID:           2,
+				ProjectID:    3,
+				RepositoryID: 5,
+				Number:       1,
+				Summary:      "test PR",
+				Description:  "PR desc",
+				Base:         "main",
+				Branch:       "feature",
+				Status:       &Status{ID: 1, Name: "Open"},
+				Assignee:     wantUser,
+				Issue:        &Issue{ID: 10, Summary: "related issue"},
+				BaseCommit:   "abc123",
+				BranchCommit: "def456",
+				CloseAt:      closeAt,
+				MergeAt:      mergeAt,
+				CreatedUser:  wantUser,
+				Created:      created,
+				UpdatedUser:  wantUser,
+				Updated:      updated,
+				Attachments: []*Attachment{
+					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
+				},
+				Stars: []*Star{
+					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
+				},
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, pullRequestFromModel(tc.input))
+		})
+	}
 }
 
 func Test_starFromModel_nil(t *testing.T) {
