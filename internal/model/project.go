@@ -1,11 +1,5 @@
 package model
 
-// DiskUsageProject represents project's disk usage.
-type DiskUsageProject struct {
-	DiskUsageBase
-	ProjectID int `json:"projectId,omitempty"`
-}
-
 // Project represents a project of Backlog.
 type Project struct {
 	ID                                int    `json:"id,omitempty"`

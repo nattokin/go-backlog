@@ -10,6 +10,22 @@ import (
 )
 
 // ──────────────────────────────────────────────────────────────
+//  Project models
+// ──────────────────────────────────────────────────────────────
+
+// Project represents a project of Backlog.
+type Project struct {
+	ID                                int
+	ProjectKey                        string
+	Name                              string
+	ChartEnabled                      bool
+	SubtaskingEnabled                 bool
+	ProjectLeaderCanEditProjectLeader bool
+	TextFormattingRule                Format
+	Archived                          bool
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ProjectService
 // ──────────────────────────────────────────────────────────────
 
@@ -30,17 +46,17 @@ type ProjectService struct {
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*model.Project, error) {
+func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
 	v, err := s.base.All(ctx, toCoreOptions(opts)...)
-	return v, convertError(err)
+	return projectsFromModel(v), convertError(err)
 }
 
 // One returns one of the projects searched by ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
-func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
+func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Project, error) {
 	v, err := s.base.One(ctx, projectIDOrKey)
-	return v, convertError(err)
+	return projectFromModel(v), convertError(err)
 }
 
 // Create creates a new project.
@@ -53,9 +69,9 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*model
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*model.Project, error) {
+func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*Project, error) {
 	v, err := s.base.Create(ctx, key, name, toCoreOptions(opts)...)
-	return v, convertError(err)
+	return projectFromModel(v), convertError(err)
 }
 
 // Update updates a project.
@@ -71,17 +87,17 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*model.Project, error) {
+func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*Project, error) {
 	v, err := s.base.Update(ctx, projectIDOrKey, toCoreOptions(opts)...)
-	return v, convertError(err)
+	return projectFromModel(v), convertError(err)
 }
 
 // Delete deletes a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
-func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
+func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string) (*Project, error) {
 	v, err := s.base.Delete(ctx, projectIDOrKey)
-	return v, convertError(err)
+	return projectFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -106,9 +122,9 @@ type ProjectActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
-func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*model.Activity, error) {
+func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
 	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
-	return v, convertError(err)
+	return activitiesFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -185,4 +201,32 @@ func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
 	return &ProjectOptionService{
 		base: option,
 	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func projectFromModel(m *model.Project) *Project {
+	if m == nil {
+		return nil
+	}
+	return &Project{
+		ID:                                m.ID,
+		ProjectKey:                        m.ProjectKey,
+		Name:                              m.Name,
+		ChartEnabled:                      m.ChartEnabled,
+		SubtaskingEnabled:                 m.SubtaskingEnabled,
+		ProjectLeaderCanEditProjectLeader: m.ProjectLeaderCanEditProjectLeader,
+		TextFormattingRule:                Format(m.TextFormattingRule),
+		Archived:                          m.Archived,
+	}
+}
+
+func projectsFromModel(ms []*model.Project) []*Project {
+	result := make([]*Project, len(ms))
+	for i, v := range ms {
+		result[i] = projectFromModel(v)
+	}
+	return result
 }

@@ -25,13 +25,6 @@ type PriorityService struct {
 	method *core.Method
 }
 
-// RepositoryService handles communication with the repository-related methods of the Backlog API.
-//
-//nolint:unused // API not implemented yet
-type RepositoryService struct {
-	method *core.Method
-}
-
 // ResolutionService handles communication with the resolution-related methods of the Backlog API.
 //
 //nolint:unused // API not implemented yet

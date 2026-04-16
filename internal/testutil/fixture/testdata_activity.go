@@ -1,7 +1,7 @@
 package fixture
 
 import (
-	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog"
 )
 
 type activityFixtures struct {
