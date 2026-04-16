@@ -198,3 +198,58 @@ func Test_versionFromModel(t *testing.T) {
 		})
 	}
 }
+
+func Test_starFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, starFromModel(nil))
+}
+
+func Test_attachmentFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, attachmentFromModel(nil))
+}
+
+func Test_commentFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, commentFromModel(nil))
+}
+
+func Test_notificationFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, notificationFromModel(nil))
+}
+
+func Test_sharedFileFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, sharedFileFromModel(nil))
+}
+
+func Test_tagFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, tagFromModel(nil))
+}
+
+func Test_activityContentFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, activityContentFromModel(nil))
+}
+
+func Test_activityFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, activityFromModel(nil))
+}
+
+func Test_userFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, userFromModel(nil))
+}
+
+func Test_projectFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, projectFromModel(nil))
+}
+
+func Test_wikiFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, wikiFromModel(nil))
+}
