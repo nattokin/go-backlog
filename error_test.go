@@ -1,8 +1,11 @@
 package backlog_test
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"io"
+	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,23 +15,22 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// convertError is unexported, so tests drive it indirectly via wiki.All which
-// calls convertError on every error path. For the root-package wrapper types
-// themselves we construct them by passing a core error through a real service
-// call that returns convertError's output, using errors.As to extract the
-// typed value.
-//
-// Helper: run a Wiki.All call with a doer that returns a given HTTP status,
-// and return the resulting error.
+// convertError is unexported, so tests drive it indirectly via service methods
+// which call convertError on every error path. errors.As is used to extract
+// the typed wrapper value for assertion.
+
+// callWikiAllWithStatus runs Wiki.All with a doer that returns the given HTTP
+// status code and a single-element errors array, then returns the error.
 func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 	t.Helper()
+	body := `{"errors":[{"message":"not found","code":6,"moreInfo":""}]}`
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: statusCode,
-				Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"not found","code":6,"moreInfo":""}]}`)),
+				Body:       io.NopCloser(strings.NewReader(body)),
 			}, nil
 		}}),
 	)
@@ -74,13 +76,12 @@ func TestAPIResponseError_Errors(t *testing.T) {
 //  InvalidOptionKeyError
 // ──────────────────────────────────────────────────────────────
 
-// callWikiAllWithInvalidOption drives convertError via an invalid option key,
-// which the service layer converts to *backlog.InvalidOptionKeyError.
+// callWikiAllWithInvalidOption drives convertError via an invalid option key.
+// WithContent is not valid for Wiki.All, triggering InvalidOptionKeyError.
 func callWikiAllWithInvalidOption(t *testing.T) error {
 	t.Helper()
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
-	// WithCount is not a valid option for Wiki.All — triggers InvalidOptionKeyError.
 	_, err = c.Wiki.All(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
 	return err
 }
@@ -120,7 +121,7 @@ func TestInvalidOptionKeyError_AllowKeys(t *testing.T) {
 func TestValidationError_Error(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
-	// wikiID=0 triggers a ValidationError in the internal layer.
+	// wikiID=0 is invalid and triggers a ValidationError in the internal layer.
 	_, err = c.Wiki.One(context.Background(), 0)
 	require.Error(t, err)
 
@@ -134,7 +135,7 @@ func TestValidationError_Error(t *testing.T) {
 // ──────────────────────────────────────────────────────────────
 
 func TestInternalClientError_Error(t *testing.T) {
-	// Empty baseURL triggers InternalClientError from NewClient.
+	// An empty baseURL triggers InternalClientError from NewClient.
 	_, err := backlog.NewClient("", "token")
 	require.Error(t, err)
 
