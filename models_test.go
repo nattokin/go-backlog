@@ -345,6 +345,20 @@ func Test_issueFromModel(t *testing.T) {
 				},
 			},
 		},
+		"nil_elements": {
+			// Resolutions と Category のforループ内 nil チェックをカバー
+			input: &model.Issue{
+				Resolutions: []*model.Resolution{nil},
+				Category:    []*model.Category{nil},
+			},
+			want: &Issue{
+				Resolutions:  []*Resolution{nil},
+				Category:     []*Category{nil},
+				CustomFields: []*CustomField{},
+				SharedFiles:  []*SharedFile{},
+				Stars:        []*Star{},
+			},
+		},
 		"nil": {
 			input: nil,
 			want:  nil,
