@@ -49,7 +49,7 @@ type Comment struct {
 	CreatedUser   *User
 	Created       time.Time
 	Updated       time.Time
-	Stars         *Star
+	Stars         []*Star
 	Notifications []*Notification
 }
 
@@ -287,6 +287,17 @@ func starFromModel(m *model.Star) *Star {
 	}
 }
 
+func starsFromModel(ms []*model.Star) []*Star {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Star, len(ms))
+	for i, v := range ms {
+		result[i] = starFromModel(v)
+	}
+	return result
+}
+
 func attachmentFromModel(m *model.Attachment) *Attachment {
 	if m == nil {
 		return nil
@@ -361,7 +372,7 @@ func commentFromModel(m *model.Comment) *Comment {
 		CreatedUser:   userFromModel(m.CreatedUser),
 		Created:       m.Created,
 		Updated:       m.Updated,
-		Stars:         starFromModel(m.Stars),
+		Stars:         starsFromModel(m.Stars),
 		Notifications: notifications,
 	}
 }
