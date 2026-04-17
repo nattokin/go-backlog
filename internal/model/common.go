@@ -26,7 +26,7 @@ type Comment struct {
 	CreatedUser   *User           `json:"createdUser,omitempty"`
 	Created       time.Time       `json:"created,omitempty"`
 	Updated       time.Time       `json:"updated,omitempty"`
-	Stars         *Star           `json:"stars,omitempty"`
+	Stars         []*Star         `json:"stars,omitempty"`
 	Notifications []*Notification `json:"notifications,omitempty"`
 }
 

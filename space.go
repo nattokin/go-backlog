@@ -3,13 +3,59 @@ package backlog
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/space"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  Space models
+// ──────────────────────────────────────────────────────────────
+
+// DiskUsageProject represents project's disk usage.
+type DiskUsageProject struct {
+	ProjectID  int
+	Issue      int
+	Wiki       int
+	File       int
+	Subversion int
+	Git        int
+	GitLFS     int
+}
+
+// DiskUsageSpace represents space's disk usage.
+type DiskUsageSpace struct {
+	Capacity   int
+	Issue      int
+	Wiki       int
+	File       int
+	Subversion int
+	Git        int
+	GitLFS     int
+	Details    []*DiskUsageProject
+}
+
+// Space represents space of Backlog.
+type Space struct {
+	SpaceKey           string
+	Name               string
+	OwnerID            int
+	Lang               string
+	Timezone           string
+	ReportSendTime     string
+	TextFormattingRule Format
+	Created            time.Time
+	Updated            time.Time
+}
+
+// SpaceNotification represents a notification of Space.
+type SpaceNotification struct {
+	Content string
+	Updated time.Time
+}
 
 // ──────────────────────────────────────────────────────────────
 //  SpaceService
@@ -45,9 +91,9 @@ type SpaceActivityService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
-func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*model.Activity, error) {
+func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*Activity, error) {
 	v, err := s.base.List(ctx, toCoreOptions(opts)...)
-	return v, convertError(err)
+	return activitiesFromModel(v), convertError(err)
 }
 
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
@@ -60,9 +106,9 @@ type SpaceAttachmentService struct {
 // The file name must not be empty.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
-func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
+func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*Attachment, error) {
 	v, err := s.base.Upload(ctx, fileName, r)
-	return v, convertError(err)
+	return attachmentFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

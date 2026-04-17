@@ -3,7 +3,7 @@ package model
 import "time"
 
 // Category represents an issue category.
-type Category []struct {
+type Category struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
@@ -22,9 +22,9 @@ type Issue struct {
 	Priority       *Priority      `json:"priority,omitempty"`
 	Status         *Status        `json:"status,omitempty"`
 	Assignee       *User          `json:"assignee,omitempty"`
-	Category       *Category      `json:"category,omitempty"`
-	Versions       *Version       `json:"versions,omitempty"`
-	Milestone      *Version       `json:"milestone,omitempty"`
+	Category       []*Category    `json:"category,omitempty"`
+	Versions       []*Version     `json:"versions,omitempty"`
+	Milestone      []*Version     `json:"milestone,omitempty"`
 	StartDate      time.Time      `json:"startDate,omitempty"`
 	DueDate        time.Time      `json:"dueDate,omitempty"`
 	EstimatedHours int            `json:"estimatedHours,omitempty"`
