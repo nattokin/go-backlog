@@ -471,6 +471,11 @@ func Test_starFromModel_nil(t *testing.T) {
 	assert.Nil(t, starFromModel(nil))
 }
 
+func Test_starsFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, starsFromModel(nil))
+}
+
 func Test_attachmentFromModel_nil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, attachmentFromModel(nil))
