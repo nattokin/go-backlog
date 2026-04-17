@@ -336,7 +336,7 @@ func TestUserService(t *testing.T) {
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", 2)
+				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleAdministrator)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
 			},
@@ -349,7 +349,7 @@ func TestUserService(t *testing.T) {
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", 2)
+				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleGuestReporter)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

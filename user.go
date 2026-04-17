@@ -58,8 +58,8 @@ func (s *UserService) Own(ctx context.Context) (*User, error) {
 // Add adds a user to your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*User, error) {
-	v, err := s.base.Add(ctx, userID, password, name, mailAddress, roleType)
+func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
+	v, err := s.base.Add(ctx, userID, password, name, mailAddress, model.Role(roleType))
 	return userFromModel(v), convertError(err)
 }
 
