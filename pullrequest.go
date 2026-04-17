@@ -23,8 +23,8 @@ type PullRequest struct {
 	Status       *Status
 	Assignee     *User
 	Issue        *Issue
-	BaseCommit   interface{}
-	BranchCommit interface{}
+	BaseCommit   string
+	BranchCommit string
 	CloseAt      time.Time
 	MergeAt      time.Time
 	CreatedUser  *User

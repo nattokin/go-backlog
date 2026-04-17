@@ -15,8 +15,8 @@ type PullRequest struct {
 	Status       *Status       `json:"status,omitempty"`
 	Assignee     *User         `json:"assignee,omitempty"`
 	Issue        *Issue        `json:"issue,omitempty"`
-	BaseCommit   interface{}   `json:"baseCommit,omitempty"`
-	BranchCommit interface{}   `json:"branchCommit,omitempty"`
+	BaseCommit   string        `json:"baseCommit,omitempty"`
+	BranchCommit string        `json:"branchCommit,omitempty"`
 	CloseAt      time.Time     `json:"closeAt,omitempty"`
 	MergeAt      time.Time     `json:"mergeAt,omitempty"`
 	CreatedUser  *User         `json:"createdUser,omitempty"`
