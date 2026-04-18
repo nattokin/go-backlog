@@ -146,90 +146,42 @@ func (s *OptionService) WithOffset(offset int) RequestOption {
 
 // WithCreatedSince returns an option to filter issues created on or after the given date.
 func (s *OptionService) WithCreatedSince(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamCreatedSince,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamCreatedSince.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamCreatedSince, t, issueDateFormat)
 }
 
 // WithCreatedUntil returns an option to filter issues created on or before the given date.
 func (s *OptionService) WithCreatedUntil(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamCreatedUntil,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamCreatedUntil.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamCreatedUntil, t, issueDateFormat)
 }
 
 // WithUpdatedSince returns an option to filter issues updated on or after the given date.
 func (s *OptionService) WithUpdatedSince(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamUpdatedSince,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamUpdatedSince.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamUpdatedSince, t, issueDateFormat)
 }
 
 // WithUpdatedUntil returns an option to filter issues updated on or before the given date.
 func (s *OptionService) WithUpdatedUntil(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamUpdatedUntil,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamUpdatedUntil.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamUpdatedUntil, t, issueDateFormat)
 }
 
 // WithStartDateSince returns an option to filter issues with a start date on or after the given date.
 func (s *OptionService) WithStartDateSince(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamStartDateSince,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamStartDateSince.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamStartDateSince, t, issueDateFormat)
 }
 
 // WithStartDateUntil returns an option to filter issues with a start date on or before the given date.
 func (s *OptionService) WithStartDateUntil(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamStartDateUntil,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamStartDateUntil.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamStartDateUntil, t, issueDateFormat)
 }
 
 // WithDueDateSince returns an option to filter issues with a due date on or after the given date.
 func (s *OptionService) WithDueDateSince(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamDueDateSince,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamDueDateSince.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamDueDateSince, t, issueDateFormat)
 }
 
 // WithDueDateUntil returns an option to filter issues with a due date on or before the given date.
 func (s *OptionService) WithDueDateUntil(t time.Time) RequestOption {
-	return &APIParamOption{
-		Type: ParamDueDateUntil,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamDueDateUntil.Value(), t.Format(issueDateFormat))
-			return nil
-		},
-	}
+	return timeOption(ParamDueDateUntil, t, issueDateFormat)
 }
 
 // WithHasDueDate returns an option to exclude issues without a due date.

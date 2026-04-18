@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 const (
@@ -179,6 +180,17 @@ func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 		Type: paramType,
 		SetFunc: func(v url.Values) error {
 			v.Set(paramType.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
+
+// timeOption builds a RequestOption that formats a time.Time value as yyyy-MM-dd and sets it.
+func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		SetFunc: func(v url.Values) error {
+			v.Set(paramType.Value(), t.Format(format))
 			return nil
 		},
 	}
