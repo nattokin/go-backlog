@@ -32,10 +32,13 @@ c, err := backlog.NewClient(
     os.Getenv("BACKLOG_TOKEN"),
 )
 
+// Get all Wiki pages in a project.
 wikis, err := c.Wiki.All(context.Background(), "MYPROJECT")
-for _, w := range wikis {
-    fmt.Printf("ID: %d, Name: %s\n", w.ID, w.Name)
-}
+
+// Filter by keyword using an option.
+wikis, err = c.Wiki.All(context.Background(), "MYPROJECT",
+    c.Wiki.Option.WithKeyword("design"),
+)
 ```
 
 More examples can be found in the [examples/](examples/) directory and on [pkg.go.dev](https://pkg.go.dev/github.com/nattokin/go-backlog).
