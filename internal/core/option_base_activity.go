@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
@@ -57,20 +55,10 @@ func (s *OptionService) WithMinID(id int) RequestOption {
 	}
 }
 
-// WithOrder returns an option to set the `order` parameter.
-func (s *OptionService) WithOrder(order model.Order) RequestOption {
-	return &APIParamOption{
-		Type: ParamOrder,
-		CheckFunc: func() error {
-			if order != model.OrderAsc && order != model.OrderDesc {
-				msg := fmt.Sprintf("order must be only '%s' or '%s'", string(model.OrderAsc), string(model.OrderDesc))
-				return NewValidationError(msg)
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamOrder.Value(), string(order))
-			return nil
-		},
+// validateActivityID ensures that the given activity ID is within the valid range [1, 26].
+func validateActivityID(id int, key string) error {
+	if id < 1 || id > MaxActivityTypeID {
+		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
+	return nil
 }
