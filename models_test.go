@@ -356,7 +356,6 @@ func Test_issueFromModel(t *testing.T) {
 				Category:     []*Category{nil},
 				CustomFields: []*CustomField{},
 				SharedFiles:  []*SharedFile{},
-				Stars:        []*Star{},
 			},
 		},
 		"nil": {
@@ -434,7 +433,6 @@ func Test_pullRequestFromModel(t *testing.T) {
 					Category:     []*Category{},
 					CustomFields: []*CustomField{},
 					SharedFiles:  []*SharedFile{},
-					Stars:        []*Star{},
 				},
 				BaseCommit:   "abc123",
 				BranchCommit: "def456",

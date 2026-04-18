@@ -388,10 +388,6 @@ func issueFromModel(m *model.Issue) *Issue {
 	for i, v := range m.SharedFiles {
 		sharedFiles[i] = sharedFileFromModel(v)
 	}
-	stars := make([]*Star, len(m.Stars))
-	for i, v := range m.Stars {
-		stars[i] = starFromModel(v)
-	}
 	var issueType *IssueType
 	if m.IssueType != nil {
 		issueType = &IssueType{
@@ -433,7 +429,7 @@ func issueFromModel(m *model.Issue) *Issue {
 		CustomFields:   customFields,
 		Attachments:    attachmentsFromModel(m.Attachments),
 		SharedFiles:    sharedFiles,
-		Stars:          stars,
+		Stars:          starsFromModel(m.Stars),
 	}
 }
 
