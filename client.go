@@ -71,7 +71,7 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 func initServices(c *Client) {
 	baseOptionService := &core.OptionService{}
 
-	c.Issue = newIssueService(c.core.Method)
+	c.Issue = newIssueService(c.core.Method, baseOptionService)
 
 	c.Project = newProjectService(c.core.Method, baseOptionService)
 
