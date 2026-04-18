@@ -25,11 +25,8 @@ func (s *OptionService) WithCount(count int) RequestOption {
 // WithKeyword returns an option to set the `keyword` parameter.
 func (s *OptionService) WithKeyword(keyword string) RequestOption {
 	return &APIParamOption{
-		Type: ParamKeyword,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamKeyword.Value(), keyword)
-			return nil
-		},
+		Type:    ParamKeyword,
+		SetFunc: setStringFunc(ParamKeyword, keyword),
 	}
 }
 
@@ -49,9 +46,6 @@ func (s *OptionService) WithOrder(order model.Order) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamOrder.Value(), string(order))
-			return nil
-		},
+		SetFunc: setStringFunc(ParamOrder, string(order)),
 	}
 }

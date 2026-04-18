@@ -170,6 +170,54 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 
 //
 // ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setStringFunc returns a SetFunc that calls v.Set with the given string value.
+func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), value)
+		return nil
+	}
+}
+
+// setIntFunc returns a SetFunc that calls v.Set with the int converted to a string.
+func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.Itoa(value))
+		return nil
+	}
+}
+
+// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
+func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.FormatBool(value))
+		return nil
+	}
+}
+
+// setTimeFunc returns a SetFunc that calls v.Set with the time formatted by the given layout.
+func setTimeFunc(key APIParamOptionType, t time.Time, format string) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), t.Format(format))
+		return nil
+	}
+}
+
+// addIntFunc returns a SetFunc that calls v.Add for each int in the slice.
+func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
+	return func(v url.Values) error {
+		for _, val := range values {
+			v.Add(key.Value(), strconv.Itoa(val))
+		}
+		return nil
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
 //  Internal option builder helpers
 // ──────────────────────────────────────────────────────────────
 //
@@ -177,22 +225,16 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 // boolOption builds a RequestOption that sets a boolean parameter.
 func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 	return &APIParamOption{
-		Type: paramType,
-		SetFunc: func(v url.Values) error {
-			v.Set(paramType.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
+		Type:    paramType,
+		SetFunc: setBoolFunc(paramType, enabled),
 	}
 }
 
 // timeOption builds a RequestOption that formats a time.Time value and sets it.
 func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
 	return &APIParamOption{
-		Type: paramType,
-		SetFunc: func(v url.Values) error {
-			v.Set(paramType.Value(), t.Format(format))
-			return nil
-		},
+		Type:    paramType,
+		SetFunc: setTimeFunc(paramType, t, format),
 	}
 }
 
@@ -206,10 +248,7 @@ func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOpt
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(paramType.Value(), value)
-			return nil
-		},
+		SetFunc: setStringFunc(paramType, value),
 	}
 }
 
@@ -223,10 +262,7 @@ func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(paramType.Value(), strconv.Itoa(value))
-			return nil
-		},
+		SetFunc: setIntFunc(paramType, value),
 	}
 }
 
@@ -240,10 +276,7 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOp
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(paramType.Value(), strconv.Itoa(value))
-			return nil
-		},
+		SetFunc: setIntFunc(paramType, value),
 	}
 }
 
@@ -265,11 +298,6 @@ func intSliceOption(paramType APIParamOptionType, paramName string, values []int
 		CheckFunc: func() error {
 			return validatePositiveInts(values, paramName)
 		},
-		SetFunc: func(v url.Values) error {
-			for _, val := range values {
-				v.Add(paramType.Value(), strconv.Itoa(val))
-			}
-			return nil
-		},
+		SetFunc: addIntFunc(paramType, values),
 	}
 }

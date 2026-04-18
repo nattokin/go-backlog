@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 )
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
@@ -18,12 +17,7 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range typeIDs {
-				v.Add(ParamActivityTypeIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
+		SetFunc: addIntFunc(ParamActivityTypeIDs, typeIDs),
 	}
 }
 

@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/url"
+	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
@@ -22,10 +23,7 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamPassword.Value(), password)
-			return nil
-		},
+		SetFunc: setStringFunc(ParamPassword, password),
 	}
 }
 

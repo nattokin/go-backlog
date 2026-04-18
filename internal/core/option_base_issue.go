@@ -108,10 +108,7 @@ func (s *OptionService) WithIssueSort(sort model.IssueSort) RequestOption {
 			}
 			return NewValidationError(fmt.Sprintf("invalid sort value: %q", string(sort)))
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamSort.Value(), string(sort))
-			return nil
-		},
+		SetFunc: setStringFunc(ParamSort, string(sort)),
 	}
 }
 
@@ -125,10 +122,7 @@ func (s *OptionService) WithOffset(offset int) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamOffset.Value(), strconv.Itoa(offset))
-			return nil
-		},
+		SetFunc: setIntFunc(ParamOffset, offset),
 	}
 }
 

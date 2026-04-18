@@ -50,9 +50,6 @@ func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOptio
 			}
 			return nil
 		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamTextFormattingRule.Value(), string(format))
-			return nil
-		},
+		SetFunc: setStringFunc(ParamTextFormattingRule, string(format)),
 	}
 }
