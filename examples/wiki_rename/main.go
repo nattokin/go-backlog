@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-	// Get env and set it in variable.
 	baseURL := os.Getenv("BACKLOG_BASE_URL")
 	if baseURL == "" {
 		log.Fatalln("You need Backlog base url.")
@@ -24,56 +23,47 @@ func main() {
 
 	stdin := bufio.NewScanner(os.Stdin)
 
-	// Scan project name.
 	projectKey := scanner(stdin, "project name:")
 
-	// Get all Wikis in the project.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.All(context.Background(), projectKey)
+	wikis, err := c.Wiki.All(context.Background(), projectKey)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Output the count of Wikis in the project.
-	fmt.Printf("%d Wikis in the project.\n", len(r))
+	fmt.Printf("%d Wikis in the project.\n", len(wikis))
 
-	// Scan serch string.
-	old := scanner(stdin, "serch string:")
+	old := scanner(stdin, "search string:")
 
-	// TargetWiki is reflects one single target data to update Wiki.
-	// It has ID of Wiki and name of wiki to update.
+	// TargetWiki holds the ID and name of a wiki page to be renamed.
 	type TargetWiki struct {
 		wikiID int
 		name   string
 	}
 	targets := []*TargetWiki{}
-	for _, w := range r {
-		if strings.Index(w.Name, old) == 0 {
+	for _, w := range wikis {
+		if strings.HasPrefix(w.Name, old) {
 			fmt.Printf("wikiID=%d, name=%s\n", w.ID, w.Name)
 			targets = append(targets, &TargetWiki{w.ID, w.Name})
 		}
 	}
 	fmt.Printf("%d name of Wikis is matched.\n", len(targets))
 
-	// Scan replacement.
-	new := scanner(stdin, "replacement:")
+	replacement := scanner(stdin, "replacement:")
 
-	// Replace name of targets.
 	for _, t := range targets {
-		t.name = strings.Replace(t.name, old, new, 1)
+		t.name = strings.Replace(t.name, old, replacement, 1)
 		fmt.Printf("wikiID=%d, name=%s\n", t.wikiID, t.name)
 	}
 	fmt.Printf("%d number of Wikis will be updated.\n", len(targets))
 
-	// Get agreement of execution.
 	agree := scanner(stdin, "Execution[y/n]:")
 
-	// When agreement is obtained, update the name of the Wiki
-	if agree == "y" || agree == "Y" || agree == "yes" || agree == "Yes" {
+	if strings.EqualFold(agree, "y") || strings.EqualFold(agree, "yes") {
 		for _, t := range targets {
 			c.Wiki.Update(context.Background(), t.wikiID, c.Wiki.Option.WithName(t.name))
 		}
@@ -82,7 +72,7 @@ func main() {
 	}
 }
 
-// Scanner returns the input string.
+// scanner returns the input string.
 func scanner(stdin *bufio.Scanner, msg string) string {
 	s := ""
 	for s == "" {
