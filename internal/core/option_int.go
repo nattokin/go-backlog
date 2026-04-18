@@ -1,6 +1,10 @@
 package core
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/nattokin/go-backlog/internal/model"
+)
 
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
@@ -38,7 +42,7 @@ func (s *OptionService) WithParentChild(parentChild int) RequestOption {
 }
 
 // WithRoleType returns a option that sets the `roleType` field.
-func (s *OptionService) WithRoleType(roleType RoleType) RequestOption {
+func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
