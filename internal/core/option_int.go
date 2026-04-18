@@ -1,10 +1,6 @@
 package core
 
-import (
-	"net/url"
-
-	"github.com/nattokin/go-backlog/internal/model"
-)
+import "github.com/nattokin/go-backlog/internal/model"
 
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
