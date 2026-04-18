@@ -1,7 +1,9 @@
 package core
 
 import (
+	"fmt"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -122,7 +124,7 @@ func (o *APIParamOption) Set(v url.Values) error {
 
 //
 // ──────────────────────────────────────────────────────────────
-//  Internal Helpers
+//  Helpers
 // ──────────────────────────────────────────────────────────────
 //
 
@@ -163,4 +165,37 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 		}
 	}
 	return false
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Internal Helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// validatePositiveIDs checks that all IDs in the slice are >= 1.
+// paramName is used in the error message (e.g. "projectId").
+func validatePositiveIDs(ids []int, paramName string) error {
+	for _, id := range ids {
+		if id < 1 {
+			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, id))
+		}
+	}
+	return nil
+}
+
+// idSliceOption builds a RequestOption that validates and adds multiple int IDs as repeated query params.
+func idSliceOption(paramType APIParamOptionType, paramName string, ids []int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			return validatePositiveIDs(ids, paramName)
+		},
+		SetFunc: func(v url.Values) error {
+			for _, id := range ids {
+				v.Add(paramType.Value(), strconv.Itoa(id))
+			}
+			return nil
+		},
+	}
 }
