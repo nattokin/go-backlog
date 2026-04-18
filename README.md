@@ -26,78 +26,22 @@ go get github.com/nattokin/go-backlog
 
 ## Examples
 
-### Get a wiki
-
 ```go
-package main
-
-import (
-    "context"
-	"fmt"
-	"log"
-
-	"github.com/nattokin/go-backlog"
+c, err := backlog.NewClient(
+    os.Getenv("BACKLOG_BASE_URL"),
+    os.Getenv("BACKLOG_TOKEN"),
 )
 
-func main() {
-    // The base URL for the Backlog API.
-    baseURL := "BACKLOG_BASE_URL"
-    // The token for requests to the Backlog API.
-    token := "BACKLOG_TOKEN"
+// Get all Wiki pages in a project.
+wikis, err := c.Wiki.All(context.Background(), "MYPROJECT")
 
-    // Create Backlog API client.
-    c, err := backlog.NewClient(baseURL, token)
-    if err != nil {
-        log.Fatalln(err)
-    }
-
-    // The wiki ID.
-    wikiID := 12345
-    r, err := c.Wiki.One(context.Background(), wikiID)
-    if err != nil {
-        log.Fatalln(err)
-    }
-    fmt.Printf("%#v\n", r)
-}
-```
-
-### Get wikis list in the project
-
-```go
-package main
-
-import (
-    "context"
-	"fmt"
-	"log"
-
-	"github.com/nattokin/go-backlog"
+// Filter by keyword using an option.
+wikis, err = c.Wiki.All(context.Background(), "MYPROJECT",
+    c.Wiki.Option.WithKeyword("design"),
 )
-
-func main() {
-    // The base URL for the Backlog API.
-    baseURL := "BACKLOG_BASE_URL"
-    // The token for requests to the Backlog API.
-    token := "BACKLOG_TOKEN"
-
-    // Create Backlog API client.
-    c, err := backlog.NewClient(baseURL, token)
-    if err != nil {
-        log.Fatalln(err)
-    }
-
-    // The project ID or Key.
-    projectIDOrKey := "PROJECTKEY"
-    r, err := c.Wiki.All(context.Background(), projectIDOrKey)
-
-    if err != nil {
-        log.Fatalln(err)
-    }
-    for _, w := range r {
-        fmt.Printf("%#v\n", w)
-    }
-}
 ```
+
+More examples can be found in the [examples/](examples/) directory and on [pkg.go.dev](https://pkg.go.dev/github.com/nattokin/go-backlog).
 
 ## Supported API endpoints
 
@@ -113,13 +57,13 @@ func main() {
 
 - [Get User List](https://developer.nulab.com/docs/backlog/api/2/get-user-list) - Returns a list of users in your space.
 - [Get User](https://developer.nulab.com/docs/backlog/api/2/get-user) - Returns information about a specific user.
-- [Add User](https://developer.nulab.com/docs/backlog/api/2/add-user) - Adds new user to the space. “Project Administrator” cannot add “Admin” user. You can’t use this API at `backlog.com` space.
+- [Add User](https://developer.nulab.com/docs/backlog/api/2/add-user) - Adds new user to the space. "Project Administrator" cannot add "Admin" user. You can't use this API at `backlog.com` space.
 - [Update User](https://developer.nulab.com/docs/backlog/api/2/update-user) - Updates information about a user (Note: Not available at backlog.com).
 - [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes a user from the space (Note: Not available at backlog.com).
 - [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
 
 ### Client.User.[Activity](https://godoc.org/github.com/nattokin/go-backlog#UserActivityService)
-- [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user’s recent updates.
+- [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
 
 ### Client.[Project](https://godoc.org/github.com/nattokin/go-backlog#ProjectService)
 
