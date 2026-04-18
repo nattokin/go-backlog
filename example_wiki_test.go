@@ -32,7 +32,7 @@ var (
 	doerWikiDelete = &fixedDoer{body: fixture.Wiki.MinimumJSON}
 )
 
-func ExampleClient_Wiki_All() {
+func ExampleWikiService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
@@ -45,7 +45,7 @@ func ExampleClient_Wiki_All() {
 	// ID: 112, Name: test1
 }
 
-func ExampleClient_Wiki_Count() {
+func ExampleWikiService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
@@ -58,7 +58,7 @@ func ExampleClient_Wiki_Count() {
 	// Count: 5
 }
 
-func ExampleClient_Wiki_One() {
+func ExampleWikiService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
@@ -71,7 +71,7 @@ func ExampleClient_Wiki_One() {
 	// ID: 34, Name: Minimum Wiki Page
 }
 
-func ExampleClient_Wiki_Create() {
+func ExampleWikiService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
@@ -84,7 +84,7 @@ func ExampleClient_Wiki_Create() {
 	// ID: 34, Name: Minimum Wiki Page
 }
 
-func ExampleClient_Wiki_Update() {
+func ExampleWikiService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
@@ -101,7 +101,7 @@ func ExampleClient_Wiki_Update() {
 	// ID: 34, Name: Minimum Wiki Page
 }
 
-func ExampleClient_Wiki_Delete() {
+func ExampleWikiService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
