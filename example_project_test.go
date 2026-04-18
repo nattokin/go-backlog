@@ -1,45 +1,31 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
-type projectFixedDoer struct {
-	body string
-}
-
-func (d *projectFixedDoer) Do(_ *http.Request) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBufferString(d.body)),
-	}, nil
-}
-
 var (
 	// ProjectService
-	doerProjectAll    = &projectFixedDoer{body: fixture.Project.ListJSON}
-	doerProjectOne    = &projectFixedDoer{body: fixture.Project.SingleJSON}
-	doerProjectCreate = &projectFixedDoer{body: fixture.Project.SingleJSON}
-	doerProjectUpdate = &projectFixedDoer{body: fixture.Project.SingleJSON}
-	doerProjectDelete = &projectFixedDoer{body: fixture.Project.SingleJSON}
+	doerProjectAll    = newMockDoer(fixture.Project.ListJSON)
+	doerProjectOne    = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectCreate = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectUpdate = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectDelete = newMockDoer(fixture.Project.SingleJSON)
 
 	// ProjectActivityService
-	doerProjectActivityList = &projectFixedDoer{body: fixture.Activity.ListJSON}
+	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
 
 	// ProjectUserService
-	doerProjectUserAll         = &projectFixedDoer{body: fixture.User.ListJSON}
-	doerProjectUserAdd         = &projectFixedDoer{body: fixture.User.SingleJSON}
-	doerProjectUserDelete      = &projectFixedDoer{body: fixture.User.SingleJSON}
-	doerProjectUserAddAdmin    = &projectFixedDoer{body: fixture.User.SingleJSON}
-	doerProjectUserAdminAll    = &projectFixedDoer{body: fixture.User.ListJSON}
-	doerProjectUserDeleteAdmin = &projectFixedDoer{body: fixture.User.SingleJSON}
+	doerProjectUserAll         = newMockDoer(fixture.User.ListJSON)
+	doerProjectUserAdd         = newMockDoer(fixture.User.SingleJSON)
+	doerProjectUserDelete      = newMockDoer(fixture.User.SingleJSON)
+	doerProjectUserAddAdmin    = newMockDoer(fixture.User.SingleJSON)
+	doerProjectUserAdminAll    = newMockDoer(fixture.User.ListJSON)
+	doerProjectUserDeleteAdmin = newMockDoer(fixture.User.SingleJSON)
 )
 
 func ExampleProjectService_All() {
