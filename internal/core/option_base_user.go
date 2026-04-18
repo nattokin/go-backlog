@@ -1,9 +1,7 @@
 package core
 
 import (
-	"fmt"
 	"net/url"
-	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
