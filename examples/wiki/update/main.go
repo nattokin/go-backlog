@@ -1,27 +1,40 @@
+// Example: Update an existing Wiki page.
+// This example demonstrates how to update the name and content
+// of a Wiki page using the Backlog API client.
 package main
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/nattokin/go-backlog"
 )
 
 func main() {
-	// The base URL of Backlog API.
-	baseURL := "BACKLOG_BASE_URL"
-	// The token for request to Backlog API.
-	token := "BACKLOG_TOKEN"
+	baseURL := os.Getenv("BACKLOG_BASE_URL")
+	token := os.Getenv("BACKLOG_TOKEN")
+	if baseURL == "" || token == "" {
+		log.Fatalln("BACKLOG_BASE_URL and BACKLOG_TOKEN must be set")
+	}
 
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	r, err := c.Wiki.Update(context.Background(), 1234, c.Wiki.Option.WithName("changed name"), c.Wiki.Option.WithContent("changed content"))
+	wikiID := 12345
+
+	wiki, err := c.Wiki.Update(
+		context.Background(),
+		wikiID,
+		c.Wiki.Option.WithName("Updated Name"),
+		c.Wiki.Option.WithContent("Updated content."),
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Printf("%#v\n", r)
+
+	fmt.Printf("ID: %d, Name: %s\n", wiki.ID, wiki.Name)
 }

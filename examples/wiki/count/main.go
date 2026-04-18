@@ -1,37 +1,35 @@
+// Example: Get the number of Wiki pages in a project.
+// This example demonstrates how to count Wiki pages
+// in a specified project using the Backlog API client.
 package main
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/nattokin/go-backlog"
 )
 
 func main() {
-	// The base URL of Backlog API.
-	baseURL := "BACKLOG_BASE_URL"
-	// The token for request to Backlog API.
-	token := "BACKLOG_TOKEN"
+	baseURL := os.Getenv("BACKLOG_BASE_URL")
+	token := os.Getenv("BACKLOG_TOKEN")
+	if baseURL == "" || token == "" {
+		log.Fatalln("BACKLOG_BASE_URL and BACKLOG_TOKEN must be set")
+	}
 
-	// Create Backlog API client.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// ID or Key of the project.
-	projectID := "12345"
-	// projectKey := "ProjectKey"
+	projectKey := "MYPROJECT"
 
-	// Get count of how many Wiki in project.
-	count, err := c.Wiki.Count(context.Background(), projectID)
-	// count, err := c.Wiki.Count(projectKey)
-
+	count, err := c.Wiki.Count(context.Background(), projectKey)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Output the number of count.
-	fmt.Printf("%d\n", count)
+	fmt.Printf("Count: %d\n", count)
 }
