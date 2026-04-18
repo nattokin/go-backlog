@@ -62,13 +62,7 @@ func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 
 // WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
-	return &APIParamOption{
-		Type: ParamSendMail,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamSendMail.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
+	return boolOption(ParamSendMail, enabled)
 }
 
 // WithUserID returns a option to set the user's ID.

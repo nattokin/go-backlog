@@ -91,24 +91,12 @@ func (s *OptionService) WithParentChild(parentChild int) RequestOption {
 
 // WithAttachment returns an option to include only issues with attachments.
 func (s *OptionService) WithAttachment(enabled bool) RequestOption {
-	return &APIParamOption{
-		Type: ParamAttachment,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamAttachment.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
+	return boolOption(ParamAttachment, enabled)
 }
 
 // WithSharedFile returns an option to include only issues with shared files.
 func (s *OptionService) WithSharedFile(enabled bool) RequestOption {
-	return &APIParamOption{
-		Type: ParamSharedFile,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamSharedFile.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
+	return boolOption(ParamSharedFile, enabled)
 }
 
 // WithIssueSort returns an option to set the `sort` parameter for issue list.
@@ -247,11 +235,5 @@ func (s *OptionService) WithDueDateUntil(t time.Time) RequestOption {
 // WithHasDueDate returns an option to exclude issues without a due date.
 // Note: Setting this to true is not supported by the Backlog API and will result in an error.
 func (s *OptionService) WithHasDueDate(enabled bool) RequestOption {
-	return &APIParamOption{
-		Type: ParamHasDueDate,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamHasDueDate.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
+	return boolOption(ParamHasDueDate, enabled)
 }

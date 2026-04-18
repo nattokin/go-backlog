@@ -169,9 +169,20 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 
 //
 // ──────────────────────────────────────────────────────────────
-//  Internal Helpers
+//  Internal option builder helpers
 // ──────────────────────────────────────────────────────────────
 //
+
+// boolOption builds a RequestOption that sets a boolean parameter.
+func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		SetFunc: func(v url.Values) error {
+			v.Set(paramType.Value(), strconv.FormatBool(enabled))
+			return nil
+		},
+	}
+}
 
 // validatePositiveIDs checks that all IDs in the slice are >= 1.
 // paramName is used in the error message (e.g. "projectId").

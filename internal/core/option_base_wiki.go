@@ -1,9 +1,6 @@
 package core
 
-import (
-	"net/url"
-	"strconv"
-)
+import "net/url"
 
 // WithContent returns a option that sets the `content` field.
 func (s *OptionService) WithContent(content string) RequestOption {
@@ -24,11 +21,5 @@ func (s *OptionService) WithContent(content string) RequestOption {
 
 // WithMailNotify returns a option that sets the `mailNotify` field.
 func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
-	return &APIParamOption{
-		Type: ParamMailNotify,
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamMailNotify.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
+	return boolOption(ParamMailNotify, enabled)
 }
