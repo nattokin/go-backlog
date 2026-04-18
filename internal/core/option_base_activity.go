@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"net/url"
 )
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
