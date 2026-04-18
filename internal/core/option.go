@@ -87,7 +87,17 @@ type RequestOption interface {
 
 //
 // ──────────────────────────────────────────────────────────────
-//  apiOption — unified internal option type
+//  OptionService
+// ──────────────────────────────────────────────────────────────
+//
+
+// OptionService provides builders for request options.
+// Each XxxOptionService selectively exposes only the valid methods.
+type OptionService struct{}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  APIParamOption
 // ──────────────────────────────────────────────────────────────
 //
 
@@ -218,7 +228,7 @@ func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
 
 //
 // ──────────────────────────────────────────────────────────────
-//  Internal option builder helpers
+//  Option builder helpers
 // ──────────────────────────────────────────────────────────────
 //
 
