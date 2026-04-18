@@ -185,7 +185,7 @@ func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 	}
 }
 
-// timeOption builds a RequestOption that formats a time.Time value as yyyy-MM-dd and sets it.
+// timeOption builds a RequestOption that formats a time.Time value and sets it.
 func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
@@ -196,27 +196,61 @@ func timeOption(paramType APIParamOptionType, t time.Time, format string) Reques
 	}
 }
 
-// validatePositiveIDs checks that all IDs in the slice are >= 1.
+// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
+func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value == "" {
+				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: func(v url.Values) error {
+			v.Set(paramType.Value(), value)
+			return nil
+		},
+	}
+}
+
+// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
+func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < 1 {
+				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: func(v url.Values) error {
+			v.Set(paramType.Value(), strconv.Itoa(value))
+			return nil
+		},
+	}
+}
+
+// validatePositiveInts checks that all values in the slice are >= 1.
 // paramName is used in the error message (e.g. "projectId").
-func validatePositiveIDs(ids []int, paramName string) error {
-	for _, id := range ids {
-		if id < 1 {
-			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, id))
+func validatePositiveInts(values []int, paramName string) error {
+	for _, v := range values {
+		if v < 1 {
+			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
 		}
 	}
 	return nil
 }
 
-// idSliceOption builds a RequestOption that validates and adds multiple int IDs as repeated query params.
-func idSliceOption(paramType APIParamOptionType, paramName string, ids []int) RequestOption {
+// intSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
+func intSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() error {
-			return validatePositiveIDs(ids, paramName)
+			return validatePositiveInts(values, paramName)
 		},
 		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(paramType.Value(), strconv.Itoa(id))
+			for _, val := range values {
+				v.Add(paramType.Value(), strconv.Itoa(val))
 			}
 			return nil
 		},

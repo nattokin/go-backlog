@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 
@@ -11,19 +10,7 @@ import (
 // WithMailAddress returns a option that sets the `mailAddress` field.
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return &APIParamOption{
-		Type: ParamMailAddress,
-		CheckFunc: func() error {
-			if mailAddress == "" {
-				return NewValidationError("mailAddress must not be empty")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamMailAddress.Value(), mailAddress)
-			return nil
-		},
-	}
+	return nonEmptyStringOption(ParamMailAddress, mailAddress)
 }
 
 // WithPassword returns a option that sets the `password` field.
@@ -67,17 +54,5 @@ func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 
 // WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
-	return &APIParamOption{
-		Type: ParamUserID,
-		CheckFunc: func() error {
-			if id < 1 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", ParamUserID))
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamUserID.Value(), strconv.Itoa(id))
-			return nil
-		},
-	}
+	return positiveIntOption(ParamUserID, id)
 }

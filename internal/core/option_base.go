@@ -48,19 +48,7 @@ func (s *OptionService) WithKeyword(keyword string) RequestOption {
 
 // WithName returns a option that sets the `name` field.
 func (s *OptionService) WithName(name string) RequestOption {
-	return &APIParamOption{
-		Type: ParamName,
-		CheckFunc: func() error {
-			if name == "" {
-				return NewValidationError("name must not be empty")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamName.Value(), name)
-			return nil
-		},
-	}
+	return nonEmptyStringOption(ParamName, name)
 }
 
 // WithOrder returns an option to set the `order` parameter.

@@ -26,19 +26,7 @@ func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
 
 // WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
-	return &APIParamOption{
-		Type: ParamKey,
-		CheckFunc: func() error {
-			if key == "" {
-				return NewValidationError("key must not be empty")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamKey.Value(), key)
-			return nil
-		},
-	}
+	return nonEmptyStringOption(ParamKey, key)
 }
 
 // WithProjectLeaderCanEditProjectLeader returns a option.
