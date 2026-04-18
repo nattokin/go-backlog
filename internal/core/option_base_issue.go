@@ -74,19 +74,7 @@ func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
 // WithParentChild returns an option to set the `parentChild` parameter.
 // 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
 func (s *OptionService) WithParentChild(parentChild int) RequestOption {
-	return &APIParamOption{
-		Type: ParamParentChild,
-		CheckFunc: func() error {
-			if parentChild < 0 || parentChild > 4 {
-				return NewValidationError("parentChild must be between 0 and 4")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamParentChild.Value(), strconv.Itoa(parentChild))
-			return nil
-		},
-	}
+	return intRangeOption(ParamParentChild, parentChild, 0, 4)
 }
 
 // WithAttachment returns an option to include only issues with attachments.

@@ -230,6 +230,23 @@ func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
 	}
 }
 
+// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
+func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < min || value > max {
+				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
+			}
+			return nil
+		},
+		SetFunc: func(v url.Values) error {
+			v.Set(paramType.Value(), strconv.Itoa(value))
+			return nil
+		},
+	}
+}
+
 // validatePositiveInts checks that all values in the slice are >= 1.
 // paramName is used in the error message (e.g. "projectId").
 func validatePositiveInts(values []int, paramName string) error {

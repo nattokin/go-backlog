@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
@@ -20,19 +19,7 @@ type OptionService struct{}
 
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
-	return &APIParamOption{
-		Type: ParamCount,
-		CheckFunc: func() error {
-			if count < 1 || 100 < count {
-				return NewValidationError("count must be between 1 and 100")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamCount.Value(), strconv.Itoa(count))
-			return nil
-		},
-	}
+	return intRangeOption(ParamCount, count, 1, 100)
 }
 
 // WithKeyword returns an option to set the `keyword` parameter.

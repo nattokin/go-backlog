@@ -29,30 +29,12 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 
 // WithMaxID returns an option to set the `maxId` parameter.
 func (s *OptionService) WithMaxID(id int) RequestOption {
-	return &APIParamOption{
-		Type: ParamMaxID,
-		CheckFunc: func() error {
-			return validateActivityID(id, "maxID")
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamMaxID.Value(), strconv.Itoa(id))
-			return nil
-		},
-	}
+	return intRangeOption(ParamMaxID, id, 1, MaxActivityTypeID)
 }
 
 // WithMinID returns an option to set the `minId` parameter.
 func (s *OptionService) WithMinID(id int) RequestOption {
-	return &APIParamOption{
-		Type: ParamMinID,
-		CheckFunc: func() error {
-			return validateActivityID(id, "minID")
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamMinID.Value(), strconv.Itoa(id))
-			return nil
-		},
-	}
+	return intRangeOption(ParamMinID, id, 1, MaxActivityTypeID)
 }
 
 // validateActivityID ensures that the given activity ID is within the valid range [1, 26].

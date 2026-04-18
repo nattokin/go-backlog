@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -32,19 +33,7 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 
 // WithRoleType returns a option that sets the `roleType` field.
 func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
-	return &APIParamOption{
-		Type: ParamRoleType,
-		CheckFunc: func() error {
-			if roleType < 1 || 6 < roleType {
-				return NewValidationError("roleType must be between 1 and 6")
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			v.Set(ParamRoleType.Value(), strconv.Itoa(int(roleType)))
-			return nil
-		},
-	}
+	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
 // WithSendMail returns a option to specify whether to send an invitation email.
