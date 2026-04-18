@@ -20,19 +20,14 @@ func TestOptionService_int(t *testing.T) {
 		wantValue int
 		wantErr   bool
 	}{
-		"WithUserID-valid-1": {
-			option:    o.WithUserID(1),
-			key:       core.ParamUserID.Value(),
-			wantValue: 1,
+		"WithCount-invalid-0": {
+			option:  o.WithCount(0),
+			key:     core.ParamCount.Value(),
+			wantErr: true,
 		},
-		"WithUserID-valid-2": {
-			option:    o.WithUserID(2),
-			key:       core.ParamUserID.Value(),
-			wantValue: 2,
-		},
-		"WithUserID-invalid-0": {
-			option:  o.WithUserID(0),
-			key:     core.ParamUserID.Value(),
+		"WithCount-invalid-101": {
+			option:  o.WithCount(101),
+			key:     core.ParamCount.Value(),
 			wantErr: true,
 		},
 		"WithCount-valid-1": {
@@ -45,24 +40,9 @@ func TestOptionService_int(t *testing.T) {
 			key:       core.ParamCount.Value(),
 			wantValue: 100,
 		},
-		"WithCount-invalid-0": {
-			option:  o.WithCount(0),
-			key:     core.ParamCount.Value(),
-			wantErr: true,
-		},
-		"WithCount-invalid-101": {
-			option:  o.WithCount(101),
-			key:     core.ParamCount.Value(),
-			wantErr: true,
-		},
-		"WithMinID-valid-1": {
-			option:    o.WithMinID(1),
-			key:       core.ParamMinID.Value(),
-			wantValue: 1,
-		},
-		"WithMinID-invalid-0": {
-			option:  o.WithMinID(0),
-			key:     core.ParamMinID.Value(),
+		"WithMaxID-invalid-27": {
+			option:  o.WithMaxID(27),
+			key:     core.ParamMaxID.Value(),
 			wantErr: true,
 		},
 		"WithMaxID-valid-26": {
@@ -70,27 +50,18 @@ func TestOptionService_int(t *testing.T) {
 			key:       core.ParamMaxID.Value(),
 			wantValue: 26,
 		},
-		"WithMaxID-invalid-27": {
-			option:  o.WithMaxID(27),
-			key:     core.ParamMaxID.Value(),
+		"WithMinID-invalid-0": {
+			option:  o.WithMinID(0),
+			key:     core.ParamMinID.Value(),
 			wantErr: true,
 		},
-		"WithParentChild-valid-0": {
-			option:    o.WithParentChild(0),
-			key:       core.ParamParentChild.Value(),
-			wantValue: 0,
+		"WithMinID-valid-1": {
+			option:    o.WithMinID(1),
+			key:       core.ParamMinID.Value(),
+			wantValue: 1,
 		},
-		"WithParentChild-valid-4": {
-			option:    o.WithParentChild(4),
-			key:       core.ParamParentChild.Value(),
-			wantValue: 4,
-		},
-		"WithParentChild-invalid-negative": {
-			option:  o.WithParentChild(-1),
-			wantErr: true,
-		},
-		"WithParentChild-invalid-5": {
-			option:  o.WithParentChild(5),
+		"WithOffset-invalid-negative": {
+			option:  o.WithOffset(-1),
 			wantErr: true,
 		},
 		"WithOffset-valid-0": {
@@ -103,8 +74,32 @@ func TestOptionService_int(t *testing.T) {
 			key:       core.ParamOffset.Value(),
 			wantValue: 100,
 		},
-		"WithOffset-invalid-negative": {
-			option:  o.WithOffset(-1),
+		"WithParentChild-invalid-5": {
+			option:  o.WithParentChild(5),
+			wantErr: true,
+		},
+		"WithParentChild-invalid-negative": {
+			option:  o.WithParentChild(-1),
+			wantErr: true,
+		},
+		"WithParentChild-valid-0": {
+			option:    o.WithParentChild(0),
+			key:       core.ParamParentChild.Value(),
+			wantValue: 0,
+		},
+		"WithParentChild-valid-4": {
+			option:    o.WithParentChild(4),
+			key:       core.ParamParentChild.Value(),
+			wantValue: 4,
+		},
+		"WithRoleType-invalid-0": {
+			option:  o.WithRoleType(0),
+			key:     core.ParamRoleType.Value(),
+			wantErr: true,
+		},
+		"WithRoleType-invalid-7": {
+			option:  o.WithRoleType(7),
+			key:     core.ParamRoleType.Value(),
 			wantErr: true,
 		},
 		"WithRoleType-valid-1": {
@@ -117,15 +112,20 @@ func TestOptionService_int(t *testing.T) {
 			key:       core.ParamRoleType.Value(),
 			wantValue: 6,
 		},
-		"WithRoleType-invalid-0": {
-			option:  o.WithRoleType(0),
-			key:     core.ParamRoleType.Value(),
+		"WithUserID-invalid-0": {
+			option:  o.WithUserID(0),
+			key:     core.ParamUserID.Value(),
 			wantErr: true,
 		},
-		"WithRoleType-invalid-7": {
-			option:  o.WithRoleType(7),
-			key:     core.ParamRoleType.Value(),
-			wantErr: true,
+		"WithUserID-valid-1": {
+			option:    o.WithUserID(1),
+			key:       core.ParamUserID.Value(),
+			wantValue: 1,
+		},
+		"WithUserID-valid-2": {
+			option:    o.WithUserID(2),
+			key:       core.ParamUserID.Value(),
+			wantValue: 2,
 		},
 	}
 

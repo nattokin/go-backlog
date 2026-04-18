@@ -20,14 +20,20 @@ func TestOptionService_string(t *testing.T) {
 		wantValue string
 		wantErr   bool
 	}{
+		"WithContent-empty": {
+			option:  o.WithContent(""),
+			key:     core.ParamContent.Value(),
+			wantErr: true,
+		},
 		"WithContent-valid": {
 			option:    o.WithContent("Hello"),
 			key:       core.ParamContent.Value(),
 			wantValue: "Hello",
 		},
-		"WithContent-empty": {
-			option:  o.WithContent(""),
-			key:     core.ParamContent.Value(),
+
+		"WithKey-empty": {
+			option:  o.WithKey(""),
+			key:     core.ParamKey.Value(),
 			wantErr: true,
 		},
 		"WithKey-valid": {
@@ -35,29 +41,32 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamKey.Value(),
 			wantValue: "ABC",
 		},
-		"WithKey-empty": {
-			option:  o.WithKey(""),
-			key:     core.ParamKey.Value(),
-			wantErr: true,
+
+		"WithKeyword-empty": {
+			option:    o.WithKeyword(""),
+			key:       core.ParamKeyword.Value(),
+			wantValue: "",
 		},
 		"WithKeyword-non-empty": {
 			option:    o.WithKeyword("backlog"),
 			key:       core.ParamKeyword.Value(),
 			wantValue: "backlog",
 		},
-		"WithKeyword-empty": {
-			option:    o.WithKeyword(""),
-			key:       core.ParamKeyword.Value(),
-			wantValue: "",
+
+		"WithMailAddress-empty": {
+			option:  o.WithMailAddress(""),
+			key:     core.ParamMailAddress.Value(),
+			wantErr: true,
 		},
 		"WithMailAddress-valid": {
 			option:    o.WithMailAddress("test@example.com"),
 			key:       core.ParamMailAddress.Value(),
 			wantValue: "test@example.com",
 		},
-		"WithMailAddress-empty": {
-			option:  o.WithMailAddress(""),
-			key:     core.ParamMailAddress.Value(),
+
+		"WithName-empty": {
+			option:  o.WithName(""),
+			key:     core.ParamName.Value(),
 			wantErr: true,
 		},
 		"WithName-valid": {
@@ -65,9 +74,36 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamName.Value(),
 			wantValue: "testname",
 		},
-		"WithName-empty": {
-			option:  o.WithName(""),
-			key:     core.ParamName.Value(),
+
+		"WithOrder-asc": {
+			option:    o.WithOrder(model.OrderAsc),
+			key:       core.ParamOrder.Value(),
+			wantValue: "asc",
+		},
+		"WithOrder-desc": {
+			option:    o.WithOrder(model.OrderDesc),
+			key:       core.ParamOrder.Value(),
+			wantValue: "desc",
+		},
+		"WithOrder-empty": {
+			option:  o.WithOrder(""),
+			key:     core.ParamOrder.Value(),
+			wantErr: true,
+		},
+		"WithOrder-invalid": {
+			option:  o.WithOrder("invalid"),
+			key:     core.ParamOrder.Value(),
+			wantErr: true,
+		},
+
+		"WithPassword-invalid-empty": {
+			option:  o.WithPassword(""),
+			key:     core.ParamPassword.Value(),
+			wantErr: true,
+		},
+		"WithPassword-valid-7chars": {
+			option:  o.WithPassword("abcdefg"),
+			key:     core.ParamPassword.Value(),
 			wantErr: true,
 		},
 		"WithPassword-valid-8chars": {
@@ -80,34 +116,15 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamPassword.Value(),
 			wantValue: "abcdefghi",
 		},
-		"WithPassword-valid-7chars": {
-			option:  o.WithPassword("abcdefg"),
-			key:     core.ParamPassword.Value(),
+
+		"WithTextFormattingRule-invalid": {
+			option:  o.WithTextFormattingRule("invalid"),
+			key:     core.ParamTextFormattingRule.Value(),
 			wantErr: true,
 		},
-		"WithPassword-invalid-empty": {
-			option:  o.WithPassword(""),
-			key:     core.ParamPassword.Value(),
-			wantErr: true,
-		},
-		"WithOrder-asc": {
-			option:    o.WithOrder(model.OrderAsc),
-			key:       core.ParamOrder.Value(),
-			wantValue: "asc",
-		},
-		"WithOrder-desc": {
-			option:    o.WithOrder(model.OrderDesc),
-			key:       core.ParamOrder.Value(),
-			wantValue: "desc",
-		},
-		"WithOrder-invalid": {
-			option:  o.WithOrder("invalid"),
-			key:     core.ParamOrder.Value(),
-			wantErr: true,
-		},
-		"WithOrder-empty": {
-			option:  o.WithOrder(""),
-			key:     core.ParamOrder.Value(),
+		"WithTextFormattingRule-invalid-empty": {
+			option:  o.WithTextFormattingRule(""),
+			key:     core.ParamTextFormattingRule.Value(),
 			wantErr: true,
 		},
 		"WithTextFormattingRule-valid-backlog": {
@@ -119,16 +136,6 @@ func TestOptionService_string(t *testing.T) {
 			option:    o.WithTextFormattingRule(model.FormatMarkdown),
 			key:       core.ParamTextFormattingRule.Value(),
 			wantValue: string(model.FormatMarkdown),
-		},
-		"WithTextFormattingRule-invalid": {
-			option:  o.WithTextFormattingRule("invalid"),
-			key:     core.ParamTextFormattingRule.Value(),
-			wantErr: true,
-		},
-		"WithTextFormattingRule-invalid-empty": {
-			option:  o.WithTextFormattingRule(""),
-			key:     core.ParamTextFormattingRule.Value(),
-			wantErr: true,
 		},
 	}
 
@@ -154,27 +161,28 @@ func TestOptionService_string(t *testing.T) {
 			sort    model.IssueSort
 			wantErr bool
 		}{
-			"issueType":      {sort: model.IssueSortIssueType},
-			"category":       {sort: model.IssueSortCategory},
-			"version":        {sort: model.IssueSortVersion},
-			"milestone":      {sort: model.IssueSortMilestone},
-			"summary":        {sort: model.IssueSortSummary},
-			"status":         {sort: model.IssueSortStatus},
-			"priority":       {sort: model.IssueSortPriority},
+			"actualHours":    {sort: model.IssueSortActualHours},
+			"assignee":       {sort: model.IssueSortAssignee},
 			"attachment":     {sort: model.IssueSortAttachment},
-			"sharedFile":     {sort: model.IssueSortSharedFile},
+			"category":       {sort: model.IssueSortCategory},
+			"childIssue":     {sort: model.IssueSortChildIssue},
 			"created":        {sort: model.IssueSortCreated},
 			"createdUser":    {sort: model.IssueSortCreatedUser},
-			"updated":        {sort: model.IssueSortUpdated},
-			"updatedUser":    {sort: model.IssueSortUpdatedUser},
-			"assignee":       {sort: model.IssueSortAssignee},
-			"startDate":      {sort: model.IssueSortStartDate},
 			"dueDate":        {sort: model.IssueSortDueDate},
 			"estimatedHours": {sort: model.IssueSortEstimatedHours},
-			"actualHours":    {sort: model.IssueSortActualHours},
-			"childIssue":     {sort: model.IssueSortChildIssue},
-			"invalid":        {sort: "invalid", wantErr: true},
-			"empty":          {sort: "", wantErr: true},
+			"issueType":      {sort: model.IssueSortIssueType},
+			"milestone":      {sort: model.IssueSortMilestone},
+			"priority":       {sort: model.IssueSortPriority},
+			"sharedFile":     {sort: model.IssueSortSharedFile},
+			"startDate":      {sort: model.IssueSortStartDate},
+			"status":         {sort: model.IssueSortStatus},
+			"summary":        {sort: model.IssueSortSummary},
+			"updated":        {sort: model.IssueSortUpdated},
+			"updatedUser":    {sort: model.IssueSortUpdatedUser},
+			"version":        {sort: model.IssueSortVersion},
+
+			"empty":   {sort: "", wantErr: true},
+			"invalid": {sort: "invalid", wantErr: true},
 		}
 
 		for name, tc := range cases {

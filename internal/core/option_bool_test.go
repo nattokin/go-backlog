@@ -19,19 +19,14 @@ func TestOptionService_bool(t *testing.T) {
 		key       string
 		wantValue bool
 	}{
-		"WithAll-true": {
-			option:    o.WithAll(true),
-			key:       core.ParamAll.Value(),
-			wantValue: true,
-		},
 		"WithAll-false": {
 			option:    o.WithAll(false),
 			key:       core.ParamAll.Value(),
 			wantValue: false,
 		},
-		"WithArchived-true": {
-			option:    o.WithArchived(true),
-			key:       core.ParamArchived.Value(),
+		"WithAll-true": {
+			option:    o.WithAll(true),
+			key:       core.ParamAll.Value(),
 			wantValue: true,
 		},
 		"WithArchived-false": {
@@ -39,59 +34,9 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamArchived.Value(),
 			wantValue: false,
 		},
-		"WithChartEnabled-true": {
-			option:    o.WithChartEnabled(true),
-			key:       core.ParamChartEnabled.Value(),
-			wantValue: true,
-		},
-		"WithChartEnabled-false": {
-			option:    o.WithChartEnabled(false),
-			key:       core.ParamChartEnabled.Value(),
-			wantValue: false,
-		},
-		"WithMailNotify-true": {
-			option:    o.WithMailNotify(true),
-			key:       core.ParamMailNotify.Value(),
-			wantValue: true,
-		},
-		"WithMailNotify-false": {
-			option:    o.WithMailNotify(false),
-			key:       core.ParamMailNotify.Value(),
-			wantValue: false,
-		},
-		"WithProjectLeaderCanEditProjectLeader-true": {
-			option:    o.WithProjectLeaderCanEditProjectLeader(true),
-			key:       core.ParamProjectLeaderCanEditProjectLeader.Value(),
-			wantValue: true,
-		},
-		"WithProjectLeaderCanEditProjectLeader-false": {
-			option:    o.WithProjectLeaderCanEditProjectLeader(false),
-			key:       core.ParamProjectLeaderCanEditProjectLeader.Value(),
-			wantValue: false,
-		},
-		"WithSendMail-true": {
-			option:    o.WithSendMail(true),
-			key:       core.ParamSendMail.Value(),
-			wantValue: true,
-		},
-		"WithSendMail-false": {
-			option:    o.WithSendMail(false),
-			key:       core.ParamSendMail.Value(),
-			wantValue: false,
-		},
-		"WithSubtaskingEnabled-true": {
-			option:    o.WithSubtaskingEnabled(true),
-			key:       core.ParamSubtaskingEnabled.Value(),
-			wantValue: true,
-		},
-		"WithSubtaskingEnabled-false": {
-			option:    o.WithSubtaskingEnabled(false),
-			key:       core.ParamSubtaskingEnabled.Value(),
-			wantValue: false,
-		},
-		"WithAttachment-true": {
-			option:    o.WithAttachment(true),
-			key:       core.ParamAttachment.Value(),
+		"WithArchived-true": {
+			option:    o.WithArchived(true),
+			key:       core.ParamArchived.Value(),
 			wantValue: true,
 		},
 		"WithAttachment-false": {
@@ -99,14 +44,24 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamAttachment.Value(),
 			wantValue: false,
 		},
-		"WithSharedFile-true": {
-			option:    o.WithSharedFile(true),
-			key:       core.ParamSharedFile.Value(),
+		"WithAttachment-true": {
+			option:    o.WithAttachment(true),
+			key:       core.ParamAttachment.Value(),
 			wantValue: true,
 		},
-		"WithSharedFile-false": {
-			option:    o.WithSharedFile(false),
-			key:       core.ParamSharedFile.Value(),
+		"WithChartEnabled-false": {
+			option:    o.WithChartEnabled(false),
+			key:       core.ParamChartEnabled.Value(),
+			wantValue: false,
+		},
+		"WithChartEnabled-true": {
+			option:    o.WithChartEnabled(true),
+			key:       core.ParamChartEnabled.Value(),
+			wantValue: true,
+		},
+		"WithHasDueDate-false": {
+			option:    o.WithHasDueDate(false),
+			key:       core.ParamHasDueDate.Value(),
 			wantValue: false,
 		},
 		"WithHasDueDate-true": {
@@ -114,10 +69,55 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamHasDueDate.Value(),
 			wantValue: true,
 		},
-		"WithHasDueDate-false": {
-			option:    o.WithHasDueDate(false),
-			key:       core.ParamHasDueDate.Value(),
+		"WithMailNotify-false": {
+			option:    o.WithMailNotify(false),
+			key:       core.ParamMailNotify.Value(),
 			wantValue: false,
+		},
+		"WithMailNotify-true": {
+			option:    o.WithMailNotify(true),
+			key:       core.ParamMailNotify.Value(),
+			wantValue: true,
+		},
+		"WithProjectLeaderCanEditProjectLeader-false": {
+			option:    o.WithProjectLeaderCanEditProjectLeader(false),
+			key:       core.ParamProjectLeaderCanEditProjectLeader.Value(),
+			wantValue: false,
+		},
+		"WithProjectLeaderCanEditProjectLeader-true": {
+			option:    o.WithProjectLeaderCanEditProjectLeader(true),
+			key:       core.ParamProjectLeaderCanEditProjectLeader.Value(),
+			wantValue: true,
+		},
+		"WithSendMail-false": {
+			option:    o.WithSendMail(false),
+			key:       core.ParamSendMail.Value(),
+			wantValue: false,
+		},
+		"WithSendMail-true": {
+			option:    o.WithSendMail(true),
+			key:       core.ParamSendMail.Value(),
+			wantValue: true,
+		},
+		"WithSharedFile-false": {
+			option:    o.WithSharedFile(false),
+			key:       core.ParamSharedFile.Value(),
+			wantValue: false,
+		},
+		"WithSharedFile-true": {
+			option:    o.WithSharedFile(true),
+			key:       core.ParamSharedFile.Value(),
+			wantValue: true,
+		},
+		"WithSubtaskingEnabled-false": {
+			option:    o.WithSubtaskingEnabled(false),
+			key:       core.ParamSubtaskingEnabled.Value(),
+			wantValue: false,
+		},
+		"WithSubtaskingEnabled-true": {
+			option:    o.WithSubtaskingEnabled(true),
+			key:       core.ParamSubtaskingEnabled.Value(),
+			wantValue: true,
 		},
 	}
 
