@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// ID of the Wiki page to retrieve.
 	wikiID := 12345
 
 	wiki, err := c.Wiki.One(context.Background(), wikiID)

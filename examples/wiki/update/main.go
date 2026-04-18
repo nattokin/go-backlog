@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// ID of the Wiki page to update.
 	wikiID := 12345
 
 	wiki, err := c.Wiki.Update(

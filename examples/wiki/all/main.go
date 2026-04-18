@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Key of the project.
 	projectKey := "MYPROJECT"
 
 	wikis, err := c.Wiki.All(context.Background(), projectKey)

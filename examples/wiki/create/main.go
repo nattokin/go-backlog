@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// ID of the project in which to create the Wiki page.
 	projectID := 12345
 
 	wiki, err := c.Wiki.Create(context.Background(), projectID, "My Wiki Page", "Page content here.")

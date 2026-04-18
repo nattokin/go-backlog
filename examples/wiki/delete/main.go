@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// ID of the Wiki page to delete.
 	wikiID := 12345
 
 	wiki, err := c.Wiki.Delete(context.Background(), wikiID)

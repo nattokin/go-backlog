@@ -24,7 +24,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Key of the project.
 	projectKey := "MYPROJECT"
 
 	count, err := c.Wiki.Count(context.Background(), projectKey)
