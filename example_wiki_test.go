@@ -30,6 +30,10 @@ var (
 	doerWikiCreate = &fixedDoer{body: fixture.Wiki.MinimumJSON}
 	doerWikiUpdate = &fixedDoer{body: fixture.Wiki.MinimumJSON}
 	doerWikiDelete = &fixedDoer{body: fixture.Wiki.MinimumJSON}
+
+	doerWikiAttachmentAttach = &fixedDoer{body: fixture.Attachment.ListJSON}
+	doerWikiAttachmentList   = &fixedDoer{body: fixture.Attachment.ListJSON}
+	doerWikiAttachmentRemove = &fixedDoer{body: fixture.Attachment.SingleJSON}
 )
 
 func ExampleWikiService_All() {
@@ -112,4 +116,43 @@ func ExampleWikiService_Delete() {
 	fmt.Printf("ID: %d, Name: %s\n", wiki.ID, wiki.Name)
 	// Output:
 	// ID: 34, Name: Minimum Wiki Page
+}
+
+func ExampleWikiAttachmentService_Attach() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiAttachmentAttach),
+	)
+
+	attachments, _ := c.Wiki.Attachment.Attach(context.Background(), 34, []int{2, 5})
+	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
+	// Output:
+	// ID: 2, Name: A.png
+}
+
+func ExampleWikiAttachmentService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiAttachmentList),
+	)
+
+	attachments, _ := c.Wiki.Attachment.List(context.Background(), 34)
+	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
+	// Output:
+	// ID: 2, Name: A.png
+}
+
+func ExampleWikiAttachmentService_Remove() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiAttachmentRemove),
+	)
+
+	attachment, _ := c.Wiki.Attachment.Remove(context.Background(), 34, 8)
+	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
+	// Output:
+	// ID: 8, Name: IMG0088.png
 }
