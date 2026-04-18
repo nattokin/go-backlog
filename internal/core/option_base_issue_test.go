@@ -318,14 +318,14 @@ func TestOptionService_Issue(t *testing.T) {
 			option core.RequestOption
 			key    string
 		}{
-			"WithCreatedSince":    {option: o.WithCreatedSince(date), key: core.ParamCreatedSince.Value()},
-			"WithCreatedUntil":    {option: o.WithCreatedUntil(date), key: core.ParamCreatedUntil.Value()},
-			"WithUpdatedSince":    {option: o.WithUpdatedSince(date), key: core.ParamUpdatedSince.Value()},
-			"WithUpdatedUntil":    {option: o.WithUpdatedUntil(date), key: core.ParamUpdatedUntil.Value()},
-			"WithStartDateSince":  {option: o.WithStartDateSince(date), key: core.ParamStartDateSince.Value()},
-			"WithStartDateUntil":  {option: o.WithStartDateUntil(date), key: core.ParamStartDateUntil.Value()},
-			"WithDueDateSince":    {option: o.WithDueDateSince(date), key: core.ParamDueDateSince.Value()},
-			"WithDueDateUntil":    {option: o.WithDueDateUntil(date), key: core.ParamDueDateUntil.Value()},
+			"WithCreatedSince":   {option: o.WithCreatedSince(date), key: core.ParamCreatedSince.Value()},
+			"WithCreatedUntil":   {option: o.WithCreatedUntil(date), key: core.ParamCreatedUntil.Value()},
+			"WithUpdatedSince":   {option: o.WithUpdatedSince(date), key: core.ParamUpdatedSince.Value()},
+			"WithUpdatedUntil":   {option: o.WithUpdatedUntil(date), key: core.ParamUpdatedUntil.Value()},
+			"WithStartDateSince": {option: o.WithStartDateSince(date), key: core.ParamStartDateSince.Value()},
+			"WithStartDateUntil": {option: o.WithStartDateUntil(date), key: core.ParamStartDateUntil.Value()},
+			"WithDueDateSince":   {option: o.WithDueDateSince(date), key: core.ParamDueDateSince.Value()},
+			"WithDueDateUntil":   {option: o.WithDueDateUntil(date), key: core.ParamDueDateUntil.Value()},
 		}
 
 		for name, tc := range cases {
