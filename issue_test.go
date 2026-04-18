@@ -16,6 +16,77 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
+func TestIssueService_All(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"All": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.All(ctx)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 1, got[0].ID)
+				assert.Equal(t, 2, got[1].ID)
+			},
+		},
+		"All/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues", req.URL.Path)
+				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
+				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.All(ctx,
+					c.Issue.Option.WithKeyword("bug"),
+					c.Issue.Option.WithProjectIDs([]int{10, 20}),
+				)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
+		"All/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.All(ctx)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestIssueAttachmentService(t *testing.T) {
 	ctx := context.Background()
 
