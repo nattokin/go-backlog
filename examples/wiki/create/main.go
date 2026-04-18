@@ -1,32 +1,36 @@
+// Example: Create a new Wiki page in a project.
+// This example demonstrates how to create a Wiki page
+// in a specified project using the Backlog API client.
 package main
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/nattokin/go-backlog"
 )
 
 func main() {
-	// The base URL of Backlog API.
-	baseURL := "BACKLOG_BASE_URL"
-	// The token for request to Backlog API.
-	token := "BACKLOG_TOKEN"
+	baseURL := os.Getenv("BACKLOG_BASE_URL")
+	token := os.Getenv("BACKLOG_TOKEN")
+	if baseURL == "" || token == "" {
+		log.Fatalln("BACKLOG_BASE_URL and BACKLOG_TOKEN must be set")
+	}
 
-	// Create Backlog API client.
 	c, err := backlog.NewClient(baseURL, token)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Create a new Wiki by ID of the project.
-	// You get struct where represented the Wiki created.
-	r, err := c.Wiki.Create(context.Background(), 12345, "name", "content")
+	// ID of the project in which to create the Wiki page.
+	projectID := 12345
+
+	wiki, err := c.Wiki.Create(context.Background(), projectID, "My Wiki Page", "Page content here.")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Output result.
-	fmt.Printf("%#v\n", r)
+	fmt.Printf("ID: %d, Name: %s\n", wiki.ID, wiki.Name)
 }
