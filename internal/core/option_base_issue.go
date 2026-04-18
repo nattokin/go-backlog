@@ -11,214 +11,91 @@ import (
 
 const issueDateFormat = "2006-01-02"
 
-// WithProjectIDs returns an option to filter by project IDs.
-func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
+// validatePositiveIDs checks that all IDs in the slice are >= 1.
+// paramName is used in the error message (e.g. "projectId").
+func validatePositiveIDs(ids []int, paramName string) error {
+	for _, id := range ids {
+		if id < 1 {
+			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, id))
+		}
+	}
+	return nil
+}
+
+// idSliceOption builds a RequestOption that validates and adds multiple int IDs as repeated query params.
+func idSliceOption(paramType APIParamOptionType, paramName string, ids []int) RequestOption {
 	return &APIParamOption{
-		Type: ParamProjectIDs,
+		Type: paramType,
 		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid projectId: %d must not be less than 1", id))
-				}
-			}
-			return nil
+			return validatePositiveIDs(ids, paramName)
 		},
 		SetFunc: func(v url.Values) error {
 			for _, id := range ids {
-				v.Add(ParamProjectIDs.Value(), strconv.Itoa(id))
+				v.Add(paramType.Value(), strconv.Itoa(id))
 			}
 			return nil
 		},
 	}
+}
+
+// WithProjectIDs returns an option to filter by project IDs.
+func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
+	return idSliceOption(ParamProjectIDs, "projectId", ids)
 }
 
 // WithIssueTypeIDs returns an option to filter by issue type IDs.
 func (s *OptionService) WithIssueTypeIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamIssueTypeIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid issueTypeId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamIssueTypeIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamIssueTypeIDs, "issueTypeId", ids)
 }
 
 // WithCategoryIDs returns an option to filter by category IDs.
 func (s *OptionService) WithCategoryIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamCategoryIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid categoryId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamCategoryIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamCategoryIDs, "categoryId", ids)
 }
 
 // WithVersionIDs returns an option to filter by version IDs.
 func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamVersionIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid versionId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamVersionIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamVersionIDs, "versionId", ids)
 }
 
 // WithMilestoneIDs returns an option to filter by milestone IDs.
 func (s *OptionService) WithMilestoneIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamMilestoneIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid milestoneId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamMilestoneIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamMilestoneIDs, "milestoneId", ids)
 }
 
 // WithStatusIDs returns an option to filter by status IDs.
 func (s *OptionService) WithStatusIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamStatusIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid statusId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamStatusIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamStatusIDs, "statusId", ids)
 }
 
 // WithPriorityIDs returns an option to filter by priority IDs.
 func (s *OptionService) WithPriorityIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamPriorityIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid priorityId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamPriorityIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamPriorityIDs, "priorityId", ids)
 }
 
 // WithAssigneeIDs returns an option to filter by assignee user IDs.
 func (s *OptionService) WithAssigneeIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamAssigneeIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid assigneeId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamAssigneeIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamAssigneeIDs, "assigneeId", ids)
 }
 
 // WithCreatedUserIDs returns an option to filter by created user IDs.
 func (s *OptionService) WithCreatedUserIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamCreatedUserIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid createdUserId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamCreatedUserIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamCreatedUserIDs, "createdUserId", ids)
 }
 
 // WithResolutionIDs returns an option to filter by resolution IDs.
 func (s *OptionService) WithResolutionIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamResolutionIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid resolutionId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamResolutionIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
+	return idSliceOption(ParamResolutionIDs, "resolutionId", ids)
+}
+
+// WithIDs returns an option to filter by issue IDs.
+func (s *OptionService) WithIDs(ids []int) RequestOption {
+	return idSliceOption(ParamIDs, "id", ids)
+}
+
+// WithParentIssueIDs returns an option to filter by parent issue IDs.
+func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
+	return idSliceOption(ParamParentIssueIDs, "parentIssueId", ids)
 }
 
 // WithParentChild returns an option to set the `parentChild` parameter.
@@ -401,48 +278,6 @@ func (s *OptionService) WithHasDueDate(enabled bool) RequestOption {
 		Type: ParamHasDueDate,
 		SetFunc: func(v url.Values) error {
 			v.Set(ParamHasDueDate.Value(), strconv.FormatBool(enabled))
-			return nil
-		},
-	}
-}
-
-// WithIDs returns an option to filter by issue IDs.
-func (s *OptionService) WithIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid id: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamIDs.Value(), strconv.Itoa(id))
-			}
-			return nil
-		},
-	}
-}
-
-// WithParentIssueIDs returns an option to filter by parent issue IDs.
-func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
-	return &APIParamOption{
-		Type: ParamParentIssueIDs,
-		CheckFunc: func() error {
-			for _, id := range ids {
-				if id < 1 {
-					return NewValidationError(fmt.Sprintf("invalid parentIssueId: %d must not be less than 1", id))
-				}
-			}
-			return nil
-		},
-		SetFunc: func(v url.Values) error {
-			for _, id := range ids {
-				v.Add(ParamParentIssueIDs.Value(), strconv.Itoa(id))
-			}
 			return nil
 		},
 	}
