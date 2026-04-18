@@ -187,7 +187,7 @@ var Issue = issueFixtures{
 				Color:        "#7ea800",
 				DisplayOrder: 1,
 			},
-			Summary: "Second issue",
+			Summary:  "Second issue",
 			Priority: &backlog.Priority{ID: 2, Name: "High"},
 			Status: &backlog.Status{
 				ID:   2,
