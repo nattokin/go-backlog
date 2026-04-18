@@ -1,39 +1,24 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
-// fixedDoer is a Doer that always returns a fixed response body with HTTP 200.
-type fixedDoer struct {
-	body string
-}
-
-func (d *fixedDoer) Do(_ *http.Request) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBufferString(d.body)),
-	}, nil
-}
-
 var (
-	doerWikiAll    = &fixedDoer{body: fixture.Wiki.ListJSON}
-	doerWikiCount  = &fixedDoer{body: `{"count": 5}`}
-	doerWikiOne    = &fixedDoer{body: fixture.Wiki.MinimumJSON}
-	doerWikiCreate = &fixedDoer{body: fixture.Wiki.MinimumJSON}
-	doerWikiUpdate = &fixedDoer{body: fixture.Wiki.MinimumJSON}
-	doerWikiDelete = &fixedDoer{body: fixture.Wiki.MinimumJSON}
+	doerWikiAll    = newMockDoer(fixture.Wiki.ListJSON)
+	doerWikiCount  = newMockDoer(`{"count": 5}`)
+	doerWikiOne    = newMockDoer(fixture.Wiki.MinimumJSON)
+	doerWikiCreate = newMockDoer(fixture.Wiki.MinimumJSON)
+	doerWikiUpdate = newMockDoer(fixture.Wiki.MinimumJSON)
+	doerWikiDelete = newMockDoer(fixture.Wiki.MinimumJSON)
 
-	doerWikiAttachmentAttach = &fixedDoer{body: fixture.Attachment.ListJSON}
-	doerWikiAttachmentList   = &fixedDoer{body: fixture.Attachment.ListJSON}
-	doerWikiAttachmentRemove = &fixedDoer{body: fixture.Attachment.SingleJSON}
+	doerWikiAttachmentAttach = newMockDoer(fixture.Attachment.ListJSON)
+	doerWikiAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
+	doerWikiAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
 )
 
 func ExampleWikiService_All() {
