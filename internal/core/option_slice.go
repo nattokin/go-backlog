@@ -18,6 +18,11 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	}
 }
 
+// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
+	return intSliceOption(ParamAttachmentIDs, "attachmentId", ids)
+}
+
 // WithProjectIDs returns an option to filter by project IDs.
 func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
 	return intSliceOption(ParamProjectIDs, "projectId", ids)
@@ -41,6 +46,11 @@ func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
 // WithMilestoneIDs returns an option to filter by milestone IDs.
 func (s *OptionService) WithMilestoneIDs(ids []int) RequestOption {
 	return intSliceOption(ParamMilestoneIDs, "milestoneId", ids)
+}
+
+// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+func (s *OptionService) WithNotifiedUserIDs(ids []int) RequestOption {
+	return intSliceOption(ParamNotifiedUserIDs, "notifiedUserId", ids)
 }
 
 // WithStatusIDs returns an option to filter by status IDs.

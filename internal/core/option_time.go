@@ -14,6 +14,11 @@ func (s *OptionService) WithCreatedUntil(t time.Time) RequestOption {
 	return timeOption(ParamCreatedUntil, t, issueDateFormat)
 }
 
+// WithDueDate returns an option to set the `dueDate` parameter.
+func (s *OptionService) WithDueDate(t time.Time) RequestOption {
+	return timeOption(ParamDueDate, t, issueDateFormat)
+}
+
 // WithUpdatedSince returns an option to filter issues updated on or after the given date.
 func (s *OptionService) WithUpdatedSince(t time.Time) RequestOption {
 	return timeOption(ParamUpdatedSince, t, issueDateFormat)
@@ -22,6 +27,11 @@ func (s *OptionService) WithUpdatedSince(t time.Time) RequestOption {
 // WithUpdatedUntil returns an option to filter issues updated on or before the given date.
 func (s *OptionService) WithUpdatedUntil(t time.Time) RequestOption {
 	return timeOption(ParamUpdatedUntil, t, issueDateFormat)
+}
+
+// WithStartDate returns an option to set the `startDate` parameter.
+func (s *OptionService) WithStartDate(t time.Time) RequestOption {
+	return timeOption(ParamStartDate, t, issueDateFormat)
 }
 
 // WithStartDateSince returns an option to filter issues with a start date on or after the given date.
