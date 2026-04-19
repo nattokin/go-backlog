@@ -353,6 +353,17 @@ func customFieldFromModel(m *model.CustomField) *CustomField {
 	}
 }
 
+func customFieldsFromModel(m []*model.CustomField) []*CustomField {
+	if m == nil {
+		return nil
+	}
+	result := make([]*CustomField, len(m))
+	for i, v := range m {
+		result[i] = customFieldFromModel(v)
+	}
+	return result
+}
+
 func commentFromModel(m *model.Comment) *Comment {
 	if m == nil {
 		return nil
@@ -411,6 +422,17 @@ func sharedFileFromModel(m *model.SharedFile) *SharedFile {
 		UpdatedUser: userFromModel(m.UpdatedUser),
 		Updated:     m.Updated,
 	}
+}
+
+func sharedFilesFromModel(m []*model.SharedFile) []*SharedFile {
+	if m == nil {
+		return nil
+	}
+	result := make([]*SharedFile, len(m))
+	for i, v := range m {
+		result[i] = sharedFileFromModel(v)
+	}
+	return result
 }
 
 func statusFromModel(m *model.Status) *Status {

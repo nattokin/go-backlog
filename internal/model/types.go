@@ -23,6 +23,29 @@ const (
 	RoleGuestViewer
 )
 
+// IssueSort represents the field to sort issue list results by.
+const (
+	IssueSortIssueType      IssueSort = "issueType"
+	IssueSortCategory       IssueSort = "category"
+	IssueSortVersion        IssueSort = "version"
+	IssueSortMilestone      IssueSort = "milestone"
+	IssueSortSummary        IssueSort = "summary"
+	IssueSortStatus         IssueSort = "status"
+	IssueSortPriority       IssueSort = "priority"
+	IssueSortAttachment     IssueSort = "attachment"
+	IssueSortSharedFile     IssueSort = "sharedFile"
+	IssueSortCreated        IssueSort = "created"
+	IssueSortCreatedUser    IssueSort = "createdUser"
+	IssueSortUpdated        IssueSort = "updated"
+	IssueSortUpdatedUser    IssueSort = "updatedUser"
+	IssueSortAssignee       IssueSort = "assignee"
+	IssueSortStartDate      IssueSort = "startDate"
+	IssueSortDueDate        IssueSort = "dueDate"
+	IssueSortEstimatedHours IssueSort = "estimatedHours"
+	IssueSortActualHours    IssueSort = "actualHours"
+	IssueSortChildIssue     IssueSort = "childIssue"
+)
+
 // Format defines the text formatting rule for the Backlog wiki.
 type Format string
 
@@ -31,3 +54,6 @@ type Order string
 
 // Role defines the type of user role within a project.
 type Role int
+
+// IssueSort represents the field to sort issue list results by.
+type IssueSort string
