@@ -353,6 +353,17 @@ func customFieldFromModel(m *model.CustomField) *CustomField {
 	}
 }
 
+func customFieldsFromModel(m []*model.CustomField) []*CustomField {
+	if m == nil {
+		return nil
+	}
+	result := make([]*CustomField, len(m))
+	for i, v := range m {
+		result[i] = customFieldFromModel(v)
+	}
+	return result
+}
+
 func commentFromModel(m *model.Comment) *Comment {
 	if m == nil {
 		return nil

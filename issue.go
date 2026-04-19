@@ -380,10 +380,6 @@ func issueFromModel(m *model.Issue) *Issue {
 		}
 		categories[i] = &Category{ID: v.ID, Name: v.Name, DisplayOrder: v.DisplayOrder}
 	}
-	customFields := make([]*CustomField, len(m.CustomFields))
-	for i, v := range m.CustomFields {
-		customFields[i] = customFieldFromModel(v)
-	}
 	sharedFiles := make([]*SharedFile, len(m.SharedFiles))
 	for i, v := range m.SharedFiles {
 		sharedFiles[i] = sharedFileFromModel(v)
@@ -426,7 +422,7 @@ func issueFromModel(m *model.Issue) *Issue {
 		Created:        m.Created,
 		UpdatedUser:    userFromModel(m.UpdatedUser),
 		Updated:        m.Updated,
-		CustomFields:   customFields,
+		CustomFields:   customFieldsFromModel(m.CustomFields),
 		Attachments:    attachmentsFromModel(m.Attachments),
 		SharedFiles:    sharedFiles,
 		Stars:          starsFromModel(m.Stars),
