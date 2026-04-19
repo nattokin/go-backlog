@@ -335,6 +335,36 @@ func newIssueOptionService(option *core.OptionService) *IssueOptionService {
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
+func categoriesFromModel(m []*model.Category) []*Category {
+	if m == nil {
+		return nil
+	}
+	result := make([]*Category, len(m))
+	for i, v := range m {
+		if v == nil {
+			result[i] = nil
+		} else {
+			result[i] = &Category{ID: v.ID, Name: v.Name, DisplayOrder: v.DisplayOrder}
+		}
+	}
+	return result
+}
+
+func resolutionsFromModel(m []*model.Resolution) []*Resolution {
+	if m == nil {
+		return nil
+	}
+	result := make([]*Resolution, len(m))
+	for i, v := range m {
+		if v == nil {
+			result[i] = nil
+		} else {
+			result[i] = &Resolution{ID: v.ID, Name: v.Name}
+		}
+	}
+	return result
+}
+
 func versionFromModel(m *model.Version) *Version {
 	if m == nil {
 		return nil
@@ -366,24 +396,6 @@ func issueFromModel(m *model.Issue) *Issue {
 	if m == nil {
 		return nil
 	}
-	resolutions := make([]*Resolution, len(m.Resolutions))
-	for i, v := range m.Resolutions {
-		if v == nil {
-			continue
-		}
-		resolutions[i] = &Resolution{ID: v.ID, Name: v.Name}
-	}
-	categories := make([]*Category, len(m.Category))
-	for i, v := range m.Category {
-		if v == nil {
-			continue
-		}
-		categories[i] = &Category{ID: v.ID, Name: v.Name, DisplayOrder: v.DisplayOrder}
-	}
-	sharedFiles := make([]*SharedFile, len(m.SharedFiles))
-	for i, v := range m.SharedFiles {
-		sharedFiles[i] = sharedFileFromModel(v)
-	}
 	var issueType *IssueType
 	if m.IssueType != nil {
 		issueType = &IssueType{
@@ -406,11 +418,11 @@ func issueFromModel(m *model.Issue) *Issue {
 		IssueType:      issueType,
 		Summary:        m.Summary,
 		Description:    m.Description,
-		Resolutions:    resolutions,
+		Resolutions:    resolutionsFromModel(m.Resolutions),
 		Priority:       priority,
 		Status:         statusFromModel(m.Status),
 		Assignee:       userFromModel(m.Assignee),
-		Category:       categories,
+		Category:       categoriesFromModel(m.Category),
 		Versions:       versionsFromModel(m.Versions),
 		Milestone:      versionsFromModel(m.Milestone),
 		StartDate:      m.StartDate,
@@ -424,7 +436,7 @@ func issueFromModel(m *model.Issue) *Issue {
 		Updated:        m.Updated,
 		CustomFields:   customFieldsFromModel(m.CustomFields),
 		Attachments:    attachmentsFromModel(m.Attachments),
-		SharedFiles:    sharedFiles,
+		SharedFiles:    sharedFilesFromModel(m.SharedFiles),
 		Stars:          starsFromModel(m.Stars),
 	}
 }

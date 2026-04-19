@@ -424,6 +424,17 @@ func sharedFileFromModel(m *model.SharedFile) *SharedFile {
 	}
 }
 
+func sharedFilesFromModel(m []*model.SharedFile) []*SharedFile {
+	if m == nil {
+		return nil
+	}
+	result := make([]*SharedFile, len(m))
+	for i, v := range m {
+		result[i] = sharedFileFromModel(v)
+	}
+	return result
+}
+
 func statusFromModel(m *model.Status) *Status {
 	if m == nil {
 		return nil

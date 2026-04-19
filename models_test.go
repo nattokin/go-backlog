@@ -346,7 +346,6 @@ func Test_issueFromModel(t *testing.T) {
 			},
 		},
 		"nil_elements": {
-			// Resolutions と Category のforループ内 nil チェックをカバー
 			input: &model.Issue{
 				Resolutions: []*model.Resolution{nil},
 				Category:    []*model.Category{nil},
@@ -354,7 +353,6 @@ func Test_issueFromModel(t *testing.T) {
 			want: &Issue{
 				Resolutions: []*Resolution{nil},
 				Category:    []*Category{nil},
-				SharedFiles: []*SharedFile{},
 			},
 		},
 		"nil": {
@@ -426,11 +424,8 @@ func Test_pullRequestFromModel(t *testing.T) {
 				Status:       &Status{ID: 1, Name: "Open"},
 				Assignee:     wantUser,
 				Issue: &Issue{
-					ID:          10,
-					Summary:     "related issue",
-					Resolutions: []*Resolution{},
-					Category:    []*Category{},
-					SharedFiles: []*SharedFile{},
+					ID:      10,
+					Summary: "related issue",
 				},
 				BaseCommit:   "abc123",
 				BranchCommit: "def456",
