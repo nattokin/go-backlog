@@ -30,7 +30,16 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamContent.Value(),
 			wantValue: "Hello",
 		},
-
+		"WithDescription-empty": {
+			option:    o.WithDescription(""),
+			key:       core.ParamDescription.Value(),
+			wantValue: "",
+		},
+		"WithDescription-non-empty": {
+			option:    o.WithDescription("desc"),
+			key:       core.ParamDescription.Value(),
+			wantValue: "desc",
+		},
 		"WithKey-empty": {
 			option:  o.WithKey(""),
 			key:     core.ParamKey.Value(),
@@ -41,7 +50,6 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamKey.Value(),
 			wantValue: "ABC",
 		},
-
 		"WithKeyword-empty": {
 			option:    o.WithKeyword(""),
 			key:       core.ParamKeyword.Value(),
@@ -63,7 +71,6 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamMailAddress.Value(),
 			wantValue: "test@example.com",
 		},
-
 		"WithName-empty": {
 			option:  o.WithName(""),
 			key:     core.ParamName.Value(),
@@ -74,7 +81,16 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamName.Value(),
 			wantValue: "testname",
 		},
-
+		"WithSummary-empty": {
+			option:  o.WithSummary(""),
+			key:     core.ParamSummary.Value(),
+			wantErr: true,
+		},
+		"WithSummary-valid": {
+			option:    o.WithSummary("summary"),
+			key:       core.ParamSummary.Value(),
+			wantValue: "summary",
+		},
 		"WithOrder-asc": {
 			option:    o.WithOrder(model.OrderAsc),
 			key:       core.ParamOrder.Value(),
@@ -95,7 +111,6 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamOrder.Value(),
 			wantErr: true,
 		},
-
 		"WithPassword-invalid-empty": {
 			option:  o.WithPassword(""),
 			key:     core.ParamPassword.Value(),
@@ -116,7 +131,6 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamPassword.Value(),
 			wantValue: "abcdefghi",
 		},
-
 		"WithTextFormattingRule-invalid": {
 			option:  o.WithTextFormattingRule("invalid"),
 			key:     core.ParamTextFormattingRule.Value(),
