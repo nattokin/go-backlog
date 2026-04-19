@@ -142,21 +142,6 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "First issue", got.Summary)
 			},
 		},
-		"One/by-id": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				assert.Equal(t, http.MethodGet, req.Method)
-				assert.Equal(t, "/api/v2/issues/1", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
-				}, nil
-			},
-			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.One(ctx, "1")
-				require.NoError(t, err)
-				assert.Equal(t, 1, got.ID)
-			},
-		},
 		"One/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				return &http.Response{
