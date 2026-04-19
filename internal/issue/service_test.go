@@ -508,10 +508,7 @@ func TestIssueService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{
-				Get:  mock.NewUnexpectedGetFn(t),
-				Post: mock.NewUnexpectedPostFn(t),
-			}
+			method := &core.Method{Post: mock.NewUnexpectedPostFn(t)}
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
@@ -639,10 +636,7 @@ func TestIssueService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{
-				Get:   mock.NewUnexpectedGetFn(t),
-				Patch: mock.NewUnexpectedPatchFn(t),
-			}
+			method := &core.Method{Patch: mock.NewUnexpectedPatchFn(t)}
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
@@ -727,10 +721,7 @@ func TestIssueService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{
-				Get:    mock.NewUnexpectedGetFn(t),
-				Delete: mock.NewUnexpectedDeleteFn(t),
-			}
+			method := &core.Method{Delete: mock.NewUnexpectedDeleteFn(t)}
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
