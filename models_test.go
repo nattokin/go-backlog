@@ -347,12 +347,24 @@ func Test_issueFromModel(t *testing.T) {
 		},
 		"nil_elements": {
 			input: &model.Issue{
-				Resolutions: []*model.Resolution{nil},
-				Category:    []*model.Category{nil},
+				Resolutions:  []*model.Resolution{nil},
+				Category:     []*model.Category{nil},
+				Versions:     []*model.Version{nil},
+				Milestone:    []*model.Version{nil},
+				CustomFields: []*model.CustomField{nil},
+				Attachments:  []*model.Attachment{nil},
+				SharedFiles:  []*model.SharedFile{nil},
+				Stars:        []*model.Star{nil},
 			},
 			want: &Issue{
-				Resolutions: []*Resolution{nil},
-				Category:    []*Category{nil},
+				Resolutions:  []*Resolution{nil},
+				Category:     []*Category{nil},
+				Versions:     []*Version{nil},
+				Milestone:    []*Version{nil},
+				CustomFields: []*CustomField{nil},
+				Attachments:  []*Attachment{nil},
+				SharedFiles:  []*SharedFile{nil},
+				Stars:        []*Star{nil},
 			},
 		},
 		"nil": {
