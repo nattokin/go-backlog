@@ -125,6 +125,196 @@ func TestIssueService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"One": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.One(ctx, "PRJ-1")
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+				assert.Equal(t, "PRJ-1", got.IssueKey)
+				assert.Equal(t, "First issue", got.Summary)
+			},
+		},
+		"One/by-id": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues/1", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.One(ctx, "1")
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+			},
+		},
+		"One/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.One(ctx, "PRJ-1")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Create": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/issues", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "10", req.PostForm.Get("projectId"))
+				assert.Equal(t, "New issue", req.PostForm.Get("summary"))
+				assert.Equal(t, "2", req.PostForm.Get("issueTypeId"))
+				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+				assert.Equal(t, "First issue", got.Summary)
+			},
+		},
+		"Create/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/issues", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "10", req.PostForm.Get("projectId"))
+				assert.Equal(t, "New issue", req.PostForm.Get("summary"))
+				assert.Equal(t, "2", req.PostForm.Get("issueTypeId"))
+				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
+				assert.Equal(t, "details here", req.PostForm.Get("description"))
+				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3,
+					c.Issue.Option.WithDescription("details here"),
+					c.Issue.Option.WithAssigneeID(5),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+			},
+		},
+		"Create/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Update": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+			},
+		},
+		"Update/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
+				assert.Equal(t, "2", req.PostForm.Get("statusId"))
+				assert.Equal(t, "1", req.PostForm.Get("resolutionId"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Update(ctx, "PRJ-1",
+					c.Issue.Option.WithSummary("Updated summary"),
+					c.Issue.Option.WithStatusID(2),
+					c.Issue.Option.WithResolutionID(1),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+			},
+		},
+		"Update/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Delete": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Delete(ctx, "PRJ-1")
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+				assert.Equal(t, "PRJ-1", got.IssueKey)
+			},
+		},
+		"Delete/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.Delete(ctx, "PRJ-1")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 	}
 
 	for name, tc := range cases {
