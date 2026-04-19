@@ -125,6 +125,85 @@ func (s *IssueService) All(ctx context.Context, opts ...RequestOption) ([]*Issue
 	return issuesFromModel(v), convertError(err)
 }
 
+// Count returns the total count of issues matching the given filters.
+//
+// This method supports the same filter options as All, except WithIssueSort,
+// WithOrder, WithOffset, and WithCount.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
+func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, error) {
+	count, err := s.base.Count(ctx, toCoreOptions(opts)...)
+	return count, convertError(err)
+}
+
+// One returns a single issue by its ID or key.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue
+func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, error) {
+	v, err := s.base.One(ctx, issueIDOrKey)
+	return issueFromModel(v), convertError(err)
+}
+
+// Create creates a new issue.
+//
+// This method supports options returned by methods in "*Client.Issue.Option",
+// such as:
+//   - WithDescription
+//   - WithStartDate
+//   - WithDueDate
+//   - WithEstimatedHours
+//   - WithActualHours
+//   - WithCategoryIDs
+//   - WithVersionIDs
+//   - WithMilestoneIDs
+//   - WithAssigneeID
+//   - WithParentIssueID
+//   - WithStatusID
+//   - WithNotifiedUserIDs
+//   - WithAttachmentIDs
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
+func (s *IssueService) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...RequestOption) (*Issue, error) {
+	v, err := s.base.Create(ctx, projectID, summary, issueTypeID, priorityID, toCoreOptions(opts)...)
+	return issueFromModel(v), convertError(err)
+}
+
+// Update updates an existing issue.
+//
+// At least one option is required. This method supports options returned by
+// methods in "*Client.Issue.Option", such as:
+//   - WithSummary
+//   - WithDescription
+//   - WithIssueTypeID
+//   - WithCategoryIDs
+//   - WithVersionIDs
+//   - WithMilestoneIDs
+//   - WithStartDate
+//   - WithDueDate
+//   - WithEstimatedHours
+//   - WithActualHours
+//   - WithAssigneeID
+//   - WithParentIssueID
+//   - WithPriorityID
+//   - WithStatusID
+//   - WithResolutionID
+//   - WithNotifiedUserIDs
+//   - WithAttachmentIDs
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
+func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {
+	v, err := s.base.Update(ctx, issueIDOrKey, option, toCoreOptions(opts)...)
+	return issueFromModel(v), convertError(err)
+}
+
+// Delete deletes an issue by its ID or key.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue
+func (s *IssueService) Delete(ctx context.Context, issueIDOrKey string) (*Issue, error) {
+	v, err := s.base.Delete(ctx, issueIDOrKey)
+	return issueFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  IssueAttachmentService
 // ──────────────────────────────────────────────────────────────
@@ -160,39 +239,14 @@ type IssueOptionService struct {
 	base *core.OptionService
 }
 
-// WithProjectIDs filters issues by project IDs.
-func (s *IssueOptionService) WithProjectIDs(ids []int) RequestOption {
-	return s.base.WithProjectIDs(ids)
+// WithActualHours returns an option to set the `actualHours` parameter.
+func (s *IssueOptionService) WithActualHours(hours int) RequestOption {
+	return s.base.WithActualHours(hours)
 }
 
-// WithIssueTypeIDs filters issues by issue type IDs.
-func (s *IssueOptionService) WithIssueTypeIDs(ids []int) RequestOption {
-	return s.base.WithIssueTypeIDs(ids)
-}
-
-// WithCategoryIDs filters issues by category IDs.
-func (s *IssueOptionService) WithCategoryIDs(ids []int) RequestOption {
-	return s.base.WithCategoryIDs(ids)
-}
-
-// WithVersionIDs filters issues by version IDs.
-func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
-	return s.base.WithVersionIDs(ids)
-}
-
-// WithMilestoneIDs filters issues by milestone IDs.
-func (s *IssueOptionService) WithMilestoneIDs(ids []int) RequestOption {
-	return s.base.WithMilestoneIDs(ids)
-}
-
-// WithStatusIDs filters issues by status IDs.
-func (s *IssueOptionService) WithStatusIDs(ids []int) RequestOption {
-	return s.base.WithStatusIDs(ids)
-}
-
-// WithPriorityIDs filters issues by priority IDs.
-func (s *IssueOptionService) WithPriorityIDs(ids []int) RequestOption {
-	return s.base.WithPriorityIDs(ids)
+// WithAssigneeID returns an option to set the `assigneeId` parameter.
+func (s *IssueOptionService) WithAssigneeID(id int) RequestOption {
+	return s.base.WithAssigneeID(id)
 }
 
 // WithAssigneeIDs filters issues by assignee user IDs.
@@ -200,45 +254,19 @@ func (s *IssueOptionService) WithAssigneeIDs(ids []int) RequestOption {
 	return s.base.WithAssigneeIDs(ids)
 }
 
-// WithCreatedUserIDs filters issues by created user IDs.
-func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
-	return s.base.WithCreatedUserIDs(ids)
-}
-
-// WithResolutionIDs filters issues by resolution IDs.
-func (s *IssueOptionService) WithResolutionIDs(ids []int) RequestOption {
-	return s.base.WithResolutionIDs(ids)
-}
-
-// WithParentChild filters issues by subtask relationship.
-// 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
-func (s *IssueOptionService) WithParentChild(parentChild int) RequestOption {
-	return s.base.WithParentChild(parentChild)
-}
-
 // WithAttachment filters to include only issues with attachments.
 func (s *IssueOptionService) WithAttachment(enabled bool) RequestOption {
 	return s.base.WithAttachment(enabled)
 }
 
-// WithSharedFile filters to include only issues with shared files.
-func (s *IssueOptionService) WithSharedFile(enabled bool) RequestOption {
-	return s.base.WithSharedFile(enabled)
+// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+func (s *IssueOptionService) WithAttachmentIDs(ids []int) RequestOption {
+	return s.base.WithAttachmentIDs(ids)
 }
 
-// WithIssueSort sets the field to sort issue list results by.
-func (s *IssueOptionService) WithIssueSort(sort IssueSort) RequestOption {
-	return s.base.WithIssueSort(model.IssueSort(sort))
-}
-
-// WithOrder sets the sort order of results.
-func (s *IssueOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
-}
-
-// WithOffset sets the number of issues to skip.
-func (s *IssueOptionService) WithOffset(offset int) RequestOption {
-	return s.base.WithOffset(offset)
+// WithCategoryIDs filters issues by category IDs.
+func (s *IssueOptionService) WithCategoryIDs(ids []int) RequestOption {
+	return s.base.WithCategoryIDs(ids)
 }
 
 // WithCount sets the number of issues to retrieve (1-100).
@@ -256,24 +284,19 @@ func (s *IssueOptionService) WithCreatedUntil(t time.Time) RequestOption {
 	return s.base.WithCreatedUntil(t)
 }
 
-// WithUpdatedSince filters issues updated on or after the given date.
-func (s *IssueOptionService) WithUpdatedSince(t time.Time) RequestOption {
-	return s.base.WithUpdatedSince(t)
+// WithCreatedUserIDs filters issues by created user IDs.
+func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
+	return s.base.WithCreatedUserIDs(ids)
 }
 
-// WithUpdatedUntil filters issues updated on or before the given date.
-func (s *IssueOptionService) WithUpdatedUntil(t time.Time) RequestOption {
-	return s.base.WithUpdatedUntil(t)
+// WithDescription returns an option to set the `description` parameter.
+func (s *IssueOptionService) WithDescription(description string) RequestOption {
+	return s.base.WithDescription(description)
 }
 
-// WithStartDateSince filters issues with a start date on or after the given date.
-func (s *IssueOptionService) WithStartDateSince(t time.Time) RequestOption {
-	return s.base.WithStartDateSince(t)
-}
-
-// WithStartDateUntil filters issues with a start date on or before the given date.
-func (s *IssueOptionService) WithStartDateUntil(t time.Time) RequestOption {
-	return s.base.WithStartDateUntil(t)
+// WithDueDate returns an option to set the `dueDate` parameter.
+func (s *IssueOptionService) WithDueDate(t time.Time) RequestOption {
+	return s.base.WithDueDate(t)
 }
 
 // WithDueDateSince filters issues with a due date on or after the given date.
@@ -284,6 +307,11 @@ func (s *IssueOptionService) WithDueDateSince(t time.Time) RequestOption {
 // WithDueDateUntil filters issues with a due date on or before the given date.
 func (s *IssueOptionService) WithDueDateUntil(t time.Time) RequestOption {
 	return s.base.WithDueDateUntil(t)
+}
+
+// WithEstimatedHours returns an option to set the `estimatedHours` parameter.
+func (s *IssueOptionService) WithEstimatedHours(hours int) RequestOption {
+	return s.base.WithEstimatedHours(hours)
 }
 
 // WithHasDueDate filters to exclude issues without a due date.
@@ -297,14 +325,135 @@ func (s *IssueOptionService) WithIDs(ids []int) RequestOption {
 	return s.base.WithIDs(ids)
 }
 
-// WithParentIssueIDs filters issues by parent issue IDs.
-func (s *IssueOptionService) WithParentIssueIDs(ids []int) RequestOption {
-	return s.base.WithParentIssueIDs(ids)
+// WithIssueSort sets the field to sort issue list results by.
+func (s *IssueOptionService) WithIssueSort(sort IssueSort) RequestOption {
+	return s.base.WithIssueSort(model.IssueSort(sort))
+}
+
+// WithIssueTypeID returns an option to set the `issueTypeId` parameter.
+func (s *IssueOptionService) WithIssueTypeID(id int) RequestOption {
+	return s.base.WithIssueTypeID(id)
+}
+
+// WithIssueTypeIDs filters issues by issue type IDs.
+func (s *IssueOptionService) WithIssueTypeIDs(ids []int) RequestOption {
+	return s.base.WithIssueTypeIDs(ids)
 }
 
 // WithKeyword filters issues by keyword.
 func (s *IssueOptionService) WithKeyword(keyword string) RequestOption {
 	return s.base.WithKeyword(keyword)
+}
+
+// WithMilestoneIDs filters issues by milestone IDs.
+func (s *IssueOptionService) WithMilestoneIDs(ids []int) RequestOption {
+	return s.base.WithMilestoneIDs(ids)
+}
+
+// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+func (s *IssueOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
+	return s.base.WithNotifiedUserIDs(ids)
+}
+
+// WithOffset sets the number of issues to skip.
+func (s *IssueOptionService) WithOffset(offset int) RequestOption {
+	return s.base.WithOffset(offset)
+}
+
+// WithOrder sets the sort order of results.
+func (s *IssueOptionService) WithOrder(order Order) RequestOption {
+	return s.base.WithOrder(model.Order(order))
+}
+
+// WithParentChild filters issues by subtask relationship.
+// 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
+func (s *IssueOptionService) WithParentChild(parentChild int) RequestOption {
+	return s.base.WithParentChild(parentChild)
+}
+
+// WithParentIssueID returns an option to set the `parentIssueId` parameter.
+func (s *IssueOptionService) WithParentIssueID(id int) RequestOption {
+	return s.base.WithParentIssueID(id)
+}
+
+// WithParentIssueIDs filters issues by parent issue IDs.
+func (s *IssueOptionService) WithParentIssueIDs(ids []int) RequestOption {
+	return s.base.WithParentIssueIDs(ids)
+}
+
+// WithPriorityID returns an option to set the `priorityId` parameter.
+func (s *IssueOptionService) WithPriorityID(id int) RequestOption {
+	return s.base.WithPriorityID(id)
+}
+
+// WithPriorityIDs filters issues by priority IDs.
+func (s *IssueOptionService) WithPriorityIDs(ids []int) RequestOption {
+	return s.base.WithPriorityIDs(ids)
+}
+
+// WithProjectIDs filters issues by project IDs.
+func (s *IssueOptionService) WithProjectIDs(ids []int) RequestOption {
+	return s.base.WithProjectIDs(ids)
+}
+
+// WithResolutionID returns an option to set the `resolutionId` parameter.
+func (s *IssueOptionService) WithResolutionID(id int) RequestOption {
+	return s.base.WithResolutionID(id)
+}
+
+// WithResolutionIDs filters issues by resolution IDs.
+func (s *IssueOptionService) WithResolutionIDs(ids []int) RequestOption {
+	return s.base.WithResolutionIDs(ids)
+}
+
+// WithSharedFile filters to include only issues with shared files.
+func (s *IssueOptionService) WithSharedFile(enabled bool) RequestOption {
+	return s.base.WithSharedFile(enabled)
+}
+
+// WithStartDate returns an option to set the `startDate` parameter.
+func (s *IssueOptionService) WithStartDate(t time.Time) RequestOption {
+	return s.base.WithStartDate(t)
+}
+
+// WithStartDateSince filters issues with a start date on or after the given date.
+func (s *IssueOptionService) WithStartDateSince(t time.Time) RequestOption {
+	return s.base.WithStartDateSince(t)
+}
+
+// WithStartDateUntil filters issues with a start date on or before the given date.
+func (s *IssueOptionService) WithStartDateUntil(t time.Time) RequestOption {
+	return s.base.WithStartDateUntil(t)
+}
+
+// WithStatusID returns an option to set the `statusId` parameter.
+func (s *IssueOptionService) WithStatusID(id int) RequestOption {
+	return s.base.WithStatusID(id)
+}
+
+// WithStatusIDs filters issues by status IDs.
+func (s *IssueOptionService) WithStatusIDs(ids []int) RequestOption {
+	return s.base.WithStatusIDs(ids)
+}
+
+// WithSummary returns an option to set the `summary` parameter.
+func (s *IssueOptionService) WithSummary(summary string) RequestOption {
+	return s.base.WithSummary(summary)
+}
+
+// WithUpdatedSince filters issues updated on or after the given date.
+func (s *IssueOptionService) WithUpdatedSince(t time.Time) RequestOption {
+	return s.base.WithUpdatedSince(t)
+}
+
+// WithUpdatedUntil filters issues updated on or before the given date.
+func (s *IssueOptionService) WithUpdatedUntil(t time.Time) RequestOption {
+	return s.base.WithUpdatedUntil(t)
+}
+
+// WithVersionIDs filters issues by version IDs.
+func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
+	return s.base.WithVersionIDs(ids)
 }
 
 // ──────────────────────────────────────────────────────────────

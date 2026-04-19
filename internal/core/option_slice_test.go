@@ -67,7 +67,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamActivityTypeIDs.Value(),
 			wantValue: []string{"1"},
 		},
-
 		"WithAssigneeIDs-invalid": {
 			option:  o.WithAssigneeIDs([]int{0}),
 			wantErr: true,
@@ -77,7 +76,15 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamAssigneeIDs.Value(),
 			wantValue: []string{"100"},
 		},
-
+		"WithAttachmentIDs-invalid": {
+			option:  o.WithAttachmentIDs([]int{0}),
+			wantErr: true,
+		},
+		"WithAttachmentIDs-valid": {
+			option:    o.WithAttachmentIDs([]int{1, 2}),
+			key:       core.ParamAttachmentIDs.Value(),
+			wantValue: []string{"1", "2"},
+		},
 		"WithCategoryIDs-invalid-zero": {
 			option:  o.WithCategoryIDs([]int{0}),
 			wantErr: true,
@@ -87,7 +94,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamCategoryIDs.Value(),
 			wantValue: []string{"5"},
 		},
-
 		"WithCreatedUserIDs-invalid": {
 			option:  o.WithCreatedUserIDs([]int{0}),
 			wantErr: true,
@@ -97,7 +103,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamCreatedUserIDs.Value(),
 			wantValue: []string{"1", "2"},
 		},
-
 		"WithIDs-invalid": {
 			option:  o.WithIDs([]int{0}),
 			wantErr: true,
@@ -107,7 +112,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamIDs.Value(),
 			wantValue: []string{"10", "20", "30"},
 		},
-
 		"WithIssueTypeIDs-invalid-negative": {
 			option:  o.WithIssueTypeIDs([]int{-1}),
 			wantErr: true,
@@ -117,7 +121,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamIssueTypeIDs.Value(),
 			wantValue: []string{"10", "20"},
 		},
-
 		"WithMilestoneIDs-invalid": {
 			option:  o.WithMilestoneIDs([]int{0}),
 			wantErr: true,
@@ -127,7 +130,15 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamMilestoneIDs.Value(),
 			wantValue: []string{"7"},
 		},
-
+		"WithNotifiedUserIDs-invalid": {
+			option:  o.WithNotifiedUserIDs([]int{0}),
+			wantErr: true,
+		},
+		"WithNotifiedUserIDs-valid": {
+			option:    o.WithNotifiedUserIDs([]int{10, 20}),
+			key:       core.ParamNotifiedUserIDs.Value(),
+			wantValue: []string{"10", "20"},
+		},
 		"WithParentIssueIDs-invalid": {
 			option:  o.WithParentIssueIDs([]int{0}),
 			wantErr: true,
@@ -137,7 +148,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamParentIssueIDs.Value(),
 			wantValue: []string{"5", "6"},
 		},
-
 		"WithPriorityIDs-invalid": {
 			option:  o.WithPriorityIDs([]int{0}),
 			wantErr: true,
@@ -147,7 +157,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamPriorityIDs.Value(),
 			wantValue: []string{"2", "3"},
 		},
-
 		"WithProjectIDs-invalid-zero": {
 			option:  o.WithProjectIDs([]int{0}),
 			wantErr: true,
@@ -157,7 +166,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamProjectIDs.Value(),
 			wantValue: []string{"1", "2", "3"},
 		},
-
 		"WithResolutionIDs-invalid": {
 			option:  o.WithResolutionIDs([]int{0}),
 			wantErr: true,
@@ -167,7 +175,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamResolutionIDs.Value(),
 			wantValue: []string{"1"},
 		},
-
 		"WithStatusIDs-invalid": {
 			option:  o.WithStatusIDs([]int{0}),
 			wantErr: true,
@@ -177,7 +184,6 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamStatusIDs.Value(),
 			wantValue: []string{"1", "2"},
 		},
-
 		"WithVersionIDs-invalid": {
 			option:  o.WithVersionIDs([]int{0}),
 			wantErr: true,

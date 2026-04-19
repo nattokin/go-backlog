@@ -11,6 +11,14 @@ func (s *OptionService) WithContent(content string) RequestOption {
 	return nonEmptyStringOption(ParamContent, content)
 }
 
+// WithDescription returns an option to set the `description` parameter.
+func (s *OptionService) WithDescription(description string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamDescription,
+		SetFunc: setStringFunc(ParamDescription, description),
+	}
+}
+
 // WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
 	return nonEmptyStringOption(ParamKey, key)
@@ -87,6 +95,11 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 		},
 		SetFunc: setStringFunc(ParamPassword, password),
 	}
+}
+
+// WithSummary returns an option to set the `summary` parameter.
+func (s *OptionService) WithSummary(summary string) RequestOption {
+	return nonEmptyStringOption(ParamSummary, summary)
 }
 
 // WithTextFormattingRule returns a option that sets the `textFormattingRule` field.
