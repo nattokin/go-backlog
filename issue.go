@@ -132,7 +132,8 @@ func (s *IssueService) All(ctx context.Context, opts ...RequestOption) ([]*Issue
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
 func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, error) {
-	return s.base.Count(ctx, toCoreOptions(opts)...)
+	count, err := s.base.Count(ctx, toCoreOptions(opts)...)
+	return count, convertError(err)
 }
 
 // One returns a single issue by its ID or key.

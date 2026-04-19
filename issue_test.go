@@ -18,7 +18,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
-func TestIssueService_All(t *testing.T) {
+func TestIssueService(t *testing.T) {
 	ctx := context.Background()
 
 	cases := map[string]struct {
@@ -71,6 +71,55 @@ func TestIssueService_All(t *testing.T) {
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.All(ctx)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Count": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"count":5}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Count(ctx)
+				require.NoError(t, err)
+				assert.Equal(t, 5, got)
+			},
+		},
+		"Count/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
+				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
+				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"count":2}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Count(ctx,
+					c.Issue.Option.WithKeyword("bug"),
+					c.Issue.Option.WithProjectIDs([]int{10, 20}),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, 2, got)
+			},
+		},
+		"Count/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.Count(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
