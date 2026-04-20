@@ -6,6 +6,24 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+// WithBase returns an option that sets the `base` field (merge base branch name).
+func (s *OptionService) WithBase(base string) RequestOption {
+	return nonEmptyStringOption(ParamBase, base)
+}
+
+// WithBranch returns an option that sets the `branch` field (merging branch name).
+func (s *OptionService) WithBranch(branch string) RequestOption {
+	return nonEmptyStringOption(ParamBranch, branch)
+}
+
+// WithComment returns an option to set the `comment` parameter.
+func (s *OptionService) WithComment(comment string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamComment,
+		SetFunc: setStringFunc(ParamComment, comment),
+	}
+}
+
 // WithContent returns a option that sets the `content` field.
 func (s *OptionService) WithContent(content string) RequestOption {
 	return nonEmptyStringOption(ParamContent, content)

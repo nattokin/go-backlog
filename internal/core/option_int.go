@@ -22,6 +22,11 @@ func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
 	return positiveIntOption(ParamEstimatedHours, hours)
 }
 
+// WithIssueID returns an option to set the `issueId` parameter.
+func (s *OptionService) WithIssueID(id int) RequestOption {
+	return positiveIntOption(ParamIssueID, id)
+}
+
 // WithIssueTypeID returns an option to set the `issueTypeId` parameter.
 func (s *OptionService) WithIssueTypeID(id int) RequestOption {
 	return positiveIntOption(ParamIssueTypeID, id)
