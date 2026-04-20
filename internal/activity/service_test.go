@@ -320,7 +320,7 @@ func TestActivityService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, mock.NewMethod(t))
+			tc.call(t, &core.Method{})
 		})
 	}
 }
