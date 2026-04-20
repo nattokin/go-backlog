@@ -45,7 +45,7 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamComment.Value(),
 			wantValue: "",
 		},
-		"WithComment-non-empty": {
+		"WithComment-valid": {
 			option:    o.WithComment("looks good"),
 			key:       core.ParamComment.Value(),
 			wantValue: "looks good",
