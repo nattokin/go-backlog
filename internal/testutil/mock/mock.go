@@ -93,6 +93,25 @@ func NewInvalidTypeOption() *core.APIParamOption {
 	}
 }
 
+// ──────────────────────────────────────────────────────────────
+//  Method mock helpers
+// ──────────────────────────────────────────────────────────────
+
+// NewMethod returns a *core.Method with all fields initialized to their
+// corresponding NewUnexpected*Fn(t) functions. Tests should replace only the
+// fields they intend to exercise, so that any accidental call to an unintended
+// HTTP method causes an immediate test failure instead of a nil-pointer panic.
+func NewMethod(t *testing.T) *core.Method {
+	t.Helper()
+	return &core.Method{
+		Get:    NewUnexpectedGetFn(t),
+		Post:   NewUnexpectedPostFn(t),
+		Patch:  NewUnexpectedPatchFn(t),
+		Delete: NewUnexpectedDeleteFn(t),
+		Upload: NewUnexpectedUploadFn(t),
+	}
+}
+
 // NewUnexpectedGetFn returns a mock function for http GET that fails if called.
 func NewUnexpectedGetFn(t *testing.T) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	t.Helper()
