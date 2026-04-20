@@ -31,12 +31,12 @@ func TestProjectActivityService_List(t *testing.T) {
 		spath: "projects/" + projectKey + "/activities",
 	}
 
-	s := activity.NewProjectService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			return nil, errors.New("error")
-		},
-	})
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		return nil, errors.New("error")
+	}
+	s := activity.NewProjectService(method)
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -46,12 +46,8 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 	t.Parallel()
 
 	projectKey := ""
-	s := activity.NewProjectService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			t.Error("s.method.Get must never be called")
-			return nil, errors.New("error")
-		},
-	})
+	method := mock.NewMethod(t)
+	s := activity.NewProjectService(method)
 
 	_, err := s.List(context.Background(), projectKey)
 	assert.Error(t, err)
@@ -60,15 +56,15 @@ func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
 func TestProjectActivityService_List_invalidJson(t *testing.T) {
 	t.Parallel()
 
-	s := activity.NewProjectService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			resp := &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-			}
-			return resp, nil
-		},
-	})
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
+		}
+		return resp, nil
+	}
+	s := activity.NewProjectService(method)
 
 	projects, err := s.List(context.Background(), "TEST")
 	assert.Nil(t, projects)
@@ -84,12 +80,12 @@ func TestSpaceActivityService_List(t *testing.T) {
 		spath: "space/activities",
 	}
 
-	s := activity.NewSpaceService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			return nil, errors.New("error")
-		},
-	})
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		return nil, errors.New("error")
+	}
+	s := activity.NewSpaceService(method)
 
 	_, err := s.List(context.Background())
 	assert.Error(t, err)
@@ -106,12 +102,12 @@ func TestUserActivityService_List(t *testing.T) {
 		spath: "users/" + strconv.Itoa(id) + "/activities",
 	}
 
-	s := activity.NewUserService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			assert.Equal(t, want.spath, spath)
-			return nil, errors.New("error")
-		},
-	})
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		return nil, errors.New("error")
+	}
+	s := activity.NewUserService(method)
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -121,12 +117,8 @@ func TestUserActivityService_List_invalidID(t *testing.T) {
 	t.Parallel()
 
 	id := 0
-	s := activity.NewUserService(&core.Method{
-		Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-			t.Error("s.method.Get must never be called")
-			return nil, errors.New("error")
-		},
-	})
+	method := mock.NewMethod(t)
+	s := activity.NewUserService(method)
 
 	_, err := s.List(context.Background(), id)
 	assert.Error(t, err)
@@ -263,21 +255,21 @@ func TestBaseActivityService_GetList(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			s := activity.NewSpaceService(&core.Method{
-				Get: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-					assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
-					assert.Equal(t, tc.want.minID, query.Get("minId"))
-					assert.Equal(t, tc.want.maxID, query.Get("maxId"))
-					assert.Equal(t, tc.want.count, query.Get("count"))
-					assert.Equal(t, tc.want.order, query.Get("order"))
+			method := mock.NewMethod(t)
+			method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, tc.want.activityTypeID, (query)["activityTypeId[]"])
+				assert.Equal(t, tc.want.minID, query.Get("minId"))
+				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
+				assert.Equal(t, tc.want.count, query.Get("count"))
+				assert.Equal(t, tc.want.order, query.Get("order"))
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
-					}
-					return resp, nil
-				},
-			})
+				resp := &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
+				}
+				return resp, nil
+			}
+			s := activity.NewSpaceService(method)
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
@@ -304,30 +296,32 @@ func TestActivityService_contextPropagation(t *testing.T) {
 		call func(t *testing.T)
 	}{
 		{"ProjectActivityService.List", func(t *testing.T) {
-			s := activity.NewProjectService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := activity.NewProjectService(method)
+
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T) {
-			s := activity.NewSpaceService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := activity.NewSpaceService(method)
+
 			s.List(ctx) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T) {
-			s := activity.NewUserService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := activity.NewUserService(method)
 
 			s.List(ctx, 1) //nolint:errcheck
 		}},

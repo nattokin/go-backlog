@@ -655,48 +655,53 @@ func TestProjectService_contextPropagation(t *testing.T) {
 		call func(t *testing.T)
 	}{
 		{"All", func(t *testing.T) {
-			s := project.NewService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := project.NewService(method)
+
 			s.All(ctx) //nolint:errcheck
 		}},
 		{"One", func(t *testing.T) {
-			s := project.NewService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := project.NewService(method)
+
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Create", func(t *testing.T) {
-			s := project.NewService(&core.Method{
-				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := project.NewService(method)
+
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
 		{"Update", func(t *testing.T) {
-			s := project.NewService(&core.Method{
-				Patch: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := project.NewService(method)
+
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Delete", func(t *testing.T) {
-			s := project.NewService(&core.Method{
-				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+			method := mock.NewMethod(t)
+			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
+			s := project.NewService(method)
+
 			s.Delete(ctx, "TEST") //nolint:errcheck
 		}}}
 
