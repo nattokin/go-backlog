@@ -48,6 +48,11 @@ func (s *OptionService) WithMilestoneIDs(ids []int) RequestOption {
 	return intSliceOption(ParamMilestoneIDs, "milestoneId", ids)
 }
 
+// WithIssueIDs returns an option to filter by issue IDs.
+func (s *OptionService) WithIssueIDs(ids []int) RequestOption {
+	return intSliceOption(ParamIssueIDs, "issueId", ids)
+}
+
 // WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
 func (s *OptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return intSliceOption(ParamNotifiedUserIDs, "notifiedUserId", ids)

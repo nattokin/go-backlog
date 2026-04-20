@@ -65,6 +65,15 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithEstimatedHours(0),
 			wantErr: true,
 		},
+		"WithIssueID-valid-1": {
+			option:    o.WithIssueID(1),
+			key:       core.ParamIssueID.Value(),
+			wantValue: 1,
+		},
+		"WithIssueID-invalid-0": {
+			option:  o.WithIssueID(0),
+			wantErr: true,
+		},
 		"WithIssueTypeID-valid-1": {
 			option:    o.WithIssueTypeID(1),
 			key:       core.ParamIssueTypeID.Value(),

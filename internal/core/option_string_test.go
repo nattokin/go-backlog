@@ -20,6 +20,36 @@ func TestOptionService_string(t *testing.T) {
 		wantValue string
 		wantErr   bool
 	}{
+		"WithBase-empty": {
+			option:  o.WithBase(""),
+			key:     core.ParamBase.Value(),
+			wantErr: true,
+		},
+		"WithBase-valid": {
+			option:    o.WithBase("main"),
+			key:       core.ParamBase.Value(),
+			wantValue: "main",
+		},
+		"WithBranch-empty": {
+			option:  o.WithBranch(""),
+			key:     core.ParamBranch.Value(),
+			wantErr: true,
+		},
+		"WithBranch-valid": {
+			option:    o.WithBranch("feature/foo"),
+			key:       core.ParamBranch.Value(),
+			wantValue: "feature/foo",
+		},
+		"WithComment-empty": {
+			option:    o.WithComment(""),
+			key:       core.ParamComment.Value(),
+			wantValue: "",
+		},
+		"WithComment-valid": {
+			option:    o.WithComment("looks good"),
+			key:       core.ParamComment.Value(),
+			wantValue: "looks good",
+		},
 		"WithContent-empty": {
 			option:  o.WithContent(""),
 			key:     core.ParamContent.Value(),
@@ -60,7 +90,6 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamKeyword.Value(),
 			wantValue: "backlog",
 		},
-
 		"WithMailAddress-empty": {
 			option:  o.WithMailAddress(""),
 			key:     core.ParamMailAddress.Value(),

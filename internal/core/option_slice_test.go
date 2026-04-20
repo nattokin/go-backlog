@@ -112,6 +112,15 @@ func TestOptionService_slice(t *testing.T) {
 			key:       core.ParamIDs.Value(),
 			wantValue: []string{"10", "20", "30"},
 		},
+		"WithIssueIDs-invalid": {
+			option:  o.WithIssueIDs([]int{0}),
+			wantErr: true,
+		},
+		"WithIssueIDs-valid": {
+			option:    o.WithIssueIDs([]int{10, 20}),
+			key:       core.ParamIssueIDs.Value(),
+			wantValue: []string{"10", "20"},
+		},
 		"WithIssueTypeIDs-invalid-negative": {
 			option:  o.WithIssueTypeIDs([]int{-1}),
 			wantErr: true,
