@@ -175,7 +175,7 @@ func TestIssueService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -275,7 +275,7 @@ func TestIssueService_Count(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -359,7 +359,7 @@ func TestIssueService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Get: mock.NewUnexpectedGetFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -508,7 +508,7 @@ func TestIssueService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Post: mock.NewUnexpectedPostFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
@@ -636,7 +636,7 @@ func TestIssueService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Patch: mock.NewUnexpectedPatchFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
@@ -721,7 +721,7 @@ func TestIssueService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			method := &core.Method{Delete: mock.NewUnexpectedDeleteFn(t)}
+			method := mock.NewMethod(t)
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
