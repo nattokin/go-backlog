@@ -648,9 +648,11 @@ func TestProjectService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-		assert.Same(t, sentinel, got.Value(ctxKey{}))
-		return nil, errors.New("stop")
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
 	}
 
 	o := &core.OptionService{}
@@ -660,27 +662,27 @@ func TestProjectService_contextPropagation(t *testing.T) {
 		call func(t *testing.T, m *core.Method)
 	}{
 		{"All", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
 		{"One", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Create", func(t *testing.T, m *core.Method) {
-			m.Post = mockFn
+			m.Post = makeMockFn(t)
 			s := project.NewService(m)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
 		{"Update", func(t *testing.T, m *core.Method) {
-			m.Patch = mockFn
+			m.Patch = makeMockFn(t)
 			s := project.NewService(m)
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Delete", func(t *testing.T, m *core.Method) {
-			m.Delete = mockFn
+			m.Delete = makeMockFn(t)
 			s := project.NewService(m)
 			s.Delete(ctx, "TEST") //nolint:errcheck
 		}}}

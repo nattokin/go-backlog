@@ -291,9 +291,11 @@ func TestActivityService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-		assert.Same(t, sentinel, got.Value(ctxKey{}))
-		return nil, errors.New("stop")
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
 	}
 
 	cases := []struct {
@@ -301,17 +303,17 @@ func TestActivityService_contextPropagation(t *testing.T) {
 		call func(t *testing.T, m *core.Method)
 	}{
 		{"ProjectActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := activity.NewProjectService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"SpaceActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := activity.NewSpaceService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := activity.NewUserService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},

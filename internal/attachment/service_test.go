@@ -907,13 +907,11 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-		assert.Same(t, sentinel, got.Value(ctxKey{}))
-		return nil, errors.New("stop")
-	}
-	uploadMockFn := func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
-		assert.Same(t, sentinel, got.Value(ctxKey{}))
-		return nil, errors.New("stop")
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
 	}
 
 	cases := []struct {
@@ -921,42 +919,45 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 		call func(t *testing.T, m *core.Method)
 	}{
 		{"SpaceService.Upload", func(t *testing.T, m *core.Method) {
-			m.Upload = uploadMockFn
+			m.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
+				assert.Same(t, sentinel, got.Value(ctxKey{}))
+				return nil, errors.New("stop")
+			}
 			s := attachment.NewSpaceService(m)
 			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
 		{"WikiService.Attach", func(t *testing.T, m *core.Method) {
-			m.Post = mockFn
+			m.Post = makeMockFn(t)
 			s := attachment.NewWikiService(m)
 			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
 		}},
 		{"WikiService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := attachment.NewWikiService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},
 		{"WikiService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = mockFn
+			m.Delete = makeMockFn(t)
 			s := attachment.NewWikiService(m)
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
 		{"IssueService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := attachment.NewIssueService(m)
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
 		{"IssueService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = mockFn
+			m.Delete = makeMockFn(t)
 			s := attachment.NewIssueService(m)
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
 		{"PullRequestService.List", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := attachment.NewPullRequestService(m)
 			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
 		}},
 		{"PullRequestService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = mockFn
+			m.Delete = makeMockFn(t)
 			s := attachment.NewPullRequestService(m)
 			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},

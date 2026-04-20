@@ -800,9 +800,11 @@ func TestWikiService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-		assert.Same(t, sentinel, got.Value(ctxKey{}))
-		return nil, errors.New("stop")
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
 	}
 
 	o := &core.OptionService{}
@@ -812,32 +814,32 @@ func TestWikiService_contextPropagation(t *testing.T) {
 		call func(t *testing.T, m *core.Method)
 	}{
 		{"All", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.All(ctx, "TEST") //nolint:errcheck
 		}},
 		{"Count", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Count(ctx, "TEST") //nolint:errcheck
 		}},
 		{"One", func(t *testing.T, m *core.Method) {
-			m.Get = mockFn
+			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
 		{"Create", func(t *testing.T, m *core.Method) {
-			m.Post = mockFn
+			m.Post = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Create(ctx, 1, "name", "content") //nolint:errcheck
 		}},
 		{"Update", func(t *testing.T, m *core.Method) {
-			m.Patch = mockFn
+			m.Patch = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
 		{"Delete", func(t *testing.T, m *core.Method) {
-			m.Delete = mockFn
+			m.Delete = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
