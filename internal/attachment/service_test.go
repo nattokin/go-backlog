@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/attachment"
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -906,88 +907,60 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+	uploadMockFn := func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+
 	cases := []struct {
 		name string
-		call func(t *testing.T)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"SpaceService.Upload", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewSpaceService(method)
-
+		{"SpaceService.Upload", func(t *testing.T, m *core.Method) {
+			m.Upload = uploadMockFn
+			s := attachment.NewSpaceService(m)
 			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
-		{"WikiService.Attach", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewWikiService(method)
-
+		{"WikiService.Attach", func(t *testing.T, m *core.Method) {
+			m.Post = mockFn
+			s := attachment.NewWikiService(m)
 			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
 		}},
-		{"WikiService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewWikiService(method)
-
+		{"WikiService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := attachment.NewWikiService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},
-		{"WikiService.Remove", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		{"WikiService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := attachment.NewWikiService(method)
-
+			s := attachment.NewWikiService(m)
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
-		{"IssueService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewIssueService(method)
-
+		{"IssueService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := attachment.NewIssueService(m)
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
-		{"IssueService.Remove", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewIssueService(method)
-
+		{"IssueService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := attachment.NewIssueService(m)
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
-		{"PullRequestService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewPullRequestService(method)
-
+		{"PullRequestService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := attachment.NewPullRequestService(m)
 			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
 		}},
-		{"PullRequestService.Remove", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := attachment.NewPullRequestService(method)
-
+		{"PullRequestService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := attachment.NewPullRequestService(m)
 			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
 	}
@@ -995,7 +968,7 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t)
+			tc.call(t, mock.NewMethod(t))
 		})
 	}
 }

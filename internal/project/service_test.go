@@ -648,67 +648,47 @@ func TestProjectService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+
 	o := &core.OptionService{}
 
 	cases := []struct {
 		name string
-		call func(t *testing.T)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"All", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := project.NewService(method)
-
+		{"All", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := project.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := project.NewService(method)
-
+		{"One", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := project.NewService(m)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := project.NewService(method)
-
+		{"Create", func(t *testing.T, m *core.Method) {
+			m.Post = mockFn
+			s := project.NewService(m)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := project.NewService(method)
-
+		{"Update", func(t *testing.T, m *core.Method) {
+			m.Patch = mockFn
+			s := project.NewService(m)
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Delete", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := project.NewService(method)
-
+		{"Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := project.NewService(m)
 			s.Delete(ctx, "TEST") //nolint:errcheck
 		}}}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t)
+			tc.call(t, mock.NewMethod(t))
 		})
 	}
 }

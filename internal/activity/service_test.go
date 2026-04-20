@@ -291,38 +291,28 @@ func TestActivityService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+
 	cases := []struct {
 		name string
-		call func(t *testing.T)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"ProjectActivityService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := activity.NewProjectService(method)
-
+		{"ProjectActivityService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := activity.NewProjectService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"SpaceActivityService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := activity.NewSpaceService(method)
-
+		{"SpaceActivityService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := activity.NewSpaceService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"UserActivityService.List", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := activity.NewUserService(method)
-
+		{"UserActivityService.List", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := activity.NewUserService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},
 	}
@@ -330,7 +320,7 @@ func TestActivityService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t)
+			tc.call(t, mock.NewMethod(t))
 		})
 	}
 }

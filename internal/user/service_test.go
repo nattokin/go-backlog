@@ -1263,118 +1263,75 @@ func TestUserService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+
 	o := &core.OptionService{}
 
 	cases := []struct {
 		name string
-		call func(t *testing.T)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"UserService.All", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.All", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := user.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"UserService.One", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.One", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := user.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"UserService.Own", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.Own", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := user.NewService(m)
 			s.Own(ctx) //nolint:errcheck
 		}},
-		{"UserService.Add", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = mockFn
+			s := user.NewService(m)
 			s.Add(ctx, "u", "p", "n", "m@m.com", model.RoleAdministrator) //nolint:errcheck
 		}},
-		{"UserService.Update", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.Update", func(t *testing.T, m *core.Method) {
+			m.Patch = mockFn
+			s := user.NewService(m)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
-		{"UserService.Delete", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewService(method)
+		{"UserService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := user.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.All", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.All", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := user.NewProjectService(m)
 			s.All(ctx, "TEST", false) //nolint:errcheck
 		}},
-		{"ProjectUserService.Add", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = mockFn
+			s := user.NewProjectService(m)
 			s.Add(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.Delete", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := user.NewProjectService(m)
 			s.Delete(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.AddAdmin", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.AddAdmin", func(t *testing.T, m *core.Method) {
+			m.Post = mockFn
+			s := user.NewProjectService(m)
 			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.AdminAll", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.AdminAll", func(t *testing.T, m *core.Method) {
+			m.Get = mockFn
+			s := user.NewProjectService(m)
 			s.AdminAll(ctx, "TEST") //nolint:errcheck
 		}},
-		{"ProjectUserService.DeleteAdmin", func(t *testing.T) {
-			method := mock.NewMethod(t)
-			method.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := user.NewProjectService(method)
+		{"ProjectUserService.DeleteAdmin", func(t *testing.T, m *core.Method) {
+			m.Delete = mockFn
+			s := user.NewProjectService(m)
 			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
 	}
@@ -1382,7 +1339,7 @@ func TestUserService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t)
+			tc.call(t, mock.NewMethod(t))
 		})
 	}
 }

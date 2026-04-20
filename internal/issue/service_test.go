@@ -749,6 +749,11 @@ func TestIssueService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	mockFn := func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+		assert.Same(t, sentinel, got.Value(ctxKey{}))
+		return nil, errors.New("stop")
+	}
+
 	o := &core.OptionService{}
 
 	cases := []struct {
@@ -756,50 +761,32 @@ func TestIssueService_contextPropagation(t *testing.T) {
 		call func(t *testing.T, m *core.Method)
 	}{
 		{"All", func(t *testing.T, m *core.Method) {
-			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Get = mockFn
 			s := issue.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
 		{"Count", func(t *testing.T, m *core.Method) {
-			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Get = mockFn
 			s := issue.NewService(m)
 			s.Count(ctx) //nolint:errcheck
 		}},
 		{"One", func(t *testing.T, m *core.Method) {
-			m.Get = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Get = mockFn
 			s := issue.NewService(m)
 			s.One(ctx, "PRJ-1") //nolint:errcheck
 		}},
 		{"Create", func(t *testing.T, m *core.Method) {
-			m.Post = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Post = mockFn
 			s := issue.NewService(m)
 			s.Create(ctx, 10, "summary", 2, 3) //nolint:errcheck
 		}},
 		{"Update", func(t *testing.T, m *core.Method) {
-			m.Patch = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Patch = mockFn
 			s := issue.NewService(m)
 			s.Update(ctx, "PRJ-1", o.WithSummary("x")) //nolint:errcheck
 		}},
 		{"Delete", func(t *testing.T, m *core.Method) {
-			m.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Delete = mockFn
 			s := issue.NewService(m)
 			s.Delete(ctx, "PRJ-1") //nolint:errcheck
 		}},
