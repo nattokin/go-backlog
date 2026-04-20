@@ -956,7 +956,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 				MailAddress: "eguchi@nulab.example",
 				RoleType:    model.RoleAdministrator,
 			},
-tml	},
+		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
 			userID:     1,
