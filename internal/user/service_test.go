@@ -72,10 +72,7 @@ func TestUserService_One(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Get: mock.NewUnexpectedGetFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -163,8 +160,6 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    model.RoleAdministrator,
 
-			mockPostFn: mock.NewUnexpectedPostFn(t),
-
 			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-password-empty": {
@@ -173,8 +168,6 @@ func TestUserService_Add(t *testing.T) {
 			name:        "admin",
 			mailAddress: "admin@example.com",
 			roleType:    model.RoleAdministrator,
-
-			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -185,8 +178,6 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "admin@example.com",
 			roleType:    model.RoleAdministrator,
 
-			mockPostFn: mock.NewUnexpectedPostFn(t),
-
 			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-mailAddress-empty": {
@@ -196,8 +187,6 @@ func TestUserService_Add(t *testing.T) {
 			mailAddress: "",
 			roleType:    model.RoleAdministrator,
 
-			mockPostFn: mock.NewUnexpectedPostFn(t),
-
 			wantErrType: &core.ValidationError{},
 		},
 		"error-validation-multiple-empty": {
@@ -206,8 +195,6 @@ func TestUserService_Add(t *testing.T) {
 			name:        "",
 			mailAddress: "",
 			roleType:    model.RoleAdministrator,
-
-			mockPostFn: mock.NewUnexpectedPostFn(t),
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -233,10 +220,7 @@ func TestUserService_Add(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Post: mock.NewUnexpectedPostFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
@@ -317,10 +301,7 @@ func TestUserService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Get: mock.NewUnexpectedGetFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -508,10 +489,7 @@ func TestUserService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Patch: mock.NewUnexpectedPatchFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
@@ -588,10 +566,7 @@ func TestUserService_Own(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Get: mock.NewUnexpectedPatchFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -677,10 +652,7 @@ func TestUserService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Delete: mock.NewUnexpectedPatchFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
@@ -802,10 +774,7 @@ func TestProjectUserService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Get: mock.NewUnexpectedGetFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -913,10 +882,7 @@ func TestProjectUserService_Add(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Post: mock.NewUnexpectedPostFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
@@ -1044,10 +1010,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Delete: mock.NewUnexpectedDeleteFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
@@ -1154,10 +1117,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Post: mock.NewUnexpectedPostFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
@@ -1212,10 +1172,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Get: mock.NewUnexpectedGetFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
@@ -1281,10 +1238,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			// default: unexpected API call
-			method := &core.Method{
-				Delete: mock.NewUnexpectedDeleteFn(t),
-			}
+			method := mock.NewMethod(t)
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
@@ -1309,118 +1263,77 @@ func TestUserService_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
+	}
+
 	o := &core.OptionService{}
 
 	cases := []struct {
 		name string
-		call func(t *testing.T)
+		call func(t *testing.T, m *core.Method)
 	}{
-		{"UserService.All", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"UserService.One", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.One", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"UserService.Own", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.Own", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewService(m)
 			s.Own(ctx) //nolint:errcheck
 		}},
-		{"UserService.Add", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := user.NewService(m)
 			s.Add(ctx, "u", "p", "n", "m@m.com", model.RoleAdministrator) //nolint:errcheck
 		}},
-		{"UserService.Update", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Patch: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.Update", func(t *testing.T, m *core.Method) {
+			m.Patch = makeMockFn(t)
+			s := user.NewService(m)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
-		{"UserService.Delete", func(t *testing.T) {
-			s := user.NewService(&core.Method{
-				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"UserService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := user.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.All", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.All(ctx, "TEST", false) //nolint:errcheck
 		}},
-		{"ProjectUserService.Add", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.Add(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.Delete", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.Delete(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.AddAdmin", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Post: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.AddAdmin", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"ProjectUserService.AdminAll", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Get: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.AdminAll", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.AdminAll(ctx, "TEST") //nolint:errcheck
 		}},
-		{"ProjectUserService.DeleteAdmin", func(t *testing.T) {
-			s := user.NewProjectService(&core.Method{
-				Delete: func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-					assert.Same(t, sentinel, got.Value(ctxKey{}))
-					return nil, errors.New("stop")
-				},
-			})
+		{"ProjectUserService.DeleteAdmin", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := user.NewProjectService(m)
 			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
 	}
@@ -1428,7 +1341,7 @@ func TestUserService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t)
+			tc.call(t, &core.Method{})
 		})
 	}
 }
