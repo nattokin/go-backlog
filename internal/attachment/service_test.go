@@ -936,10 +936,7 @@ func TestAttachmentService_contextPropagation(t *testing.T) {
 			s.List(ctx, 1) //nolint:errcheck
 		}},
 		{"WikiService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
+			m.Delete = mockFn
 			s := attachment.NewWikiService(m)
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
