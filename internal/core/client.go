@@ -47,6 +47,7 @@ type Method struct {
 	Get    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	Post   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	Patch  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Put    func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	Delete func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	Upload func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
 }
@@ -91,6 +92,7 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 		Get:    c.Get,
 		Post:   c.Post,
 		Patch:  c.Patch,
+		Put:    c.Put,
 		Delete: c.Delete,
 		Upload: c.Upload,
 	}
@@ -169,6 +171,15 @@ func (c *Client) Patch(ctx context.Context, spath string, form url.Values) (*htt
 		form = url.Values{}
 	}
 	return c.Do(ctx, http.MethodPatch, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
+}
+
+func (c *Client) Put(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+	header := http.Header{}
+	header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if form == nil {
+		form = url.Values{}
+	}
+	return c.Do(ctx, http.MethodPut, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
 }
 
 func (c *Client) Delete(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
