@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
-	"github.com/nattokin/go-backlog/internal/space"
 )
 
 func TestSpaceService_One(t *testing.T) {
@@ -90,10 +90,10 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType    error
-		wantCapacity   int
-		wantIssue      int
-		wantDetailLen  int
+		wantErrType   error
+		wantCapacity  int
+		wantIssue     int
+		wantDetailLen int
 	}{
 		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -160,8 +160,8 @@ func TestSpaceService_Notification(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType   error
-		wantContent   string
+		wantErrType error
+		wantContent string
 	}{
 		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
