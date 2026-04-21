@@ -75,7 +75,7 @@ func initServices(c *Client) {
 
 	c.Project = newProjectService(c.core.Method, baseOptionService)
 
-	c.PullRequest = newPullRequestService(c.core.Method)
+	c.PullRequest = newPullRequestService(c.core.Method, baseOptionService)
 
 	c.Space = newSpaceService(c.core.Method, baseOptionService)
 
