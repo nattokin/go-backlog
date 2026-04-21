@@ -107,6 +107,7 @@ func NewMethod(t *testing.T) *core.Method {
 		Get:    NewUnexpectedGetFn(t),
 		Post:   NewUnexpectedPostFn(t),
 		Patch:  NewUnexpectedPatchFn(t),
+		Put:    NewUnexpectedPutFn(t),
 		Delete: NewUnexpectedDeleteFn(t),
 		Upload: NewUnexpectedUploadFn(t),
 	}
@@ -138,6 +139,16 @@ func NewUnexpectedPatchFn(t *testing.T) func(ctx context.Context, spath string, 
 	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
 		t.Error("Patch must not be called")
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// NewUnexpectedPutFn returns a mock function for http PUT that fails if called.
+func NewUnexpectedPutFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+	t.Helper()
+	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+		t.Helper()
+		t.Error("Put must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }
