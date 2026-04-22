@@ -1,48 +1,58 @@
 package core
 
-import "strconv"
+import "github.com/nattokin/go-backlog/internal/model"
 
-// WithActivityTypeIDs sets the activity type IDs filter.
+// WithActualHours returns an option to set the `actualHours` parameter.
+func (s *OptionService) WithActualHours(hours int) RequestOption {
+	return positiveIntOption(ParamActualHours, hours)
+}
+
+// WithActivityTypeIDs returns an option to set the `activityTypeId[]` parameter.
 func (s *OptionService) WithActivityTypeIDs(ids []int) RequestOption {
 	return intSliceOption(ParamActivityTypeIDs, "activityTypeId", ids)
 }
 
-// WithAssigneeID sets the assignee user ID.
+// WithAssigneeID returns an option to set the `assigneeId` parameter.
 func (s *OptionService) WithAssigneeID(id int) RequestOption {
 	return positiveIntOption(ParamAssigneeID, id)
 }
 
-// WithCommentID sets the comment ID for Add Star.
+// WithCommentID returns an option to set the `commentId` parameter.
 func (s *OptionService) WithCommentID(id int) RequestOption {
 	return positiveIntOption(ParamCommentID, id)
 }
 
-// WithCount sets the number of results to return.
+// WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
 	return intRangeOption(ParamCount, count, 1, 100)
 }
 
-// WithIssueID sets the issue ID for Add Star.
+// WithEstimatedHours returns an option to set the `estimatedHours` parameter.
+func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
+	return positiveIntOption(ParamEstimatedHours, hours)
+}
+
+// WithIssueID returns an option to set the `issueId` parameter.
 func (s *OptionService) WithIssueID(id int) RequestOption {
 	return positiveIntOption(ParamIssueID, id)
 }
 
-// WithIssueTypeID sets the issue type ID.
+// WithIssueTypeID returns an option to set the `issueTypeId` parameter.
 func (s *OptionService) WithIssueTypeID(id int) RequestOption {
 	return positiveIntOption(ParamIssueTypeID, id)
 }
 
-// WithMaxID sets the maximum activity ID.
+// WithMaxID returns an option to set the `maxId` parameter.
 func (s *OptionService) WithMaxID(id int) RequestOption {
-	return positiveIntOption(ParamMaxID, id)
+	return intRangeOption(ParamMaxID, id, 1, MaxActivityTypeID)
 }
 
-// WithMinID sets the minimum activity ID.
+// WithMinID returns an option to set the `minId` parameter.
 func (s *OptionService) WithMinID(id int) RequestOption {
-	return positiveIntOption(ParamMinID, id)
+	return intRangeOption(ParamMinID, id, 1, MaxActivityTypeID)
 }
 
-// WithOffset sets the offset for pagination.
+// WithOffset returns an option to set the `offset` parameter.
 func (s *OptionService) WithOffset(offset int) RequestOption {
 	return &APIParamOption{
 		Type: ParamOffset,
@@ -52,59 +62,67 @@ func (s *OptionService) WithOffset(offset int) RequestOption {
 			}
 			return nil
 		},
-		SetFunc: func(v Values) error {
-			v.Set(ParamOffset.Value(), strconv.Itoa(offset))
-			return nil
-		},
+		SetFunc: setIntFunc(ParamOffset, offset),
 	}
 }
 
-// WithParentIssueID sets the parent issue ID.
+// WithParentChild returns an option to set the `parentChild` parameter.
+// 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
+func (s *OptionService) WithParentChild(parentChild int) RequestOption {
+	return intRangeOption(ParamParentChild, parentChild, 0, 4)
+}
+
+// WithParentIssueID returns an option to set the `parentIssueId` parameter.
 func (s *OptionService) WithParentIssueID(id int) RequestOption {
 	return positiveIntOption(ParamParentIssueID, id)
 }
 
-// WithPriorityID sets the priority ID.
+// WithPriorityID returns an option to set the `priorityId` parameter.
 func (s *OptionService) WithPriorityID(id int) RequestOption {
 	return positiveIntOption(ParamPriorityID, id)
 }
 
-// WithPullRequestCommentID sets the pull request comment ID for Add Star.
+// WithPullRequestCommentID returns an option to set the `pullRequestCommentId` parameter.
 func (s *OptionService) WithPullRequestCommentID(id int) RequestOption {
 	return positiveIntOption(ParamPullRequestCommentID, id)
 }
 
-// WithPullRequestID sets the pull request ID for Add Star.
+// WithPullRequestID returns an option to set the `pullRequestId` parameter.
 func (s *OptionService) WithPullRequestID(id int) RequestOption {
 	return positiveIntOption(ParamPullRequestID, id)
 }
 
-// WithResolutionID sets the resolution ID.
+// WithResolutionID returns an option to set the `resolutionId` parameter.
 func (s *OptionService) WithResolutionID(id int) RequestOption {
 	return positiveIntOption(ParamResolutionID, id)
 }
 
-// WithRoleType sets the role type.
-func (s *OptionService) WithRoleType(role Role) RequestOption {
-	return positiveIntOption(ParamRoleType, int(role))
+// WithRoleType returns a option that sets the `roleType` field.
+func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
+	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
-// WithStarID sets the star ID for Remove Star.
+// WithStarID returns an option to set the `id` parameter for Remove Star.
 func (s *OptionService) WithStarID(id int) RequestOption {
 	return positiveIntOption(ParamStarID, id)
 }
 
-// WithUserID sets the user ID.
+// WithStatusID returns an option to set the `statusId` parameter.
+func (s *OptionService) WithStatusID(id int) RequestOption {
+	return positiveIntOption(ParamStatusID, id)
+}
+
+// WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
 	return positiveIntOption(ParamUserID, id)
 }
 
-// WithVersionIDs sets the version IDs filter.
+// WithVersionIDs returns an option to set the `versionId[]` parameter.
 func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
 	return intSliceOption(ParamVersionIDs, "versionId", ids)
 }
 
-// WithWikiPageID sets the wiki page ID for Add Star.
+// WithWikiPageID returns an option to set the `wikiPageId` parameter.
 func (s *OptionService) WithWikiPageID(id int) RequestOption {
 	return positiveIntOption(ParamWikiPageID, id)
 }
