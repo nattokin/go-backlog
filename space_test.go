@@ -198,7 +198,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 			},
 		},
 		"error-validation-empty-content": {
-			content:  "",
+			content: "",
 			wantErr: true,
 		},
 		"error-api": {
