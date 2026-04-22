@@ -318,16 +318,14 @@ func TestSpaceActivityService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			if tc.doFunc == nil {
-				c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
-					return nil, errors.New("should not be called")
-				}}))
-				require.NoError(t, err)
-				tc.call(t, c)
-				return
+			doFunc := func(req *http.Request) (*http.Response, error) {
+				return nil, errors.New("should not be called")
+			}
+			if tc.doFunc != nil {
+				doFunc = tc.doFunc
 			}
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

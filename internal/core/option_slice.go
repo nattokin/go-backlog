@@ -8,7 +8,7 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 		Type: ParamActivityTypeIDs,
 		CheckFunc: func() error {
 			for _, id := range typeIDs {
-				if err := validateActivityID(id, "activityTypeIds"); err != nil {
+				if err := validateActivityTypeID(id, "activityTypeIds"); err != nil {
 					return err
 				}
 			}
@@ -93,8 +93,8 @@ func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
 	return intSliceOption(ParamParentIssueIDs, "parentIssueId", ids)
 }
 
-// validateActivityID ensures that the given activity ID is within the valid range [1, 26].
-func validateActivityID(id int, key string) error {
+// validateActivityTypeID ensures that the given activity type ID is within the valid range [1, 26].
+func validateActivityTypeID(id int, key string) error {
 	if id < 1 || id > MaxActivityTypeID {
 		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
