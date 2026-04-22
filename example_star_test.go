@@ -8,12 +8,6 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-var (
-	// StarService
-	doerStarAdd    = newMockDoer("")
-	doerStarRemove = newMockDoer("")
-)
-
 func ExampleStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
