@@ -275,13 +275,57 @@ func TestSpaceActivityService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"Get": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/activities/3153", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Space.Activity.Get(ctx, 3153)
+				require.NoError(t, err)
+				require.NotNil(t, got)
+				assert.Equal(t, 3153, got.ID)
+				assert.Equal(t, 2, got.Type)
+			},
+		},
+		"Get/error-invalid-id": {
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Space.Activity.Get(ctx, 0)
+				require.Error(t, err)
+			},
+		},
+		"Get/error-api": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Space.Activity.Get(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 	}
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			doFunc := func(req *http.Request) (*http.Response, error) {
+				return nil, errors.New("should not be called")
+			}
+			if tc.doFunc != nil {
+				doFunc = tc.doFunc
+			}
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

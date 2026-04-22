@@ -2,6 +2,13 @@ package validate
 
 import "github.com/nattokin/go-backlog/internal/core"
 
+func ValidateActivityID(activityID int) error {
+	if activityID < 1 {
+		return core.NewValidationError("activityID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateAttachmentID(attachmentID int) error {
 	if attachmentID < 1 {
 		return core.NewValidationError("attachmentID must not be less than 1")

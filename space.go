@@ -131,6 +131,14 @@ func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) 
 	return activitiesFromModel(v), convertError(err)
 }
 
+// Get returns a single activity by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-activity
+func (s *SpaceActivityService) Get(ctx context.Context, activityID int) (*Activity, error) {
+	v, err := s.base.Get(ctx, activityID)
+	return activityFromModel(v), convertError(err)
+}
+
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
 	base *attachment.SpaceService

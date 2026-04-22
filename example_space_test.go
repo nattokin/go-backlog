@@ -18,6 +18,7 @@ var (
 
 	// SpaceActivityService
 	doerSpaceActivityList = newMockDoer(fixture.Activity.ListJSON)
+	doerSpaceActivityGet  = newMockDoer(fixture.Activity.SingleJSON)
 
 	// SpaceAttachmentService
 	doerSpaceAttachmentUpload = newMockDoer(fixture.Attachment.UploadJSON)
@@ -84,6 +85,19 @@ func ExampleSpaceActivityService_List() {
 
 	activities, _ := c.Space.Activity.List(context.Background())
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
+	// Output:
+	// ID: 3153, Type: 2
+}
+
+func ExampleSpaceActivityService_Get() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerSpaceActivityGet),
+	)
+
+	activity, _ := c.Space.Activity.Get(context.Background(), 3153)
+	fmt.Printf("ID: %d, Type: %d\n", activity.ID, activity.Type)
 	// Output:
 	// ID: 3153, Type: 2
 }
