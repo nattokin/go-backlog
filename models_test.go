@@ -469,6 +469,192 @@ func Test_pullRequestFromModel(t *testing.T) {
 	}
 }
 
+func Test_spaceFromModel(t *testing.T) {
+	t.Parallel()
+
+	created := time.Date(2008, 7, 6, 15, 0, 0, 0, time.UTC)
+	updated := time.Date(2013, 6, 18, 7, 55, 37, 0, time.UTC)
+
+	cases := map[string]struct {
+		input *model.Space
+		want  *Space
+	}{
+		"normal": {
+			input: &model.Space{
+				SpaceKey:           "nulab",
+				Name:               "Nulab Inc.",
+				OwnerID:            1,
+				Lang:               "ja",
+				Timezone:           "Asia/Tokyo",
+				ReportSendTime:     "08:00:00",
+				TextFormattingRule: model.FormatMarkdown,
+				Created:            created,
+				Updated:            updated,
+			},
+			want: &Space{
+				SpaceKey:           "nulab",
+				Name:               "Nulab Inc.",
+				OwnerID:            1,
+				Lang:               "ja",
+				Timezone:           "Asia/Tokyo",
+				ReportSendTime:     "08:00:00",
+				TextFormattingRule: FormatMarkdown,
+				Created:            created,
+				Updated:            updated,
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, spaceFromModel(tc.input))
+		})
+	}
+}
+
+func Test_diskUsageProjectFromModel(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input *model.DiskUsageProject
+		want  *DiskUsageProject
+	}{
+		"normal": {
+			input: &model.DiskUsageProject{
+				DiskUsageBase: model.DiskUsageBase{
+					Issue:      11931,
+					Wiki:       0,
+					File:       512,
+					Subversion: 0,
+					Git:        1024,
+					GitLFS:     0,
+				},
+				ProjectID: 1,
+			},
+			want: &DiskUsageProject{
+				ProjectID:  1,
+				Issue:      11931,
+				Wiki:       0,
+				File:       512,
+				Subversion: 0,
+				Git:        1024,
+				GitLFS:     0,
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, diskUsageProjectFromModel(tc.input))
+		})
+	}
+}
+
+func Test_diskUsageSpaceFromModel(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input *model.DiskUsageSpace
+		want  *DiskUsageSpace
+	}{
+		"with_details": {
+			input: &model.DiskUsageSpace{
+				DiskUsageBase: model.DiskUsageBase{
+					Issue:      119511,
+					Wiki:       0,
+					File:       0,
+					Subversion: 0,
+					Git:        0,
+					GitLFS:     0,
+				},
+				Capacity: 1073741824,
+				Details: []*model.DiskUsageProject{
+					{
+						DiskUsageBase: model.DiskUsageBase{Issue: 11931},
+						ProjectID:     1,
+					},
+				},
+			},
+			want: &DiskUsageSpace{
+				Capacity:   1073741824,
+				Issue:      119511,
+				Wiki:       0,
+				File:       0,
+				Subversion: 0,
+				Git:        0,
+				GitLFS:     0,
+				Details: []*DiskUsageProject{
+					{ProjectID: 1, Issue: 11931},
+				},
+			},
+		},
+		"empty_details": {
+			input: &model.DiskUsageSpace{
+				Capacity: 512,
+				Details:  []*model.DiskUsageProject{},
+			},
+			want: &DiskUsageSpace{
+				Capacity: 512,
+				Details:  []*DiskUsageProject{},
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, diskUsageSpaceFromModel(tc.input))
+		})
+	}
+}
+
+func Test_spaceNotificationFromModel(t *testing.T) {
+	t.Parallel()
+
+	updated := time.Date(2013, 6, 18, 7, 55, 37, 0, time.UTC)
+
+	cases := map[string]struct {
+		input *model.SpaceNotification
+		want  *SpaceNotification
+	}{
+		"normal": {
+			input: &model.SpaceNotification{
+				Content: "Backlog is a project management tool.",
+				Updated: updated,
+			},
+			want: &SpaceNotification{
+				Content: "Backlog is a project management tool.",
+				Updated: updated,
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, spaceNotificationFromModel(tc.input))
+		})
+	}
+}
+
 func Test_starFromModel_nil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, starFromModel(nil))

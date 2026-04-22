@@ -17,6 +17,227 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
+func TestSpaceService_One(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc  func(req *http.Request) (*http.Response, error)
+		wantErr bool
+	}{
+		"success": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/space", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.SpaceJSON))),
+				}, nil
+			},
+		},
+		"error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Space.One(ctx)
+
+			if tc.wantErr {
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, "nulab", got.SpaceKey)
+			assert.Equal(t, "Nulab Inc.", got.Name)
+			assert.Equal(t, backlog.FormatMarkdown, got.TextFormattingRule)
+		})
+	}
+}
+
+func TestSpaceService_DiskUsage(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc  func(req *http.Request) (*http.Response, error)
+		wantErr bool
+	}{
+		"success": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/space/diskUsage", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.DiskUsageJSON))),
+				}, nil
+			},
+		},
+		"error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Space.DiskUsage(ctx)
+
+			if tc.wantErr {
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, 1073741824, got.Capacity)
+			assert.Equal(t, 119511, got.Issue)
+			require.Len(t, got.Details, 1)
+			assert.Equal(t, 1, got.Details[0].ProjectID)
+			assert.Equal(t, 11931, got.Details[0].Issue)
+		})
+	}
+}
+
+func TestSpaceService_Notification(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc  func(req *http.Request) (*http.Response, error)
+		wantErr bool
+	}{
+		"success": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
+				}, nil
+			},
+		},
+		"error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Space.Notification(ctx)
+
+			if tc.wantErr {
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, "Backlog is a project management tool.", got.Content)
+		})
+	}
+}
+
+func TestSpaceService_UpdateNotification(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		content string
+		doFunc  func(req *http.Request) (*http.Response, error)
+		wantErr bool
+	}{
+		"success": {
+			content: "Backlog is a project management tool.",
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPut, req.Method)
+				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "Backlog is a project management tool.", req.FormValue("content"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
+				}, nil
+			},
+		},
+		"error-validation-empty-content": {
+			content: "",
+			wantErr: true,
+		},
+		"error-api": {
+			content: "content",
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Space.UpdateNotification(ctx, tc.content)
+
+			if tc.wantErr {
+				require.Error(t, err)
+				var apiErr *backlog.APIResponseError
+				if tc.doFunc != nil {
+					assert.True(t, errors.As(err, &apiErr))
+				}
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, "Backlog is a project management tool.", got.Content)
+		})
+	}
+}
+
 func TestSpaceActivityService(t *testing.T) {
 	ctx := context.Background()
 

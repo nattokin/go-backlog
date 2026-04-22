@@ -8,6 +8,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/space"
 )
 
@@ -67,6 +68,40 @@ type SpaceService struct {
 
 	Activity   *SpaceActivityService
 	Attachment *SpaceAttachmentService
+}
+
+// One returns information about your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space
+func (s *SpaceService) One(ctx context.Context) (*Space, error) {
+	v, err := s.base.One(ctx)
+	return spaceFromModel(v), convertError(err)
+}
+
+// DiskUsage returns information about the disk usage of your space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-disk-usage
+func (s *SpaceService) DiskUsage(ctx context.Context) (*DiskUsageSpace, error) {
+	v, err := s.base.DiskUsage(ctx)
+	return diskUsageSpaceFromModel(v), convertError(err)
+}
+
+// Notification returns the space notification.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-notification
+func (s *SpaceService) Notification(ctx context.Context) (*SpaceNotification, error) {
+	v, err := s.base.Notification(ctx)
+	return spaceNotificationFromModel(v), convertError(err)
+}
+
+// UpdateNotification updates the space notification.
+//
+// content must not be empty.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-space-notification
+func (s *SpaceService) UpdateNotification(ctx context.Context, content string) (*SpaceNotification, error) {
+	v, err := s.base.UpdateNotification(ctx, content)
+	return spaceNotificationFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -133,5 +168,71 @@ func newSpaceActivityService(method *core.Method, option *core.OptionService) *S
 func newSpaceAttachmentService(method *core.Method) *SpaceAttachmentService {
 	return &SpaceAttachmentService{
 		base: attachment.NewSpaceService(method),
+	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Model converters
+// ──────────────────────────────────────────────────────────────
+
+func spaceFromModel(m *model.Space) *Space {
+	if m == nil {
+		return nil
+	}
+	return &Space{
+		SpaceKey:           m.SpaceKey,
+		Name:               m.Name,
+		OwnerID:            m.OwnerID,
+		Lang:               m.Lang,
+		Timezone:           m.Timezone,
+		ReportSendTime:     m.ReportSendTime,
+		TextFormattingRule: Format(m.TextFormattingRule),
+		Created:            m.Created,
+		Updated:            m.Updated,
+	}
+}
+
+func diskUsageProjectFromModel(m *model.DiskUsageProject) *DiskUsageProject {
+	if m == nil {
+		return nil
+	}
+	return &DiskUsageProject{
+		ProjectID:  m.ProjectID,
+		Issue:      m.Issue,
+		Wiki:       m.Wiki,
+		File:       m.File,
+		Subversion: m.Subversion,
+		Git:        m.Git,
+		GitLFS:     m.GitLFS,
+	}
+}
+
+func diskUsageSpaceFromModel(m *model.DiskUsageSpace) *DiskUsageSpace {
+	if m == nil {
+		return nil
+	}
+	details := make([]*DiskUsageProject, len(m.Details))
+	for i, v := range m.Details {
+		details[i] = diskUsageProjectFromModel(v)
+	}
+	return &DiskUsageSpace{
+		Capacity:   m.Capacity,
+		Issue:      m.Issue,
+		Wiki:       m.Wiki,
+		File:       m.File,
+		Subversion: m.Subversion,
+		Git:        m.Git,
+		GitLFS:     m.GitLFS,
+		Details:    details,
+	}
+}
+
+func spaceNotificationFromModel(m *model.SpaceNotification) *SpaceNotification {
+	if m == nil {
+		return nil
+	}
+	return &SpaceNotification{
+		Content: m.Content,
+		Updated: m.Updated,
 	}
 }
