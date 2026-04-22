@@ -52,6 +52,28 @@ func (s *SpaceService) List(ctx context.Context, opts ...core.RequestOption) ([]
 	return getList(ctx, s.method, "space/activities", opts...)
 }
 
+// Get returns a single activity by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-activity
+func (s *SpaceService) Get(ctx context.Context, activityID int) (*model.Activity, error) {
+	if err := validate.ValidateActivityID(activityID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("activities", strconv.Itoa(activityID))
+	resp, err := s.method.Get(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.Activity{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
 type UserService struct {
 	method *core.Method
 }

@@ -91,6 +91,57 @@ func TestSpaceActivityService_List(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestSpaceActivityService_Get(t *testing.T) {
+	t.Parallel()
+
+	activityID := 3153
+
+	want := struct {
+		spath string
+	}{
+		spath: "activities/" + strconv.Itoa(activityID),
+	}
+
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		assert.Equal(t, want.spath, spath)
+		assert.Nil(t, query)
+		return nil, errors.New("error")
+	}
+	s := activity.NewSpaceService(method)
+
+	_, err := s.Get(context.Background(), activityID)
+	assert.Error(t, err)
+}
+
+func TestSpaceActivityService_Get_invalidID(t *testing.T) {
+	t.Parallel()
+
+	method := mock.NewMethod(t)
+	s := activity.NewSpaceService(method)
+
+	_, err := s.Get(context.Background(), 0)
+	assert.Error(t, err)
+}
+
+func TestSpaceActivityService_Get_invalidJson(t *testing.T) {
+	t.Parallel()
+
+	method := mock.NewMethod(t)
+	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
+		}
+		return resp, nil
+	}
+	s := activity.NewSpaceService(method)
+
+	got, err := s.Get(context.Background(), 1)
+	assert.Nil(t, got)
+	assert.Error(t, err)
+}
+
 func TestUserActivityService_List(t *testing.T) {
 	t.Parallel()
 
@@ -311,6 +362,11 @@ func TestActivityService_contextPropagation(t *testing.T) {
 			m.Get = makeMockFn(t)
 			s := activity.NewSpaceService(m)
 			s.List(ctx) //nolint:errcheck
+		}},
+		{"SpaceActivityService.Get", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := activity.NewSpaceService(m)
+			s.Get(ctx, 1) //nolint:errcheck
 		}},
 		{"UserActivityService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
