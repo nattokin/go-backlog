@@ -8,11 +8,12 @@ go-backlog
 
 [Go](https://golang.org) client library for [Nulab Backlog API](https://developer.nulab.com/docs/backlog)
 
-## Feature
+## Features
 
-- You can request each API endpoint using the Backlog API client created from the API base URL and token.
-- Converts API responses to idiomatic Go structs.
-- Structs are provided for all API endpoints and responses.
+- **Type-safe option builders** — Filter and configure requests using strongly-typed option methods (e.g. `WithKeyword`, `WithCount`, `WithOrder`), avoiding raw string/map parameters.
+- **Idiomatic Go structs** — API responses are mapped to Go structs with proper types (`time.Time`, typed constants, etc.) instead of raw JSON.
+- **Context support** — Every API method accepts `context.Context` for cancellation and timeout control.
+- **Structured error types** — Errors are returned as typed values (e.g. `*APIResponseError` for API errors, `*ValidationError` for invalid arguments), enabling precise handling with `errors.As`.
 
 ## Requirements
 
