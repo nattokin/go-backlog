@@ -65,7 +65,6 @@ const (
 	ParamSendMail                          APIParamOptionType = "sendMail"
 	ParamSharedFile                        APIParamOptionType = "sharedFile"
 	ParamSort                              APIParamOptionType = "sort"
-	ParamStarID                            APIParamOptionType = "id"
 	ParamStartDate                         APIParamOptionType = "startDate"
 	ParamStartDateSince                    APIParamOptionType = "startDateSince"
 	ParamStartDateUntil                    APIParamOptionType = "startDateUntil"

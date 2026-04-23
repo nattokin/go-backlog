@@ -60,6 +60,13 @@ func ValidateRepositoryIDOrName(repositoryIDOrName string) error {
 	return nil
 }
 
+func ValidateStarID(starID int) error {
+	if starID < 1 {
+		return core.NewValidationError("starID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateUserID(userID int) error {
 	if userID < 1 {
 		return core.NewValidationError("userID must not be less than 1")

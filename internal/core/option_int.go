@@ -97,11 +97,6 @@ func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
-// WithStarID returns an option to set the `id` parameter for Remove Star.
-func (s *OptionService) WithStarID(id int) RequestOption {
-	return positiveIntOption(ParamStarID, id)
-}
-
 // WithStatusID returns an option to set the `statusId` parameter.
 func (s *OptionService) WithStatusID(id int) RequestOption {
 	return positiveIntOption(ParamStatusID, id)

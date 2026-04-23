@@ -3,8 +3,10 @@ package star
 import (
 	"context"
 	"net/url"
+	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // Service handles communication with the star-related methods of the Backlog API.
@@ -59,15 +61,12 @@ func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
 func (s *Service) Remove(ctx context.Context, starID int) error {
-	option := &core.OptionService{}
-	form := url.Values{}
-
-	if err := core.ApplyOptions(
-		form, []core.APIParamOptionType{core.ParamStarID},
-		option.WithStarID(starID),
-	); err != nil {
+	if err := validate.ValidateStarID(starID); err != nil {
 		return err
 	}
+
+	form := url.Values{}
+	form.Set("id", strconv.Itoa(starID))
 
 	if _, err := s.method.Delete(ctx, "stars", form); err != nil {
 		return err
