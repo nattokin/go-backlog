@@ -83,12 +83,6 @@ func TestStarService_Add(t *testing.T) {
 				require.NoError(t, err)
 			},
 		},
-		"error-no-required-option": {
-			call: func(t *testing.T, c *backlog.Client) {
-				err := c.Star.Add(ctx)
-				require.Error(t, err)
-			},
-		},
 		"error-api": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				return &http.Response{

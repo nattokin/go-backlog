@@ -26,12 +26,12 @@ func TestStarService_Add(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		opts       []core.RequestOption
+		option     core.RequestOption
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErr    bool
 	}{
 		"success-with-issueID": {
-			opts: []core.RequestOption{o.WithIssueID(1)},
+			option: o.WithIssueID(1),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
 				assert.Equal(t, "1", form.Get("issueId"))
@@ -39,7 +39,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"success-with-commentID": {
-			opts: []core.RequestOption{o.WithCommentID(5)},
+			option: o.WithCommentID(5),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
 				assert.Equal(t, "5", form.Get("commentId"))
@@ -47,7 +47,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"success-with-wikiID": {
-			opts: []core.RequestOption{o.WithWikiID(10)},
+			option: o.WithWikiID(10),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
 				assert.Equal(t, "10", form.Get("wikiId"))
@@ -55,7 +55,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"success-with-pullRequestID": {
-			opts: []core.RequestOption{o.WithPullRequestID(3)},
+			option: o.WithPullRequestID(3),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
 				assert.Equal(t, "3", form.Get("pullRequestId"))
@@ -63,26 +63,23 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"success-with-pullRequestCommentID": {
-			opts: []core.RequestOption{o.WithPullRequestCommentID(7)},
+			option: o.WithPullRequestCommentID(7),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
 				assert.Equal(t, "7", form.Get("pullRequestCommentId"))
 				return newNoContentResponse(), nil
 			},
 		},
-		"error-no-required-option": {
-			wantErr: true,
-		},
 		"error-invalid-option-type": {
-			opts:    []core.RequestOption{mock.NewInvalidTypeOption()},
+			option:  mock.NewInvalidTypeOption(),
 			wantErr: true,
 		},
 		"error-invalid-option-value": {
-			opts:    []core.RequestOption{o.WithIssueID(0)},
+			option:  o.WithIssueID(0),
 			wantErr: true,
 		},
 		"error-client-network": {
-			opts: []core.RequestOption{o.WithIssueID(1)},
+			option: o.WithIssueID(1),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
@@ -101,7 +98,7 @@ func TestStarService_Add(t *testing.T) {
 
 			s := star.NewService(method)
 
-			err := s.Add(context.Background(), tc.opts...)
+			err := s.Add(context.Background(), tc.option)
 
 			if tc.wantErr {
 				assert.Error(t, err)

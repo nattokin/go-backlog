@@ -13,8 +13,7 @@ import (
 
 // StarService handles communication with the star-related methods of the Backlog API.
 type StarService struct {
-	base   *star.Service
-	option *core.OptionService
+	base *star.Service
 
 	Option *StarOptionService
 }
@@ -30,8 +29,8 @@ type StarService struct {
 //   - WithPullRequestCommentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
-func (s *StarService) Add(ctx context.Context, opts ...RequestOption) error {
-	return convertError(s.base.Add(ctx, toCoreOptions(opts)...))
+func (s *StarService) Add(ctx context.Context, option RequestOption) error {
+	return convertError(s.base.Add(ctx, option))
 }
 
 // Remove removes a star by its ID.
@@ -83,7 +82,6 @@ func (s *StarOptionService) WithWikiPageID(id int) RequestOption {
 func newStarService(method *core.Method, option *core.OptionService) *StarService {
 	return &StarService{
 		base:   star.NewService(method),
-		option: option,
 		Option: &StarOptionService{base: option},
 	}
 }

@@ -24,7 +24,7 @@ type Service struct {
 //   - WithPullRequestCommentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
-func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
+func (s *Service) Add(ctx context.Context, option core.RequestOption) error {
 	validOptions := []core.APIParamOptionType{
 		core.ParamIssueID,
 		core.ParamCommentID,
@@ -32,20 +32,9 @@ func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
 		core.ParamPullRequestID,
 		core.ParamPullRequestCommentID,
 	}
-	requiredOptions := []core.APIParamOptionType{
-		core.ParamIssueID,
-		core.ParamCommentID,
-		core.ParamWikiID,
-		core.ParamPullRequestID,
-		core.ParamPullRequestCommentID,
-	}
-
-	if !core.HasRequiredOption(opts, requiredOptions) {
-		return core.NewValidationError("one of issueId, commentId, wikiPageId, pullRequestId, or pullRequestCommentId is required")
-	}
 
 	form := url.Values{}
-	if err := core.ApplyOptions(form, validOptions, opts...); err != nil {
+	if err := core.ApplyOptions(form, validOptions, option); err != nil {
 		return err
 	}
 
