@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -137,8 +138,11 @@ func TestStarService_Remove(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/stars", req.URL.Path)
-				require.NoError(t, req.ParseForm())
-				assert.Equal(t, "42", req.FormValue("id"))
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "42", form.Get("id"))
 				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
 			},
 		},

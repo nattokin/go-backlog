@@ -7,11 +7,6 @@ func (s *OptionService) WithActualHours(hours int) RequestOption {
 	return positiveIntOption(ParamActualHours, hours)
 }
 
-// WithActivityTypeIDs returns an option to set the `activityTypeId[]` parameter.
-func (s *OptionService) WithActivityTypeIDs(ids []int) RequestOption {
-	return intSliceOption(ParamActivityTypeIDs, "activityTypeId", ids)
-}
-
 // WithAssigneeID returns an option to set the `assigneeId` parameter.
 func (s *OptionService) WithAssigneeID(id int) RequestOption {
 	return positiveIntOption(ParamAssigneeID, id)
@@ -115,11 +110,6 @@ func (s *OptionService) WithStatusID(id int) RequestOption {
 // WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
 	return positiveIntOption(ParamUserID, id)
-}
-
-// WithVersionIDs returns an option to set the `versionId[]` parameter.
-func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
-	return intSliceOption(ParamVersionIDs, "versionId", ids)
 }
 
 // WithWikiPageID returns an option to set the `wikiPageId` parameter.

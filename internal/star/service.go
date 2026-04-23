@@ -62,7 +62,11 @@ func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
 func (s *Service) Remove(ctx context.Context, starID int) error {
 	option := &core.OptionService{}
 	form := url.Values{}
-	if err := core.ApplyOptions(form, []core.APIParamOptionType{core.ParamStarID}, option.WithStarID(starID)); err != nil {
+	withStarID := option.WithStarID(starID)
+	if err := withStarID.Check(); err != nil {
+		return err
+	}
+	if err := withStarID.Set(form); err != nil {
 		return err
 	}
 
