@@ -22,130 +22,98 @@ func newNoContentResponse() *http.Response {
 	}
 }
 
-func TestStarService_Add_withIssueID(t *testing.T) {
-	t.Parallel()
-
+func TestStarService_Add(t *testing.T) {
 	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "1", form.Get("issueId"))
-		return newNoContentResponse(), nil
+
+	cases := map[string]struct {
+		opts       []core.RequestOption
+		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr    bool
+	}{
+		// --- Success cases ------------------------------------------------------------
+		"success-with-issueID": {
+			opts: []core.RequestOption{o.WithIssueID(1)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "1", form.Get("issueId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-commentID": {
+			opts: []core.RequestOption{o.WithCommentID(5)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "5", form.Get("commentId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-wikiID": {
+			opts: []core.RequestOption{o.WithWikiID(10)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "10", form.Get("wikiId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-pullRequestID": {
+			opts: []core.RequestOption{o.WithPullRequestID(3)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "3", form.Get("pullRequestId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-pullRequestCommentID": {
+			opts: []core.RequestOption{o.WithPullRequestCommentID(7)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "7", form.Get("pullRequestCommentId"))
+				return newNoContentResponse(), nil
+			},
+		},
+
+		// --- Error cases --------------------------------------------------------------
+		"error-no-required-option": {
+			wantErr: true,
+		},
+		"error-invalid-option-type": {
+			opts:    []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErr: true,
+		},
+		"error-invalid-option-value": {
+			opts:    []core.RequestOption{o.WithIssueID(0)},
+			wantErr: true,
+		},
+		"error-client-network": {
+			opts: []core.RequestOption{o.WithIssueID(1)},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErr: true,
+		},
 	}
-	s := star.NewService(method)
 
-	err := s.Add(context.Background(), o.WithIssueID(1))
-	require.NoError(t, err)
-}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-func TestStarService_Add_withCommentID(t *testing.T) {
-	t.Parallel()
+			method := mock.NewMethod(t)
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
 
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "5", form.Get("commentId"))
-		return newNoContentResponse(), nil
+			s := star.NewService(method)
+
+			err := s.Add(context.Background(), tc.opts...)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+		})
 	}
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), o.WithCommentID(5))
-	require.NoError(t, err)
-}
-
-func TestStarService_Add_withWikiPageID(t *testing.T) {
-	t.Parallel()
-
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "10", form.Get("wikiId"))
-		return newNoContentResponse(), nil
-	}
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), o.WithWikiID(10))
-	require.NoError(t, err)
-}
-
-func TestStarService_Add_withPullRequestID(t *testing.T) {
-	t.Parallel()
-
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "3", form.Get("pullRequestId"))
-		return newNoContentResponse(), nil
-	}
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), o.WithPullRequestID(3))
-	require.NoError(t, err)
-}
-
-func TestStarService_Add_withPullRequestCommentID(t *testing.T) {
-	t.Parallel()
-
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "7", form.Get("pullRequestCommentId"))
-		return newNoContentResponse(), nil
-	}
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), o.WithPullRequestCommentID(7))
-	require.NoError(t, err)
-}
-
-func TestStarService_Add_noRequiredOption(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	s := star.NewService(method)
-
-	err := s.Add(context.Background())
-	require.Error(t, err)
-}
-
-func TestStarService_Add_invalidOptionType(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), mock.NewInvalidTypeOption())
-	require.Error(t, err)
-}
-
-func TestStarService_Add_invalidOptionValue(t *testing.T) {
-	t.Parallel()
-
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	s := star.NewService(method)
-
-	// issueId=0 is invalid (must be >= 1)
-	err := s.Add(context.Background(), o.WithIssueID(0))
-	require.Error(t, err)
-}
-
-func TestStarService_Add_clientError(t *testing.T) {
-	t.Parallel()
-
-	o := &core.OptionService{}
-	method := mock.NewMethod(t)
-	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		return nil, errors.New("network error")
-	}
-	s := star.NewService(method)
-
-	err := s.Add(context.Background(), o.WithIssueID(1))
-	require.Error(t, err)
 }
 
 func TestStarService_Remove(t *testing.T) {
