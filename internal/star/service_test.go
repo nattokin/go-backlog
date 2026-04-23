@@ -30,7 +30,6 @@ func TestStarService_Add(t *testing.T) {
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErr    bool
 	}{
-		// --- Success cases ------------------------------------------------------------
 		"success-with-issueID": {
 			opts: []core.RequestOption{o.WithIssueID(1)},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -71,8 +70,6 @@ func TestStarService_Add(t *testing.T) {
 				return newNoContentResponse(), nil
 			},
 		},
-
-		// --- Error cases --------------------------------------------------------------
 		"error-no-required-option": {
 			wantErr: true,
 		},
@@ -117,41 +114,53 @@ func TestStarService_Add(t *testing.T) {
 }
 
 func TestStarService_Remove(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	method.Delete = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "42", form.Get("id"))
-		return newNoContentResponse(), nil
+	cases := map[string]struct {
+		id           int
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr      bool
+	}{
+		"success-valid-id": {
+			id: 42,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "42", form.Get("id"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"error-invalid-id": {
+			id:      0,
+			wantErr: true,
+		},
+		"error-client-network": {
+			id: 1,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErr: true,
+		},
 	}
-	s := star.NewService(method)
 
-	err := s.Remove(context.Background(), 42)
-	require.NoError(t, err)
-}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-func TestStarService_Remove_invalidID(t *testing.T) {
-	t.Parallel()
+			method := mock.NewMethod(t)
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 
-	method := mock.NewMethod(t)
-	s := star.NewService(method)
+			s := star.NewService(method)
 
-	err := s.Remove(context.Background(), 0)
-	require.Error(t, err)
-}
+			err := s.Remove(context.Background(), tc.id)
 
-func TestStarService_Remove_clientError(t *testing.T) {
-	t.Parallel()
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
 
-	method := mock.NewMethod(t)
-	method.Delete = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-		return nil, errors.New("network error")
+			require.NoError(t, err)
+		})
 	}
-	s := star.NewService(method)
-
-	err := s.Remove(context.Background(), 1)
-	require.Error(t, err)
 }
 
 func TestStarService_contextPropagation(t *testing.T) {
