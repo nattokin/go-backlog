@@ -47,11 +47,10 @@ func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
 		return err
 	}
 
-	resp, err := s.method.Post(ctx, "stars", form)
+	_, err := s.method.Post(ctx, "stars", form)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
 	return nil
 }
@@ -70,11 +69,10 @@ func (s *Service) Remove(ctx context.Context, starID int) error {
 		return err
 	}
 
-	resp, err := s.method.Delete(ctx, "stars", form)
+	_, err := s.method.Delete(ctx, "stars", form)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
 	return nil
 }
