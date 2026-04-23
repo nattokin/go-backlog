@@ -26,14 +26,14 @@ func (s *Service) Add(ctx context.Context, opts ...core.RequestOption) error {
 	validOptions := []core.APIParamOptionType{
 		core.ParamIssueID,
 		core.ParamCommentID,
-		core.ParamWikiPageID,
+		core.ParamWikiID,
 		core.ParamPullRequestID,
 		core.ParamPullRequestCommentID,
 	}
 	requiredOptions := []core.APIParamOptionType{
 		core.ParamIssueID,
 		core.ParamCommentID,
-		core.ParamWikiPageID,
+		core.ParamWikiID,
 		core.ParamPullRequestID,
 		core.ParamPullRequestCommentID,
 	}

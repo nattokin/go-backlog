@@ -61,12 +61,12 @@ func TestStarService_Add_withWikiPageID(t *testing.T) {
 	method := mock.NewMethod(t)
 	method.Post = func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		assert.Equal(t, "stars", spath)
-		assert.Equal(t, "10", form.Get("wikiPageId"))
+		assert.Equal(t, "10", form.Get("wikiId"))
 		return newNoContentResponse(), nil
 	}
 	s := star.NewService(method)
 
-	err := s.Add(context.Background(), o.WithWikiPageID(10))
+	err := s.Add(context.Background(), o.WithWikiID(10))
 	require.NoError(t, err)
 }
 

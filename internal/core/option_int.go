@@ -112,7 +112,7 @@ func (s *OptionService) WithUserID(id int) RequestOption {
 	return positiveIntOption(ParamUserID, id)
 }
 
-// WithWikiPageID returns an option to set the `wikiPageId` parameter.
-func (s *OptionService) WithWikiPageID(id int) RequestOption {
-	return positiveIntOption(ParamWikiPageID, id)
+// WithWikiID returns an option to set the `wikiPageId` parameter.
+func (s *OptionService) WithWikiID(id int) RequestOption {
+	return positiveIntOption(ParamWikiID, id)
 }

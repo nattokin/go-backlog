@@ -53,7 +53,7 @@ func TestStarService_Add(t *testing.T) {
 		"success-wikiPageId": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				require.NoError(t, req.ParseForm())
-				assert.Equal(t, "10", req.FormValue("wikiPageId"))
+				assert.Equal(t, "10", req.FormValue("wikiId"))
 				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {

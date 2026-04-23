@@ -78,7 +78,7 @@ const (
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
 	ParamUserID                            APIParamOptionType = "userId"
 	ParamVersionIDs                        APIParamOptionType = "versionId[]"
-	ParamWikiPageID                        APIParamOptionType = "wikiPageId"
+	ParamWikiID                            APIParamOptionType = "wikiId"
 )
 
 const MaxActivityTypeID = 26
