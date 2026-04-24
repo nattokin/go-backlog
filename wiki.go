@@ -216,12 +216,11 @@ func (s *WikiOptionService) WithName(name string) RequestOption {
 // ──────────────────────────────────────────────────────────────
 
 func newWikiService(method *core.Method, option *core.OptionService) *WikiService {
-	starSvc := newStarService(method, option)
 	return &WikiService{
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
 		Option:     newWikiOptionService(option),
-		Star:       newWikiStarService(method, starSvc),
+		Star:       newWikiStarService(method, option),
 	}
 }
 
@@ -231,10 +230,10 @@ func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	}
 }
 
-func newWikiStarService(method *core.Method, starSvc *StarService) *WikiStarService {
+func newWikiStarService(method *core.Method, option *core.OptionService) *WikiStarService {
 	return &WikiStarService{
 		base: star.NewWikiService(method),
-		star: starSvc,
+		star: newStarService(method, option),
 	}
 }
 
