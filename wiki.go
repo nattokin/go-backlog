@@ -7,6 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -50,6 +51,7 @@ type WikiService struct {
 
 	Attachment *WikiAttachmentService
 	Option     *WikiOptionService
+	Star       *WikiStarService
 }
 
 // All returns a list of all wiki pages in the project.
@@ -148,6 +150,38 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 }
 
 // ──────────────────────────────────────────────────────────────
+//  WikiStarService
+// ──────────────────────────────────────────────────────────────
+
+// WikiStarService handles communication with the wiki star-related methods of the Backlog API.
+type WikiStarService struct {
+	base *star.WikiService
+	star *StarService
+}
+
+// List returns a list of stars on the wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star
+func (s *WikiStarService) List(ctx context.Context, wikiID int) ([]*Star, error) {
+	v, err := s.base.List(ctx, wikiID)
+	return starsFromModel(v), convertError(err)
+}
+
+// Add adds a star to the wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
+func (s *WikiStarService) Add(ctx context.Context, wikiID int) error {
+	return s.star.Add(ctx, s.star.Option.WithWikiID(wikiID))
+}
+
+// Remove removes a star by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
+func (s *WikiStarService) Remove(ctx context.Context, starID int) error {
+	return s.star.Remove(ctx, starID)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  WikiOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -186,12 +220,20 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
 		Option:     newWikiOptionService(option),
+		Star:       newWikiStarService(method, option),
 	}
 }
 
 func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
 		base: attachment.NewWikiService(method),
+	}
+}
+
+func newWikiStarService(method *core.Method, option *core.OptionService) *WikiStarService {
+	return &WikiStarService{
+		base: star.NewWikiService(method),
+		star: newStarService(method, option),
 	}
 }
 
