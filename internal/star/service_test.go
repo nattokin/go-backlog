@@ -1,0 +1,198 @@
+package star_test
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"net/url"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/star"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
+)
+
+func newNoContentResponse() *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusNoContent,
+		Body:       http.NoBody,
+	}
+}
+
+func TestStarService_Add(t *testing.T) {
+	o := &core.OptionService{}
+
+	cases := map[string]struct {
+		option     core.RequestOption
+		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr    bool
+	}{
+		"success-with-issueID": {
+			option: o.WithIssueID(1),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "1", form.Get("issueId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-commentID": {
+			option: o.WithCommentID(5),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "5", form.Get("commentId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-wikiID": {
+			option: o.WithWikiID(10),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "10", form.Get("wikiId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-pullRequestID": {
+			option: o.WithPullRequestID(3),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "3", form.Get("pullRequestId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"success-with-pullRequestCommentID": {
+			option: o.WithPullRequestCommentID(7),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "7", form.Get("pullRequestCommentId"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"error-invalid-option-type": {
+			option:  mock.NewInvalidTypeOption(),
+			wantErr: true,
+		},
+		"error-invalid-option-value": {
+			option:  o.WithIssueID(0),
+			wantErr: true,
+		},
+		"error-client-network": {
+			option: o.WithIssueID(1),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
+
+			s := star.NewService(method)
+
+			err := s.Add(context.Background(), tc.option)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestStarService_Remove(t *testing.T) {
+	cases := map[string]struct {
+		id           int
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr      bool
+	}{
+		"success-valid-id": {
+			id: 42,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "stars", spath)
+				assert.Equal(t, "42", form.Get("id"))
+				return newNoContentResponse(), nil
+			},
+		},
+		"error-invalid-id": {
+			id:      0,
+			wantErr: true,
+		},
+		"error-client-network": {
+			id: 1,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
+
+			s := star.NewService(method)
+
+			err := s.Remove(context.Background(), tc.id)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestStarService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
+	}
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, m *core.Method)
+	}{
+		{"StarService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			o := &core.OptionService{}
+			s := star.NewService(m)
+			s.Add(ctx, o.WithIssueID(1)) //nolint:errcheck
+		}},
+		{"StarService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := star.NewService(m)
+			s.Remove(ctx, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, &core.Method{})
+		})
+	}
+}

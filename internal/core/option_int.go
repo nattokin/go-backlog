@@ -12,6 +12,11 @@ func (s *OptionService) WithAssigneeID(id int) RequestOption {
 	return positiveIntOption(ParamAssigneeID, id)
 }
 
+// WithCommentID returns an option to set the `commentId` parameter.
+func (s *OptionService) WithCommentID(id int) RequestOption {
+	return positiveIntOption(ParamCommentID, id)
+}
+
 // WithCount returns an option to set the `count` parameter.
 func (s *OptionService) WithCount(count int) RequestOption {
 	return intRangeOption(ParamCount, count, 1, 100)
@@ -72,6 +77,16 @@ func (s *OptionService) WithPriorityID(id int) RequestOption {
 	return positiveIntOption(ParamPriorityID, id)
 }
 
+// WithPullRequestCommentID returns an option to set the `pullRequestCommentId` parameter.
+func (s *OptionService) WithPullRequestCommentID(id int) RequestOption {
+	return positiveIntOption(ParamPullRequestCommentID, id)
+}
+
+// WithPullRequestID returns an option to set the `pullRequestId` parameter.
+func (s *OptionService) WithPullRequestID(id int) RequestOption {
+	return positiveIntOption(ParamPullRequestID, id)
+}
+
 // WithResolutionID returns an option to set the `resolutionId` parameter.
 func (s *OptionService) WithResolutionID(id int) RequestOption {
 	return positiveIntOption(ParamResolutionID, id)
@@ -90,4 +105,9 @@ func (s *OptionService) WithStatusID(id int) RequestOption {
 // WithUserID returns a option to set the user's ID.
 func (s *OptionService) WithUserID(id int) RequestOption {
 	return positiveIntOption(ParamUserID, id)
+}
+
+// WithWikiID returns an option to set the `wikiId` parameter.
+func (s *OptionService) WithWikiID(id int) RequestOption {
+	return positiveIntOption(ParamWikiID, id)
 }

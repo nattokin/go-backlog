@@ -21,6 +21,7 @@ const (
 	ParamCategoryIDs                       APIParamOptionType = "categoryId[]"
 	ParamChartEnabled                      APIParamOptionType = "chartEnabled"
 	ParamComment                           APIParamOptionType = "comment"
+	ParamCommentID                         APIParamOptionType = "commentId"
 	ParamContent                           APIParamOptionType = "content"
 	ParamCount                             APIParamOptionType = "count"
 	ParamCreatedSince                      APIParamOptionType = "createdSince"
@@ -56,6 +57,8 @@ const (
 	ParamPriorityIDs                       APIParamOptionType = "priorityId[]"
 	ParamProjectIDs                        APIParamOptionType = "projectId[]"
 	ParamProjectLeaderCanEditProjectLeader APIParamOptionType = "projectLeaderCanEditProjectLeader"
+	ParamPullRequestCommentID              APIParamOptionType = "pullRequestCommentId"
+	ParamPullRequestID                     APIParamOptionType = "pullRequestId"
 	ParamResolutionID                      APIParamOptionType = "resolutionId"
 	ParamResolutionIDs                     APIParamOptionType = "resolutionId[]"
 	ParamRoleType                          APIParamOptionType = "roleType"
@@ -74,6 +77,7 @@ const (
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
 	ParamUserID                            APIParamOptionType = "userId"
 	ParamVersionIDs                        APIParamOptionType = "versionId[]"
+	ParamWikiID                            APIParamOptionType = "wikiId"
 )
 
 const MaxActivityTypeID = 26
