@@ -36,8 +36,8 @@ func (s *StarService) Add(ctx context.Context, option RequestOption) error {
 // Remove removes a star by its ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
-func (s *StarService) Remove(ctx context.Context, starID int) error {
-	return convertError(s.base.Remove(ctx, starID))
+func (s *StarService) Remove(ctx context.Context, id int) error {
+	return convertError(s.base.Remove(ctx, id))
 }
 
 // ──────────────────────────────────────────────────────────────
