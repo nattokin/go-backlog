@@ -137,6 +137,37 @@ func (s *UserService) Count(ctx context.Context, userID int) (int, error) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  WikiService
+// ──────────────────────────────────────────────────────────────
+
+// WikiService handles communication with the wiki star-related methods of the Backlog API.
+type WikiService struct {
+	method *core.Method
+}
+
+// List returns a list of stars on the wiki page with the given ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star
+func (s *WikiService) List(ctx context.Context, wikiID int) ([]*model.Star, error) {
+	if err := validate.ValidateWikiID(wikiID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("wikis", strconv.Itoa(wikiID), "stars")
+	resp, err := s.method.Get(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.Star{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Constructor
 // ──────────────────────────────────────────────────────────────
 
@@ -148,4 +179,9 @@ func NewService(method *core.Method) *Service {
 // NewUserService creates and returns a new star UserService.
 func NewUserService(method *core.Method) *UserService {
 	return &UserService{method: method}
+}
+
+// NewWikiService creates and returns a new star WikiService.
+func NewWikiService(method *core.Method) *WikiService {
+	return &WikiService{method: method}
 }
