@@ -24,7 +24,7 @@ type StarService struct {
 // must be provided:
 //   - WithIssueID
 //   - WithCommentID
-//   - WithWikiPageID
+//   - WithWikiID
 //   - WithPullRequestID
 //   - WithPullRequestCommentID
 //
@@ -70,9 +70,9 @@ func (s *StarOptionService) WithPullRequestID(id int) RequestOption {
 	return s.base.WithPullRequestID(id)
 }
 
-// WithWikiPageID sets the wiki page ID to add a star to.
-func (s *StarOptionService) WithWikiPageID(id int) RequestOption {
-	return s.base.WithWikiPageID(id)
+// WithWikiID sets the wiki page ID to add a star to.
+func (s *StarOptionService) WithWikiID(id int) RequestOption {
+	return s.base.WithWikiID(id)
 }
 
 // ──────────────────────────────────────────────────────────────

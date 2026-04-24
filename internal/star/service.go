@@ -13,7 +13,7 @@ import (
 var validAddOptions = []core.APIParamOptionType{
 	core.ParamIssueID,
 	core.ParamCommentID,
-	core.ParamWikiPageID,
+	core.ParamWikiID,
 	core.ParamPullRequestID,
 	core.ParamPullRequestCommentID,
 }
@@ -28,7 +28,7 @@ type Service struct {
 // Exactly one of the following options must be provided:
 //   - WithIssueID
 //   - WithCommentID
-//   - WithWikiPageID
+//   - WithWikiID
 //   - WithPullRequestID
 //   - WithPullRequestCommentID
 //
