@@ -1,10 +1,13 @@
 package core_test
 
 import (
+	"errors"
 	"net/url"
 	"testing"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAPIParamOption(t *testing.T) {
@@ -49,5 +52,12 @@ func TestAPIParamOption(t *testing.T) {
 			core.ApplyOptions(v, []core.APIParamOptionType{core.ParamKey}, tc.option)
 		})
 	}
+}
 
+func TestApplyOptions_NilOption(t *testing.T) {
+	v := url.Values{}
+	err := core.ApplyOptions(v, []core.APIParamOptionType{core.ParamKey}, nil)
+	require.Error(t, err)
+	var valErr *core.ValidationError
+	assert.True(t, errors.As(err, &valErr))
 }
