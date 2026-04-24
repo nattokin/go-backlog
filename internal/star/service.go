@@ -9,15 +9,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// validAddOptions is the set of parameter keys accepted by Add Star.
-var validAddOptions = []core.APIParamOptionType{
-	core.ParamIssueID,
-	core.ParamCommentID,
-	core.ParamWikiID,
-	core.ParamPullRequestID,
-	core.ParamPullRequestCommentID,
-}
-
 // Service handles communication with the star-related methods of the Backlog API.
 type Service struct {
 	method *core.Method
@@ -35,7 +26,14 @@ type Service struct {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *Service) Add(ctx context.Context, option core.RequestOption) error {
 	form := url.Values{}
-	if err := core.ApplyOptions(form, validAddOptions, option); err != nil {
+	validTypes := []core.APIParamOptionType{
+		core.ParamIssueID,
+		core.ParamCommentID,
+		core.ParamWikiID,
+		core.ParamPullRequestID,
+		core.ParamPullRequestCommentID,
+	}
+	if err := core.ApplyOptions(form, validTypes, option); err != nil {
 		return err
 	}
 
