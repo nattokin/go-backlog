@@ -176,6 +176,9 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 // ApplyOptions validates and applies request options to the given url.Values.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
 	for _, opt := range opts {
+		if opt == nil {
+			return NewValidationError("nil option is not allowed")
+		}
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
