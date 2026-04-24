@@ -72,7 +72,7 @@ func (s *StarOptionService) WithPullRequestID(id int) RequestOption {
 
 // WithWikiPageID sets the wiki page ID to add a star to.
 func (s *StarOptionService) WithWikiPageID(id int) RequestOption {
-	return s.base.WithWikiID(id)
+	return s.base.WithWikiPageID(id)
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -46,11 +46,11 @@ func TestStarService_Add(t *testing.T) {
 				return newNoContentResponse(), nil
 			},
 		},
-		"success-with-wikiID": {
-			option: o.WithWikiID(10),
+		"success-with-wikiPageID": {
+			option: o.WithWikiPageID(10),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "stars", spath)
-				assert.Equal(t, "10", form.Get("wikiId"))
+				assert.Equal(t, "10", form.Get("wikiPageId"))
 				return newNoContentResponse(), nil
 			},
 		},
