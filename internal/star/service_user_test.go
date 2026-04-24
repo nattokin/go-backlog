@@ -14,6 +14,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/star"
+	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -68,6 +69,13 @@ func TestUserStarService_List(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		"error-json-decode": {
+			userID: 1,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return newJSONResponse(fixture.InvalidJSON), nil
+			},
+			wantErr: true,
+		},
 	}
 
 	for name, tc := range cases {
@@ -117,6 +125,13 @@ func TestUserStarService_Count(t *testing.T) {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
+			},
+			wantErr: true,
+		},
+		"error-json-decode": {
+			userID: 1,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return newJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
