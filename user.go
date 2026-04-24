@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
@@ -19,16 +18,6 @@ type User struct {
 	RoleType    Role
 	Lang        string
 	MailAddress string
-}
-
-// Star represents a star received by a user.
-type Star struct {
-	ID        int
-	Comment   string
-	URL       string
-	Title     string
-	Presenter *User
-	Created   time.Time
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -185,7 +174,8 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 
 // UserStarService handles communication with the user star-related methods of the Backlog API.
 type UserStarService struct {
-	base   *star.UserService
+	base *star.UserService
+
 	Option *UserStarOptionService
 }
 
@@ -238,8 +228,8 @@ func (s *UserStarOptionService) WithMinID(id int) RequestOption {
 }
 
 // WithOrder sets the sort order of results.
-func (s *UserStarOptionService) WithOrder(order string) RequestOption {
-	return s.base.WithOrder(order)
+func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
+	return s.base.WithOrder(model.Order(order))
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -349,28 +339,6 @@ func usersFromModel(ms []*model.User) []*User {
 	result := make([]*User, len(ms))
 	for i, v := range ms {
 		result[i] = userFromModel(v)
-	}
-	return result
-}
-
-func starFromModel(m *model.Star) *Star {
-	if m == nil {
-		return nil
-	}
-	return &Star{
-		ID:        m.ID,
-		Comment:   m.Comment,
-		URL:       m.URL,
-		Title:     m.Title,
-		Presenter: userFromModel(m.Presenter),
-		Created:   m.Created,
-	}
-}
-
-func starsFromModel(ms []*model.Star) []*Star {
-	result := make([]*Star, len(ms))
-	for i, v := range ms {
-		result[i] = starFromModel(v)
 	}
 	return result
 }
