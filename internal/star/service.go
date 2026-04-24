@@ -34,15 +34,8 @@ type Service struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *Service) Add(ctx context.Context, option core.RequestOption) error {
-	if err := core.ValidateOption(option.Key(), validAddOptions); err != nil {
-		return err
-	}
-	if err := option.Check(); err != nil {
-		return err
-	}
-
 	form := url.Values{}
-	if err := option.Set(form); err != nil {
+	if err := core.ApplyOptions(form, validAddOptions, option); err != nil {
 		return err
 	}
 
