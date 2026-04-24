@@ -50,14 +50,14 @@ func TestStarService_Add(t *testing.T) {
 				require.NoError(t, err)
 			},
 		},
-		"success-wikiPageId": {
+		"success-wikiId": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "10", req.FormValue("wikiId"))
 				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				err := c.Star.Add(ctx, c.Star.Option.WithWikiPageID(10))
+				err := c.Star.Add(ctx, c.Star.Option.WithWikiID(10))
 				require.NoError(t, err)
 			},
 		},
