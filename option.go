@@ -32,12 +32,12 @@ func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption
 
 // WithMinID filters activities whose ID is greater than or equal to id.
 func (s *ActivityOptionService) WithMinID(id int) RequestOption {
-	return s.base.WithMinID(id)
+	return s.base.WithMinActivityTypeID(id)
 }
 
 // WithMaxID filters activities whose ID is less than or equal to id.
 func (s *ActivityOptionService) WithMaxID(id int) RequestOption {
-	return s.base.WithMaxID(id)
+	return s.base.WithMaxActivityTypeID(id)
 }
 
 // WithCount sets the number of activities to retrieve.

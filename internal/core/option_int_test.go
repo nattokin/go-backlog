@@ -83,13 +83,54 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithIssueTypeID(0),
 			wantErr: true,
 		},
-		"WithMaxID-valid-26": {
-			option:    o.WithMaxID(26),
+		"WithMaxActivityTypeID-valid-1": {
+			option:    o.WithMaxActivityTypeID(1),
+			key:       core.ParamMaxID.Value(),
+			wantValue: 1,
+		},
+		"WithMaxActivityTypeID-valid-26": {
+			option:    o.WithMaxActivityTypeID(26),
 			key:       core.ParamMaxID.Value(),
 			wantValue: 26,
 		},
-		"WithMaxID-invalid-27": {
-			option:  o.WithMaxID(27),
+		"WithMaxActivityTypeID-invalid-0": {
+			option:  o.WithMaxActivityTypeID(0),
+			wantErr: true,
+		},
+		"WithMaxActivityTypeID-invalid-27": {
+			option:  o.WithMaxActivityTypeID(27),
+			wantErr: true,
+		},
+		"WithMinActivityTypeID-valid-1": {
+			option:    o.WithMinActivityTypeID(1),
+			key:       core.ParamMinID.Value(),
+			wantValue: 1,
+		},
+		"WithMinActivityTypeID-valid-26": {
+			option:    o.WithMinActivityTypeID(26),
+			key:       core.ParamMinID.Value(),
+			wantValue: 26,
+		},
+		"WithMinActivityTypeID-invalid-0": {
+			option:  o.WithMinActivityTypeID(0),
+			wantErr: true,
+		},
+		"WithMinActivityTypeID-invalid-27": {
+			option:  o.WithMinActivityTypeID(27),
+			wantErr: true,
+		},
+		"WithMaxID-valid-1": {
+			option:    o.WithMaxID(1),
+			key:       core.ParamMaxID.Value(),
+			wantValue: 1,
+		},
+		"WithMaxID-valid-9999": {
+			option:    o.WithMaxID(9999),
+			key:       core.ParamMaxID.Value(),
+			wantValue: 9999,
+		},
+		"WithMaxID-invalid-0": {
+			option:  o.WithMaxID(0),
 			wantErr: true,
 		},
 		"WithMinID-valid-1": {
@@ -97,12 +138,13 @@ func TestOptionService_int(t *testing.T) {
 			key:       core.ParamMinID.Value(),
 			wantValue: 1,
 		},
+		"WithMinID-valid-9999": {
+			option:    o.WithMinID(9999),
+			key:       core.ParamMinID.Value(),
+			wantValue: 9999,
+		},
 		"WithMinID-invalid-0": {
 			option:  o.WithMinID(0),
-			wantErr: true,
-		},
-		"WithMinID-invalid-27": {
-			option:  o.WithMinID(27),
 			wantErr: true,
 		},
 		"WithOffset-valid-0": {
