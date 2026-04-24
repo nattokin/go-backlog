@@ -3,6 +3,7 @@ package star_test
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"

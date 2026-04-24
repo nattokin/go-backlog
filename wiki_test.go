@@ -338,6 +338,114 @@ func TestWikiAttachmentService(t *testing.T) {
 	}
 }
 
+func TestWikiStarService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"List": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/stars", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Star.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.Star.List(ctx, 34)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 10, got[0].ID)
+				assert.Equal(t, 20, got[1].ID)
+			},
+		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.Star.List(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Add": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/stars", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "34", req.FormValue("wikiId"))
+				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Wiki.Star.Add(ctx, 34)
+				require.NoError(t, err)
+			},
+		},
+		"Add/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Wiki.Star.Add(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Remove": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/stars", req.URL.Path)
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "42", form.Get("id"))
+				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Wiki.Star.Remove(ctx, 42)
+				require.NoError(t, err)
+			},
+		},
+		"Remove/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Wiki.Star.Remove(ctx, 42)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestWikiOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)

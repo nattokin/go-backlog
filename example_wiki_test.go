@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -19,6 +20,8 @@ var (
 	doerWikiAttachmentAttach = newMockDoer(fixture.Attachment.ListJSON)
 	doerWikiAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
 	doerWikiAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
+
+	doerWikiStarList = newMockDoer(fixture.Star.ListJSON)
 )
 
 func ExampleWikiService_All() {
@@ -140,4 +143,55 @@ func ExampleWikiAttachmentService_Remove() {
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 8, Name: IMG0088.png
+}
+
+func ExampleWikiStarService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiStarList),
+	)
+
+	stars, _ := c.Wiki.Star.List(context.Background(), 34)
+	fmt.Printf("ID: %d, Title: %s\n", stars[0].ID, stars[0].Title)
+	// Output:
+	// ID: 10, Title: [TEST-1] first issue
+}
+
+func ExampleWikiStarService_Add() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+		}}),
+	)
+
+	err := c.Wiki.Star.Add(context.Background(), 34)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("ok")
+	// Output:
+	// ok
+}
+
+func ExampleWikiStarService_Remove() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+		}}),
+	)
+
+	err := c.Wiki.Star.Remove(context.Background(), 42)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("ok")
+	// Output:
+	// ok
 }
