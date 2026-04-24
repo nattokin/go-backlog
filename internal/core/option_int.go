@@ -37,14 +37,28 @@ func (s *OptionService) WithIssueTypeID(id int) RequestOption {
 	return positiveIntOption(ParamIssueTypeID, id)
 }
 
-// WithMaxID returns an option to set the `maxId` parameter.
-func (s *OptionService) WithMaxID(id int) RequestOption {
+// WithMaxActivityTypeID returns an option to set the `maxId` parameter for activity type filtering.
+// Valid range: 1–26.
+func (s *OptionService) WithMaxActivityTypeID(id int) RequestOption {
 	return intRangeOption(ParamMaxID, id, 1, MaxActivityTypeID)
 }
 
-// WithMinID returns an option to set the `minId` parameter.
-func (s *OptionService) WithMinID(id int) RequestOption {
+// WithMinActivityTypeID returns an option to set the `minId` parameter for activity type filtering.
+// Valid range: 1–26.
+func (s *OptionService) WithMinActivityTypeID(id int) RequestOption {
 	return intRangeOption(ParamMinID, id, 1, MaxActivityTypeID)
+}
+
+// WithMaxID returns an option to set the `maxId` parameter.
+// Any positive integer is accepted.
+func (s *OptionService) WithMaxID(id int) RequestOption {
+	return positiveIntOption(ParamMaxID, id)
+}
+
+// WithMinID returns an option to set the `minId` parameter.
+// Any positive integer is accepted.
+func (s *OptionService) WithMinID(id int) RequestOption {
+	return positiveIntOption(ParamMinID, id)
 }
 
 // WithOffset returns an option to set the `offset` parameter.
