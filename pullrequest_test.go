@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -29,10 +28,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.All(ctx, "TEST", "repo")
@@ -48,10 +44,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
 				assert.Equal(t, []string{"1", "2"}, req.URL.Query()["statusId[]"])
 				assert.Equal(t, "10", req.URL.Query().Get("count"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.All(ctx, "TEST", "repo",
@@ -127,10 +120,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.One(ctx, "TEST", "repo", 1)
@@ -164,7 +154,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "feature/foo", req.PostForm.Get("branch"))
 				return &http.Response{
 					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
+					Body:       io.NopCloser(strings.NewReader(fixture.PullRequest.SingleJSON)),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -184,7 +174,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, []string{"10", "20"}, req.PostForm["notifiedUserId[]"])
 				return &http.Response{
 					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
+					Body:       io.NopCloser(strings.NewReader(fixture.PullRequest.SingleJSON)),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -197,12 +187,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Create(ctx, "TEST", "repo", "new PR", "", "main", "feature/foo")
 				require.Error(t, err)
@@ -216,10 +201,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Update(ctx, "TEST", "repo", 1, c.PullRequest.Option.WithSummary("Updated summary"))
@@ -234,10 +216,7 @@ func TestPullRequestService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
 				assert.Equal(t, "a note", req.PostForm.Get("comment"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Update(ctx, "TEST", "repo", 1,
@@ -286,10 +265,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/attachments", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Attachment.List(ctx, "TEST", "repo", 1)
@@ -317,10 +293,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/attachments/8", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Attachment.Remove(ctx, "TEST", "repo", 1, 8)
@@ -376,12 +349,7 @@ func TestPullRequestStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Add(ctx, 2)
 				require.Error(t, err)
@@ -406,12 +374,7 @@ func TestPullRequestStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Remove(ctx, 42)
 				require.Error(t, err)

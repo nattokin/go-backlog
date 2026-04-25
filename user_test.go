@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -30,10 +29,7 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.All(ctx, "TEST", false)
@@ -61,10 +57,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Add(ctx, "TEST", 1)
@@ -95,10 +88,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Delete(ctx, "TEST", 1)
@@ -126,10 +116,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
@@ -155,10 +142,7 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AdminAll(ctx, "TEST")
@@ -189,10 +173,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
@@ -238,10 +219,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.All(ctx)
@@ -250,12 +228,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.All(ctx)
 				require.Error(t, err)
@@ -267,10 +240,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.One(ctx, 1)
@@ -296,10 +266,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/myself", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Own(ctx)
@@ -308,12 +275,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Own/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Own(ctx)
 				require.Error(t, err)
@@ -330,10 +292,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "password", req.PostForm.Get("password"))
 				assert.Equal(t, "New User", req.PostForm.Get("name"))
 				assert.Equal(t, "new@example.com", req.PostForm.Get("mailAddress"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleAdministrator)
@@ -342,12 +301,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleGuestReporter)
 				require.Error(t, err)
@@ -361,10 +315,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "updated-user", req.PostForm.Get("name"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
@@ -395,10 +346,7 @@ func TestUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Empty(t, form)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Delete(ctx, 1)
@@ -445,10 +393,7 @@ func TestUserActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/activities", req.URL.Path)
 				assert.Equal(t, "5", req.URL.Query().Get("minId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Activity.List(ctx, 1, c.User.Activity.Option.WithMinID(5))

@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -30,10 +29,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.All(ctx)
@@ -49,10 +45,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.All(ctx,
@@ -130,10 +123,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.One(ctx, "PRJ-1")
@@ -168,7 +158,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
 				return &http.Response{
 					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+					Body:       io.NopCloser(strings.NewReader(fixture.Issue.SingleJSON)),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -191,7 +181,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
 				return &http.Response{
 					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
+					Body:       io.NopCloser(strings.NewReader(fixture.Issue.SingleJSON)),
 				}, nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -204,12 +194,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
 				require.Error(t, err)
@@ -223,10 +208,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
@@ -242,10 +224,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("statusId"))
 				assert.Equal(t, "1", req.PostForm.Get("resolutionId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1",
@@ -275,10 +254,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Issue.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Delete(ctx, "PRJ-1")
@@ -325,10 +301,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.List(ctx, "TEST-1")
@@ -356,10 +329,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments/8", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
@@ -405,10 +375,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.List(ctx, "TEST-1")
@@ -438,10 +405,7 @@ func TestIssueSharedFileService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"454403"}, req.PostForm["fileId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.SingleListJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Link(ctx, "TEST-1", []int{454403})
@@ -468,10 +432,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles/454403", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Unlink(ctx, "TEST-1", 454403)
@@ -528,12 +489,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Add(ctx, 1)
 				require.Error(t, err)
@@ -558,12 +514,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Remove(ctx, 42)
 				require.Error(t, err)

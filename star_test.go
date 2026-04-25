@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -84,12 +83,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"error-api": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Star.Add(ctx, c.Star.Option.WithIssueID(1))
 				require.Error(t, err)
@@ -145,13 +139,8 @@ func TestStarService_Remove(t *testing.T) {
 			wantErr: true,
 		},
 		"error-api": {
-			starID: 1,
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			starID:  1,
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}

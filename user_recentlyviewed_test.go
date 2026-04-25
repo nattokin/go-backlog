@@ -65,12 +65,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			},
 		},
 		"ListIssues/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.RecentlyViewed.ListIssues(ctx)
 				require.Error(t, err)
@@ -124,12 +119,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			},
 		},
 		"ListProjects/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.RecentlyViewed.ListProjects(ctx)
 				require.Error(t, err)
@@ -154,12 +144,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			},
 		},
 		"ListWikis/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.RecentlyViewed.ListWikis(ctx)
 				require.Error(t, err)
