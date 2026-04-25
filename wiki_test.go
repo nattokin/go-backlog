@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -30,10 +29,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis", req.URL.Path)
 				assert.Equal(t, "backlog", req.URL.Query().Get("keyword"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Wiki.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.All(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
@@ -59,10 +55,7 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/count", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count": 34}`))),
-				}, nil
+				return newJSONResponse(`{"count": 34}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Count(ctx, "TEST")
@@ -88,10 +81,7 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return newJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.One(ctx, 34)
@@ -122,10 +112,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "Test Wiki", req.PostForm.Get("name"))
 				assert.Equal(t, "content", req.PostForm.Get("content"))
 				assert.Equal(t, "true", req.PostForm.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MinimumJSON))),
-				}, nil
+				return newJSONResponse(fixture.Wiki.MinimumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content", c.Wiki.Option.WithMailNotify(true))
@@ -148,10 +135,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "New Name", req.PostForm.Get("name"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return newJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
@@ -182,10 +166,7 @@ func TestWikiService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return newJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Delete(ctx, 34, c.Wiki.Option.WithMailNotify(true))
@@ -233,10 +214,7 @@ func TestWikiAttachmentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"2", "5"}, req.PostForm["attachmentId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
@@ -264,10 +242,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.List(ctx, 34)
@@ -295,10 +270,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/attachments/8", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
@@ -344,10 +316,7 @@ func TestWikiHistoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/history", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.WikiHistory.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.WikiHistory.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.History.List(ctx, 34)
@@ -397,10 +366,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.List(ctx, 34)
@@ -432,10 +398,7 @@ func TestWikiSharedFileService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"454403", "454404"}, req.PostForm["fileId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403, 454404})
@@ -463,10 +426,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles/454403", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
@@ -514,10 +474,7 @@ func TestWikiStarService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/stars", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Star.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Star.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Star.List(ctx, 34)
