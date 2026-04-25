@@ -294,11 +294,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 	}
 }
 
-// TestSpaceService_contextPropagation verifies that the context passed to each
-// SpaceService method is correctly relayed to the underlying method call.
-// A sentinel value is embedded in the context and its pointer identity is
-// asserted inside the mock to catch any ctx substitution.
-func TestSpaceService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -321,22 +317,22 @@ func TestSpaceService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"One", func(t *testing.T, m *core.Method) {
+		{"SpaceService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetMock(t)
 			s := space.NewService(m)
 			s.One(ctx) //nolint:errcheck
 		}},
-		{"DiskUsage", func(t *testing.T, m *core.Method) {
+		{"SpaceService.DiskUsage", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetMock(t)
 			s := space.NewService(m)
 			s.DiskUsage(ctx) //nolint:errcheck
 		}},
-		{"Notification", func(t *testing.T, m *core.Method) {
+		{"SpaceService.Notification", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetMock(t)
 			s := space.NewService(m)
 			s.Notification(ctx) //nolint:errcheck
 		}},
-		{"UpdateNotification", func(t *testing.T, m *core.Method) {
+		{"SpaceService.UpdateNotification", func(t *testing.T, m *core.Method) {
 			m.Put = makePutMock(t)
 			s := space.NewService(m)
 			s.UpdateNotification(ctx, "content") //nolint:errcheck

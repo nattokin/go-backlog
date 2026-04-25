@@ -744,7 +744,7 @@ func TestIssueService_Delete(t *testing.T) {
 	}
 }
 
-func TestIssueService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -762,32 +762,32 @@ func TestIssueService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"All", func(t *testing.T, m *core.Method) {
+		{"IssueService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"Count", func(t *testing.T, m *core.Method) {
+		{"IssueService.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Count(ctx) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, m *core.Method) {
+		{"IssueService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.One(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T, m *core.Method) {
+		{"IssueService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Create(ctx, 10, "summary", 2, 3) //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T, m *core.Method) {
+		{"IssueService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Update(ctx, "PRJ-1", o.WithSummary("x")) //nolint:errcheck
 		}},
-		{"Delete", func(t *testing.T, m *core.Method) {
+		{"IssueService.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Delete(ctx, "PRJ-1") //nolint:errcheck

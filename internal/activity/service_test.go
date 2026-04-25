@@ -333,11 +333,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 	}
 }
 
-// TestActivityService_contextPropagation verifies that the context passed to each
-// activity service method is correctly relayed to the underlying method call.
-// A sentinel value is embedded in the context and its pointer identity is
-// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
-func TestActivityService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)

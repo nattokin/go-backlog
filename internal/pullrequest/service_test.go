@@ -690,7 +690,7 @@ func TestPullRequestService_Update(t *testing.T) {
 	}
 }
 
-func TestPullRequestService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -708,27 +708,27 @@ func TestPullRequestService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"All", func(t *testing.T, m *core.Method) {
+		{"PullRequestService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.All(ctx, testProject, testRepo) //nolint:errcheck
 		}},
-		{"Count", func(t *testing.T, m *core.Method) {
+		{"PullRequestService.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Count(ctx, testProject, testRepo) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, m *core.Method) {
+		{"PullRequestService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.One(ctx, testProject, testRepo, 1) //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T, m *core.Method) {
+		{"PullRequestService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Create(ctx, testProject, testRepo, "summary", "desc", "main", "feature/foo") //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T, m *core.Method) {
+		{"PullRequestService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Update(ctx, testProject, testRepo, 1, o.WithSummary("x")) //nolint:errcheck
