@@ -115,7 +115,7 @@ func TestService_AddIssue(t *testing.T) {
 			wantID: 1,
 		},
 		"error-invalid-issueID": {
-			issueID:  0,
+			issueID: 0,
 			wantErr: true,
 		},
 		"error-client-network": {
