@@ -139,8 +139,8 @@ func TestStarService_Remove(t *testing.T) {
 			wantErr: true,
 		},
 		"error-api": {
-			starID: 1,
-			doFunc: newAuthErrorDoFunc(),
+			starID:  1,
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}
