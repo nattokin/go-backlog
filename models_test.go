@@ -28,10 +28,6 @@ func Test_changeLogFromModel(t *testing.T) {
 				OriginalValue: "1",
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -89,10 +85,6 @@ func Test_customFieldFromModel(t *testing.T) {
 				Items: []*CustomFieldItem{},
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -113,10 +105,6 @@ func Test_customFieldItemFromModel(t *testing.T) {
 		"normal": {
 			input: &model.CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
 			want:  &CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
 		},
 	}
 
@@ -156,10 +144,6 @@ func Test_diskUsageProjectFromModel(t *testing.T) {
 				Git:        1024,
 				GitLFS:     0,
 			},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
 		},
 	}
 
@@ -218,10 +202,6 @@ func Test_diskUsageSpaceFromModel(t *testing.T) {
 				Capacity: 512,
 				Details:  []*DiskUsageProject{},
 			},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
 		},
 	}
 
@@ -366,10 +346,6 @@ func Test_issueFromModel(t *testing.T) {
 				Stars:        []*Star{nil},
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -454,10 +430,6 @@ func Test_pullRequestFromModel(t *testing.T) {
 				},
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -502,10 +474,6 @@ func Test_spaceFromModel(t *testing.T) {
 				Updated:            updated,
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -535,10 +503,6 @@ func Test_spaceNotificationFromModel(t *testing.T) {
 				Updated: updated,
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -559,10 +523,6 @@ func Test_statusFromModel(t *testing.T) {
 		"normal": {
 			input: &model.Status{ID: 1, Name: "Open"},
 			want:  &Status{ID: 1, Name: "Open"},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
 		},
 	}
 
@@ -606,10 +566,6 @@ func Test_versionFromModel(t *testing.T) {
 				DisplayOrder:   0,
 			},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -639,10 +595,6 @@ func Test_versionsFromModel(t *testing.T) {
 			input: []*model.Version{},
 			want:  []*Version{},
 		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
 	}
 
 	for name, tc := range cases {
@@ -654,22 +606,35 @@ func Test_versionsFromModel(t *testing.T) {
 }
 
 func Test_fromModel_nil(t *testing.T) {
+	t.Parallel()
 	cases := map[string]struct {
 		call func() any
 	}{
-		"activity":         {call: func() any { return activityFromModel(nil) }},
-		"activity_content": {call: func() any { return activityContentFromModel(nil) }},
-		"attachment":       {call: func() any { return attachmentFromModel(nil) }},
-		"comment":          {call: func() any { return commentFromModel(nil) }},
-		"notification":     {call: func() any { return notificationFromModel(nil) }},
-		"project":          {call: func() any { return projectFromModel(nil) }},
-		"shared_file":      {call: func() any { return sharedFileFromModel(nil) }},
-		"star":             {call: func() any { return starFromModel(nil) }},
-		"stars":            {call: func() any { return starsFromModel(nil) }},
-		"tag":              {call: func() any { return tagFromModel(nil) }},
-		"user":             {call: func() any { return userFromModel(nil) }},
-		"wiki":             {call: func() any { return wikiFromModel(nil) }},
-		"wiki_history":     {call: func() any { return wikiHistoryFromModel(nil) }},
+		"activity":           {call: func() any { return activityFromModel(nil) }},
+		"activity_content":   {call: func() any { return activityContentFromModel(nil) }},
+		"attachment":         {call: func() any { return attachmentFromModel(nil) }},
+		"change_log":         {call: func() any { return changeLogFromModel(nil) }},
+		"comment":            {call: func() any { return commentFromModel(nil) }},
+		"custom_field":       {call: func() any { return customFieldFromModel(nil) }},
+		"custom_field_item":  {call: func() any { return customFieldItemFromModel(nil) }},
+		"disk_usage_project": {call: func() any { return diskUsageProjectFromModel(nil) }},
+		"disk_usage_space":   {call: func() any { return diskUsageSpaceFromModel(nil) }},
+		"issue":              {call: func() any { return issueFromModel(nil) }},
+		"notification":       {call: func() any { return notificationFromModel(nil) }},
+		"project":            {call: func() any { return projectFromModel(nil) }},
+		"pull_request":       {call: func() any { return pullRequestFromModel(nil) }},
+		"shared_file":        {call: func() any { return sharedFileFromModel(nil) }},
+		"space":              {call: func() any { return spaceFromModel(nil) }},
+		"space_notification": {call: func() any { return spaceNotificationFromModel(nil) }},
+		"star":               {call: func() any { return starFromModel(nil) }},
+		"stars":              {call: func() any { return starsFromModel(nil) }},
+		"status":             {call: func() any { return statusFromModel(nil) }},
+		"tag":                {call: func() any { return tagFromModel(nil) }},
+		"user":               {call: func() any { return userFromModel(nil) }},
+		"version":            {call: func() any { return versionFromModel(nil) }},
+		"versions":           {call: func() any { return versionsFromModel(nil) }},
+		"wiki":               {call: func() any { return wikiFromModel(nil) }},
+		"wiki_history":       {call: func() any { return wikiHistoryFromModel(nil) }},
 	}
 
 	for name, tc := range cases {
