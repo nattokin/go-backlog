@@ -3,7 +3,6 @@ package backlog_test
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 )
@@ -12,9 +11,7 @@ func ExampleStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
-		}}),
+		backlog.WithDoer(doerNoContent),
 	)
 
 	err := c.Star.Add(context.Background(), c.Star.Option.WithIssueID(1))
@@ -31,9 +28,7 @@ func ExampleStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
-		}}),
+		backlog.WithDoer(doerNoContent),
 	)
 
 	err := c.Star.Remove(context.Background(), 42)
