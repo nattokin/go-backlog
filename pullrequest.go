@@ -248,12 +248,11 @@ func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
 // ──────────────────────────────────────────────────────────────
 
 func newPullRequestService(method *core.Method, option *core.OptionService) *PullRequestService {
-	starSvc := newStarService(method, option)
 	return &PullRequestService{
 		base:       pullrequest.NewService(method),
 		Attachment: newPullRequestAttachmentService(method),
 		Option:     newPullRequestOptionService(option),
-		Star:       newPullRequestStarService(starSvc),
+		Star:       newPullRequestStarService(method, option),
 	}
 }
 
@@ -263,8 +262,8 @@ func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachment
 	}
 }
 
-func newPullRequestStarService(starSvc *StarService) *PullRequestStarService {
-	return &PullRequestStarService{star: starSvc}
+func newPullRequestStarService(method *core.Method, option *core.OptionService) *PullRequestStarService {
+	return &PullRequestStarService{star: newStarService(method, option)}
 }
 
 func newPullRequestOptionService(option *core.OptionService) *PullRequestOptionService {
