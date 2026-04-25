@@ -25,3 +25,10 @@ func newMockDoer(body string) *mockDoer {
 		},
 	}
 }
+
+// doerNoContent is a mockDoer that always responds with HTTP 204 No Content.
+var doerNoContent = &mockDoer{
+	do: func(_ *http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+	},
+}
