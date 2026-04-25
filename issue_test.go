@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -375,6 +376,83 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
+func TestIssueStarService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"Add": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/stars", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "1", req.FormValue("issueId"))
+				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Issue.Star.Add(ctx, 1)
+				require.NoError(t, err)
+			},
+		},
+		"Add/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Issue.Star.Add(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Remove": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/stars", req.URL.Path)
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+				form, err := url.ParseQuery(string(body))
+				require.NoError(t, err)
+				assert.Equal(t, "42", form.Get("id"))
+				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Issue.Star.Remove(ctx, 42)
+				require.NoError(t, err)
+			},
+		},
+		"Remove/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusUnauthorized,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				err := c.Issue.Star.Remove(ctx, 42)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
