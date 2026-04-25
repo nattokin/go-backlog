@@ -30,9 +30,10 @@ type UserService struct {
 	base *user.Service
 
 	Activity       *UserActivityService
-	Option         *UserOptionService
 	RecentlyViewed *UserRecentlyViewedService
 	Star           *UserStarService
+
+	Option *UserOptionService
 }
 
 // All returns all users in your space.
@@ -375,11 +376,13 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 
 func newUserService(method *core.Method, option *core.OptionService) *UserService {
 	return &UserService{
-		base:           user.NewService(method),
+		base: user.NewService(method),
+
 		Activity:       newUserActivityService(method, option),
-		Option:         newUserOptionService(option),
 		RecentlyViewed: newUserRecentlyViewedService(method, option),
 		Star:           newUserStarService(method, option),
+
+		Option: newUserOptionService(option),
 	}
 }
 
