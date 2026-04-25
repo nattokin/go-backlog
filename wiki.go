@@ -6,6 +6,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/history"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/star"
@@ -51,6 +52,7 @@ type WikiService struct {
 	base *wiki.Service
 
 	Attachment *WikiAttachmentService
+	History    *WikiHistoryService
 	SharedFile *WikiSharedFileService
 	Star       *WikiStarService
 
@@ -150,6 +152,23 @@ func (s *WikiAttachmentService) List(ctx context.Context, wikiID int) ([]*Attach
 func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*Attachment, error) {
 	v, err := s.base.Remove(ctx, wikiID, attachmentID)
 	return attachmentFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  WikiHistoryService
+// ──────────────────────────────────────────────────────────────
+
+// WikiHistoryService handles communication with the wiki history-related methods of the Backlog API.
+type WikiHistoryService struct {
+	base *history.WikiService
+}
+
+// List returns the version history of a wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
+func (s *WikiHistoryService) List(ctx context.Context, wikiID int) ([]*WikiHistory, error) {
+	v, err := s.base.List(ctx, wikiID)
+	return wikiHistoriesFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -255,6 +274,7 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 	return &WikiService{
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
+		History:    newWikiHistoryService(method),
 		Option:     newWikiOptionService(option),
 		SharedFile: newWikiSharedFileService(method),
 		Star:       newWikiStarService(method, option),
@@ -264,6 +284,12 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
 		base: attachment.NewWikiService(method),
+	}
+}
+
+func newWikiHistoryService(method *core.Method) *WikiHistoryService {
+	return &WikiHistoryService{
+		base: history.NewWikiService(method),
 	}
 }
 
@@ -330,6 +356,28 @@ func wikisFromModel(ms []*model.Wiki) []*Wiki {
 	result := make([]*Wiki, len(ms))
 	for i, v := range ms {
 		result[i] = wikiFromModel(v)
+	}
+	return result
+}
+
+func wikiHistoryFromModel(m *model.WikiHistory) *WikiHistory {
+	if m == nil {
+		return nil
+	}
+	return &WikiHistory{
+		PageID:      m.PageID,
+		Version:     m.Version,
+		Name:        m.Name,
+		Content:     m.Content,
+		CreatedUser: userFromModel(m.CreatedUser),
+		Created:     m.Created,
+	}
+}
+
+func wikiHistoriesFromModel(ms []*model.WikiHistory) []*WikiHistory {
+	result := make([]*WikiHistory, len(ms))
+	for i, v := range ms {
+		result[i] = wikiHistoryFromModel(v)
 	}
 	return result
 }
