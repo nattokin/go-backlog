@@ -3,7 +3,6 @@ package backlog_test
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -177,9 +176,7 @@ func ExampleWikiStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
-		}}),
+		backlog.WithDoer(doerNoContent),
 	)
 
 	err := c.Wiki.Star.Add(context.Background(), 34)
@@ -196,9 +193,7 @@ func ExampleWikiStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
-		}}),
+		backlog.WithDoer(doerNoContent),
 	)
 
 	err := c.Wiki.Star.Remove(context.Background(), 42)
