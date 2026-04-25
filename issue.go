@@ -662,9 +662,12 @@ func issueFromModel(m *model.Issue) *Issue {
 	}
 }
 
-func issuesFromModel(ms []*model.Issue) []*Issue {
-	result := make([]*Issue, len(ms))
-	for i, v := range ms {
+func issuesFromModel(m []*model.Issue) []*Issue {
+	if m == nil {
+		return nil
+	}
+	result := make([]*Issue, len(m))
+	for i, v := range m {
 		result[i] = issueFromModel(v)
 	}
 	return result
