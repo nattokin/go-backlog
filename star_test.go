@@ -83,9 +83,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"error-api": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Star.Add(ctx, c.Star.Option.WithIssueID(1))
 				require.Error(t, err)
@@ -142,9 +140,7 @@ func TestStarService_Remove(t *testing.T) {
 		},
 		"error-api": {
 			starID: 1,
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}

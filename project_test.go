@@ -42,9 +42,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.All(ctx)
 				require.Error(t, err)
@@ -101,9 +99,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Create(ctx, "TEST", "test")
 				require.Error(t, err)

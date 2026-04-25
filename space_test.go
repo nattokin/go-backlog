@@ -35,9 +35,7 @@ func TestSpaceService_One(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -85,9 +83,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -137,9 +133,7 @@ func TestSpaceService_Notification(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -194,9 +188,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		},
 		"error-api": {
 			content: "content",
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc:  newAuthErrorDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -250,9 +242,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.List(ctx)
 				require.Error(t, err)
@@ -284,9 +274,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"Get/error-api": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.Get(ctx, 1)
 				require.Error(t, err)
@@ -343,9 +331,7 @@ func TestSpaceAttachmentService(t *testing.T) {
 	})
 
 	t.Run("Upload/error", func(t *testing.T) {
-		doFunc := func(req *http.Request) (*http.Response, error) {
-			return newAuthErrorResponse(), nil
-		}
+		doFunc := newAuthErrorDoFunc()
 
 		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
 		require.NoError(t, err)

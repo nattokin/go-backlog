@@ -250,9 +250,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.All(ctx)
 				require.Error(t, err)
@@ -305,9 +303,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Own/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Own(ctx)
 				require.Error(t, err)
@@ -336,9 +332,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return newAuthErrorResponse(), nil
-			},
+			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleGuestReporter)
 				require.Error(t, err)
