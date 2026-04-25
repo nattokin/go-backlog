@@ -9,6 +9,21 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+func Test_activityContentFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, activityContentFromModel(nil))
+}
+
+func Test_activityFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, activityFromModel(nil))
+}
+
+func Test_attachmentFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, attachmentFromModel(nil))
+}
+
 func Test_changeLogFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -42,54 +57,9 @@ func Test_changeLogFromModel(t *testing.T) {
 	}
 }
 
-func Test_statusFromModel(t *testing.T) {
+func Test_commentFromModel_nil(t *testing.T) {
 	t.Parallel()
-
-	cases := map[string]struct {
-		input *model.Status
-		want  *Status
-	}{
-		"normal": {
-			input: &model.Status{ID: 1, Name: "Open"},
-			want:  &Status{ID: 1, Name: "Open"},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, statusFromModel(tc.input))
-		})
-	}
-}
-
-func Test_customFieldItemFromModel(t *testing.T) {
-	t.Parallel()
-
-	cases := map[string]struct {
-		input *model.CustomFieldItem
-		want  *CustomFieldItem
-	}{
-		"normal": {
-			input: &model.CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
-			want:  &CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, customFieldItemFromModel(tc.input))
-		})
-	}
+	assert.Nil(t, commentFromModel(nil))
 }
 
 func Test_customFieldFromModel(t *testing.T) {
@@ -153,37 +123,16 @@ func Test_customFieldFromModel(t *testing.T) {
 	}
 }
 
-func Test_versionFromModel(t *testing.T) {
+func Test_customFieldItemFromModel(t *testing.T) {
 	t.Parallel()
 
-	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-	due := time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)
-
 	cases := map[string]struct {
-		input *model.Version
-		want  *Version
+		input *model.CustomFieldItem
+		want  *CustomFieldItem
 	}{
 		"normal": {
-			input: &model.Version{
-				ID:             30,
-				ProjectID:      1,
-				Name:           "v1.0",
-				Description:    "first release",
-				StartDate:      start,
-				ReleaseDueDate: due,
-				Archived:       false,
-				DisplayOrder:   0,
-			},
-			want: &Version{
-				ID:             30,
-				ProjectID:      1,
-				Name:           "v1.0",
-				Description:    "first release",
-				StartDate:      start,
-				ReleaseDueDate: due,
-				Archived:       false,
-				DisplayOrder:   0,
-			},
+			input: &model.CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
+			want:  &CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
 		},
 		"nil": {
 			input: nil,
@@ -194,31 +143,39 @@ func Test_versionFromModel(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, versionFromModel(tc.input))
+			assert.Equal(t, tc.want, customFieldItemFromModel(tc.input))
 		})
 	}
 }
 
-func Test_versionsFromModel(t *testing.T) {
+func Test_diskUsageProjectFromModel(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
-		input []*model.Version
-		want  []*Version
+		input *model.DiskUsageProject
+		want  *DiskUsageProject
 	}{
-		"with_elements": {
-			input: []*model.Version{
-				{ID: 1, Name: "v1.0"},
-				{ID: 2, Name: "v2.0"},
+		"normal": {
+			input: &model.DiskUsageProject{
+				DiskUsageBase: model.DiskUsageBase{
+					Issue:      11931,
+					Wiki:       0,
+					File:       512,
+					Subversion: 0,
+					Git:        1024,
+					GitLFS:     0,
+				},
+				ProjectID: 1,
 			},
-			want: []*Version{
-				{ID: 1, Name: "v1.0"},
-				{ID: 2, Name: "v2.0"},
+			want: &DiskUsageProject{
+				ProjectID:  1,
+				Issue:      11931,
+				Wiki:       0,
+				File:       512,
+				Subversion: 0,
+				Git:        1024,
+				GitLFS:     0,
 			},
-		},
-		"empty": {
-			input: []*model.Version{},
-			want:  []*Version{},
 		},
 		"nil": {
 			input: nil,
@@ -229,7 +186,69 @@ func Test_versionsFromModel(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, versionsFromModel(tc.input))
+			assert.Equal(t, tc.want, diskUsageProjectFromModel(tc.input))
+		})
+	}
+}
+
+func Test_diskUsageSpaceFromModel(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input *model.DiskUsageSpace
+		want  *DiskUsageSpace
+	}{
+		"with_details": {
+			input: &model.DiskUsageSpace{
+				DiskUsageBase: model.DiskUsageBase{
+					Issue:      119511,
+					Wiki:       0,
+					File:       0,
+					Subversion: 0,
+					Git:        0,
+					GitLFS:     0,
+				},
+				Capacity: 1073741824,
+				Details: []*model.DiskUsageProject{
+					{
+						DiskUsageBase: model.DiskUsageBase{Issue: 11931},
+						ProjectID:     1,
+					},
+				},
+			},
+			want: &DiskUsageSpace{
+				Capacity:   1073741824,
+				Issue:      119511,
+				Wiki:       0,
+				File:       0,
+				Subversion: 0,
+				Git:        0,
+				GitLFS:     0,
+				Details: []*DiskUsageProject{
+					{ProjectID: 1, Issue: 11931},
+				},
+			},
+		},
+		"empty_details": {
+			input: &model.DiskUsageSpace{
+				Capacity: 512,
+				Details:  []*model.DiskUsageProject{},
+			},
+			want: &DiskUsageSpace{
+				Capacity: 512,
+				Details:  []*DiskUsageProject{},
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, diskUsageSpaceFromModel(tc.input))
 		})
 	}
 }
@@ -381,6 +400,16 @@ func Test_issueFromModel(t *testing.T) {
 	}
 }
 
+func Test_notificationFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, notificationFromModel(nil))
+}
+
+func Test_projectFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, projectFromModel(nil))
+}
+
 func Test_pullRequestFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -469,6 +498,11 @@ func Test_pullRequestFromModel(t *testing.T) {
 	}
 }
 
+func Test_sharedFileFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, sharedFileFromModel(nil))
+}
+
 func Test_spaceFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -517,111 +551,6 @@ func Test_spaceFromModel(t *testing.T) {
 	}
 }
 
-func Test_diskUsageProjectFromModel(t *testing.T) {
-	t.Parallel()
-
-	cases := map[string]struct {
-		input *model.DiskUsageProject
-		want  *DiskUsageProject
-	}{
-		"normal": {
-			input: &model.DiskUsageProject{
-				DiskUsageBase: model.DiskUsageBase{
-					Issue:      11931,
-					Wiki:       0,
-					File:       512,
-					Subversion: 0,
-					Git:        1024,
-					GitLFS:     0,
-				},
-				ProjectID: 1,
-			},
-			want: &DiskUsageProject{
-				ProjectID:  1,
-				Issue:      11931,
-				Wiki:       0,
-				File:       512,
-				Subversion: 0,
-				Git:        1024,
-				GitLFS:     0,
-			},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, diskUsageProjectFromModel(tc.input))
-		})
-	}
-}
-
-func Test_diskUsageSpaceFromModel(t *testing.T) {
-	t.Parallel()
-
-	cases := map[string]struct {
-		input *model.DiskUsageSpace
-		want  *DiskUsageSpace
-	}{
-		"with_details": {
-			input: &model.DiskUsageSpace{
-				DiskUsageBase: model.DiskUsageBase{
-					Issue:      119511,
-					Wiki:       0,
-					File:       0,
-					Subversion: 0,
-					Git:        0,
-					GitLFS:     0,
-				},
-				Capacity: 1073741824,
-				Details: []*model.DiskUsageProject{
-					{
-						DiskUsageBase: model.DiskUsageBase{Issue: 11931},
-						ProjectID:     1,
-					},
-				},
-			},
-			want: &DiskUsageSpace{
-				Capacity:   1073741824,
-				Issue:      119511,
-				Wiki:       0,
-				File:       0,
-				Subversion: 0,
-				Git:        0,
-				GitLFS:     0,
-				Details: []*DiskUsageProject{
-					{ProjectID: 1, Issue: 11931},
-				},
-			},
-		},
-		"empty_details": {
-			input: &model.DiskUsageSpace{
-				Capacity: 512,
-				Details:  []*model.DiskUsageProject{},
-			},
-			want: &DiskUsageSpace{
-				Capacity: 512,
-				Details:  []*DiskUsageProject{},
-			},
-		},
-		"nil": {
-			input: nil,
-			want:  nil,
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, diskUsageSpaceFromModel(tc.input))
-		})
-	}
-}
-
 func Test_spaceNotificationFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -665,24 +594,29 @@ func Test_starsFromModel_nil(t *testing.T) {
 	assert.Nil(t, starsFromModel(nil))
 }
 
-func Test_attachmentFromModel_nil(t *testing.T) {
+func Test_statusFromModel(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, attachmentFromModel(nil))
-}
 
-func Test_commentFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, commentFromModel(nil))
-}
+	cases := map[string]struct {
+		input *model.Status
+		want  *Status
+	}{
+		"normal": {
+			input: &model.Status{ID: 1, Name: "Open"},
+			want:  &Status{ID: 1, Name: "Open"},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
 
-func Test_notificationFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, notificationFromModel(nil))
-}
-
-func Test_sharedFileFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, sharedFileFromModel(nil))
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, statusFromModel(tc.input))
+		})
+	}
 }
 
 func Test_tagFromModel_nil(t *testing.T) {
@@ -690,27 +624,98 @@ func Test_tagFromModel_nil(t *testing.T) {
 	assert.Nil(t, tagFromModel(nil))
 }
 
-func Test_activityContentFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, activityContentFromModel(nil))
-}
-
-func Test_activityFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, activityFromModel(nil))
-}
-
 func Test_userFromModel_nil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, userFromModel(nil))
 }
 
-func Test_projectFromModel_nil(t *testing.T) {
+func Test_versionFromModel(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, projectFromModel(nil))
+
+	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	due := time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)
+
+	cases := map[string]struct {
+		input *model.Version
+		want  *Version
+	}{
+		"normal": {
+			input: &model.Version{
+				ID:             30,
+				ProjectID:      1,
+				Name:           "v1.0",
+				Description:    "first release",
+				StartDate:      start,
+				ReleaseDueDate: due,
+				Archived:       false,
+				DisplayOrder:   0,
+			},
+			want: &Version{
+				ID:             30,
+				ProjectID:      1,
+				Name:           "v1.0",
+				Description:    "first release",
+				StartDate:      start,
+				ReleaseDueDate: due,
+				Archived:       false,
+				DisplayOrder:   0,
+			},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, versionFromModel(tc.input))
+		})
+	}
+}
+
+func Test_versionsFromModel(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input []*model.Version
+		want  []*Version
+	}{
+		"with_elements": {
+			input: []*model.Version{
+				{ID: 1, Name: "v1.0"},
+				{ID: 2, Name: "v2.0"},
+			},
+			want: []*Version{
+				{ID: 1, Name: "v1.0"},
+				{ID: 2, Name: "v2.0"},
+			},
+		},
+		"empty": {
+			input: []*model.Version{},
+			want:  []*Version{},
+		},
+		"nil": {
+			input: nil,
+			want:  nil,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, versionsFromModel(tc.input))
+		})
+	}
 }
 
 func Test_wikiFromModel_nil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, wikiFromModel(nil))
+}
+
+func Test_wikiHistoryFromModel_nil(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, wikiHistoryFromModel(nil))
 }
