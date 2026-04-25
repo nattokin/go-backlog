@@ -7,6 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
@@ -51,6 +52,7 @@ type WikiService struct {
 
 	Attachment *WikiAttachmentService
 	Option     *WikiOptionService
+	SharedFile *WikiSharedFileService
 	Star       *WikiStarService
 }
 
@@ -150,6 +152,39 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 }
 
 // ──────────────────────────────────────────────────────────────
+//  WikiSharedFileService
+// ──────────────────────────────────────────────────────────────
+
+// WikiSharedFileService handles communication with the wiki shared-file-related methods of the Backlog API.
+type WikiSharedFileService struct {
+	base *sharedfile.WikiService
+}
+
+// List returns a list of shared files linked to the wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files-on-wiki
+func (s *WikiSharedFileService) List(ctx context.Context, wikiID int) ([]*SharedFile, error) {
+	v, err := s.base.List(ctx, wikiID)
+	return sharedFilesFromModel(v), convertError(err)
+}
+
+// Link links shared files to the wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-wiki
+func (s *WikiSharedFileService) Link(ctx context.Context, wikiID int, fileIDs []int) ([]*SharedFile, error) {
+	v, err := s.base.Link(ctx, wikiID, fileIDs)
+	return sharedFilesFromModel(v), convertError(err)
+}
+
+// Unlink removes a shared file link from the wiki page.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-wiki
+func (s *WikiSharedFileService) Unlink(ctx context.Context, wikiID, fileID int) (*SharedFile, error) {
+	v, err := s.base.Unlink(ctx, wikiID, fileID)
+	return sharedFileFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  WikiStarService
 // ──────────────────────────────────────────────────────────────
 
@@ -220,6 +255,7 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
 		Option:     newWikiOptionService(option),
+		SharedFile: newWikiSharedFileService(method),
 		Star:       newWikiStarService(method, option),
 	}
 }
@@ -227,6 +263,12 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
 		base: attachment.NewWikiService(method),
+	}
+}
+
+func newWikiSharedFileService(method *core.Method) *WikiSharedFileService {
+	return &WikiSharedFileService{
+		base: sharedfile.NewWikiService(method),
 	}
 }
 
