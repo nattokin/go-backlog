@@ -338,6 +338,123 @@ func TestWikiAttachmentService(t *testing.T) {
 	}
 }
 
+func TestWikiSharedFileService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"List": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.SharedFile.List(ctx, 34)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 454403, got[0].ID)
+				assert.Equal(t, "01_buz.png", got[0].Name)
+				assert.Equal(t, 454404, got[1].ID)
+				assert.Equal(t, "readme.md", got[1].Name)
+			},
+		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.SharedFile.List(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Link": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, []string{"454403", "454404"}, req.PostForm["fileId[]"])
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403, 454404})
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 454403, got[0].ID)
+				assert.Equal(t, 454404, got[1].ID)
+			},
+		},
+		"Link/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403})
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Unlink": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/sharedFiles/454403", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.SharedFile.SingleJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
+				require.NoError(t, err)
+				assert.Equal(t, 454403, got.ID)
+				assert.Equal(t, "01_buz.png", got.Name)
+				assert.Equal(t, "/icon/", got.Dir)
+			},
+		},
+		"Unlink/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such shared file.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestWikiStarService(t *testing.T) {
 	ctx := context.Background()
 
