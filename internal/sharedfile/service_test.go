@@ -269,8 +269,8 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 		},
 
 		"error-client": {
-			wikiID: 1234,
-			fileID: 454403,
+			wikiID:      1234,
+			fileID:      454403,
 			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -278,8 +278,8 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 		},
 
 		"error-invalid-json": {
-			wikiID: 1234,
-			fileID: 454403,
+			wikiID:      1234,
+			fileID:      454403,
 			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
