@@ -9,21 +9,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
-func Test_activityContentFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, activityContentFromModel(nil))
-}
-
-func Test_activityFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, activityFromModel(nil))
-}
-
-func Test_attachmentFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, attachmentFromModel(nil))
-}
-
 func Test_changeLogFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -55,11 +40,6 @@ func Test_changeLogFromModel(t *testing.T) {
 			assert.Equal(t, tc.want, changeLogFromModel(tc.input))
 		})
 	}
-}
-
-func Test_commentFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, commentFromModel(nil))
 }
 
 func Test_customFieldFromModel(t *testing.T) {
@@ -400,16 +380,6 @@ func Test_issueFromModel(t *testing.T) {
 	}
 }
 
-func Test_notificationFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, notificationFromModel(nil))
-}
-
-func Test_projectFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, projectFromModel(nil))
-}
-
 func Test_pullRequestFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -498,11 +468,6 @@ func Test_pullRequestFromModel(t *testing.T) {
 	}
 }
 
-func Test_sharedFileFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, sharedFileFromModel(nil))
-}
-
 func Test_spaceFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -584,16 +549,6 @@ func Test_spaceNotificationFromModel(t *testing.T) {
 	}
 }
 
-func Test_starFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, starFromModel(nil))
-}
-
-func Test_starsFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, starsFromModel(nil))
-}
-
 func Test_statusFromModel(t *testing.T) {
 	t.Parallel()
 
@@ -617,16 +572,6 @@ func Test_statusFromModel(t *testing.T) {
 			assert.Equal(t, tc.want, statusFromModel(tc.input))
 		})
 	}
-}
-
-func Test_tagFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, tagFromModel(nil))
-}
-
-func Test_userFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, userFromModel(nil))
 }
 
 func Test_versionFromModel(t *testing.T) {
@@ -676,8 +621,6 @@ func Test_versionFromModel(t *testing.T) {
 }
 
 func Test_versionsFromModel(t *testing.T) {
-	t.Parallel()
-
 	cases := map[string]struct {
 		input []*model.Version
 		want  []*Version
@@ -710,12 +653,29 @@ func Test_versionsFromModel(t *testing.T) {
 	}
 }
 
-func Test_wikiFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, wikiFromModel(nil))
-}
+func Test_fromModel_nil(t *testing.T) {
+	cases := map[string]struct {
+		call func() any
+	}{
+		"activity":         {call: func() any { return activityFromModel(nil) }},
+		"activity_content": {call: func() any { return activityContentFromModel(nil) }},
+		"attachment":       {call: func() any { return attachmentFromModel(nil) }},
+		"comment":          {call: func() any { return commentFromModel(nil) }},
+		"notification":     {call: func() any { return notificationFromModel(nil) }},
+		"project":          {call: func() any { return projectFromModel(nil) }},
+		"shared_file":      {call: func() any { return sharedFileFromModel(nil) }},
+		"star":             {call: func() any { return starFromModel(nil) }},
+		"stars":            {call: func() any { return starsFromModel(nil) }},
+		"tag":              {call: func() any { return tagFromModel(nil) }},
+		"user":             {call: func() any { return userFromModel(nil) }},
+		"wiki":             {call: func() any { return wikiFromModel(nil) }},
+		"wiki_history":     {call: func() any { return wikiHistoryFromModel(nil) }},
+	}
 
-func Test_wikiHistoryFromModel_nil(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, wikiHistoryFromModel(nil))
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Nil(t, tc.call())
+		})
+	}
 }
