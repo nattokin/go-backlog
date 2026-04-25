@@ -205,10 +205,7 @@ func TestIssueService(t *testing.T) {
 		},
 		"Create/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return authErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
@@ -529,10 +526,7 @@ func TestIssueStarService(t *testing.T) {
 		},
 		"Add/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return authErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Add(ctx, 1)
@@ -559,10 +553,7 @@ func TestIssueStarService(t *testing.T) {
 		},
 		"Remove/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return authErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Remove(ctx, 42)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type mockDoer struct {
@@ -31,4 +32,13 @@ var doerNoContent = &mockDoer{
 	do: func(_ *http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
 	},
+}
+
+// authErrorResponse returns an HTTP 401 Unauthorized response with an
+// authentication failure error body, matching the Backlog API error format.
+func authErrorResponse() *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusUnauthorized,
+		Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
+	}
 }
