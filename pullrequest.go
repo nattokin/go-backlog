@@ -45,6 +45,7 @@ type PullRequestService struct {
 
 	Attachment *PullRequestAttachmentService
 	Option     *PullRequestOptionService
+	Star       *PullRequestStarService
 }
 
 // All returns a list of pull requests.
@@ -145,6 +146,29 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 }
 
 // ──────────────────────────────────────────────────────────────
+//  PullRequestStarService
+// ──────────────────────────────────────────────────────────────
+
+// PullRequestStarService handles communication with the pull request star-related methods of the Backlog API.
+type PullRequestStarService struct {
+	star *StarService
+}
+
+// Add adds a star to the pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
+func (s *PullRequestStarService) Add(ctx context.Context, pullRequestID int) error {
+	return s.star.Add(ctx, s.star.Option.WithPullRequestID(pullRequestID))
+}
+
+// Remove removes a star by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
+func (s *PullRequestStarService) Remove(ctx context.Context, starID int) error {
+	return s.star.Remove(ctx, starID)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  PullRequestOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -228,6 +252,7 @@ func newPullRequestService(method *core.Method, option *core.OptionService) *Pul
 		base:       pullrequest.NewService(method),
 		Attachment: newPullRequestAttachmentService(method),
 		Option:     newPullRequestOptionService(option),
+		Star:       newPullRequestStarService(method, option),
 	}
 }
 
@@ -235,6 +260,10 @@ func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachment
 	return &PullRequestAttachmentService{
 		base: attachment.NewPullRequestService(method),
 	}
+}
+
+func newPullRequestStarService(method *core.Method, option *core.OptionService) *PullRequestStarService {
+	return &PullRequestStarService{star: newStarService(method, option)}
 }
 
 func newPullRequestOptionService(option *core.OptionService) *PullRequestOptionService {
