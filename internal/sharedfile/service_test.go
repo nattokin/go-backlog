@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -12,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -217,8 +219,8 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 		},
 
 		"error-client": {
-			wikiID:  1234,
-			fileIDs: []int{454403},
+			wikiID:      1234,
+			fileIDs:     []int{454403},
 			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -226,8 +228,8 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 		},
 
 		"error-invalid-json": {
-			wikiID:  1234,
-			fileIDs: []int{454403},
+			wikiID:      1234,
+			fileIDs:     []int{454403},
 			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
