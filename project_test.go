@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -30,10 +29,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
 				assert.Equal(t, "true", req.URL.Query().Get("archived"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Project.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.All(ctx, c.Project.Option.WithArchived(true))
@@ -54,10 +50,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.One(ctx, "TEST")
@@ -87,10 +80,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "TEST", req.PostForm.Get("key"))
 				assert.Equal(t, "test", req.PostForm.Get("name"))
 				assert.Equal(t, "true", req.PostForm.Get("chartEnabled"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Create(ctx, "TEST", "test", c.Project.Option.WithChartEnabled(true))
@@ -113,10 +103,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "new-name", req.PostForm.Get("name"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
@@ -142,10 +129,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Project.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Delete(ctx, "TEST")
@@ -192,10 +176,7 @@ func TestProjectActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/activities", req.URL.Path)
 				assert.Equal(t, "10", req.URL.Query().Get("count"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Activity.List(ctx, "TEST", c.Project.Activity.Option.WithCount(10))

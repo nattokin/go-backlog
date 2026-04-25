@@ -45,3 +45,13 @@ func newAuthErrorDoFunc() func(req *http.Request) (*http.Response, error) {
 		}, nil
 	}
 }
+
+// newJSONResponse returns an HTTP 200 OK response with the given JSON string as body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func newJSONResponse(json string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(bytes.NewReader([]byte(json))),
+	}
+}

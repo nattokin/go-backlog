@@ -1,10 +1,8 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -28,10 +26,7 @@ func TestSpaceService_One(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.SpaceJSON))),
-				}, nil
+				return newJSONResponse(fixture.Space.SpaceJSON), nil
 			},
 		},
 		"error": {
@@ -76,10 +71,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/diskUsage", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.DiskUsageJSON))),
-				}, nil
+				return newJSONResponse(fixture.Space.DiskUsageJSON), nil
 			},
 		},
 		"error": {
@@ -126,10 +118,7 @@ func TestSpaceService_Notification(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
-				}, nil
+				return newJSONResponse(fixture.Space.NotificationJSON), nil
 			},
 		},
 		"error": {
@@ -176,10 +165,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Backlog is a project management tool.", req.FormValue("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
-				}, nil
+				return newJSONResponse(fixture.Space.NotificationJSON), nil
 			},
 		},
 		"error-validation-empty-content": {
@@ -230,10 +216,7 @@ func TestSpaceActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/activities", req.URL.Path)
 				assert.Equal(t, "20", req.URL.Query().Get("count"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
-				}, nil
+				return newJSONResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Space.Activity.List(ctx, c.Space.Activity.Option.WithCount(20))
@@ -254,10 +237,7 @@ func TestSpaceActivityService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/activities/3153", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.SingleJSON))),
-				}, nil
+				return newJSONResponse(fixture.Activity.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Space.Activity.Get(ctx, 3153)
@@ -310,10 +290,7 @@ func TestSpaceAttachmentService(t *testing.T) {
 			assert.Equal(t, http.MethodPost, req.Method)
 			assert.Equal(t, "/api/v2/space/attachment", req.URL.Path)
 			assert.True(t, strings.HasPrefix(req.Header.Get("Content-Type"), "multipart/form-data"))
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.UploadJSON))),
-			}, nil
+			return newJSONResponse(fixture.Attachment.UploadJSON), nil
 		}
 
 		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
