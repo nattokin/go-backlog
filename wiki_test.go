@@ -338,6 +338,59 @@ func TestWikiAttachmentService(t *testing.T) {
 	}
 }
 
+func TestWikiHistoryService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"List": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/wikis/34/history", req.URL.Path)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.WikiHistory.ListJSON))),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Wiki.History.List(ctx, 34)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, 34, got[0].PageID)
+				assert.Equal(t, 2, got[0].Version)
+				assert.Equal(t, "Home", got[0].Name)
+				assert.Equal(t, 1, got[1].Version)
+			},
+		},
+		"List/error": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
+				}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Wiki.History.List(ctx, 34)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestWikiSharedFileService(t *testing.T) {
 	ctx := context.Background()
 

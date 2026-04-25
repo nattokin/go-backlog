@@ -21,6 +21,8 @@ var (
 	doerWikiAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
 	doerWikiAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
 
+	doerWikiHistoryList = newMockDoer(fixture.WikiHistory.ListJSON)
+
 	doerWikiStarList = newMockDoer(fixture.Star.ListJSON)
 )
 
@@ -143,6 +145,19 @@ func ExampleWikiAttachmentService_Remove() {
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 8, Name: IMG0088.png
+}
+
+func ExampleWikiHistoryService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiHistoryList),
+	)
+
+	entries, _ := c.Wiki.History.List(context.Background(), 34)
+	fmt.Printf("PageID: %d, Version: %d, Name: %s\n", entries[0].PageID, entries[0].Version, entries[0].Name)
+	// Output:
+	// PageID: 34, Version: 2, Name: Home
 }
 
 func ExampleWikiStarService_List() {
