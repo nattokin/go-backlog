@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -124,4 +125,42 @@ func ExampleIssueAttachmentService_Remove() {
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 8, Name: IMG0088.png
+}
+
+func ExampleIssueStarService_Add() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+		}}),
+	)
+
+	err := c.Issue.Star.Add(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("ok")
+	// Output:
+	// ok
+}
+
+func ExampleIssueStarService_Remove() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(&mockDoer{do: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+		}}),
+	)
+
+	err := c.Issue.Star.Remove(context.Background(), 42)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("ok")
+	// Output:
+	// ok
 }

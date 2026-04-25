@@ -83,6 +83,7 @@ type IssueService struct {
 
 	Attachment *IssueAttachmentService
 	Option     *IssueOptionService
+	Star       *IssueStarService
 }
 
 // All returns a list of issues.
@@ -227,6 +228,29 @@ func (s *IssueAttachmentService) List(ctx context.Context, issueIDOrKey string) 
 func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*Attachment, error) {
 	v, err := s.base.Remove(ctx, issueIDOrKey, attachmentID)
 	return attachmentFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  IssueStarService
+// ──────────────────────────────────────────────────────────────
+
+// IssueStarService handles communication with the issue star-related methods of the Backlog API.
+type IssueStarService struct {
+	star *StarService
+}
+
+// Add adds a star to the issue.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
+func (s *IssueStarService) Add(ctx context.Context, issueID int) error {
+	return s.star.Add(ctx, s.star.Option.WithIssueID(issueID))
+}
+
+// Remove removes a star by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
+func (s *IssueStarService) Remove(ctx context.Context, starID int) error {
+	return s.star.Remove(ctx, starID)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -461,10 +485,12 @@ func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
 // ──────────────────────────────────────────────────────────────
 
 func newIssueService(method *core.Method, option *core.OptionService) *IssueService {
+	starSvc := newStarService(method, option)
 	return &IssueService{
 		base:       issue.NewService(method),
 		Attachment: newIssueAttachmentService(method),
 		Option:     newIssueOptionService(option),
+		Star:       newIssueStarService(starSvc),
 	}
 }
 
@@ -472,6 +498,10 @@ func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 	return &IssueAttachmentService{
 		base: attachment.NewIssueService(method),
 	}
+}
+
+func newIssueStarService(starSvc *StarService) *IssueStarService {
+	return &IssueStarService{star: starSvc}
 }
 
 func newIssueOptionService(option *core.OptionService) *IssueOptionService {
