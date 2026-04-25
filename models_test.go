@@ -12,35 +12,12 @@ import (
 func Test_changeLogFromModel(t *testing.T) {
 	t.Parallel()
 
-	cases := map[string]struct {
-		input *model.ChangeLog
-		want  *ChangeLog
-	}{
-		"normal": {
-			input: &model.ChangeLog{
-				Field:         "status",
-				NewValue:      "4",
-				OriginalValue: "1",
-			},
-			want: &ChangeLog{
-				Field:         "status",
-				NewValue:      "4",
-				OriginalValue: "1",
-			},
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, changeLogFromModel(tc.input))
-		})
-	}
+	input := &model.ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"}
+	want := &ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"}
+	assert.Equal(t, want, changeLogFromModel(input))
 }
 
 func Test_customFieldFromModel(t *testing.T) {
-	t.Parallel()
-
 	cases := map[string]struct {
 		input *model.CustomField
 		want  *CustomField
@@ -90,6 +67,7 @@ func Test_customFieldFromModel(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			assert.Equal(t, tc.want, customFieldFromModel(tc.input))
 		})
 	}
@@ -98,66 +76,38 @@ func Test_customFieldFromModel(t *testing.T) {
 func Test_customFieldItemFromModel(t *testing.T) {
 	t.Parallel()
 
-	cases := map[string]struct {
-		input *model.CustomFieldItem
-		want  *CustomFieldItem
-	}{
-		"normal": {
-			input: &model.CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
-			want:  &CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0},
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, customFieldItemFromModel(tc.input))
-		})
-	}
+	input := &model.CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0}
+	want := &CustomFieldItem{ID: 1, Name: "Windows 8", DisplayOrder: 0}
+	assert.Equal(t, want, customFieldItemFromModel(input))
 }
 
 func Test_diskUsageProjectFromModel(t *testing.T) {
 	t.Parallel()
 
-	cases := map[string]struct {
-		input *model.DiskUsageProject
-		want  *DiskUsageProject
-	}{
-		"normal": {
-			input: &model.DiskUsageProject{
-				DiskUsageBase: model.DiskUsageBase{
-					Issue:      11931,
-					Wiki:       0,
-					File:       512,
-					Subversion: 0,
-					Git:        1024,
-					GitLFS:     0,
-				},
-				ProjectID: 1,
-			},
-			want: &DiskUsageProject{
-				ProjectID:  1,
-				Issue:      11931,
-				Wiki:       0,
-				File:       512,
-				Subversion: 0,
-				Git:        1024,
-				GitLFS:     0,
-			},
+	input := &model.DiskUsageProject{
+		DiskUsageBase: model.DiskUsageBase{
+			Issue:      11931,
+			Wiki:       0,
+			File:       512,
+			Subversion: 0,
+			Git:        1024,
+			GitLFS:     0,
 		},
+		ProjectID: 1,
 	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, diskUsageProjectFromModel(tc.input))
-		})
+	want := &DiskUsageProject{
+		ProjectID:  1,
+		Issue:      11931,
+		Wiki:       0,
+		File:       512,
+		Subversion: 0,
+		Git:        1024,
+		GitLFS:     0,
 	}
+	assert.Equal(t, want, diskUsageProjectFromModel(input))
 }
 
 func Test_diskUsageSpaceFromModel(t *testing.T) {
-	t.Parallel()
-
 	cases := map[string]struct {
 		input *model.DiskUsageSpace
 		want  *DiskUsageSpace
@@ -208,14 +158,13 @@ func Test_diskUsageSpaceFromModel(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			assert.Equal(t, tc.want, diskUsageSpaceFromModel(tc.input))
 		})
 	}
 }
 
 func Test_issueFromModel(t *testing.T) {
-	t.Parallel()
-
 	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	updated := time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)
 
@@ -351,6 +300,7 @@ func Test_issueFromModel(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			assert.Equal(t, tc.want, issueFromModel(tc.input))
 		})
 	}
@@ -367,77 +317,64 @@ func Test_pullRequestFromModel(t *testing.T) {
 	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: model.RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
 	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
 
-	cases := map[string]struct {
-		input *model.PullRequest
-		want  *PullRequest
-	}{
-		"full": {
-			input: &model.PullRequest{
-				ID:           2,
-				ProjectID:    3,
-				RepositoryID: 5,
-				Number:       1,
-				Summary:      "test PR",
-				Description:  "PR desc",
-				Base:         "main",
-				Branch:       "feature",
-				Status:       &model.Status{ID: 1, Name: "Open"},
-				Assignee:     user,
-				Issue:        &model.Issue{ID: 10, Summary: "related issue"},
-				BaseCommit:   "abc123",
-				BranchCommit: "def456",
-				CloseAt:      closeAt,
-				MergeAt:      mergeAt,
-				CreatedUser:  user,
-				Created:      created,
-				UpdatedUser:  user,
-				Updated:      updated,
-				Attachments: []*model.Attachment{
-					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: user, Created: created},
-				},
-				Stars: []*model.Star{
-					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: user, Created: created},
-				},
-			},
-			want: &PullRequest{
-				ID:           2,
-				ProjectID:    3,
-				RepositoryID: 5,
-				Number:       1,
-				Summary:      "test PR",
-				Description:  "PR desc",
-				Base:         "main",
-				Branch:       "feature",
-				Status:       &Status{ID: 1, Name: "Open"},
-				Assignee:     wantUser,
-				Issue: &Issue{
-					ID:      10,
-					Summary: "related issue",
-				},
-				BaseCommit:   "abc123",
-				BranchCommit: "def456",
-				CloseAt:      closeAt,
-				MergeAt:      mergeAt,
-				CreatedUser:  wantUser,
-				Created:      created,
-				UpdatedUser:  wantUser,
-				Updated:      updated,
-				Attachments: []*Attachment{
-					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
-				},
-				Stars: []*Star{
-					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
-				},
-			},
+	input := &model.PullRequest{
+		ID:           2,
+		ProjectID:    3,
+		RepositoryID: 5,
+		Number:       1,
+		Summary:      "test PR",
+		Description:  "PR desc",
+		Base:         "main",
+		Branch:       "feature",
+		Status:       &model.Status{ID: 1, Name: "Open"},
+		Assignee:     user,
+		Issue:        &model.Issue{ID: 10, Summary: "related issue"},
+		BaseCommit:   "abc123",
+		BranchCommit: "def456",
+		CloseAt:      closeAt,
+		MergeAt:      mergeAt,
+		CreatedUser:  user,
+		Created:      created,
+		UpdatedUser:  user,
+		Updated:      updated,
+		Attachments: []*model.Attachment{
+			{ID: 10, Name: "file.txt", Size: 100, CreatedUser: user, Created: created},
+		},
+		Stars: []*model.Star{
+			{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: user, Created: created},
 		},
 	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, pullRequestFromModel(tc.input))
-		})
+	want := &PullRequest{
+		ID:           2,
+		ProjectID:    3,
+		RepositoryID: 5,
+		Number:       1,
+		Summary:      "test PR",
+		Description:  "PR desc",
+		Base:         "main",
+		Branch:       "feature",
+		Status:       &Status{ID: 1, Name: "Open"},
+		Assignee:     wantUser,
+		Issue: &Issue{
+			ID:      10,
+			Summary: "related issue",
+		},
+		BaseCommit:   "abc123",
+		BranchCommit: "def456",
+		CloseAt:      closeAt,
+		MergeAt:      mergeAt,
+		CreatedUser:  wantUser,
+		Created:      created,
+		UpdatedUser:  wantUser,
+		Updated:      updated,
+		Attachments: []*Attachment{
+			{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
+		},
+		Stars: []*Star{
+			{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
+		},
 	}
+	assert.Equal(t, want, pullRequestFromModel(input))
 }
 
 func Test_spaceFromModel(t *testing.T) {
@@ -445,93 +382,52 @@ func Test_spaceFromModel(t *testing.T) {
 
 	created := time.Date(2008, 7, 6, 15, 0, 0, 0, time.UTC)
 	updated := time.Date(2013, 6, 18, 7, 55, 37, 0, time.UTC)
-
-	cases := map[string]struct {
-		input *model.Space
-		want  *Space
-	}{
-		"normal": {
-			input: &model.Space{
-				SpaceKey:           "nulab",
-				Name:               "Nulab Inc.",
-				OwnerID:            1,
-				Lang:               "ja",
-				Timezone:           "Asia/Tokyo",
-				ReportSendTime:     "08:00:00",
-				TextFormattingRule: model.FormatMarkdown,
-				Created:            created,
-				Updated:            updated,
-			},
-			want: &Space{
-				SpaceKey:           "nulab",
-				Name:               "Nulab Inc.",
-				OwnerID:            1,
-				Lang:               "ja",
-				Timezone:           "Asia/Tokyo",
-				ReportSendTime:     "08:00:00",
-				TextFormattingRule: FormatMarkdown,
-				Created:            created,
-				Updated:            updated,
-			},
-		},
+	input := &model.Space{
+		SpaceKey:           "nulab",
+		Name:               "Nulab Inc.",
+		OwnerID:            1,
+		Lang:               "ja",
+		Timezone:           "Asia/Tokyo",
+		ReportSendTime:     "08:00:00",
+		TextFormattingRule: model.FormatMarkdown,
+		Created:            created,
+		Updated:            updated,
 	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, spaceFromModel(tc.input))
-		})
+	want := &Space{
+		SpaceKey:           "nulab",
+		Name:               "Nulab Inc.",
+		OwnerID:            1,
+		Lang:               "ja",
+		Timezone:           "Asia/Tokyo",
+		ReportSendTime:     "08:00:00",
+		TextFormattingRule: FormatMarkdown,
+		Created:            created,
+		Updated:            updated,
 	}
+	assert.Equal(t, want, spaceFromModel(input))
 }
 
 func Test_spaceNotificationFromModel(t *testing.T) {
 	t.Parallel()
 
 	updated := time.Date(2013, 6, 18, 7, 55, 37, 0, time.UTC)
-
-	cases := map[string]struct {
-		input *model.SpaceNotification
-		want  *SpaceNotification
-	}{
-		"normal": {
-			input: &model.SpaceNotification{
-				Content: "Backlog is a project management tool.",
-				Updated: updated,
-			},
-			want: &SpaceNotification{
-				Content: "Backlog is a project management tool.",
-				Updated: updated,
-			},
-		},
+	input := &model.SpaceNotification{
+		Content: "Backlog is a project management tool.",
+		Updated: updated,
 	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, spaceNotificationFromModel(tc.input))
-		})
+	want := &SpaceNotification{
+		Content: "Backlog is a project management tool.",
+		Updated: updated,
 	}
+	assert.Equal(t, want, spaceNotificationFromModel(input))
 }
 
 func Test_statusFromModel(t *testing.T) {
 	t.Parallel()
 
-	cases := map[string]struct {
-		input *model.Status
-		want  *Status
-	}{
-		"normal": {
-			input: &model.Status{ID: 1, Name: "Open"},
-			want:  &Status{ID: 1, Name: "Open"},
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, statusFromModel(tc.input))
-		})
-	}
+	input := &model.Status{ID: 1, Name: "Open"}
+	want := &Status{ID: 1, Name: "Open"}
+	assert.Equal(t, want, statusFromModel(input))
 }
 
 func Test_versionFromModel(t *testing.T) {
@@ -539,41 +435,27 @@ func Test_versionFromModel(t *testing.T) {
 
 	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	due := time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)
-
-	cases := map[string]struct {
-		input *model.Version
-		want  *Version
-	}{
-		"normal": {
-			input: &model.Version{
-				ID:             30,
-				ProjectID:      1,
-				Name:           "v1.0",
-				Description:    "first release",
-				StartDate:      start,
-				ReleaseDueDate: due,
-				Archived:       false,
-				DisplayOrder:   0,
-			},
-			want: &Version{
-				ID:             30,
-				ProjectID:      1,
-				Name:           "v1.0",
-				Description:    "first release",
-				StartDate:      start,
-				ReleaseDueDate: due,
-				Archived:       false,
-				DisplayOrder:   0,
-			},
-		},
+	input := &model.Version{
+		ID:             30,
+		ProjectID:      1,
+		Name:           "v1.0",
+		Description:    "first release",
+		StartDate:      start,
+		ReleaseDueDate: due,
+		Archived:       false,
+		DisplayOrder:   0,
 	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, versionFromModel(tc.input))
-		})
+	want := &Version{
+		ID:             30,
+		ProjectID:      1,
+		Name:           "v1.0",
+		Description:    "first release",
+		StartDate:      start,
+		ReleaseDueDate: due,
+		Archived:       false,
+		DisplayOrder:   0,
 	}
+	assert.Equal(t, want, versionFromModel(input))
 }
 
 func Test_versionsFromModel(t *testing.T) {
@@ -606,7 +488,6 @@ func Test_versionsFromModel(t *testing.T) {
 }
 
 func Test_fromModel_nil(t *testing.T) {
-	t.Parallel()
 	cases := map[string]struct {
 		call func() any
 	}{
@@ -640,6 +521,7 @@ func Test_fromModel_nil(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			assert.Nil(t, tc.call())
 		})
 	}
