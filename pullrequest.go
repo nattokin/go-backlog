@@ -45,6 +45,7 @@ type PullRequestService struct {
 
 	Attachment *PullRequestAttachmentService
 	Option     *PullRequestOptionService
+	Star       *PullRequestStarService
 }
 
 // All returns a list of pull requests.
@@ -145,6 +146,29 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 }
 
 // ──────────────────────────────────────────────────────────────
+//  PullRequestStarService
+// ──────────────────────────────────────────────────────────────
+
+// PullRequestStarService handles communication with the pull request star-related methods of the Backlog API.
+type PullRequestStarService struct {
+	star *StarService
+}
+
+// Add adds a star to the pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
+func (s *PullRequestStarService) Add(ctx context.Context, pullRequestID int) error {
+	return s.star.Add(ctx, s.star.Option.WithPullRequestID(pullRequestID))
+}
+
+// Remove removes a star by its ID.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
+func (s *PullRequestStarService) Remove(ctx context.Context, starID int) error {
+	return s.star.Remove(ctx, starID)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  PullRequestOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -224,10 +248,12 @@ func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
 // ──────────────────────────────────────────────────────────────
 
 func newPullRequestService(method *core.Method, option *core.OptionService) *PullRequestService {
+	starSvc := newStarService(method, option)
 	return &PullRequestService{
 		base:       pullrequest.NewService(method),
 		Attachment: newPullRequestAttachmentService(method),
 		Option:     newPullRequestOptionService(option),
+		Star:       newPullRequestStarService(starSvc),
 	}
 }
 
@@ -235,6 +261,10 @@ func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachment
 	return &PullRequestAttachmentService{
 		base: attachment.NewPullRequestService(method),
 	}
+}
+
+func newPullRequestStarService(starSvc *StarService) *PullRequestStarService {
+	return &PullRequestStarService{star: starSvc}
 }
 
 func newPullRequestOptionService(option *core.OptionService) *PullRequestOptionService {
