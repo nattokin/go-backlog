@@ -83,9 +83,10 @@ type IssueService struct {
 	base *issue.Service
 
 	Attachment *IssueAttachmentService
-	Option     *IssueOptionService
 	SharedFile *IssueSharedFileService
 	Star       *IssueStarService
+
+	Option *IssueOptionService
 }
 
 // All returns a list of issues.
@@ -520,13 +521,14 @@ func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
 // ──────────────────────────────────────────────────────────────
 
 func newIssueService(method *core.Method, option *core.OptionService) *IssueService {
-	starSvc := newStarService(method, option)
 	return &IssueService{
-		base:       issue.NewService(method),
+		base: issue.NewService(method),
+
 		Attachment: newIssueAttachmentService(method),
-		Option:     newIssueOptionService(option),
 		SharedFile: newIssueSharedFileService(method),
-		Star:       newIssueStarService(starSvc),
+		Star:       newIssueStarService(method, option),
+
+		Option: newIssueOptionService(option),
 	}
 }
 
@@ -542,14 +544,12 @@ func newIssueSharedFileService(method *core.Method) *IssueSharedFileService {
 	}
 }
 
-func newIssueStarService(starSvc *StarService) *IssueStarService {
-	return &IssueStarService{star: starSvc}
+func newIssueStarService(method *core.Method, option *core.OptionService) *IssueStarService {
+	return &IssueStarService{star: newStarService(method, option)}
 }
 
 func newIssueOptionService(option *core.OptionService) *IssueOptionService {
-	return &IssueOptionService{
-		base: option,
-	}
+	return &IssueOptionService{base: option}
 }
 
 // ──────────────────────────────────────────────────────────────
