@@ -19,6 +19,13 @@ var (
 
 	// UserActivityService
 	doerUserActivityList = newMockDoer(fixture.Activity.ListJSON)
+
+	// UserRecentlyViewedService
+	doerRecentlyViewedListIssues   = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
+	doerRecentlyViewedAddIssue     = newMockDoer(fixture.RecentlyViewed.IssueSingleJSON)
+	doerRecentlyViewedListProjects = newMockDoer(fixture.RecentlyViewed.ProjectListJSON)
+	doerRecentlyViewedListWikis    = newMockDoer(fixture.RecentlyViewed.WikiListJSON)
+	doerRecentlyViewedAddWiki      = newMockDoer(fixture.RecentlyViewed.WikiSingleJSON)
 )
 
 func ExampleUserService_All() {
@@ -121,4 +128,69 @@ func ExampleUserActivityService_List() {
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
+}
+
+func ExampleUserRecentlyViewedService_ListIssues() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerRecentlyViewedListIssues),
+	)
+
+	issues, _ := c.User.RecentlyViewed.ListIssues(context.Background())
+	fmt.Printf("IssueKey: %s\n", issues[0].IssueKey)
+	// Output:
+	// IssueKey: TEST-1
+}
+
+func ExampleUserRecentlyViewedService_AddIssue() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerRecentlyViewedAddIssue),
+	)
+
+	issue, _ := c.User.RecentlyViewed.AddIssue(context.Background(), 1)
+	fmt.Printf("IssueKey: %s\n", issue.IssueKey)
+	// Output:
+	// IssueKey: TEST-1
+}
+
+func ExampleUserRecentlyViewedService_ListProjects() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerRecentlyViewedListProjects),
+	)
+
+	projects, _ := c.User.RecentlyViewed.ListProjects(context.Background())
+	fmt.Printf("ProjectKey: %s\n", projects[0].ProjectKey)
+	// Output:
+	// ProjectKey: TEST
+}
+
+func ExampleUserRecentlyViewedService_ListWikis() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerRecentlyViewedListWikis),
+	)
+
+	wikis, _ := c.User.RecentlyViewed.ListWikis(context.Background())
+	fmt.Printf("Name: %s\n", wikis[0].Name)
+	// Output:
+	// Name: Home
+}
+
+func ExampleUserRecentlyViewedService_AddWiki() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerRecentlyViewedAddWiki),
+	)
+
+	wiki, _ := c.User.RecentlyViewed.AddWiki(context.Background(), 10)
+	fmt.Printf("Name: %s\n", wiki.Name)
+	// Output:
+	// Name: Home
 }
