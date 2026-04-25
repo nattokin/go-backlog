@@ -36,10 +36,7 @@ func TestSpaceService_One(t *testing.T) {
 		},
 		"error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			wantErr: true,
 		},
@@ -89,10 +86,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 		},
 		"error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			wantErr: true,
 		},
@@ -144,10 +138,7 @@ func TestSpaceService_Notification(t *testing.T) {
 		},
 		"error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			wantErr: true,
 		},
@@ -204,10 +195,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		"error-api": {
 			content: "content",
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			wantErr: true,
 		},
@@ -263,10 +251,7 @@ func TestSpaceActivityService(t *testing.T) {
 		},
 		"List/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.List(ctx)
@@ -300,10 +285,7 @@ func TestSpaceActivityService(t *testing.T) {
 		},
 		"Get/error-api": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.Get(ctx, 1)
@@ -362,10 +344,7 @@ func TestSpaceAttachmentService(t *testing.T) {
 
 	t.Run("Upload/error", func(t *testing.T) {
 		doFunc := func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusUnauthorized,
-				Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-			}, nil
+			return newAuthErrorResponse(), nil
 		}
 
 		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))

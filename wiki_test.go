@@ -135,7 +135,7 @@ func TestWikiService(t *testing.T) {
 		},
 		"Create/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return authErrorResponse(), nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content")
@@ -558,7 +558,7 @@ func TestWikiStarService(t *testing.T) {
 		},
 		"Add/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return authErrorResponse(), nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Add(ctx, 34)
@@ -585,7 +585,7 @@ func TestWikiStarService(t *testing.T) {
 		},
 		"Remove/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return authErrorResponse(), nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Remove(ctx, 42)

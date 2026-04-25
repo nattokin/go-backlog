@@ -43,10 +43,7 @@ func TestProjectService(t *testing.T) {
 		},
 		"All/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.All(ctx)
@@ -105,10 +102,7 @@ func TestProjectService(t *testing.T) {
 		},
 		"Create/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Create(ctx, "TEST", "test")

@@ -198,10 +198,7 @@ func TestPullRequestService(t *testing.T) {
 		},
 		"Create/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Create(ctx, "TEST", "repo", "new PR", "", "main", "feature/foo")
@@ -377,10 +374,7 @@ func TestPullRequestStarService(t *testing.T) {
 		},
 		"Add/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Add(ctx, 2)
@@ -407,10 +401,7 @@ func TestPullRequestStarService(t *testing.T) {
 		},
 		"Remove/error": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusUnauthorized,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
-				}, nil
+				return newAuthErrorResponse(), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Remove(ctx, 42)

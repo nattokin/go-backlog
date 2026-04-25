@@ -34,9 +34,9 @@ var doerNoContent = &mockDoer{
 	},
 }
 
-// authErrorResponse returns an HTTP 401 Unauthorized response with an
+// newAuthErrorResponse returns an HTTP 401 Unauthorized response with an
 // authentication failure error body, matching the Backlog API error format.
-func authErrorResponse() *http.Response {
+func newAuthErrorResponse() *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusUnauthorized,
 		Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`)),
