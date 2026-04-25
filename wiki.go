@@ -51,9 +51,10 @@ type WikiService struct {
 	base *wiki.Service
 
 	Attachment *WikiAttachmentService
-	Option     *WikiOptionService
 	SharedFile *WikiSharedFileService
 	Star       *WikiStarService
+
+	Option *WikiOptionService
 }
 
 // All returns a list of all wiki pages in the project.
