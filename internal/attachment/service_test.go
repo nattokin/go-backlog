@@ -900,9 +900,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 	}
 }
 
-// TestAttachmentService_contextPropagation verifies that the context passed to
-// each attachment service method is correctly relayed to the underlying method call.
-func TestAttachmentService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)

@@ -159,39 +159,3 @@ func TestUserStarService_Count(t *testing.T) {
 		})
 	}
 }
-
-func TestUserStarService_contextPropagation(t *testing.T) {
-	type ctxKey struct{}
-	sentinel := &struct{}{}
-	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
-
-	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
-		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-			assert.Same(t, sentinel, got.Value(ctxKey{}))
-			return nil, errors.New("stop")
-		}
-	}
-
-	cases := []struct {
-		name string
-		call func(t *testing.T, m *core.Method)
-	}{
-		{"UserStarService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := star.NewUserService(m)
-			s.List(ctx, 1) //nolint:errcheck
-		}},
-		{"UserStarService.Count", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := star.NewUserService(m)
-			s.Count(ctx, 1) //nolint:errcheck
-		}},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			tc.call(t, &core.Method{})
-		})
-	}
-}

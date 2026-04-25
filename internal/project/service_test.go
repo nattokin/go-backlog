@@ -641,9 +641,7 @@ func TestProjectService_Delete(t *testing.T) {
 	}
 }
 
-// TestProjectService_contextPropagation verifies that the context passed to each
-// ProjectService method is correctly relayed to the underlying method call.
-func TestProjectService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -661,27 +659,27 @@ func TestProjectService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"All", func(t *testing.T, m *core.Method) {
+		{"ProjectService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, m *core.Method) {
+		{"ProjectService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Create", func(t *testing.T, m *core.Method) {
+		{"ProjectService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewService(m)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
-		{"Update", func(t *testing.T, m *core.Method) {
+		{"ProjectService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewService(m)
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Delete", func(t *testing.T, m *core.Method) {
+		{"ProjectService.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewService(m)
 			s.Delete(ctx, "TEST") //nolint:errcheck

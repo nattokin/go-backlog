@@ -160,7 +160,7 @@ func TestStarService_Remove(t *testing.T) {
 	}
 }
 
-func TestStarService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -186,6 +186,21 @@ func TestStarService_contextPropagation(t *testing.T) {
 			m.Delete = makeMockFn(t)
 			s := star.NewService(m)
 			s.Remove(ctx, 1) //nolint:errcheck
+		}},
+		{"UserStarService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := star.NewUserService(m)
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+		{"UserStarService.Count", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := star.NewUserService(m)
+			s.Count(ctx, 1) //nolint:errcheck
+		}},
+		{"WikiStarService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := star.NewWikiService(m)
+			s.List(ctx, 34) //nolint:errcheck
 		}},
 	}
 

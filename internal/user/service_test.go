@@ -1253,12 +1253,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 	}
 }
 
-// TestUserService_contextPropagation verifies that the context passed to each
-// UserService and ProjectUserService method is correctly relayed to the
-// underlying method call.
-// A sentinel value is embedded in the context and its pointer identity is
-// asserted inside the mock to catch any ctx substitution (e.g. context.Background()).
-func TestUserService_contextPropagation(t *testing.T) {
+func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)

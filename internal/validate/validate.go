@@ -60,6 +60,13 @@ func ValidateRepositoryIDOrName(repositoryIDOrName string) error {
 	return nil
 }
 
+func ValidateSharedFileID(fileID int) error {
+	if fileID < 1 {
+		return core.NewValidationError("fileID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateStarID(starID int) error {
 	if starID < 1 {
 		return core.NewValidationError("starID must not be less than 1")
