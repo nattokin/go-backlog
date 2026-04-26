@@ -1,11 +1,9 @@
 package wiki_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -44,11 +42,7 @@ func TestWikiService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
 
 			wantIDs:   []int{testWiki1ID, testWiki2ID},
@@ -65,11 +59,7 @@ func TestWikiService_All(t *testing.T) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				assert.Equal(t, "test", query.Get("keyword"))
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
 
 			wantIDs:   []int{testWiki1ID, testWiki2ID},
@@ -111,11 +101,7 @@ func TestWikiService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -169,10 +155,7 @@ func TestWikiService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count": 34}`))),
-				}, nil
+				return mock.NewJSONResponse(`{"count": 34}`), nil
 			},
 
 			wantCount: 34,
@@ -183,10 +166,7 @@ func TestWikiService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count": 10}`))),
-				}, nil
+				return mock.NewJSONResponse(`{"count": 10}`), nil
 			},
 
 			wantCount: 10,
@@ -212,10 +192,7 @@ func TestWikiService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -264,10 +241,7 @@ func TestWikiService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWikiID:   34,
@@ -298,10 +272,7 @@ func TestWikiService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -360,12 +331,7 @@ func TestWikiService_Create(t *testing.T) {
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(bytes.NewReader(
-						[]byte(fixture.Wiki.MinimumJSON),
-					)),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -386,12 +352,7 @@ func TestWikiService_Create(t *testing.T) {
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(bytes.NewReader(
-						[]byte(fixture.Wiki.MinimumJSON),
-					)),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -457,12 +418,7 @@ func TestWikiService_Create(t *testing.T) {
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
 				assert.Equal(t, "content", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(bytes.NewReader(
-						[]byte(fixture.InvalidJSON),
-					)),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -519,10 +475,7 @@ func TestWikiService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "New Page Name", form.Get("name"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -538,10 +491,7 @@ func TestWikiService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Content", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -561,10 +511,7 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -586,10 +533,7 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWiki: &model.Wiki{
@@ -640,10 +584,7 @@ func TestWikiService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/14", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -699,10 +640,7 @@ func TestWikiService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWikiID: 34,
@@ -712,10 +650,7 @@ func TestWikiService_Delete(t *testing.T) {
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Wiki.MaximumJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
 
 			wantWikiID: 34,
@@ -753,10 +688,7 @@ func TestWikiService_Delete(t *testing.T) {
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
