@@ -107,11 +107,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 				assert.Equal(t, "space/attachment", spath)
 				assert.Equal(t, "fpath", fileName)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Attachment.UploadJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.UploadJSON), nil
 			},
 		},
 
@@ -127,10 +123,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			fpath:       "fpath",
 			expectError: true,
 			mockUploadFn: func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
