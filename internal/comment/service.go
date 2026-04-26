@@ -169,14 +169,12 @@ func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, commentI
 		return nil, err
 	}
 
-	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamContent,
-	}
 	option := (&core.OptionService{}).WithContent(content)
-	if err := core.ApplyOptions(form, validTypes, option); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
+	form := url.Values{}
+	option.Set(form)
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
 	resp, err := s.method.Patch(ctx, spath, form)
