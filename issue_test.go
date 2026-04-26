@@ -15,6 +15,7 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestIssueService(t *testing.T) {
@@ -28,7 +29,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
-				return newJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.All(ctx)
@@ -44,7 +45,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return newJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.All(ctx,
@@ -68,7 +69,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
-				return newJSONResponse(`{"count":5}`), nil
+				return mock.NewJSONResponse(`{"count":5}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx)
@@ -82,7 +83,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return newJSONResponse(`{"count":2}`), nil
+				return mock.NewJSONResponse(`{"count":2}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx,
@@ -106,7 +107,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return newJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.One(ctx, "PRJ-1")
@@ -134,7 +135,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "New issue", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("issueTypeId"))
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
-				return newCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
@@ -154,7 +155,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
 				assert.Equal(t, "details here", req.PostForm.Get("description"))
 				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
-				return newCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3,
@@ -180,7 +181,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
-				return newJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
@@ -196,7 +197,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("statusId"))
 				assert.Equal(t, "1", req.PostForm.Get("resolutionId"))
-				return newJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1",
@@ -221,7 +222,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return newJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Delete(ctx, "PRJ-1")
@@ -263,7 +264,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments", req.URL.Path)
-				return newJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.List(ctx, "TEST-1")
@@ -286,7 +287,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments/8", req.URL.Path)
-				return newJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
@@ -327,7 +328,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
-				return newJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.All(ctx, "PRJ-1")
@@ -343,7 +344,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
 				assert.Equal(t, "20", req.URL.Query().Get("count"))
 				assert.Equal(t, "asc", req.URL.Query().Get("order"))
-				return newJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.All(ctx, "PRJ-1",
@@ -369,7 +370,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "This is a comment.", req.PostForm.Get("content"))
-				return newCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Add(ctx, "PRJ-1", "This is a comment.")
@@ -385,7 +386,7 @@ func TestIssueCommentService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Notifying users.", req.PostForm.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, req.PostForm["notifiedUserId[]"])
-				return newCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Add(ctx, "PRJ-1", "Notifying users.",
@@ -408,7 +409,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/count", req.URL.Path)
-				return newJSONResponse(`{"count":7}`), nil
+				return mock.NewJSONResponse(`{"count":7}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Count(ctx, "PRJ-1")
@@ -429,7 +430,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
-				return newJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.One(ctx, "PRJ-1", 42)
@@ -451,7 +452,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
-				return newJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Delete(ctx, "PRJ-1", 42)
@@ -474,7 +475,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated content.", req.PostForm.Get("content"))
-				return newJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
@@ -495,7 +496,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42/notifications", req.URL.Path)
-				return newJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Notifications(ctx, "PRJ-1", 42)
@@ -520,7 +521,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42/notifications", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"5", "6"}, req.PostForm["notifiedUserId[]"])
-				return newJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Notify(ctx, "PRJ-1", 42, []int{5, 6})
@@ -561,7 +562,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
-				return newJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.List(ctx, "TEST-1")
@@ -586,7 +587,7 @@ func TestIssueSharedFileService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"454403"}, req.PostForm["fileId[]"])
-				return newJSONResponse(fixture.SharedFile.SingleListJSON), nil
+				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Link(ctx, "TEST-1", []int{454403})
@@ -608,7 +609,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles/454403", req.URL.Path)
-				return newJSONResponse(fixture.SharedFile.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Unlink(ctx, "TEST-1", 454403)
