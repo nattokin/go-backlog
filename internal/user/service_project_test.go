@@ -1,11 +1,9 @@
 package user_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -37,10 +35,7 @@ func TestProjectUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 
 			wantUsers: []*model.User{
@@ -59,10 +54,7 @@ func TestProjectUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 
 			wantUsers: []*model.User{
@@ -81,10 +73,7 @@ func TestProjectUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 
 			wantUsers: []*model.User{
@@ -107,10 +96,7 @@ func TestProjectUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -164,10 +150,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -195,10 +178,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -215,10 +195,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -271,10 +248,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -291,10 +265,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -323,10 +294,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -343,10 +311,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -399,10 +364,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -430,10 +392,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -450,10 +409,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
