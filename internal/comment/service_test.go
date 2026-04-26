@@ -1,11 +1,9 @@
 package comment_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -35,10 +33,7 @@ func TestIssueCommentService_All(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -46,10 +41,7 @@ func TestIssueCommentService_All(t *testing.T) {
 			issueIDOrKey: "1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1/comments", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -63,10 +55,7 @@ func TestIssueCommentService_All(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -80,10 +69,7 @@ func TestIssueCommentService_All(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "10", query.Get("minId"))
 				assert.Equal(t, "100", query.Get("maxId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -110,10 +96,7 @@ func TestIssueCommentService_All(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -168,10 +151,7 @@ func TestIssueCommentService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "This is a comment.", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -183,10 +163,7 @@ func TestIssueCommentService_Add(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "Notifying users.", form.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
-				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -223,10 +200,7 @@ func TestIssueCommentService_Add(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -272,10 +246,7 @@ func TestIssueCommentService_Count(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/count", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count":7}`))),
-				}, nil
+				return mock.NewJSONResponse(`{"count":7}`), nil
 			},
 			wantCount: 7,
 		},
@@ -297,10 +268,7 @@ func TestIssueCommentService_Count(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -347,10 +315,7 @@ func TestIssueCommentService_One(t *testing.T) {
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -376,10 +341,7 @@ func TestIssueCommentService_One(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -427,10 +389,7 @@ func TestIssueCommentService_Delete(t *testing.T) {
 			commentID:    42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -456,10 +415,7 @@ func TestIssueCommentService_Delete(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -510,10 +466,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
 				assert.Equal(t, "Updated content.", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -549,10 +502,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 			commentID:    42,
 			content:      "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -600,10 +550,7 @@ func TestIssueCommentService_Notifications(t *testing.T) {
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42/notifications", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`[{"id":1},{"id":2}]`))),
-				}, nil
+				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -629,10 +576,7 @@ func TestIssueCommentService_Notifications(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -682,10 +626,7 @@ func TestIssueCommentService_Notify(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42/notifications", spath)
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Comment.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -721,10 +662,7 @@ func TestIssueCommentService_Notify(t *testing.T) {
 			commentID:    42,
 			userIDs:      []int{5},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
