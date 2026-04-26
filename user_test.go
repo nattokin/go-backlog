@@ -15,6 +15,7 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectUserService(t *testing.T) {
@@ -28,7 +29,7 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
-				return newJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.All(ctx, "TEST", false)
@@ -51,7 +52,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Add(ctx, "TEST", 1)
@@ -77,7 +78,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Delete(ctx, "TEST", 1)
@@ -100,7 +101,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
@@ -121,7 +122,7 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
-				return newJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AdminAll(ctx, "TEST")
@@ -147,7 +148,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
@@ -188,7 +189,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users", req.URL.Path)
-				return newJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.All(ctx)
@@ -209,7 +210,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.One(ctx, 1)
@@ -230,7 +231,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/myself", req.URL.Path)
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Own(ctx)
@@ -256,7 +257,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "password", req.PostForm.Get("password"))
 				assert.Equal(t, "New User", req.PostForm.Get("name"))
 				assert.Equal(t, "new@example.com", req.PostForm.Get("mailAddress"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleAdministrator)
@@ -279,7 +280,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "updated-user", req.PostForm.Get("name"))
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
@@ -305,7 +306,7 @@ func TestUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Empty(t, form)
-				return newJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Delete(ctx, 1)
@@ -347,7 +348,7 @@ func TestUserActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/activities", req.URL.Path)
 				assert.Equal(t, "5", req.URL.Query().Get("minId"))
-				return newJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Activity.List(ctx, 1, c.User.Activity.Option.WithMinID(5))

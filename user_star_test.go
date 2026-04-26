@@ -1,10 +1,8 @@
 package backlog_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -16,6 +14,7 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestUserStarService(t *testing.T) {
@@ -29,10 +28,7 @@ func TestUserStarService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/stars", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Star.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Star.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Star.List(ctx, 1)
@@ -50,10 +46,7 @@ func TestUserStarService(t *testing.T) {
 				assert.Equal(t, "100", q.Get("minId"))
 				assert.Equal(t, "200", q.Get("maxId"))
 				assert.Equal(t, "asc", q.Get("order"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Star.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Star.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				o := c.User.Star.Option
@@ -80,10 +73,7 @@ func TestUserStarService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/stars/count", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Star.CountJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Star.CountJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Star.Count(ctx, 1)

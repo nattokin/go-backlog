@@ -13,6 +13,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectService(t *testing.T) {
@@ -27,7 +28,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
 				assert.Equal(t, "true", req.URL.Query().Get("archived"))
-				return newJSONResponse(fixture.Project.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.All(ctx, c.Project.Option.WithArchived(true))
@@ -48,7 +49,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return newJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.One(ctx, "TEST")
@@ -73,7 +74,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "TEST", req.PostForm.Get("key"))
 				assert.Equal(t, "test", req.PostForm.Get("name"))
 				assert.Equal(t, "true", req.PostForm.Get("chartEnabled"))
-				return newJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Create(ctx, "TEST", "test", c.Project.Option.WithChartEnabled(true))
@@ -96,7 +97,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "new-name", req.PostForm.Get("name"))
-				return newJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
@@ -117,7 +118,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return newJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Delete(ctx, "TEST")
@@ -159,7 +160,7 @@ func TestProjectActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/activities", req.URL.Path)
 				assert.Equal(t, "10", req.URL.Query().Get("count"))
-				return newJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Activity.List(ctx, "TEST", c.Project.Activity.Option.WithCount(10))
