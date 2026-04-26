@@ -627,6 +627,17 @@ func TestIssueCommentService_Notifications(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-response-invalid-json": {
+			issueIDOrKey: "PRJ-1",
+			commentID:    42,
+			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
+				}, nil
+			},
+			wantErrType: &json.SyntaxError{},
+		},
 	}
 
 	for name, tc := range cases {
