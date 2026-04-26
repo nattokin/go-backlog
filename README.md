@@ -73,6 +73,12 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
 - [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
 
+### Client.User.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#UserRecentlyViewedService)
+
+- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-issues) - Returns a list of recently viewed issues.
+- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-projects) - Returns a list of recently viewed projects.
+- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-wikis) - Returns a list of recently viewed wiki pages.
+
 ### Client.[Project](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectService)
 
 - [Get Project List](https://developer.nulab.com/docs/backlog/api/2/get-project-list) - Returns a list of projects.
@@ -108,6 +114,28 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get List of Issue Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments) - Returns a list of files attached to an issue.
 - [Delete Issue Attachment](https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment) - Removes a file attached to an issue.
 
+### Client.Issue.[Comment](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueCommentService)
+
+- [Get Comment List](https://developer.nulab.com/docs/backlog/api/2/get-comment-list) - Returns a list of comments on an issue.
+- [Add Comment](https://developer.nulab.com/docs/backlog/api/2/add-comment) - Adds a comment to an issue.
+- [Count Comment](https://developer.nulab.com/docs/backlog/api/2/count-comment) - Returns the number of comments on an issue.
+- [Get Comment](https://developer.nulab.com/docs/backlog/api/2/get-comment) - Returns information about a specific comment.
+- [Update Comment](https://developer.nulab.com/docs/backlog/api/2/update-comment) - Updates a comment on an issue.
+- [Delete Comment](https://developer.nulab.com/docs/backlog/api/2/delete-comment) - Deletes a comment from an issue.
+- [Get List of Comment Notifications](https://developer.nulab.com/docs/backlog/api/2/get-list-of-comment-notifications) - Returns notifications for a comment.
+- [Add Comment Notification](https://developer.nulab.com/docs/backlog/api/2/add-comment-notification) - Sends notifications for a comment.
+
+### Client.Issue.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueSharedFileService)
+
+- [Get List of Linked Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-linked-shared-files) - Returns shared files linked to an issue.
+- [Link Shared Files to Issue](https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue) - Links shared files to an issue.
+- [Remove Link to Shared File from Issue](https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue) - Removes a shared file link from an issue.
+
+### Client.Issue.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueStarService)
+
+- [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Adds a star to an issue.
+- [Remove Star](https://developer.nulab.com/docs/backlog/api/2/remove-star) - Removes a star from an issue.
+
 ### Client.[PullRequest](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestService)
 
 - [Get Pull Request List](https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list) - Returns a list of pull requests.
@@ -120,6 +148,11 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 - [Get List of Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment) - Returns a list of files attached to a pull request.
 - [Delete Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments) - Removes a file attached to a pull request.
+
+### Client.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#StarService)
+
+- [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Add adds a star to a resource.
+- [Remove Star](https://developer.nulab.com/docs/backlog/api/2/remove-star) - Remove removes a star by its ID.
 
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 
@@ -136,6 +169,20 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get List of Wiki Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments/) - Gets a list of files attached to a Wiki.
 - [Attach File to Wiki](https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki/) - Attaches file to Wiki.
 - [Remove Wiki Attachment](https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment/) - Removes files attached to a Wiki.
+
+### Client.Wiki.[History](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiHistoryService)
+
+- [Get Wiki Page History](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/) - Returns version history of a wiki page.
+
+### Client.Wiki.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiSharedFileService)
+
+- [Get List of Shared Files on Wiki](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files-on-wiki) - Returns shared files linked to a wiki page.
+- [Link Shared Files to Wiki](https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-wiki) - Links shared files to a wiki page.
+- [Remove Link to Shared File from Wiki](https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-wiki) - Removes a shared file link from a wiki page.
+
+### Client.Wiki.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiStarService)
+
+- [Get Wiki Page Star](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star) - Returns stars on a wiki page.
 
 ## License
 
