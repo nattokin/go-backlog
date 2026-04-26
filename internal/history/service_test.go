@@ -1,10 +1,8 @@
 package history_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -30,12 +28,7 @@ func TestWikiHistoryService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/history", spath)
 
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.WikiHistory.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.WikiHistory.ListJSON), nil
 			},
 		},
 
@@ -63,12 +56,7 @@ func TestWikiHistoryService_List(t *testing.T) {
 			wikiID:      1234,
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
