@@ -16,6 +16,13 @@ func ValidateAttachmentID(attachmentID int) error {
 	return nil
 }
 
+func ValidateCommentID(commentID int) error {
+	if commentID < 1 {
+		return core.NewValidationError("commentID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateIssueIDOrKey(issueIDOrKey string) error {
 	if issueIDOrKey == "" {
 		return core.NewValidationError("issueIDOrKey must not be empty")
