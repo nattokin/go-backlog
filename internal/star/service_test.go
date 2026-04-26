@@ -3,10 +3,8 @@ package star_test
 import (
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,13 +14,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
-
-func newJSONResponse(body string) *http.Response {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(strings.NewReader(body)),
-	}
-}
 
 func newNoContentResponse() *http.Response {
 	return &http.Response{

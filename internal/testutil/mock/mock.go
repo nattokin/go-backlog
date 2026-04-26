@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -90,6 +91,30 @@ func NewInvalidTypeOption() *core.APIParamOption {
 		Type:      "invalid",
 		CheckFunc: func() error { return nil },
 		SetFunc:   func(_ url.Values) error { return nil },
+	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  HTTP response helpers
+// ──────────────────────────────────────────────────────────────
+
+// NewJSONResponse returns an HTTP 200 OK response with the given JSON string as body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func NewJSONResponse(json string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader(json)),
+	}
+}
+
+// NewCreatedJSONResponse returns an HTTP 201 Created response with the given JSON string as body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func NewCreatedJSONResponse(json string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusCreated,
+		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }
 

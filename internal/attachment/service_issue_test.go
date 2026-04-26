@@ -1,10 +1,8 @@
 package attachment_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -32,13 +30,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			want:         newTestAttachmentList(),
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
 
@@ -60,12 +52,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			issueIDOrKey: "1234",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -117,13 +104,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			want:         newTestAttachment(),
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments/8", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.SingleJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
 
@@ -155,12 +136,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

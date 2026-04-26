@@ -1,11 +1,9 @@
 package user_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -35,10 +33,7 @@ func TestUserService_One(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -53,10 +48,7 @@ func TestUserService_One(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{}`))),
-				}, nil
+				return mock.NewJSONResponse(`{}`), nil
 			},
 
 			wantUser: &model.User{},
@@ -125,11 +117,7 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -206,10 +194,7 @@ func TestUserService_Add(t *testing.T) {
 			roleType:    1,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -258,11 +243,7 @@ func TestUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 
 			wantLen: 4,
@@ -286,11 +267,7 @@ func TestUserService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -355,11 +332,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -379,11 +352,7 @@ func TestUserService_Update(t *testing.T) {
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -526,10 +495,7 @@ func TestUserService_Own(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantUser: &model.User{
@@ -552,10 +518,7 @@ func TestUserService_Own(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -605,10 +568,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Nil(t, form)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -619,10 +579,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
 				assert.Nil(t, form)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.User.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -638,10 +595,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
 				assert.Nil(t, form)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

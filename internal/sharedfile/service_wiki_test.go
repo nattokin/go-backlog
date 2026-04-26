@@ -1,10 +1,8 @@
 package sharedfile_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -29,13 +27,7 @@ func TestWikiSharedFileService_List(t *testing.T) {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.SharedFile.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
@@ -63,12 +55,7 @@ func TestWikiSharedFileService_List(t *testing.T) {
 			wikiID:      1234,
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -119,13 +106,7 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles", spath)
 				assert.Equal(t, []string{"454403"}, form["fileId[]"])
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.SharedFile.SingleListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 		},
 
@@ -133,12 +114,7 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 			wikiID:  1,
 			fileIDs: []int{454403, 454404},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.SharedFile.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
@@ -177,12 +153,7 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 			fileIDs:     []int{454403},
 			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -229,13 +200,7 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 			fileID: 454403,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles/454403", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.SharedFile.SingleJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 		},
 
@@ -281,12 +246,7 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 			fileID:      454403,
 			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

@@ -1,10 +1,8 @@
 package activity_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -58,11 +56,7 @@ func TestProjectActivityService_List_invalidJson(t *testing.T) {
 
 	method := mock.NewMethod(t)
 	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-		}
-		return resp, nil
+		return mock.NewJSONResponse(fixture.InvalidJSON), nil
 	}
 	s := activity.NewProjectService(method)
 
@@ -129,11 +123,7 @@ func TestSpaceActivityService_Get_invalidJson(t *testing.T) {
 
 	method := mock.NewMethod(t)
 	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		resp := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-		}
-		return resp, nil
+		return mock.NewJSONResponse(fixture.InvalidJSON), nil
 	}
 	s := activity.NewSpaceService(method)
 
@@ -313,12 +303,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				assert.Equal(t, tc.want.maxID, query.Get("maxId"))
 				assert.Equal(t, tc.want.count, query.Get("count"))
 				assert.Equal(t, tc.want.order, query.Get("order"))
-
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Activity.ListJSON))),
-				}
-				return resp, nil
+				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
 			}
 			s := activity.NewSpaceService(method)
 

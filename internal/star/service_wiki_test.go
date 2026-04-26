@@ -3,10 +3,8 @@ package star_test
 import (
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +27,7 @@ func TestWikiStarService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34/stars", spath)
 				assert.Nil(t, query)
-				return newJSONResponse(fixture.Star.ListJSON), nil
+				return mock.NewJSONResponse(fixture.Star.ListJSON), nil
 			},
 			wantLen: 2,
 		},
@@ -47,10 +45,7 @@ func TestWikiStarService_List(t *testing.T) {
 		"error-json-decode": {
 			wikiID: 34,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(strings.NewReader(fixture.InvalidJSON)),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},

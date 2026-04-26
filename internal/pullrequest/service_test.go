@@ -1,11 +1,9 @@
 package pullrequest_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -42,10 +40,7 @@ func TestPullRequestService_All(t *testing.T) {
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -55,10 +50,7 @@ func TestPullRequestService_All(t *testing.T) {
 			opts:           []core.RequestOption{o.WithStatusIDs([]int{1, 2})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1", "2"}, query["statusId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -72,10 +64,7 @@ func TestPullRequestService_All(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "50", query.Get("count"))
 				assert.Equal(t, "10", query.Get("offset"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.ListJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -135,10 +124,7 @@ func TestPullRequestService_All(t *testing.T) {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -191,10 +177,7 @@ func TestPullRequestService_Count(t *testing.T) {
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/count", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count":5}`))),
-				}, nil
+				return mock.NewJSONResponse(`{"count":5}`), nil
 			},
 			wantCount: 5,
 		},
@@ -204,10 +187,7 @@ func TestPullRequestService_Count(t *testing.T) {
 			opts:           []core.RequestOption{o.WithAssigneeIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"10", "20"}, query["assigneeId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(`{"count":2}`))),
-				}, nil
+				return mock.NewJSONResponse(`{"count":2}`), nil
 			},
 			wantCount: 2,
 		},
@@ -239,10 +219,7 @@ func TestPullRequestService_Count(t *testing.T) {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -290,10 +267,7 @@ func TestPullRequestService_One(t *testing.T) {
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/1", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -329,10 +303,7 @@ func TestPullRequestService_One(t *testing.T) {
 			repoIDOrName:   testRepo,
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -394,10 +365,7 @@ func TestPullRequestService_Create(t *testing.T) {
 				assert.Equal(t, "test description", form.Get("description"))
 				assert.Equal(t, "main", form.Get("base"))
 				assert.Equal(t, "feature/foo", form.Get("branch"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -417,10 +385,7 @@ func TestPullRequestService_Create(t *testing.T) {
 				assert.Equal(t, "5", form.Get("assigneeId"))
 				assert.Equal(t, "10", form.Get("issueId"))
 				assert.Equal(t, []string{"1", "2"}, form["notifiedUserId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -509,10 +474,7 @@ func TestPullRequestService_Create(t *testing.T) {
 			base:           "main",
 			branch:         "feature/foo",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -567,10 +529,7 @@ func TestPullRequestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/1", spath)
 				assert.Equal(t, "Updated PR", form.Get("summary"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -583,10 +542,7 @@ func TestPullRequestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "Updated PR", form.Get("summary"))
 				assert.Equal(t, "looks good", form.Get("comment"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -597,10 +553,7 @@ func TestPullRequestService_Update(t *testing.T) {
 			option:         o.WithIssueID(42),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "42", form.Get("issueId"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.PullRequest.SingleJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -655,10 +608,7 @@ func TestPullRequestService_Update(t *testing.T) {
 			prNumber:       1,
 			option:         o.WithSummary("x"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

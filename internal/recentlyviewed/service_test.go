@@ -3,10 +3,8 @@ package recentlyviewed_test
 import (
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,13 +15,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
-
-func newJSONResponse(body string) *http.Response {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(strings.NewReader(body)),
-	}
-}
 
 func TestService_ListIssues(t *testing.T) {
 	o := &core.OptionService{}
@@ -37,7 +28,7 @@ func TestService_ListIssues(t *testing.T) {
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
-				return newJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -46,7 +37,7 @@ func TestService_ListIssues(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
 				assert.Equal(t, "5", query.Get("count"))
-				return newJSONResponse(`[{"id":1}]`), nil
+				return mock.NewJSONResponse(`[{"id":1}]`), nil
 			},
 			wantLen: 1,
 		},
@@ -54,7 +45,7 @@ func TestService_ListIssues(t *testing.T) {
 			opts: []core.RequestOption{o.WithOffset(10)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "10", query.Get("offset"))
-				return newJSONResponse(`[]`), nil
+				return mock.NewJSONResponse(`[]`), nil
 			},
 			wantLen: 0,
 		},
@@ -70,7 +61,7 @@ func TestService_ListIssues(t *testing.T) {
 		},
 		"error-json-decode": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
@@ -110,7 +101,7 @@ func TestService_AddIssue(t *testing.T) {
 			issueID: 1,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1/recentlyViewedIssues", spath)
-				return newJSONResponse(`{"id":1,"summary":"test issue"}`), nil
+				return mock.NewJSONResponse(`{"id":1,"summary":"test issue"}`), nil
 			},
 			wantID: 1,
 		},
@@ -128,7 +119,7 @@ func TestService_AddIssue(t *testing.T) {
 		"error-json-decode": {
 			issueID: 1,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
@@ -169,7 +160,7 @@ func TestService_ListProjects(t *testing.T) {
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedProjects", spath)
-				return newJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -177,7 +168,7 @@ func TestService_ListProjects(t *testing.T) {
 			opts: []core.RequestOption{o.WithCount(3)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "3", query.Get("count"))
-				return newJSONResponse(`[{"id":1}]`), nil
+				return mock.NewJSONResponse(`[{"id":1}]`), nil
 			},
 			wantLen: 1,
 		},
@@ -193,7 +184,7 @@ func TestService_ListProjects(t *testing.T) {
 		},
 		"error-json-decode": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
@@ -234,7 +225,7 @@ func TestService_ListWikis(t *testing.T) {
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedWikis", spath)
-				return newJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -242,7 +233,7 @@ func TestService_ListWikis(t *testing.T) {
 			opts: []core.RequestOption{o.WithOrder("asc")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
-				return newJSONResponse(`[{"id":1}]`), nil
+				return mock.NewJSONResponse(`[{"id":1}]`), nil
 			},
 			wantLen: 1,
 		},
@@ -258,7 +249,7 @@ func TestService_ListWikis(t *testing.T) {
 		},
 		"error-json-decode": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
@@ -298,7 +289,7 @@ func TestService_AddWiki(t *testing.T) {
 			wikiID: 10,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/10/recentlyViewedWikis", spath)
-				return newJSONResponse(`{"id":10,"name":"TestWiki"}`), nil
+				return mock.NewJSONResponse(`{"id":10,"name":"TestWiki"}`), nil
 			},
 			wantID: 10,
 		},
@@ -316,7 +307,7 @@ func TestService_AddWiki(t *testing.T) {
 		"error-json-decode": {
 			wikiID: 10,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},

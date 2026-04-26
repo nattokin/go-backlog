@@ -768,10 +768,7 @@ func makeClient(t *testing.T) (*core.Client, *httpCapture) {
 			captured.Header = req.Header
 			captured.Body = bodyBytes
 
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(strings.NewReader(`{}`)),
-			}, nil
+			return mock.NewJSONResponse(`{}`), nil
 		},
 	})
 
