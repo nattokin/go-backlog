@@ -493,12 +493,10 @@ func TestIssueCommentService_Delete(t *testing.T) {
 }
 
 func TestIssueCommentService_Update(t *testing.T) {
-	o := &core.OptionService{}
-
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
-		option       core.RequestOption
+		content      string
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -508,7 +506,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 		"success": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
-			option:       o.WithContent("Updated content."),
+			content:      "Updated content.",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
 				assert.Equal(t, "Updated content.", form.Get("content"))
@@ -522,25 +520,19 @@ func TestIssueCommentService_Update(t *testing.T) {
 		"error-empty-issueIDOrKey": {
 			issueIDOrKey: "",
 			commentID:    1,
-			option:       o.WithContent("x"),
+			content:      "x",
 			wantErrType:  &core.ValidationError{},
 		},
 		"error-invalid-commentID": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    0,
-			option:       o.WithContent("x"),
+			content:      "x",
 			wantErrType:  &core.ValidationError{},
-		},
-		"error-option-invalid-type": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    42,
-			option:       mock.NewInvalidTypeOption(),
-			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
-			option:       o.WithContent("x"),
+			content:      "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
@@ -549,7 +541,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
-			option:       o.WithContent("x"),
+			content:      "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -571,7 +563,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 
 			s := comment.NewIssueService(method)
 
-			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.commentID, tc.option)
+			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.commentID, tc.content)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

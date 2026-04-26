@@ -300,8 +300,8 @@ func (s *IssueCommentService) Delete(ctx context.Context, issueIDOrKey string, c
 // Update updates a comment on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-comment
-func (s *IssueCommentService) Update(ctx context.Context, issueIDOrKey string, commentID int, option RequestOption) (*Comment, error) {
-	v, err := s.base.Update(ctx, issueIDOrKey, commentID, option)
+func (s *IssueCommentService) Update(ctx context.Context, issueIDOrKey string, commentID int, content string) (*Comment, error) {
+	v, err := s.base.Update(ctx, issueIDOrKey, commentID, content)
 	return commentFromModel(v), convertError(err)
 }
 

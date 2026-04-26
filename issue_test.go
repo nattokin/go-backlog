@@ -477,9 +477,7 @@ func TestIssueCommentService(t *testing.T) {
 				return newJSONResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42,
-					c.Issue.Comment.Option.WithContent("Updated content."),
-				)
+				got, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
 				require.NoError(t, err)
 				assert.Equal(t, 1, got.ID)
 			},
@@ -487,9 +485,7 @@ func TestIssueCommentService(t *testing.T) {
 		"Update/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42,
-					c.Issue.Comment.Option.WithContent("Updated content."),
-				)
+				_, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -797,13 +793,4 @@ func TestIssueCommentOptionService(t *testing.T) {
 			assert.Equal(t, tc.wantKey, tc.option.Key())
 		})
 	}
-}
-
-func TestIssueCommentOptionService_WithContent(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
-	require.NoError(t, err)
-	s := c.Issue.Comment.Option
-
-	opt := s.WithContent("Updated content.")
-	assert.Equal(t, core.ParamContent.Value(), opt.Key())
 }
