@@ -1,10 +1,8 @@
 package attachment_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -34,16 +32,9 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			want:          newTestAttachmentSingleList(),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
-
 				v := form
 				assert.Equal(t, []string{"2"}, v["attachmentId[]"])
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.SingleListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.SingleListJSON), nil
 			},
 		},
 
@@ -52,12 +43,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			attachmentIDs: []int{2, 5},
 			want:          newTestAttachmentList(),
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
 
@@ -96,12 +82,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			attachmentIDs: []int{2},
 			expectError:   true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -151,13 +132,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			want:   newTestAttachmentList(),
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.ListJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
 
@@ -185,12 +160,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			wikiID:      1234,
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -242,13 +212,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			want:         newTestAttachment(),
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments/8", spath)
-
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.Attachment.SingleJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
 
@@ -294,12 +258,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(
-						bytes.NewReader([]byte(fixture.InvalidJSON)),
-					),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
