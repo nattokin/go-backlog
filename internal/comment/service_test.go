@@ -529,6 +529,13 @@ func TestIssueCommentService_Update(t *testing.T) {
 			content:      "x",
 			wantErrType:  &core.ValidationError{},
 		},
+		"error-empty-comment": {
+			issueIDOrKey: "PRJ-1",
+			commentID:    1,
+			content:      "",
+			wantErrType:  &core.ValidationError{},
+		},
+
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
