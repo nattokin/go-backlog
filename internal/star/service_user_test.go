@@ -30,7 +30,7 @@ func TestUserStarService_List(t *testing.T) {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1/stars", spath)
-				return newJSONResponse(`[{"id":10},{"id":20}]`), nil
+				return mock.NewJSONResponse(`[{"id":10},{"id":20}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -40,7 +40,7 @@ func TestUserStarService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/2/stars", spath)
 				assert.Equal(t, "5", query.Get("count"))
-				return newJSONResponse(`[{"id":1}]`), nil
+				return mock.NewJSONResponse(`[{"id":1}]`), nil
 			},
 			wantLen: 1,
 		},
@@ -63,7 +63,7 @@ func TestUserStarService_List(t *testing.T) {
 		"error-json-decode": {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
@@ -104,7 +104,7 @@ func TestUserStarService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1/stars/count", spath)
 				assert.Nil(t, query)
-				return newJSONResponse(`{"count":42}`), nil
+				return mock.NewJSONResponse(`{"count":42}`), nil
 			},
 			wantCount: 42,
 		},
@@ -122,7 +122,7 @@ func TestUserStarService_Count(t *testing.T) {
 		"error-json-decode": {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return newJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},
