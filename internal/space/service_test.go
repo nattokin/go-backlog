@@ -1,11 +1,9 @@
 package space_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -31,10 +29,7 @@ func TestSpaceService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.SpaceJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Space.SpaceJSON), nil
 			},
 			wantSpaceKey: "nulab",
 			wantName:     "Nulab Inc.",
@@ -49,10 +44,7 @@ func TestSpaceService_One(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -99,10 +91,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/diskUsage", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.DiskUsageJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Space.DiskUsageJSON), nil
 			},
 			wantCapacity:  1073741824,
 			wantIssue:     119511,
@@ -118,10 +107,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/diskUsage", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -167,10 +153,7 @@ func TestSpaceService_Notification(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
 				assert.Nil(t, query)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
@@ -184,10 +167,7 @@ func TestSpaceService_Notification(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -234,10 +214,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
 				assert.Equal(t, "Backlog is a project management tool.", form.Get("content"))
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.Space.NotificationJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
@@ -258,10 +235,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 			content: "some content",
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader([]byte(fixture.InvalidJSON))),
-				}, nil
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
