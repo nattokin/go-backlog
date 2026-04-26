@@ -46,12 +46,46 @@ func newAuthErrorDoFunc() func(req *http.Request) (*http.Response, error) {
 	}
 }
 
+// newNotFoundDoFunc returns a doFunc that always responds with HTTP 404 Not Found
+// and a generic Backlog not-found error body.
+// It returns a new response on each call to avoid reuse of the consumed Body reader.
+func newNotFoundDoFunc() func(req *http.Request) (*http.Response, error) {
+	return func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusNotFound,
+			Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such resource.","code":6,"moreInfo":""}]}`)),
+		}, nil
+	}
+}
+
+// newInternalServerErrorDoFunc returns a doFunc that always responds with HTTP 500
+// and a generic Backlog internal server error body.
+// It returns a new response on each call to avoid reuse of the consumed Body reader.
+func newInternalServerErrorDoFunc() func(req *http.Request) (*http.Response, error) {
+	return func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`)),
+		}, nil
+	}
+}
+
 // newJSONResponse returns an HTTP 200 OK response with the given JSON string as body.
 // It allocates a fresh reader on each call so the body can only be consumed once,
 // matching the behaviour of a real HTTP response.
 func newJSONResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader([]byte(json))),
+		Body:       io.NopCloser(strings.NewReader(json)),
+	}
+}
+
+// newCreatedJSONResponse returns an HTTP 201 Created response with the given JSON string as body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func newCreatedJSONResponse(json string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusCreated,
+		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }

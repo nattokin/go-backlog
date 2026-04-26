@@ -3,9 +3,7 @@ package backlog_test
 import (
 	"context"
 	"errors"
-	"io"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -59,12 +57,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.One(ctx, "TEST")
 				require.Error(t, err)
@@ -112,12 +105,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Update(ctx, "TEST")
 				require.Error(t, err)
@@ -138,12 +126,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Delete(ctx, "TEST")
 				require.Error(t, err)
@@ -185,12 +168,7 @@ func TestProjectActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Activity.List(ctx, "TEST")
 				require.Error(t, err)

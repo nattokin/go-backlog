@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 	"time"
 
@@ -57,12 +56,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusInternalServerError,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.All(ctx)
 				require.Error(t, err)
@@ -74,10 +68,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(strings.NewReader(`{"count":5}`)),
-				}, nil
+				return newJSONResponse(`{"count":5}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx)
@@ -91,10 +82,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(strings.NewReader(`{"count":2}`)),
-				}, nil
+				return newJSONResponse(`{"count":2}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx,
@@ -106,12 +94,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusInternalServerError,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Count(ctx)
 				require.Error(t, err)
@@ -134,12 +117,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.One(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -156,10 +134,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "New issue", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("issueTypeId"))
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
-				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(strings.NewReader(fixture.Issue.SingleJSON)),
-				}, nil
+				return newCreatedJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
@@ -179,10 +154,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
 				assert.Equal(t, "details here", req.PostForm.Get("description"))
 				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
-				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       io.NopCloser(strings.NewReader(fixture.Issue.SingleJSON)),
-				}, nil
+				return newCreatedJSONResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3,
@@ -237,12 +209,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
 				require.Error(t, err)
@@ -264,12 +231,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Delete(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -312,12 +274,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.List(ctx, "TEST-1")
 				require.Error(t, err)
@@ -338,12 +295,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such attachment.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
 				require.Error(t, err)
@@ -386,12 +338,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.List(ctx, "TEST-1")
 				require.Error(t, err)
@@ -415,12 +362,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"Link/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.Link(ctx, "TEST-1", []int{454403})
 				require.Error(t, err)
@@ -442,12 +384,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"Unlink/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.Unlink(ctx, "TEST-1", 454403)
 				require.Error(t, err)

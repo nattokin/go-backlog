@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,12 +37,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.All(ctx, "TEST", false)
 				require.Error(t, err)
@@ -66,12 +60,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.Add(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -97,12 +86,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.Delete(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -125,12 +109,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"AddAdmin/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -151,12 +130,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"AdminAll/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.AdminAll(ctx, "TEST")
 				require.Error(t, err)
@@ -182,12 +156,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"DeleteAdmin/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -249,12 +218,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.One(ctx, 1)
 				require.Error(t, err)
@@ -324,12 +288,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Update(ctx, 1)
 				require.Error(t, err)
@@ -355,12 +314,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Delete(ctx, 1)
 				require.Error(t, err)
@@ -402,12 +356,7 @@ func TestUserActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such user.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Activity.List(ctx, 1)
 				require.Error(t, err)

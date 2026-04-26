@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -89,12 +88,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			},
 		},
 		"AddIssue/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such issue.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.RecentlyViewed.AddIssue(ctx, 1)
 				require.Error(t, err)
@@ -168,12 +162,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			},
 		},
 		"AddWiki/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.RecentlyViewed.AddWiki(ctx, 10)
 				require.Error(t, err)

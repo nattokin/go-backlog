@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,12 +37,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.All(ctx, "TEST")
 				require.Error(t, err)
@@ -64,12 +58,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No project.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Count(ctx, "TEST")
 				require.Error(t, err)
@@ -90,12 +79,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.One(ctx, 34)
 				require.Error(t, err)
@@ -144,12 +128,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
 				require.Error(t, err)
@@ -175,12 +154,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Delete(ctx, 34)
 				require.Error(t, err)
@@ -225,12 +199,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Attach/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
 				require.Error(t, err)
@@ -253,12 +222,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.List(ctx, 34)
 				require.Error(t, err)
@@ -279,12 +243,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such attachment.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
 				require.Error(t, err)
@@ -329,12 +288,7 @@ func TestWikiHistoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.History.List(ctx, 34)
 				require.Error(t, err)
@@ -379,12 +333,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.List(ctx, 34)
 				require.Error(t, err)
@@ -409,12 +358,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Link/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403})
 				require.Error(t, err)
@@ -437,12 +381,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Unlink/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such shared file.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
 				require.Error(t, err)
@@ -485,12 +424,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body:       io.NopCloser(strings.NewReader(`{"errors":[{"message":"No such wiki.","code":6,"moreInfo":""}]}`)),
-				}, nil
-			},
+			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Star.List(ctx, 34)
 				require.Error(t, err)
