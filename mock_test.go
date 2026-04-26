@@ -76,7 +76,7 @@ func newInternalServerErrorDoFunc() func(req *http.Request) (*http.Response, err
 func newJSONResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader([]byte(json))),
+		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }
 
@@ -86,6 +86,6 @@ func newJSONResponse(json string) *http.Response {
 func newCreatedJSONResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusCreated,
-		Body:       io.NopCloser(bytes.NewReader([]byte(json))),
+		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }
