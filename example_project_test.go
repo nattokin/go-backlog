@@ -19,6 +19,12 @@ var (
 	// ProjectActivityService
 	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
 
+	// ProjectCategoryService
+	doerProjectCategoryAll    = newMockDoer(fixture.Category.ListJSON)
+	doerProjectCategoryCreate = newMockDoer(fixture.Category.SingleJSON)
+	doerProjectCategoryUpdate = newMockDoer(fixture.Category.SingleJSON)
+	doerProjectCategoryDelete = newMockDoer(fixture.Category.SingleJSON)
+
 	// ProjectUserService
 	doerProjectUserAll         = newMockDoer(fixture.User.ListJSON)
 	doerProjectUserAdd         = newMockDoer(fixture.User.SingleJSON)
@@ -106,6 +112,58 @@ func ExampleProjectActivityService_List() {
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
+}
+
+func ExampleProjectCategoryService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCategoryAll),
+	)
+
+	categories, _ := c.Project.Category.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", categories[0].ID, categories[0].Name)
+	// Output:
+	// ID: 12, Name: Bug
+}
+
+func ExampleProjectCategoryService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCategoryCreate),
+	)
+
+	category, _ := c.Project.Category.Create(context.Background(), "TEST", "Bug")
+	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
+	// Output:
+	// ID: 12, Name: Bug
+}
+
+func ExampleProjectCategoryService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCategoryUpdate),
+	)
+
+	category, _ := c.Project.Category.Update(context.Background(), "TEST", 12, "Bug Fixed")
+	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
+	// Output:
+	// ID: 12, Name: Bug
+}
+
+func ExampleProjectCategoryService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCategoryDelete),
+	)
+
+	category, _ := c.Project.Category.Delete(context.Background(), "TEST", 12)
+	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
+	// Output:
+	// ID: 12, Name: Bug
 }
 
 func ExampleProjectUserService_All() {

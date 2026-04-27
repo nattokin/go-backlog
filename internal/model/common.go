@@ -11,6 +11,13 @@ type Attachment struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
+// Category represents an category.
+type Category struct {
+	ID           int    `json:"id,omitempty"`
+	Name         string `json:"name,omitempty"`
+	DisplayOrder int    `json:"displayOrder,omitempty"`
+}
+
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
 	Field         string `json:"field,omitempty"`

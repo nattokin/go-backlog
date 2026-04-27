@@ -91,6 +91,13 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 - [Get Project Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates) - Returns recent updates in the project.
 
+### Client.Project.[Category](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectCategoryService)
+
+- [Get Category List](https://developer.nulab.com/docs/backlog/api/2/get-category-list/) - Returns a list of categories in a project.
+- [Add Category](https://developer.nulab.com/docs/backlog/api/2/add-category/) - Adds a new category to a project.
+- [Update Category](https://developer.nulab.com/docs/backlog/api/2/update-category/) - Updates a category in a project.
+- [Delete Category](https://developer.nulab.com/docs/backlog/api/2/delete-category/) - Deletes a category from a project.
+
 ### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
 
 - [Add Project User](https://developer.nulab.com/docs/backlog/api/2/add-project-user) - Adds a user to the list of project members.
