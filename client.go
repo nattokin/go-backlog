@@ -30,6 +30,7 @@ type Client struct {
 	Issue       *IssueService
 	Project     *ProjectService
 	PullRequest *PullRequestService
+	Repository  *RepositoryService
 	Space       *SpaceService
 	Star        *StarService
 	User        *UserService
@@ -77,6 +78,8 @@ func initServices(c *Client) {
 	c.Project = newProjectService(c.core.Method, baseOptionService)
 
 	c.PullRequest = newPullRequestService(c.core.Method, baseOptionService)
+
+	c.Repository = newRepositoryService(c.core.Method)
 
 	c.Space = newSpaceService(c.core.Method, baseOptionService)
 
