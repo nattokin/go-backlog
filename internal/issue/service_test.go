@@ -667,6 +667,93 @@ func TestIssueService_Delete(t *testing.T) {
 	}
 }
 
+func TestIssueService_Participants(t *testing.T) {
+	cases := map[string]struct {
+		issueIDOrKey string
+
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType error
+		wantIDs     []int
+	}{
+		"success-by-key": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/PRJ-1/participants", spath)
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+			},
+			wantIDs: []int{1, 2, 3, 4},
+		},
+		"success-by-id": {
+			issueIDOrKey: "1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/1/participants", spath)
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+			},
+			wantIDs: []int{1, 2, 3, 4},
+		},
+		"success-empty-list": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/PRJ-1/participants", spath)
+				return mock.NewJSONResponse(`[]`), nil
+			},
+			wantIDs: []int{},
+		},
+		"error-empty-issueIDOrKey": {
+			issueIDOrKey: "",
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-zero-issueIDOrKey": {
+			issueIDOrKey: "0",
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-client-network": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"error-response-invalid-json": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+			},
+			wantErrType: &json.SyntaxError{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+
+			s := issue.NewService(method)
+
+			got, err := s.Participants(context.Background(), tc.issueIDOrKey)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Len(t, got, len(tc.wantIDs))
+			for i := range got {
+				assert.Equal(t, tc.wantIDs[i], got[i].ID)
+			}
+		})
+	}
+}
+
 func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
@@ -714,6 +801,11 @@ func Test_contextPropagation(t *testing.T) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Delete(ctx, "PRJ-1") //nolint:errcheck
+		}},
+		{"IssueService.Participants", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewService(m)
+			s.Participants(ctx, "PRJ-1") //nolint:errcheck
 		}},
 	}
 
