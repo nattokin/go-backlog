@@ -281,6 +281,9 @@ func categoryFromModel(m *model.Category) *Category {
 }
 
 func categoriesFromModel(ms []*model.Category) []*Category {
+	if ms == nil {
+		return nil
+	}
 	result := make([]*Category, len(ms))
 	for i, v := range ms {
 		result[i] = categoryFromModel(v)
