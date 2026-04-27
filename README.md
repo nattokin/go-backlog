@@ -144,6 +144,13 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get List of Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment) - Returns a list of files attached to a pull request.
 - [Delete Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments) - Removes a file attached to a pull request.
 
+### Client.PullRequest.[Comment](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestCommentService)
+
+- [Get Pull Request Comment](https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment/) - Returns a list of comments on a pull request.
+- [Add Pull Request Comment](https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment/) - Adds a comment to a pull request.
+- [Get Number of Pull Request Comments](https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-request-comments/) - Returns the number of comments on a pull request.
+- [Update Pull Request Comment Information](https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information/) - Updates a comment on a pull request.
+
 ### Client.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#StarService)
 
 - [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Add adds a star to a resource.
