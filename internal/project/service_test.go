@@ -525,13 +525,11 @@ func TestProjectService_Delete(t *testing.T) {
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey: "0",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -614,8 +612,7 @@ func TestCategoryService_All(t *testing.T) {
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -687,14 +684,12 @@ func TestCategoryService_Create(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 			name:           "Bug",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-name-empty": {
 			projectIDOrKey: "TEST",
 			name:           "",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -772,22 +767,19 @@ func TestCategoryService_Update(t *testing.T) {
 			projectIDOrKey: "",
 			categoryID:     12,
 			name:           "Bug Fixed",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-categoryID-zero": {
 			projectIDOrKey: "TEST",
 			categoryID:     0,
 			name:           "Bug Fixed",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-name-empty": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
 			name:           "",
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -863,14 +855,12 @@ func TestCategoryService_Delete(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 			categoryID:     12,
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-categoryID-zero": {
 			projectIDOrKey: "TEST",
 			categoryID:     0,
-
-			wantErrType: &core.ValidationError{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
