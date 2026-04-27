@@ -10,12 +10,13 @@ import (
 
 var (
 	// IssueService
-	doerIssueAll    = newMockDoer(fixture.Issue.ListJSON)
-	doerIssueCount  = newMockDoer(`{"count":2}`)
-	doerIssueOne    = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueCreate = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueUpdate = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueDelete = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueAll          = newMockDoer(fixture.Issue.ListJSON)
+	doerIssueCount        = newMockDoer(`{"count":2}`)
+	doerIssueOne          = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueCreate       = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueUpdate       = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueDelete       = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueParticipants = newMockDoer(fixture.User.ListJSON)
 
 	// IssueAttachmentService
 	doerIssueAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
@@ -98,6 +99,19 @@ func ExampleIssueService_Delete() {
 	fmt.Printf("ID: %d, IssueKey: %s\n", issue.ID, issue.IssueKey)
 	// Output:
 	// ID: 1, IssueKey: PRJ-1
+}
+
+func ExampleIssueService_Participants() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueParticipants),
+	)
+
+	users, _ := c.Issue.Participants(context.Background(), "PRJ-1")
+	fmt.Printf("Count: %d, ID: %d, Name: %s\n", len(users), users[0].ID, users[0].Name)
+	// Output:
+	// Count: 4, ID: 1, Name: admin
 }
 
 func ExampleIssueAttachmentService_List() {

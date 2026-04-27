@@ -240,6 +240,29 @@ func TestIssueService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"Participants": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1/participants", req.URL.Path)
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Participants(ctx, "PRJ-1")
+				require.NoError(t, err)
+				assert.Len(t, got, 4)
+				assert.Equal(t, 1, got[0].ID)
+				assert.Equal(t, "admin", got[0].Name)
+			},
+		},
+		"Participants/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.Participants(ctx, "PRJ-1")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 	}
 
 	for name, tc := range cases {

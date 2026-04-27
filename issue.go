@@ -210,6 +210,14 @@ func (s *IssueService) Delete(ctx context.Context, issueIDOrKey string) (*Issue,
 	return issueFromModel(v), convertError(err)
 }
 
+// Participants returns a list of participants on an issue.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-participant-list
+func (s *IssueService) Participants(ctx context.Context, issueIDOrKey string) ([]*User, error) {
+	v, err := s.base.Participants(ctx, issueIDOrKey)
+	return usersFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  IssueAttachmentService
 // ──────────────────────────────────────────────────────────────
