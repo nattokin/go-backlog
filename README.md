@@ -131,6 +131,11 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Link Shared Files to Issue](https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue) - Links shared files to an issue.
 - [Remove Link to Shared File from Issue](https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue) - Removes a shared file link from an issue.
 
+### Client.[Repository](https://pkg.go.dev/github.com/nattokin/go-backlog#RepositoryService)
+
+- [Get List of Git Repositories](https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/) - Returns a list of Git repositories in a project.
+- [Get Git Repository](https://developer.nulab.com/docs/backlog/api/2/get-git-repository/) - Returns information about a specific Git repository.
+
 ### Client.[PullRequest](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestService)
 
 - [Get Pull Request List](https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list) - Returns a list of pull requests.
