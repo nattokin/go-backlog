@@ -11,10 +11,3 @@ type Project struct {
 	TextFormattingRule                Format `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
-
-// Category represents a category in a Backlog project.
-type Category struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}

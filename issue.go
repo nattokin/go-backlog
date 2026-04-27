@@ -16,13 +16,6 @@ import (
 //  Issue models
 // ──────────────────────────────────────────────────────────────
 
-// Category represents an issue category.
-type Category struct {
-	ID           int
-	Name         string
-	DisplayOrder int
-}
-
 // Issue represents a issue of Backlog.
 type Issue struct {
 	ID             int
@@ -699,21 +692,6 @@ func newIssueOptionService(option *core.OptionService) *IssueOptionService {
 // ──────────────────────────────────────────────────────────────
 //  Helpers
 // ──────────────────────────────────────────────────────────────
-
-func categoriesFromModel(m []*model.Category) []*Category {
-	if m == nil {
-		return nil
-	}
-	result := make([]*Category, len(m))
-	for i, v := range m {
-		if v == nil {
-			result[i] = nil
-		} else {
-			result[i] = &Category{ID: v.ID, Name: v.Name, DisplayOrder: v.DisplayOrder}
-		}
-	}
-	return result
-}
 
 func resolutionsFromModel(m []*model.Resolution) []*Resolution {
 	if m == nil {

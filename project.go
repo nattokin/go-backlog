@@ -25,13 +25,6 @@ type Project struct {
 	Archived                          bool
 }
 
-// Category represents a category in a Backlog project.
-type Category struct {
-	ID           int
-	Name         string
-	DisplayOrder int
-}
-
 // ──────────────────────────────────────────────────────────────
 //  ProjectService
 // ──────────────────────────────────────────────────────────────
@@ -283,25 +276,6 @@ func projectsFromModel(ms []*model.Project) []*Project {
 	result := make([]*Project, len(ms))
 	for i, v := range ms {
 		result[i] = projectFromModel(v)
-	}
-	return result
-}
-
-func categoryFromModel(m *model.Category) *Category {
-	if m == nil {
-		return nil
-	}
-	return &Category{
-		ID:           m.ID,
-		Name:         m.Name,
-		DisplayOrder: m.DisplayOrder,
-	}
-}
-
-func categoriesFromModel(ms []*model.Category) []*Category {
-	result := make([]*Category, len(ms))
-	for i, v := range ms {
-		result[i] = categoryFromModel(v)
 	}
 	return result
 }

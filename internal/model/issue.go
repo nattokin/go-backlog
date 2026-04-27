@@ -2,13 +2,6 @@ package model
 
 import "time"
 
-// Category represents an issue category.
-type Category struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
-
 // Issue represents a issue of Backlog.
 type Issue struct {
 	ID             int            `json:"id,omitempty"`

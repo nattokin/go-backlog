@@ -34,6 +34,13 @@ type ActivityContent struct {
 	Comment     *Comment
 }
 
+// Category represents an category.
+type Category struct {
+	ID           int
+	Name         string
+	DisplayOrder int
+}
+
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
 	Field         string
@@ -258,6 +265,25 @@ func activitiesFromModel(ms []*model.Activity) []*Activity {
 	result := make([]*Activity, len(ms))
 	for i, v := range ms {
 		result[i] = activityFromModel(v)
+	}
+	return result
+}
+
+func categoryFromModel(m *model.Category) *Category {
+	if m == nil {
+		return nil
+	}
+	return &Category{
+		ID:           m.ID,
+		Name:         m.Name,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func categoriesFromModel(ms []*model.Category) []*Category {
+	result := make([]*Category, len(ms))
+	for i, v := range ms {
+		result[i] = categoryFromModel(v)
 	}
 	return result
 }
