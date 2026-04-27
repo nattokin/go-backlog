@@ -4,13 +4,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// CategoryService handles communication with the category-related methods of the Backlog API.
-//
-//nolint:unused // API not implemented yet
-type CategoryService struct {
-	method *core.Method
-}
-
 // CustomFieldService handles communication with the custom field-related methods of the Backlog API.
 //
 //nolint:unused // API not implemented yet

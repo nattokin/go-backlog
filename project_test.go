@@ -148,6 +148,114 @@ func TestProjectService(t *testing.T) {
 	}
 }
 
+func TestProjectCategoryService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"All": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/categories", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Category.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Category.All(ctx, "TEST")
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
+		"All/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Category.All(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Create": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/categories", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "Bug", req.PostForm.Get("name"))
+				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Category.Create(ctx, "TEST", "Bug")
+				require.NoError(t, err)
+				assert.Equal(t, "Bug", got.Name)
+			},
+		},
+		"Create/error": {
+			doFunc: newAuthErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Category.Create(ctx, "TEST", "Bug")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Update": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/categories/12", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "Bug Fixed", req.PostForm.Get("name"))
+				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Category.Update(ctx, "TEST", 12, "Bug Fixed")
+				require.NoError(t, err)
+				assert.Equal(t, 12, got.ID)
+			},
+		},
+		"Update/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Category.Update(ctx, "TEST", 12, "Bug Fixed")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Delete": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/categories/12", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Category.Delete(ctx, "TEST", 12)
+				require.NoError(t, err)
+				assert.Equal(t, 12, got.ID)
+			},
+		},
+		"Delete/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Category.Delete(ctx, "TEST", 12)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestProjectActivityService(t *testing.T) {
 	ctx := context.Background()
 

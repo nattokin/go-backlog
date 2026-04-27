@@ -25,6 +25,13 @@ type Project struct {
 	Archived                          bool
 }
 
+// Category represents a category in a Backlog project.
+type Category struct {
+	ID           int
+	Name         string
+	DisplayOrder int
+}
+
 // ──────────────────────────────────────────────────────────────
 //  ProjectService
 // ──────────────────────────────────────────────────────────────
@@ -34,6 +41,7 @@ type ProjectService struct {
 	base *project.Service
 
 	Activity *ProjectActivityService
+	Category *ProjectCategoryService
 	User     *ProjectUserService
 	Option   *ProjectOptionService
 }
@@ -128,6 +136,47 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectCategoryService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectCategoryService handles communication with the project category-related methods of the Backlog API.
+type ProjectCategoryService struct {
+	base *project.CategoryService
+}
+
+// All returns a list of categories in a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-category-list
+func (s *ProjectCategoryService) All(ctx context.Context, projectIDOrKey string) ([]*Category, error) {
+	v, err := s.base.All(ctx, projectIDOrKey)
+	return categoriesFromModel(v), convertError(err)
+}
+
+// Create adds a new category to a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-category
+func (s *ProjectCategoryService) Create(ctx context.Context, projectIDOrKey string, name string) (*Category, error) {
+	v, err := s.base.Create(ctx, projectIDOrKey, name)
+	return categoryFromModel(v), convertError(err)
+}
+
+// Update updates a category in a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-category
+func (s *ProjectCategoryService) Update(ctx context.Context, projectIDOrKey string, categoryID int, name string) (*Category, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, categoryID, name)
+	return categoryFromModel(v), convertError(err)
+}
+
+// Delete deletes a category from a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-category
+func (s *ProjectCategoryService) Delete(ctx context.Context, projectIDOrKey string, categoryID int) (*Category, error) {
+	v, err := s.base.Delete(ctx, projectIDOrKey, categoryID)
+	return categoryFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ProjectOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -185,6 +234,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 	return &ProjectService{
 		base:     project.NewService(method),
 		Activity: newProjectActivityService(method, option),
+		Category: newProjectCategoryService(method),
 		User:     newProjectUserService(method, option),
 		Option:   newProjectOptionService(option),
 	}
@@ -194,6 +244,12 @@ func newProjectActivityService(method *core.Method, option *core.OptionService) 
 	return &ProjectActivityService{
 		base:   activity.NewProjectService(method),
 		Option: newActivityOptionService(option),
+	}
+}
+
+func newProjectCategoryService(method *core.Method) *ProjectCategoryService {
+	return &ProjectCategoryService{
+		base: project.NewCategoryService(method),
 	}
 }
 
@@ -227,6 +283,25 @@ func projectsFromModel(ms []*model.Project) []*Project {
 	result := make([]*Project, len(ms))
 	for i, v := range ms {
 		result[i] = projectFromModel(v)
+	}
+	return result
+}
+
+func categoryFromModel(m *model.Category) *Category {
+	if m == nil {
+		return nil
+	}
+	return &Category{
+		ID:           m.ID,
+		Name:         m.Name,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func categoriesFromModel(ms []*model.Category) []*Category {
+	result := make([]*Category, len(ms))
+	for i, v := range ms {
+		result[i] = categoryFromModel(v)
 	}
 	return result
 }
