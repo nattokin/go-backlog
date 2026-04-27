@@ -169,9 +169,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 		return nil, err
 	}
 	form := url.Values{}
-	if err := option.Set(form); err != nil {
-		return nil, err
-	}
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories")
 	resp, err := s.method.Post(ctx, spath, form)
@@ -203,9 +201,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 		return nil, err
 	}
 	form := url.Values{}
-	if err := option.Set(form); err != nil {
-		return nil, err
-	}
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
 	resp, err := s.method.Patch(ctx, spath, form)
