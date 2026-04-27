@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 	"path"
-	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -71,7 +70,3 @@ func NewService(method *core.Method) *Service {
 		method: method,
 	}
 }
-
-// repositoryIDOrName is already validated by ValidateRepositoryIDOrName; this
-// helper is kept for symmetry with other services that need numeric IDs.
-var _ = strconv.Itoa // suppress unused import
