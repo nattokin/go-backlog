@@ -5,10 +5,12 @@ import (
 )
 
 type projectFixtures struct {
-	SingleJSON string
-	Single     *backlog.Project
-	ListJSON   string
-	List       []*backlog.Project
+	SingleJSON    string
+	Single        *backlog.Project
+	ListJSON      string
+	List          []*backlog.Project
+	DiskUsageJSON string
+	DiskUsage     *backlog.DiskUsageProject
 }
 
 type categoryFixtures struct {
@@ -93,6 +95,26 @@ var Project = projectFixtures{
 			Name:               "test3",
 			TextFormattingRule: backlog.FormatMarkdown,
 		},
+	},
+	DiskUsageJSON: `
+{
+	"projectId": 1,
+	"issue": 11931,
+	"wiki": 0,
+	"file": 0,
+	"subversion": 0,
+	"git": 0,
+	"gitLFS": 0
+}
+`,
+	DiskUsage: &backlog.DiskUsageProject{
+		ProjectID:  1,
+		Issue:      11931,
+		Wiki:       0,
+		File:       0,
+		Subversion: 0,
+		Git:        0,
+		GitLFS:     0,
 	},
 }
 

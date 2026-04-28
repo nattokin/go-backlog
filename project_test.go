@@ -137,6 +137,28 @@ func TestProjectService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"DiskUsage": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/diskUsage", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Project.DiskUsageJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.DiskUsage(ctx, "TEST")
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ProjectID)
+				assert.Equal(t, 11931, got.Issue)
+			},
+		},
+		"DiskUsage/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.DiskUsage(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 	}
 
 	for name, tc := range cases {

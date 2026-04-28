@@ -86,6 +86,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get Project](https://developer.nulab.com/docs/backlog/api/2/get-project) - Returns information about a project.
 - [Update Project](https://developer.nulab.com/docs/backlog/api/2/update-project) - Updates information about project.
 - [Delete Project](https://developer.nulab.com/docs/backlog/api/2/delete-project) - Deletes a project.
+- [Get Project Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage/) - Returns disk usage of a project.
 
 ### Client.Project.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectActivityService)
 
