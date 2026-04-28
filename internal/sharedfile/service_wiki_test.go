@@ -80,12 +80,12 @@ func TestWikiSharedFileService_List(t *testing.T) {
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
 
-			for i, w := range fixture.SharedFile.List {
-				assert.Equal(t, w.ID, files[i].ID)
-				assert.Equal(t, w.Type, files[i].Type)
-				assert.Equal(t, w.Dir, files[i].Dir)
-				assert.Equal(t, w.Name, files[i].Name)
-				assert.Equal(t, w.Size, files[i].Size)
+			for i, v := range fixture.SharedFile.List {
+				assert.Equal(t, v.ID, files[i].ID)
+				assert.Equal(t, v.Type, files[i].Type)
+				assert.Equal(t, v.Dir, files[i].Dir)
+				assert.Equal(t, v.Name, files[i].Name)
+				assert.Equal(t, v.Size, files[i].Size)
 			}
 		})
 	}

@@ -19,6 +19,9 @@ var (
 	// ProjectActivityService
 	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
 
+	// ProjectSharedFileService
+	doerProjectSharedFileList = newMockDoer(fixture.SharedFile.ListJSON)
+
 	// ProjectCategoryService
 	doerProjectCategoryAll    = newMockDoer(fixture.Category.ListJSON)
 	doerProjectCategoryCreate = newMockDoer(fixture.Category.SingleJSON)
@@ -164,6 +167,19 @@ func ExampleProjectCategoryService_Delete() {
 	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
 	// Output:
 	// ID: 12, Name: Bug
+}
+
+func ExampleProjectSharedFileService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectSharedFileList),
+	)
+
+	files, _ := c.Project.SharedFile.List(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
 }
 
 func ExampleProjectUserService_All() {

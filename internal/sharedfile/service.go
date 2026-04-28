@@ -107,6 +107,37 @@ func NewIssueService(method *core.Method) *IssueService {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectService handles communication with the project shared-file-related methods of the Backlog API.
+type ProjectService struct {
+	method *core.Method
+}
+
+// List returns a list of shared files in the project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
+func (s *ProjectService) List(ctx context.Context, projectIDOrKey string) ([]*model.SharedFile, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "files")
+	resp, err := s.method.Get(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.SharedFile{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// ──────────────────────────────────────────────────────────────
 //  WikiService
 // ──────────────────────────────────────────────────────────────
 
@@ -198,6 +229,11 @@ func (s *WikiService) Unlink(ctx context.Context, wikiID, fileID int) (*model.Sh
 // ──────────────────────────────────────────────────────────────
 //  Constructor
 // ──────────────────────────────────────────────────────────────
+
+// NewProjectService creates and returns a new shared-file ProjectService.
+func NewProjectService(method *core.Method) *ProjectService {
+	return &ProjectService{method: method}
+}
 
 // NewWikiService creates and returns a new shared-file WikiService.
 func NewWikiService(method *core.Method) *WikiService {
