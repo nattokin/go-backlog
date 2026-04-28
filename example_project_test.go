@@ -39,10 +39,10 @@ var (
 
 	// ProjectWebhookService
 	doerProjectWebhookAll    = newMockDoer(fixture.Webhook.ListJSON)
-	doerProjectWebhookCreate = newMockDoer(fixture.Webhook.ListJSON)
-	doerProjectWebhookOne    = newMockDoer(fixture.Webhook.ListJSON)
-	doerProjectWebhookUpdate = newMockDoer(fixture.Webhook.ListJSON)
-	doerProjectWebhookDelete = newMockDoer(fixture.Webhook.ListJSON)
+	doerProjectWebhookCreate = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookOne    = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookUpdate = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookDelete = newMockDoer(fixture.Webhook.AllEventJSON)
 )
 
 func ExampleProjectService_All() {
