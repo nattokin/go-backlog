@@ -219,7 +219,7 @@ type Webhook struct {
 	Description     string
 	HookURL         string
 	AllEvent        bool
-	ActivityTypeIds []int
+	ActivityTypeIDs []int
 	CreatedUser     *User
 	Created         time.Time
 	UpdatedUser     *User

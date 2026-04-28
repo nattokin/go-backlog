@@ -113,6 +113,14 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get List of Project Administrators](https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators) - Returns a list of users with the Project Administrator role.
 - [Delete Project Administrator](https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator) - Removes the Project Administrator role from a user.
 
+### Client.Project.[Webhook](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectWebhookService)
+
+- [Get List of Webhooks](https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/) - Returns a list of webhooks in a project.
+- [Get Webhook](https://developer.nulab.com/docs/backlog/api/2/get-webhook/) - Returns information about a specific webhook.
+- [Add Webhook](https://developer.nulab.com/docs/backlog/api/2/add-webhook/) - Adds a new webhook to a project.
+- [Update Webhook](https://developer.nulab.com/docs/backlog/api/2/update-webhook/) - Updates a webhook in a project.
+- [Delete Webhook](https://developer.nulab.com/docs/backlog/api/2/delete-webhook/) - Deletes a webhook from a project.
+
 ### Client.[Issue](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueService)
 
 - [Get Issue List](https://developer.nulab.com/docs/backlog/api/2/get-issue-list) - Returns a list of issues.

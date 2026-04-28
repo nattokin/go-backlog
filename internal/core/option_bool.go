@@ -5,6 +5,11 @@ func (s *OptionService) WithAll(enabled bool) RequestOption {
 	return boolOption(ParamAll, enabled)
 }
 
+// WithAllEvent returns an option to set the `allEvent` parameter.
+func (s *OptionService) WithAllEvent(enabled bool) RequestOption {
+	return boolOption(ParamAllEvent, enabled)
+}
+
 // WithArchived returns an option to set the `archived` parameter.
 func (s *OptionService) WithArchived(enabled bool) RequestOption {
 	// apiArchived and queryArchived share the same string value "archived",

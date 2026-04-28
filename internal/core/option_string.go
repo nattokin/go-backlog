@@ -37,6 +37,11 @@ func (s *OptionService) WithDescription(description string) RequestOption {
 	}
 }
 
+// WithHookURL returns an option that sets the `hookUrl` parameter.
+func (s *OptionService) WithHookURL(hookURL string) RequestOption {
+	return nonEmptyStringOption(ParamHookURL, hookURL)
+}
+
 // WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
 	return nonEmptyStringOption(ParamKey, key)
