@@ -98,6 +98,11 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Update Category](https://developer.nulab.com/docs/backlog/api/2/update-category/) - Updates a category in a project.
 - [Delete Category](https://developer.nulab.com/docs/backlog/api/2/delete-category/) - Deletes a category from a project.
 
+### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
+
+- [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a project.
+
+
 ### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
 
 - [Add Project User](https://developer.nulab.com/docs/backlog/api/2/add-project-user) - Adds a user to the list of project members.
