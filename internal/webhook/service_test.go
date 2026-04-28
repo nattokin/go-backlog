@@ -30,11 +30,6 @@ func TestService_List(t *testing.T) {
 				return mock.NewJSONResponse("[" + fixture.Webhook.AllEventJSON + "," + fixture.Webhook.ActivityTypesJSON + "]"), nil
 			},
 		},
-		"error-project-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
-			mockGetFn:      mock.NewUnexpectedGetFn(t),
-		},
 		"error-client": {
 			projectIDOrKey: "TEST",
 			wantErrType:    errors.New(""),
@@ -48,6 +43,11 @@ func TestService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
+		},
+		"error-project-empty": {
+			projectIDOrKey: "",
+			wantErrType:    &core.ValidationError{},
+			mockGetFn:      mock.NewUnexpectedGetFn(t),
 		},
 	}
 
@@ -84,21 +84,6 @@ func TestService_Add(t *testing.T) {
 		wantID      int
 		mockPostFn  func(context.Context, string, url.Values) (*http.Response, error)
 	}{
-		"success-all-event-true": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
-			opts: []core.RequestOption{
-				option.WithAllEvent(true),
-			},
-			wantID: fixture.Webhook.AllEvent.ID,
-			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/webhooks", spath)
-				assert.Equal(t, "webhook", form.Get("name"))
-				assert.Equal(t, "https://example.com/webhook", form.Get("hookUrl"))
-				assert.Equal(t, "true", form.Get("allEvent"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
-			},
-		},
 		"success-all-event-false-with-activity-types": {
 			name:    "webhook",
 			hookURL: "https://example.com/webhook",
@@ -112,6 +97,21 @@ func TestService_Add(t *testing.T) {
 				assert.Equal(t, "false", form.Get("allEvent"))
 				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
 				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+			},
+		},
+		"success-all-event-true": {
+			name:    "webhook",
+			hookURL: "https://example.com/webhook",
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantID: fixture.Webhook.AllEvent.ID,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/webhooks", spath)
+				assert.Equal(t, "webhook", form.Get("name"))
+				assert.Equal(t, "https://example.com/webhook", form.Get("hookUrl"))
+				assert.Equal(t, "true", form.Get("allEvent"))
+				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
 		"success-activity-types-only": {
@@ -135,15 +135,43 @@ func TestService_Add(t *testing.T) {
 			},
 			wantErrType: &core.ValidationError{},
 		},
+		"error-client-network": {
+			name:    "webhook",
+			hookURL: "https://example.com/webhook",
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: errors.New(""),
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+		},
+		"error-hookURL-empty": {
+			name:    "webhook",
+			hookURL: "",
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+		},
+		"error-invalid-option-type": {
+			name:        "webhook",
+			hookURL:     "https://example.com/webhook",
+			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
+		},
+		"error-name-empty": {
+			name:    "",
+			hookURL: "https://example.com/webhook",
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+		},
 		"error-no-options": {
 			name:        "webhook",
 			hookURL:     "https://example.com/webhook",
 			opts:        []core.RequestOption{},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-project-empty": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
@@ -158,16 +186,10 @@ func TestService_Add(t *testing.T) {
 			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamAllEvent)},
 			wantErrType: errors.New(""),
 		},
-		"error-client-network": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
-			opts: []core.RequestOption{
-				option.WithAllEvent(true),
-			},
-			wantErrType: errors.New(""),
-			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
-			},
+		"error-project-empty": {
+			name:        "webhook",
+			hookURL:     "https://example.com/webhook",
+			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			name:    "webhook",
@@ -223,24 +245,6 @@ func TestService_Get(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
-		"error-project-empty": {
-			projectIDOrKey: "",
-			webhookID:      1,
-			wantErrType:    &core.ValidationError{},
-			mockGetFn:      mock.NewUnexpectedGetFn(t),
-		},
-		"error-webhookID-zero": {
-			projectIDOrKey: "TEST",
-			webhookID:      0,
-			wantErrType:    &core.ValidationError{},
-			mockGetFn:      mock.NewUnexpectedGetFn(t),
-		},
-		"error-webhookID-negative": {
-			projectIDOrKey: "TEST",
-			webhookID:      -1,
-			wantErrType:    &core.ValidationError{},
-			mockGetFn:      mock.NewUnexpectedGetFn(t),
-		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -250,6 +254,12 @@ func TestService_Get(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 		},
+		"error-project-empty": {
+			projectIDOrKey: "",
+			webhookID:      1,
+			wantErrType:    &core.ValidationError{},
+			mockGetFn:      mock.NewUnexpectedGetFn(t),
+		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -258,6 +268,18 @@ func TestService_Get(t *testing.T) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
+		},
+		"error-webhookID-negative": {
+			projectIDOrKey: "TEST",
+			webhookID:      -1,
+			wantErrType:    &core.ValidationError{},
+			mockGetFn:      mock.NewUnexpectedGetFn(t),
+		},
+		"error-webhookID-zero": {
+			projectIDOrKey: "TEST",
+			webhookID:      0,
+			wantErrType:    &core.ValidationError{},
+			mockGetFn:      mock.NewUnexpectedGetFn(t),
 		},
 	}
 
@@ -289,23 +311,29 @@ func TestService_Update(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
-		opts        []core.RequestOption
-		wantErrType error
-		wantID      int
-		mockPatchFn func(context.Context, string, url.Values) (*http.Response, error)
+		projectIDOrKey string
+		webhookID      int
+		opts           []core.RequestOption
+		wantErrType    error
+		wantID         int
+		mockPatchFn    func(context.Context, string, url.Values) (*http.Response, error)
 	}{
-		"success-all-event-true": {
+		"success-activity-types-only": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
-				option.WithAllEvent(true),
+				option.WithActivityTypeIDs([]int{1, 2}),
 			},
-			wantID: fixture.Webhook.AllEvent.ID,
+			wantID: fixture.Webhook.ActivityTypes.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				assert.Equal(t, "true", form.Get("allEvent"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
+				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
 		"success-all-event-false-with-activity-types": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
 				option.WithAllEvent(false),
 				option.WithActivityTypeIDs([]int{1, 2}),
@@ -318,40 +346,37 @@ func TestService_Update(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
-		"success-activity-types-only": {
+		"success-all-event-true": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
-				option.WithActivityTypeIDs([]int{1, 2}),
+				option.WithAllEvent(true),
 			},
-			wantID: fixture.Webhook.ActivityTypes.ID,
+			wantID: fixture.Webhook.AllEvent.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+				assert.Equal(t, "true", form.Get("allEvent"))
+				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
+		"error-all-event-false-without-activity-types": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opts:           []core.RequestOption{option.WithAllEvent(false)},
+			wantErrType:    &core.ValidationError{},
+		},
 		"error-all-event-true-with-activity-types": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 				option.WithActivityTypeIDs([]int{1, 2}),
 			},
 			wantErrType: &core.ValidationError{},
 		},
-		"error-no-options": {
-			wantErrType: &core.ValidationError{},
-		},
-		"error-all-event-false-without-activity-types": {
-			opts:        []core.RequestOption{option.WithAllEvent(false)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-invalid-option-type": {
-			opts:        []core.RequestOption{option.WithAllEvent(true), mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
-		},
-		"error-option-set-failed": {
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamAllEvent)},
-			wantErrType: errors.New(""),
-		},
 		"error-client-network": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
@@ -360,7 +385,53 @@ func TestService_Update(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 		},
+		"error-hookURL-empty": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opts: []core.RequestOption{
+				option.WithHookURL(""),
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+		},
+		"error-invalid-option-type": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opts:           []core.RequestOption{option.WithAllEvent(true), mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+		"error-name-empty": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opts: []core.RequestOption{
+				option.WithName(""),
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+		},
+		"error-no-options": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			wantErrType:    &core.ValidationError{},
+		},
+		"error-option-set-failed": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamAllEvent)},
+			wantErrType:    errors.New(""),
+		},
+		"error-project-empty": {
+			projectIDOrKey: "",
+			webhookID:      1,
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+			mockPatchFn: mock.NewUnexpectedPatchFn(t),
+		},
 		"error-response-invalid-json": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
@@ -379,7 +450,7 @@ func TestService_Update(t *testing.T) {
 				m.Patch = tc.mockPatchFn
 			}
 			s := webhook.NewService(m)
-			got, err := s.Update(context.Background(), "TEST", 1, tc.opts...)
+			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.webhookID, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
@@ -409,15 +480,18 @@ func TestService_Delete(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
+		"error-client-network": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			wantErrType:    errors.New(""),
+			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/webhooks/1", spath)
+				return nil, errors.New("network error")
+			},
+		},
 		"error-project-empty": {
 			projectIDOrKey: "",
 			webhookID:      1,
-			wantErrType:    &core.ValidationError{},
-			mockDeleteFn:   mock.NewUnexpectedDeleteFn(t),
-		},
-		"error-webhookID-zero": {
-			projectIDOrKey: "TEST",
-			webhookID:      0,
 			wantErrType:    &core.ValidationError{},
 			mockDeleteFn:   mock.NewUnexpectedDeleteFn(t),
 		},
@@ -427,14 +501,11 @@ func TestService_Delete(t *testing.T) {
 			wantErrType:    &core.ValidationError{},
 			mockDeleteFn:   mock.NewUnexpectedDeleteFn(t),
 		},
-		"error-client-network": {
+		"error-webhookID-zero": {
 			projectIDOrKey: "TEST",
-			webhookID:      1,
-			wantErrType:    errors.New(""),
-			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				return nil, errors.New("network error")
-			},
+			webhookID:      0,
+			wantErrType:    &core.ValidationError{},
+			mockDeleteFn:   mock.NewUnexpectedDeleteFn(t),
 		},
 	}
 
