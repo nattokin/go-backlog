@@ -2,12 +2,6 @@ package model
 
 import "time"
 
-// DiskUsageProject represents project's disk usage.
-type DiskUsageProject struct {
-	DiskUsageBase
-	ProjectID int `json:"projectId,omitempty"`
-}
-
 // DiskUsageSpace represents space's disk usage.
 type DiskUsageSpace struct {
 	DiskUsageBase

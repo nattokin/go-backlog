@@ -19,7 +19,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectService_All(t *testing.T) {
+func TestService_All(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -123,7 +123,7 @@ func TestProjectService_All(t *testing.T) {
 	}
 }
 
-func TestProjectService_One(t *testing.T) {
+func TestService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -207,7 +207,7 @@ func TestProjectService_One(t *testing.T) {
 	}
 }
 
-func TestProjectService_Create(t *testing.T) {
+func TestService_Create(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -357,7 +357,7 @@ func TestProjectService_Create(t *testing.T) {
 	}
 }
 
-func TestProjectService_Update(t *testing.T) {
+func TestService_Update(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -494,7 +494,7 @@ func TestProjectService_Update(t *testing.T) {
 	}
 }
 
-func TestProjectService_Delete(t *testing.T) {
+func TestService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -574,6 +574,76 @@ func TestProjectService_Delete(t *testing.T) {
 			require.NotNil(t, project)
 
 			assert.Equal(t, "TEST", project.ProjectKey)
+		})
+	}
+}
+
+func TestService_DiskUsage(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey string
+
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType   error
+		wantProjectID int
+		wantIssue     int
+	}{
+		"success-project-key": {
+			projectIDOrKey: "TEST",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/diskUsage", spath)
+				assert.Nil(t, query)
+				return mock.NewJSONResponse(fixture.Project.DiskUsageJSON), nil
+			},
+			wantProjectID: 1,
+			wantIssue:     11931,
+		},
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey: "",
+			wantErrType:    &core.ValidationError{},
+		},
+		"error-client-network": {
+			projectIDOrKey: "TEST",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/diskUsage", spath)
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"error-response-invalid-json": {
+			projectIDOrKey: "TEST",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/diskUsage", spath)
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+			},
+			wantErrType: &json.SyntaxError{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+
+			s := project.NewService(method)
+
+			got, err := s.DiskUsage(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantProjectID, got.ProjectID)
+			assert.Equal(t, tc.wantIssue, got.Issue)
 		})
 	}
 }
@@ -929,30 +999,35 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"ProjectService.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"ProjectService.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
-		{"ProjectService.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewService(m)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
-		{"ProjectService.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewService(m)
 			s.Update(ctx, "TEST") //nolint:errcheck
 		}},
-		{"ProjectService.Delete", func(t *testing.T, m *core.Method) {
+		{"Service.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewService(m)
 			s.Delete(ctx, "TEST") //nolint:errcheck
+		}},
+		{"Service.DiskUsage", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := project.NewService(m)
+			s.DiskUsage(ctx, "TEST") //nolint:errcheck
 		}},
 		{"CategoryService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)

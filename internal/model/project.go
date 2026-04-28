@@ -11,3 +11,9 @@ type Project struct {
 	TextFormattingRule                Format `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
+
+// DiskUsageProject represents project's disk usage.
+type DiskUsageProject struct {
+	DiskUsageBase
+	ProjectID int `json:"projectId,omitempty"`
+}

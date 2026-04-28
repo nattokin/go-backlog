@@ -10,11 +10,12 @@ import (
 
 var (
 	// ProjectService
-	doerProjectAll    = newMockDoer(fixture.Project.ListJSON)
-	doerProjectOne    = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectCreate = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectUpdate = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectDelete = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectAll       = newMockDoer(fixture.Project.ListJSON)
+	doerProjectOne       = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectCreate    = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectUpdate    = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectDelete    = newMockDoer(fixture.Project.SingleJSON)
+	doerProjectDiskUsage = newMockDoer(fixture.Project.DiskUsageJSON)
 
 	// ProjectActivityService
 	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
@@ -102,6 +103,19 @@ func ExampleProjectService_Delete() {
 	fmt.Printf("ID: %d, Key: %s\n", project.ID, project.ProjectKey)
 	// Output:
 	// ID: 6, Key: TEST
+}
+
+func ExampleProjectService_DiskUsage() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectDiskUsage),
+	)
+
+	usage, _ := c.Project.DiskUsage(context.Background(), "TEST")
+	fmt.Printf("ProjectID: %d, Issue: %d\n", usage.ProjectID, usage.Issue)
+	// Output:
+	// ProjectID: 1, Issue: 11931
 }
 
 func ExampleProjectActivityService_List() {
