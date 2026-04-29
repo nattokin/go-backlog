@@ -193,6 +193,10 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string, webhookID i
 	return v, nil
 }
 
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
+
 // NewService creates and returns a new webhook Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}

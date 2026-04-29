@@ -61,6 +61,7 @@ const (
 	ParamProjectLeaderCanEditProjectLeader APIParamOptionType = "projectLeaderCanEditProjectLeader"
 	ParamPullRequestCommentID              APIParamOptionType = "pullRequestCommentId"
 	ParamPullRequestID                     APIParamOptionType = "pullRequestId"
+	ParamReleaseDueDate                    APIParamOptionType = "releaseDueDate"
 	ParamResolutionID                      APIParamOptionType = "resolutionId"
 	ParamResolutionIDs                     APIParamOptionType = "resolutionId[]"
 	ParamRoleType                          APIParamOptionType = "roleType"

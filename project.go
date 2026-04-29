@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"context"
+	"time"
 
 	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
@@ -9,6 +10,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/user"
+	"github.com/nattokin/go-backlog/internal/version"
 	"github.com/nattokin/go-backlog/internal/webhook"
 )
 
@@ -41,7 +43,9 @@ type ProjectService struct {
 	User       *ProjectUserService
 	SharedFile *ProjectSharedFileService
 	Webhook    *ProjectWebhookService
-	Option     *ProjectOptionService
+	Version    *ProjectVersionService
+
+	Option *ProjectOptionService
 }
 
 // All returns a list of projects.
@@ -317,6 +321,66 @@ func (s *ProjectWebhookService) Delete(ctx context.Context, projectIDOrKey strin
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectVersionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectVersionService handles communication with the project version/milestone-related methods of the Backlog API.
+type ProjectVersionService struct {
+	base   *version.Service
+	Option *ProjectVersionOptionService
+}
+
+// All returns a list of versions/milestones in the project.
+//
+// This method supports options returned by methods in "*Client.Project.Version.Option",
+// such as:
+//   - WithArchived
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/
+func (s *ProjectVersionService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
+	v, err := s.base.All(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	return versionsFromModel(v), convertError(err)
+}
+
+// Create adds a version/milestone to the project.
+//
+// This method supports options returned by methods in "*Client.Project.Version.Option",
+// such as:
+//   - WithDescription
+//   - WithReleaseDueDate
+//   - WithStartDate
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/
+func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name string, opts ...RequestOption) (*Version, error) {
+	v, err := s.base.Add(ctx, projectIDOrKey, name, toCoreOptions(opts)...)
+	return versionFromModel(v), convertError(err)
+}
+
+// Update updates a version/milestone.
+//
+// This method supports options returned by methods in "*Client.Project.Version.Option",
+// such as:
+//   - WithArchived
+//   - WithDescription
+//   - WithName
+//   - WithReleaseDueDate
+//   - WithStartDate
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
+func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, opts ...RequestOption) (*Version, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toCoreOptions(opts)...)
+	return versionFromModel(v), convertError(err)
+}
+
+// Delete deletes a version/milestone.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-version/
+func (s *ProjectVersionService) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*Version, error) {
+	v, err := s.base.Delete(ctx, projectIDOrKey, versionID)
+	return versionFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ProjectOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -402,6 +466,41 @@ func (s *ProjectWebhookOptionService) WithName(name string) RequestOption {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectVersionOptionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectVersionOptionService provides a domain-specific set of option builders
+// for operations within the ProjectVersionService.
+type ProjectVersionOptionService struct {
+	base *core.OptionService
+}
+
+// WithArchived sets whether to include archived versions.
+func (s *ProjectVersionOptionService) WithArchived(enabled bool) RequestOption {
+	return s.base.WithArchived(enabled)
+}
+
+// WithDescription sets the version description.
+func (s *ProjectVersionOptionService) WithDescription(description string) RequestOption {
+	return s.base.WithDescription(description)
+}
+
+// WithName sets the version name.
+func (s *ProjectVersionOptionService) WithName(name string) RequestOption {
+	return s.base.WithName(name)
+}
+
+// WithReleaseDueDate sets the release due date.
+func (s *ProjectVersionOptionService) WithReleaseDueDate(t time.Time) RequestOption {
+	return s.base.WithReleaseDueDate(t)
+}
+
+// WithStartDate sets the version start date.
+func (s *ProjectVersionOptionService) WithStartDate(t time.Time) RequestOption {
+	return s.base.WithStartDate(t)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
@@ -413,6 +512,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 		User:       newProjectUserService(method, option),
 		SharedFile: newProjectSharedFileService(method),
 		Webhook:    newProjectWebhookService(method, option),
+		Version:    newProjectVersionService(method, option),
 		Option:     newProjectOptionService(option),
 	}
 }
@@ -443,6 +543,13 @@ func newProjectWebhookService(method *core.Method, option *core.OptionService) *
 	}
 }
 
+func newProjectVersionService(method *core.Method, option *core.OptionService) *ProjectVersionService {
+	return &ProjectVersionService{
+		base:   version.NewService(method),
+		Option: newVersionOptionService(option),
+	}
+}
+
 func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
 	return &ProjectOptionService{
 		base: option,
@@ -451,6 +558,10 @@ func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
 
 func newWebhookOptionService(option *core.OptionService) *ProjectWebhookOptionService {
 	return &ProjectWebhookOptionService{base: option}
+}
+
+func newVersionOptionService(option *core.OptionService) *ProjectVersionOptionService {
+	return &ProjectVersionOptionService{base: option}
 }
 
 // ──────────────────────────────────────────────────────────────

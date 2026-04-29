@@ -53,3 +53,8 @@ func (s *OptionService) WithDueDateSince(t time.Time) RequestOption {
 func (s *OptionService) WithDueDateUntil(t time.Time) RequestOption {
 	return timeOption(ParamDueDateUntil, t, issueDateFormat)
 }
+
+// WithReleaseDueDate returns an option to set the `releaseDueDate` parameter.
+func (s *OptionService) WithReleaseDueDate(t time.Time) RequestOption {
+	return timeOption(ParamReleaseDueDate, t, issueDateFormat)
+}
