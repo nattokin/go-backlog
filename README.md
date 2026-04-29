@@ -121,6 +121,13 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Update Webhook](https://developer.nulab.com/docs/backlog/api/2/update-webhook/) - Updates a webhook in a project.
 - [Delete Webhook](https://developer.nulab.com/docs/backlog/api/2/delete-webhook/) - Deletes a webhook from a project.
 
+### Client.Project.[Version](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectVersionService)
+
+- [Get Version/Milestone List](https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/) - Returns a list of versions/milestones in a project.
+- [Add Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/) - Adds a new version/milestone to a project.
+- [Update Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/) - Updates a version/milestone in a project.
+- [Delete Version](https://developer.nulab.com/docs/backlog/api/2/delete-version/) - Deletes a version/milestone from a project.
+
 ### Client.[Issue](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueService)
 
 - [Get Issue List](https://developer.nulab.com/docs/backlog/api/2/get-issue-list) - Returns a list of issues.
