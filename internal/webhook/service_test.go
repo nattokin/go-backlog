@@ -77,16 +77,18 @@ func TestService_Add(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
-		name        string
-		hookURL     string
-		opts        []core.RequestOption
-		wantErrType error
-		wantID      int
-		mockPostFn  func(context.Context, string, url.Values) (*http.Response, error)
+		projectIDOrKey string
+		name           string
+		hookURL        string
+		opts           []core.RequestOption
+		wantErrType    error
+		wantID         int
+		mockPostFn     func(context.Context, string, url.Values) (*http.Response, error)
 	}{
 		"success-all-event-false-with-activity-types": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(false),
 				option.WithActivityTypeIDs([]int{1, 2}),
@@ -100,8 +102,9 @@ func TestService_Add(t *testing.T) {
 			},
 		},
 		"success-all-event-true": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
@@ -115,8 +118,9 @@ func TestService_Add(t *testing.T) {
 			},
 		},
 		"success-activity-types-only": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithActivityTypeIDs([]int{1, 2}),
 			},
@@ -128,16 +132,18 @@ func TestService_Add(t *testing.T) {
 			},
 		},
 		"error-all-event-false-without-activity-types": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(false),
 			},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
@@ -147,53 +153,61 @@ func TestService_Add(t *testing.T) {
 			},
 		},
 		"error-hookURL-empty": {
-			name:    "webhook",
-			hookURL: "",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "",
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-invalid-option-type": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-name-empty": {
-			name:    "",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-no-options": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
-			opts:        []core.RequestOption{},
-			wantErrType: &core.ValidationError{},
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []core.RequestOption{},
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-failed": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamAllEvent)},
-			wantErrType: errors.New(""),
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamAllEvent)},
+			wantErrType:    errors.New(""),
 		},
 		"error-project-empty": {
-			name:        "webhook",
-			hookURL:     "https://example.com/webhook",
-			wantErrType: &core.ValidationError{},
+			projectIDOrKey: "",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			wantErrType:    &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
-			name:    "webhook",
-			hookURL: "https://example.com/webhook",
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
 			opts: []core.RequestOption{
 				option.WithAllEvent(true),
 			},
@@ -213,7 +227,7 @@ func TestService_Add(t *testing.T) {
 			}
 			s := webhook.NewService(m)
 
-			got, err := s.Add(context.Background(), "TEST", tc.name, tc.hookURL, tc.opts...)
+			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.name, tc.hookURL, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
@@ -429,6 +443,24 @@ func TestService_Update(t *testing.T) {
 			wantErrType: &core.ValidationError{},
 			mockPatchFn: mock.NewUnexpectedPatchFn(t),
 		},
+		"error-webhookID-zero": {
+			projectIDOrKey: "TEST",
+			webhookID:      0,
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+			mockPatchFn: mock.NewUnexpectedPatchFn(t),
+		},
+		"error-webhookID-negative": {
+			projectIDOrKey: "TEST",
+			webhookID:      -1,
+			opts: []core.RequestOption{
+				option.WithAllEvent(true),
+			},
+			wantErrType: &core.ValidationError{},
+			mockPatchFn: mock.NewUnexpectedPatchFn(t),
+		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -487,6 +519,15 @@ func TestService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				return nil, errors.New("network error")
+			},
+		},
+		"error-response-invalid-json": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			wantErrType:    &json.SyntaxError{},
+			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/webhooks/1", spath)
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 		},
 		"error-project-empty": {
