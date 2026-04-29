@@ -26,6 +26,7 @@ func TestOptionService_time(t *testing.T) {
 		"WithDueDate":        {option: o.WithDueDate(date), key: core.ParamDueDate.Value()},
 		"WithDueDateSince":   {option: o.WithDueDateSince(date), key: core.ParamDueDateSince.Value()},
 		"WithDueDateUntil":   {option: o.WithDueDateUntil(date), key: core.ParamDueDateUntil.Value()},
+		"WithReleaseDueDate": {option: o.WithReleaseDueDate(date), key: core.ParamReleaseDueDate.Value()},
 		"WithStartDate":      {option: o.WithStartDate(date), key: core.ParamStartDate.Value()},
 		"WithStartDateSince": {option: o.WithStartDateSince(date), key: core.ParamStartDateSince.Value()},
 		"WithStartDateUntil": {option: o.WithStartDateUntil(date), key: core.ParamStartDateUntil.Value()},

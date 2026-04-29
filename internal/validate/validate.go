@@ -88,6 +88,13 @@ func ValidateUserID(userID int) error {
 	return nil
 }
 
+func ValidateVersionID(versionID int) error {
+	if versionID < 1 {
+		return core.NewValidationError("versionID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateWebhookID(webhookID int) error {
 	if webhookID < 1 {
 		return core.NewValidationError("webhookID must not be less than 1")

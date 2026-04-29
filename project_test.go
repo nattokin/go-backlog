@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -530,6 +531,136 @@ func TestProjectWebhookService(t *testing.T) {
 	}
 }
 
+func TestProjectVersionService(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc func(req *http.Request) (*http.Response, error)
+		call   func(t *testing.T, c *backlog.Client)
+	}{
+		"All": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/versions", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Version.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Version.All(ctx, "TEST")
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+				assert.Equal(t, fixture.Version.Single.ID, got[0].ID)
+			},
+		},
+		"All/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Version.All(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Create": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/versions", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "v1.0.0", req.PostForm.Get("name"))
+				assert.Equal(t, "first release", req.PostForm.Get("description"))
+				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Version.Create(
+					ctx,
+					"TEST",
+					"v1.0.0",
+					c.Project.Version.Option.WithDescription("first release"),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, fixture.Version.Single.ID, got.ID)
+			},
+		},
+		"Create/error": {
+			doFunc: newAuthErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Version.Create(ctx, "TEST", "v1.0.0")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Update": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/versions/1", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "v1.0.1", req.PostForm.Get("name"))
+				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Version.Update(
+					ctx,
+					"TEST",
+					1,
+					c.Project.Version.Option.WithName("v1.0.1"),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, fixture.Version.Single.ID, got.ID)
+			},
+		},
+		"Update/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Version.Update(
+					ctx,
+					"TEST",
+					1,
+					c.Project.Version.Option.WithName("v1.0.1"),
+				)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Delete": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodDelete, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/versions/1", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Version.Delete(ctx, "TEST", 1)
+				require.NoError(t, err)
+				require.NotNil(t, got)
+				assert.Equal(t, fixture.Version.Single.ID, got.ID)
+			},
+		},
+		"Delete/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Version.Delete(ctx, "TEST", 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient(
+				"https://example.backlog.com",
+				"token",
+				backlog.WithDoer(&mockDoer{do: tc.doFunc}),
+			)
+			require.NoError(t, err)
+			tc.call(t, c)
+		})
+	}
+}
+
 func TestProjectUserService(t *testing.T) {
 	ctx := context.Background()
 
@@ -770,6 +901,47 @@ func TestProjectWebhookOptionService(t *testing.T) {
 		"WithDescription": {
 			option:  s.WithDescription("desc"),
 			wantKey: core.ParamDescription.Value(),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantKey, tc.option.Key())
+		})
+	}
+}
+
+func TestProjectVersionOptionService(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+
+	date := time.Date(2024, 3, 15, 0, 0, 0, 0, time.UTC)
+	s := c.Project.Version.Option
+
+	cases := map[string]struct {
+		option  backlog.RequestOption
+		wantKey string
+	}{
+		"WithArchived": {
+			option:  s.WithArchived(true),
+			wantKey: core.ParamArchived.Value(),
+		},
+		"WithDescription": {
+			option:  s.WithDescription("desc"),
+			wantKey: core.ParamDescription.Value(),
+		},
+		"WithName": {
+			option:  s.WithName("v1.0.0"),
+			wantKey: core.ParamName.Value(),
+		},
+		"WithReleaseDueDate": {
+			option:  s.WithReleaseDueDate(date),
+			wantKey: core.ParamReleaseDueDate.Value(),
+		},
+		"WithStartDate": {
+			option:  s.WithStartDate(date),
+			wantKey: core.ParamStartDate.Value(),
 		},
 	}
 
