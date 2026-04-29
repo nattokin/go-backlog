@@ -45,6 +45,12 @@ func TestService_All(t *testing.T) {
 			wantErrType:    &core.ValidationError{},
 			mockGetFn:      mock.NewUnexpectedGetFn(t),
 		},
+		"error-option-invalid-type": {
+			projectIDOrKey: "TEST",
+			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
 		"error-client": {
 			projectIDOrKey: "TEST",
 			wantErrType:    errors.New(""),
