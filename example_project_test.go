@@ -36,6 +36,13 @@ var (
 	doerProjectUserAddAdmin    = newMockDoer(fixture.User.SingleJSON)
 	doerProjectUserAdminAll    = newMockDoer(fixture.User.ListJSON)
 	doerProjectUserDeleteAdmin = newMockDoer(fixture.User.SingleJSON)
+
+	// ProjectWebhookService
+	doerProjectWebhookAll    = newMockDoer(fixture.Webhook.ListJSON)
+	doerProjectWebhookCreate = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookOne    = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookUpdate = newMockDoer(fixture.Webhook.AllEventJSON)
+	doerProjectWebhookDelete = newMockDoer(fixture.Webhook.AllEventJSON)
 )
 
 func ExampleProjectService_All() {
@@ -272,4 +279,80 @@ func ExampleProjectUserService_DeleteAdmin() {
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
+}
+
+func ExampleProjectWebhookService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookAll),
+	)
+
+	webhooks, _ := c.Project.Webhook.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", webhooks[0].ID, webhooks[0].Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
+}
+
+func ExampleProjectWebhookService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookCreate),
+	)
+
+	wh, _ := c.Project.Webhook.Create(
+		context.Background(),
+		"TEST",
+		"notify",
+		"https://example.com/webhook",
+		c.Project.Webhook.Option.WithAllEvent(true),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
+}
+
+func ExampleProjectWebhookService_One() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookOne),
+	)
+
+	wh, _ := c.Project.Webhook.One(context.Background(), "TEST", 1)
+	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
+}
+
+func ExampleProjectWebhookService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookUpdate),
+	)
+
+	wh, _ := c.Project.Webhook.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Webhook.Option.WithName("updated"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
+}
+
+func ExampleProjectWebhookService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookDelete),
+	)
+
+	wh, _ := c.Project.Webhook.Delete(context.Background(), "TEST", 1)
+	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
 }

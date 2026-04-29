@@ -29,6 +29,16 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamAll.Value(),
 			wantValue: true,
 		},
+		"WithAllEvent-false": {
+			option:    o.WithAllEvent(false),
+			key:       core.ParamAllEvent.Value(),
+			wantValue: false,
+		},
+		"WithAllEvent-true": {
+			option:    o.WithAllEvent(true),
+			key:       core.ParamAllEvent.Value(),
+			wantValue: true,
+		},
 		"WithArchived-false": {
 			option:    o.WithArchived(false),
 			key:       core.ParamArchived.Value(),

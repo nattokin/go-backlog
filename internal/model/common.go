@@ -196,7 +196,7 @@ type Webhook struct {
 	Description     string    `json:"description,omitempty"`
 	HookURL         string    `json:"hookUrl,omitempty"`
 	AllEvent        bool      `json:"allEvent,omitempty"`
-	ActivityTypeIds []int     `json:"activityTypeIds,omitempty"`
+	ActivityTypeIDs []int     `json:"activityTypeIds,omitempty"`
 	CreatedUser     *User     `json:"createdUser,omitempty"`
 	Created         time.Time `json:"created,omitempty"`
 	UpdatedUser     *User     `json:"updatedUser,omitempty"`

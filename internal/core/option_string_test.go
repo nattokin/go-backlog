@@ -70,6 +70,16 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamDescription.Value(),
 			wantValue: "desc",
 		},
+		"WithHookURL-empty": {
+			option:  o.WithHookURL(""),
+			key:     core.ParamHookURL.Value(),
+			wantErr: true,
+		},
+		"WithHookURL-valid": {
+			option:    o.WithHookURL("https://example.com/webhook"),
+			key:       core.ParamHookURL.Value(),
+			wantValue: "https://example.com/webhook",
+		},
 		"WithKey-empty": {
 			option:  o.WithKey(""),
 			key:     core.ParamKey.Value(),
