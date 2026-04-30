@@ -16,6 +16,11 @@ func (s *OptionService) WithBranch(branch string) RequestOption {
 	return nonEmptyStringOption(ParamBranch, branch)
 }
 
+// WithColor returns an option that sets the `color` field.
+func (s *OptionService) WithColor(color string) RequestOption {
+	return nonEmptyStringOption(ParamColor, color)
+}
+
 // WithComment returns an option to set the `comment` parameter.
 func (s *OptionService) WithComment(comment string) RequestOption {
 	return &APIParamOption{
