@@ -20,6 +20,13 @@ type categoryFixtures struct {
 	List       []*backlog.Category
 }
 
+type statusFixtures struct {
+	SingleJSON string
+	Single     *backlog.ProjectStatus
+	ListJSON   string
+	List       []*backlog.ProjectStatus
+}
+
 // Project provides test fixtures for Project-related tests.
 var Project = projectFixtures{
 	SingleJSON: `
@@ -154,6 +161,60 @@ var Category = categoryFixtures{
 			ID:           13,
 			Name:         "Feature",
 			DisplayOrder: 1,
+		},
+	},
+}
+
+// Status provides test fixtures for ProjectStatus-related tests.
+var Status = statusFixtures{
+	SingleJSON: `
+{
+    "id": 1,
+    "projectId": 6,
+    "name": "Open",
+    "color": "#ed8077",
+    "displayOrder": 1000
+}
+`,
+	Single: &backlog.ProjectStatus{
+		ID:           1,
+		ProjectID:    6,
+		Name:         "Open",
+		Color:        "#ed8077",
+		DisplayOrder: 1000,
+	},
+	ListJSON: `
+[
+    {
+        "id": 1,
+        "projectId": 6,
+        "name": "Open",
+        "color": "#ed8077",
+        "displayOrder": 1000
+    },
+    {
+        "id": 2,
+        "projectId": 6,
+        "name": "In Progress",
+        "color": "#f5ab35",
+        "displayOrder": 2000
+    }
+]
+`,
+	List: []*backlog.ProjectStatus{
+		{
+			ID:           1,
+			ProjectID:    6,
+			Name:         "Open",
+			Color:        "#ed8077",
+			DisplayOrder: 1000,
+		},
+		{
+			ID:           2,
+			ProjectID:    6,
+			Name:         "In Progress",
+			Color:        "#f5ab35",
+			DisplayOrder: 2000,
 		},
 	},
 }
