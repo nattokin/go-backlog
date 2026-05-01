@@ -3,10 +3,10 @@ package fixture
 import backlog "github.com/nattokin/go-backlog"
 
 type projectFixtures struct {
-	SingleJSON   string
-	Single       *backlog.Project
-	ListJSON     string
-	List         []*backlog.Project
+	SingleJSON    string
+	Single        *backlog.Project
+	ListJSON      string
+	List          []*backlog.Project
 	DiskUsageJSON string
 }
 
