@@ -164,6 +164,28 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 	return &v, nil
 }
 
+// DiskUsage returns disk usage of a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage
+func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.DiskUsageProject, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "diskUsage")
+	resp, err := s.method.Get(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.DiskUsageProject{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
 // ──────────────────────────────────────────────────────────────
 //  CategoryService
 // ──────────────────────────────────────────────────────────────
