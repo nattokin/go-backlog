@@ -11,18 +11,31 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  Service
-// ──────────────────────────────────────────────────────────────
-
-// Service handles communication with the project-related methods of the Backlog API.
 type Service struct {
 	method *core.Method
 }
 
-// One returns a single project by its ID or key.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
+func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
+
+	query := url.Values{}
+	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		return nil, err
+	}
+
+	resp, err := s.method.Get(ctx, "projects", query)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.Project{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
 func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -42,54 +55,13 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 	return &v, nil
 }
 
-// All returns a list of projects.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
-	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamArchived}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		return nil, err
-	}
-
-	resp, err := s.method.Get(ctx, "projects", form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := []*model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return v, nil
-}
-
-// Create creates a new project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *Service) Create(ctx context.Context, name, key string, opts ...core.RequestOption) (*model.Project, error) {
-	opt := &core.OptionService{}
-	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
-		return nil, err
-	}
-	keyOpt := opt.WithKey(key)
-	if err := keyOpt.Check(); err != nil {
-		return nil, err
-	}
+func (s *Service) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
+	option := &core.OptionService{}
 
 	form := url.Values{}
-	nameOpt.Set(form)
-	keyOpt.Set(form)
-
-	validTypes := []core.APIParamOptionType{
-		core.ParamChartEnabled,
-		core.ParamSubtaskingEnabled,
-		core.ParamProjectLeaderCanEditProjectLeader,
-		core.ParamTextFormattingRule,
-	}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
+	options := append([]core.RequestOption{option.WithKey(key), option.WithName(name)}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -106,9 +78,6 @@ func (s *Service) Create(ctx context.Context, name, key string, opts ...core.Req
 	return &v, nil
 }
 
-// Update updates a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -116,13 +85,8 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...cor
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamKey,
-		core.ParamChartEnabled,
-		core.ParamSubtaskingEnabled,
-		core.ParamProjectLeaderCanEditProjectLeader,
-		core.ParamTextFormattingRule,
-		core.ParamArchived,
+		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
+		core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule, core.ParamArchived,
 	}
 	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
@@ -142,16 +106,13 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...cor
 	return &v, nil
 }
 
-// Delete deletes a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
-	resp, err := s.method.Delete(ctx, spath, nil)
+	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +158,7 @@ type CategoryService struct {
 
 // All returns a list of categories in a project.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-category-list
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-category-list
 func (s *CategoryService) All(ctx context.Context, projectIDOrKey string) ([]*model.Category, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -217,22 +178,20 @@ func (s *CategoryService) All(ctx context.Context, projectIDOrKey string) ([]*mo
 	return v, nil
 }
 
-// Create adds a category to a project.
+// Create adds a new category to a project.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-category
-func (s *CategoryService) Create(ctx context.Context, projectIDOrKey, name string) (*model.Category, error) {
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-category
+func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, name string) (*model.Category, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
-	opt := &core.OptionService{}
-	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
+	option := (&core.OptionService{}).WithName(name)
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
-
 	form := url.Values{}
-	nameOpt.Set(form)
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories")
 	resp, err := s.method.Post(ctx, spath, form)
@@ -250,7 +209,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey, name strin
 
 // Update updates a category in a project.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-category
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-category
 func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, categoryID int, name string) (*model.Category, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -259,14 +218,12 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 		return nil, core.NewValidationError("categoryId must not be less than 1")
 	}
 
-	opt := &core.OptionService{}
-	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
+	option := (&core.OptionService{}).WithName(name)
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
-
 	form := url.Values{}
-	nameOpt.Set(form)
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
 	resp, err := s.method.Patch(ctx, spath, form)
@@ -284,7 +241,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 
 // Delete deletes a category from a project.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-category
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-category
 func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, categoryID int) (*model.Category, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -294,7 +251,7 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
-	resp, err := s.method.Delete(ctx, spath, nil)
+	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -476,7 +433,9 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 // ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
-	return &Service{method: method}
+	return &Service{
+		method: method,
+	}
 }
 
 func NewCategoryService(method *core.Method) *CategoryService {
