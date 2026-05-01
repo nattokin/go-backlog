@@ -215,20 +215,6 @@ type WatchingItem struct {
 	Updated             time.Time
 }
 
-// Webhook represents webhook of Backlog.
-type Webhook struct {
-	ID              int
-	Name            string
-	Description     string
-	HookURL         string
-	AllEvent        bool
-	ActivityTypeIDs []int
-	CreatedUser     *User
-	Created         time.Time
-	UpdatedUser     *User
-	Updated         time.Time
-}
-
 // ──────────────────────────────────────────────────────────────
 //  Helpers
 // ──────────────────────────────────────────────────────────────
