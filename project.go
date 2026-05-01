@@ -30,15 +30,6 @@ type Project struct {
 	Archived                          bool
 }
 
-// ProjectStatus represents a status defined within a project.
-type ProjectStatus struct {
-	ID           int
-	ProjectID    int
-	Name         string
-	Color        string
-	DisplayOrder int
-}
-
 // ──────────────────────────────────────────────────────────────
 //  ProjectService
 // ──────────────────────────────────────────────────────────────
@@ -209,17 +200,17 @@ type ProjectStatusService struct {
 // All returns a list of statuses in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
-func (s *ProjectStatusService) All(ctx context.Context, projectIDOrKey string) ([]*ProjectStatus, error) {
+func (s *ProjectStatusService) All(ctx context.Context, projectIDOrKey string) ([]*Status, error) {
 	v, err := s.base.All(ctx, projectIDOrKey)
-	return projectStatusesFromModel(v), convertError(err)
+	return statusesFromModel(v), convertError(err)
 }
 
 // Create adds a new status to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-status
-func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*ProjectStatus, error) {
+func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*Status, error) {
 	v, err := s.base.Create(ctx, projectIDOrKey, name, color)
-	return projectStatusFromModel(v), convertError(err)
+	return statusFromModel(v), convertError(err)
 }
 
 // Update updates a status in a project.
@@ -230,25 +221,25 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opts ...RequestOption) (*ProjectStatus, error) {
+func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opts ...RequestOption) (*Status, error) {
 	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOptions(opts)...)
-	return projectStatusFromModel(v), convertError(err)
+	return statusFromModel(v), convertError(err)
 }
 
 // Delete deletes a status from a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
-func (s *ProjectStatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*ProjectStatus, error) {
+func (s *ProjectStatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*Status, error) {
 	v, err := s.base.Delete(ctx, projectIDOrKey, statusID, substituteStatusID)
-	return projectStatusFromModel(v), convertError(err)
+	return statusFromModel(v), convertError(err)
 }
 
 // UpdateOrder updates the display order of statuses in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-order-of-status
-func (s *ProjectStatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, statusIDs []int) ([]*ProjectStatus, error) {
+func (s *ProjectStatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, statusIDs []int) ([]*Status, error) {
 	v, err := s.base.UpdateOrder(ctx, projectIDOrKey, statusIDs)
-	return projectStatusesFromModel(v), convertError(err)
+	return statusesFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -689,30 +680,6 @@ func projectsFromModel(ms []*model.Project) []*Project {
 	result := make([]*Project, len(ms))
 	for i, v := range ms {
 		result[i] = projectFromModel(v)
-	}
-	return result
-}
-
-func projectStatusFromModel(m *model.ProjectStatus) *ProjectStatus {
-	if m == nil {
-		return nil
-	}
-	return &ProjectStatus{
-		ID:           m.ID,
-		ProjectID:    m.ProjectID,
-		Name:         m.Name,
-		Color:        m.Color,
-		DisplayOrder: m.DisplayOrder,
-	}
-}
-
-func projectStatusesFromModel(ms []*model.ProjectStatus) []*ProjectStatus {
-	if ms == nil {
-		return nil
-	}
-	result := make([]*ProjectStatus, len(ms))
-	for i, v := range ms {
-		result[i] = projectStatusFromModel(v)
 	}
 	return result
 }
