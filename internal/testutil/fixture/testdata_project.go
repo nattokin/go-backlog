@@ -3,10 +3,11 @@ package fixture
 import backlog "github.com/nattokin/go-backlog"
 
 type projectFixtures struct {
-	SingleJSON string
-	Single     *backlog.Project
-	ListJSON   string
-	List       []*backlog.Project
+	SingleJSON   string
+	Single       *backlog.Project
+	ListJSON     string
+	List         []*backlog.Project
+	DiskUsageJSON string
 }
 
 type categoryFixtures struct {
@@ -68,6 +69,16 @@ var Project = projectFixtures{
         "projectLeaderCanEditProjectLeader": true,
         "textFormattingRule": "backlog",
         "archived": true
+    },
+    {
+        "id": 3,
+        "projectKey": "TEST3",
+        "name": "test3",
+        "chartEnabled": false,
+        "subtaskingEnabled": false,
+        "projectLeaderCanEditProjectLeader": false,
+        "textFormattingRule": "markdown",
+        "archived": false
     }
 ]
 `,
@@ -92,7 +103,28 @@ var Project = projectFixtures{
 			TextFormattingRule:                backlog.FormatBacklog,
 			Archived:                          true,
 		},
+		{
+			ID:                                3,
+			ProjectKey:                        "TEST3",
+			Name:                              "test3",
+			ChartEnabled:                      false,
+			SubtaskingEnabled:                 false,
+			ProjectLeaderCanEditProjectLeader: false,
+			TextFormattingRule:                backlog.FormatMarkdown,
+			Archived:                          false,
+		},
 	},
+	DiskUsageJSON: `
+{
+    "projectId": 1,
+    "issue": 11931,
+    "wiki": 0,
+    "file": 512,
+    "subversion": 0,
+    "git": 1024,
+    "gitLFS": 0
+}
+`,
 }
 
 // Category provides test fixtures for Category-related tests.
