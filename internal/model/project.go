@@ -12,7 +12,7 @@ type Project struct {
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
-// DiskUsageProject represents project's disk usage.
+// DiskUsageProject represents disk usage of a specific project.
 type DiskUsageProject struct {
 	DiskUsageBase
 	ProjectID int `json:"projectId,omitempty"`

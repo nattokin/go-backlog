@@ -189,7 +189,7 @@ func Test_issueFromModel(t *testing.T) {
 					{ID: 1, Name: "Won't Fix"},
 				},
 				Priority: &model.Priority{ID: 3, Name: "Normal"},
-				Status:   &model.Status{ID: 1, Name: "Open"},
+				Status:   &model.Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
 				Assignee: user,
 				Category: []*model.Category{
 					{ID: 5, Name: "Frontend", DisplayOrder: 0},
@@ -237,7 +237,7 @@ func Test_issueFromModel(t *testing.T) {
 					{ID: 1, Name: "Won't Fix"},
 				},
 				Priority: &Priority{ID: 3, Name: "Normal"},
-				Status:   &Status{ID: 1, Name: "Open"},
+				Status:   &Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
 				Assignee: wantUser,
 				Category: []*Category{
 					{ID: 5, Name: "Frontend", DisplayOrder: 0},
@@ -326,7 +326,7 @@ func Test_pullRequestFromModel(t *testing.T) {
 		Description:  "PR desc",
 		Base:         "main",
 		Branch:       "feature",
-		Status:       &model.Status{ID: 1, Name: "Open"},
+		Status:       &model.Status{ID: 1, ProjectID: 3, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
 		Assignee:     user,
 		Issue:        &model.Issue{ID: 10, Summary: "related issue"},
 		BaseCommit:   "abc123",
@@ -353,7 +353,7 @@ func Test_pullRequestFromModel(t *testing.T) {
 		Description:  "PR desc",
 		Base:         "main",
 		Branch:       "feature",
-		Status:       &Status{ID: 1, Name: "Open"},
+		Status:       &Status{ID: 1, ProjectID: 3, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
 		Assignee:     wantUser,
 		Issue: &Issue{
 			ID:      10,
@@ -425,8 +425,8 @@ func Test_spaceNotificationFromModel(t *testing.T) {
 func Test_statusFromModel(t *testing.T) {
 	t.Parallel()
 
-	input := &model.Status{ID: 1, Name: "Open"}
-	want := &Status{ID: 1, Name: "Open"}
+	input := &model.Status{ID: 1, ProjectID: 6, Name: "Open", Color: "#ed8077", DisplayOrder: 1000}
+	want := &Status{ID: 1, ProjectID: 6, Name: "Open", Color: "#ed8077", DisplayOrder: 1000}
 	assert.Equal(t, want, statusFromModel(input))
 }
 

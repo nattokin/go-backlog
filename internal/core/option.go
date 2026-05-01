@@ -21,6 +21,7 @@ const (
 	ParamBranch                            APIParamOptionType = "branch"
 	ParamCategoryIDs                       APIParamOptionType = "categoryId[]"
 	ParamChartEnabled                      APIParamOptionType = "chartEnabled"
+	ParamColor                             APIParamOptionType = "color"
 	ParamComment                           APIParamOptionType = "comment"
 	ParamCommentID                         APIParamOptionType = "commentId"
 	ParamContent                           APIParamOptionType = "content"

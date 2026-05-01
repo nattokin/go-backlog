@@ -40,6 +40,7 @@ type ProjectService struct {
 
 	Activity   *ProjectActivityService
 	Category   *ProjectCategoryService
+	Status     *ProjectStatusService
 	User       *ProjectUserService
 	SharedFile *ProjectSharedFileService
 	Webhook    *ProjectWebhookService
@@ -184,6 +185,61 @@ func (s *ProjectCategoryService) Update(ctx context.Context, projectIDOrKey stri
 func (s *ProjectCategoryService) Delete(ctx context.Context, projectIDOrKey string, categoryID int) (*Category, error) {
 	v, err := s.base.Delete(ctx, projectIDOrKey, categoryID)
 	return categoryFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ProjectStatusService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectStatusService handles communication with the project status-related methods of the Backlog API.
+type ProjectStatusService struct {
+	base   *project.StatusService
+	Option *ProjectStatusOptionService
+}
+
+// All returns a list of statuses in a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
+func (s *ProjectStatusService) All(ctx context.Context, projectIDOrKey string) ([]*Status, error) {
+	v, err := s.base.All(ctx, projectIDOrKey)
+	return statusesFromModel(v), convertError(err)
+}
+
+// Create adds a new status to a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-status
+func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*Status, error) {
+	v, err := s.base.Create(ctx, projectIDOrKey, name, color)
+	return statusFromModel(v), convertError(err)
+}
+
+// Update updates a status in a project.
+//
+// This method supports options returned by methods in "*Client.Project.Status.Option",
+// such as:
+//   - WithColor
+//   - WithName
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
+func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opts ...RequestOption) (*Status, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOptions(opts)...)
+	return statusFromModel(v), convertError(err)
+}
+
+// Delete deletes a status from a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
+func (s *ProjectStatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*Status, error) {
+	v, err := s.base.Delete(ctx, projectIDOrKey, statusID, substituteStatusID)
+	return statusFromModel(v), convertError(err)
+}
+
+// UpdateOrder updates the display order of statuses in a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-order-of-status
+func (s *ProjectStatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, statusIDs []int) ([]*Status, error) {
+	v, err := s.base.UpdateOrder(ctx, projectIDOrKey, statusIDs)
+	return statusesFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -431,6 +487,26 @@ func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) Reque
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectStatusOptionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectStatusOptionService provides a domain-specific set of option builders
+// for operations within the ProjectStatusService.
+type ProjectStatusOptionService struct {
+	base *core.OptionService
+}
+
+// WithColor sets the status color.
+func (s *ProjectStatusOptionService) WithColor(color string) RequestOption {
+	return s.base.WithColor(color)
+}
+
+// WithName sets the status name.
+func (s *ProjectStatusOptionService) WithName(name string) RequestOption {
+	return s.base.WithName(name)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ProjectWebhookOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -509,6 +585,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 		base:       project.NewService(method),
 		Activity:   newProjectActivityService(method, option),
 		Category:   newProjectCategoryService(method),
+		Status:     newProjectStatusService(method, option),
 		User:       newProjectUserService(method, option),
 		SharedFile: newProjectSharedFileService(method),
 		Webhook:    newProjectWebhookService(method, option),
@@ -527,6 +604,13 @@ func newProjectActivityService(method *core.Method, option *core.OptionService) 
 func newProjectCategoryService(method *core.Method) *ProjectCategoryService {
 	return &ProjectCategoryService{
 		base: project.NewCategoryService(method),
+	}
+}
+
+func newProjectStatusService(method *core.Method, option *core.OptionService) *ProjectStatusService {
+	return &ProjectStatusService{
+		base:   project.NewStatusService(method),
+		Option: newProjectStatusOptionService(option),
 	}
 }
 
@@ -554,6 +638,10 @@ func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
 	return &ProjectOptionService{
 		base: option,
 	}
+}
+
+func newProjectStatusOptionService(option *core.OptionService) *ProjectStatusOptionService {
+	return &ProjectStatusOptionService{base: option}
 }
 
 func newWebhookOptionService(option *core.OptionService) *ProjectWebhookOptionService {
