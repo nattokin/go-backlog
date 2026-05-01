@@ -20,6 +20,13 @@ type categoryFixtures struct {
 	List       []*backlog.Category
 }
 
+type issueTypeFixtures struct {
+	SingleJSON string
+	Single     *backlog.IssueType
+	ListJSON   string
+	List       []*backlog.IssueType
+}
+
 type statusFixtures struct {
 	SingleJSON string
 	Single     *backlog.Status
@@ -160,6 +167,58 @@ var Category = categoryFixtures{
 		{
 			ID:           13,
 			Name:         "Feature",
+			DisplayOrder: 1,
+		},
+	},
+}
+
+// IssueType provides test fixtures for IssueType-related tests.
+var IssueType = issueTypeFixtures{
+	SingleJSON: `
+{
+    "id": 1,
+    "projectId": 6,
+    "name": "Bug",
+    "color": "#e30000",
+    "displayOrder": 0
+}
+`,
+	Single: &backlog.IssueType{
+		ID:        1,
+		ProjectID: 6,
+		Name:      "Bug",
+		Color:     "#e30000",
+	},
+	ListJSON: `
+[
+    {
+        "id": 1,
+        "projectId": 6,
+        "name": "Bug",
+        "color": "#e30000",
+        "displayOrder": 0
+    },
+    {
+        "id": 2,
+        "projectId": 6,
+        "name": "Task",
+        "color": "#7ea800",
+        "displayOrder": 1
+    }
+]
+`,
+	List: []*backlog.IssueType{
+		{
+			ID:        1,
+			ProjectID: 6,
+			Name:      "Bug",
+			Color:     "#e30000",
+		},
+		{
+			ID:           2,
+			ProjectID:    6,
+			Name:         "Task",
+			Color:        "#7ea800",
 			DisplayOrder: 1,
 		},
 	},
