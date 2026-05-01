@@ -141,10 +141,13 @@ type Star struct {
 	Created   time.Time `json:"created,omitempty"`
 }
 
-// Status represents any status.
+// Status represents a project status that can be assigned to issues.
 type Status struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID           int    `json:"id,omitempty"`
+	ProjectID    int    `json:"projectId,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Color        string `json:"color,omitempty"`
+	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
 // Tag represents one of tags in Wiki.

@@ -164,10 +164,13 @@ type Star struct {
 	Created   time.Time
 }
 
-// Status represents any status.
+// Status represents a project status that can be assigned to issues.
 type Status struct {
-	ID   int
-	Name string
+	ID           int
+	ProjectID    int
+	Name         string
+	Color        string
+	DisplayOrder int
 }
 
 // Tag represents one of tags in Wiki.
@@ -469,9 +472,23 @@ func statusFromModel(m *model.Status) *Status {
 		return nil
 	}
 	return &Status{
-		ID:   m.ID,
-		Name: m.Name,
+		ID:           m.ID,
+		ProjectID:    m.ProjectID,
+		Name:         m.Name,
+		Color:        m.Color,
+		DisplayOrder: m.DisplayOrder,
 	}
+}
+
+func statusesFromModel(ms []*model.Status) []*Status {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Status, len(ms))
+	for i, v := range ms {
+		result[i] = statusFromModel(v)
+	}
+	return result
 }
 
 func tagFromModel(m *model.Tag) *Tag {

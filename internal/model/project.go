@@ -12,17 +12,8 @@ type Project struct {
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
-// DiskUsageProject represents project's disk usage.
+// DiskUsageProject represents disk usage of a specific project.
 type DiskUsageProject struct {
 	DiskUsageBase
 	ProjectID int `json:"projectId,omitempty"`
-}
-
-// ProjectStatus represents a status defined within a project.
-type ProjectStatus struct {
-	ID           int    `json:"id,omitempty"`
-	ProjectID    int    `json:"projectId,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Color        string `json:"color,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
