@@ -130,6 +130,22 @@ func (s *OptionService) WithSummary(summary string) RequestOption {
 	return nonEmptyStringOption(ParamSummary, summary)
 }
 
+// WithTemplateDescription returns an option to set the `templateDescription` parameter.
+func (s *OptionService) WithTemplateDescription(description string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamTemplateDescription,
+		SetFunc: setStringFunc(ParamTemplateDescription, description),
+	}
+}
+
+// WithTemplateSummary returns an option to set the `templateSummary` parameter.
+func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamTemplateSummary,
+		SetFunc: setStringFunc(ParamTemplateSummary, summary),
+	}
+}
+
 // WithTextFormattingRule returns a option that sets the `textFormattingRule` field.
 func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOption {
 	return &APIParamOption{
