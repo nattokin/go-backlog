@@ -191,17 +191,3 @@ type WatchingItem struct {
 	Created             time.Time `json:"created,omitempty"`
 	Updated             time.Time `json:"updated,omitempty"`
 }
-
-// Webhook represents webhook of Backlog.
-type Webhook struct {
-	ID              int       `json:"id,omitempty"`
-	Name            string    `json:"name,omitempty"`
-	Description     string    `json:"description,omitempty"`
-	HookURL         string    `json:"hookUrl,omitempty"`
-	AllEvent        bool      `json:"allEvent,omitempty"`
-	ActivityTypeIDs []int     `json:"activityTypeIds,omitempty"`
-	CreatedUser     *User     `json:"createdUser,omitempty"`
-	Created         time.Time `json:"created,omitempty"`
-	UpdatedUser     *User     `json:"updatedUser,omitempty"`
-	Updated         time.Time `json:"updated,omitempty"`
-}
