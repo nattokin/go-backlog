@@ -45,20 +45,35 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 
 // Create adds a new custom field to a project.
 //
-// typeID specifies the custom field type:
-//   - 1: Text
-//   - 2: Sentence
-//   - 3: Number
-//   - 4: Date
-//   - 5: Single List
-//   - 6: Multiple List
-//   - 7: Checkbox
-//   - 8: Radio
+// typeID specifies the custom field type. Use the model.CustomFieldType constants:
+//   - model.CustomFieldTypeText (1)
+//   - model.CustomFieldTypeSentence (2)
+//   - model.CustomFieldTypeNumber (3)
+//   - model.CustomFieldTypeDate (4)
+//   - model.CustomFieldTypeSingleList (5)
+//   - model.CustomFieldTypeMultipleList (6)
+//   - model.CustomFieldTypeCheckbox (7)
+//   - model.CustomFieldTypeRadio (8)
 //
-// This method supports the following options:
+// Common options (all types):
 //   - WithDescription
 //   - WithRequired
 //   - WithApplicableIssueTypeIDs
+//
+// Number type (CustomFieldTypeNumber) additional options:
+//   - WithMin, WithMax, WithInitialValue (float64)
+//   - WithUnit
+//
+// Date type (CustomFieldTypeDate) additional options:
+//   - WithInitialDateMin, WithInitialDateMax ("yyyy-MM-dd")
+//   - WithInitialValueType (0: today, 1: specified date, 2: today+N)
+//   - WithInitialDate ("yyyy-MM-dd", when initialValueType=1)
+//   - WithInitialShift (days, when initialValueType=2)
+//
+// List type (CustomFieldTypeSingleList/MultipleList/Checkbox/Radio) additional options:
+//   - WithItems
+//   - WithAllowInput
+//   - WithAllowAddItem
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, typeID int, name string, opts ...core.RequestOption) (*model.CustomField, error) {
@@ -74,6 +89,12 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 	validTypes := []core.APIParamOptionType{
 		core.ParamTypeID, core.ParamName,
 		core.ParamDescription, core.ParamRequired, core.ParamApplicableIssueTypeIDs,
+		// Number type
+		core.ParamMin, core.ParamMax, core.ParamInitialValue, core.ParamUnit,
+		// Date type
+		core.ParamInitialValueType, core.ParamInitialDate, core.ParamInitialShift,
+		// List type
+		core.ParamItems, core.ParamAllowInput, core.ParamAllowAddItem,
 	}
 	options := append([]core.RequestOption{option.WithTypeID(typeID), option.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
@@ -213,7 +234,9 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 		return nil, err
 	}
 	form := url.Values{}
-	option.Set(form)
+	if err := option.Set(form); err != nil {
+		return nil, err
+	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
 	resp, err := s.method.Patch(ctx, spath, form)

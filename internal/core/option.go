@@ -12,6 +12,8 @@ const (
 	ParamActualHours                       APIParamOptionType = "actualHours"
 	ParamAll                               APIParamOptionType = "all"
 	ParamAllEvent                          APIParamOptionType = "allEvent"
+	ParamAllowAddItem                      APIParamOptionType = "allowAddItem"
+	ParamAllowInput                        APIParamOptionType = "allowInput"
 	ParamApplicableIssueTypeIDs            APIParamOptionType = "applicableIssueTypes[]"
 	ParamArchived                          APIParamOptionType = "archived"
 	ParamAssigneeID                        APIParamOptionType = "assigneeId"
@@ -38,16 +40,23 @@ const (
 	ParamHasDueDate                        APIParamOptionType = "hasDueDate"
 	ParamHookURL                           APIParamOptionType = "hookUrl"
 	ParamIDs                               APIParamOptionType = "id[]"
+	ParamInitialDate                       APIParamOptionType = "initialDate"
+	ParamInitialShift                      APIParamOptionType = "initialShift"
+	ParamInitialValue                      APIParamOptionType = "initialValue"
+	ParamInitialValueType                  APIParamOptionType = "initialValueType"
 	ParamIssueID                           APIParamOptionType = "issueId"
 	ParamIssueIDs                          APIParamOptionType = "issueId[]"
 	ParamIssueTypeID                       APIParamOptionType = "issueTypeId"
 	ParamIssueTypeIDs                      APIParamOptionType = "issueTypeId[]"
+	ParamItems                             APIParamOptionType = "items[]"
 	ParamKey                               APIParamOptionType = "key"
 	ParamKeyword                           APIParamOptionType = "keyword"
 	ParamMailAddress                       APIParamOptionType = "mailAddress"
 	ParamMailNotify                        APIParamOptionType = "mailNotify"
+	ParamMax                               APIParamOptionType = "max"
 	ParamMaxID                             APIParamOptionType = "maxId"
 	ParamMilestoneIDs                      APIParamOptionType = "milestoneId[]"
+	ParamMin                               APIParamOptionType = "min"
 	ParamMinID                             APIParamOptionType = "minId"
 	ParamName                              APIParamOptionType = "name"
 	ParamNotifiedUserIDs                   APIParamOptionType = "notifiedUserId[]"
@@ -82,6 +91,7 @@ const (
 	ParamTemplateSummary                   APIParamOptionType = "templateSummary"
 	ParamTextFormattingRule                APIParamOptionType = "textFormattingRule"
 	ParamTypeID                            APIParamOptionType = "typeId"
+	ParamUnit                              APIParamOptionType = "unit"
 	ParamUpdatedSince                      APIParamOptionType = "updatedSince"
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
 	ParamUserID                            APIParamOptionType = "userId"
@@ -235,6 +245,14 @@ func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
 	}
 }
 
+// setFloat64Func returns a SetFunc that calls v.Set with the float64 formatted without trailing zeros.
+func setFloat64Func(key APIParamOptionType, value float64) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.FormatFloat(value, 'f', -1, 64))
+		return nil
+	}
+}
+
 // setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
 func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
 	return func(v url.Values) error {
@@ -256,6 +274,16 @@ func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
 	return func(v url.Values) error {
 		for _, val := range values {
 			v.Add(key.Value(), strconv.Itoa(val))
+		}
+		return nil
+	}
+}
+
+// addStringFunc returns a SetFunc that calls v.Add for each string in the slice.
+func addStringFunc(key APIParamOptionType, values []string) func(url.Values) error {
+	return func(v url.Values) error {
+		for _, val := range values {
+			v.Add(key.Value(), val)
 		}
 		return nil
 	}
