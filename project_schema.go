@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
@@ -49,7 +50,7 @@ func (s *ProjectIssueTypeService) Create(ctx context.Context, projectIDOrKey, na
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
 func (s *ProjectIssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option RequestOption, opts ...RequestOption) (*IssueType, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, issueTypeID, toCoreOption(option), toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, issueTypeID, option, toCoreOptions(opts)...)
 	return issueTypeFromModel(v), convertError(err)
 }
 
@@ -106,7 +107,20 @@ func newProjectIssueTypeService(method *core.Method, option *core.OptionService)
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-func issueTypesFromModel(ms []*issueTypeModel) []*IssueType {
+func issueTypeFromModel(m *model.IssueType) *IssueType {
+	if m == nil {
+		return nil
+	}
+	return &IssueType{
+		ID:           m.ID,
+		ProjectID:    m.ProjectID,
+		Name:         m.Name,
+		Color:        m.Color,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func issueTypesFromModel(ms []*model.IssueType) []*IssueType {
 	if ms == nil {
 		return nil
 	}
