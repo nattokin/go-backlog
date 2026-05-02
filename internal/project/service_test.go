@@ -1163,6 +1163,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		issueTypeID    int
+		option         core.RequestOption
 		opts           []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
@@ -1172,10 +1173,8 @@ func TestIssueTypeService_Update(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
-			opts: []core.RequestOption{
-				o.WithName("Bug Updated"),
-				o.WithColor("#990000"),
-			},
+			option:         o.WithName("Bug Updated"),
+			opts:           []core.RequestOption{o.WithColor("#990000")},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/issueTypes/1", spath)
@@ -1186,12 +1185,14 @@ func TestIssueTypeService_Update(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"success-without-option": {
+		"success-option-only": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
+			option:         o.WithName("Bug Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/issueTypes/1", spath)
+				assert.Equal(t, "Bug Updated", form.Get("name"))
 				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
 			},
 
@@ -1200,22 +1201,25 @@ func TestIssueTypeService_Update(t *testing.T) {
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 			issueTypeID:    1,
+			option:         o.WithName("Bug Updated"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-issueTypeID-zero": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    0,
+			option:         o.WithName("Bug Updated"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			option:         mock.NewInvalidTypeOption(),
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
+			option:         o.WithName("Bug Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -1226,6 +1230,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
+			option:         o.WithName("Bug Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -1245,7 +1250,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			}
 			s := project.NewIssueTypeService(method)
 
-			issueType, err := s.Update(context.Background(), tc.projectIDOrKey, tc.issueTypeID, tc.opts...)
+			issueType, err := s.Update(context.Background(), tc.projectIDOrKey, tc.issueTypeID, tc.option, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -1890,7 +1895,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"IssueTypeService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
-			s.Update(ctx, "TEST", 1) //nolint:errcheck
+			s.Update(ctx, "TEST", 1, o.WithName("Bug Updated")) //nolint:errcheck
 		}},
 		{"IssueTypeService.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)

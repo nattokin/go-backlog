@@ -328,7 +328,7 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 // Update updates an issue type in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
-func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, opts ...core.RequestOption) (*model.IssueType, error) {
+func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option core.RequestOption, opts ...core.RequestOption) (*model.IssueType, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -338,7 +338,8 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	options := append([]core.RequestOption{option}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
