@@ -130,6 +130,26 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamSummary.Value(),
 			wantValue: "summary",
 		},
+		"WithTemplateDescription-empty": {
+			option:    o.WithTemplateDescription(""),
+			key:       core.ParamTemplateDescription.Value(),
+			wantValue: "",
+		},
+		"WithTemplateDescription-non-empty": {
+			option:    o.WithTemplateDescription("default description"),
+			key:       core.ParamTemplateDescription.Value(),
+			wantValue: "default description",
+		},
+		"WithTemplateSummary-empty": {
+			option:    o.WithTemplateSummary(""),
+			key:       core.ParamTemplateSummary.Value(),
+			wantValue: "",
+		},
+		"WithTemplateSummary-non-empty": {
+			option:    o.WithTemplateSummary("default summary"),
+			key:       core.ParamTemplateSummary.Value(),
+			wantValue: "default summary",
+		},
 		"WithOrder-asc": {
 			option:    o.WithOrder(model.OrderAsc),
 			key:       core.ParamOrder.Value(),
