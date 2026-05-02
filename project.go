@@ -34,6 +34,7 @@ type ProjectService struct {
 
 	Activity   *ProjectActivityService
 	Category   *ProjectCategoryService
+	IssueType  *ProjectIssueTypeService
 	Status     *ProjectStatusService
 	User       *ProjectUserService
 	SharedFile *ProjectSharedFileService
@@ -172,6 +173,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 		base:       project.NewService(method),
 		Activity:   newProjectActivityService(method, option),
 		Category:   newProjectCategoryService(method),
+		IssueType:  newProjectIssueTypeService(method, option),
 		Status:     newProjectStatusService(method, option),
 		User:       newProjectUserService(method, option),
 		SharedFile: newProjectSharedFileService(method),
