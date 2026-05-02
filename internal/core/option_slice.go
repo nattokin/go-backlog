@@ -28,6 +28,15 @@ func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return intSliceOption(ParamAttachmentIDs, "attachmentId", ids)
 }
 
+// WithItems returns an option to set the `items[]` parameter for List type custom fields.
+// Each string becomes a selectable list item.
+func (s *OptionService) WithItems(items []string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamItems,
+		SetFunc: addStringFunc(ParamItems, items),
+	}
+}
+
 // WithProjectIDs returns an option to filter by project IDs.
 func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
 	return intSliceOption(ParamProjectIDs, "projectId", ids)

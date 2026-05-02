@@ -27,6 +27,21 @@ func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
 	return positiveIntOption(ParamEstimatedHours, hours)
 }
 
+// WithInitialShift returns an option to set the `initialShift` parameter for Date type custom fields.
+// Used when initialValueType is 2 (today + N days).
+func (s *OptionService) WithInitialShift(days int) RequestOption {
+	return &APIParamOption{
+		Type:    ParamInitialShift,
+		SetFunc: setIntFunc(ParamInitialShift, days),
+	}
+}
+
+// WithInitialValueType returns an option to set the `initialValueType` parameter for Date type custom fields.
+// 0: Today, 1: Specified date, 2: Today + initialShift days.
+func (s *OptionService) WithInitialValueType(initialValueType int) RequestOption {
+	return intRangeOption(ParamInitialValueType, initialValueType, 0, 2)
+}
+
 // WithIssueID returns an option to set the `issueId` parameter.
 func (s *OptionService) WithIssueID(id int) RequestOption {
 	return positiveIntOption(ParamIssueID, id)
@@ -111,14 +126,14 @@ func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
-// WithTypeID returns an option to set the `typeId` parameter.
-func (s *OptionService) WithTypeID(typeID int) RequestOption {
-	return positiveIntOption(ParamTypeID, typeID)
-}
-
 // WithStatusID returns an option to set the `statusId` parameter.
 func (s *OptionService) WithStatusID(id int) RequestOption {
 	return positiveIntOption(ParamStatusID, id)
+}
+
+// WithTypeID returns an option to set the `typeId` parameter.
+func (s *OptionService) WithTypeID(typeID int) RequestOption {
+	return positiveIntOption(ParamTypeID, typeID)
 }
 
 // WithUserID returns a option to set the user's ID.

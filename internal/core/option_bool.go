@@ -10,6 +10,18 @@ func (s *OptionService) WithAllEvent(enabled bool) RequestOption {
 	return boolOption(ParamAllEvent, enabled)
 }
 
+// WithAllowAddItem returns an option to set the `allowAddItem` parameter for List type custom fields.
+// When true, users can add new items to the list from the issue form.
+func (s *OptionService) WithAllowAddItem(allowAddItem bool) RequestOption {
+	return boolOption(ParamAllowAddItem, allowAddItem)
+}
+
+// WithAllowInput returns an option to set the `allowInput` parameter for List type custom fields.
+// When true, users can enter a free-text value in addition to selecting from the list.
+func (s *OptionService) WithAllowInput(allowInput bool) RequestOption {
+	return boolOption(ParamAllowInput, allowInput)
+}
+
 // WithArchived returns an option to set the `archived` parameter.
 func (s *OptionService) WithArchived(enabled bool) RequestOption {
 	// apiArchived and queryArchived share the same string value "archived",
