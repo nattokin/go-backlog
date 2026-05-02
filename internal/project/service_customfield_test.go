@@ -194,9 +194,19 @@ func TestCustomFieldService_Create(t *testing.T) {
 }
 
 func TestCustomFieldService_Update(t *testing.T) {
+	makeMockPatchFn := func(t *testing.T, wantSpath, wantName string) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+		t.Helper()
+		return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+			assert.Equal(t, wantSpath, spath)
+			assert.Equal(t, wantName, form.Get("name"))
+			return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+		}
+	}
+
 	cases := map[string]struct {
 		projectIDOrKey string
 		customFieldID  int
+		option         core.RequestOption
 		opts           []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
@@ -206,30 +216,26 @@ func TestCustomFieldService_Update(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			opts:           []core.RequestOption{(&core.OptionService{}).WithName("Sprint Updated")},
-
-			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/customFields/1", spath)
-				assert.Equal(t, "Sprint Updated", form.Get("name"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
-			},
+			option:         (&core.OptionService{}).WithName("Sprint Updated"),
 
 			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 			customFieldID:  1,
+			option:         (&core.OptionService{}).WithName("Sprint Updated"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-customFieldID-zero": {
 			projectIDOrKey: "TEST",
 			customFieldID:  0,
+			option:         (&core.OptionService{}).WithName("Sprint Updated"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			opts:           []core.RequestOption{(&core.OptionService{}).WithName("Sprint Updated")},
+			option:         (&core.OptionService{}).WithName("Sprint Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -240,7 +246,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			opts:           []core.RequestOption{(&core.OptionService{}).WithName("Sprint Updated")},
+			option:         (&core.OptionService{}).WithName("Sprint Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -257,10 +263,12 @@ func TestCustomFieldService_Update(t *testing.T) {
 			method := mock.NewMethod(t)
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
+			} else if tc.wantErrType == nil {
+				method.Patch = makeMockPatchFn(t, "projects/TEST/customFields/1", "Sprint Updated")
 			}
 			s := project.NewCustomFieldService(method)
 
-			field, err := s.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.opts...)
+			field, err := s.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.option, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

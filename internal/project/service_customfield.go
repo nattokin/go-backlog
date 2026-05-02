@@ -96,14 +96,14 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 
 // Update updates a custom field in a project.
 //
-// This method supports the following options:
+// At least one option must be provided. Supported options:
 //   - WithName
 //   - WithDescription
 //   - WithRequired
 //   - WithApplicableIssueTypeIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
-func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, opts ...core.RequestOption) (*model.CustomField, error) {
+func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option core.RequestOption, opts ...core.RequestOption) (*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -116,7 +116,8 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 		core.ParamName, core.ParamDescription,
 		core.ParamRequired, core.ParamApplicableIssueTypeIDs,
 	}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	options := append([]core.RequestOption{option}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
