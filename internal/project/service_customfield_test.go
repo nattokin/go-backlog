@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -102,7 +103,7 @@ func TestCustomFieldService_All(t *testing.T) {
 func TestCustomFieldService_Create(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		typeID         int
+		fieldType      model.CustomFieldType
 		name           string
 		opts           []core.RequestOption
 
@@ -112,7 +113,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
-			typeID:         1,
+			fieldType:      model.CustomFieldTypeText,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -126,25 +127,25 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-			typeID:         1,
+			fieldType:      model.CustomFieldTypeText,
 			name:           "Sprint",
 			wantErrType:    &core.ValidationError{},
 		},
-		"error-validation-typeID-zero": {
+		"error-validation-fieldType-zero": {
 			projectIDOrKey: "TEST",
-			typeID:         0,
+			fieldType:      0,
 			name:           "Sprint",
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-name-empty": {
 			projectIDOrKey: "TEST",
-			typeID:         1,
+			fieldType:      model.CustomFieldTypeText,
 			name:           "",
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
-			typeID:         1,
+			fieldType:      model.CustomFieldTypeText,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -155,7 +156,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
-			typeID:         1,
+			fieldType:      model.CustomFieldTypeText,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -176,7 +177,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			}
 			s := project.NewCustomFieldService(method)
 
-			field, err := s.Create(context.Background(), tc.projectIDOrKey, tc.typeID, tc.name, tc.opts...)
+			field, err := s.Create(context.Background(), tc.projectIDOrKey, tc.fieldType, tc.name, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
@@ -328,7 +329,7 @@ func TestCustomFieldService_Delete(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-
+		
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},

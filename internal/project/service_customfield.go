@@ -45,15 +45,15 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 
 // Create adds a new custom field to a project.
 //
-// typeID specifies the custom field type. Use the model.CustomFieldType constants:
-//   - model.CustomFieldTypeText (1)
-//   - model.CustomFieldTypeSentence (2)
-//   - model.CustomFieldTypeNumber (3)
-//   - model.CustomFieldTypeDate (4)
-//   - model.CustomFieldTypeSingleList (5)
-//   - model.CustomFieldTypeMultipleList (6)
-//   - model.CustomFieldTypeCheckbox (7)
-//   - model.CustomFieldTypeRadio (8)
+// fieldType specifies the custom field type. Use the model.CustomFieldType constants:
+//   - model.CustomFieldTypeText
+//   - model.CustomFieldTypeSentence
+//   - model.CustomFieldTypeNumber
+//   - model.CustomFieldTypeDate
+//   - model.CustomFieldTypeSingleList
+//   - model.CustomFieldTypeMultipleList
+//   - model.CustomFieldTypeCheckbox
+//   - model.CustomFieldTypeRadio
 //
 // Common options (all types):
 //   - WithDescription
@@ -76,12 +76,12 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 //   - WithAllowAddItem
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
-func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, typeID int, name string, opts ...core.RequestOption) (*model.CustomField, error) {
+func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType model.CustomFieldType, name string, opts ...core.RequestOption) (*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
-	if typeID < 1 {
-		return nil, core.NewValidationError("typeId must not be less than 1")
+	if fieldType < 1 {
+		return nil, core.NewValidationError("fieldType must not be less than 1")
 	}
 
 	option := &core.OptionService{}
@@ -96,7 +96,7 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 		// List type
 		core.ParamItems, core.ParamAllowInput, core.ParamAllowAddItem,
 	}
-	options := append([]core.RequestOption{option.WithTypeID(typeID), option.WithName(name)}, opts...)
+	options := append([]core.RequestOption{option.WithFieldType(fieldType), option.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

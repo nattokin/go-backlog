@@ -27,6 +27,11 @@ func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
 	return positiveIntOption(ParamEstimatedHours, hours)
 }
 
+// WithFieldType returns an option to set the `typeId` parameter for custom fields.
+func (s *OptionService) WithFieldType(fieldType model.CustomFieldType) RequestOption {
+	return positiveIntOption(ParamTypeID, int(fieldType))
+}
+
 // WithInitialShift returns an option to set the `initialShift` parameter for Date type custom fields.
 // Used when initialValueType is 2 (today + N days).
 func (s *OptionService) WithInitialShift(days int) RequestOption {
@@ -129,11 +134,6 @@ func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 // WithStatusID returns an option to set the `statusId` parameter.
 func (s *OptionService) WithStatusID(id int) RequestOption {
 	return positiveIntOption(ParamStatusID, id)
-}
-
-// WithTypeID returns an option to set the `typeId` parameter.
-func (s *OptionService) WithTypeID(typeID int) RequestOption {
-	return positiveIntOption(ParamTypeID, typeID)
 }
 
 // WithUserID returns a option to set the user's ID.
