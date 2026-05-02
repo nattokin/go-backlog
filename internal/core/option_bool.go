@@ -43,6 +43,11 @@ func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) Requ
 	return boolOption(ParamProjectLeaderCanEditProjectLeader, enabled)
 }
 
+// WithRequired returns an option to set the `required` parameter.
+func (s *OptionService) WithRequired(required bool) RequestOption {
+	return boolOption(ParamRequired, required)
+}
+
 // WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 	return boolOption(ParamSendMail, enabled)

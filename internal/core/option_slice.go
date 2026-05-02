@@ -18,6 +18,11 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	}
 }
 
+// WithApplicableIssueTypeIDs returns an option to set the `applicableIssueTypes[]` parameter.
+func (s *OptionService) WithApplicableIssueTypeIDs(ids []int) RequestOption {
+	return intSliceOption(ParamApplicableIssueTypeIDs, "applicableIssueTypes", ids)
+}
+
 // WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
 func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return intSliceOption(ParamAttachmentIDs, "attachmentId", ids)

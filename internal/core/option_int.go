@@ -111,6 +111,11 @@ func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
+// WithTypeID returns an option to set the `typeId` parameter.
+func (s *OptionService) WithTypeID(typeID int) RequestOption {
+	return positiveIntOption(ParamTypeID, typeID)
+}
+
 // WithStatusID returns an option to set the `statusId` parameter.
 func (s *OptionService) WithStatusID(id int) RequestOption {
 	return positiveIntOption(ParamStatusID, id)
