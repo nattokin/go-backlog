@@ -298,7 +298,7 @@ func (s *IssueTypeService) All(ctx context.Context, projectIDOrKey string) ([]*m
 // Create adds a new issue type to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-type
-func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string) (*model.IssueType, error) {
+func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...core.RequestOption) (*model.IssueType, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -316,6 +316,11 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 	form := url.Values{}
 	nameOpt.Set(form)
 	colorOpt.Set(form)
+
+	validTypes := []core.APIParamOptionType{core.ParamTemplateSummary, core.ParamTemplateDescription}
+	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+		return nil, err
+	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
 	resp, err := s.method.Post(ctx, spath, form)
@@ -343,7 +348,7 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 	}
 
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
+	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
 	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
 		return nil, err
 	}

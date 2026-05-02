@@ -76,6 +76,8 @@ const (
 	ParamStatusIDs                         APIParamOptionType = "statusId[]"
 	ParamSubtaskingEnabled                 APIParamOptionType = "subtaskingEnabled"
 	ParamSummary                           APIParamOptionType = "summary"
+	ParamTemplateDescription               APIParamOptionType = "templateDescription"
+	ParamTemplateSummary                   APIParamOptionType = "templateSummary"
 	ParamTextFormattingRule                APIParamOptionType = "textFormattingRule"
 	ParamUpdatedSince                      APIParamOptionType = "updatedSince"
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
