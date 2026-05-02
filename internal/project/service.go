@@ -303,22 +303,11 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 		return nil, err
 	}
 
-	opt := &core.OptionService{}
-	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
-		return nil, err
-	}
-	colorOpt := opt.WithColor(color)
-	if err := colorOpt.Check(); err != nil {
-		return nil, err
-	}
-
+	option := &core.OptionService{}
 	form := url.Values{}
-	nameOpt.Set(form)
-	colorOpt.Set(form)
-
-	validTypes := []core.APIParamOptionType{core.ParamTemplateSummary, core.ParamTemplateDescription}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
+	options := append([]core.RequestOption{option.WithName(name), option.WithColor(color)}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
