@@ -46,88 +46,6 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 ## Supported API endpoints
 
-### Client.[Space](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceService)
-
-- [Get Space](https://developer.nulab.com/docs/backlog/api/2/get-space) - Returns information about your space.
-- [Get Space Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-space-disk-usage) - Returns disk usage of your space.
-- [Get Space Notification](https://developer.nulab.com/docs/backlog/api/2/get-space-notification) - Returns the space notification.
-- [Update Space Notification](https://developer.nulab.com/docs/backlog/api/2/update-space-notification) - Updates the space notification.
-
-### Client.Space.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceActivityService)
-
-- [Get Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-recent-updates) - Returns recent updates in the space.
-
-### Client.Space.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceAttachmentService)
-
-- [Post Attachment File](https://developer.nulab.com/docs/backlog/api/2/post-attachment-file/) - Posts an attachment file for issue or wiki, and returns its ID.
-
-### Client.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#UserService)
-
-- [Get User List](https://developer.nulab.com/docs/backlog/api/2/get-user-list) - Returns a list of users in your space.
-- [Get User](https://developer.nulab.com/docs/backlog/api/2/get-user) - Returns information about a specific user.
-- [Add User](https://developer.nulab.com/docs/backlog/api/2/add-user) - Adds new user to the space. "Project Administrator" cannot add "Admin" user. You can't use this API at `backlog.com` space.
-- [Update User](https://developer.nulab.com/docs/backlog/api/2/update-user) - Updates information about a user (Note: Not available at backlog.com).
-- [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes a user from the space (Note: Not available at backlog.com).
-- [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
-
-### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
-- [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
-
-### Client.User.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#UserRecentlyViewedService)
-
-- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-issues) - Returns a list of recently viewed issues.
-- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-projects) - Returns a list of recently viewed projects.
-- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-wikis) - Returns a list of recently viewed wiki pages.
-
-### Client.[Project](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectService)
-
-- [Get Project List](https://developer.nulab.com/docs/backlog/api/2/get-project-list) - Returns a list of projects.
-- [Add Project](https://developer.nulab.com/docs/backlog/api/2/add-project) - Adds a new project.
-- [Get Project](https://developer.nulab.com/docs/backlog/api/2/get-project) - Returns information about a project.
-- [Update Project](https://developer.nulab.com/docs/backlog/api/2/update-project) - Updates information about project.
-- [Delete Project](https://developer.nulab.com/docs/backlog/api/2/delete-project) - Deletes a project.
-- [Get Project Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage/) - Returns disk usage of a project.
-
-### Client.Project.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectActivityService)
-
-- [Get Project Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates) - Returns recent updates in the project.
-
-### Client.Project.[Category](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectCategoryService)
-
-- [Get Category List](https://developer.nulab.com/docs/backlog/api/2/get-category-list/) - Returns a list of categories in a project.
-- [Add Category](https://developer.nulab.com/docs/backlog/api/2/add-category/) - Adds a new category to a project.
-- [Update Category](https://developer.nulab.com/docs/backlog/api/2/update-category/) - Updates a category in a project.
-- [Delete Category](https://developer.nulab.com/docs/backlog/api/2/delete-category/) - Deletes a category from a project.
-
-### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
-
-- [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a project.
-
-
-### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
-
-- [Add Project User](https://developer.nulab.com/docs/backlog/api/2/add-project-user) - Adds a user to the list of project members.
-- [Get Project User List](https://developer.nulab.com/docs/backlog/api/2/get-project-user-list) - Returns a list of project members.
-- [Delete Project User](https://developer.nulab.com/docs/backlog/api/2/delete-project-user) - Removes a user from the list of project members.
-- [Add Project Administrator](https://developer.nulab.com/docs/backlog/api/2/add-project-administrator) - Adds the Project Administrator role to a user.
-- [Get List of Project Administrators](https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators) - Returns a list of users with the Project Administrator role.
-- [Delete Project Administrator](https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator) - Removes the Project Administrator role from a user.
-
-### Client.Project.[Webhook](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectWebhookService)
-
-- [Get List of Webhooks](https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/) - Returns a list of webhooks in a project.
-- [Get Webhook](https://developer.nulab.com/docs/backlog/api/2/get-webhook/) - Returns information about a specific webhook.
-- [Add Webhook](https://developer.nulab.com/docs/backlog/api/2/add-webhook/) - Adds a new webhook to a project.
-- [Update Webhook](https://developer.nulab.com/docs/backlog/api/2/update-webhook/) - Updates a webhook in a project.
-- [Delete Webhook](https://developer.nulab.com/docs/backlog/api/2/delete-webhook/) - Deletes a webhook from a project.
-
-### Client.Project.[Version](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectVersionService)
-
-- [Get Version/Milestone List](https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/) - Returns a list of versions/milestones in a project.
-- [Add Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/) - Adds a new version/milestone to a project.
-- [Update Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/) - Updates a version/milestone in a project.
-- [Delete Version](https://developer.nulab.com/docs/backlog/api/2/delete-version/) - Deletes a version/milestone from a project.
-
 ### Client.[Issue](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueService)
 
 - [Get Issue List](https://developer.nulab.com/docs/backlog/api/2/get-issue-list) - Returns a list of issues.
@@ -159,10 +77,60 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Link Shared Files to Issue](https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue) - Links shared files to an issue.
 - [Remove Link to Shared File from Issue](https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue) - Removes a shared file link from an issue.
 
-### Client.[Repository](https://pkg.go.dev/github.com/nattokin/go-backlog#RepositoryService)
+### Client.[Project](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectService)
 
-- [Get List of Git Repositories](https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/) - Returns a list of Git repositories in a project.
-- [Get Git Repository](https://developer.nulab.com/docs/backlog/api/2/get-git-repository/) - Returns information about a specific Git repository.
+- [Get Project List](https://developer.nulab.com/docs/backlog/api/2/get-project-list) - Returns a list of projects.
+- [Add Project](https://developer.nulab.com/docs/backlog/api/2/add-project) - Adds a new project.
+- [Get Project](https://developer.nulab.com/docs/backlog/api/2/get-project) - Returns information about a project.
+- [Update Project](https://developer.nulab.com/docs/backlog/api/2/update-project) - Updates information about project.
+- [Delete Project](https://developer.nulab.com/docs/backlog/api/2/delete-project) - Deletes a project.
+- [Get Project Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage/) - Returns disk usage of a project.
+
+### Client.Project.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectActivityService)
+
+- [Get Project Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates) - Returns recent updates in the project.
+
+### Client.Project.[Category](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectCategoryService)
+
+- [Get Category List](https://developer.nulab.com/docs/backlog/api/2/get-category-list/) - Returns a list of categories in a project.
+- [Add Category](https://developer.nulab.com/docs/backlog/api/2/add-category/) - Adds a new category to a project.
+- [Update Category](https://developer.nulab.com/docs/backlog/api/2/update-category/) - Updates a category in a project.
+- [Delete Category](https://developer.nulab.com/docs/backlog/api/2/delete-category/) - Deletes a category from a project.
+
+### Client.Project.[IssueType](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectIssueTypeService)
+
+- [Get Issue Type List](https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list/) - Returns a list of issue types in a project.
+- [Add Issue Type](https://developer.nulab.com/docs/backlog/api/2/add-issue-type/) - Adds a new issue type to a project.
+- [Update Issue Type](https://developer.nulab.com/docs/backlog/api/2/update-issue-type/) - Updates an issue type in a project.
+- [Delete Issue Type](https://developer.nulab.com/docs/backlog/api/2/delete-issue-type/) - Deletes an issue type from a project.
+
+### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
+
+- [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a project.
+
+### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
+
+- [Add Project User](https://developer.nulab.com/docs/backlog/api/2/add-project-user) - Adds a user to the list of project members.
+- [Get Project User List](https://developer.nulab.com/docs/backlog/api/2/get-project-user-list) - Returns a list of project members.
+- [Delete Project User](https://developer.nulab.com/docs/backlog/api/2/delete-project-user) - Removes a user from the list of project members.
+- [Add Project Administrator](https://developer.nulab.com/docs/backlog/api/2/add-project-administrator) - Adds the Project Administrator role to a user.
+- [Get List of Project Administrators](https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators) - Returns a list of users with the Project Administrator role.
+- [Delete Project Administrator](https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator) - Removes the Project Administrator role from a user.
+
+### Client.Project.[Webhook](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectWebhookService)
+
+- [Get List of Webhooks](https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/) - Returns a list of webhooks in a project.
+- [Get Webhook](https://developer.nulab.com/docs/backlog/api/2/get-webhook/) - Returns information about a specific webhook.
+- [Add Webhook](https://developer.nulab.com/docs/backlog/api/2/add-webhook/) - Adds a new webhook to a project.
+- [Update Webhook](https://developer.nulab.com/docs/backlog/api/2/update-webhook/) - Updates a webhook in a project.
+- [Delete Webhook](https://developer.nulab.com/docs/backlog/api/2/delete-webhook/) - Deletes a webhook from a project.
+
+### Client.Project.[Version](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectVersionService)
+
+- [Get Version/Milestone List](https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/) - Returns a list of versions/milestones in a project.
+- [Add Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/) - Adds a new version/milestone to a project.
+- [Update Version/Milestone](https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/) - Updates a version/milestone in a project.
+- [Delete Version](https://developer.nulab.com/docs/backlog/api/2/delete-version/) - Deletes a version/milestone from a project.
 
 ### Client.[PullRequest](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestService)
 
@@ -184,10 +152,48 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get Number of Pull Request Comments](https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-request-comments/) - Returns the number of comments on a pull request.
 - [Update Pull Request Comment Information](https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information/) - Updates a comment on a pull request.
 
+### Client.[Repository](https://pkg.go.dev/github.com/nattokin/go-backlog#RepositoryService)
+
+- [Get List of Git Repositories](https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/) - Returns a list of Git repositories in a project.
+- [Get Git Repository](https://developer.nulab.com/docs/backlog/api/2/get-git-repository/) - Returns information about a specific Git repository.
+
+### Client.[Space](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceService)
+
+- [Get Space](https://developer.nulab.com/docs/backlog/api/2/get-space) - Returns information about your space.
+- [Get Space Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-space-disk-usage) - Returns disk usage of your space.
+- [Get Space Notification](https://developer.nulab.com/docs/backlog/api/2/get-space-notification) - Returns the space notification.
+- [Update Space Notification](https://developer.nulab.com/docs/backlog/api/2/update-space-notification) - Updates the space notification.
+
+### Client.Space.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceActivityService)
+
+- [Get Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-recent-updates) - Returns recent updates in the space.
+
+### Client.Space.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceAttachmentService)
+
+- [Post Attachment File](https://developer.nulab.com/docs/backlog/api/2/post-attachment-file/) - Posts an attachment file for issue or wiki, and returns its ID.
+
 ### Client.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#StarService)
 
 - [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Add adds a star to a resource.
 - [Remove Star](https://developer.nulab.com/docs/backlog/api/2/remove-star) - Remove removes a star by its ID.
+
+### Client.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#UserService)
+
+- [Get User List](https://developer.nulab.com/docs/backlog/api/2/get-user-list) - Returns a list of users in your space.
+- [Get User](https://developer.nulab.com/docs/backlog/api/2/get-user) - Returns information about a specific user.
+- [Add User](https://developer.nulab.com/docs/backlog/api/2/add-user) - Adds new user to the space. "Project Administrator" cannot add "Admin" user. You can't use this API at `backlog.com` space.
+- [Update User](https://developer.nulab.com/docs/backlog/api/2/update-user) - Updates information about a user (Note: Not available at backlog.com).
+- [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes a user from the space (Note: Not available at backlog.com).
+- [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
+
+### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
+- [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
+
+### Client.User.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#UserRecentlyViewedService)
+
+- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-issues) - Returns a list of recently viewed issues.
+- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-projects) - Returns a list of recently viewed projects.
+- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-wikis) - Returns a list of recently viewed wiki pages.
 
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 

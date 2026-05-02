@@ -29,6 +29,12 @@ var (
 	doerProjectCategoryUpdate = newMockDoer(fixture.Category.SingleJSON)
 	doerProjectCategoryDelete = newMockDoer(fixture.Category.SingleJSON)
 
+	// ProjectIssueTypeService
+	doerProjectIssueTypeAll    = newMockDoer(fixture.IssueType.ListJSON)
+	doerProjectIssueTypeCreate = newMockDoer(fixture.IssueType.SingleJSON)
+	doerProjectIssueTypeUpdate = newMockDoer(fixture.IssueType.SingleJSON)
+	doerProjectIssueTypeDelete = newMockDoer(fixture.IssueType.SingleJSON)
+
 	// ProjectUserService
 	doerProjectUserAll         = newMockDoer(fixture.User.ListJSON)
 	doerProjectUserAdd         = newMockDoer(fixture.User.SingleJSON)
@@ -188,6 +194,60 @@ func ExampleProjectCategoryService_Delete() {
 	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
 	// Output:
 	// ID: 12, Name: Bug
+}
+
+func ExampleProjectIssueTypeService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIssueTypeAll),
+	)
+
+	issueTypes, _ := c.Project.IssueType.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s, Color: %s\n", issueTypes[0].ID, issueTypes[0].Name, issueTypes[0].Color)
+	// Output:
+	// ID: 1, Name: Bug, Color: #e30000
+}
+
+func ExampleProjectIssueTypeService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIssueTypeCreate),
+	)
+
+	issueType, _ := c.Project.IssueType.Create(context.Background(), "TEST", "Bug", "#e30000")
+	fmt.Printf("ID: %d, Name: %s, Color: %s\n", issueType.ID, issueType.Name, issueType.Color)
+	// Output:
+	// ID: 1, Name: Bug, Color: #e30000
+}
+
+func ExampleProjectIssueTypeService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIssueTypeUpdate),
+	)
+
+	issueType, _ := c.Project.IssueType.Update(context.Background(), "TEST", 1,
+		c.Project.IssueType.Option.WithName("Bug Updated"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", issueType.ID, issueType.Name)
+	// Output:
+	// ID: 1, Name: Bug
+}
+
+func ExampleProjectIssueTypeService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIssueTypeDelete),
+	)
+
+	issueType, _ := c.Project.IssueType.Delete(context.Background(), "TEST", 1, 2)
+	fmt.Printf("ID: %d, Name: %s\n", issueType.ID, issueType.Name)
+	// Output:
+	// ID: 1, Name: Bug
 }
 
 func ExampleProjectSharedFileService_List() {

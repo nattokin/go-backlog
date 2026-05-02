@@ -761,16 +761,6 @@ func issueFromModel(m *model.Issue) *Issue {
 	if m == nil {
 		return nil
 	}
-	var issueType *IssueType
-	if m.IssueType != nil {
-		issueType = &IssueType{
-			ID:           m.IssueType.ID,
-			ProjectID:    m.IssueType.ProjectID,
-			Name:         m.IssueType.Name,
-			Color:        m.IssueType.Color,
-			DisplayOrder: m.IssueType.DisplayOrder,
-		}
-	}
 	var priority *Priority
 	if m.Priority != nil {
 		priority = &Priority{ID: m.Priority.ID, Name: m.Priority.Name}
@@ -780,7 +770,7 @@ func issueFromModel(m *model.Issue) *Issue {
 		ProjectID:      m.ProjectID,
 		IssueKey:       m.IssueKey,
 		KeyID:          m.KeyID,
-		IssueType:      issueType,
+		IssueType:      issueTypeFromModel(m.IssueType),
 		Summary:        m.Summary,
 		Description:    m.Description,
 		Resolutions:    resolutionsFromModel(m.Resolutions),

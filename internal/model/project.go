@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // Project represents a project of Backlog.
 type Project struct {
 	ID                                int    `json:"id,omitempty"`
@@ -16,4 +18,18 @@ type Project struct {
 type DiskUsageProject struct {
 	DiskUsageBase
 	ProjectID int `json:"projectId,omitempty"`
+}
+
+// Webhook represents webhook of Backlog.
+type Webhook struct {
+	ID              int       `json:"id,omitempty"`
+	Name            string    `json:"name,omitempty"`
+	Description     string    `json:"description,omitempty"`
+	HookURL         string    `json:"hookUrl,omitempty"`
+	AllEvent        bool      `json:"allEvent,omitempty"`
+	ActivityTypeIDs []int     `json:"activityTypeIds,omitempty"`
+	CreatedUser     *User     `json:"createdUser,omitempty"`
+	Created         time.Time `json:"created,omitempty"`
+	UpdatedUser     *User     `json:"updatedUser,omitempty"`
+	Updated         time.Time `json:"updated,omitempty"`
 }
