@@ -66,9 +66,9 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 //
 // Date type (CustomFieldTypeDate) additional options:
 //   - WithInitialDateMin, WithInitialDateMax ("yyyy-MM-dd")
-//   - WithInitialValueType (0: today, 1: specified date, 2: today+N)
-//   - WithInitialDate ("yyyy-MM-dd", when initialValueType=1)
+//   - WithInitialValueType (1: today, 2: today+N, 3: specified date)
 //   - WithInitialShift (days, when initialValueType=2)
+//   - WithInitialDate ("yyyy-MM-dd", when initialValueType=3)
 //
 // List type (CustomFieldTypeSingleList/MultipleList/Checkbox/Radio) additional options:
 //   - WithItems
