@@ -93,8 +93,8 @@ func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, 
 
 // Update updates a webhook.
 //
-// This method supports options returned by methods in "*Client.Project.Webhook.Option",
-// such as:
+// At least one option is required. This method supports options returned by
+// methods in "*Client.Project.Webhook.Option", such as:
 //   - WithActivityTypeIDs
 //   - WithAllEvent
 //   - WithDescription
@@ -102,8 +102,8 @@ func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, 
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook
-func (s *ProjectWebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, opts ...RequestOption) (*Webhook, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, toCoreOptions(opts)...)
+func (s *ProjectWebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option RequestOption, opts ...RequestOption) (*Webhook, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, option, toCoreOptions(opts)...)
 	return webhookFromModel(v), convertError(err)
 }
 

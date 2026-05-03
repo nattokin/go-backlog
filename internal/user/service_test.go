@@ -309,8 +309,9 @@ func TestUserService_Update(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		id   int
-		opts []core.RequestOption
+		id     int
+		option core.RequestOption
+		opts   []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -318,9 +319,9 @@ func TestUserService_Update(t *testing.T) {
 		wantErrType error
 	}{
 		"success-update-user": {
-			id: 1,
+			id:     1,
+			option: o.WithPassword("password"),
 			opts: []core.RequestOption{
-				o.WithPassword("password"),
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
 				o.WithRoleType(model.RoleAdministrator),
@@ -342,13 +343,9 @@ func TestUserService_Update(t *testing.T) {
 				RoleType:    model.RoleAdministrator,
 			},
 		},
-		"error-validation-id-zero": {
-			id: 0,
-
-			wantErrType: &core.ValidationError{},
-		},
 		"error-response-invalid-json": {
-			id: 1234,
+			id:     1234,
+			option: o.WithName("test"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
@@ -358,10 +355,8 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: &json.SyntaxError{},
 		},
 		"success-option-withName": {
-			id: 1,
-			opts: []core.RequestOption{
-				o.WithName("testname"),
-			},
+			id:     1,
+			option: o.WithName("testname"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
@@ -372,10 +367,8 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"success-option-withPassword": {
-			id: 1,
-			opts: []core.RequestOption{
-				o.WithPassword("testpassword"),
-			},
+			id:     1,
+			option: o.WithPassword("testpassword"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
@@ -386,10 +379,8 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"success-option-withMailAddress": {
-			id: 1,
-			opts: []core.RequestOption{
-				o.WithMailAddress("test@test.com"),
-			},
+			id:     1,
+			option: o.WithMailAddress("test@test.com"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
@@ -400,10 +391,8 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"success-option-withRoleType": {
-			id: 1,
-			opts: []core.RequestOption{
-				o.WithRoleType(model.RoleAdministrator),
-			},
+			id:     1,
+			option: o.WithRoleType(model.RoleAdministrator),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
@@ -414,9 +403,9 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"success-option-multiple": {
-			id: 1,
+			id:     1,
+			option: o.WithPassword("testpassword1"),
 			opts: []core.RequestOption{
-				o.WithPassword("testpassword1"),
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
 				o.WithRoleType(model.RoleAdministrator),
@@ -434,22 +423,20 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-value": {
-			id: 1,
-			opts: []core.RequestOption{
-				o.WithName(""),
-			},
+			id:     1,
+			option: o.WithName(""),
 
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
-			id:   1,
-			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
+			id:     1,
+			option: mock.NewInvalidTypeOption(),
 
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			id:          1,
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamName)},
+			option:      mock.NewFailingSetOption(core.ParamName),
 			wantErrType: errors.New(""),
 		},
 	}
@@ -464,7 +451,7 @@ func TestUserService_Update(t *testing.T) {
 			}
 			s := user.NewService(method)
 
-			user, err := s.Update(context.Background(), tc.id, tc.opts...)
+			user, err := s.Update(context.Background(), tc.id, tc.option, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

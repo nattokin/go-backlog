@@ -229,7 +229,12 @@ func TestProjectStatusService(t *testing.T) {
 		"Update/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Status.Update(ctx, "TEST", 1)
+				_, err := c.Project.Status.Update(
+					ctx,
+					"TEST",
+					1,
+					c.Project.Status.Option.WithName("Closed"),
+				)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

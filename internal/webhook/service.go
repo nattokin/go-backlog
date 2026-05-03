@@ -117,7 +117,7 @@ func (s *Service) Get(ctx context.Context, projectIDOrKey string, webhookID int)
 // Update updates a webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook/
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, webhookID int, opts ...core.RequestOption) (*model.Webhook, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, webhookID int, option core.RequestOption, opts ...core.RequestOption) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -125,24 +125,15 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, webhookID i
 		return nil, err
 	}
 
-	if !core.HasRequiredOption(opts, []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamHookURL,
-		core.ParamAllEvent,
-		core.ParamActivityTypeIDs,
-	}) {
-		return nil, core.NewValidationError("requires at least one webhook update option")
-	}
-
 	form := url.Values{}
+	options := append([]core.RequestOption{option}, opts...)
 	if err := core.ApplyOptions(form, []core.APIParamOptionType{
 		core.ParamName,
 		core.ParamDescription,
 		core.ParamHookURL,
 		core.ParamAllEvent,
 		core.ParamActivityTypeIDs,
-	}, opts...); err != nil {
+	}, options...); err != nil {
 		return nil, err
 	}
 

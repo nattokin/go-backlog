@@ -70,16 +70,16 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 
 // Update updates a user in your space.
 //
-// This method supports options returned by methods in "*Client.User.Option",
-// such as:
+// At least one option is required. This method supports options returned by
+// methods in "*Client.User.Option", such as:
 //   - WithMailAddress
 //   - WithName
 //   - WithPassword
 //   - WithRoleType
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *UserService) Update(ctx context.Context, id int, opts ...RequestOption) (*User, error) {
-	v, err := s.base.Update(ctx, id, toCoreOptions(opts)...)
+func (s *UserService) Update(ctx context.Context, id int, option RequestOption, opts ...RequestOption) (*User, error) {
+	v, err := s.base.Update(ctx, id, option, toCoreOptions(opts)...)
 	return userFromModel(v), convertError(err)
 }
 

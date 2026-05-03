@@ -108,7 +108,7 @@ func TestProjectService(t *testing.T) {
 		"Update/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Update(ctx, "TEST")
+				_, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

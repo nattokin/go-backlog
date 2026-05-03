@@ -131,7 +131,7 @@ func TestUserService(t *testing.T) {
 		"Update/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.Update(ctx, 1)
+				_, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
