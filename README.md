@@ -54,6 +54,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Add Issue](https://developer.nulab.com/docs/backlog/api/2/add-issue) - Adds a new issue.
 - [Update Issue](https://developer.nulab.com/docs/backlog/api/2/update-issue) - Updates information about an issue.
 - [Delete Issue](https://developer.nulab.com/docs/backlog/api/2/delete-issue) - Deletes an issue.
+- [Get Issue Participants](https://developer.nulab.com/docs/backlog/api/2/get-issue-participant-list) - Returns a list of users participating in an issue.
 
 ### Client.Issue.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueAttachmentService)
 
@@ -113,6 +114,14 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Add Issue Type](https://developer.nulab.com/docs/backlog/api/2/add-issue-type/) - Adds a new issue type to a project.
 - [Update Issue Type](https://developer.nulab.com/docs/backlog/api/2/update-issue-type/) - Updates an issue type in a project.
 - [Delete Issue Type](https://developer.nulab.com/docs/backlog/api/2/delete-issue-type/) - Deletes an issue type from a project.
+
+### Client.Project.[Status](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectStatusService)
+
+- [Get Status List of Project](https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project/) - Returns a list of statuses in a project.
+- [Add Status](https://developer.nulab.com/docs/backlog/api/2/add-status/) - Adds a new status to a project.
+- [Update Status](https://developer.nulab.com/docs/backlog/api/2/update-status/) - Updates a status in a project.
+- [Delete Status](https://developer.nulab.com/docs/backlog/api/2/delete-status/) - Deletes a status from a project.
+- [Update Order of Status](https://developer.nulab.com/docs/backlog/api/2/update-order-of-status/) - Updates the display order of statuses in a project.
 
 ### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
 
@@ -177,6 +186,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.Space.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceActivityService)
 
 - [Get Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-recent-updates) - Returns recent updates in the space.
+- [Get Activity](https://developer.nulab.com/docs/backlog/api/2/get-activity/) - Returns a specific activity in the space.
 
 ### Client.Space.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceAttachmentService)
 
@@ -197,13 +207,16 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
 
 ### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
+
 - [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
 
 ### Client.User.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#UserRecentlyViewedService)
 
-- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-issues) - Returns a list of recently viewed issues.
-- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-projects) - Returns a list of recently viewed projects.
-- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-recently-viewed-wikis) - Returns a list of recently viewed wiki pages.
+- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues) - Returns a list of recently viewed issues.
+- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects) - Returns a list of recently viewed projects.
+- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis/) - Returns a list of recently viewed wiki pages.
+- [Add Recently Viewed Issue](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue/) - Adds an issue to recently viewed list.
+- [Add Recently Viewed Wiki](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-wiki/) - Adds a wiki to recently viewed list.
 
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 
