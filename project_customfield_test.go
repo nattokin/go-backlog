@@ -167,7 +167,9 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("Sprint Updated") },
+			opt: func(c *backlog.Client) backlog.RequestOption {
+				return c.Project.CustomField.Option.WithName("Sprint Updated")
+			},
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
 				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
