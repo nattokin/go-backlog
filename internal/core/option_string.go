@@ -190,6 +190,12 @@ func (s *OptionService) WithUnit(unit string) RequestOption {
 	}
 }
 
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
 // dateFormatStringOption builds a RequestOption that validates the string matches
 // "yyyy-MM-dd" format and sets it.
 func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOption {
@@ -202,5 +208,19 @@ func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOp
 			return nil
 		},
 		SetFunc: setStringFunc(paramType, date),
+	}
+}
+
+// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
+func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value == "" {
+				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: setStringFunc(paramType, value),
 	}
 }

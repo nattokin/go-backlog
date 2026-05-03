@@ -1,6 +1,10 @@
 package core
 
-import "github.com/nattokin/go-backlog/internal/model"
+import (
+	"fmt"
+
+	"github.com/nattokin/go-backlog/internal/model"
+)
 
 // WithActualHours returns an option to set the `actualHours` parameter.
 func (s *OptionService) WithActualHours(hours int) RequestOption {
@@ -144,4 +148,38 @@ func (s *OptionService) WithUserID(id int) RequestOption {
 // WithWikiID returns an option to set the `wikiId` parameter.
 func (s *OptionService) WithWikiID(id int) RequestOption {
 	return positiveIntOption(ParamWikiID, id)
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
+func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < min || value > max {
+				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
+			}
+			return nil
+		},
+		SetFunc: setIntFunc(paramType, value),
+	}
+}
+
+// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
+func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < 1 {
+				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: setIntFunc(paramType, value),
+	}
 }

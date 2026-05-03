@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -286,91 +285,5 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 			v.Add(key.Value(), val)
 		}
 		return nil
-	}
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// boolOption builds a RequestOption that sets a boolean parameter.
-func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setBoolFunc(paramType, enabled),
-	}
-}
-
-// timeOption builds a RequestOption that formats a time.Time value and sets it.
-func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setTimeFunc(paramType, t, format),
-	}
-}
-
-// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
-func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value == "" {
-				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setStringFunc(paramType, value),
-	}
-}
-
-// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
-func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < 1 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
-}
-
-// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
-func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < min || value > max {
-				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
-}
-
-// validatePositiveInts checks that all values in the slice are >= 1.
-// paramName is used in the error message (e.g. "projectId").
-func validatePositiveInts(values []int, paramName string) error {
-	for _, v := range values {
-		if v < 1 {
-			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
-		}
-	}
-	return nil
-}
-
-// positiveIntSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
-func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			return validatePositiveInts(values, paramName)
-		},
-		SetFunc: addIntFunc(paramType, values),
 	}
 }

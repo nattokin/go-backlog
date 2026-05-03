@@ -58,3 +58,17 @@ func (s *OptionService) WithDueDateUntil(t time.Time) RequestOption {
 func (s *OptionService) WithReleaseDueDate(t time.Time) RequestOption {
 	return timeOption(ParamReleaseDueDate, t, issueDateFormat)
 }
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// timeOption builds a RequestOption that formats a time.Time value and sets it.
+func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
+	return &APIParamOption{
+		Type:    paramType,
+		SetFunc: setTimeFunc(paramType, t, format),
+	}
+}

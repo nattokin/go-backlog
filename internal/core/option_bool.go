@@ -74,3 +74,17 @@ func (s *OptionService) WithSharedFile(enabled bool) RequestOption {
 func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 	return boolOption(ParamSubtaskingEnabled, enabled)
 }
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// boolOption builds a RequestOption that sets a boolean parameter.
+func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
+	return &APIParamOption{
+		Type:    paramType,
+		SetFunc: setBoolFunc(paramType, enabled),
+	}
+}
