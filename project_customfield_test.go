@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -556,7 +555,6 @@ func TestProjectCustomFieldOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
 
-	date := time.Date(2024, 3, 15, 0, 0, 0, 0, time.UTC)
 	s := c.Project.CustomField.Option
 
 	cases := map[string]struct {
@@ -600,7 +598,7 @@ func TestProjectCustomFieldOptionService(t *testing.T) {
 			wantKey: core.ParamInitialValueType.Value(),
 		},
 		"WithInitialDate": {
-			option:  s.WithInitialDate(date),
+			option:  s.WithInitialDate("2024-03-15"),
 			wantKey: core.ParamInitialDate.Value(),
 		},
 		"WithInitialShift": {
