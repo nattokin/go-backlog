@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestOptionService_int(t *testing.T) {
@@ -63,6 +64,58 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithEstimatedHours-invalid-0": {
 			option:  o.WithEstimatedHours(0),
+			wantErr: true,
+		},
+		"WithFieldType-valid-1": {
+			option:    o.WithFieldType(model.CustomFieldTypeText),
+			key:       core.ParamTypeID.Value(),
+			wantValue: 1,
+		},
+		"WithFieldType-valid-8": {
+			option:    o.WithFieldType(model.CustomFieldTypeRadio),
+			key:       core.ParamTypeID.Value(),
+			wantValue: 8,
+		},
+		"WithFieldType-invalid-0": {
+			option:  o.WithFieldType(0),
+			wantErr: true,
+		},
+		"WithInitialShift-zero": {
+			option:    o.WithInitialShift(0),
+			key:       core.ParamInitialShift.Value(),
+			wantValue: 0,
+		},
+		"WithInitialShift-positive": {
+			option:    o.WithInitialShift(7),
+			key:       core.ParamInitialShift.Value(),
+			wantValue: 7,
+		},
+		"WithInitialShift-negative": {
+			option:    o.WithInitialShift(-3),
+			key:       core.ParamInitialShift.Value(),
+			wantValue: -3,
+		},
+		"WithInitialValueType-valid-1": {
+			option:    o.WithInitialValueType(1),
+			key:       core.ParamInitialValueType.Value(),
+			wantValue: 1,
+		},
+		"WithInitialValueType-valid-2": {
+			option:    o.WithInitialValueType(2),
+			key:       core.ParamInitialValueType.Value(),
+			wantValue: 2,
+		},
+		"WithInitialValueType-valid-3": {
+			option:    o.WithInitialValueType(3),
+			key:       core.ParamInitialValueType.Value(),
+			wantValue: 3,
+		},
+		"WithInitialValueType-invalid-0": {
+			option:  o.WithInitialValueType(0),
+			wantErr: true,
+		},
+		"WithInitialValueType-invalid-4": {
+			option:  o.WithInitialValueType(4),
 			wantErr: true,
 		},
 		"WithIssueID-valid-1": {
@@ -264,5 +317,4 @@ func TestOptionService_int(t *testing.T) {
 			assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
 		})
 	}
-
 }

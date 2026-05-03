@@ -1,17 +1,15 @@
 package core
 
-import (
-	"fmt"
-	"net/url"
-	"strconv"
-	"time"
-)
+import "net/url"
 
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
 	ParamActualHours                       APIParamOptionType = "actualHours"
 	ParamAll                               APIParamOptionType = "all"
 	ParamAllEvent                          APIParamOptionType = "allEvent"
+	ParamAllowAddItem                      APIParamOptionType = "allowAddItem"
+	ParamAllowInput                        APIParamOptionType = "allowInput"
+	ParamApplicableIssueTypeIDs            APIParamOptionType = "applicableIssueTypes[]"
 	ParamArchived                          APIParamOptionType = "archived"
 	ParamAssigneeID                        APIParamOptionType = "assigneeId"
 	ParamAssigneeIDs                       APIParamOptionType = "assigneeId[]"
@@ -37,16 +35,23 @@ const (
 	ParamHasDueDate                        APIParamOptionType = "hasDueDate"
 	ParamHookURL                           APIParamOptionType = "hookUrl"
 	ParamIDs                               APIParamOptionType = "id[]"
+	ParamInitialDate                       APIParamOptionType = "initialDate"
+	ParamInitialShift                      APIParamOptionType = "initialShift"
+	ParamInitialValue                      APIParamOptionType = "initialValue"
+	ParamInitialValueType                  APIParamOptionType = "initialValueType"
 	ParamIssueID                           APIParamOptionType = "issueId"
 	ParamIssueIDs                          APIParamOptionType = "issueId[]"
 	ParamIssueTypeID                       APIParamOptionType = "issueTypeId"
 	ParamIssueTypeIDs                      APIParamOptionType = "issueTypeId[]"
+	ParamItems                             APIParamOptionType = "items[]"
 	ParamKey                               APIParamOptionType = "key"
 	ParamKeyword                           APIParamOptionType = "keyword"
 	ParamMailAddress                       APIParamOptionType = "mailAddress"
 	ParamMailNotify                        APIParamOptionType = "mailNotify"
+	ParamMax                               APIParamOptionType = "max"
 	ParamMaxID                             APIParamOptionType = "maxId"
 	ParamMilestoneIDs                      APIParamOptionType = "milestoneId[]"
+	ParamMin                               APIParamOptionType = "min"
 	ParamMinID                             APIParamOptionType = "minId"
 	ParamName                              APIParamOptionType = "name"
 	ParamNotifiedUserIDs                   APIParamOptionType = "notifiedUserId[]"
@@ -63,6 +68,7 @@ const (
 	ParamPullRequestCommentID              APIParamOptionType = "pullRequestCommentId"
 	ParamPullRequestID                     APIParamOptionType = "pullRequestId"
 	ParamReleaseDueDate                    APIParamOptionType = "releaseDueDate"
+	ParamRequired                          APIParamOptionType = "required"
 	ParamResolutionID                      APIParamOptionType = "resolutionId"
 	ParamResolutionIDs                     APIParamOptionType = "resolutionId[]"
 	ParamRoleType                          APIParamOptionType = "roleType"
@@ -79,6 +85,8 @@ const (
 	ParamTemplateDescription               APIParamOptionType = "templateDescription"
 	ParamTemplateSummary                   APIParamOptionType = "templateSummary"
 	ParamTextFormattingRule                APIParamOptionType = "textFormattingRule"
+	ParamTypeID                            APIParamOptionType = "typeId"
+	ParamUnit                              APIParamOptionType = "unit"
 	ParamUpdatedSince                      APIParamOptionType = "updatedSince"
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
 	ParamUserID                            APIParamOptionType = "userId"
@@ -208,138 +216,4 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 		}
 	}
 	return false
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  SetFunc factories
-// ──────────────────────────────────────────────────────────────
-//
-
-// setStringFunc returns a SetFunc that calls v.Set with the given string value.
-func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), value)
-		return nil
-	}
-}
-
-// setIntFunc returns a SetFunc that calls v.Set with the int converted to a string.
-func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), strconv.Itoa(value))
-		return nil
-	}
-}
-
-// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
-func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), strconv.FormatBool(value))
-		return nil
-	}
-}
-
-// setTimeFunc returns a SetFunc that calls v.Set with the time formatted by the given layout.
-func setTimeFunc(key APIParamOptionType, t time.Time, format string) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), t.Format(format))
-		return nil
-	}
-}
-
-// addIntFunc returns a SetFunc that calls v.Add for each int in the slice.
-func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
-	return func(v url.Values) error {
-		for _, val := range values {
-			v.Add(key.Value(), strconv.Itoa(val))
-		}
-		return nil
-	}
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// boolOption builds a RequestOption that sets a boolean parameter.
-func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setBoolFunc(paramType, enabled),
-	}
-}
-
-// timeOption builds a RequestOption that formats a time.Time value and sets it.
-func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setTimeFunc(paramType, t, format),
-	}
-}
-
-// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
-func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value == "" {
-				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setStringFunc(paramType, value),
-	}
-}
-
-// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
-func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < 1 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
-}
-
-// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
-func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < min || value > max {
-				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
-}
-
-// validatePositiveInts checks that all values in the slice are >= 1.
-// paramName is used in the error message (e.g. "projectId").
-func validatePositiveInts(values []int, paramName string) error {
-	for _, v := range values {
-		if v < 1 {
-			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
-		}
-	}
-	return nil
-}
-
-// intSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
-func intSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			return validatePositiveInts(values, paramName)
-		},
-		SetFunc: addIntFunc(paramType, values),
-	}
 }

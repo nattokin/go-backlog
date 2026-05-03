@@ -39,6 +39,26 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamAllEvent.Value(),
 			wantValue: true,
 		},
+		"WithAllowAddItem-false": {
+			option:    o.WithAllowAddItem(false),
+			key:       core.ParamAllowAddItem.Value(),
+			wantValue: false,
+		},
+		"WithAllowAddItem-true": {
+			option:    o.WithAllowAddItem(true),
+			key:       core.ParamAllowAddItem.Value(),
+			wantValue: true,
+		},
+		"WithAllowInput-false": {
+			option:    o.WithAllowInput(false),
+			key:       core.ParamAllowInput.Value(),
+			wantValue: false,
+		},
+		"WithAllowInput-true": {
+			option:    o.WithAllowInput(true),
+			key:       core.ParamAllowInput.Value(),
+			wantValue: true,
+		},
 		"WithArchived-false": {
 			option:    o.WithArchived(false),
 			key:       core.ParamArchived.Value(),
@@ -99,6 +119,16 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamProjectLeaderCanEditProjectLeader.Value(),
 			wantValue: true,
 		},
+		"WithRequired-false": {
+			option:    o.WithRequired(false),
+			key:       core.ParamRequired.Value(),
+			wantValue: false,
+		},
+		"WithRequired-true": {
+			option:    o.WithRequired(true),
+			key:       core.ParamRequired.Value(),
+			wantValue: true,
+		},
 		"WithSendMail-false": {
 			option:    o.WithSendMail(false),
 			key:       core.ParamSendMail.Value(),
@@ -142,5 +172,4 @@ func TestOptionService_bool(t *testing.T) {
 			assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
 		})
 	}
-
 }

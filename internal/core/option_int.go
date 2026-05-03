@@ -1,6 +1,12 @@
 package core
 
-import "github.com/nattokin/go-backlog/internal/model"
+import (
+	"fmt"
+	"net/url"
+	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/model"
+)
 
 // WithActualHours returns an option to set the `actualHours` parameter.
 func (s *OptionService) WithActualHours(hours int) RequestOption {
@@ -25,6 +31,26 @@ func (s *OptionService) WithCount(count int) RequestOption {
 // WithEstimatedHours returns an option to set the `estimatedHours` parameter.
 func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
 	return positiveIntOption(ParamEstimatedHours, hours)
+}
+
+// WithFieldType returns an option to set the `typeId` parameter for custom fields.
+func (s *OptionService) WithFieldType(fieldType model.CustomFieldType) RequestOption {
+	return positiveIntOption(ParamTypeID, int(fieldType))
+}
+
+// WithInitialShift returns an option to set the `initialShift` parameter for Date type custom fields.
+// Used when initialValueType is 2 (today + N days).
+func (s *OptionService) WithInitialShift(days int) RequestOption {
+	return &APIParamOption{
+		Type:    ParamInitialShift,
+		SetFunc: setIntFunc(ParamInitialShift, days),
+	}
+}
+
+// WithInitialValueType returns an option to set the `initialValueType` parameter for Date type custom fields.
+// 1: Today, 2: Today + initialShift days, 3: Specified date.
+func (s *OptionService) WithInitialValueType(initialValueType int) RequestOption {
+	return intRangeOption(ParamInitialValueType, initialValueType, 1, 3)
 }
 
 // WithIssueID returns an option to set the `issueId` parameter.
@@ -124,4 +150,52 @@ func (s *OptionService) WithUserID(id int) RequestOption {
 // WithWikiID returns an option to set the `wikiId` parameter.
 func (s *OptionService) WithWikiID(id int) RequestOption {
 	return positiveIntOption(ParamWikiID, id)
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
+func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < min || value > max {
+				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
+			}
+			return nil
+		},
+		SetFunc: setIntFunc(paramType, value),
+	}
+}
+
+// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
+func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value < 1 {
+				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: setIntFunc(paramType, value),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setIntFunc returns a SetFunc that calls v.Set with the int converted to a string.
+func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.Itoa(value))
+		return nil
+	}
 }

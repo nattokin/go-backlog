@@ -1,6 +1,9 @@
 package core
 
-import "time"
+import (
+	"net/url"
+	"time"
+)
 
 const issueDateFormat = "2006-01-02"
 
@@ -57,4 +60,32 @@ func (s *OptionService) WithDueDateUntil(t time.Time) RequestOption {
 // WithReleaseDueDate returns an option to set the `releaseDueDate` parameter.
 func (s *OptionService) WithReleaseDueDate(t time.Time) RequestOption {
 	return timeOption(ParamReleaseDueDate, t, issueDateFormat)
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// timeOption builds a RequestOption that formats a time.Time value and sets it.
+func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
+	return &APIParamOption{
+		Type:    paramType,
+		SetFunc: setTimeFunc(paramType, t, format),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setTimeFunc returns a SetFunc that calls v.Set with the time formatted by the given layout.
+func setTimeFunc(key APIParamOptionType, t time.Time, format string) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), t.Format(format))
+		return nil
+	}
 }

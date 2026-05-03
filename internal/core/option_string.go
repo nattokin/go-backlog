@@ -2,9 +2,13 @@ package core
 
 import (
 	"fmt"
+	"net/url"
+	"regexp"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
+
+var datePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 // WithBase returns an option that sets the `base` field (merge base branch name).
 func (s *OptionService) WithBase(base string) RequestOption {
@@ -45,6 +49,24 @@ func (s *OptionService) WithDescription(description string) RequestOption {
 // WithHookURL returns an option that sets the `hookUrl` parameter.
 func (s *OptionService) WithHookURL(hookURL string) RequestOption {
 	return nonEmptyStringOption(ParamHookURL, hookURL)
+}
+
+// WithInitialDate returns an option to set the `initialDate` parameter for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDate(date string) RequestOption {
+	return dateFormatStringOption(ParamInitialDate, date)
+}
+
+// WithInitialDateMax returns an option to set the `max` parameter for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDateMax(date string) RequestOption {
+	return dateFormatStringOption(ParamMax, date)
+}
+
+// WithInitialDateMin returns an option to set the `min` parameter for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDateMin(date string) RequestOption {
+	return dateFormatStringOption(ParamMin, date)
 }
 
 // WithKey returns a option that sets the `key` field.
@@ -158,5 +180,62 @@ func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOptio
 			return nil
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, string(format)),
+	}
+}
+
+// WithUnit returns an option to set the `unit` parameter for Number type custom fields.
+func (s *OptionService) WithUnit(unit string) RequestOption {
+	return &APIParamOption{
+		Type:    ParamUnit,
+		SetFunc: setStringFunc(ParamUnit, unit),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// dateFormatStringOption builds a RequestOption that validates the string matches
+// "yyyy-MM-dd" format and sets it.
+func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if !datePattern.MatchString(date) {
+				return NewValidationError(fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
+			}
+			return nil
+		},
+		SetFunc: setStringFunc(paramType, date),
+	}
+}
+
+// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
+func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if value == "" {
+				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
+			}
+			return nil
+		},
+		SetFunc: setStringFunc(paramType, value),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setStringFunc returns a SetFunc that calls v.Set with the given string value.
+func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), value)
+		return nil
 	}
 }

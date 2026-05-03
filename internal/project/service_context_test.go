@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
@@ -125,6 +126,41 @@ func Test_contextPropagation(t *testing.T) {
 			m.Patch = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.UpdateOrder(ctx, "TEST", []int{1, 2}) //nolint:errcheck
+		}},
+		{"CustomFieldService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.All(ctx, "TEST") //nolint:errcheck
+		}},
+		{"CustomFieldService.Create", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.Create(ctx, "TEST", model.CustomFieldTypeText, "Sprint") //nolint:errcheck
+		}},
+		{"CustomFieldService.Update", func(t *testing.T, m *core.Method) {
+			m.Patch = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.Update(ctx, "TEST", 1, o.WithName("Sprint Updated")) //nolint:errcheck
+		}},
+		{"CustomFieldService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.Delete(ctx, "TEST", 1) //nolint:errcheck
+		}},
+		{"CustomFieldService.AddListItem", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.AddListItem(ctx, "TEST", 1, "Item1") //nolint:errcheck
+		}},
+		{"CustomFieldService.UpdateListItem", func(t *testing.T, m *core.Method) {
+			m.Patch = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.UpdateListItem(ctx, "TEST", 1, 10, "Item1 Updated") //nolint:errcheck
+		}},
+		{"CustomFieldService.DeleteListItem", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := project.NewCustomFieldService(m)
+			s.DeleteListItem(ctx, "TEST", 1, 10) //nolint:errcheck
 		}},
 	}
 

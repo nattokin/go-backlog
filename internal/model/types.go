@@ -46,6 +46,18 @@ const (
 	IssueSortChildIssue     IssueSort = "childIssue"
 )
 
+// CustomFieldType represents the type of a custom field.
+const (
+	CustomFieldTypeText         CustomFieldType = 1
+	CustomFieldTypeSentence     CustomFieldType = 2
+	CustomFieldTypeNumber       CustomFieldType = 3
+	CustomFieldTypeDate         CustomFieldType = 4
+	CustomFieldTypeSingleList   CustomFieldType = 5
+	CustomFieldTypeMultipleList CustomFieldType = 6
+	CustomFieldTypeCheckbox     CustomFieldType = 7
+	CustomFieldTypeRadio        CustomFieldType = 8
+)
+
 // Format defines the text formatting rule for the Backlog wiki.
 type Format string
 
@@ -57,3 +69,6 @@ type Role int
 
 // IssueSort represents the field to sort issue list results by.
 type IssueSort string
+
+// CustomFieldType represents the type identifier of a custom field.
+type CustomFieldType int

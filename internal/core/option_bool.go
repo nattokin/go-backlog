@@ -1,5 +1,10 @@
 package core
 
+import (
+	"net/url"
+	"strconv"
+)
+
 // WithAll returns an option to set the `all` parameter.
 func (s *OptionService) WithAll(enabled bool) RequestOption {
 	return boolOption(ParamAll, enabled)
@@ -8,6 +13,18 @@ func (s *OptionService) WithAll(enabled bool) RequestOption {
 // WithAllEvent returns an option to set the `allEvent` parameter.
 func (s *OptionService) WithAllEvent(enabled bool) RequestOption {
 	return boolOption(ParamAllEvent, enabled)
+}
+
+// WithAllowAddItem returns an option to set the `allowAddItem` parameter for List type custom fields.
+// When true, users can add new items to the list from the issue form.
+func (s *OptionService) WithAllowAddItem(allowAddItem bool) RequestOption {
+	return boolOption(ParamAllowAddItem, allowAddItem)
+}
+
+// WithAllowInput returns an option to set the `allowInput` parameter for List type custom fields.
+// When true, users can enter a free-text value in addition to selecting from the list.
+func (s *OptionService) WithAllowInput(allowInput bool) RequestOption {
+	return boolOption(ParamAllowInput, allowInput)
 }
 
 // WithArchived returns an option to set the `archived` parameter.
@@ -43,6 +60,11 @@ func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) Requ
 	return boolOption(ParamProjectLeaderCanEditProjectLeader, enabled)
 }
 
+// WithRequired returns an option to set the `required` parameter.
+func (s *OptionService) WithRequired(required bool) RequestOption {
+	return boolOption(ParamRequired, required)
+}
+
 // WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 	return boolOption(ParamSendMail, enabled)
@@ -56,4 +78,32 @@ func (s *OptionService) WithSharedFile(enabled bool) RequestOption {
 // WithSubtaskingEnabled returns a option that sets the `subtaskingEnabled` field.
 func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 	return boolOption(ParamSubtaskingEnabled, enabled)
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  Option builder helpers
+// ──────────────────────────────────────────────────────────────
+//
+
+// boolOption builds a RequestOption that sets a boolean parameter.
+func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
+	return &APIParamOption{
+		Type:    paramType,
+		SetFunc: setBoolFunc(paramType, enabled),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
+func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.FormatBool(value))
+		return nil
+	}
 }
