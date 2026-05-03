@@ -29,6 +29,15 @@ var (
 	doerProjectCategoryUpdate = newMockDoer(fixture.Category.SingleJSON)
 	doerProjectCategoryDelete = newMockDoer(fixture.Category.SingleJSON)
 
+	// ProjectCustomFieldService
+	doerProjectCustomFieldAll            = newMockDoer(fixture.CustomField.ListJSON)
+	doerProjectCustomFieldCreate         = newMockDoer(fixture.CustomField.SingleJSON)
+	doerProjectCustomFieldUpdate         = newMockDoer(fixture.CustomField.SingleJSON)
+	doerProjectCustomFieldDelete         = newMockDoer(fixture.CustomField.SingleJSON)
+	doerProjectCustomFieldAddListItem    = newMockDoer(fixture.CustomField.SingleJSON)
+	doerProjectCustomFieldUpdateListItem = newMockDoer(fixture.CustomField.SingleJSON)
+	doerProjectCustomFieldDeleteListItem = newMockDoer(fixture.CustomField.SingleJSON)
+
 	// ProjectIssueTypeService
 	doerProjectIssueTypeAll    = newMockDoer(fixture.IssueType.ListJSON)
 	doerProjectIssueTypeCreate = newMockDoer(fixture.IssueType.SingleJSON)
@@ -49,6 +58,19 @@ var (
 	doerProjectWebhookOne    = newMockDoer(fixture.Webhook.AllEventJSON)
 	doerProjectWebhookUpdate = newMockDoer(fixture.Webhook.AllEventJSON)
 	doerProjectWebhookDelete = newMockDoer(fixture.Webhook.AllEventJSON)
+
+	// ProjectStatusService
+	doerProjectStatusAll         = newMockDoer(fixture.Status.ListJSON)
+	doerProjectStatusCreate      = newMockDoer(fixture.Status.SingleJSON)
+	doerProjectStatusUpdate      = newMockDoer(fixture.Status.SingleJSON)
+	doerProjectStatusDelete      = newMockDoer(fixture.Status.SingleJSON)
+	doerProjectStatusUpdateOrder = newMockDoer(fixture.Status.ListJSON)
+
+	// ProjectVersionService
+	doerProjectVersionAll    = newMockDoer(fixture.Version.ListJSON)
+	doerProjectVersionCreate = newMockDoer(fixture.Version.SingleJSON)
+	doerProjectVersionUpdate = newMockDoer(fixture.Version.SingleJSON)
+	doerProjectVersionDelete = newMockDoer(fixture.Version.SingleJSON)
 )
 
 func ExampleProjectService_All() {
@@ -194,6 +216,102 @@ func ExampleProjectCategoryService_Delete() {
 	fmt.Printf("ID: %d, Name: %s\n", category.ID, category.Name)
 	// Output:
 	// ID: 12, Name: Bug
+}
+
+func ExampleProjectCustomFieldService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldAll),
+	)
+
+	fields, _ := c.Project.CustomField.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", fields[0].ID, fields[0].Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldCreate),
+	)
+
+	field, _ := c.Project.CustomField.Create(context.Background(), "TEST", backlog.CustomFieldTypeText, "Sprint")
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldUpdate),
+	)
+
+	field, _ := c.Project.CustomField.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.CustomField.Option.WithName("Sprint Updated"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldDelete),
+	)
+
+	field, _ := c.Project.CustomField.Delete(context.Background(), "TEST", 1)
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_AddListItem() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldAddListItem),
+	)
+
+	field, _ := c.Project.CustomField.AddListItem(context.Background(), "TEST", 1, "Item1")
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_UpdateListItem() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldUpdateListItem),
+	)
+
+	field, _ := c.Project.CustomField.UpdateListItem(context.Background(), "TEST", 1, 10, "Item1 Updated")
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+func ExampleProjectCustomFieldService_DeleteListItem() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldDeleteListItem),
+	)
+
+	field, _ := c.Project.CustomField.DeleteListItem(context.Background(), "TEST", 1, 10)
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
 }
 
 func ExampleProjectIssueTypeService_All() {
@@ -415,4 +533,135 @@ func ExampleProjectWebhookService_Delete() {
 	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
 	// Output:
 	// ID: 1, Name: Example Webhook
+}
+
+func ExampleProjectStatusService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusAll),
+	)
+
+	statuses, _ := c.Project.Status.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", statuses[0].ID, statuses[0].Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+func ExampleProjectStatusService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusCreate),
+	)
+
+	status, _ := c.Project.Status.Create(context.Background(), "TEST", "Open", "#ed8077")
+	fmt.Printf("ID: %d, Name: %s\n", status.ID, status.Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+func ExampleProjectStatusService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusUpdate),
+	)
+
+	status, _ := c.Project.Status.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Status.Option.WithName("Updated"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", status.ID, status.Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+func ExampleProjectStatusService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusDelete),
+	)
+
+	status, _ := c.Project.Status.Delete(context.Background(), "TEST", 1, 2)
+	fmt.Printf("ID: %d, Name: %s\n", status.ID, status.Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+func ExampleProjectStatusService_UpdateOrder() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusUpdateOrder),
+	)
+
+	statuses, _ := c.Project.Status.UpdateOrder(context.Background(), "TEST", []int{1, 2})
+	fmt.Printf("ID: %d, Name: %s\n", statuses[0].ID, statuses[0].Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+func ExampleProjectVersionService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectVersionAll),
+	)
+
+	versions, _ := c.Project.Version.All(context.Background(), "TEST")
+	fmt.Printf("ID: %d, Name: %s\n", versions[0].ID, versions[0].Name)
+	// Output:
+	// ID: 1, Name: Version 1.0
+}
+
+func ExampleProjectVersionService_Create() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectVersionCreate),
+	)
+
+	version, _ := c.Project.Version.Create(
+		context.Background(),
+		"TEST",
+		"ver1",
+	)
+	fmt.Printf("ID: %d, Name: %s\n", version.ID, version.Name)
+	// Output:
+	// ID: 1, Name: Version 1.0
+}
+
+func ExampleProjectVersionService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectVersionUpdate),
+	)
+
+	version, _ := c.Project.Version.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Version.Option.WithName("updated"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", version.ID, version.Name)
+	// Output:
+	// ID: 1, Name: Version 1.0
+}
+
+func ExampleProjectVersionService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectVersionDelete),
+	)
+
+	version, _ := c.Project.Version.Delete(context.Background(), "TEST", 1)
+	fmt.Printf("ID: %d, Name: %s\n", version.ID, version.Name)
+	// Output:
+	// ID: 1, Name: Version 1.0
 }
