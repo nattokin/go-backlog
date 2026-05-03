@@ -11,22 +11,22 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectCustomFieldService_All(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantLen        int
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.ListJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.ListJSON), nil
 			},
 			wantLen:     2,
 			wantErrType: nil,
@@ -37,15 +37,15 @@ func TestProjectCustomFieldService_All(t *testing.T) {
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -55,7 +55,8 @@ func TestProjectCustomFieldService_All(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			fields, err := c.Project.CustomField.All(context.Background(), tc.projectIDOrKey)
 
@@ -79,27 +80,17 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 		fieldType      backlog.CustomFieldType
 		name           string
 		opts           []backlog.RequestOption
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			fieldType:      backlog.CustomFieldTypeText,
 			name:           "Sprint",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields", r.URL.Path)
-				assert.Equal(t, "POST", r.Method)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
-			},
-			wantErrType: nil,
-		},
-		"success-with-opts": {
-			projectIDOrKey: "TEST",
-			fieldType:      backlog.CustomFieldTypeText,
-			name:           "Sprint",
-			opts:           nil, // opts set inline in test using c.Project.CustomField.Option
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				assert.Equal(t, http.MethodPost, r.Method)
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -125,7 +116,7 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      backlog.CustomFieldTypeText,
 			name:           "Sprint",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -134,8 +125,8 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      backlog.CustomFieldTypeText,
 			name:           "Sprint",
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -145,7 +136,8 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Create(context.Background(), tc.projectIDOrKey, tc.fieldType, tc.name, tc.opts...)
 
@@ -169,16 +161,16 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 		projectIDOrKey string
 		customFieldID  int
 		opt            func(c *backlog.Client) backlog.RequestOption
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("Sprint Updated") },
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -198,7 +190,7 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -207,8 +199,8 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -218,7 +210,8 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.opt(c))
 
@@ -240,15 +233,15 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		customFieldID  int
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -265,7 +258,7 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -273,8 +266,8 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -284,7 +277,8 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Delete(context.Background(), tc.projectIDOrKey, tc.customFieldID)
 
@@ -308,16 +302,16 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 		projectIDOrKey string
 		customFieldID  int
 		name           string
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -343,7 +337,7 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -352,8 +346,8 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -363,7 +357,8 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.AddListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.name)
 
@@ -387,7 +382,7 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 		customFieldID  int
 		itemID         int
 		name           string
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
@@ -395,9 +390,9 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -434,7 +429,7 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -444,8 +439,8 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -455,7 +450,8 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.UpdateListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID, tc.name)
 
@@ -478,16 +474,16 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 		projectIDOrKey string
 		customFieldID  int
 		itemID         int
-		doer           func(*http.Request) (*http.Response, error)
+		doFunc         func(*http.Request) (*http.Response, error)
 		wantErrType    error
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
-				return newMockHTTPResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -513,7 +509,7 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-			doer: func(r *http.Request) (*http.Response, error) {
+			doFunc: func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
@@ -522,8 +518,8 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-			doer: func(r *http.Request) (*http.Response, error) {
-				return newMockHTTPResponse(fixture.InvalidJSON), nil
+			doFunc: func(r *http.Request) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -533,7 +529,8 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, _ := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doerFunc(tc.doer)))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.DeleteListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID)
 
