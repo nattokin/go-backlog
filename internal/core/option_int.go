@@ -42,9 +42,9 @@ func (s *OptionService) WithInitialShift(days int) RequestOption {
 }
 
 // WithInitialValueType returns an option to set the `initialValueType` parameter for Date type custom fields.
-// 0: Today, 1: Specified date, 2: Today + initialShift days.
+// 1: Today, 2: Today + initialShift days, 3: Specified date.
 func (s *OptionService) WithInitialValueType(initialValueType int) RequestOption {
-	return intRangeOption(ParamInitialValueType, initialValueType, 0, 2)
+	return intRangeOption(ParamInitialValueType, initialValueType, 1, 3)
 }
 
 // WithIssueID returns an option to set the `issueId` parameter.
