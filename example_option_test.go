@@ -114,7 +114,7 @@ func ExampleProjectOptionService() {
 	)
 	fmt.Printf("Count: %d, ProjectKey: %s\n", len(projects), projects[0].ProjectKey)
 	// Output:
-	// Count: 2, ProjectKey: TEST
+	// Count: 3, ProjectKey: TEST
 }
 
 // ExampleUserOptionService demonstrates updating a user's name and role type.
