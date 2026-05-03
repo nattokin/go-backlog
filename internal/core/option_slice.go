@@ -1,6 +1,10 @@
 package core
 
-import "fmt"
+import (
+	"fmt"
+	"net/url"
+	"strconv"
+)
 
 // WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
@@ -129,6 +133,32 @@ func positiveIntSliceOption(paramType APIParamOptionType, paramName string, valu
 			return validatePositiveInts(values, paramName)
 		},
 		SetFunc: addIntFunc(paramType, values),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// addIntFunc returns a SetFunc that calls v.Add for each int in the slice.
+func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
+	return func(v url.Values) error {
+		for _, val := range values {
+			v.Add(key.Value(), strconv.Itoa(val))
+		}
+		return nil
+	}
+}
+
+// addStringFunc returns a SetFunc that calls v.Add for each string in the slice.
+func addStringFunc(key APIParamOptionType, values []string) func(url.Values) error {
+	return func(v url.Values) error {
+		for _, val := range values {
+			v.Add(key.Value(), val)
+		}
+		return nil
 	}
 }
 

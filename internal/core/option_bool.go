@@ -1,5 +1,10 @@
 package core
 
+import (
+	"net/url"
+	"strconv"
+)
+
 // WithAll returns an option to set the `all` parameter.
 func (s *OptionService) WithAll(enabled bool) RequestOption {
 	return boolOption(ParamAll, enabled)
@@ -86,5 +91,19 @@ func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 	return &APIParamOption{
 		Type:    paramType,
 		SetFunc: setBoolFunc(paramType, enabled),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
+func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.FormatBool(value))
+		return nil
 	}
 }

@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 
 	"github.com/nattokin/go-backlog/internal/model"
@@ -222,5 +223,19 @@ func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOpt
 			return nil
 		},
 		SetFunc: setStringFunc(paramType, value),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setStringFunc returns a SetFunc that calls v.Set with the given string value.
+func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), value)
+		return nil
 	}
 }

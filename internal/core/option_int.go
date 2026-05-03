@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
@@ -181,5 +183,19 @@ func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
 			return nil
 		},
 		SetFunc: setIntFunc(paramType, value),
+	}
+}
+
+//
+// ──────────────────────────────────────────────────────────────
+//  SetFunc factories
+// ──────────────────────────────────────────────────────────────
+//
+
+// setIntFunc returns a SetFunc that calls v.Set with the int converted to a string.
+func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
+	return func(v url.Values) error {
+		v.Set(key.Value(), strconv.Itoa(value))
+		return nil
 	}
 }
