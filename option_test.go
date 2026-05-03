@@ -105,7 +105,7 @@ func TestActivityOptionService(t *testing.T) {
 				query := url.Values{}
 				err := tc.option.Set(query)
 				require.NoError(t, err)
-			
+
 				expected := make([]string, len(tc.wantValue))
 				for i, v := range tc.wantValue {
 					expected[i] = strconv.Itoa(v)
