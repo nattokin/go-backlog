@@ -46,8 +46,8 @@ func (s *ActivityOptionService) WithCount(count int) RequestOption {
 }
 
 // WithOrder sets the sort order of results.
-func (s *ActivityOptionService) WithOrder(order model.Order) RequestOption {
-	return s.base.WithOrder(order)
+func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
+	return s.base.WithOrder(model.Order(order))
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -261,11 +261,6 @@ func TestUserOptionService(t *testing.T) {
 				key:       core.ParamUserID.Value(),
 				wantValue: 1,
 			},
-			"with-form-role-type": {
-				option:    o.WithRoleType(2),
-				key:       core.ParamRoleType.Value(),
-				wantValue: 2,
-			},
 		}
 
 		for name, tc := range cases {
@@ -276,6 +271,32 @@ func TestUserOptionService(t *testing.T) {
 				err := tc.option.Set(form)
 				require.NoError(t, err)
 				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
+			})
+		}
+	})
+
+	// --- Enum options ---------------------------------------------------------------
+	t.Run("enum-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    backlog.RequestOption
+			key       string
+			wantValue backlog.Role
+		}{
+			"with-form-role-type": {
+				option:    o.WithRoleType(backlog.RoleNormalUser),
+				key:       core.ParamRoleType.Value(),
+				wantValue: backlog.RoleNormalUser,
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(int(tc.wantValue)), form.Get(tc.key))
 			})
 		}
 	})
