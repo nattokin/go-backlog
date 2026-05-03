@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/project"
@@ -159,8 +158,8 @@ func (s *ProjectCustomFieldOptionService) WithInitialValueType(t int) RequestOpt
 
 // WithInitialDate sets the initial date ("yyyy-MM-dd") for a date type custom field
 // when InitialValueType is 3.
-func (s *ProjectCustomFieldOptionService) WithInitialDate(t time.Time) RequestOption {
-	return s.base.WithInitialDate(t)
+func (s *ProjectCustomFieldOptionService) WithInitialDate(date string) RequestOption {
+	return s.base.WithInitialDate(date)
 }
 
 // WithInitialShift sets the number of days to shift from today for a date type custom field
