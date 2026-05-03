@@ -152,8 +152,8 @@ func (s *ProjectCustomFieldOptionService) WithUnit(unit string) RequestOption {
 
 // WithInitialValueType sets the initial value type for a date type custom field.
 // 1: today, 2: today+N days, 3: specified date.
-func (s *ProjectCustomFieldOptionService) WithInitialValueType(t int) RequestOption {
-	return s.base.WithInitialValueType(t)
+func (s *ProjectCustomFieldOptionService) WithInitialValueType(initialValueType int) RequestOption {
+	return s.base.WithInitialValueType(initialValueType)
 }
 
 // WithInitialDate sets the initial date ("yyyy-MM-dd") for a date type custom field
