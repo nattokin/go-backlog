@@ -303,8 +303,8 @@ func (s *UserOptionService) WithPassword(password string) RequestOption {
 }
 
 // WithRoleType sets the role type of a user.
-func (s *UserOptionService) WithRoleType(role model.Role) RequestOption {
-	return s.base.WithRoleType(role)
+func (s *UserOptionService) WithRoleType(role Role) RequestOption {
+	return s.base.WithRoleType(model.Role(role))
 }
 
 // WithSendMail sets whether to send a mail notification.
