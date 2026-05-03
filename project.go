@@ -83,8 +83,8 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 
 // Update updates a project.
 //
-// This method supports options returned by methods in "*Client.Project.Option",
-// such as:
+// At least one option is required. This method supports options returned by
+// methods in "*Client.Project.Option", such as:
 //   - WithArchived
 //   - WithChartEnabled
 //   - WithKey
@@ -94,8 +94,8 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //   - WithTextFormattingRule
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, opts ...RequestOption) (*Project, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, toCoreOptions(opts)...)
+func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, option RequestOption, opts ...RequestOption) (*Project, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, option, toCoreOptions(opts)...)
 	return projectFromModel(v), convertError(err)
 }
 
