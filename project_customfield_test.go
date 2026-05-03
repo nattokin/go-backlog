@@ -6,11 +6,13 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -546,6 +548,83 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, field)
 			assert.Equal(t, 1, field.ID)
+		})
+	}
+}
+
+func TestProjectCustomFieldOptionService(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+
+	date := time.Date(2024, 3, 15, 0, 0, 0, 0, time.UTC)
+	s := c.Project.CustomField.Option
+
+	cases := map[string]struct {
+		option  backlog.RequestOption
+		wantKey string
+	}{
+		"WithName": {
+			option:  s.WithName("Sprint"),
+			wantKey: core.ParamName.Value(),
+		},
+		"WithDescription": {
+			option:  s.WithDescription("sprint number"),
+			wantKey: core.ParamDescription.Value(),
+		},
+		"WithRequired": {
+			option:  s.WithRequired(true),
+			wantKey: core.ParamRequired.Value(),
+		},
+		"WithApplicableIssueTypeIDs": {
+			option:  s.WithApplicableIssueTypeIDs([]int{1, 2}),
+			wantKey: core.ParamApplicableIssueTypeIDs.Value(),
+		},
+		"WithMin": {
+			option:  s.WithMin(0.5),
+			wantKey: core.ParamMin.Value(),
+		},
+		"WithMax": {
+			option:  s.WithMax(100.0),
+			wantKey: core.ParamMax.Value(),
+		},
+		"WithInitialValue": {
+			option:  s.WithInitialValue(1.0),
+			wantKey: core.ParamInitialValue.Value(),
+		},
+		"WithUnit": {
+			option:  s.WithUnit("pt"),
+			wantKey: core.ParamUnit.Value(),
+		},
+		"WithInitialValueType": {
+			option:  s.WithInitialValueType(1),
+			wantKey: core.ParamInitialValueType.Value(),
+		},
+		"WithInitialDate": {
+			option:  s.WithInitialDate(date),
+			wantKey: core.ParamInitialDate.Value(),
+		},
+		"WithInitialShift": {
+			option:  s.WithInitialShift(7),
+			wantKey: core.ParamInitialShift.Value(),
+		},
+		"WithItems": {
+			option:  s.WithItems([]string{"High", "Low"}),
+			wantKey: core.ParamItems.Value(),
+		},
+		"WithAllowInput": {
+			option:  s.WithAllowInput(true),
+			wantKey: core.ParamAllowInput.Value(),
+		},
+		"WithAllowAddItem": {
+			option:  s.WithAllowAddItem(true),
+			wantKey: core.ParamAllowAddItem.Value(),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantKey, tc.option.Key())
 		})
 	}
 }
