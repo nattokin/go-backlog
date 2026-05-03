@@ -2,9 +2,12 @@ package core
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
+
+var datePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 // WithBase returns an option that sets the `base` field (merge base branch name).
 func (s *OptionService) WithBase(base string) RequestOption {
@@ -50,28 +53,19 @@ func (s *OptionService) WithHookURL(hookURL string) RequestOption {
 // WithInitialDate returns an option to set the `initialDate` parameter for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDate(date string) RequestOption {
-	return &APIParamOption{
-		Type:    ParamInitialDate,
-		SetFunc: setStringFunc(ParamInitialDate, date),
-	}
+	return dateFormatStringOption(ParamInitialDate, date)
 }
 
 // WithInitialDateMax returns an option to set the `max` parameter for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDateMax(date string) RequestOption {
-	return &APIParamOption{
-		Type:    ParamMax,
-		SetFunc: setStringFunc(ParamMax, date),
-	}
+	return dateFormatStringOption(ParamMax, date)
 }
 
 // WithInitialDateMin returns an option to set the `min` parameter for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDateMin(date string) RequestOption {
-	return &APIParamOption{
-		Type:    ParamMin,
-		SetFunc: setStringFunc(ParamMin, date),
-	}
+	return dateFormatStringOption(ParamMin, date)
 }
 
 // WithKey returns a option that sets the `key` field.
@@ -193,5 +187,20 @@ func (s *OptionService) WithUnit(unit string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamUnit,
 		SetFunc: setStringFunc(ParamUnit, unit),
+	}
+}
+
+// dateFormatStringOption builds a RequestOption that validates the string matches
+// "yyyy-MM-dd" format and sets it.
+func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() error {
+			if !datePattern.MatchString(date) {
+				return NewValidationError(fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
+			}
+			return nil
+		},
+		SetFunc: setStringFunc(paramType, date),
 	}
 }
