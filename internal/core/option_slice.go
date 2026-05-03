@@ -29,10 +29,18 @@ func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
 }
 
 // WithItems returns an option to set the `items[]` parameter for List type custom fields.
-// Each string becomes a selectable list item.
+// Each string becomes a selectable list item and must not be empty.
 func (s *OptionService) WithItems(items []string) RequestOption {
 	return &APIParamOption{
-		Type:    ParamItems,
+		Type: ParamItems,
+		CheckFunc: func() error {
+			for i, item := range items {
+				if item == "" {
+					return NewValidationError(fmt.Sprintf("items[%d] must not be empty", i))
+				}
+			}
+			return nil
+		},
 		SetFunc: addStringFunc(ParamItems, items),
 	}
 }
