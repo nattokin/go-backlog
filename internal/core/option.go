@@ -205,15 +205,3 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...Request
 	}
 	return nil
 }
-
-// HasRequiredOption checks whether the provided options include at least one of the required form types.
-func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionType) bool {
-	for _, opt := range options {
-		for _, requiredType := range requiredTypes {
-			if opt.Key() == requiredType.Value() {
-				return true
-			}
-		}
-	}
-	return false
-}
