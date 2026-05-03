@@ -125,11 +125,11 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 	return add(ctx, s.method, "users", form)
 }
 
-func (s *Service) Update(ctx context.Context, id int, opts ...core.RequestOption) (*model.User, error) {
-	option := &core.OptionService{}
+func (s *Service) Update(ctx context.Context, id int, option core.RequestOption, opts ...core.RequestOption) (*model.User, error) {
+	baseOpt := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
-	options := append([]core.RequestOption{option.WithUserID(id)}, opts...)
+	options := append([]core.RequestOption{baseOpt.WithUserID(id), option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
