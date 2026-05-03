@@ -50,7 +50,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewService(m)
-			s.Update(ctx, "TEST") //nolint:errcheck
+			s.Update(ctx, "TEST", o.WithName("test")) //nolint:errcheck
 		}},
 		{"Service.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
@@ -115,7 +115,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"StatusService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewStatusService(m)
-			s.Update(ctx, "TEST", 1) //nolint:errcheck
+			s.Update(ctx, "TEST", 1, o.WithName("Open")) //nolint:errcheck
 		}},
 		{"StatusService.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
