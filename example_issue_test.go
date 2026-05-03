@@ -21,6 +21,21 @@ var (
 	// IssueAttachmentService
 	doerIssueAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
 	doerIssueAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
+
+	// IssueCommentService
+	doerIssueCommentAll           = newMockDoer(fixture.Comment.ListJSON)
+	doerIssueCommentAdd           = newMockDoer(fixture.Comment.SingleJSON)
+	doerIssueCommentCount         = newMockDoer(`{"count":2}`)
+	doerIssueCommentDelete        = newMockDoer(fixture.Comment.SingleJSON)
+	doerIssueCommentNotifications = newMockDoer(`[{"id":25,"alreadyRead":false,"reason":2,"resourceAlreadyRead":false}]`)
+	doerIssueCommentNotify        = newMockDoer(fixture.Comment.SingleJSON)
+	doerIssueCommentOne           = newMockDoer(fixture.Comment.SingleJSON)
+	doerIssueCommentUpdate        = newMockDoer(fixture.Comment.SingleJSON)
+
+	// IssueSharedFileService
+	doerIssueSharedFileLink   = newMockDoer(fixture.SharedFile.ListJSON)
+	doerIssueSharedFileList   = newMockDoer(fixture.SharedFile.ListJSON)
+	doerIssueSharedFileUnlink = newMockDoer(fixture.SharedFile.SingleJSON)
 )
 
 func ExampleIssueService_All() {
@@ -138,6 +153,149 @@ func ExampleIssueAttachmentService_Remove() {
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 8, Name: IMG0088.png
+}
+
+func ExampleIssueCommentService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentAll),
+	)
+
+	comments, _ := c.Issue.Comment.All(context.Background(), "PRJ-1")
+	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
+	// Output:
+	// Count: 2, ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueCommentService_Add() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentAdd),
+	)
+
+	comment, _ := c.Issue.Comment.Add(context.Background(), "PRJ-1", "This is a comment.")
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueCommentService_Count() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentCount),
+	)
+
+	count, _ := c.Issue.Comment.Count(context.Background(), "PRJ-1")
+	fmt.Printf("Count: %d\n", count)
+	// Output:
+	// Count: 2
+}
+
+func ExampleIssueCommentService_Delete() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentDelete),
+	)
+
+	comment, _ := c.Issue.Comment.Delete(context.Background(), "PRJ-1", 1)
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueCommentService_Notifications() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentNotifications),
+	)
+
+	notifications, _ := c.Issue.Comment.Notifications(context.Background(), "PRJ-1", 1)
+	fmt.Printf("Count: %d, ID: %d\n", len(notifications), notifications[0].ID)
+	// Output:
+	// Count: 1, ID: 25
+}
+
+func ExampleIssueCommentService_Notify() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentNotify),
+	)
+
+	comment, _ := c.Issue.Comment.Notify(context.Background(), "PRJ-1", 1, []int{5686})
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueCommentService_One() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentOne),
+	)
+
+	comment, _ := c.Issue.Comment.One(context.Background(), "PRJ-1", 1)
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueCommentService_Update() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueCommentUpdate),
+	)
+
+	comment, _ := c.Issue.Comment.Update(context.Background(), "PRJ-1", 1, "This is a comment.")
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
+}
+
+func ExampleIssueSharedFileService_Link() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueSharedFileLink),
+	)
+
+	files, _ := c.Issue.SharedFile.Link(context.Background(), "TEST-1", []int{454403, 454404})
+	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
+}
+
+func ExampleIssueSharedFileService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueSharedFileList),
+	)
+
+	files, _ := c.Issue.SharedFile.List(context.Background(), "TEST-1")
+	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
+}
+
+func ExampleIssueSharedFileService_Unlink() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueSharedFileUnlink),
+	)
+
+	file, _ := c.Issue.SharedFile.Unlink(context.Background(), "TEST-1", 454403)
+	fmt.Printf("ID: %d, Name: %s\n", file.ID, file.Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
 }
 
 func ExampleIssueStarService_Add() {

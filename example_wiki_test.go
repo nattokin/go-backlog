@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// WikiService
 	doerWikiAll    = newMockDoer(fixture.Wiki.ListJSON)
 	doerWikiCount  = newMockDoer(`{"count": 5}`)
 	doerWikiOne    = newMockDoer(fixture.Wiki.MinimumJSON)
@@ -16,12 +17,20 @@ var (
 	doerWikiUpdate = newMockDoer(fixture.Wiki.MinimumJSON)
 	doerWikiDelete = newMockDoer(fixture.Wiki.MinimumJSON)
 
+	// WikiAttachmentService
 	doerWikiAttachmentAttach = newMockDoer(fixture.Attachment.ListJSON)
 	doerWikiAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
 	doerWikiAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
 
+	// WikiHistoryService
 	doerWikiHistoryList = newMockDoer(fixture.WikiHistory.ListJSON)
 
+	// WikiSharedFileService
+	doerWikiSharedFileLink   = newMockDoer(fixture.SharedFile.ListJSON)
+	doerWikiSharedFileList   = newMockDoer(fixture.SharedFile.ListJSON)
+	doerWikiSharedFileUnlink = newMockDoer(fixture.SharedFile.SingleJSON)
+
+	// WikiStarService
 	doerWikiStarList = newMockDoer(fixture.Star.ListJSON)
 )
 
@@ -157,6 +166,45 @@ func ExampleWikiHistoryService_List() {
 	fmt.Printf("PageID: %d, Version: %d, Name: %s\n", entries[0].PageID, entries[0].Version, entries[0].Name)
 	// Output:
 	// PageID: 34, Version: 2, Name: Home
+}
+
+func ExampleWikiSharedFileService_Link() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiSharedFileLink),
+	)
+
+	files, _ := c.Wiki.SharedFile.Link(context.Background(), 34, []int{454403, 454404})
+	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
+}
+
+func ExampleWikiSharedFileService_List() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiSharedFileList),
+	)
+
+	files, _ := c.Wiki.SharedFile.List(context.Background(), 34)
+	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
+}
+
+func ExampleWikiSharedFileService_Unlink() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiSharedFileUnlink),
+	)
+
+	file, _ := c.Wiki.SharedFile.Unlink(context.Background(), 34, 454403)
+	fmt.Printf("ID: %d, Name: %s\n", file.ID, file.Name)
+	// Output:
+	// ID: 454403, Name: 01_buz.png
 }
 
 func ExampleWikiStarService_List() {
