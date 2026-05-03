@@ -1,11 +1,6 @@
 package core
 
-import (
-	"fmt"
-	"net/url"
-	"strconv"
-	"time"
-)
+import "net/url"
 
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
@@ -221,106 +216,4 @@ func HasRequiredOption(options []RequestOption, requiredTypes []APIParamOptionTy
 		}
 	}
 	return false
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  SetFunc factories
-// ──────────────────────────────────────────────────────────────
-//
-
-// setStringFunc returns a SetFunc that calls v.Set with the given string value.
-func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), value)
-		return nil
-	}
-}
-
-// setIntFunc returns a SetFunc that calls v.Set with the int converted to a string.
-func setIntFunc(key APIParamOptionType, value int) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), strconv.Itoa(value))
-		return nil
-	}
-}
-
-// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
-func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), strconv.FormatBool(value))
-		return nil
-	}
-}
-
-// setTimeFunc returns a SetFunc that calls v.Set with the time formatted by the given layout.
-func setTimeFunc(key APIParamOptionType, t time.Time, format string) func(url.Values) error {
-	return func(v url.Values) error {
-		v.Set(key.Value(), t.Format(format))
-		return nil
-	}
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// boolOption builds a RequestOption that sets a boolean parameter.
-func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setBoolFunc(paramType, enabled),
-	}
-}
-
-// timeOption builds a RequestOption that formats a time.Time value and sets it.
-func timeOption(paramType APIParamOptionType, t time.Time, format string) RequestOption {
-	return &APIParamOption{
-		Type:    paramType,
-		SetFunc: setTimeFunc(paramType, t, format),
-	}
-}
-
-// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
-func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value == "" {
-				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setStringFunc(paramType, value),
-	}
-}
-
-// positiveIntOption builds a RequestOption that validates an int is >= 1 and sets it.
-func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < 1 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
-}
-
-// intRangeOption builds a RequestOption that validates an int is within [min, max] and sets it.
-func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() error {
-			if value < min || value > max {
-				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
-			}
-			return nil
-		},
-		SetFunc: setIntFunc(paramType, value),
-	}
 }
