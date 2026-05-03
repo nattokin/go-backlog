@@ -118,12 +118,12 @@ func (s *Service) Update(ctx context.Context, wikiID int, option core.RequestOpt
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]core.RequestOption{option}, opts...)
 
-	if !core.HasRequiredOption(options, []core.APIParamOptionType{core.ParamName, core.ParamContent}) {
-		return nil, core.NewValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
-	}
-
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
+	}
+
+	if !form.Has("name") && !form.Has("content") {
+		return nil, core.NewValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
