@@ -10,7 +10,6 @@ import (
 
 	"github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestActivityOptionService(t *testing.T) {
@@ -62,14 +61,14 @@ func TestActivityOptionService(t *testing.T) {
 			wantValue string
 		}{
 			"with-query-order-asc": {
-				option:    o.WithOrder(model.OrderAsc),
+				option:    o.WithOrder(backlog.OrderAsc),
 				key:       core.ParamOrder.Value(),
-				wantValue: string(model.OrderAsc),
+				wantValue: string(backlog.OrderAsc),
 			},
 			"with-query-order-desc": {
-				option:    o.WithOrder(model.OrderDesc),
+				option:    o.WithOrder(backlog.OrderDesc),
 				key:       core.ParamOrder.Value(),
-				wantValue: string(model.OrderDesc),
+				wantValue: string(backlog.OrderDesc),
 			},
 		}
 
