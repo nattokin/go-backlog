@@ -199,6 +199,7 @@ func TestStatusService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		statusID       int
+		option         core.RequestOption
 		opts           []core.RequestOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
@@ -208,8 +209,8 @@ func TestStatusService_Update(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
+			option:         o.WithName("Open Updated"),
 			opts: []core.RequestOption{
-				o.WithName("Open Updated"),
 				o.WithColor("#f5ab35"),
 			},
 
@@ -222,36 +223,28 @@ func TestStatusService_Update(t *testing.T) {
 
 			wantErrType: nil,
 		},
-		"success-without-option": {
-			projectIDOrKey: "TEST",
-			statusID:       1,
-
-			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/statuses/1", spath)
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
-			},
-
-			wantErrType: nil,
-		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
 			statusID:       1,
+			option:         o.WithName("Open"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-validation-statusID-zero": {
 			projectIDOrKey: "TEST",
 			statusID:       0,
+			option:         o.WithName("Open"),
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			option:         mock.NewInvalidTypeOption(),
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
+			option:         o.WithName("Open"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -262,6 +255,7 @@ func TestStatusService_Update(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
+			option:         o.WithName("Open"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -281,7 +275,7 @@ func TestStatusService_Update(t *testing.T) {
 			}
 			s := project.NewStatusService(method)
 
-			status, err := s.Update(context.Background(), tc.projectIDOrKey, tc.statusID, tc.opts...)
+			status, err := s.Update(context.Background(), tc.projectIDOrKey, tc.statusID, tc.option, tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
