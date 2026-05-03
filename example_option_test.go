@@ -8,12 +8,46 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
-// ExampleWikiOptionService demonstrates filtering and updating a wiki page using multiple options.
+var (
+	// WikiOptionService
+	doerWikiOption = newMockDoer(fixture.Wiki.MinimumJSON)
+
+	// IssueOptionService
+	doerIssueOption = newMockDoer(fixture.Issue.ListJSON)
+
+	// IssueCommentOptionService
+	doerIssueCommentOption = newMockDoer(fixture.Comment.ListJSON)
+
+	// ProjectOptionService
+	doerProjectOption = newMockDoer(fixture.Project.ListJSON)
+
+	// UserOptionService
+	doerUserOption = newMockDoer(fixture.User.SingleJSON)
+
+	// UserRecentlyViewedOptionService
+	doerUserRecentlyViewedOption = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
+
+	// UserStarOptionService
+	doerUserStarOption = newMockDoer(fixture.Star.ListJSON)
+
+	// PullRequestOptionService
+	doerPullRequestOption = newMockDoer(fixture.PullRequest.ListJSON)
+
+	// PullRequestCommentOptionService
+	doerPullRequestCommentOption = newMockDoer(fixture.Comment.ListJSON)
+
+	// ActivityOptionService
+	doerActivityOptionSpace   = newMockDoer(fixture.Activity.ListJSON)
+	doerActivityOptionProject = newMockDoer(fixture.Activity.ListJSON)
+	doerActivityOptionUser    = newMockDoer(fixture.Activity.ListJSON)
+)
+
+// ExampleWikiOptionService demonstrates updating a wiki page using multiple options.
 func ExampleWikiOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Wiki.MinimumJSON)),
+		backlog.WithDoer(doerWikiOption),
 	)
 
 	wiki, _ := c.Wiki.Update(
@@ -32,7 +66,7 @@ func ExampleIssueOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Issue.ListJSON)),
+		backlog.WithDoer(doerIssueOption),
 	)
 
 	issues, _ := c.Issue.All(
@@ -51,7 +85,7 @@ func ExampleIssueCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Comment.ListJSON)),
+		backlog.WithDoer(doerIssueCommentOption),
 	)
 
 	comments, _ := c.Issue.Comment.All(
@@ -70,7 +104,7 @@ func ExampleProjectOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Project.ListJSON)),
+		backlog.WithDoer(doerProjectOption),
 	)
 
 	projects, _ := c.Project.All(
@@ -88,7 +122,7 @@ func ExampleUserOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.User.SingleJSON)),
+		backlog.WithDoer(doerUserOption),
 	)
 
 	user, _ := c.User.Update(
@@ -107,7 +141,7 @@ func ExampleUserRecentlyViewedOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.RecentlyViewed.IssueListJSON)),
+		backlog.WithDoer(doerUserRecentlyViewedOption),
 	)
 
 	issues, _ := c.User.RecentlyViewed.ListIssues(
@@ -125,7 +159,7 @@ func ExampleUserStarOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Star.ListJSON)),
+		backlog.WithDoer(doerUserStarOption),
 	)
 
 	stars, _ := c.User.Star.List(
@@ -139,12 +173,12 @@ func ExampleUserStarOptionService() {
 	// ID: 10, Title: [TEST-1] first issue
 }
 
-// ExamplePullRequestOptionService demonstrates filtering pull requests by status and assignee.
+// ExamplePullRequestOptionService demonstrates filtering pull requests by status and count.
 func ExamplePullRequestOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.PullRequest.ListJSON)),
+		backlog.WithDoer(doerPullRequestOption),
 	)
 
 	prs, _ := c.PullRequest.All(
@@ -164,7 +198,7 @@ func ExamplePullRequestCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Comment.ListJSON)),
+		backlog.WithDoer(doerPullRequestCommentOption),
 	)
 
 	comments, _ := c.PullRequest.Comment.All(
@@ -203,7 +237,7 @@ func ExampleActivityOptionService_spaceWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Activity.ListJSON)),
+		backlog.WithDoer(doerActivityOptionSpace),
 	)
 
 	activities, _ := c.Space.Activity.List(
@@ -221,7 +255,7 @@ func ExampleActivityOptionService_projectWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Activity.ListJSON)),
+		backlog.WithDoer(doerActivityOptionProject),
 	)
 
 	activities, _ := c.Project.Activity.List(
@@ -240,7 +274,7 @@ func ExampleActivityOptionService_userWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(newMockDoer(fixture.Activity.ListJSON)),
+		backlog.WithDoer(doerActivityOptionUser),
 	)
 
 	activities, _ := c.User.Activity.List(
