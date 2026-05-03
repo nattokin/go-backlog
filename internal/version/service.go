@@ -82,24 +82,12 @@ func (s *Service) Add(ctx context.Context, projectIDOrKey, name string, opts ...
 }
 
 // Update updates a version/milestone.
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID int, opts ...core.RequestOption) (*model.Version, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 	if err := validate.ValidateVersionID(versionID); err != nil {
 		return nil, err
-	}
-
-	if !core.HasRequiredOption(opts, []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamStartDate,
-		core.ParamReleaseDueDate,
-		core.ParamArchived,
-	}) {
-		return nil, core.NewValidationError(
-			"requires an option to modify version fields",
-		)
 	}
 
 	form := url.Values{}
@@ -110,7 +98,8 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID i
 		core.ParamReleaseDueDate,
 		core.ParamArchived,
 	}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	options := append([]core.RequestOption{option}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
