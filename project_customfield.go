@@ -65,7 +65,7 @@ func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *ProjectCustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, opt RequestOption, opts ...RequestOption) (*CustomField, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, customFieldID, toCoreOption(opt), toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, customFieldID, opt, toCoreOptions(opts)...)
 	return customFieldFromModel(v), convertError(err)
 }
 
