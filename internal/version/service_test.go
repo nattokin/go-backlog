@@ -177,6 +177,7 @@ func TestService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		versionID      int
+		option         core.RequestOption
 		opts           []core.RequestOption
 		wantErrType    error
 		wantID         int
@@ -185,7 +186,8 @@ func TestService_Update(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
-			opts:           []core.RequestOption{o.WithName("name"), o.WithReleaseDueDate(date)},
+			option:         o.WithName("name"),
+			opts:           []core.RequestOption{o.WithReleaseDueDate(date)},
 			wantID:         fixture.Version.Single.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)
@@ -195,38 +197,33 @@ func TestService_Update(t *testing.T) {
 		"error-versionID-negative": {
 			projectIDOrKey: "TEST",
 			versionID:      -1,
-			opts:           []core.RequestOption{o.WithName("name")},
+			option:         o.WithName("name"),
 			wantErrType:    &core.ValidationError{},
 			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
-			opts:           []core.RequestOption{o.WithName("name"), mock.NewInvalidTypeOption()},
+			option:         mock.NewInvalidTypeOption(),
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
-			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamArchived)},
+			option:         mock.NewFailingSetOption(core.ParamArchived),
 			wantErrType:    errors.New(""),
-		},
-		"error-no-options": {
-			projectIDOrKey: "TEST",
-			versionID:      1,
-			wantErrType:    &core.ValidationError{},
 		},
 		"error-project-empty": {
 			projectIDOrKey: "",
 			versionID:      1,
-			opts:           []core.RequestOption{o.WithName("name")},
+			option:         o.WithName("name"),
 			wantErrType:    &core.ValidationError{},
 			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
-			opts:           []core.RequestOption{o.WithName("name")},
+			option:         o.WithName("name"),
 			wantErrType:    &json.SyntaxError{},
 			mockPatchFn: func(context.Context, string, url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -235,7 +232,7 @@ func TestService_Update(t *testing.T) {
 		"error-versionID-zero": {
 			projectIDOrKey: "TEST",
 			versionID:      0,
-			opts:           []core.RequestOption{o.WithName("name")},
+			option:         o.WithName("name"),
 			wantErrType:    &core.ValidationError{},
 			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
 		},
@@ -250,7 +247,7 @@ func TestService_Update(t *testing.T) {
 				m.Patch = tc.mockPatchFn
 			}
 			s := version.NewService(m)
-			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.versionID, tc.opts...)
+			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.versionID, tc.option, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
