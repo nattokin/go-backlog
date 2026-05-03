@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -11,7 +12,6 @@ import (
 var (
 	doerExample            = newMockDoer(fixture.Wiki.ListJSON)
 	doerExampleWithOptions = newMockDoer(fixture.Wiki.ListJSON)
-	doerNewClientWithDoer  = newMockDoer(fixture.Wiki.ListJSON)
 )
 
 // Example demonstrates basic usage: creating a client and listing wiki pages.
@@ -62,12 +62,13 @@ func ExampleNewClient() {
 }
 
 // ExampleNewClient_withDoer demonstrates injecting a custom HTTP client.
-// This is useful for testing, as you can provide a mock implementation.
+// This is useful for configuring timeouts, transport settings, or providing
+// a mock implementation during testing.
 func ExampleNewClient_withDoer() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerNewClientWithDoer),
+		backlog.WithDoer(http.DefaultClient),
 	)
 	if err != nil {
 		fmt.Println("error:", err)
