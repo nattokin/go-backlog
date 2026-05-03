@@ -97,6 +97,16 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Update Category](https://developer.nulab.com/docs/backlog/api/2/update-category/) - Updates a category in a project.
 - [Delete Category](https://developer.nulab.com/docs/backlog/api/2/delete-category/) - Deletes a category from a project.
 
+### Client.Project.[CustomField](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectCustomFieldService)
+
+- [Get Custom Field List](https://developer.nulab.com/docs/backlog/api/2/get-custom-field-list/) - Returns a list of custom fields in a project.
+- [Add Custom Field](https://developer.nulab.com/docs/backlog/api/2/add-custom-field/) - Adds a new custom field to a project.
+- [Update Custom Field](https://developer.nulab.com/docs/backlog/api/2/update-custom-field/) - Updates a custom field in a project.
+- [Delete Custom Field](https://developer.nulab.com/docs/backlog/api/2/delete-custom-field/) - Deletes a custom field from a project.
+- [Add List Item for List Type Custom Field](https://developer.nulab.com/docs/backlog/api/2/add-list-item-for-list-type-custom-field/) - Adds a list item to a list type custom field.
+- [Update List Item for List Type Custom Field](https://developer.nulab.com/docs/backlog/api/2/update-list-item-for-list-type-custom-field/) - Updates a list item in a list type custom field.
+- [Delete List Item for List Type Custom Field](https://developer.nulab.com/docs/backlog/api/2/delete-list-item-for-list-type-custom-field/) - Deletes a list item from a list type custom field.
+
 ### Client.Project.[IssueType](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectIssueTypeService)
 
 - [Get Issue Type List](https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list/) - Returns a list of issue types in a project.
