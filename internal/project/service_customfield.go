@@ -197,9 +197,7 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 		return nil, err
 	}
 	form := url.Values{}
-	if err := option.Set(form); err != nil {
-		return nil, err
-	}
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items")
 	resp, err := s.method.Post(ctx, spath, form)
@@ -234,9 +232,7 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 		return nil, err
 	}
 	form := url.Values{}
-	if err := option.Set(form); err != nil {
-		return nil, err
-	}
+	option.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
 	resp, err := s.method.Patch(ctx, spath, form)
