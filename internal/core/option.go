@@ -364,8 +364,8 @@ func validatePositiveInts(values []int, paramName string) error {
 	return nil
 }
 
-// intSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
-func intSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
+// positiveIntSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
+func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() error {
