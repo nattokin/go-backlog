@@ -32,14 +32,15 @@ type Project struct {
 type ProjectService struct {
 	base *project.Service
 
-	Activity   *ProjectActivityService
-	Category   *ProjectCategoryService
-	IssueType  *ProjectIssueTypeService
-	Status     *ProjectStatusService
-	User       *ProjectUserService
-	SharedFile *ProjectSharedFileService
-	Webhook    *ProjectWebhookService
-	Version    *ProjectVersionService
+	Activity    *ProjectActivityService
+	Category    *ProjectCategoryService
+	CustomField *ProjectCustomFieldService
+	IssueType   *ProjectIssueTypeService
+	Status      *ProjectStatusService
+	User        *ProjectUserService
+	SharedFile  *ProjectSharedFileService
+	Webhook     *ProjectWebhookService
+	Version     *ProjectVersionService
 
 	Option *ProjectOptionService
 }
@@ -170,16 +171,17 @@ func (s *ProjectOptionService) WithTextFormattingRule(format model.Format) Reque
 
 func newProjectService(method *core.Method, option *core.OptionService) *ProjectService {
 	return &ProjectService{
-		base:       project.NewService(method),
-		Activity:   newProjectActivityService(method, option),
-		Category:   newProjectCategoryService(method),
-		IssueType:  newProjectIssueTypeService(method, option),
-		Status:     newProjectStatusService(method, option),
-		User:       newProjectUserService(method, option),
-		SharedFile: newProjectSharedFileService(method),
-		Webhook:    newProjectWebhookService(method, option),
-		Version:    newProjectVersionService(method, option),
-		Option:     newProjectOptionService(option),
+		base:        project.NewService(method),
+		Activity:    newProjectActivityService(method, option),
+		Category:    newProjectCategoryService(method),
+		CustomField: newProjectCustomFieldService(method, option),
+		IssueType:   newProjectIssueTypeService(method, option),
+		Status:      newProjectStatusService(method, option),
+		User:        newProjectUserService(method, option),
+		SharedFile:  newProjectSharedFileService(method),
+		Webhook:     newProjectWebhookService(method, option),
+		Version:     newProjectVersionService(method, option),
+		Option:      newProjectOptionService(option),
 	}
 }
 
