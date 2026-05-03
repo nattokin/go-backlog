@@ -37,14 +37,14 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 
 // Update updates a status in a project.
 //
-// This method supports options returned by methods in "*Client.Project.Status.Option",
-// such as:
+// At least one option is required. This method supports options returned by
+// methods in "*Client.Project.Status.Option", such as:
 //   - WithColor
 //   - WithName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opts ...RequestOption) (*Status, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOptions(opts)...)
+func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option RequestOption, opts ...RequestOption) (*Status, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, statusID, option, toCoreOptions(opts)...)
 	return statusFromModel(v), convertError(err)
 }
 
@@ -102,8 +102,8 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 
 // Update updates a version/milestone.
 //
-// This method supports options returned by methods in "*Client.Project.Version.Option",
-// such as:
+// At least one option is required. This method supports options returned by
+// methods in "*Client.Project.Version.Option", such as:
 //   - WithArchived
 //   - WithDescription
 //   - WithName
@@ -111,8 +111,8 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 //   - WithStartDate
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
-func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, opts ...RequestOption) (*Version, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toCoreOptions(opts)...)
+func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option RequestOption, opts ...RequestOption) (*Version, error) {
+	v, err := s.base.Update(ctx, projectIDOrKey, versionID, option, toCoreOptions(opts)...)
 	return versionFromModel(v), convertError(err)
 }
 
