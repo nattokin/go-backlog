@@ -78,7 +78,7 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...core.Req
 	return &v, nil
 }
 
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) (*model.Project, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, option core.RequestOption, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,8 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opts ...cor
 		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
 		core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule, core.ParamArchived,
 	}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	options := append([]core.RequestOption{option}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -458,7 +459,7 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 // Update updates a status in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opts ...core.RequestOption) (*model.Status, error) {
+func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option core.RequestOption, opts ...core.RequestOption) (*model.Status, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -468,7 +469,8 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+	options := append([]core.RequestOption{option}, opts...)
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
