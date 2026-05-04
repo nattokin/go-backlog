@@ -11,7 +11,6 @@ import (
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -208,7 +207,7 @@ func TestProjectOptionService(t *testing.T) {
 			wantKey: core.ParamSubtaskingEnabled.Value(),
 		},
 		"WithTextFormattingRule": {
-			option:  s.WithTextFormattingRule(model.FormatBacklog),
+			option:  s.WithTextFormattingRule(backlog.FormatBacklog),
 			wantKey: core.ParamTextFormattingRule.Value(),
 		},
 	}
