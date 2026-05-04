@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"path"
@@ -44,12 +45,13 @@ type Client struct {
 // Each function delegates to Client.do() but can be replaced in tests
 // for fine-grained unit testing of individual services.
 type Method struct {
-	Get    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-	Post   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-	Patch  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-	Put    func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-	Delete func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-	Upload func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
+	Get      func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+	Post     func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Patch    func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Put      func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Delete   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	Upload   func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
+	Download func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -89,12 +91,13 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 
 	// --- Inject HTTP Method Wrappers ------------------------------------------
 	c.Method = &Method{
-		Get:    c.Get,
-		Post:   c.Post,
-		Patch:  c.Patch,
-		Put:    c.Put,
-		Delete: c.Delete,
-		Upload: c.Upload,
+		Get:      c.Get,
+		Post:     c.Post,
+		Patch:    c.Patch,
+		Put:      c.Put,
+		Delete:   c.Delete,
+		Upload:   c.Upload,
+		Download: c.Download,
 	}
 
 	return c, nil
@@ -215,6 +218,10 @@ func (c *Client) Upload(ctx context.Context, spath, fileName string, r io.Reader
 	return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(&buf))
 }
 
+func (c *Client) Download(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+	return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Response helpers
 // ──────────────────────────────────────────────────────────────
@@ -256,4 +263,38 @@ func DecodeResponse(resp *http.Response, v any) error {
 	defer resp.Body.Close()
 
 	return json.NewDecoder(resp.Body).Decode(v)
+}
+
+// FileData represents a downloaded binary file with its metadata.
+type FileData struct {
+	Body        io.ReadCloser
+	Filename    string
+	ContentType string
+}
+
+// DownloadResponse extracts FileData from a binary HTTP response.
+// It parses the filename from Content-Disposition and the media type from Content-Type.
+// The caller is responsible for closing FileData.Body.
+func DownloadResponse(resp *http.Response) (*FileData, error) {
+	filename := ""
+	if cd := resp.Header.Get("Content-Disposition"); cd != "" {
+		_, params, err := mime.ParseMediaType(cd)
+		if err == nil {
+			filename = params["filename"]
+		}
+	}
+
+	contentType := ""
+	if ct := resp.Header.Get("Content-Type"); ct != "" {
+		mediaType, _, err := mime.ParseMediaType(ct)
+		if err == nil {
+			contentType = mediaType
+		}
+	}
+
+	return &FileData{
+		Body:        resp.Body,
+		Filename:    filename,
+		ContentType: contentType,
+	}, nil
 }
