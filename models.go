@@ -4,7 +4,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
@@ -497,13 +496,13 @@ func tagFromModel(m *model.Tag) *Tag {
 	}
 }
 
-func fileDataFromCore(f *core.FileData) *FileData {
-	if f == nil {
+func fileDataFromModel(m *model.FileData) *FileData {
+	if m == nil {
 		return nil
 	}
 	return &FileData{
-		Body:        f.Body,
-		Filename:    f.Filename,
-		ContentType: f.ContentType,
+		Body:        m.Body,
+		Filename:    m.Filename,
+		ContentType: m.ContentType,
 	}
 }

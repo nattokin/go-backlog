@@ -70,7 +70,7 @@ func (s *IssueService) Remove(ctx context.Context, issueIDOrKey string, attachme
 	return RemoveAttachment(ctx, s.method, spath)
 }
 
-func (s *IssueService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*core.FileData, error) {
+func (s *IssueService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.FileData, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (s *PullRequestService) Remove(ctx context.Context, projectIDOrKey string, 
 	return RemoveAttachment(ctx, s.method, spath)
 }
 
-func (s *PullRequestService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*core.FileData, error) {
+func (s *PullRequestService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.FileData, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (s *WikiService) Remove(ctx context.Context, wikiID, attachmentID int) (*mo
 	return RemoveAttachment(ctx, s.method, spath)
 }
 
-func (s *WikiService) Download(ctx context.Context, wikiID, attachmentID int) (*core.FileData, error) {
+func (s *WikiService) Download(ctx context.Context, wikiID, attachmentID int) (*model.FileData, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}

@@ -147,7 +147,7 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	return delete(ctx, s.method, spath, nil)
 }
 
-func (s *Service) Icon(ctx context.Context, id int) (*core.FileData, error) {
+func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
 	if err := validate.ValidateUserID(id); err != nil {
 		return nil, err
 	}

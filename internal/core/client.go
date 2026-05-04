@@ -11,6 +11,8 @@ import (
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/nattokin/go-backlog/internal/model"
 )
 
 const (
@@ -265,17 +267,10 @@ func DecodeResponse(resp *http.Response, v any) error {
 	return json.NewDecoder(resp.Body).Decode(v)
 }
 
-// FileData represents a downloaded binary file with its metadata.
-type FileData struct {
-	Body        io.ReadCloser
-	Filename    string
-	ContentType string
-}
-
 // DownloadResponse extracts FileData from a binary HTTP response.
 // It parses the filename from Content-Disposition and the media type from Content-Type.
 // The caller is responsible for closing FileData.Body.
-func DownloadResponse(resp *http.Response) (*FileData, error) {
+func DownloadResponse(resp *http.Response) (*model.FileData, error) {
 	filename := ""
 	if cd := resp.Header.Get("Content-Disposition"); cd != "" {
 		_, params, err := mime.ParseMediaType(cd)
@@ -292,7 +287,7 @@ func DownloadResponse(resp *http.Response) (*FileData, error) {
 		}
 	}
 
-	return &FileData{
+	return &model.FileData{
 		Body:        resp.Body,
 		Filename:    filename,
 		ContentType: contentType,
