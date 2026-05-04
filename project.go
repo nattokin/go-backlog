@@ -121,7 +121,7 @@ func (s *ProjectService) DiskUsage(ctx context.Context, projectIDOrKey string) (
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
 func (s *ProjectService) Icon(ctx context.Context, projectIDOrKey string) (*FileData, error) {
 	v, err := s.base.Icon(ctx, projectIDOrKey)
-	return fileDataFromCore(v), convertError(err)
+	return fileDataFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

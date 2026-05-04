@@ -153,7 +153,7 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
 func (s *PullRequestAttachmentService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*FileData, error) {
 	v, err := s.base.Download(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
-	return fileDataFromCore(v), convertError(err)
+	return fileDataFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

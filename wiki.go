@@ -160,7 +160,7 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment
 func (s *WikiAttachmentService) Download(ctx context.Context, wikiID, attachmentID int) (*FileData, error) {
 	v, err := s.base.Download(ctx, wikiID, attachmentID)
-	return fileDataFromCore(v), convertError(err)
+	return fileDataFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

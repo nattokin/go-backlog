@@ -97,7 +97,7 @@ func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
 func (s *UserService) Icon(ctx context.Context, id int) (*FileData, error) {
 	v, err := s.base.Icon(ctx, id)
-	return fileDataFromCore(v), convertError(err)
+	return fileDataFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -242,7 +242,7 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment
 func (s *IssueAttachmentService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*FileData, error) {
 	v, err := s.base.Download(ctx, issueIDOrKey, attachmentID)
-	return fileDataFromCore(v), convertError(err)
+	return fileDataFromModel(v), convertError(err)
 }
 
 // ──────────────────────────────────────────────────────────────
