@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"testing"
 
@@ -151,6 +152,33 @@ func TestProjectService(t *testing.T) {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.DiskUsage(ctx, "TEST")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
+		"Icon": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/image", req.URL.Path)
+				return mock.NewBinaryResponse("icon.png", "image/png", []byte("PNG")), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.Icon(ctx, "TEST")
+				require.NoError(t, err)
+				require.NotNil(t, got)
+				assert.Equal(t, "icon.png", got.Filename)
+				assert.Equal(t, "image/png", got.ContentType)
+				body, err := io.ReadAll(got.Body)
+				require.NoError(t, err)
+				assert.Equal(t, []byte("PNG"), body)
+				got.Body.Close()
+			},
+		},
+		"Icon/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Icon(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
