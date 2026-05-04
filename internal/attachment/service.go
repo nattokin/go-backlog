@@ -70,6 +70,23 @@ func (s *IssueService) Remove(ctx context.Context, issueIDOrKey string, attachme
 	return RemoveAttachment(ctx, s.method, spath)
 }
 
+func (s *IssueService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*core.FileData, error) {
+	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  PullRequestService
 // ──────────────────────────────────────────────────────────────
@@ -109,6 +126,29 @@ func (s *PullRequestService) Remove(ctx context.Context, projectIDOrKey string, 
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
 	return RemoveAttachment(ctx, s.method, spath)
+}
+
+func (s *PullRequestService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*core.FileData, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateRepositoryIDOrName(repositoryIDOrName); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidatePRNumber(prNumber); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -190,6 +230,23 @@ func (s *WikiService) Remove(ctx context.Context, wikiID, attachmentID int) (*mo
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
 	return RemoveAttachment(ctx, s.method, spath)
+}
+
+func (s *WikiService) Download(ctx context.Context, wikiID, attachmentID int) (*core.FileData, error) {
+	if err := validate.ValidateWikiID(wikiID); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
 }
 
 // ──────────────────────────────────────────────────────────────

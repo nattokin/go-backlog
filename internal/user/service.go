@@ -147,6 +147,20 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	return delete(ctx, s.method, spath, nil)
 }
 
+func (s *Service) Icon(ctx context.Context, id int) (*core.FileData, error) {
+	if err := validate.ValidateUserID(id); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("users", strconv.Itoa(id), "icon")
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
+}
+
 type ProjectService struct {
 	method *core.Method
 }
