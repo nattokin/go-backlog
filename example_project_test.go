@@ -16,12 +16,14 @@ var (
 	doerProjectUpdate    = newMockDoer(fixture.Project.SingleJSON)
 	doerProjectDelete    = newMockDoer(fixture.Project.SingleJSON)
 	doerProjectDiskUsage = newMockDoer(fixture.Project.DiskUsageJSON)
+	doerProjectIcon      = newMockBinaryDoer("image/png", "test.png", []byte("PNG"))
 
 	// ProjectActivityService
 	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
 
 	// ProjectSharedFileService
-	doerProjectSharedFileList = newMockDoer(fixture.SharedFile.ListJSON)
+	doerProjectSharedFileList    = newMockDoer(fixture.SharedFile.ListJSON)
+	doerProjectSharedFileGetFile = newMockBinaryDoer("image/png", "shared.png", []byte("PNG"))
 
 	// ProjectCategoryService
 	doerProjectCategoryAll    = newMockDoer(fixture.Category.ListJSON)
@@ -151,6 +153,19 @@ func ExampleProjectService_DiskUsage() {
 	fmt.Printf("ProjectID: %d, Issue: %d\n", usage.ProjectID, usage.Issue)
 	// Output:
 	// ProjectID: 1, Issue: 11931
+}
+
+func ExampleProjectService_Icon() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIcon),
+	)
+
+	icon, _ := c.Project.Icon(context.Background(), "TEST")
+	fmt.Printf("ContentType: %s, FileName: %s\n", icon.ContentType, icon.Filename)
+	// Output:
+	// ContentType: image/png, FileName: test.png
 }
 
 func ExampleProjectActivityService_List() {
@@ -379,6 +394,19 @@ func ExampleProjectSharedFileService_List() {
 	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
 	// Output:
 	// ID: 454403, Name: 01_buz.png
+}
+
+func ExampleProjectSharedFileService_GetFile() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectSharedFileGetFile),
+	)
+
+	file, _ := c.Project.SharedFile.GetFile(context.Background(), "TEST", 1)
+	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
+	// Output:
+	// ContentType: image/png, FileName: shared.png
 }
 
 func ExampleProjectUserService_All() {

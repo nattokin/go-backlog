@@ -27,6 +27,23 @@ func newMockDoer(body string) *mockDoer {
 	}
 }
 
+// newMockBinaryDoer returns a mockDoer that always responds with HTTP 200
+// and the given binary body, filename, and Content-Type.
+func newMockBinaryDoer(contentType, filename string, body []byte) *mockDoer {
+	return &mockDoer{
+		do: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Header: http.Header{
+					"Content-Type":        []string{contentType},
+					"Content-Disposition": []string{"attachment; filename=" + filename},
+				},
+				Body: io.NopCloser(bytes.NewReader(body)),
+			}, nil
+		},
+	}
+}
+
 // doerNoContent is a mockDoer that always responds with HTTP 204 No Content.
 var doerNoContent = &mockDoer{
 	do: func(_ *http.Request) (*http.Response, error) {

@@ -18,9 +18,10 @@ var (
 	doerWikiDelete = newMockDoer(fixture.Wiki.MinimumJSON)
 
 	// WikiAttachmentService
-	doerWikiAttachmentAttach = newMockDoer(fixture.Attachment.ListJSON)
-	doerWikiAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
-	doerWikiAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
+	doerWikiAttachmentAttach   = newMockDoer(fixture.Attachment.ListJSON)
+	doerWikiAttachmentList     = newMockDoer(fixture.Attachment.ListJSON)
+	doerWikiAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
+	doerWikiAttachmentRemove   = newMockDoer(fixture.Attachment.SingleJSON)
 
 	// WikiHistoryService
 	doerWikiHistoryList = newMockDoer(fixture.WikiHistory.ListJSON)
@@ -140,6 +141,19 @@ func ExampleWikiAttachmentService_List() {
 	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
 	// Output:
 	// ID: 2, Name: A.png
+}
+
+func ExampleWikiAttachmentService_Download() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerWikiAttachmentDownload),
+	)
+
+	file, _ := c.Wiki.Attachment.Download(context.Background(), 34, 2)
+	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
+	// Output:
+	// ContentType: image/png, FileName: A.png
 }
 
 func ExampleWikiAttachmentService_Remove() {
