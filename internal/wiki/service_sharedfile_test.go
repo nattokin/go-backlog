@@ -15,7 +15,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
-func TestWikiSharedFileService_List(t *testing.T) {
+func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
@@ -33,6 +33,12 @@ func TestWikiSharedFileService_List(t *testing.T) {
 
 		"error-wikiID-zero": {
 			wikiID:      0,
+			expectError: true,
+			mockGetFn:   mock.NewUnexpectedGetFn(t),
+		},
+
+		"error-wikiID-negative": {
+			wikiID:      -1,
 			expectError: true,
 			mockGetFn:   mock.NewUnexpectedGetFn(t),
 		},
@@ -74,14 +80,18 @@ func TestWikiSharedFileService_List(t *testing.T) {
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
 
-			for i, w := range fixture.SharedFile.List {
-				assert.Equal(t, w.ID, files[i].ID)
+			for i, v := range fixture.SharedFile.List {
+				assert.Equal(t, v.ID, files[i].ID)
+				assert.Equal(t, v.Type, files[i].Type)
+				assert.Equal(t, v.Dir, files[i].Dir)
+				assert.Equal(t, v.Name, files[i].Name)
+				assert.Equal(t, v.Size, files[i].Size)
 			}
 		})
 	}
 }
 
-func TestWikiSharedFileService_Link(t *testing.T) {
+func TestSharedFileService_Link(t *testing.T) {
 	cases := map[string]struct {
 		wikiID  int
 		fileIDs []int
@@ -116,14 +126,14 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 		},
 
 		"error-fileIDs-empty": {
-			wikiID:      1234,
+			wikiID:      1,
 			fileIDs:     []int{},
 			expectError: true,
 			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-fileIDs-invalid": {
-			wikiID:      1234,
+			wikiID:      1,
 			fileIDs:     []int{0, 1},
 			expectError: true,
 			mockPostFn:  mock.NewUnexpectedPostFn(t),
@@ -176,20 +186,18 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 	}
 }
 
-func TestWikiSharedFileService_Unlink(t *testing.T) {
+func TestSharedFileService_Unlink(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 		fileID int
 
 		expectError bool
-		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			wikiID: 1234,
 			fileID: 454403,
-			wantID: fixture.SharedFile.Single.ID,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles/454403", spath)
 				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
@@ -203,15 +211,22 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
+		"error-wikiID-negative": {
+			wikiID:       -1,
+			fileID:       454403,
+			expectError:  true,
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+		},
+
 		"error-fileID-zero": {
-			wikiID:       1234,
+			wikiID:       1,
 			fileID:       0,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-fileID-negative": {
-			wikiID:       1234,
+			wikiID:       1,
 			fileID:       -1,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
@@ -254,7 +269,11 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, file)
-			assert.Equal(t, tc.wantID, file.ID)
+
+			assert.Equal(t, fixture.SharedFile.Single.ID, file.ID)
+			assert.Equal(t, fixture.SharedFile.Single.Name, file.Name)
+			assert.Equal(t, fixture.SharedFile.Single.Type, file.Type)
+			assert.Equal(t, fixture.SharedFile.Single.Dir, file.Dir)
 		})
 	}
 }
