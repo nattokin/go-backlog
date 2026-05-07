@@ -29,7 +29,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"success-single": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			wantIDs:       []int{2, 5},
+			wantIDs:       []int{2},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 				v := form
