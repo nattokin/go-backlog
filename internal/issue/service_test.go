@@ -822,6 +822,46 @@ func Test_contextPropagation(t *testing.T) {
 			s := issue.NewAttachmentService(m)
 			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
+		{"CommentService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.All(ctx, "ISSUE-1") //nolint:errcheck
+		}},
+		{"CommentService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Add(ctx, "ISSUE-1", "comment") //nolint:errcheck
+		}},
+		{"CommentService.Count", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Count(ctx, "ISSUE-1") //nolint:errcheck
+		}},
+		{"CommentService.One", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.One(ctx, "ISSUE-1", 1) //nolint:errcheck
+		}},
+		{"CommentService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Delete(ctx, "ISSUE-1", 1) //nolint:errcheck
+		}},
+		{"CommentService.Update", func(t *testing.T, m *core.Method) {
+			m.Patch = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Update(ctx, "ISSUE-1", 1, "content") //nolint:errcheck
+		}},
+		{"CommentService.Notifications", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Notifications(ctx, "ISSUE-1", 1) //nolint:errcheck
+		}},
+		{"CommentService.Notify", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := issue.NewCommentService(m)
+			s.Notify(ctx, "ISSUE-1", 1, []int{1, 2}) //nolint:errcheck
+		}},
 		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewSharedFileService(m)
