@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -128,7 +127,7 @@ func (s *PullRequestService) Update(ctx context.Context, projectIDOrKey string, 
 
 // PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
 type PullRequestAttachmentService struct {
-	base *attachment.PullRequestService
+	base *pullrequest.AttachmentService
 }
 
 // List returns a list of all attachments in the pull request.
@@ -364,7 +363,7 @@ func newPullRequestService(method *core.Method, option *core.OptionService) *Pul
 
 func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
-		base: attachment.NewPullRequestService(method),
+		base: pullrequest.NewAttachmentService(method),
 	}
 }
 

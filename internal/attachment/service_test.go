@@ -9,92 +9,16 @@ import (
 	"net/url"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/attachment"
-	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func newTestAttachment() *model.Attachment {
-	return &model.Attachment{
-		ID:   8,
-		Name: "IMG0088.png",
-		Size: 5563,
-		Created: time.Date(
-			2014,
-			time.October,
-			28,
-			9,
-			24,
-			43,
-			0,
-			time.UTC,
-		),
-	}
-}
-
-func newTestAttachmentList() []*model.Attachment {
-	return []*model.Attachment{
-		{
-			ID:   2,
-			Name: "A.png",
-			Size: 196186,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-		{
-			ID:   5,
-			Name: "B.png",
-			Size: 201257,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-	}
-}
-
-func newTestAttachmentSingleList() []*model.Attachment {
-	return []*model.Attachment{
-		{
-			ID:   2,
-			Name: "A.png",
-			Size: 196186,
-			Created: time.Date(
-				2014,
-				time.September,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-	}
-}
-
-func TestSpaceAttachmentService_Upload(t *testing.T) {
+func TestService_Upload(t *testing.T) {
 	cases := map[string]struct {
 		fpath string
 
@@ -134,13 +58,13 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Upload = tc.mockUploadFn
-			s := attachment.NewSpaceService(method)
+			s := attachment.NewService(method)
 
 			f, err := os.Open("../../testdata/testfile")
 			require.NoError(t, err)
 			defer f.Close()
 
-			attachment, err := s.Upload(context.Background(), tc.fpath, f)
+			attachment, err := s.Upload(context.Background(), "space/attachment", tc.fpath, f)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -158,56 +82,131 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	}
 }
 
-func TestIssueService_Download(t *testing.T) {
+func TestService_List(t *testing.T) {
 	cases := map[string]struct {
-		issueIDOrKey string
-		attachmentID int
-
-		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		spath       string
+		expectError bool
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
-			issueIDOrKey: "TEST-1",
-			attachmentID: 10,
+			spath: "issues/TEST-1/attachments",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/TEST-1/attachments", spath)
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+			},
+		},
+		"error-client": {
+			spath:       "issues/TEST-1/attachments",
+			expectError: true,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+		"error-invalid-json": {
+			spath:       "issues/TEST-1/attachments",
+			expectError: true,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			method.Get = tc.mockGetFn
+			s := attachment.NewService(method)
+
+			v, err := s.List(context.Background(), tc.spath)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, v)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+		})
+	}
+}
+
+func TestService_Remove(t *testing.T) {
+	cases := map[string]struct {
+		spath        string
+		expectError  bool
+		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+	}{
+		"success": {
+			spath: "issues/TEST-1/attachments/10",
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/TEST-1/attachments/10", spath)
+				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+			},
+		},
+		"error-client": {
+			spath:       "issues/TEST-1/attachments/10",
+			expectError: true,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+		"error-invalid-json": {
+			spath:       "issues/TEST-1/attachments/10",
+			expectError: true,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			method.Delete = tc.mockDeleteFn
+			s := attachment.NewService(method)
+
+			v, err := s.Remove(context.Background(), tc.spath)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, v)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+		})
+	}
+}
+
+func TestService_Download(t *testing.T) {
+	cases := map[string]struct {
+		spath           string
+		expectError     bool
+		wantFilename    string
+		wantContentType string
+		mockDownloadFn  func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+	}{
+		"success": {
+			spath: "issues/TEST-1/attachments/10",
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/TEST-1/attachments/10", spath)
-				assert.Nil(t, query)
 				return mock.NewBinaryResponse("file.png", "image/png", []byte("PNG")), nil
 			},
 			wantFilename:    "file.png",
 			wantContentType: "image/png",
 		},
-		"success-issue-id": {
-			issueIDOrKey: "123",
-			attachmentID: 5,
+		"error-client": {
+			spath:       "issues/TEST-1/attachments/10",
+			expectError: true,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/123/attachments/5", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+				return nil, errors.New("error")
 			},
-			wantFilename:    "doc.pdf",
-			wantContentType: "application/pdf",
-		},
-		"error-validation-issueIDOrKey-empty": {
-			issueIDOrKey: "",
-			attachmentID: 10,
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-validation-attachmentID-zero": {
-			issueIDOrKey: "TEST-1",
-			attachmentID: 0,
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-client-network": {
-			issueIDOrKey: "TEST-1",
-			attachmentID: 10,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
-			},
-			wantErrType: errors.New(""),
 		},
 	}
 
@@ -219,14 +218,13 @@ func TestIssueService_Download(t *testing.T) {
 			if tc.mockDownloadFn != nil {
 				method.Download = tc.mockDownloadFn
 			}
-			s := attachment.NewIssueService(method)
+			s := attachment.NewService(method)
 
-			got, err := s.Download(context.Background(), tc.issueIDOrKey, tc.attachmentID)
+			got, err := s.Download(context.Background(), tc.spath)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
 				return
 			}
 
@@ -240,45 +238,56 @@ func TestIssueService_Download(t *testing.T) {
 	}
 }
 
-func TestWikiService_Download(t *testing.T) {
+func TestService_Attach(t *testing.T) {
 	cases := map[string]struct {
-		wikiID       int
-		attachmentID int
-
-		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		spath         string
+		attachmentIDs []int
+		expectError   bool
+		mockPostFn    func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
-		"success": {
-			wikiID:       34,
-			attachmentID: 20,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "wikis/34/attachments/20", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+		"success-single": {
+			spath:         "wikis/1234/attachments",
+			attachmentIDs: []int{2},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/1234/attachments", spath)
+				assert.Equal(t, []string{"2"}, form["attachmentId[]"])
+				return mock.NewJSONResponse(fixture.Attachment.SingleListJSON), nil
 			},
-			wantFilename:    "doc.pdf",
-			wantContentType: "application/pdf",
 		},
-		"error-validation-wikiID-zero": {
-			wikiID:       0,
-			attachmentID: 20,
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-validation-attachmentID-zero": {
-			wikiID:       34,
-			attachmentID: 0,
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-client-network": {
-			wikiID:       34,
-			attachmentID: 20,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+		"success-multiple": {
+			spath:         "wikis/1/attachments",
+			attachmentIDs: []int{2, 5},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
-			wantErrType: errors.New(""),
+		},
+		"error-empty-ids": {
+			spath:         "wikis/1/attachments",
+			attachmentIDs: []int{},
+			expectError:   true,
+			mockPostFn:    mock.NewUnexpectedPostFn(t),
+		},
+		"error-zero-id": {
+			spath:         "wikis/1/attachments",
+			attachmentIDs: []int{0},
+			expectError:   true,
+			mockPostFn:    mock.NewUnexpectedPostFn(t),
+		},
+		"error-client": {
+			spath:         "wikis/1/attachments",
+			attachmentIDs: []int{1},
+			expectError:   true,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+		"error-invalid-json": {
+			spath:         "wikis/1/attachments",
+			attachmentIDs: []int{1},
+			expectError:   true,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+			},
 		},
 	}
 
@@ -287,121 +296,19 @@ func TestWikiService_Download(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockDownloadFn != nil {
-				method.Download = tc.mockDownloadFn
-			}
-			s := attachment.NewWikiService(method)
+			method.Post = tc.mockPostFn
+			s := attachment.NewService(method)
 
-			got, err := s.Download(context.Background(), tc.wikiID, tc.attachmentID)
+			v, err := s.Attach(context.Background(), tc.spath, tc.attachmentIDs)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantFilename, got.Filename)
-			assert.Equal(t, tc.wantContentType, got.ContentType)
-			require.NotNil(t, got.Body)
-			got.Body.Close()
-		})
-	}
-}
-
-func TestPullRequestService_Download(t *testing.T) {
-	cases := map[string]struct {
-		projectIDOrKey     string
-		repositoryIDOrName string
-		prNumber           int
-		attachmentID       int
-
-		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
-	}{
-		"success": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       30,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/git/repositories/repo1/pullRequests/5/attachments/30", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("patch.diff", "text/plain", []byte("DIFF")), nil
-			},
-			wantFilename:    "patch.diff",
-			wantContentType: "text/plain",
-		},
-		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey:     "",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
-		},
-		"error-validation-repositoryIDOrName-empty": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "",
-			prNumber:           5,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
-		},
-		"error-validation-prNumber-zero": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           0,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
-		},
-		"error-validation-attachmentID-zero": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       0,
-			wantErrType:        &core.ValidationError{},
-		},
-		"error-client-network": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       30,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
-			},
-			wantErrType: errors.New(""),
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			method := mock.NewMethod(t)
-			if tc.mockDownloadFn != nil {
-				method.Download = tc.mockDownloadFn
-			}
-			s := attachment.NewPullRequestService(method)
-
-			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)
-
-			if tc.wantErrType != nil {
-				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
-				return
-			}
-
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantFilename, got.Filename)
-			assert.Equal(t, tc.wantContentType, got.ContentType)
-			require.NotNil(t, got.Body)
-			got.Body.Close()
+			assert.NoError(t, err)
+			require.NotNil(t, v)
 		})
 	}
 }
@@ -411,7 +318,7 @@ func Test_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+	makeMockGetFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
 		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 			assert.Same(t, sentinel, got.Value(ctxKey{}))
 			return nil, errors.New("stop")
@@ -422,63 +329,33 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"SpaceService.Upload", func(t *testing.T, m *core.Method) {
+		{"Service.Upload", func(t *testing.T, m *core.Method) {
 			m.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
 				assert.Same(t, sentinel, got.Value(ctxKey{}))
 				return nil, errors.New("stop")
 			}
-			s := attachment.NewSpaceService(m)
-			s.Upload(ctx, "f", bytes.NewReader(nil)) //nolint:errcheck
+			s := attachment.NewService(m)
+			s.Upload(ctx, "space/attachment", "f", bytes.NewReader(nil)) //nolint:errcheck
 		}},
-		{"WikiService.Attach", func(t *testing.T, m *core.Method) {
-			m.Post = makeMockFn(t)
-			s := attachment.NewWikiService(m)
-			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
+		{"Service.Attach", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockGetFn(t)
+			s := attachment.NewService(m)
+			s.Attach(ctx, "wikis/1/attachments", []int{1}) //nolint:errcheck
 		}},
-		{"WikiService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := attachment.NewWikiService(m)
-			s.List(ctx, 1) //nolint:errcheck
+		{"Service.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockGetFn(t)
+			s := attachment.NewService(m)
+			s.List(ctx, "wikis/1/attachments") //nolint:errcheck
 		}},
-		{"WikiService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := attachment.NewWikiService(m)
-			s.Remove(ctx, 1, 1) //nolint:errcheck
+		{"Service.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockGetFn(t)
+			s := attachment.NewService(m)
+			s.Remove(ctx, "wikis/1/attachments/1") //nolint:errcheck
 		}},
-		{"WikiService.Download", func(t *testing.T, m *core.Method) {
-			m.Download = makeMockFn(t)
-			s := attachment.NewWikiService(m)
-			s.Download(ctx, 1, 1) //nolint:errcheck
-		}},
-		{"IssueService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := attachment.NewIssueService(m)
-			s.List(ctx, "TEST-1") //nolint:errcheck
-		}},
-		{"IssueService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := attachment.NewIssueService(m)
-			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
-		}},
-		{"IssueService.Download", func(t *testing.T, m *core.Method) {
-			m.Download = makeMockFn(t)
-			s := attachment.NewIssueService(m)
-			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
-		}},
-		{"PullRequestService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := attachment.NewPullRequestService(m)
-			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
-		}},
-		{"PullRequestService.Remove", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := attachment.NewPullRequestService(m)
-			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
-		}},
-		{"PullRequestService.Download", func(t *testing.T, m *core.Method) {
-			m.Download = makeMockFn(t)
-			s := attachment.NewPullRequestService(m)
-			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		{"Service.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockGetFn(t)
+			s := attachment.NewService(m)
+			s.Download(ctx, "wikis/1/attachments/1") //nolint:errcheck
 		}},
 	}
 
