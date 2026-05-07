@@ -62,6 +62,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewService(m)
 			s.DiskUsage(ctx, "TEST") //nolint:errcheck
 		}},
+		{"Service.Icon", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := project.NewService(m)
+			s.Icon(ctx, "TEST") //nolint:errcheck
+		}},
 		{"CategoryService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewCategoryService(m)
