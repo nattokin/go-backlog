@@ -391,3 +391,56 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 		})
 	}
 }
+
+func TestPullRequestAttachmentService_contextPropagation(t *testing.T) {
+	type ctxKey struct{}
+	sentinel := &struct{}{}
+	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
+
+	makeGetFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
+	}
+	makeDeleteFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
+	}
+	makeDownloadFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+			assert.Same(t, sentinel, got.Value(ctxKey{}))
+			return nil, errors.New("stop")
+		}
+	}
+
+	cases := []struct {
+		name string
+		call func(t *testing.T, m *core.Method)
+	}{
+		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeGetFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeDeleteFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeDownloadFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.call(t, &core.Method{})
+		})
+	}
+}
