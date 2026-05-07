@@ -13,8 +13,7 @@ import (
 
 // CommentService handles communication with the pull request comment-related methods of the Backlog API.
 type CommentService struct {
-	base   *comment.Service
-	method *core.Method
+	base *comment.Service
 }
 
 // All returns a list of comments on a pull request.
@@ -114,7 +113,6 @@ func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repo
 // NewCommentService creates and returns a new pullrequest CommentService.
 func NewCommentService(method *core.Method) *CommentService {
 	return &CommentService{
-		base:   comment.NewService(method),
-		method: method,
+		base: comment.NewService(method),
 	}
 }
