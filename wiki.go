@@ -6,7 +6,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -183,7 +182,7 @@ func (s *WikiHistoryService) List(ctx context.Context, wikiID int) ([]*WikiHisto
 
 // WikiSharedFileService handles communication with the wiki shared-file-related methods of the Backlog API.
 type WikiSharedFileService struct {
-	base *sharedfile.WikiService
+	base *wiki.SharedFileService
 }
 
 // List returns a list of shared files linked to the wiki page.
@@ -301,7 +300,7 @@ func newWikiHistoryService(method *core.Method) *WikiHistoryService {
 
 func newWikiSharedFileService(method *core.Method) *WikiSharedFileService {
 	return &WikiSharedFileService{
-		base: sharedfile.NewWikiService(method),
+		base: wiki.NewSharedFileService(method),
 	}
 }
 

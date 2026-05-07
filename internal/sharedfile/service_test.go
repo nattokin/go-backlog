@@ -29,21 +29,6 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"IssueService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := sharedfile.NewIssueService(m)
-			s.List(ctx, "TEST-1") //nolint:errcheck
-		}},
-		{"IssueService.Link", func(t *testing.T, m *core.Method) {
-			m.Post = makeMockFn(t)
-			s := sharedfile.NewIssueService(m)
-			s.Link(ctx, "TEST-1", []int{1}) //nolint:errcheck
-		}},
-		{"IssueService.Unlink", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := sharedfile.NewIssueService(m)
-			s.Unlink(ctx, "TEST-1", 1) //nolint:errcheck
-		}},
 		{"ProjectService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := sharedfile.NewProjectService(m)
@@ -53,21 +38,6 @@ func Test_contextPropagation(t *testing.T) {
 			m.Download = makeMockFn(t)
 			s := sharedfile.NewProjectService(m)
 			s.GetFile(ctx, "TEST", 1) //nolint:errcheck
-		}},
-		{"WikiService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := sharedfile.NewWikiService(m)
-			s.List(ctx, 1) //nolint:errcheck
-		}},
-		{"WikiService.Link", func(t *testing.T, m *core.Method) {
-			m.Post = makeMockFn(t)
-			s := sharedfile.NewWikiService(m)
-			s.Link(ctx, 1, []int{1}) //nolint:errcheck
-		}},
-		{"WikiService.Unlink", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := sharedfile.NewWikiService(m)
-			s.Unlink(ctx, 1, 1) //nolint:errcheck
 		}},
 	}
 

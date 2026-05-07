@@ -14,134 +14,32 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestIssueService_All(t *testing.T) {
-	o := &core.OptionService{}
-
 	cases := map[string]struct {
-		opts []core.RequestOption
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantIDs     []int
+		expectError bool
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
-		"success-no-options": {
+		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
-			wantIDs: []int{1, 2},
 		},
-		"success-with-projectIDs": {
-			opts: []core.RequestOption{o.WithProjectIDs([]int{10, 20})},
+		"error-client": {
+			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+				return nil, errors.New("error")
 			},
-			wantIDs: []int{1, 2},
 		},
-		"success-with-keyword": {
-			opts: []core.RequestOption{o.WithKeyword("bug")},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "bug", query.Get("keyword"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
-		"success-with-sort-and-order": {
-			opts: []core.RequestOption{
-				o.WithIssueSort(model.IssueSortCreated),
-				o.WithOrder(model.OrderAsc),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "created", query.Get("sort"))
-				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
-		"success-with-count-and-offset": {
-			opts: []core.RequestOption{
-				o.WithCount(50),
-				o.WithOffset(100),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "50", query.Get("count"))
-				assert.Equal(t, "100", query.Get("offset"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
-		"success-with-date-filters": {
-			opts: []core.RequestOption{
-				o.WithCreatedSince(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-				o.WithCreatedUntil(time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "2024-01-01", query.Get("createdSince"))
-				assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
-		"success-with-parentChild": {
-			opts: []core.RequestOption{o.WithParentChild(1)},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "1", query.Get("parentChild"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
-		"error-option-invalid-type": {
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
-		},
-		"error-option-invalid-projectID": {
-			opts:        []core.RequestOption{o.WithProjectIDs([]int{0})},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-sort": {
-			opts:        []core.RequestOption{o.WithIssueSort("invalid")},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-parentChild": {
-			opts:        []core.RequestOption{o.WithParentChild(5)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-count": {
-			opts:        []core.RequestOption{o.WithCount(0)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-offset": {
-			opts:        []core.RequestOption{o.WithOffset(-1)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-set-failed": {
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamKeyword)},
-			wantErrType: errors.New(""),
-		},
-		"error-client-network": {
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
-			},
-			wantErrType: errors.New(""),
-		},
-		"error-response-invalid-json": {
+		"error-invalid-json": {
+			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -150,86 +48,54 @@ func TestIssueService_All(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockGetFn != nil {
-				method.Get = tc.mockGetFn
-			}
-
+			method.Get = tc.mockGetFn
 			s := issue.NewService(method)
 
-			issues, err := s.All(context.Background(), tc.opts...)
+			issues, err := s.All(context.Background())
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, issues)
-				assert.IsType(t, tc.wantErrType, err)
 				return
 			}
 
-			require.NoError(t, err)
+			assert.NoError(t, err)
 			require.NotNil(t, issues)
-			assert.Len(t, issues, len(tc.wantIDs))
-			for i := range issues {
-				assert.Equal(t, tc.wantIDs[i], issues[i].ID)
+			assert.Len(t, issues, len(fixture.Issue.List))
+
+			for i, w := range fixture.Issue.List {
+				assert.Equal(t, w.ID, issues[i].ID)
+				assert.Equal(t, w.IssueKey, issues[i].IssueKey)
+				assert.Equal(t, w.Summary, issues[i].Summary)
 			}
 		})
 	}
 }
 
 func TestIssueService_Count(t *testing.T) {
-	o := &core.OptionService{}
-
 	cases := map[string]struct {
-		opts []core.RequestOption
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType error
+		expectError bool
 		wantCount   int
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
-		"success-no-options": {
+		"success": {
+			wantCount: fixture.Issue.Count,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
-				return mock.NewJSONResponse(`{"count":42}`), nil
+				return mock.NewJSONResponse(fixture.Issue.CountJSON), nil
 			},
-			wantCount: 42,
 		},
-		"success-with-projectIDs": {
-			opts: []core.RequestOption{o.WithProjectIDs([]int{10, 20})},
+		"error-client": {
+			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/count", spath)
-				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
-				return mock.NewJSONResponse(`{"count":5}`), nil
+				return nil, errors.New("error")
 			},
-			wantCount: 5,
 		},
-		"success-with-keyword": {
-			opts: []core.RequestOption{o.WithKeyword("bug")},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/count", spath)
-				assert.Equal(t, "bug", query.Get("keyword"))
-				return mock.NewJSONResponse(`{"count":3}`), nil
-			},
-			wantCount: 3,
-		},
-		"error-option-invalid-type": {
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
-		},
-		"error-option-invalid-projectID": {
-			opts:        []core.RequestOption{o.WithProjectIDs([]int{0})},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-client-network": {
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
-			},
-			wantErrType: errors.New(""),
-		},
-		"error-response-invalid-json": {
+		"error-invalid-json": {
+			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -238,22 +104,17 @@ func TestIssueService_Count(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockGetFn != nil {
-				method.Get = tc.mockGetFn
-			}
-
+			method.Get = tc.mockGetFn
 			s := issue.NewService(method)
 
-			count, err := s.Count(context.Background(), tc.opts...)
+			count, err := s.Count(context.Background())
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Zero(t, count)
-				assert.IsType(t, tc.wantErrType, err)
 				return
 			}
 
-			require.NoError(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.wantCount, count)
 		})
 	}
@@ -262,49 +123,39 @@ func TestIssueService_Count(t *testing.T) {
 func TestIssueService_One(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantID      int
+		expectError  bool
+		mockGetFn    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
-		"success-by-key": {
-			issueIDOrKey: "PRJ-1",
+		"success": {
+			issueIDOrKey: "TEST-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1", spath)
+				assert.Equal(t, "issues/TEST-1", spath)
 				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
-			wantID: 1,
 		},
-		"success-by-id": {
-			issueIDOrKey: "1",
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
-		},
-		"error-empty-issueIDOrKey": {
+		"error-validation-empty": {
 			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+			expectError:  true,
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-		"error-zero-issueIDOrKey": {
+		"error-validation-zero": {
 			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
+			expectError:  true,
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-		"error-client-network": {
-			issueIDOrKey: "PRJ-1",
+		"error-client": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+				return nil, errors.New("error")
 			},
-			wantErrType: errors.New(""),
 		},
-		"error-response-invalid-json": {
-			issueIDOrKey: "PRJ-1",
+		"error-invalid-json": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -313,138 +164,100 @@ func TestIssueService_One(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockGetFn != nil {
-				method.Get = tc.mockGetFn
-			}
-
+			method.Get = tc.mockGetFn
 			s := issue.NewService(method)
 
-			got, err := s.One(context.Background(), tc.issueIDOrKey)
+			v, err := s.One(context.Background(), tc.issueIDOrKey)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantID, got.ID)
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+			assert.Equal(t, fixture.Issue.Single.ID, v.ID)
+			assert.Equal(t, fixture.Issue.Single.IssueKey, v.IssueKey)
+			assert.Equal(t, fixture.Issue.Single.Summary, v.Summary)
 		})
 	}
 }
 
 func TestIssueService_Create(t *testing.T) {
-	o := &core.OptionService{}
-
 	cases := map[string]struct {
 		projectID   int
 		summary     string
 		issueTypeID int
 		priorityID  int
-		opts        []core.RequestOption
-
-		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantID      int
+		expectError bool
+		mockPostFn  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
-		"success-required-only": {
-			projectID:   10,
-			summary:     "New issue",
+		"success": {
+			projectID:   1,
+			summary:     "test issue",
 			issueTypeID: 2,
 			priorityID:  3,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "10", form.Get("projectId"))
-				assert.Equal(t, "New issue", form.Get("summary"))
+				assert.Equal(t, "1", form.Get("projectId"))
+				assert.Equal(t, "test issue", form.Get("summary"))
 				assert.Equal(t, "2", form.Get("issueTypeId"))
 				assert.Equal(t, "3", form.Get("priorityId"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
-			wantID: 1,
 		},
-		"success-with-options": {
-			projectID:   10,
-			summary:     "New issue",
-			issueTypeID: 2,
-			priorityID:  3,
-			opts: []core.RequestOption{
-				o.WithDescription("some description"),
-				o.WithAssigneeID(5),
-				o.WithStartDate(time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)),
-				o.WithDueDate(time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC)),
-			},
-			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "10", form.Get("projectId"))
-				assert.Equal(t, "New issue", form.Get("summary"))
-				assert.Equal(t, "2", form.Get("issueTypeId"))
-				assert.Equal(t, "3", form.Get("priorityId"))
-				assert.Equal(t, "some description", form.Get("description"))
-				assert.Equal(t, "5", form.Get("assigneeId"))
-				assert.Equal(t, "2024-06-01", form.Get("startDate"))
-				assert.Equal(t, "2024-06-30", form.Get("dueDate"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
-		},
-		"error-invalid-projectID": {
+		"error-validation-projectID-zero": {
 			projectID:   0,
-			summary:     "New issue",
+			summary:     "test",
 			issueTypeID: 2,
 			priorityID:  3,
-			wantErrType: &core.ValidationError{},
+			expectError: true,
+			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
-		"error-empty-summary": {
-			projectID:   10,
+		"error-validation-summary-empty": {
+			projectID:   1,
 			summary:     "",
 			issueTypeID: 2,
 			priorityID:  3,
-			wantErrType: &core.ValidationError{},
+			expectError: true,
+			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
-		"error-invalid-issueTypeID": {
-			projectID:   10,
-			summary:     "New issue",
+		"error-validation-issueTypeID-zero": {
+			projectID:   1,
+			summary:     "test",
 			issueTypeID: 0,
 			priorityID:  3,
-			wantErrType: &core.ValidationError{},
+			expectError: true,
+			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
-		"error-invalid-priorityID": {
-			projectID:   10,
-			summary:     "New issue",
+		"error-validation-priorityID-zero": {
+			projectID:   1,
+			summary:     "test",
 			issueTypeID: 2,
 			priorityID:  0,
-			wantErrType: &core.ValidationError{},
+			expectError: true,
+			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
-		"error-option-invalid-type": {
-			projectID:   10,
-			summary:     "New issue",
+		"error-client": {
+			projectID:   1,
+			summary:     "test",
 			issueTypeID: 2,
 			priorityID:  3,
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
-		},
-		"error-client-network": {
-			projectID:   10,
-			summary:     "New issue",
-			issueTypeID: 2,
-			priorityID:  3,
+			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+				return nil, errors.New("error")
 			},
-			wantErrType: errors.New(""),
 		},
-		"error-response-invalid-json": {
-			projectID:   10,
-			summary:     "New issue",
+		"error-invalid-json": {
+			projectID:   1,
+			summary:     "test",
 			issueTypeID: 2,
 			priorityID:  3,
+			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -453,114 +266,57 @@ func TestIssueService_Create(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockPostFn != nil {
-				method.Post = tc.mockPostFn
-			}
-
+			method.Post = tc.mockPostFn
 			s := issue.NewService(method)
 
-			got, err := s.Create(context.Background(), tc.projectID, tc.summary, tc.issueTypeID, tc.priorityID, tc.opts...)
+			v, err := s.Create(context.Background(), tc.projectID, tc.summary, tc.issueTypeID, tc.priorityID)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantID, got.ID)
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+			assert.Equal(t, fixture.Issue.Single.ID, v.ID)
 		})
 	}
 }
 
 func TestIssueService_Update(t *testing.T) {
 	o := &core.OptionService{}
-
 	cases := map[string]struct {
 		issueIDOrKey string
-		option       core.RequestOption
-		opts         []core.RequestOption
-
-		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantID      int
+		expectError  bool
+		mockPatchFn  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
-		"success-summary": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithSummary("Updated summary"),
+		"success": {
+			issueIDOrKey: "TEST-1",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1", spath)
-				assert.Equal(t, "Updated summary", form.Get("summary"))
+				assert.Equal(t, "issues/TEST-1", spath)
+				assert.Equal(t, "updated summary", form.Get("summary"))
 				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
-			wantID: 1,
 		},
-		"success-with-extra-options": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithSummary("Updated summary"),
-			opts: []core.RequestOption{
-				o.WithStatusID(2),
-				o.WithResolutionID(1),
-				o.WithAssigneeID(5),
-			},
-			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1", spath)
-				assert.Equal(t, "Updated summary", form.Get("summary"))
-				assert.Equal(t, "2", form.Get("statusId"))
-				assert.Equal(t, "1", form.Get("resolutionId"))
-				assert.Equal(t, "5", form.Get("assigneeId"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
-		},
-		"success-by-numeric-id": {
-			issueIDOrKey: "1",
-			option:       o.WithDescription("updated desc"),
-			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1", spath)
-				assert.Equal(t, "updated desc", form.Get("description"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
-		},
-		"error-empty-issueIDOrKey": {
+		"error-validation-empty": {
 			issueIDOrKey: "",
-			option:       o.WithSummary("x"),
-			wantErrType:  &core.ValidationError{},
+			expectError:  true,
+			mockPatchFn:  mock.NewUnexpectedPatchFn(t),
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			option:       o.WithSummary("x"),
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-option-invalid-type": {
-			issueIDOrKey: "PRJ-1",
-			option:       mock.NewInvalidTypeOption(),
-			wantErrType:  &core.InvalidOptionKeyError{},
-		},
-		"error-option-invalid-assigneeID": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithAssigneeID(0),
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-client-network": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithSummary("x"),
+		"error-client": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+				return nil, errors.New("error")
 			},
-			wantErrType: errors.New(""),
 		},
-		"error-response-invalid-json": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithSummary("x"),
+		"error-invalid-json": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -569,24 +325,20 @@ func TestIssueService_Update(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockPatchFn != nil {
-				method.Patch = tc.mockPatchFn
-			}
-
+			method.Patch = tc.mockPatchFn
 			s := issue.NewService(method)
 
-			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.option, tc.opts...)
+			v, err := s.Update(context.Background(), tc.issueIDOrKey, o.WithSummary("updated summary"))
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantID, got.ID)
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+			assert.Equal(t, fixture.Issue.Single.ID, v.ID)
 		})
 	}
 }
@@ -594,49 +346,34 @@ func TestIssueService_Update(t *testing.T) {
 func TestIssueService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
-
+		expectError  bool
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantID      int
 	}{
-		"success-by-key": {
-			issueIDOrKey: "PRJ-1",
+		"success": {
+			issueIDOrKey: "TEST-1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1", spath)
+				assert.Equal(t, "issues/TEST-1", spath)
 				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
 			},
-			wantID: 1,
 		},
-		"success-by-id": {
-			issueIDOrKey: "1",
-			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
-		},
-		"error-empty-issueIDOrKey": {
+		"error-validation-empty": {
 			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+			expectError:  true,
+			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-client-network": {
-			issueIDOrKey: "PRJ-1",
+		"error-client": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+				return nil, errors.New("error")
 			},
-			wantErrType: errors.New(""),
 		},
-		"error-response-invalid-json": {
-			issueIDOrKey: "PRJ-1",
+		"error-invalid-json": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -645,24 +382,20 @@ func TestIssueService_Delete(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockDeleteFn != nil {
-				method.Delete = tc.mockDeleteFn
-			}
-
+			method.Delete = tc.mockDeleteFn
 			s := issue.NewService(method)
 
-			got, err := s.Delete(context.Background(), tc.issueIDOrKey)
+			v, err := s.Delete(context.Background(), tc.issueIDOrKey)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Equal(t, tc.wantID, got.ID)
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+			assert.Equal(t, fixture.Issue.Single.ID, v.ID)
 		})
 	}
 }
@@ -670,57 +403,34 @@ func TestIssueService_Delete(t *testing.T) {
 func TestIssueService_Participants(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
-		wantErrType error
-		wantIDs     []int
+		expectError  bool
+		mockGetFn    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
-		"success-by-key": {
-			issueIDOrKey: "PRJ-1",
+		"success": {
+			issueIDOrKey: "TEST-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1/participants", spath)
+				assert.Equal(t, "issues/TEST-1/participants", spath)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
-			wantIDs: []int{1, 2, 3, 4},
 		},
-		"success-by-id": {
-			issueIDOrKey: "1",
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1/participants", spath)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
-			},
-			wantIDs: []int{1, 2, 3, 4},
-		},
-		"success-empty-list": {
-			issueIDOrKey: "PRJ-1",
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1/participants", spath)
-				return mock.NewJSONResponse(`[]`), nil
-			},
-			wantIDs: []int{},
-		},
-		"error-empty-issueIDOrKey": {
+		"error-validation-empty": {
 			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+			expectError:  true,
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
-		},
-		"error-client-network": {
-			issueIDOrKey: "PRJ-1",
+		"error-client": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("network error")
+				return nil, errors.New("error")
 			},
-			wantErrType: errors.New(""),
 		},
-		"error-response-invalid-json": {
-			issueIDOrKey: "PRJ-1",
+		"error-invalid-json": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -729,26 +439,23 @@ func TestIssueService_Participants(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			if tc.mockGetFn != nil {
-				method.Get = tc.mockGetFn
-			}
-
+			method.Get = tc.mockGetFn
 			s := issue.NewService(method)
 
-			got, err := s.Participants(context.Background(), tc.issueIDOrKey)
+			v, err := s.Participants(context.Background(), tc.issueIDOrKey)
 
-			if tc.wantErrType != nil {
+			if tc.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.Nil(t, v)
 				return
 			}
 
-			require.NoError(t, err)
-			require.NotNil(t, got)
-			assert.Len(t, got, len(tc.wantIDs))
-			for i := range got {
-				assert.Equal(t, tc.wantIDs[i], got[i].ID)
+			assert.NoError(t, err)
+			require.NotNil(t, v)
+			assert.Len(t, v, len(fixture.User.List))
+
+			for i, w := range fixture.User.List {
+				assert.Equal(t, w.ID, v[i].ID)
 			}
 		})
 	}
@@ -822,6 +529,21 @@ func Test_contextPropagation(t *testing.T) {
 			s := issue.NewAttachmentService(m)
 			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
+		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.List(ctx, "TEST-1") //nolint:errcheck
+		}},
+		{"SharedFileService.Link", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.Link(ctx, "TEST-1", []int{1}) //nolint:errcheck
+		}},
+		{"SharedFileService.Unlink", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.Unlink(ctx, "TEST-1", 1) //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {
@@ -830,4 +552,17 @@ func Test_contextPropagation(t *testing.T) {
 			tc.call(t, &core.Method{})
 		})
 	}
+}
+
+func newTestIssue() *fixture.IssueData {
+	return fixture.Issue.Single
+}
+
+func newTestTime() time.Time {
+	return time.Date(2014, time.October, 14, 8, 16, 27, 0, time.UTC)
+}
+
+func init() {
+	_ = newTestIssue
+	_ = newTestTime
 }

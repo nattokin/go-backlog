@@ -376,7 +376,7 @@ func (s *IssueCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
 
 // IssueSharedFileService handles communication with the issue shared-file-related methods of the Backlog API.
 type IssueSharedFileService struct {
-	base *sharedfile.IssueService
+	base *issue.SharedFileService
 }
 
 // List returns a list of shared files linked to the issue.
@@ -685,7 +685,7 @@ func newIssueCommentService(method *core.Method, option *core.OptionService) *Is
 
 func newIssueSharedFileService(method *core.Method) *IssueSharedFileService {
 	return &IssueSharedFileService{
-		base: sharedfile.NewIssueService(method),
+		base: issue.NewSharedFileService(method),
 	}
 }
 
