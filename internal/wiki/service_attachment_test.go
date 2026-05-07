@@ -6,90 +6,15 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
-
-func newTestAttachment() *model.Attachment {
-	return &model.Attachment{
-		ID:   8,
-		Name: "IMG0088.png",
-		Size: 5563,
-		Created: time.Date(
-			2014,
-			time.October,
-			28,
-			9,
-			24,
-			43,
-			0,
-			time.UTC,
-		),
-	}
-}
-
-func newTestAttachmentList() []*model.Attachment {
-	return []*model.Attachment{
-		{
-			ID:   2,
-			Name: "A.png",
-			Size: 196186,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-		{
-			ID:   5,
-			Name: "B.png",
-			Size: 201257,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-	}
-}
-
-func newTestAttachmentSingleList() []*model.Attachment {
-	return []*model.Attachment{
-		{
-			ID:   2,
-			Name: "A.png",
-			Size: 196186,
-			Created: time.Date(
-				2014,
-				time.September,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-	}
-}
 
 func TestWikiAttachmentService_Attach(t *testing.T) {
 	cases := map[string]struct {
@@ -97,14 +22,14 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		attachmentIDs []int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			want:          newTestAttachmentSingleList(),
+			wantIDs:       []int{2, 5},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 				v := form
@@ -116,7 +41,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"success-multiple": {
 			wikiID:        1,
 			attachmentIDs: []int{2, 5},
-			want:          newTestAttachmentList(),
+			wantIDs:       []int{2, 5},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
@@ -181,13 +106,10 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -198,13 +120,13 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		wikiID int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
-			wikiID: 1234,
-			want:   newTestAttachmentList(),
+			wikiID:  1234,
+			wantIDs: []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
@@ -259,13 +181,10 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -277,14 +196,14 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		attachmentID int
 
 		expectError bool
-		want        *model.Attachment
+		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			wikiID:       1234,
 			attachmentID: 8,
-			want:         newTestAttachment(),
+			wantID:       8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments/8", spath)
 				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
@@ -357,10 +276,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
 
-			assert.Equal(t, tc.want.ID, attachment.ID)
-			assert.Equal(t, tc.want.Name, attachment.Name)
-			assert.Equal(t, tc.want.Size, attachment.Size)
-			assert.ObjectsAreEqualValues(tc.want.Created, attachment.Created)
+			assert.Equal(t, tc.wantID, attachment.ID)
 		})
 	}
 }

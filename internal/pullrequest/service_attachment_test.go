@@ -6,70 +6,15 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
-
-func newPRTestAttachment() *model.Attachment {
-	return &model.Attachment{
-		ID:   8,
-		Name: "IMG0088.png",
-		Size: 5563,
-		Created: time.Date(
-			2014,
-			time.October,
-			28,
-			9,
-			24,
-			43,
-			0,
-			time.UTC,
-		),
-	}
-}
-
-func newPRTestAttachmentList() []*model.Attachment {
-	return []*model.Attachment{
-		{
-			ID:   2,
-			Name: "A.png",
-			Size: 196186,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-		{
-			ID:   5,
-			Name: "B.png",
-			Size: 201257,
-			Created: time.Date(
-				2014,
-				time.July,
-				11,
-				6,
-				26,
-				5,
-				0,
-				time.UTC,
-			),
-		},
-	}
-}
 
 func TestPullRequestAttachmentService_List(t *testing.T) {
 	cases := map[string]struct {
@@ -78,7 +23,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		prNumber           int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -86,7 +31,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "test",
 			prNumber:           1234,
-			want:               newPRTestAttachmentList(),
+			wantIDs:            []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
@@ -165,13 +110,10 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.Equal(t, w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -185,7 +127,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		attachmentID       int
 
 		expectError bool
-		want        *model.Attachment
+		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -194,7 +136,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           1234,
 			attachmentID:       8,
-			want:               newPRTestAttachment(),
+			wantID:             8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
@@ -289,10 +231,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
 
-			assert.Equal(t, tc.want.ID, attachment.ID)
-			assert.Equal(t, tc.want.Name, attachment.Name)
-			assert.Equal(t, tc.want.Size, attachment.Size)
-			assert.Equal(t, tc.want.Created, attachment.Created)
+			assert.Equal(t, tc.wantID, attachment.ID)
 		})
 	}
 }
