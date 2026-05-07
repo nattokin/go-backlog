@@ -186,6 +186,7 @@ func (s *PullRequestCommentService) All(ctx context.Context, projectIDOrKey stri
 // This method supports options returned by methods in "*Client.PullRequest.Comment.Option",
 // such as:
 //   - WithNotifiedUserIDs
+//   - WithAttachmentIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *PullRequestCommentService) Add(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, content string, opts ...RequestOption) (*Comment, error) {
