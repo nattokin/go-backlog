@@ -49,6 +49,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := sharedfile.NewProjectService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
+		{"ProjectService.GetFile", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := sharedfile.NewProjectService(m)
+			s.GetFile(ctx, "TEST", 1) //nolint:errcheck
+		}},
 		{"WikiService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := sharedfile.NewWikiService(m)
