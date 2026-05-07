@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectSharedFileService_List(t *testing.T) {
+func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -99,7 +99,7 @@ func TestProjectSharedFileService_List(t *testing.T) {
 	}
 }
 
-func TestProjectSharedFileService_GetFile(t *testing.T) {
+func TestSharedFileService_GetFile(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		sharedFileID   int

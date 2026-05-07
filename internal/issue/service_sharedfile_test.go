@@ -15,7 +15,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueSharedFileService_List(t *testing.T) {
+func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 
@@ -99,7 +99,7 @@ func TestIssueSharedFileService_List(t *testing.T) {
 	}
 }
 
-func TestIssueSharedFileService_Link(t *testing.T) {
+func TestSharedFileService_Link(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		fileIDs      []int
@@ -194,7 +194,7 @@ func TestIssueSharedFileService_Link(t *testing.T) {
 	}
 }
 
-func TestIssueSharedFileService_Unlink(t *testing.T) {
+func TestSharedFileService_Unlink(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		fileID       int
