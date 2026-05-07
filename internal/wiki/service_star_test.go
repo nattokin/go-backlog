@@ -1,4 +1,4 @@
-package star_test
+package wiki_test
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestWikiStarService_List(t *testing.T) {
@@ -60,7 +60,7 @@ func TestWikiStarService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := star.NewWikiService(method)
+			s := wiki.NewStarService(method)
 			got, err := s.List(context.Background(), tc.wikiID)
 
 			if tc.wantErr {

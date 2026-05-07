@@ -187,21 +187,6 @@ func Test_contextPropagation(t *testing.T) {
 			s := star.NewService(m)
 			s.Remove(ctx, 1) //nolint:errcheck
 		}},
-		{"UserStarService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := star.NewUserService(m)
-			s.List(ctx, 1) //nolint:errcheck
-		}},
-		{"UserStarService.Count", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := star.NewUserService(m)
-			s.Count(ctx, 1) //nolint:errcheck
-		}},
-		{"WikiStarService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := star.NewWikiService(m)
-			s.List(ctx, 34) //nolint:errcheck
-		}},
 	}
 
 	for _, tc := range cases {

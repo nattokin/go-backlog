@@ -7,7 +7,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/recentlyviewed"
-	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/user"
 )
 
@@ -228,7 +227,7 @@ func (s *UserRecentlyViewedOptionService) WithOrder(order Order) RequestOption {
 
 // UserStarService handles communication with the user star-related methods of the Backlog API.
 type UserStarService struct {
-	base *star.UserService
+	base *user.StarService
 
 	Option *UserStarOptionService
 }
@@ -358,7 +357,7 @@ func newUserRecentlyViewedService(method *core.Method, option *core.OptionServic
 
 func newUserStarService(method *core.Method, option *core.OptionService) *UserStarService {
 	return &UserStarService{
-		base:   star.NewUserService(method),
+		base:   user.NewStarService(method),
 		Option: newUserStarOptionService(option),
 	}
 }
