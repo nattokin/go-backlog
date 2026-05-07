@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -77,33 +76,6 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			assert.Equal(t, 1, attachment.ID)
 			assert.Equal(t, "test.txt", attachment.Name)
 			assert.Equal(t, 8857, attachment.Size)
-		})
-	}
-}
-
-func TestSpaceAttachmentService_contextPropagation(t *testing.T) {
-	type ctxKey struct{}
-	sentinel := &struct{}{}
-	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
-
-	cases := []struct {
-		name string
-		call func(t *testing.T, m *core.Method)
-	}{
-		{"AttachmentService.Upload", func(t *testing.T, m *core.Method) {
-			m.Upload = func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
-				assert.Same(t, sentinel, got.Value(ctxKey{}))
-				return nil, errors.New("stop")
-			}
-			s := space.NewAttachmentService(m)
-			s.Upload(ctx, "file.txt", nil) //nolint:errcheck
-		}},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			tc.call(t, &core.Method{})
 		})
 	}
 }

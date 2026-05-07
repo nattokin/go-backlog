@@ -772,40 +772,55 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"IssueService.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.All(ctx) //nolint:errcheck
 		}},
-		{"IssueService.Count", func(t *testing.T, m *core.Method) {
+		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Count(ctx) //nolint:errcheck
 		}},
-		{"IssueService.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.One(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"IssueService.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Create(ctx, 10, "summary", 2, 3) //nolint:errcheck
 		}},
-		{"IssueService.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Update(ctx, "PRJ-1", o.WithSummary("x")) //nolint:errcheck
 		}},
-		{"IssueService.Delete", func(t *testing.T, m *core.Method) {
+		{"Service.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Delete(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"IssueService.Participants", func(t *testing.T, m *core.Method) {
+		{"Service.Participants", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Participants(ctx, "PRJ-1") //nolint:errcheck
+		}},
+		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewAttachmentService(m)
+			s.List(ctx, "TEST-1") //nolint:errcheck
+		}},
+		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := issue.NewAttachmentService(m)
+			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := issue.NewAttachmentService(m)
+			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
 	}
 

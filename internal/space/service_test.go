@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -273,15 +274,15 @@ func Test_contextPropagation(t *testing.T) {
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
 
-	makeGetMock := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
+	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
 		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
 			assert.Same(t, sentinel, got.Value(ctxKey{}))
 			return nil, errors.New("stop")
 		}
 	}
 
-	makePutMock := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
-		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
+	makeMockUploadFn := func(t *testing.T) func(context.Context, string, string, io.Reader) (*http.Response, error) {
+		return func(got context.Context, _, _ string, _ io.Reader) (*http.Response, error) {
 			assert.Same(t, sentinel, got.Value(ctxKey{}))
 			return nil, errors.New("stop")
 		}
@@ -291,25 +292,30 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"SpaceService.One", func(t *testing.T, m *core.Method) {
-			m.Get = makeGetMock(t)
+		{"Service.One", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.One(ctx) //nolint:errcheck
 		}},
-		{"SpaceService.DiskUsage", func(t *testing.T, m *core.Method) {
-			m.Get = makeGetMock(t)
+		{"Service.DiskUsage", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.DiskUsage(ctx) //nolint:errcheck
 		}},
-		{"SpaceService.Notification", func(t *testing.T, m *core.Method) {
-			m.Get = makeGetMock(t)
+		{"Service.Notification", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.Notification(ctx) //nolint:errcheck
 		}},
-		{"SpaceService.UpdateNotification", func(t *testing.T, m *core.Method) {
-			m.Put = makePutMock(t)
+		{"Service.UpdateNotification", func(t *testing.T, m *core.Method) {
+			m.Put = makeMockFn(t)
 			s := space.NewService(m)
 			s.UpdateNotification(ctx, "content") //nolint:errcheck
+		}},
+		{"AttachmentService.Upload", func(t *testing.T, m *core.Method) {
+			m.Upload = makeMockUploadFn(t)
+			s := space.NewAttachmentService(m)
+			s.Upload(ctx, "file.txt", nil) //nolint:errcheck
 		}},
 	}
 
