@@ -7,7 +7,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
-	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
@@ -217,7 +216,7 @@ func (s *WikiSharedFileService) Unlink(ctx context.Context, wikiID, fileID int) 
 
 // WikiStarService handles communication with the wiki star-related methods of the Backlog API.
 type WikiStarService struct {
-	base *star.WikiService
+	base *wiki.StarService
 	star *StarService
 }
 
@@ -308,7 +307,7 @@ func newWikiSharedFileService(method *core.Method) *WikiSharedFileService {
 
 func newWikiStarService(method *core.Method, option *core.OptionService) *WikiStarService {
 	return &WikiStarService{
-		base: star.NewWikiService(method),
+		base: wiki.NewStarService(method),
 		star: newStarService(method, option),
 	}
 }

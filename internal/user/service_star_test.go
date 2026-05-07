@@ -1,4 +1,4 @@
-package star_test
+package user_test
 
 import (
 	"context"
@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/star"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/user"
 )
 
 func TestUserStarService_List(t *testing.T) {
@@ -78,7 +78,7 @@ func TestUserStarService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := star.NewUserService(method)
+			s := user.NewStarService(method)
 			got, err := s.List(context.Background(), tc.userID, tc.opts...)
 
 			if tc.wantErr {
@@ -137,7 +137,7 @@ func TestUserStarService_Count(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := star.NewUserService(method)
+			s := user.NewStarService(method)
 			got, err := s.Count(context.Background(), tc.userID)
 
 			if tc.wantErr {

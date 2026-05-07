@@ -796,6 +796,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := wiki.NewHistoryService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},
+		{"StarService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := wiki.NewStarService(m)
+			s.List(ctx, 34) //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {
