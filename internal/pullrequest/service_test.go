@@ -658,30 +658,45 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"PullRequestService.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.All(ctx, testProject, testRepo) //nolint:errcheck
 		}},
-		{"PullRequestService.Count", func(t *testing.T, m *core.Method) {
+		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Count(ctx, testProject, testRepo) //nolint:errcheck
 		}},
-		{"PullRequestService.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.One(ctx, testProject, testRepo, 1) //nolint:errcheck
 		}},
-		{"PullRequestService.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Create(ctx, testProject, testRepo, "summary", "desc", "main", "feature/foo") //nolint:errcheck
 		}},
-		{"PullRequestService.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Update(ctx, testProject, testRepo, 1, o.WithSummary("x")) //nolint:errcheck
+		}},
+		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := pullrequest.NewAttachmentService(m)
+			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
 	}
 

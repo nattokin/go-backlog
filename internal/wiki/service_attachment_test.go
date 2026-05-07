@@ -1,4 +1,4 @@
-package attachment_test
+package wiki_test
 
 import (
 	"context"
@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
-	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestWikiAttachmentService_Attach(t *testing.T) {
@@ -22,14 +22,14 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		attachmentIDs []int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			want:          newTestAttachmentSingleList(),
+			wantIDs:       []int{2},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 				v := form
@@ -41,7 +41,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		"success-multiple": {
 			wikiID:        1,
 			attachmentIDs: []int{2, 5},
-			want:          newTestAttachmentList(),
+			wantIDs:       []int{2, 5},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
@@ -93,7 +93,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Post = tc.mockPostFn
-			s := attachment.NewWikiService(method)
+			s := wiki.NewAttachmentService(method)
 
 			attachments, err := s.Attach(context.Background(), tc.wikiID, tc.attachmentIDs)
 
@@ -106,13 +106,10 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -123,13 +120,13 @@ func TestWikiAttachmentService_List(t *testing.T) {
 		wikiID int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
-			wikiID: 1234,
-			want:   newTestAttachmentList(),
+			wikiID:  1234,
+			wantIDs: []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments", spath)
 				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
@@ -171,7 +168,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Get = tc.mockGetFn
-			s := attachment.NewWikiService(method)
+			s := wiki.NewAttachmentService(method)
 
 			attachments, err := s.List(context.Background(), tc.wikiID)
 
@@ -184,13 +181,10 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.ObjectsAreEqualValues(w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -202,14 +196,14 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		attachmentID int
 
 		expectError bool
-		want        *model.Attachment
+		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			wikiID:       1234,
 			attachmentID: 8,
-			want:         newTestAttachment(),
+			wantID:       8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/attachments/8", spath)
 				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
@@ -269,7 +263,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Delete = tc.mockDeleteFn
-			s := attachment.NewWikiService(method)
+			s := wiki.NewAttachmentService(method)
 
 			attachment, err := s.Remove(context.Background(), tc.wikiID, tc.attachmentID)
 
@@ -282,10 +276,78 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
 
-			assert.Equal(t, tc.want.ID, attachment.ID)
-			assert.Equal(t, tc.want.Name, attachment.Name)
-			assert.Equal(t, tc.want.Size, attachment.Size)
-			assert.ObjectsAreEqualValues(tc.want.Created, attachment.Created)
+			assert.Equal(t, tc.wantID, attachment.ID)
+		})
+	}
+}
+
+func TestWikiAttachmentService_Download(t *testing.T) {
+	cases := map[string]struct {
+		wikiID       int
+		attachmentID int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			wikiID:       34,
+			attachmentID: 20,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/34/attachments/20", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+			},
+			wantFilename:    "doc.pdf",
+			wantContentType: "application/pdf",
+		},
+		"error-validation-wikiID-zero": {
+			wikiID:       0,
+			attachmentID: 20,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-validation-attachmentID-zero": {
+			wikiID:       34,
+			attachmentID: 0,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-client-network": {
+			wikiID:       34,
+			attachmentID: 20,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := wiki.NewAttachmentService(method)
+
+			got, err := s.Download(context.Background(), tc.wikiID, tc.attachmentID)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
 		})
 	}
 }

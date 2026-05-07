@@ -1,4 +1,4 @@
-package attachment_test
+package pullrequest_test
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
-	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -23,7 +23,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 		prNumber           int
 
 		expectError bool
-		want        []*model.Attachment
+		wantIDs     []int
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -31,7 +31,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "test",
 			prNumber:           1234,
-			want:               newTestAttachmentList(),
+			wantIDs:            []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
@@ -93,7 +93,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Get = tc.mockGetFn
-			s := attachment.NewPullRequestService(method)
+			s := pullrequest.NewAttachmentService(method)
 
 			attachments, err := s.List(context.Background(),
 				tc.projectIDOrKey,
@@ -110,13 +110,10 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
 
-			assert.Len(t, attachments, len(tc.want))
+			assert.Len(t, attachments, len(tc.wantIDs))
 
-			for i, w := range tc.want {
-				assert.Equal(t, w.ID, attachments[i].ID)
-				assert.Equal(t, w.Name, attachments[i].Name)
-				assert.Equal(t, w.Size, attachments[i].Size)
-				assert.Equal(t, w.Created, attachments[i].Created)
+			for i, id := range tc.wantIDs {
+				assert.Equal(t, id, attachments[i].ID)
 			}
 		})
 	}
@@ -130,7 +127,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 		attachmentID       int
 
 		expectError bool
-		want        *model.Attachment
+		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -139,7 +136,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			repositoryIDOrName: "test",
 			prNumber:           1234,
 			attachmentID:       8,
-			want:               newTestAttachment(),
+			wantID:             8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(
 					t,
@@ -215,7 +212,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Delete = tc.mockDeleteFn
-			s := attachment.NewPullRequestService(method)
+			s := pullrequest.NewAttachmentService(method)
 
 			attachment, err := s.Remove(
 				context.Background(),
@@ -234,10 +231,102 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
 
-			assert.Equal(t, tc.want.ID, attachment.ID)
-			assert.Equal(t, tc.want.Name, attachment.Name)
-			assert.Equal(t, tc.want.Size, attachment.Size)
-			assert.Equal(t, tc.want.Created, attachment.Created)
+			assert.Equal(t, tc.wantID, attachment.ID)
+		})
+	}
+}
+
+func TestPullRequestAttachmentService_Download(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey     string
+		repositoryIDOrName string
+		prNumber           int
+		attachmentID       int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/git/repositories/repo1/pullRequests/5/attachments/30", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("patch.diff", "text/plain", []byte("DIFF")), nil
+			},
+			wantFilename:    "patch.diff",
+			wantContentType: "text/plain",
+		},
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:     "",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-repositoryIDOrName-empty": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "",
+			prNumber:           5,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           0,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-attachmentID-zero": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       0,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-client-network": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := pullrequest.NewAttachmentService(method)
+
+			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
 		})
 	}
 }

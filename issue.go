@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
@@ -217,7 +216,7 @@ func (s *IssueService) Participants(ctx context.Context, issueIDOrKey string) ([
 
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.
 type IssueAttachmentService struct {
-	base *attachment.IssueService
+	base *issue.AttachmentService
 }
 
 // List returns a list of all attachments in the issue.
@@ -673,7 +672,7 @@ func newIssueService(method *core.Method, option *core.OptionService) *IssueServ
 
 func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 	return &IssueAttachmentService{
-		base: attachment.NewIssueService(method),
+		base: issue.NewAttachmentService(method),
 	}
 }
 

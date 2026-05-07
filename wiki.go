@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
@@ -126,7 +125,7 @@ func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOpt
 
 // WikiAttachmentService handles communication with the wiki attachment-related methods of the Backlog API.
 type WikiAttachmentService struct {
-	base *attachment.WikiService
+	base *wiki.AttachmentService
 }
 
 // Attach attaches files uploaded to the space to the specified wiki.
@@ -291,7 +290,7 @@ func newWikiService(method *core.Method, option *core.OptionService) *WikiServic
 
 func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
-		base: attachment.NewWikiService(method),
+		base: wiki.NewAttachmentService(method),
 	}
 }
 

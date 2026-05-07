@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/activity"
-	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/space"
@@ -141,7 +140,7 @@ func (s *SpaceActivityService) Get(ctx context.Context, activityID int) (*Activi
 
 // SpaceAttachmentService handles communication with the space attachment-related methods of the Backlog API.
 type SpaceAttachmentService struct {
-	base *attachment.SpaceService
+	base *space.AttachmentService
 }
 
 // Upload uploads any file to the space.
@@ -175,7 +174,7 @@ func newSpaceActivityService(method *core.Method, option *core.OptionService) *S
 
 func newSpaceAttachmentService(method *core.Method) *SpaceAttachmentService {
 	return &SpaceAttachmentService{
-		base: attachment.NewSpaceService(method),
+		base: space.NewAttachmentService(method),
 	}
 }
 

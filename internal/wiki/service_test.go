@@ -771,6 +771,26 @@ func Test_contextPropagation(t *testing.T) {
 			s := wiki.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
 		}},
+		{"AttachmentService.Attach", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := wiki.NewAttachmentService(m)
+			s.Attach(ctx, 1, []int{1}) //nolint:errcheck
+		}},
+		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := wiki.NewAttachmentService(m)
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := wiki.NewAttachmentService(m)
+			s.Remove(ctx, 1, 1) //nolint:errcheck
+		}},
+		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := wiki.NewAttachmentService(m)
+			s.Download(ctx, 1, 1) //nolint:errcheck
+		}},
 		{"HistoryService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewHistoryService(m)
