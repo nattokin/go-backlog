@@ -2,6 +2,8 @@ package wiki
 
 import (
 	"context"
+	"errors"
+	"net/url"
 	"path"
 	"strconv"
 
@@ -15,7 +17,8 @@ import (
 // It delegates all HTTP operations to the shared attachment.Service and is
 // responsible only for validation and spath construction.
 type AttachmentService struct {
-	svc *attachment.Service
+	base   *attachment.Service
+	method *core.Method
 }
 
 // Attach attaches files uploaded to the space to the specified wiki.
@@ -26,8 +29,30 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 		return nil, err
 	}
 
+	if len(attachmentIDs) == 0 {
+		return nil, errors.New("attachmentIDs must not be empty")
+	}
+
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
-	return s.svc.Attach(ctx, spath, attachmentIDs)
+	form := url.Values{}
+	for _, id := range attachmentIDs {
+		if id <= 0 {
+			return nil, errors.New("attachmentID must be greater than 0")
+		}
+		form.Add("attachmentId[]", strconv.Itoa(id))
+	}
+
+	resp, err := s.method.Post(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.Attachment{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
 }
 
 // List returns a list of files attached to the wiki page.
@@ -39,7 +64,7 @@ func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Atta
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
-	return s.svc.List(ctx, spath)
+	return s.base.List(ctx, spath)
 }
 
 // Remove removes an attachment from the wiki page.
@@ -54,7 +79,7 @@ func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
-	return s.svc.Remove(ctx, spath)
+	return s.base.Remove(ctx, spath)
 }
 
 // Download downloads a file attached to the wiki page.
@@ -70,7 +95,7 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
-	return s.svc.Download(ctx, spath)
+	return s.base.Download(ctx, spath)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -79,5 +104,8 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 
 // NewAttachmentService creates and returns a new wiki AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
-	return &AttachmentService{svc: attachment.NewService(method)}
+	return &AttachmentService{
+		base:   attachment.NewService(method),
+		method: method,
+	}
 }

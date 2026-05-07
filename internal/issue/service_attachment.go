@@ -15,7 +15,7 @@ import (
 // It delegates all HTTP operations to the shared attachment.Service and is
 // responsible only for validation and spath construction.
 type AttachmentService struct {
-	svc *attachment.Service
+	base *attachment.Service
 }
 
 // List returns a list of all attachments in the issue.
@@ -27,7 +27,7 @@ func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*m
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments")
-	return s.svc.List(ctx, spath)
+	return s.base.List(ctx, spath)
 }
 
 // Remove removes a file attached to the issue.
@@ -42,7 +42,7 @@ func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, att
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
-	return s.svc.Remove(ctx, spath)
+	return s.base.Remove(ctx, spath)
 }
 
 // Download downloads a file attached to the issue.
@@ -58,7 +58,7 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
-	return s.svc.Download(ctx, spath)
+	return s.base.Download(ctx, spath)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -67,5 +67,5 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 
 // NewAttachmentService creates and returns a new issue AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
-	return &AttachmentService{svc: attachment.NewService(method)}
+	return &AttachmentService{base: attachment.NewService(method)}
 }
