@@ -8,7 +8,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/sharedfile"
 )
 
 // ──────────────────────────────────────────────────────────────
