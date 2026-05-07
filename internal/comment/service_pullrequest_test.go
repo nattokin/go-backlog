@@ -201,6 +201,20 @@ func TestPullRequestCommentService_Add(t *testing.T) {
 			},
 			wantID: 1,
 		},
+		"success-with-attachmentIDs": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo",
+			prNumber:       1,
+			content:        "Attaching files.",
+			opts:           []core.RequestOption{o.WithAttachmentIDs([]int{10, 11})},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
+				assert.Equal(t, "Attaching files.", form.Get("content"))
+				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
+				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+			},
+			wantID: 1,
+		},
 		"error-empty-projectIDOrKey": {
 			projectIDOrKey: "",
 			repoIDOrName:   "repo",
