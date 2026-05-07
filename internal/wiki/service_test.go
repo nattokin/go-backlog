@@ -801,6 +801,21 @@ func Test_contextPropagation(t *testing.T) {
 			s := wiki.NewStarService(m)
 			s.List(ctx, 34) //nolint:errcheck
 		}},
+		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := wiki.NewSharedFileService(m)
+			s.List(ctx, 1) //nolint:errcheck
+		}},
+		{"SharedFileService.Link", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := wiki.NewSharedFileService(m)
+			s.Link(ctx, 1, []int{1}) //nolint:errcheck
+		}},
+		{"SharedFileService.Unlink", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := wiki.NewSharedFileService(m)
+			s.Unlink(ctx, 1, 1) //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {

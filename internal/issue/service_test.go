@@ -822,6 +822,21 @@ func Test_contextPropagation(t *testing.T) {
 			s := issue.NewAttachmentService(m)
 			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
+		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.List(ctx, "TEST-1") //nolint:errcheck
+		}},
+		{"SharedFileService.Link", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.Link(ctx, "TEST-1", []int{1}) //nolint:errcheck
+		}},
+		{"SharedFileService.Unlink", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := issue.NewSharedFileService(m)
+			s.Unlink(ctx, "TEST-1", 1) //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {

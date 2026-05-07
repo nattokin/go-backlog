@@ -1,4 +1,4 @@
-package sharedfile_test
+package issue_test
 
 import (
 	"context"
@@ -10,50 +10,58 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/sharedfile"
+	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestWikiSharedFileService_List(t *testing.T) {
+func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
-		wikiID int
+		issueIDOrKey string
 
 		expectError bool
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
-			wikiID: 1234,
+			issueIDOrKey: "TEST-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "wikis/1234/sharedFiles", spath)
+				assert.Equal(t, "issues/TEST-1/sharedFiles", spath)
 				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:      0,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
+		"success-numeric-id": {
+			issueIDOrKey: "1234",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/1234/sharedFiles", spath)
+				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+			},
 		},
 
-		"error-wikiID-negative": {
-			wikiID:      -1,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
+		"error-issueIDOrKey-empty": {
+			issueIDOrKey: "",
+			expectError:  true,
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
+		},
+
+		"error-issueIDOrKey-zero": {
+			issueIDOrKey: "0",
+			expectError:  true,
+			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-client": {
-			wikiID:      1234,
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			wikiID:      1234,
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
@@ -66,9 +74,9 @@ func TestWikiSharedFileService_List(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Get = tc.mockGetFn
-			s := sharedfile.NewWikiService(method)
+			s := issue.NewSharedFileService(method)
 
-			files, err := s.List(context.Background(), tc.wikiID)
+			files, err := s.List(context.Background(), tc.issueIDOrKey)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -80,78 +88,78 @@ func TestWikiSharedFileService_List(t *testing.T) {
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
 
-			for i, v := range fixture.SharedFile.List {
-				assert.Equal(t, v.ID, files[i].ID)
-				assert.Equal(t, v.Type, files[i].Type)
-				assert.Equal(t, v.Dir, files[i].Dir)
-				assert.Equal(t, v.Name, files[i].Name)
-				assert.Equal(t, v.Size, files[i].Size)
+			for i, w := range fixture.SharedFile.List {
+				assert.Equal(t, w.ID, files[i].ID)
+				assert.Equal(t, w.Type, files[i].Type)
+				assert.Equal(t, w.Dir, files[i].Dir)
+				assert.Equal(t, w.Name, files[i].Name)
+				assert.Equal(t, w.Size, files[i].Size)
 			}
 		})
 	}
 }
 
-func TestWikiSharedFileService_Link(t *testing.T) {
+func TestSharedFileService_Link(t *testing.T) {
 	cases := map[string]struct {
-		wikiID  int
-		fileIDs []int
+		issueIDOrKey string
+		fileIDs      []int
 
 		expectError bool
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
-			wikiID:  1234,
-			fileIDs: []int{454403},
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{454403},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "wikis/1234/sharedFiles", spath)
+				assert.Equal(t, "issues/TEST-1/sharedFiles", spath)
 				assert.Equal(t, []string{"454403"}, form["fileId[]"])
 				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 		},
 
 		"success-multiple": {
-			wikiID:  1,
-			fileIDs: []int{454403, 454404},
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{454403, 454404},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:      0,
-			fileIDs:     []int{1},
-			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
+		"error-issueIDOrKey-empty": {
+			issueIDOrKey: "",
+			fileIDs:      []int{1},
+			expectError:  true,
+			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-fileIDs-empty": {
-			wikiID:      1,
-			fileIDs:     []int{},
-			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{},
+			expectError:  true,
+			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-fileIDs-invalid": {
-			wikiID:      1,
-			fileIDs:     []int{0, 1},
-			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{0, 1},
+			expectError:  true,
+			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-client": {
-			wikiID:      1234,
-			fileIDs:     []int{454403},
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{454403},
+			expectError:  true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			wikiID:      1234,
-			fileIDs:     []int{454403},
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{454403},
+			expectError:  true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
@@ -164,9 +172,9 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Post = tc.mockPostFn
-			s := sharedfile.NewWikiService(method)
+			s := issue.NewSharedFileService(method)
 
-			files, err := s.Link(context.Background(), tc.wikiID, tc.fileIDs)
+			files, err := s.Link(context.Background(), tc.issueIDOrKey, tc.fileIDs)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -186,65 +194,65 @@ func TestWikiSharedFileService_Link(t *testing.T) {
 	}
 }
 
-func TestWikiSharedFileService_Unlink(t *testing.T) {
+func TestSharedFileService_Unlink(t *testing.T) {
 	cases := map[string]struct {
-		wikiID int
-		fileID int
+		issueIDOrKey string
+		fileID       int
 
 		expectError bool
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
-			wikiID: 1234,
-			fileID: 454403,
+			issueIDOrKey: "TEST-1",
+			fileID:       454403,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "wikis/1234/sharedFiles/454403", spath)
+				assert.Equal(t, "issues/TEST-1/sharedFiles/454403", spath)
 				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:       0,
+		"error-issueIDOrKey-empty": {
+			issueIDOrKey: "",
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
-		"error-wikiID-negative": {
-			wikiID:       -1,
+		"error-issueIDOrKey-zero": {
+			issueIDOrKey: "0",
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-fileID-zero": {
-			wikiID:       1,
+			issueIDOrKey: "TEST-1",
 			fileID:       0,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-fileID-negative": {
-			wikiID:       1,
+			issueIDOrKey: "TEST-1",
 			fileID:       -1,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 
 		"error-client": {
-			wikiID:      1234,
-			fileID:      454403,
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			fileID:       454403,
+			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			wikiID:      1234,
-			fileID:      454403,
-			expectError: true,
+			issueIDOrKey: "TEST-1",
+			fileID:       454403,
+			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
@@ -257,9 +265,9 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Delete = tc.mockDeleteFn
-			s := sharedfile.NewWikiService(method)
+			s := issue.NewSharedFileService(method)
 
-			file, err := s.Unlink(context.Background(), tc.wikiID, tc.fileID)
+			file, err := s.Unlink(context.Background(), tc.issueIDOrKey, tc.fileID)
 
 			if tc.expectError {
 				assert.Error(t, err)
