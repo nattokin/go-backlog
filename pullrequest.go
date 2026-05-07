@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/pullrequest"
@@ -161,7 +160,7 @@ func (s *PullRequestAttachmentService) Download(ctx context.Context, projectIDOr
 
 // PullRequestCommentService handles communication with the pull request comment-related methods of the Backlog API.
 type PullRequestCommentService struct {
-	base   *comment.PullRequestService
+	base   *pullrequest.CommentService
 	Option *PullRequestCommentOptionService
 }
 
@@ -369,7 +368,7 @@ func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachment
 
 func newPullRequestCommentService(method *core.Method, option *core.OptionService) *PullRequestCommentService {
 	return &PullRequestCommentService{
-		base:   comment.NewPullRequestService(method),
+		base:   pullrequest.NewCommentService(method),
 		Option: &PullRequestCommentOptionService{base: option},
 	}
 }
