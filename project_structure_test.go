@@ -156,6 +156,33 @@ func TestProjectSharedFileService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"GetFile": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/files/1", req.URL.Path)
+				return mock.NewBinaryResponse("image.png", "image/png", []byte("PNG")), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.SharedFile.GetFile(ctx, "TEST", 1)
+				require.NoError(t, err)
+				require.NotNil(t, got)
+				assert.Equal(t, "image.png", got.Filename)
+				assert.Equal(t, "image/png", got.ContentType)
+				body, err := io.ReadAll(got.Body)
+				require.NoError(t, err)
+				assert.Equal(t, []byte("PNG"), body)
+				got.Body.Close()
+			},
+		},
+		"GetFile/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.User.Icon(ctx, 1)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 	}
 
 	for name, tc := range cases {
