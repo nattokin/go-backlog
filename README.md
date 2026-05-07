@@ -59,6 +59,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.Issue.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueAttachmentService)
 
 - [Get List of Issue Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments) - Returns a list of files attached to an issue.
+- [Get Issue Attachment](https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment/) - Downloads a file attached to an issue.
 - [Delete Issue Attachment](https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment) - Removes a file attached to an issue.
 
 ### Client.Issue.[Comment](https://pkg.go.dev/github.com/nattokin/go-backlog#IssueCommentService)
@@ -86,6 +87,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Update Project](https://developer.nulab.com/docs/backlog/api/2/update-project) - Updates information about project.
 - [Delete Project](https://developer.nulab.com/docs/backlog/api/2/delete-project) - Deletes a project.
 - [Get Project Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage/) - Returns disk usage of a project.
+- [Get Project Icon](https://developer.nulab.com/docs/backlog/api/2/get-project-icon/) - Returns the icon of a project.
 
 ### Client.Project.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectActivityService)
 
@@ -126,6 +128,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
 
 - [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a project.
+- [Get File](https://developer.nulab.com/docs/backlog/api/2/get-file/) - Downloads a shared file.
 
 ### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
 
@@ -162,6 +165,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.PullRequest.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestAttachmentService)
 
 - [Get List of Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment) - Returns a list of files attached to a pull request.
+- [Download Pull Request Attachment](https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment/) - Downloads a file attached to a pull request.
 - [Delete Pull Request Attachments](https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments) - Removes a file attached to a pull request.
 
 ### Client.PullRequest.[Comment](https://pkg.go.dev/github.com/nattokin/go-backlog#PullRequestCommentService)
@@ -205,6 +209,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Update User](https://developer.nulab.com/docs/backlog/api/2/update-user) - Updates information about a user (Note: Not available at backlog.com).
 - [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes a user from the space (Note: Not available at backlog.com).
 - [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
+- [Get User Icon](https://developer.nulab.com/docs/backlog/api/2/get-user-icon/) - Returns the icon of a user.
 
 ### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
 
@@ -231,6 +236,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.Wiki.[Attachment](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiAttachmentService)
 
 - [Get List of Wiki Attachments](https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments/) - Gets a list of files attached to a Wiki.
+- [Get Wiki Page Attachment](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment/) - Downloads a file attached to a Wiki page.
 - [Attach File to Wiki](https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki/) - Attaches file to Wiki.
 - [Remove Wiki Attachment](https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment/) - Removes files attached to a Wiki.
 
