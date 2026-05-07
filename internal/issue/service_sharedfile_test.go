@@ -90,6 +90,10 @@ func TestIssueSharedFileService_List(t *testing.T) {
 
 			for i, w := range fixture.SharedFile.List {
 				assert.Equal(t, w.ID, files[i].ID)
+				assert.Equal(t, w.Type, files[i].Type)
+				assert.Equal(t, w.Dir, files[i].Dir)
+				assert.Equal(t, w.Name, files[i].Name)
+				assert.Equal(t, w.Size, files[i].Size)
 			}
 		})
 	}
@@ -196,14 +200,12 @@ func TestIssueSharedFileService_Unlink(t *testing.T) {
 		fileID       int
 
 		expectError bool
-		wantID      int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "TEST-1",
 			fileID:       454403,
-			wantID:       fixture.SharedFile.Single.ID,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/TEST-1/sharedFiles/454403", spath)
 				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
@@ -275,7 +277,11 @@ func TestIssueSharedFileService_Unlink(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, file)
-			assert.Equal(t, tc.wantID, file.ID)
+
+			assert.Equal(t, fixture.SharedFile.Single.ID, file.ID)
+			assert.Equal(t, fixture.SharedFile.Single.Name, file.Name)
+			assert.Equal(t, fixture.SharedFile.Single.Type, file.Type)
+			assert.Equal(t, fixture.SharedFile.Single.Dir, file.Dir)
 		})
 	}
 }
