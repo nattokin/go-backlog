@@ -1,4 +1,4 @@
-package history_test
+package wiki_test
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/history"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/wiki"
 )
 
 func TestWikiHistoryService_List(t *testing.T) {
@@ -67,7 +67,7 @@ func TestWikiHistoryService_List(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Get = tc.mockGetFn
-			s := history.NewWikiService(method)
+			s := wiki.NewHistoryService(method)
 
 			entries, err := s.List(context.Background(), tc.wikiID)
 
@@ -89,25 +89,4 @@ func TestWikiHistoryService_List(t *testing.T) {
 			}
 		})
 	}
-}
-
-func Test_WikiHistoryService_contextPropagation(t *testing.T) {
-	type ctxKey struct{}
-	sentinel := &struct{}{}
-	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
-
-	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
-		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-			assert.Same(t, sentinel, got.Value(ctxKey{}))
-			return nil, errors.New("stop")
-		}
-	}
-
-	t.Run("WikiService.List", func(t *testing.T) {
-		t.Parallel()
-		m := mock.NewMethod(t)
-		m.Get = makeMockFn(t)
-		s := history.NewWikiService(m)
-		s.List(ctx, 1) //nolint:errcheck
-	})
 }

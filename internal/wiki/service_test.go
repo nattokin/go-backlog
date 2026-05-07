@@ -741,35 +741,40 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"WikiService.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.All(ctx, "TEST") //nolint:errcheck
 		}},
-		{"WikiService.Count", func(t *testing.T, m *core.Method) {
+		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Count(ctx, "TEST") //nolint:errcheck
 		}},
-		{"WikiService.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"WikiService.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Create(ctx, 1, "name", "content") //nolint:errcheck
 		}},
-		{"WikiService.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Update(ctx, 1, o.WithName("n")) //nolint:errcheck
 		}},
-		{"WikiService.Delete", func(t *testing.T, m *core.Method) {
+		{"Service.Delete", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
+		}},
+		{"HistoryService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := wiki.NewHistoryService(m)
+			s.List(ctx, 1) //nolint:errcheck
 		}},
 	}
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/attachment"
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/history"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/star"
@@ -169,7 +168,7 @@ func (s *WikiAttachmentService) Download(ctx context.Context, wikiID, attachment
 
 // WikiHistoryService handles communication with the wiki history-related methods of the Backlog API.
 type WikiHistoryService struct {
-	base *history.WikiService
+	base *wiki.HistorySevice
 }
 
 // List returns the version history of a wiki page.
@@ -298,7 +297,7 @@ func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
 
 func newWikiHistoryService(method *core.Method) *WikiHistoryService {
 	return &WikiHistoryService{
-		base: history.NewWikiService(method),
+		base: wiki.NewHistoryService(method),
 	}
 }
 

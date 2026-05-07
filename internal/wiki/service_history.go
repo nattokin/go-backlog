@@ -1,4 +1,4 @@
-package history
+package wiki
 
 import (
 	"context"
@@ -11,19 +11,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  WikiService
-// ──────────────────────────────────────────────────────────────
-
-// WikiService handles communication with the wiki history-related methods of the Backlog API.
-type WikiService struct {
+// HistorySevice handles communication with the wiki history-related methods of the Backlog API.
+type HistorySevice struct {
 	method *core.Method
 }
 
 // List returns the version history of a wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
-func (s *WikiService) List(ctx context.Context, wikiID int) ([]*model.WikiHistory, error) {
+func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHistory, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
@@ -43,10 +39,10 @@ func (s *WikiService) List(ctx context.Context, wikiID int) ([]*model.WikiHistor
 }
 
 // ──────────────────────────────────────────────────────────────
-//  Constructor
+//  Constructors
 // ──────────────────────────────────────────────────────────────
 
-// NewWikiService creates and returns a new history WikiService.
-func NewWikiService(method *core.Method) *WikiService {
-	return &WikiService{method: method}
+// NewHistoryService creates and returns a new history WikiService.
+func NewHistoryService(method *core.Method) *HistorySevice {
+	return &HistorySevice{method: method}
 }
