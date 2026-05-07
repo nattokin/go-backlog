@@ -307,6 +307,7 @@ func (s *PullRequestService) All(ctx context.Context, projectIDOrKey string, rep
 //
 // This method supports options:
 //   - WithNotifiedUserIDs
+//   - WithAttachmentIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *PullRequestService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...core.RequestOption) (*model.Comment, error) {
@@ -325,6 +326,7 @@ func (s *PullRequestService) Add(ctx context.Context, projectIDOrKey string, rep
 	validTypes := []core.APIParamOptionType{
 		core.ParamContent,
 		core.ParamNotifiedUserIDs,
+		core.ParamAttachmentIDs,
 	}
 	options := append(
 		[]core.RequestOption{option.WithContent(content)},
