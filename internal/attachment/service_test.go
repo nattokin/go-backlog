@@ -158,6 +158,254 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 	}
 }
 
+func TestIssueService_Download(t *testing.T) {
+	cases := map[string]struct {
+		issueIDOrKey string
+		attachmentID int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			issueIDOrKey: "TEST-1",
+			attachmentID: 10,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/TEST-1/attachments/10", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("file.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "file.png",
+			wantContentType: "image/png",
+		},
+		"success-issue-id": {
+			issueIDOrKey: "123",
+			attachmentID: 5,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/123/attachments/5", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+			},
+			wantFilename:    "doc.pdf",
+			wantContentType: "application/pdf",
+		},
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey: "",
+			attachmentID: 10,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-validation-attachmentID-zero": {
+			issueIDOrKey: "TEST-1",
+			attachmentID: 0,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-client-network": {
+			issueIDOrKey: "TEST-1",
+			attachmentID: 10,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := attachment.NewIssueService(method)
+
+			got, err := s.Download(context.Background(), tc.issueIDOrKey, tc.attachmentID)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
+		})
+	}
+}
+
+func TestWikiService_Download(t *testing.T) {
+	cases := map[string]struct {
+		wikiID       int
+		attachmentID int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			wikiID:       34,
+			attachmentID: 20,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/34/attachments/20", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+			},
+			wantFilename:    "doc.pdf",
+			wantContentType: "application/pdf",
+		},
+		"error-validation-wikiID-zero": {
+			wikiID:       0,
+			attachmentID: 20,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-validation-attachmentID-zero": {
+			wikiID:       34,
+			attachmentID: 0,
+			wantErrType:  &core.ValidationError{},
+		},
+		"error-client-network": {
+			wikiID:       34,
+			attachmentID: 20,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := attachment.NewWikiService(method)
+
+			got, err := s.Download(context.Background(), tc.wikiID, tc.attachmentID)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
+		})
+	}
+}
+
+func TestPullRequestService_Download(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey     string
+		repositoryIDOrName string
+		prNumber           int
+		attachmentID       int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/git/repositories/repo1/pullRequests/5/attachments/30", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("patch.diff", "text/plain", []byte("DIFF")), nil
+			},
+			wantFilename:    "patch.diff",
+			wantContentType: "text/plain",
+		},
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:     "",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-repositoryIDOrName-empty": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "",
+			prNumber:           5,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           0,
+			attachmentID:       30,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-validation-attachmentID-zero": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       0,
+			wantErrType:        &core.ValidationError{},
+		},
+		"error-client-network": {
+			projectIDOrKey:     "TEST",
+			repositoryIDOrName: "repo1",
+			prNumber:           5,
+			attachmentID:       30,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := attachment.NewPullRequestService(method)
+
+			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
+		})
+	}
+}
+
 func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
@@ -197,6 +445,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := attachment.NewWikiService(m)
 			s.Remove(ctx, 1, 1) //nolint:errcheck
 		}},
+		{"WikiService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := attachment.NewWikiService(m)
+			s.Download(ctx, 1, 1) //nolint:errcheck
+		}},
 		{"IssueService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := attachment.NewIssueService(m)
@@ -207,6 +460,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := attachment.NewIssueService(m)
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
+		{"IssueService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := attachment.NewIssueService(m)
+			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
+		}},
 		{"PullRequestService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := attachment.NewPullRequestService(m)
@@ -216,6 +474,11 @@ func Test_contextPropagation(t *testing.T) {
 			m.Delete = makeMockFn(t)
 			s := attachment.NewPullRequestService(m)
 			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
+		}},
+		{"PullRequestService.Download", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := attachment.NewPullRequestService(m)
+			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
 	}
 

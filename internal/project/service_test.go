@@ -650,3 +650,76 @@ func TestService_DiskUsage(t *testing.T) {
 		})
 	}
 }
+
+func TestService_Icon(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey string
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success-project-key": {
+			projectIDOrKey: "TEST",
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/image", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("icon.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "icon.png",
+			wantContentType: "image/png",
+		},
+		"success-project-id": {
+			projectIDOrKey: "123",
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/123/image", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("icon.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "icon.png",
+			wantContentType: "image/png",
+		},
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey: "",
+			wantErrType:    &core.ValidationError{},
+		},
+		"error-client-network": {
+			projectIDOrKey: "TEST",
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+
+			s := project.NewService(method)
+
+			got, err := s.Icon(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
+		})
+	}
+}

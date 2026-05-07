@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 // Attachment represents an attached file.
 type Attachment struct {
@@ -64,6 +67,14 @@ type DiskUsageBase struct {
 	Subversion int `json:"subversion,omitempty"`
 	Git        int `json:"git,omitempty"`
 	GitLFS     int `json:"gitLFS,omitempty"`
+}
+
+// FileData represents a downloaded binary file with its metadata.
+// Body must be closed by the caller after use.
+type FileData struct {
+	Body        io.ReadCloser
+	Filename    string
+	ContentType string
 }
 
 // Licence represents licence.

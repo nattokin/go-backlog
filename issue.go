@@ -236,6 +236,15 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 	return attachmentFromModel(v), convertError(err)
 }
 
+// Download downloads a file attached to the issue.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment
+func (s *IssueAttachmentService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*FileData, error) {
+	v, err := s.base.Download(ctx, issueIDOrKey, attachmentID)
+	return fileDataFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  IssueCommentService
 // ──────────────────────────────────────────────────────────────

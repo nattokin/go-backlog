@@ -137,6 +137,26 @@ func (s *ProjectService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 	return v, nil
 }
 
+// GetFile downloads a shared file from the project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
+func (s *ProjectService) GetFile(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateSharedFileID(sharedFileID); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  WikiService
 // ──────────────────────────────────────────────────────────────

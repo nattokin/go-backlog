@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -118,6 +119,21 @@ func NewCreatedJSONResponse(json string) *http.Response {
 	}
 }
 
+// NewBinaryResponse returns an HTTP 200 OK response simulating a binary file download.
+// filename is used to construct the Content-Disposition header.
+// contentType is set as the Content-Type header.
+// body is the raw bytes of the file content.
+func NewBinaryResponse(filename, contentType string, body []byte) *http.Response {
+	header := http.Header{}
+	header.Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	header.Set("Content-Type", contentType)
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Header:     header,
+		Body:       io.NopCloser(bytes.NewReader(body)),
+	}
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Method mock helpers
 // ──────────────────────────────────────────────────────────────
@@ -129,12 +145,13 @@ func NewCreatedJSONResponse(json string) *http.Response {
 func NewMethod(t *testing.T) *core.Method {
 	t.Helper()
 	return &core.Method{
-		Get:    NewUnexpectedGetFn(t),
-		Post:   NewUnexpectedPostFn(t),
-		Patch:  NewUnexpectedPatchFn(t),
-		Put:    NewUnexpectedPutFn(t),
-		Delete: NewUnexpectedDeleteFn(t),
-		Upload: NewUnexpectedUploadFn(t),
+		Get:      NewUnexpectedGetFn(t),
+		Post:     NewUnexpectedPostFn(t),
+		Patch:    NewUnexpectedPatchFn(t),
+		Put:      NewUnexpectedPutFn(t),
+		Delete:   NewUnexpectedDeleteFn(t),
+		Upload:   NewUnexpectedUploadFn(t),
+		Download: NewUnexpectedDownloadFn(t),
 	}
 }
 
@@ -194,6 +211,16 @@ func NewUnexpectedUploadFn(t *testing.T) func(ctx context.Context, spath, fileNa
 	return func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 		t.Helper()
 		t.Error("Upload must not be called")
+		return nil, errors.New("unexpected call")
+	}
+}
+
+// NewUnexpectedDownloadFn returns a mock function for Download that fails if called.
+func NewUnexpectedDownloadFn(t *testing.T) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+	t.Helper()
+	return func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+		t.Helper()
+		t.Error("Download must not be called")
 		return nil, errors.New("unexpected call")
 	}
 }

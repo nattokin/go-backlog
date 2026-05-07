@@ -148,6 +148,23 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 	return &v, nil
 }
 
+// Icon returns the icon image of a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
+func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileData, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "image")
+	resp, err := s.method.Download(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return core.DownloadResponse(resp)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  CategoryService
 // ──────────────────────────────────────────────────────────────

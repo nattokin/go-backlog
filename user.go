@@ -91,6 +91,15 @@ func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 	return userFromModel(v), convertError(err)
 }
 
+// Icon returns the icon image of a user.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
+func (s *UserService) Icon(ctx context.Context, id int) (*FileData, error) {
+	v, err := s.base.Icon(ctx, id)
+	return fileDataFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  UserActivityService
 // ──────────────────────────────────────────────────────────────

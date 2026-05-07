@@ -115,6 +115,15 @@ func (s *ProjectService) DiskUsage(ctx context.Context, projectIDOrKey string) (
 	return diskUsageProjectFromModel(v), convertError(err)
 }
 
+// Icon returns the icon image of a project.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
+func (s *ProjectService) Icon(ctx context.Context, projectIDOrKey string) (*FileData, error) {
+	v, err := s.base.Icon(ctx, projectIDOrKey)
+	return fileDataFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  ProjectOptionService
 // ──────────────────────────────────────────────────────────────

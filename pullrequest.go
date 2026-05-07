@@ -147,6 +147,15 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 	return attachmentFromModel(v), convertError(err)
 }
 
+// Download downloads a file attached to the pull request.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
+func (s *PullRequestAttachmentService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*FileData, error) {
+	v, err := s.base.Download(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
+	return fileDataFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  PullRequestCommentService
 // ──────────────────────────────────────────────────────────────

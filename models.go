@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"io"
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/model"
@@ -87,6 +88,14 @@ type DiskUsageBase struct {
 	Subversion int
 	Git        int
 	GitLFS     int
+}
+
+// FileData represents a downloaded binary file with its metadata.
+// Body must be closed by the caller after use.
+type FileData struct {
+	Body        io.ReadCloser
+	Filename    string
+	ContentType string
 }
 
 // Licence represents licence.
@@ -484,5 +493,16 @@ func tagFromModel(m *model.Tag) *Tag {
 	return &Tag{
 		ID:   m.ID,
 		Name: m.Name,
+	}
+}
+
+func fileDataFromModel(m *model.FileData) *FileData {
+	if m == nil {
+		return nil
+	}
+	return &FileData{
+		Body:        m.Body,
+		Filename:    m.Filename,
+		ContentType: m.ContentType,
 	}
 }
