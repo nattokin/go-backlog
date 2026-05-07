@@ -220,6 +220,11 @@ type PullRequestCommentOptionService struct {
 	base *core.OptionService
 }
 
+// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+func (s *PullRequestCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
+	return s.base.WithAttachmentIDs(ids)
+}
+
 // WithCount sets the number of comments to retrieve (1-100).
 func (s *PullRequestCommentOptionService) WithCount(count int) RequestOption {
 	return s.base.WithCount(count)
