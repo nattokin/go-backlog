@@ -614,6 +614,78 @@ func TestUserService_Delete(t *testing.T) {
 	}
 }
 
+func TestUserService_Icon(t *testing.T) {
+	cases := map[string]struct {
+		id int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success-id-1": {
+			id: 1,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1/icon", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "avatar.png",
+			wantContentType: "image/png",
+		},
+		"success-id-100": {
+			id: 100,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/100/icon", spath)
+				assert.Nil(t, query)
+				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "avatar.png",
+			wantContentType: "image/png",
+		},
+		"error-validation-id-zero": {
+			id:          0,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-client-network": {
+			id: 1,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := user.NewService(method)
+
+			got, err := s.Icon(context.Background(), tc.id)
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				assert.IsType(t, tc.wantErrType, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+			got.Body.Close()
+		})
+	}
+}
+
 func Test_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
@@ -661,6 +733,11 @@ func Test_contextPropagation(t *testing.T) {
 			m.Delete = makeMockFn(t)
 			s := user.NewService(m)
 			s.Delete(ctx, 1) //nolint:errcheck
+		}},
+		{"UserService.Icon", func(t *testing.T, m *core.Method) {
+			m.Download = makeMockFn(t)
+			s := user.NewService(m)
+			s.Icon(ctx, 1) //nolint:errcheck
 		}},
 		{"ProjectUserService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
