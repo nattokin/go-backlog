@@ -19,8 +19,9 @@ var (
 	doerIssueParticipants = newMockDoer(fixture.User.ListJSON)
 
 	// IssueAttachmentService
-	doerIssueAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
-	doerIssueAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
+	doerIssueAttachmentList     = newMockDoer(fixture.Attachment.ListJSON)
+	doerIssueAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
+	doerIssueAttachmentRemove   = newMockDoer(fixture.Attachment.SingleJSON)
 
 	// IssueCommentService
 	doerIssueCommentAll           = newMockDoer(fixture.Comment.ListJSON)
@@ -140,6 +141,19 @@ func ExampleIssueAttachmentService_List() {
 	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
 	// Output:
 	// ID: 2, Name: A.png
+}
+
+func ExampleIssueAttachmentService_Download() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueAttachmentDownload),
+	)
+
+	file, _ := c.Issue.Attachment.Download(context.Background(), "TEST-1", 2)
+	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
+	// Output:
+	// ContentType: image/png, FileName: A.png
 }
 
 func ExampleIssueAttachmentService_Remove() {

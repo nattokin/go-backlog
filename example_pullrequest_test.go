@@ -23,8 +23,9 @@ var (
 	doerPullRequestCommentUpdate = newMockDoer(fixture.Comment.SingleJSON)
 
 	// PullRequestAttachmentService
-	doerPullRequestAttachmentList   = newMockDoer(fixture.Attachment.ListJSON)
-	doerPullRequestAttachmentRemove = newMockDoer(fixture.Attachment.SingleJSON)
+	doerPullRequestAttachmentList     = newMockDoer(fixture.Attachment.ListJSON)
+	doerPullRequestAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
+	doerPullRequestAttachmentRemove   = newMockDoer(fixture.Attachment.SingleJSON)
 )
 
 func ExamplePullRequestService_All() {
@@ -103,6 +104,19 @@ func ExamplePullRequestAttachmentService_List() {
 	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
 	// Output:
 	// ID: 2, Name: A.png
+}
+
+func ExamplePullRequestAttachmentService_Download() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerPullRequestAttachmentDownload),
+	)
+
+	file, _ := c.PullRequest.Attachment.Download(context.Background(), "TEST", "myrepo", 1, 2)
+	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
+	// Output:
+	// ContentType: image/png, FileName: A.png
 }
 
 func ExamplePullRequestAttachmentService_Remove() {

@@ -16,6 +16,7 @@ var (
 	doerUserAdd    = newMockDoer(fixture.User.SingleJSON)
 	doerUserUpdate = newMockDoer(fixture.User.SingleJSON)
 	doerUserDelete = newMockDoer(fixture.User.SingleJSON)
+	doerUserIcon   = newMockBinaryDoer("image/png", "icon.png", []byte("PNG"))
 
 	// UserActivityService
 	doerUserActivityList = newMockDoer(fixture.Activity.ListJSON)
@@ -119,6 +120,19 @@ func ExampleUserService_Delete() {
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
+}
+
+func ExampleUserService_Icon() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerUserIcon),
+	)
+
+	icon, _ := c.User.Icon(context.Background(), 1)
+	fmt.Printf("ContentType: %s, FileName: %s\n", icon.ContentType, icon.Filename)
+	// Output:
+	// ContentType: image/png, FileName: icon.png
 }
 
 func ExampleUserActivityService_List() {
