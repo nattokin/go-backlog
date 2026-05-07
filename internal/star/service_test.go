@@ -176,13 +176,13 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"StarService.Add", func(t *testing.T, m *core.Method) {
+		{"Service.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			o := &core.OptionService{}
 			s := star.NewService(m)
 			s.Add(ctx, o.WithIssueID(1)) //nolint:errcheck
 		}},
-		{"StarService.Remove", func(t *testing.T, m *core.Method) {
+		{"Service.Remove", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := star.NewService(m)
 			s.Remove(ctx, 1) //nolint:errcheck
