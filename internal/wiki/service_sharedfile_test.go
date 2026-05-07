@@ -218,18 +218,18 @@ func TestWikiSharedFileService_Unlink(t *testing.T) {
 		},
 
 		"error-client": {
-			wikiID:       1234,
-			fileID:       454403,
-			expectError:  true,
+			wikiID:      1234,
+			fileID:      454403,
+			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
 
 		"error-invalid-json": {
-			wikiID:       1234,
-			fileID:       454403,
-			expectError:  true,
+			wikiID:      1234,
+			fileID:      454403,
+			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
