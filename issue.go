@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -249,7 +248,7 @@ func (s *IssueAttachmentService) Download(ctx context.Context, issueIDOrKey stri
 
 // IssueCommentService handles communication with the issue comment-related methods of the Backlog API.
 type IssueCommentService struct {
-	base   *comment.IssueService
+	base   *issue.CommentService
 	Option *IssueCommentOptionService
 }
 
@@ -677,7 +676,7 @@ func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
 
 func newIssueCommentService(method *core.Method, option *core.OptionService) *IssueCommentService {
 	return &IssueCommentService{
-		base:   comment.NewIssueService(method),
+		base:   issue.NewCommentService(method),
 		Option: &IssueCommentOptionService{base: option},
 	}
 }

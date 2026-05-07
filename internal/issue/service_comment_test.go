@@ -1,4 +1,4 @@
-package comment_test
+package issue_test
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueCommentService_All(t *testing.T) {
+func TestCommentService_All(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -111,7 +111,7 @@ func TestIssueCommentService_All(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.All(context.Background(), tc.issueIDOrKey, tc.opts...)
 
@@ -132,7 +132,7 @@ func TestIssueCommentService_All(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Add(t *testing.T) {
+func TestCommentService_Add(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -215,7 +215,7 @@ func TestIssueCommentService_Add(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.Add(context.Background(), tc.issueIDOrKey, tc.content, tc.opts...)
 
@@ -233,7 +233,7 @@ func TestIssueCommentService_Add(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Count(t *testing.T) {
+func TestCommentService_Count(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 
@@ -283,7 +283,7 @@ func TestIssueCommentService_Count(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			count, err := s.Count(context.Background(), tc.issueIDOrKey)
 
@@ -300,7 +300,7 @@ func TestIssueCommentService_Count(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_One(t *testing.T) {
+func TestCommentService_One(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
@@ -356,7 +356,7 @@ func TestIssueCommentService_One(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.One(context.Background(), tc.issueIDOrKey, tc.commentID)
 
@@ -374,7 +374,7 @@ func TestIssueCommentService_One(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Delete(t *testing.T) {
+func TestCommentService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
@@ -430,7 +430,7 @@ func TestIssueCommentService_Delete(t *testing.T) {
 				method.Delete = tc.mockDeleteFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.Delete(context.Background(), tc.issueIDOrKey, tc.commentID)
 
@@ -448,7 +448,7 @@ func TestIssueCommentService_Delete(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Update(t *testing.T) {
+func TestCommentService_Update(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
@@ -517,7 +517,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.commentID, tc.content)
 
@@ -535,7 +535,7 @@ func TestIssueCommentService_Update(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Notifications(t *testing.T) {
+func TestCommentService_Notifications(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
@@ -591,7 +591,7 @@ func TestIssueCommentService_Notifications(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.Notifications(context.Background(), tc.issueIDOrKey, tc.commentID)
 
@@ -608,7 +608,7 @@ func TestIssueCommentService_Notifications(t *testing.T) {
 	}
 }
 
-func TestIssueCommentService_Notify(t *testing.T) {
+func TestCommentService_Notify(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		commentID    int
@@ -677,7 +677,7 @@ func TestIssueCommentService_Notify(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 
-			s := comment.NewIssueService(method)
+			s := issue.NewCommentService(method)
 
 			got, err := s.Notify(context.Background(), tc.issueIDOrKey, tc.commentID, tc.userIDs)
 

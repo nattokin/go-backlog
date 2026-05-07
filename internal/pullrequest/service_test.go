@@ -698,6 +698,26 @@ func Test_contextPropagation(t *testing.T) {
 			s := pullrequest.NewAttachmentService(m)
 			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
+		{"CommentService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := pullrequest.NewCommentService(m)
+			s.All(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
+		}},
+		{"CommentService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := pullrequest.NewCommentService(m)
+			s.Add(ctx, "PRJ-1", "REPO-1", 1, "comment") //nolint:errcheck
+		}},
+		{"CommentService.Count", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := pullrequest.NewCommentService(m)
+			s.Count(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
+		}},
+		{"CommentService.Update", func(t *testing.T, m *core.Method) {
+			m.Patch = makeMockFn(t)
+			s := pullrequest.NewCommentService(m)
+			s.Update(ctx, "PRJ-1", "REPO-1", 1, 1, "content") //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {

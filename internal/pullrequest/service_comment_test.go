@@ -1,4 +1,4 @@
-package comment_test
+package pullrequest_test
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/comment"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/pullrequest"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestPullRequestCommentService_All(t *testing.T) {
+func TestCommentService_All(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -139,7 +139,7 @@ func TestPullRequestCommentService_All(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewPullRequestService(method)
+			s := pullrequest.NewCommentService(method)
 
 			got, err := s.All(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
 
@@ -160,7 +160,7 @@ func TestPullRequestCommentService_All(t *testing.T) {
 	}
 }
 
-func TestPullRequestCommentService_Add(t *testing.T) {
+func TestCommentService_Add(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -296,7 +296,7 @@ func TestPullRequestCommentService_Add(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 
-			s := comment.NewPullRequestService(method)
+			s := pullrequest.NewCommentService(method)
 
 			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.content, tc.opts...)
 
@@ -314,7 +314,7 @@ func TestPullRequestCommentService_Add(t *testing.T) {
 	}
 }
 
-func TestPullRequestCommentService_Count(t *testing.T) {
+func TestCommentService_Count(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
@@ -394,7 +394,7 @@ func TestPullRequestCommentService_Count(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 
-			s := comment.NewPullRequestService(method)
+			s := pullrequest.NewCommentService(method)
 
 			count, err := s.Count(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber)
 
@@ -411,7 +411,7 @@ func TestPullRequestCommentService_Count(t *testing.T) {
 	}
 }
 
-func TestPullRequestCommentService_Update(t *testing.T) {
+func TestCommentService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
@@ -526,7 +526,7 @@ func TestPullRequestCommentService_Update(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 
-			s := comment.NewPullRequestService(method)
+			s := pullrequest.NewCommentService(method)
 
 			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.commentID, tc.content)
 
