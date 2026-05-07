@@ -5,7 +5,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/project"
-	"github.com/nattokin/go-backlog/internal/sharedfile"
 	"github.com/nattokin/go-backlog/internal/user"
 )
 
@@ -56,7 +55,7 @@ func (s *ProjectCategoryService) Delete(ctx context.Context, projectIDOrKey stri
 
 // ProjectSharedFileService handles communication with the project shared-file-related methods of the Backlog API.
 type ProjectSharedFileService struct {
-	base *sharedfile.ProjectService
+	base *project.SharedFileService
 }
 
 // List returns a list of shared files in the project.
@@ -141,6 +140,6 @@ func newProjectCategoryService(method *core.Method) *ProjectCategoryService {
 
 func newProjectSharedFileService(method *core.Method) *ProjectSharedFileService {
 	return &ProjectSharedFileService{
-		base: sharedfile.NewProjectService(method),
+		base: project.NewSharedFileService(method),
 	}
 }

@@ -1,4 +1,4 @@
-package sharedfile_test
+package project_test
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/sharedfile"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -73,7 +73,7 @@ func TestProjectSharedFileService_List(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-			s := sharedfile.NewProjectService(method)
+			s := project.NewSharedFileService(method)
 
 			files, err := s.List(context.Background(), tc.projectIDOrKey)
 
@@ -165,7 +165,7 @@ func TestProjectSharedFileService_GetFile(t *testing.T) {
 			if tc.mockDownloadFn != nil {
 				method.Download = tc.mockDownloadFn
 			}
-			s := sharedfile.NewProjectService(method)
+			s := project.NewSharedFileService(method)
 
 			got, err := s.GetFile(context.Background(), tc.projectIDOrKey, tc.sharedFileID)
 
