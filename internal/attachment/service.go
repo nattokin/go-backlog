@@ -2,7 +2,6 @@ package attachment
 
 import (
 	"context"
-	"io"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -53,21 +52,6 @@ func (s *Service) Download(ctx context.Context, spath string) (*model.FileData, 
 	}
 
 	return core.DownloadResponse(resp)
-}
-
-// Upload uploads a file to spath.
-func (s *Service) Upload(ctx context.Context, spath string, fileName string, r io.Reader) (*model.Attachment, error) {
-	resp, err := s.method.Upload(ctx, spath, fileName, r)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.Attachment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
 }
 
 // ──────────────────────────────────────────────────────────────
