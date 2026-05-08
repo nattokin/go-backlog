@@ -5,7 +5,7 @@ import (
 )
 
 // Error represents one of the individual error entries in a Backlog API response.
-// It is a data structure used for decoding API responses and is not an error itself.
+// It is used as an element of [APIResponseError.Errors] and is not an error itself.
 type Error struct {
 	// Message is the detailed error message from the API.
 	Message  string
@@ -14,6 +14,7 @@ type Error struct {
 }
 
 // APIResponseError represents an error response from the Backlog API.
+// Use [errors.As] to check whether a returned error is an *APIResponseError.
 type APIResponseError struct {
 	core *core.APIResponseError
 }
@@ -37,7 +38,9 @@ func (e *APIResponseError) Errors() []*Error {
 	return out
 }
 
-// InvalidOptionKeyError represents an error for an invalid option key.
+// InvalidOptionKeyError is returned when an option method is called with a key
+// that is not valid for the target service method.
+// Use [errors.As] to check whether a returned error is an *InvalidOptionKeyError.
 type InvalidOptionKeyError struct {
 	core *core.InvalidOptionKeyError
 }
@@ -51,7 +54,9 @@ func (e *InvalidOptionKeyError) InvalidKey() string { return e.core.Invalid }
 // AllowKeys returns the list of allowed option keys.
 func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 
-// ValidationError represents an argument validation error.
+// ValidationError is returned when a required argument fails validation
+// (e.g. an empty string where a non-empty value is required).
+// Use [errors.As] to check whether a returned error is a *ValidationError.
 type ValidationError struct {
 	core *core.ValidationError
 }
@@ -60,8 +65,9 @@ type ValidationError struct {
 func (e *ValidationError) Error() string { return e.core.Error() }
 
 // InternalClientError represents client-side configuration or usage errors.
-// It is distinct from API-level errors and indicates issues like missing Token
-// or malformed base URL.
+// It is distinct from API-level errors and indicates issues like a missing token
+// or a malformed base URL.
+// Use [errors.As] to check whether a returned error is an *InternalClientError.
 type InternalClientError struct {
 	core *core.InternalClientError
 }

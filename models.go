@@ -7,7 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
-// Attachment represents an attached file.
+// Attachment represents a file attached to an issue, wiki page, or pull request.
 type Attachment struct {
 	ID          int
 	Name        string
@@ -35,7 +35,7 @@ type ActivityContent struct {
 	Comment     *Comment
 }
 
-// Category represents an category.
+// Category represents a project category.
 type Category struct {
 	ID           int
 	Name         string
@@ -49,7 +49,7 @@ type ChangeLog struct {
 	OriginalValue string
 }
 
-// Comment represents any one comment.
+// Comment represents a comment on an issue or pull request.
 type Comment struct {
 	ID            int
 	Content       string
@@ -73,14 +73,14 @@ type CustomField struct {
 	Items                  []*CustomFieldItem
 }
 
-// CustomFieldItem represents one of Items in CustomField.
+// CustomFieldItem represents one item in a list type [CustomField].
 type CustomFieldItem struct {
 	ID           int
 	Name         string
 	DisplayOrder int
 }
 
-// DiskUsageBase represents base of disk usage.
+// DiskUsageBase represents the disk usage breakdown by storage type.
 type DiskUsageBase struct {
 	Issue      int
 	Wiki       int
@@ -98,7 +98,7 @@ type FileData struct {
 	ContentType string
 }
 
-// Licence represents licence.
+// Licence represents the licence information for a Backlog space.
 type Licence struct {
 	Active                            bool
 	AttachmentLimit                   int
@@ -135,7 +135,7 @@ type Licence struct {
 	WikiAttachmentNumLimit            int
 }
 
-// Notification represents some notification.
+// Notification represents a notification delivered to a user.
 type Notification struct {
 	ID                  int
 	AlreadyRead         bool
@@ -163,7 +163,7 @@ type SharedFile struct {
 	Updated     time.Time
 }
 
-// Star represents any Star.
+// Star represents a star added to an issue, wiki page, or pull request.
 type Star struct {
 	ID        int
 	Comment   string
@@ -182,13 +182,13 @@ type Status struct {
 	DisplayOrder int
 }
 
-// Tag represents one of tags in Wiki.
+// Tag represents a tag attached to a wiki page.
 type Tag struct {
 	ID   int
 	Name string
 }
 
-// Team represents team.
+// Team represents a team within a space.
 type Team struct {
 	ID           int
 	Name         string
@@ -200,7 +200,7 @@ type Team struct {
 	Updated      time.Time
 }
 
-// Version represents any version.
+// Version represents a version or milestone in a project.
 type Version struct {
 	ID             int
 	ProjectID      int
@@ -212,7 +212,7 @@ type Version struct {
 	DisplayOrder   int
 }
 
-// WatchingItem represents an item of watching list.
+// WatchingItem represents an item in a user's watching list.
 type WatchingItem struct {
 	ID                  int
 	ResourceAlreadyRead bool

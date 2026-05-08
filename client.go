@@ -26,16 +26,24 @@ type Doer interface {
 type Client struct {
 	core *core.Client
 
-	// Service endpoints
-	Issue          *IssueService
-	Project        *ProjectService
-	PullRequest    *PullRequestService
+	// Issue provides access to issue-related API endpoints.
+	Issue *IssueService
+	// Project provides access to project-related API endpoints.
+	Project *ProjectService
+	// PullRequest provides access to pull request-related API endpoints.
+	PullRequest *PullRequestService
+	// RecentlyViewed provides access to recently viewed resource endpoints.
 	RecentlyViewed *RecentlyViewedService
-	Repository     *RepositoryService
-	Space          *SpaceService
-	Star           *StarService
-	User           *UserService
-	Wiki           *WikiService
+	// Repository provides access to Git repository endpoints.
+	Repository *RepositoryService
+	// Space provides access to space-related API endpoints.
+	Space *SpaceService
+	// Star provides access to star-related API endpoints.
+	Star *StarService
+	// User provides access to user-related API endpoints.
+	User *UserService
+	// Wiki provides access to wiki-related API endpoints.
+	Wiki *WikiService
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -43,11 +51,12 @@ type Client struct {
 // ──────────────────────────────────────────────────────────────
 
 // NewClient creates and initializes a Backlog API Client.
-// It requires a baseURL and an API token.
+// It requires a baseURL (e.g. "https://example.backlog.com") and an API token.
 //
-// This function supports options returned by package-level functions,
-// such as:
-//   - WithDoer
+// It returns an [*InternalClientError] if the base URL or token is invalid.
+//
+// Supported options:
+//   - [WithDoer]
 func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 	coreOpts := make([]*core.ClientOption, len(opts))
 	for i, o := range opts {

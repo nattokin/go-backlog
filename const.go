@@ -5,7 +5,7 @@ import "fmt"
 // CustomFieldType represents the type identifier of a custom field.
 type CustomFieldType int
 
-// CustomFieldType constants for use with ProjectCustomFieldService.Create.
+// CustomFieldType constants for use with [ProjectCustomFieldService.Create].
 const (
 	CustomFieldTypeText         CustomFieldType = 1
 	CustomFieldTypeSentence     CustomFieldType = 2
@@ -20,7 +20,7 @@ const (
 // Format defines the text formatting rule for the Backlog wiki.
 type Format string
 
-// Format defines the text formatting rule for the Backlog wiki.
+// Available text formatting rules.
 const (
 	FormatMarkdown Format = "markdown"
 	FormatBacklog  Format = "backlog"
@@ -40,7 +40,7 @@ func (f Format) String() string {
 // IssueSort defines the field to sort issue list results by.
 type IssueSort string
 
-// IssueSort defines the field to sort issue list results by.
+// Available sort fields for issue list operations.
 const (
 	IssueSortIssueType      IssueSort = "issueType"
 	IssueSortCategory       IssueSort = "category"
@@ -66,7 +66,7 @@ const (
 // Order defines the sort order (ascending or descending).
 type Order string
 
-// Order defines the sort order (ascending or descending).
+// Available sort orders.
 const (
 	OrderAsc  Order = "asc"
 	OrderDesc Order = "desc"
@@ -86,7 +86,7 @@ func (o Order) String() string {
 // Role defines the type of user role within a project.
 type Role int
 
-// Role defines the type of user role within a project.
+// Available user roles within a project.
 const (
 	_ Role = iota
 	RoleAdministrator
