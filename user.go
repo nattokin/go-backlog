@@ -3,7 +3,6 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/recentlyviewed"
@@ -105,7 +104,7 @@ func (s *UserService) Icon(ctx context.Context, id int) (*FileData, error) {
 
 // UserActivityService handles communication with the user activities-related methods of the Backlog API.
 type UserActivityService struct {
-	base *activity.UserService
+	base *user.ActivityService
 
 	Option *ActivityOptionService
 }
@@ -343,7 +342,7 @@ func newUserService(method *core.Method, option *core.OptionService) *UserServic
 
 func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
 	return &UserActivityService{
-		base:   activity.NewUserService(method),
+		base:   user.NewActivityService(method),
 		Option: newActivityOptionService(option),
 	}
 }

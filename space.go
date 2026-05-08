@@ -5,7 +5,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/space"
@@ -109,7 +108,7 @@ func (s *SpaceService) UpdateNotification(ctx context.Context, content string) (
 
 // SpaceActivityService handles communication with the space activities-related methods of the Backlog API.
 type SpaceActivityService struct {
-	base *activity.SpaceService
+	base *space.ActivityService
 
 	Option *ActivityOptionService
 }
@@ -167,7 +166,7 @@ func newSpaceService(method *core.Method, option *core.OptionService) *SpaceServ
 
 func newSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
-		base:   activity.NewSpaceService(method),
+		base:   space.NewActivityService(method),
 		Option: newActivityOptionService(option),
 	}
 }
