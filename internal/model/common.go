@@ -14,7 +14,7 @@ type Attachment struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
-// Category represents an category.
+// Category represents a project category.
 type Category struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
@@ -28,7 +28,7 @@ type ChangeLog struct {
 	OriginalValue string `json:"originalValue,omitempty"`
 }
 
-// Comment represents any one comment.
+// Comment represents a comment on an issue or pull request.
 type Comment struct {
 	ID            int             `json:"id,omitempty"`
 	Content       string          `json:"content,omitempty"`
@@ -52,14 +52,14 @@ type CustomField struct {
 	Items                  []*CustomFieldItem `json:"items,omitempty"`
 }
 
-// CustomFieldItem represents one of Items in CustomField.
+// CustomFieldItem represents one selectable item in a List type CustomField.
 type CustomFieldItem struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// DiskUsageBase represents base of disk usage.
+// DiskUsageBase holds the common disk usage breakdown shared by space and project.
 type DiskUsageBase struct {
 	Issue      int `json:"issue,omitempty"`
 	Wiki       int `json:"wiki,omitempty"`
@@ -77,7 +77,7 @@ type FileData struct {
 	ContentType string
 }
 
-// Licence represents licence.
+// Licence represents the licence settings of a Backlog space.
 type Licence struct {
 	Active                            bool      `json:"active,omitempty"`
 	AttachmentLimit                   int       `json:"attachmentLimit,omitempty"`
@@ -114,7 +114,7 @@ type Licence struct {
 	WikiAttachmentNumLimit            int       `json:"wikiAttachmentNumLimit,omitempty"`
 }
 
-// Notification represents some notification.
+// Notification represents a notification sent to a user.
 type Notification struct {
 	ID                  int          `json:"id,omitempty"`
 	AlreadyRead         bool         `json:"alreadyRead,omitempty"`
@@ -142,7 +142,7 @@ type SharedFile struct {
 	Updated     time.Time `json:"updated,omitempty"`
 }
 
-// Star represents any Star.
+// Star represents a star attached to an issue, comment, or wiki page.
 type Star struct {
 	ID        int       `json:"id,omitempty"`
 	Comment   string    `json:"comment,omitempty"`
@@ -161,13 +161,13 @@ type Status struct {
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// Tag represents one of tags in Wiki.
+// Tag represents a tag attached to a wiki page.
 type Tag struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// Team represents team.
+// Team represents a team within a Backlog space.
 type Team struct {
 	ID           int       `json:"id,omitempty"`
 	Name         string    `json:"name,omitempty"`
@@ -179,7 +179,7 @@ type Team struct {
 	Updated      time.Time `json:"updated,omitempty"`
 }
 
-// Version represents any version.
+// Version represents a project version (milestone).
 type Version struct {
 	ID             int       `json:"id,omitempty"`
 	ProjectID      int       `json:"projectId,omitempty"`
@@ -191,7 +191,7 @@ type Version struct {
 	DisplayOrder   int       `json:"displayOrder,omitempty"`
 }
 
-// WatchingItem represents an item of watching list.
+// WatchingItem represents an entry in a user's watching list.
 type WatchingItem struct {
 	ID                  int       `json:"id,omitempty"`
 	ResourceAlreadyRead bool      `json:"resourceAlreadyRead,omitempty"`

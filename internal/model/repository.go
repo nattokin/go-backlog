@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// PullRequest represents pull request of Backlog git.
+// PullRequest represents a Backlog git pull request.
 type PullRequest struct {
 	ID           int           `json:"id,omitempty"`
 	ProjectID    int           `json:"projectId,omitempty"`
@@ -27,7 +27,7 @@ type PullRequest struct {
 	Stars        []*Star       `json:"stars,omitempty"`
 }
 
-// Repository represents repository of Backlog git.
+// Repository represents a Backlog git repository.
 type Repository struct {
 	ID           int       `json:"id,omitempty"`
 	ProjectID    int       `json:"projectId,omitempty"`

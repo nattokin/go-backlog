@@ -2,14 +2,14 @@ package model
 
 import "time"
 
-// DiskUsageSpace represents space's disk usage.
+// DiskUsageSpace represents disk usage for the entire space.
 type DiskUsageSpace struct {
 	DiskUsageBase
 	Capacity int                 `json:"capacity,omitempty"`
 	Details  []*DiskUsageProject `json:"details,omitempty"`
 }
 
-// Space represents space of Backlog.
+// Space represents a Backlog space.
 type Space struct {
 	SpaceKey           string    `json:"spaceKey,omitempty"`
 	Name               string    `json:"name,omitempty"`
@@ -22,7 +22,7 @@ type Space struct {
 	Updated            time.Time `json:"updated,omitempty"`
 }
 
-// SpaceNotification represents a notification of Space.
+// SpaceNotification represents the notification message of a Backlog space.
 type SpaceNotification struct {
 	Content string    `json:"content,omitempty"`
 	Updated time.Time `json:"updated,omitempty"`

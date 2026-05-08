@@ -1,3 +1,4 @@
+// Package model defines the data structures returned by the Backlog API.
 package model
 
 // Activity represents a recent update or change in the project or space.

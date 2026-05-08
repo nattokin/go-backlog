@@ -1,6 +1,6 @@
 package model
 
-// User represents user.
+// User represents a Backlog user.
 type User struct {
 	ID          int    `json:"id,omitempty"`
 	UserID      string `json:"userId,omitempty"`

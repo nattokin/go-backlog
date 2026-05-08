@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Wiki represents Backlog Wiki.
+// Wiki represents a Backlog wiki page.
 type Wiki struct {
 	ID          int           `json:"id,omitempty"`
 	ProjectID   int           `json:"projectId,omitempty"`
