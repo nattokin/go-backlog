@@ -27,14 +27,15 @@ type Client struct {
 	core *core.Client
 
 	// Service endpoints
-	Issue       *IssueService
-	Project     *ProjectService
-	PullRequest *PullRequestService
-	Repository  *RepositoryService
-	Space       *SpaceService
-	Star        *StarService
-	User        *UserService
-	Wiki        *WikiService
+	Issue          *IssueService
+	Project        *ProjectService
+	PullRequest    *PullRequestService
+	RecentlyViewed *RecentlyViewedService
+	Repository     *RepositoryService
+	Space          *SpaceService
+	Star           *StarService
+	User           *UserService
+	Wiki           *WikiService
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -78,6 +79,8 @@ func initServices(c *Client) {
 	c.Project = newProjectService(c.core.Method, baseOptionService)
 
 	c.PullRequest = newPullRequestService(c.core.Method, baseOptionService)
+
+	c.RecentlyViewed = newRecentlyViewedService(c.core.Method, baseOptionService)
 
 	c.Repository = newRepositoryService(c.core.Method)
 
