@@ -206,8 +206,8 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 ### Client.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#StarService)
 
-- [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Add adds a star to a resource.
-- [Remove Star](https://developer.nulab.com/docs/backlog/api/2/remove-star) - Remove removes a star by its ID.
+- [Add Star](https://developer.nulab.com/docs/backlog/api/2/add-star) - Adds a star to a resource.
+- [Remove Star](https://developer.nulab.com/docs/backlog/api/2/remove-star) - Removes a star by its ID.
 
 ### Client.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#UserService)
 
