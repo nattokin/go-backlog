@@ -175,6 +175,14 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 - [Get Number of Pull Request Comments](https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-request-comments/) - Returns the number of comments on a pull request.
 - [Update Pull Request Comment Information](https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information/) - Updates a comment on a pull request.
 
+### Client.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#RecentlyViewedService)
+
+- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues) - Returns a list of recently viewed issues.
+- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects) - Returns a list of recently viewed projects.
+- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis/) - Returns a list of recently viewed wiki pages.
+- [Add Recently Viewed Issue](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue/) - Adds an issue to recently viewed list.
+- [Add Recently Viewed Wiki](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-wiki/) - Adds a wiki to recently viewed list.
+
 ### Client.[Repository](https://pkg.go.dev/github.com/nattokin/go-backlog#RepositoryService)
 
 - [Get List of Git Repositories](https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/) - Returns a list of Git repositories in a project.
@@ -214,14 +222,6 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 ### Client.User.[Activity](https://pkg.go.dev/github.com/nattokin/go-backlog#UserActivityService)
 
 - [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
-
-### Client.User.[RecentlyViewed](https://pkg.go.dev/github.com/nattokin/go-backlog#UserRecentlyViewedService)
-
-- [Get Recently Viewed Issues](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues) - Returns a list of recently viewed issues.
-- [Get Recently Viewed Projects](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects) - Returns a list of recently viewed projects.
-- [Get Recently Viewed Wikis](https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis/) - Returns a list of recently viewed wiki pages.
-- [Add Recently Viewed Issue](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue/) - Adds an issue to recently viewed list.
-- [Add Recently Viewed Wiki](https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-wiki/) - Adds a wiki to recently viewed list.
 
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 

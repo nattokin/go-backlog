@@ -12,7 +12,7 @@ import (
 )
 
 // Service handles communication with the recently-viewed methods of the Backlog API.
-// All endpoints are scoped to the authenticated user (myself), so no userID argument is needed.
+// All endpoints are scoped to the authenticated user (myself).
 type Service struct {
 	method *core.Method
 }
@@ -147,6 +147,10 @@ func (s *Service) AddWiki(ctx context.Context, wikiID int) (*model.Wiki, error) 
 
 	return v, nil
 }
+
+// ──────────────────────────────────────────────────────────────
+//  Constructors
+// ──────────────────────────────────────────────────────────────
 
 // NewService creates and returns a new recently viewed Service.
 func NewService(method *core.Method) *Service {

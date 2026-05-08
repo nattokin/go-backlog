@@ -31,7 +31,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.IssueListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.RecentlyViewed.ListIssues(ctx)
+				got, err := c.RecentlyViewed.ListIssues(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, "TEST-1", got[0].IssueKey)
@@ -46,8 +46,8 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.IssueListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				o := c.User.RecentlyViewed.Option
-				got, err := c.User.RecentlyViewed.ListIssues(ctx,
+				o := c.RecentlyViewed.Option
+				got, err := c.RecentlyViewed.ListIssues(ctx,
 					o.WithCount(5),
 					o.WithOffset(10),
 					o.WithOrder(backlog.OrderAsc),
@@ -59,7 +59,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"ListIssues/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.RecentlyViewed.ListIssues(ctx)
+				_, err := c.RecentlyViewed.ListIssues(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -72,7 +72,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.IssueSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.RecentlyViewed.AddIssue(ctx, 1)
+				got, err := c.RecentlyViewed.AddIssue(ctx, 1)
 				require.NoError(t, err)
 				assert.Equal(t, "TEST-1", got.IssueKey)
 			},
@@ -80,7 +80,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddIssue/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.RecentlyViewed.AddIssue(ctx, 1)
+				_, err := c.RecentlyViewed.AddIssue(ctx, 1)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -93,7 +93,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.ProjectListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.RecentlyViewed.ListProjects(ctx)
+				got, err := c.RecentlyViewed.ListProjects(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, "TEST", got[0].ProjectKey)
@@ -102,7 +102,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"ListProjects/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.RecentlyViewed.ListProjects(ctx)
+				_, err := c.RecentlyViewed.ListProjects(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -115,7 +115,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.WikiListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.RecentlyViewed.ListWikis(ctx)
+				got, err := c.RecentlyViewed.ListWikis(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, "Home", got[0].Name)
@@ -124,7 +124,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"ListWikis/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.RecentlyViewed.ListWikis(ctx)
+				_, err := c.RecentlyViewed.ListWikis(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -137,7 +137,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.RecentlyViewed.WikiSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.RecentlyViewed.AddWiki(ctx, 10)
+				got, err := c.RecentlyViewed.AddWiki(ctx, 10)
 				require.NoError(t, err)
 				assert.Equal(t, "Home", got.Name)
 			},
@@ -145,7 +145,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddWiki/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.RecentlyViewed.AddWiki(ctx, 10)
+				_, err := c.RecentlyViewed.AddWiki(ctx, 10)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -167,7 +167,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 func TestUserRecentlyViewedOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
-	o := c.User.RecentlyViewed.Option
+	o := c.RecentlyViewed.Option
 
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {

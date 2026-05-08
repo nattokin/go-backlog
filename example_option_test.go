@@ -117,6 +117,24 @@ func ExampleProjectOptionService() {
 	// Count: 3, ProjectKey: TEST
 }
 
+// ExampleUserRecentlyViewedOptionService demonstrates listing recently viewed issues with count and order.
+func ExampleRecentlyViewedOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerUserRecentlyViewedOption),
+	)
+
+	issues, _ := c.RecentlyViewed.ListIssues(
+		context.Background(),
+		c.RecentlyViewed.Option.WithCount(20),
+		c.RecentlyViewed.Option.WithOrder(backlog.OrderDesc),
+	)
+	fmt.Printf("IssueKey: %s\n", issues[0].IssueKey)
+	// Output:
+	// IssueKey: TEST-1
+}
+
 // ExampleUserOptionService demonstrates updating a user's name and role type.
 func ExampleUserOptionService() {
 	c, _ := backlog.NewClient(
@@ -134,24 +152,6 @@ func ExampleUserOptionService() {
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
-}
-
-// ExampleUserRecentlyViewedOptionService demonstrates listing recently viewed issues with count and order.
-func ExampleUserRecentlyViewedOptionService() {
-	c, _ := backlog.NewClient(
-		"https://example.backlog.com",
-		"token",
-		backlog.WithDoer(doerUserRecentlyViewedOption),
-	)
-
-	issues, _ := c.User.RecentlyViewed.ListIssues(
-		context.Background(),
-		c.User.RecentlyViewed.Option.WithCount(20),
-		c.User.RecentlyViewed.Option.WithOrder(backlog.OrderDesc),
-	)
-	fmt.Printf("IssueKey: %s\n", issues[0].IssueKey)
-	// Output:
-	// IssueKey: TEST-1
 }
 
 // ExampleUserStarOptionService demonstrates listing received stars with count and order.
