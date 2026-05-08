@@ -744,36 +744,6 @@ func Test_contextPropagation(t *testing.T) {
 			s := user.NewActivityService(m)
 			s.List(ctx, 1) //nolint:errcheck
 		}},
-		{"ProjectService.All", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.All(ctx, "TEST", false) //nolint:errcheck
-		}},
-		{"ProjectService.Add", func(t *testing.T, m *core.Method) {
-			m.Post = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.Add(ctx, "TEST", 1) //nolint:errcheck
-		}},
-		{"ProjectService.Delete", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.Delete(ctx, "TEST", 1) //nolint:errcheck
-		}},
-		{"ProjectService.AddAdmin", func(t *testing.T, m *core.Method) {
-			m.Post = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
-		}},
-		{"ProjectService.AdminAll", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.AdminAll(ctx, "TEST") //nolint:errcheck
-		}},
-		{"ProjectService.DeleteAdmin", func(t *testing.T, m *core.Method) {
-			m.Delete = makeMockFn(t)
-			s := user.NewProjectService(m)
-			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
-		}},
 		{"StarService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := user.NewStarService(m)

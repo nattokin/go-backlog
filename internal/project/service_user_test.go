@@ -1,4 +1,4 @@
-package user_test
+package project_test
 
 import (
 	"context"
@@ -13,9 +13,9 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
-	"github.com/nattokin/go-backlog/internal/user"
 )
 
 func TestProjectUserService_All(t *testing.T) {
@@ -111,7 +111,7 @@ func TestProjectUserService_All(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
 			users, err := s.All(context.Background(), tc.projectKey, tc.excludeGroupMembers)
 
@@ -210,23 +210,23 @@ func TestProjectUserService_Add(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
-			user, err := s.Add(context.Background(), tc.projectKey, tc.userID)
+			u, err := s.Add(context.Background(), tc.projectKey, tc.userID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
-				assert.Nil(t, user)
+				assert.Nil(t, u)
 				return
 			}
 
 			assert.NoError(t, err)
-			require.NotNil(t, user)
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			require.NotNil(t, u)
+			assert.Equal(t, tc.wantUser.UserID, u.UserID)
+			assert.Equal(t, tc.wantUser.Name, u.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
 		})
 	}
 }
@@ -326,23 +326,23 @@ func TestProjectUserService_Delete(t *testing.T) {
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
-			user, err := s.Delete(context.Background(), tc.projectKey, tc.userID)
+			u, err := s.Delete(context.Background(), tc.projectKey, tc.userID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
-				assert.Nil(t, user)
+				assert.Nil(t, u)
 				return
 			}
 
 			assert.NoError(t, err)
-			require.NotNil(t, user)
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			require.NotNil(t, u)
+			assert.Equal(t, tc.wantUser.UserID, u.UserID)
+			assert.Equal(t, tc.wantUser.Name, u.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
 		})
 	}
 }
@@ -424,23 +424,23 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
-			user, err := s.AddAdmin(context.Background(), tc.projectKey, tc.userID)
+			u, err := s.AddAdmin(context.Background(), tc.projectKey, tc.userID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
-				assert.Nil(t, user)
+				assert.Nil(t, u)
 				return
 			}
 
 			assert.NoError(t, err)
-			require.NotNil(t, user)
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			require.NotNil(t, u)
+			assert.Equal(t, tc.wantUser.UserID, u.UserID)
+			assert.Equal(t, tc.wantUser.Name, u.Name)
+			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
+			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
 		})
 	}
 }
@@ -479,7 +479,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
 			users, err := s.AdminAll(context.Background(), tc.projectKey)
 
@@ -545,13 +545,13 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
-			s := user.NewProjectService(method)
+			s := project.NewUserService(method)
 
-			user, err := s.DeleteAdmin(context.Background(), tc.projectKey, tc.userID)
+			u, err := s.DeleteAdmin(context.Background(), tc.projectKey, tc.userID)
 
 			assert.Error(t, err)
 			assert.IsType(t, tc.wantErrType, err)
-			assert.Nil(t, user)
+			assert.Nil(t, u)
 		})
 	}
 }

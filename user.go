@@ -361,12 +361,6 @@ func newUserStarService(method *core.Method, option *core.OptionService) *UserSt
 	}
 }
 
-func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
-	return &ProjectUserService{
-		base: user.NewProjectService(method),
-	}
-}
-
 func newUserOptionService(option *core.OptionService) *UserOptionService {
 	return &UserOptionService{
 		base: option,
