@@ -11,11 +11,16 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// ActivityService handles user activity-related Backlog API calls.
+// It delegates HTTP operations to the shared activity.Service.
 type ActivityService struct {
 	base   *activity.Service
 	method *core.Method
 }
 
+// List returns a list of activities for the user.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *ActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
 	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
@@ -24,10 +29,6 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...core.Req
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
 	return s.base.List(ctx, spath, opts...)
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewActivityService(method *core.Method) *ActivityService {
 	return &ActivityService{

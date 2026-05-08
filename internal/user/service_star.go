@@ -11,23 +11,12 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  UserService
-// ──────────────────────────────────────────────────────────────
-
-// StarService handles communication with the user star-related methods of the Backlog API.
+// StarService handles user star-related Backlog API calls.
 type StarService struct {
 	method *core.Method
 }
 
-// List returns a list of stars received by the user with the given ID.
-//
-// This method supports options returned by methods in "*Client.User.Star.Option",
-// such as:
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
+// List returns a list of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
 func (s *StarService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Star, error) {
@@ -55,7 +44,7 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...core.Request
 	return v, nil
 }
 
-// Count returns the number of stars received by the user with the given ID.
+// Count returns the number of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars
 func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
@@ -79,11 +68,6 @@ func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
 	return v.Count, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewStarService creates and returns a new user StarService.
 func NewStarService(method *core.Method) *StarService {
 	return &StarService{method: method}
 }
