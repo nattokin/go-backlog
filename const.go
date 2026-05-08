@@ -2,28 +2,43 @@ package backlog
 
 import "fmt"
 
+// CustomFieldType represents the type identifier of a custom field.
+type CustomFieldType int
+
+// CustomFieldType constants for use with ProjectCustomFieldService.Create.
+const (
+	CustomFieldTypeText         CustomFieldType = 1
+	CustomFieldTypeSentence     CustomFieldType = 2
+	CustomFieldTypeNumber       CustomFieldType = 3
+	CustomFieldTypeDate         CustomFieldType = 4
+	CustomFieldTypeSingleList   CustomFieldType = 5
+	CustomFieldTypeMultipleList CustomFieldType = 6
+	CustomFieldTypeCheckbox     CustomFieldType = 7
+	CustomFieldTypeRadio        CustomFieldType = 8
+)
+
+// Format defines the text formatting rule for the Backlog wiki.
+type Format string
+
 // Format defines the text formatting rule for the Backlog wiki.
 const (
 	FormatMarkdown Format = "markdown"
 	FormatBacklog  Format = "backlog"
 )
 
-// Order defines the sort order (ascending or descending).
-const (
-	OrderAsc  Order = "asc"
-	OrderDesc Order = "desc"
-)
+func (f Format) String() string {
+	switch f {
+	case FormatMarkdown:
+		return "Markdown"
+	case FormatBacklog:
+		return "Backlog"
+	default:
+		return fmt.Sprintf("unknown Format type %s", string(f))
+	}
+}
 
-// Role defines the type of user role within a project.
-const (
-	_ Role = iota
-	RoleAdministrator
-	RoleNormalUser
-	RoleReporter
-	RoleViewer
-	RoleGuestReporter
-	RoleGuestViewer
-)
+// IssueSort defines the field to sort issue list results by.
+type IssueSort string
 
 // IssueSort defines the field to sort issue list results by.
 const (
@@ -48,25 +63,14 @@ const (
 	IssueSortChildIssue     IssueSort = "childIssue"
 )
 
-// Format defines the text formatting rule for the Backlog wiki.
-type Format string
-
-func (f Format) String() string {
-	switch f {
-	case FormatMarkdown:
-		return "Markdown"
-	case FormatBacklog:
-		return "Backlog"
-	default:
-		return fmt.Sprintf("unknown Format type %s", string(f))
-	}
-}
-
-// IssueSort defines the field to sort issue list results by.
-type IssueSort string
-
 // Order defines the sort order (ascending or descending).
 type Order string
+
+// Order defines the sort order (ascending or descending).
+const (
+	OrderAsc  Order = "asc"
+	OrderDesc Order = "desc"
+)
 
 func (o Order) String() string {
 	switch o {
@@ -81,6 +85,17 @@ func (o Order) String() string {
 
 // Role defines the type of user role within a project.
 type Role int
+
+// Role defines the type of user role within a project.
+const (
+	_ Role = iota
+	RoleAdministrator
+	RoleNormalUser
+	RoleReporter
+	RoleViewer
+	RoleGuestReporter
+	RoleGuestViewer
+)
 
 func (r Role) String() string {
 	switch r {
