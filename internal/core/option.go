@@ -94,67 +94,42 @@ const (
 	ParamWikiID                            APIParamOptionType = "wikiId"
 )
 
+// MaxActivityTypeID is the upper bound of valid activity type IDs in the Backlog API.
 const MaxActivityTypeID = 26
 
-//
-// ──────────────────────────────────────────────────────────────
-//  API Option Type
-// ──────────────────────────────────────────────────────────────
-//
-
-// APIParamOptionType represents the distinct parameter keys for Backlog API requests.
+// APIParamOptionType represents a distinct parameter key for Backlog API requests.
 type APIParamOptionType string
 
-// Value returns the string representation of the parameter key for the API request.
 func (t APIParamOptionType) Value() string {
 	return string(t)
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  RequestOption interface
-// ──────────────────────────────────────────────────────────────
-//
-
+// RequestOption is implemented by all option types that can be applied to an API request.
 type RequestOption interface {
 	Key() string
 	Check() error
 	Set(url.Values) error
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  OptionService
-// ──────────────────────────────────────────────────────────────
-//
-
-// OptionService provides builders for request options.
-// Each XxxOptionService selectively exposes only the valid methods.
+// OptionService provides builder methods for constructing RequestOption values.
+// Each XxxOptionService selectively exposes only the valid methods for its API endpoint.
 type OptionService struct{}
-
-//
-// ──────────────────────────────────────────────────────────────
-//  APIParamOption
-// ──────────────────────────────────────────────────────────────
-//
 
 // APIParamOption is the internal implementation of RequestOption.
 //
-// It encapsulates the parameter type together with optional validation
-// and the logic required to apply the value to API request parameters.
+// It pairs an API parameter key with optional validation (CheckFunc) and
+// the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType     // canonical API parameter type
+	Type      APIParamOptionType     // canonical API parameter key
 	CheckFunc func() error           // optional validation executed before applying the option
-	SetFunc   func(url.Values) error // applies the option value to the provided values
+	SetFunc   func(url.Values) error // applies the value to the request parameters
 }
 
-// Key returns the API parameter key associated with this option.
 func (o *APIParamOption) Key() string {
 	return o.Type.Value()
 }
 
-// Check validates the option by executing its checkFunc, if defined.
 func (o *APIParamOption) Check() error {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
@@ -162,7 +137,6 @@ func (o *APIParamOption) Check() error {
 	return nil
 }
 
-// Set applies the option value to the given url.Values.
 func (o *APIParamOption) Set(v url.Values) error {
 	if o.SetFunc == nil {
 		panic("option has no setter")
@@ -170,14 +144,7 @@ func (o *APIParamOption) Set(v url.Values) error {
 	return o.SetFunc(v)
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  Helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// ValidateOption checks whether the given option key is allowed
-// for the current API operation.
+// ValidateOption checks whether the given option key is permitted for the current API operation.
 func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 	for _, valid := range validOptions {
 		if optionKey == valid.Value() {

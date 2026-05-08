@@ -6,17 +6,11 @@ import (
 	"net/url"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  Client options
-// ──────────────────────────────────────────────────────────────
-
 type ClientOption struct {
 	set func(config *clientConfig)
 }
 
-// clientConfig holds the internal configuration settings for the Client.
 type clientConfig struct {
-	// Doer is the HTTP client used to make requests.
 	Doer Doer
 }
 
@@ -27,10 +21,6 @@ func WithDoer(doer Doer) *ClientOption {
 		},
 	}
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Http request otions
-// ──────────────────────────────────────────────────────────────
 
 type HttpRequestOption struct {
 	set func(config *httpRequestConfig)

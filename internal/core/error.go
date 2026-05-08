@@ -7,13 +7,11 @@ import (
 
 // Error represents one of Backlog API response errors.
 type Error struct {
-	// Message is the detailed error message from the API.
 	Message  string `json:"message,omitempty"`
 	Code     int    `json:"code,omitempty"`
 	MoreInfo string `json:"moreInfo,omitempty"`
 }
 
-// Error returns the API error message.
 func (e *Error) Error() string {
 	msg := fmt.Sprintf("Message:%s, Code:%d", e.Message, e.Code)
 
@@ -30,7 +28,6 @@ type APIResponseError struct {
 	Errors     []*Error `json:"errors,omitempty"`
 }
 
-// Error returns all error messages in APIResponseError.
 func (e *APIResponseError) Error() string {
 	msgs := make([]string, len(e.Errors))
 
@@ -41,7 +38,7 @@ func (e *APIResponseError) Error() string {
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
-// InvalidOptionKeyError represents an error for an invalid option value.
+// InvalidOptionKeyError represents an error for an invalid option key.
 type InvalidOptionKeyError struct {
 	Invalid   string
 	ValidList []string
