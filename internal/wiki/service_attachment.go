@@ -98,11 +98,6 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 	return s.base.Download(ctx, spath)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewAttachmentService creates and returns a new wiki AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
 	return &AttachmentService{
 		base:   attachment.NewService(method),

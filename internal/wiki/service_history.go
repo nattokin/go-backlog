@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// HistorySevice handles communication with the wiki history-related methods of the Backlog API.
+// HistorySevice handles wiki history-related Backlog API calls.
 type HistorySevice struct {
 	method *core.Method
 }
@@ -38,11 +38,6 @@ func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHist
 	return v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewHistoryService creates and returns a new history WikiService.
 func NewHistoryService(method *core.Method) *HistorySevice {
 	return &HistorySevice{method: method}
 }

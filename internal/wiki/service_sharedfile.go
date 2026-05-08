@@ -57,11 +57,6 @@ func (s *SharedFileService) Unlink(ctx context.Context, wikiID, fileID int) (*mo
 	return s.base.Unlink(ctx, spath)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewSharedFileService creates and returns a new wiki SharedFileService.
 func NewSharedFileService(method *core.Method) *SharedFileService {
 	return &SharedFileService{base: sharedfile.NewService(method)}
 }
