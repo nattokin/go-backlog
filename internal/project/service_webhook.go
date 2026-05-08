@@ -1,4 +1,4 @@
-package webhook
+package project
 
 import (
 	"context"
@@ -11,15 +11,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// Service handles communication with the webhook related methods of the Backlog API.
-type Service struct {
+// WebhookService handles communication with the webhook related methods of the Backlog API.
+type WebhookService struct {
 	method *core.Method
 }
 
 // List returns a list of webhooks in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/
-func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Webhook, error) {
+func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Web
 // Add adds a new webhook to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook/
-func (s *Service) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...core.RequestOption) (*model.Webhook, error) {
+func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...core.RequestOption) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (s *Service) Add(ctx context.Context, projectIDOrKey, name, hookURL string,
 // Get returns information about a specific webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-webhook/
-func (s *Service) Get(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
+func (s *WebhookService) Get(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (s *Service) Get(ctx context.Context, projectIDOrKey string, webhookID int)
 // Update updates a webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook/
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, webhookID int, option core.RequestOption, opts ...core.RequestOption) (*model.Webhook, error) {
+func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option core.RequestOption, opts ...core.RequestOption) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, webhookID i
 // Delete deletes a webhook from a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-webhook/
-func (s *Service) Delete(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
+func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string, webhookID i
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-// NewService creates and returns a new webhook Service.
-func NewService(method *core.Method) *Service {
-	return &Service{method: method}
+// NewWebhookService creates and returns a new webhook WebhookService.
+func NewWebhookService(method *core.Method) *WebhookService {
+	return &WebhookService{method: method}
 }

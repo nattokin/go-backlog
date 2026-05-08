@@ -1,4 +1,4 @@
-package webhook_test
+package project_test
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
-	"github.com/nattokin/go-backlog/internal/webhook"
 )
 
-func TestService_List(t *testing.T) {
+func TestWebhookService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		wantErrType    error
@@ -56,7 +56,7 @@ func TestService_List(t *testing.T) {
 			t.Parallel()
 			m := mock.NewMethod(t)
 			m.Get = tc.mockGetFn
-			s := webhook.NewService(m)
+			s := project.NewWebhookService(m)
 
 			got, err := s.List(context.Background(), tc.projectIDOrKey)
 			if tc.wantErrType != nil {
@@ -73,7 +73,7 @@ func TestService_List(t *testing.T) {
 	}
 }
 
-func TestService_Add(t *testing.T) {
+func TestWebhookService_Add(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -225,7 +225,7 @@ func TestService_Add(t *testing.T) {
 			if tc.mockPostFn != nil {
 				m.Post = tc.mockPostFn
 			}
-			s := webhook.NewService(m)
+			s := project.NewWebhookService(m)
 
 			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.name, tc.hookURL, tc.opts...)
 			if tc.wantErrType != nil {
@@ -241,7 +241,7 @@ func TestService_Add(t *testing.T) {
 	}
 }
 
-func TestService_Get(t *testing.T) {
+func TestWebhookService_Get(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		webhookID      int
@@ -303,7 +303,7 @@ func TestService_Get(t *testing.T) {
 
 			method := mock.NewMethod(t)
 			method.Get = tc.mockGetFn
-			s := webhook.NewService(method)
+			s := project.NewWebhookService(method)
 
 			got, err := s.Get(context.Background(), tc.projectIDOrKey, tc.webhookID)
 
@@ -321,7 +321,7 @@ func TestService_Get(t *testing.T) {
 	}
 }
 
-func TestService_Update(t *testing.T) {
+func TestWebhookService_Update(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -456,7 +456,7 @@ func TestService_Update(t *testing.T) {
 			if tc.mockPatchFn != nil {
 				m.Patch = tc.mockPatchFn
 			}
-			s := webhook.NewService(m)
+			s := project.NewWebhookService(m)
 			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.webhookID, tc.opt, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -470,7 +470,7 @@ func TestService_Update(t *testing.T) {
 	}
 }
 
-func TestService_Delete(t *testing.T) {
+func TestWebhookService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		webhookID      int
@@ -531,7 +531,7 @@ func TestService_Delete(t *testing.T) {
 
 			m := mock.NewMethod(t)
 			m.Delete = tc.mockDeleteFn
-			s := webhook.NewService(m)
+			s := project.NewWebhookService(m)
 
 			got, err := s.Delete(context.Background(), tc.projectIDOrKey, tc.webhookID)
 

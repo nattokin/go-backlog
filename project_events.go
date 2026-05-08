@@ -7,7 +7,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
-	"github.com/nattokin/go-backlog/internal/webhook"
 )
 
 // Webhook represents webhook of Backlog.
@@ -57,7 +56,7 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 
 // ProjectWebhookService handles communication with the project webhook-related methods of the Backlog API.
 type ProjectWebhookService struct {
-	base   *webhook.Service
+	base   *project.WebhookService
 	Option *ProjectWebhookOptionService
 }
 
@@ -163,7 +162,7 @@ func newProjectActivityService(method *core.Method, option *core.OptionService) 
 
 func newProjectWebhookService(method *core.Method, option *core.OptionService) *ProjectWebhookService {
 	return &ProjectWebhookService{
-		base:   webhook.NewService(method),
+		base:   project.NewWebhookService(method),
 		Option: newWebhookOptionService(option),
 	}
 }
