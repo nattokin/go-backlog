@@ -739,6 +739,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := user.NewService(m)
 			s.Icon(ctx, 1) //nolint:errcheck
 		}},
+		{"ActivityService.List", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := user.NewActivityService(m)
+			s.List(ctx, 1) //nolint:errcheck
+		}},
 		{"ProjectService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := user.NewProjectService(m)
