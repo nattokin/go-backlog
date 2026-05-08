@@ -422,6 +422,28 @@ func TestPullRequestCommentService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		"One": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments/42", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.PullRequest.Comment.One(ctx, "TEST", "repo", 1, 42)
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+				assert.Equal(t, "This is a comment.", got.Content)
+			},
+		},
+		"One/error": {
+			doFunc: newNotFoundDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.PullRequest.Comment.One(ctx, "TEST", "repo", 1, 42)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+			},
+		},
 		"Update": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPatch, req.Method)

@@ -20,6 +20,7 @@ var (
 	doerPullRequestCommentAll    = newMockDoer(fixture.Comment.ListJSON)
 	doerPullRequestCommentAdd    = newMockDoer(fixture.Comment.SingleJSON)
 	doerPullRequestCommentCount  = newMockDoer(`{"count":2}`)
+	doerPullRequestCommentOne    = newMockDoer(fixture.Comment.SingleJSON)
 	doerPullRequestCommentUpdate = newMockDoer(fixture.Comment.SingleJSON)
 
 	// PullRequestAttachmentService
@@ -169,6 +170,19 @@ func ExamplePullRequestCommentService_Count() {
 	fmt.Printf("Count: %d\n", count)
 	// Output:
 	// Count: 2
+}
+
+func ExamplePullRequestCommentService_One() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerPullRequestCommentOne),
+	)
+
+	comment, _ := c.PullRequest.Comment.One(context.Background(), "TEST", "myrepo", 1, 1)
+	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
+	// Output:
+	// ID: 1, Content: This is a comment.
 }
 
 func ExamplePullRequestCommentService_Update() {
