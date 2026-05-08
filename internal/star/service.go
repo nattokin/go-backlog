@@ -17,13 +17,6 @@ type Service struct {
 
 // Add adds a star to a resource (issue, comment, wiki page, pull request, or pull request comment).
 //
-// Exactly one of the following options must be provided:
-//   - WithIssueID
-//   - WithCommentID
-//   - WithWikiID
-//   - WithPullRequestID
-//   - WithPullRequestCommentID
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *Service) Add(ctx context.Context, option core.RequestOption) error {
 	form := url.Values{}
