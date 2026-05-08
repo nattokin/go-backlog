@@ -1,3 +1,4 @@
+// Package star implements the Backlog Star API service.
 package star
 
 import (
@@ -9,19 +10,12 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// Service handles communication with the star-related methods of the Backlog API.
+// Service handles star-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
 // Add adds a star to a resource (issue, comment, wiki page, pull request, or pull request comment).
-//
-// Exactly one of the following options must be provided:
-//   - WithIssueID
-//   - WithCommentID
-//   - WithWikiID
-//   - WithPullRequestID
-//   - WithPullRequestCommentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *Service) Add(ctx context.Context, option core.RequestOption) error {
@@ -62,11 +56,6 @@ func (s *Service) Remove(ctx context.Context, id int) error {
 	return nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new star Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
