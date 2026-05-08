@@ -2,168 +2,19 @@ package activity_test
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/activity"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
-
-func TestProjectActivityService_List(t *testing.T) {
-	t.Parallel()
-
-	projectKey := "TEST"
-
-	want := struct {
-		spath string
-	}{
-		spath: "projects/" + projectKey + "/activities",
-	}
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
-	s := activity.NewProjectService(method)
-
-	_, err := s.List(context.Background(), projectKey)
-	assert.Error(t, err)
-}
-
-func TestProjectActivityService_List_projectIDOrKeyIsEmpty(t *testing.T) {
-	t.Parallel()
-
-	projectKey := ""
-	method := mock.NewMethod(t)
-	s := activity.NewProjectService(method)
-
-	_, err := s.List(context.Background(), projectKey)
-	assert.Error(t, err)
-}
-
-func TestProjectActivityService_List_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		return mock.NewJSONResponse(fixture.InvalidJSON), nil
-	}
-	s := activity.NewProjectService(method)
-
-	projects, err := s.List(context.Background(), "TEST")
-	assert.Nil(t, projects)
-	assert.Error(t, err)
-}
-
-func TestSpaceActivityService_List(t *testing.T) {
-	t.Parallel()
-
-	want := struct {
-		spath string
-	}{
-		spath: "space/activities",
-	}
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
-	s := activity.NewSpaceService(method)
-
-	_, err := s.List(context.Background())
-	assert.Error(t, err)
-}
-
-func TestSpaceActivityService_Get(t *testing.T) {
-	t.Parallel()
-
-	activityID := 3153
-
-	want := struct {
-		spath string
-	}{
-		spath: "activities/" + strconv.Itoa(activityID),
-	}
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		assert.Nil(t, query)
-		return nil, errors.New("error")
-	}
-	s := activity.NewSpaceService(method)
-
-	_, err := s.Get(context.Background(), activityID)
-	assert.Error(t, err)
-}
-
-func TestSpaceActivityService_Get_invalidID(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	s := activity.NewSpaceService(method)
-
-	_, err := s.Get(context.Background(), 0)
-	assert.Error(t, err)
-}
-
-func TestSpaceActivityService_Get_invalidJson(t *testing.T) {
-	t.Parallel()
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		return mock.NewJSONResponse(fixture.InvalidJSON), nil
-	}
-	s := activity.NewSpaceService(method)
-
-	got, err := s.Get(context.Background(), 1)
-	assert.Nil(t, got)
-	assert.Error(t, err)
-}
-
-func TestUserActivityService_List(t *testing.T) {
-	t.Parallel()
-
-	id := 1234
-
-	want := struct {
-		spath string
-	}{
-		spath: "users/" + strconv.Itoa(id) + "/activities",
-	}
-
-	method := mock.NewMethod(t)
-	method.Get = func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-		assert.Equal(t, want.spath, spath)
-		return nil, errors.New("error")
-	}
-	s := activity.NewUserService(method)
-
-	_, err := s.List(context.Background(), id)
-	assert.Error(t, err)
-}
-
-func TestUserActivityService_List_invalidID(t *testing.T) {
-	t.Parallel()
-
-	id := 0
-	method := mock.NewMethod(t)
-	s := activity.NewUserService(method)
-
-	_, err := s.List(context.Background(), id)
-	assert.Error(t, err)
-}
 
 func TestBaseActivityService_GetList(t *testing.T) {
 	o := &core.OptionService{}
@@ -305,7 +156,7 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				assert.Equal(t, tc.want.order, query.Get("order"))
 				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
 			}
-			s := activity.NewSpaceService(method)
+			s := space.NewActivityService(method)
 
 			if resp, err := s.List(context.Background(), tc.opts...); tc.wantError {
 				require.Error(t, err)
@@ -314,52 +165,6 @@ func TestBaseActivityService_GetList(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, resp)
 			}
-		})
-	}
-}
-
-func Test_contextPropagation(t *testing.T) {
-	type ctxKey struct{}
-	sentinel := &struct{}{}
-	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
-
-	makeMockFn := func(t *testing.T) func(context.Context, string, url.Values) (*http.Response, error) {
-		return func(got context.Context, _ string, _ url.Values) (*http.Response, error) {
-			assert.Same(t, sentinel, got.Value(ctxKey{}))
-			return nil, errors.New("stop")
-		}
-	}
-
-	cases := []struct {
-		name string
-		call func(t *testing.T, m *core.Method)
-	}{
-		{"ProjectActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := activity.NewProjectService(m)
-			s.List(ctx, "TEST") //nolint:errcheck
-		}},
-		{"SpaceActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := activity.NewSpaceService(m)
-			s.List(ctx) //nolint:errcheck
-		}},
-		{"SpaceActivityService.Get", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := activity.NewSpaceService(m)
-			s.Get(ctx, 1) //nolint:errcheck
-		}},
-		{"UserActivityService.List", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := activity.NewUserService(m)
-			s.List(ctx, 1) //nolint:errcheck
-		}},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			tc.call(t, &core.Method{})
 		})
 	}
 }
