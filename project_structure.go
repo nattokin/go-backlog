@@ -5,7 +5,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/project"
-	"github.com/nattokin/go-backlog/internal/user"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -75,9 +74,13 @@ func (s *ProjectSharedFileService) GetFile(ctx context.Context, projectIDOrKey s
 	return fileDataFromModel(v), convertError(err)
 }
 
+// ──────────────────────────────────────────────────────────────
+//  ProjectUserService
+// ──────────────────────────────────────────────────────────────
+
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
-	base *user.ProjectService
+	base *project.UserService
 }
 
 // All returns all users in the project.
@@ -141,5 +144,11 @@ func newProjectCategoryService(method *core.Method) *ProjectCategoryService {
 func newProjectSharedFileService(method *core.Method) *ProjectSharedFileService {
 	return &ProjectSharedFileService{
 		base: project.NewSharedFileService(method),
+	}
+}
+
+func newProjectUserService(method *core.Method, _ *core.OptionService) *ProjectUserService {
+	return &ProjectUserService{
+		base: project.NewUserService(method),
 	}
 }
