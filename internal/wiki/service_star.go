@@ -10,12 +10,12 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// StarService handles communication with the wiki star-related methods of the Backlog API.
+// StarService handles wiki star-related Backlog API calls.
 type StarService struct {
 	method *core.Method
 }
 
-// List returns a list of stars on the wiki page with the given ID.
+// List returns a list of stars on the wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star
 func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, error) {
@@ -37,11 +37,6 @@ func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, erro
 	return v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewStarService creates and returns a new wiki StarService.
 func NewStarService(method *core.Method) *StarService {
 	return &StarService{method: method}
 }
