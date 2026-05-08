@@ -11,6 +11,54 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
+	resp, err := m.Get(ctx, spath, query)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+	form := url.Values{}
+	form.Set("userId", strconv.Itoa(userID))
+
+	resp, err := m.Post(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
+func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+	form := url.Values{}
+	form.Set("userId", strconv.Itoa(userID))
+
+	resp, err := m.Delete(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
 // UserService handles communication with the project user-related methods of the Backlog API.
 type UserService struct {
 	method *core.Method
@@ -28,17 +76,7 @@ func (s *UserService) All(ctx context.Context, projectIDOrKey string, excludeGro
 	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
 
 	spath := path.Join("projects", projectIDOrKey, "users")
-	resp, err := s.method.Get(ctx, spath, query)
-	if err != nil {
-		return nil, err
-	}
-
-	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return v, nil
+	return getUserList(ctx, s.method, spath, query)
 }
 
 // Add adds a user to the project.
@@ -53,21 +91,8 @@ func (s *UserService) Add(ctx context.Context, projectIDOrKey string, userID int
 		return nil, err
 	}
 
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
 	spath := path.Join("projects", projectIDOrKey, "users")
-	resp, err := s.method.Post(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
+	return addUser(ctx, s.method, spath, userID)
 }
 
 // Delete removes a user from the project.
@@ -82,21 +107,8 @@ func (s *UserService) Delete(ctx context.Context, projectIDOrKey string, userID 
 		return nil, err
 	}
 
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
 	spath := path.Join("projects", projectIDOrKey, "users")
-	resp, err := s.method.Delete(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
+	return deleteUser(ctx, s.method, spath, userID)
 }
 
 // AddAdmin adds a user as an administrator of the project.
@@ -111,21 +123,8 @@ func (s *UserService) AddAdmin(ctx context.Context, projectIDOrKey string, userI
 		return nil, err
 	}
 
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	resp, err := s.method.Post(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
+	return addUser(ctx, s.method, spath, userID)
 }
 
 // AdminAll returns a list of project administrators.
@@ -137,17 +136,7 @@ func (s *UserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*m
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	resp, err := s.method.Get(ctx, spath, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return v, nil
+	return getUserList(ctx, s.method, spath, nil)
 }
 
 // DeleteAdmin removes a user from the project administrators.
@@ -162,21 +151,8 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 		return nil, err
 	}
 
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
 	spath := path.Join("projects", projectIDOrKey, "administrators")
-	resp, err := s.method.Delete(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
+	return deleteUser(ctx, s.method, spath, userID)
 }
 
 // NewUserService creates and returns a new project UserService.
