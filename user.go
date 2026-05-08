@@ -5,6 +5,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/recentlyviewed"
 	"github.com/nattokin/go-backlog/internal/user"
 )
@@ -363,7 +364,7 @@ func newUserStarService(method *core.Method, option *core.OptionService) *UserSt
 
 func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
-		base: user.NewProjectService(method),
+		base: project.NewUserService(method),
 	}
 }
 

@@ -161,107 +161,12 @@ func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
 	return core.DownloadResponse(resp)
 }
 
-type ProjectService struct {
-	method *core.Method
-}
-
-func (s *ProjectService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	query := url.Values{}
-	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
-
-	spath := path.Join("projects", projectIDOrKey, "users")
-	return getList(ctx, s.method, spath, query)
-}
-
-func (s *ProjectService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	if err := validate.ValidateUserID(userID); err != nil {
-		return nil, err
-	}
-
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	spath := path.Join("projects", projectIDOrKey, "users")
-	return add(ctx, s.method, spath, form)
-}
-
-func (s *ProjectService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	if err := validate.ValidateUserID(userID); err != nil {
-		return nil, err
-	}
-
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	spath := path.Join("projects", projectIDOrKey, "users")
-	return delete(ctx, s.method, spath, form)
-}
-
-func (s *ProjectService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	if err := validate.ValidateUserID(userID); err != nil {
-		return nil, err
-	}
-
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return add(ctx, s.method, spath, form)
-}
-
-func (s *ProjectService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return getList(ctx, s.method, spath, nil)
-}
-
-func (s *ProjectService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
-	if err := validate.ValidateUserID(userID); err != nil {
-		return nil, err
-	}
-
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	spath := path.Join("projects", projectIDOrKey, "administrators")
-	return delete(ctx, s.method, spath, form)
-}
-
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
-		method: method,
-	}
-}
-
-func NewProjectService(method *core.Method) *ProjectService {
-	return &ProjectService{
 		method: method,
 	}
 }
