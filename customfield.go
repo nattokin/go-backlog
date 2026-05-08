@@ -1,18 +1,16 @@
 package backlog
 
-import "github.com/nattokin/go-backlog/internal/model"
-
 // CustomFieldType represents the type identifier of a custom field.
-type CustomFieldType = model.CustomFieldType
+type CustomFieldType int
 
 // CustomFieldType constants for use with ProjectCustomFieldService.Create.
 const (
-	CustomFieldTypeText         CustomFieldType = model.CustomFieldTypeText
-	CustomFieldTypeSentence     CustomFieldType = model.CustomFieldTypeSentence
-	CustomFieldTypeNumber       CustomFieldType = model.CustomFieldTypeNumber
-	CustomFieldTypeDate         CustomFieldType = model.CustomFieldTypeDate
-	CustomFieldTypeSingleList   CustomFieldType = model.CustomFieldTypeSingleList
-	CustomFieldTypeMultipleList CustomFieldType = model.CustomFieldTypeMultipleList
-	CustomFieldTypeCheckbox     CustomFieldType = model.CustomFieldTypeCheckbox
-	CustomFieldTypeRadio        CustomFieldType = model.CustomFieldTypeRadio
+	CustomFieldTypeText         CustomFieldType = 1
+	CustomFieldTypeSentence     CustomFieldType = 2
+	CustomFieldTypeNumber       CustomFieldType = 3
+	CustomFieldTypeDate         CustomFieldType = 4
+	CustomFieldTypeSingleList   CustomFieldType = 5
+	CustomFieldTypeMultipleList CustomFieldType = 6
+	CustomFieldTypeCheckbox     CustomFieldType = 7
+	CustomFieldTypeRadio        CustomFieldType = 8
 )
