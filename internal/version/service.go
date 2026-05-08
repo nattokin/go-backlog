@@ -1,3 +1,4 @@
+// Package version implements the Backlog Version/Milestone API service.
 package version
 
 import (
@@ -17,6 +18,8 @@ type Service struct {
 }
 
 // All returns versions/milestones in a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
 func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -45,7 +48,9 @@ func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.R
 	return v, nil
 }
 
-// Add adds a version/milestone.
+// Add adds a version/milestone to a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone
 func (s *Service) Add(ctx context.Context, projectIDOrKey, name string, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -82,6 +87,8 @@ func (s *Service) Add(ctx context.Context, projectIDOrKey, name string, opts ...
 }
 
 // Update updates a version/milestone.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone
 func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -118,6 +125,8 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID i
 }
 
 // Delete deletes a version/milestone.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-version-milestone
 func (s *Service) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -140,11 +149,6 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string, versionID i
 	return &v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewService returns a Version service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
