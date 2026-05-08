@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-func get(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
+func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -49,11 +49,11 @@ func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return get(ctx, s.method, spath)
+	return getUser(ctx, s.method, spath)
 }
 
 func (s *Service) Own(ctx context.Context) (*model.User, error) {
-	return get(ctx, s.method, "users/myself")
+	return getUser(ctx, s.method, "users/myself")
 }
 
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
