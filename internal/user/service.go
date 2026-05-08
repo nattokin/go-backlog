@@ -25,8 +25,12 @@ func get(ctx context.Context, m *core.Method, spath string) (*model.User, error)
 	return &v, nil
 }
 
-func getList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
-	resp, err := m.Get(ctx, spath, query)
+type Service struct {
+	method *core.Method
+}
+
+func (s *Service) All(ctx context.Context) ([]*model.User, error) {
+	resp, err := s.method.Get(ctx, "users", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,56 +41,6 @@ func getList(ctx context.Context, m *core.Method, spath string, query url.Values
 	}
 
 	return v, nil
-}
-
-func add(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
-	resp, err := m.Post(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
-}
-
-func update(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
-	resp, err := m.Patch(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
-}
-
-func delete(ctx context.Context, m *core.Method, spath string, form url.Values) (*model.User, error) {
-	resp, err := m.Delete(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
-}
-
-type Service struct {
-	method *core.Method
-}
-
-func (s *Service) All(ctx context.Context) ([]*model.User, error) {
-	return getList(ctx, s.method, "users", nil)
 }
 
 func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
@@ -122,7 +76,17 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 
 	form.Set("userId", userID)
 
-	return add(ctx, s.method, "users", form)
+	resp, err := s.method.Post(ctx, "users", form)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
 }
 
 func (s *Service) Update(ctx context.Context, id int, option core.RequestOption, opts ...core.RequestOption) (*model.User, error) {
@@ -135,7 +99,19 @@ func (s *Service) Update(ctx context.Context, id int, option core.RequestOption,
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return update(ctx, s.method, spath, form)
+
+	resp, err := s.method.Patch(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+
 }
 
 func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
@@ -144,7 +120,17 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
-	return delete(ctx, s.method, spath, nil)
+	resp, err := s.method.Delete(ctx, spath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
 }
 
 func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
