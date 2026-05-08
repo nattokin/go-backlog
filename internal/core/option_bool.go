@@ -5,88 +5,68 @@ import (
 	"strconv"
 )
 
-// WithAll returns an option to set the `all` parameter.
 func (s *OptionService) WithAll(enabled bool) RequestOption {
 	return boolOption(ParamAll, enabled)
 }
 
-// WithAllEvent returns an option to set the `allEvent` parameter.
 func (s *OptionService) WithAllEvent(enabled bool) RequestOption {
 	return boolOption(ParamAllEvent, enabled)
 }
 
-// WithAllowAddItem returns an option to set the `allowAddItem` parameter for List type custom fields.
+// WithAllowAddItem sets `allowAddItem` for List type custom fields.
 // When true, users can add new items to the list from the issue form.
 func (s *OptionService) WithAllowAddItem(allowAddItem bool) RequestOption {
 	return boolOption(ParamAllowAddItem, allowAddItem)
 }
 
-// WithAllowInput returns an option to set the `allowInput` parameter for List type custom fields.
+// WithAllowInput sets `allowInput` for List type custom fields.
 // When true, users can enter a free-text value in addition to selecting from the list.
 func (s *OptionService) WithAllowInput(allowInput bool) RequestOption {
 	return boolOption(ParamAllowInput, allowInput)
 }
 
-// WithArchived returns an option to set the `archived` parameter.
 func (s *OptionService) WithArchived(enabled bool) RequestOption {
-	// apiArchived and queryArchived share the same string value "archived",
-	// so we use apiArchived as the canonical type here and accept both in services.
 	return boolOption(ParamArchived, enabled)
 }
 
-// WithAttachment returns an option to include only issues with attachments.
 func (s *OptionService) WithAttachment(enabled bool) RequestOption {
 	return boolOption(ParamAttachment, enabled)
 }
 
-// WithChartEnabled returns a option that sets the `chartEnabled` field.
 func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
 	return boolOption(ParamChartEnabled, enabled)
 }
 
-// WithHasDueDate returns an option to exclude issues without a due date.
+// WithHasDueDate sets `hasDueDate`.
 // Note: Setting this to true is not supported by the Backlog API and will result in an error.
 func (s *OptionService) WithHasDueDate(enabled bool) RequestOption {
 	return boolOption(ParamHasDueDate, enabled)
 }
 
-// WithMailNotify returns a option that sets the `mailNotify` field.
 func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
 	return boolOption(ParamMailNotify, enabled)
 }
 
-// WithProjectLeaderCanEditProjectLeader returns a option.
 func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
 	return boolOption(ParamProjectLeaderCanEditProjectLeader, enabled)
 }
 
-// WithRequired returns an option to set the `required` parameter.
 func (s *OptionService) WithRequired(required bool) RequestOption {
 	return boolOption(ParamRequired, required)
 }
 
-// WithSendMail returns a option to specify whether to send an invitation email.
 func (s *OptionService) WithSendMail(enabled bool) RequestOption {
 	return boolOption(ParamSendMail, enabled)
 }
 
-// WithSharedFile returns an option to include only issues with shared files.
 func (s *OptionService) WithSharedFile(enabled bool) RequestOption {
 	return boolOption(ParamSharedFile, enabled)
 }
 
-// WithSubtaskingEnabled returns a option that sets the `subtaskingEnabled` field.
 func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
 	return boolOption(ParamSubtaskingEnabled, enabled)
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// boolOption builds a RequestOption that sets a boolean parameter.
 func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 	return &APIParamOption{
 		Type:    paramType,
@@ -94,13 +74,6 @@ func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
 	}
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  SetFunc factories
-// ──────────────────────────────────────────────────────────────
-//
-
-// setBoolFunc returns a SetFunc that calls v.Set with the bool converted to a string.
 func setBoolFunc(key APIParamOptionType, value bool) func(url.Values) error {
 	return func(v url.Values) error {
 		v.Set(key.Value(), strconv.FormatBool(value))

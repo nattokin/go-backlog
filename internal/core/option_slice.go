@@ -6,7 +6,6 @@ import (
 	"strconv"
 )
 
-// WithActivityTypeIDs returns an option to set multiple `activityTypeId[]` parameters.
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	return &APIParamOption{
 		Type: ParamActivityTypeIDs,
@@ -22,17 +21,15 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	}
 }
 
-// WithApplicableIssueTypeIDs returns an option to set the `applicableIssueTypes[]` parameter.
 func (s *OptionService) WithApplicableIssueTypeIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamApplicableIssueTypeIDs, "applicableIssueTypes", ids)
 }
 
-// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
 func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamAttachmentIDs, "attachmentId", ids)
 }
 
-// WithItems returns an option to set the `items[]` parameter for List type custom fields.
+// WithItems sets `items[]` for List type custom fields.
 // Each string becomes a selectable list item and must not be empty.
 func (s *OptionService) WithItems(items []string) RequestOption {
 	return &APIParamOption{
@@ -49,81 +46,61 @@ func (s *OptionService) WithItems(items []string) RequestOption {
 	}
 }
 
-// WithProjectIDs returns an option to filter by project IDs.
 func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamProjectIDs, "projectId", ids)
 }
 
-// WithIssueTypeIDs returns an option to filter by issue type IDs.
 func (s *OptionService) WithIssueTypeIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamIssueTypeIDs, "issueTypeId", ids)
 }
 
-// WithCategoryIDs returns an option to filter by category IDs.
 func (s *OptionService) WithCategoryIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamCategoryIDs, "categoryId", ids)
 }
 
-// WithVersionIDs returns an option to filter by version IDs.
 func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamVersionIDs, "versionId", ids)
 }
 
-// WithMilestoneIDs returns an option to filter by milestone IDs.
 func (s *OptionService) WithMilestoneIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamMilestoneIDs, "milestoneId", ids)
 }
 
-// WithIssueIDs returns an option to filter by issue IDs.
 func (s *OptionService) WithIssueIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamIssueIDs, "issueId", ids)
 }
 
-// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
 func (s *OptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamNotifiedUserIDs, "notifiedUserId", ids)
 }
 
-// WithStatusIDs returns an option to filter by status IDs.
 func (s *OptionService) WithStatusIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamStatusIDs, "statusId", ids)
 }
 
-// WithPriorityIDs returns an option to filter by priority IDs.
 func (s *OptionService) WithPriorityIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamPriorityIDs, "priorityId", ids)
 }
 
-// WithAssigneeIDs returns an option to filter by assignee user IDs.
 func (s *OptionService) WithAssigneeIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamAssigneeIDs, "assigneeId", ids)
 }
 
-// WithCreatedUserIDs returns an option to filter by created user IDs.
 func (s *OptionService) WithCreatedUserIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamCreatedUserIDs, "createdUserId", ids)
 }
 
-// WithResolutionIDs returns an option to filter by resolution IDs.
 func (s *OptionService) WithResolutionIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamResolutionIDs, "resolutionId", ids)
 }
 
-// WithIDs returns an option to filter by issue IDs.
 func (s *OptionService) WithIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamIDs, "id", ids)
 }
 
-// WithParentIssueIDs returns an option to filter by parent issue IDs.
 func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
 	return positiveIntSliceOption(ParamParentIssueIDs, "parentIssueId", ids)
 }
-
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
 
 // positiveIntSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
 func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
@@ -135,12 +112,6 @@ func positiveIntSliceOption(paramType APIParamOptionType, paramName string, valu
 		SetFunc: addIntFunc(paramType, values),
 	}
 }
-
-//
-// ──────────────────────────────────────────────────────────────
-//  SetFunc factories
-// ──────────────────────────────────────────────────────────────
-//
 
 // addIntFunc returns a SetFunc that calls v.Add for each int in the slice.
 func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
@@ -162,13 +133,7 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 	}
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  Validation helpers
-// ──────────────────────────────────────────────────────────────
-//
-
-// validateActivityTypeID ensures that the given activity type ID is within the valid range [1, 26].
+// validateActivityTypeID ensures the ID is within the valid range [1, 26].
 func validateActivityTypeID(id int, key string) error {
 	if id < 1 || id > MaxActivityTypeID {
 		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))

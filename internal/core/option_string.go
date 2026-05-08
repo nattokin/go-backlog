@@ -10,22 +10,18 @@ import (
 
 var datePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
-// WithBase returns an option that sets the `base` field (merge base branch name).
 func (s *OptionService) WithBase(base string) RequestOption {
 	return nonEmptyStringOption(ParamBase, base)
 }
 
-// WithBranch returns an option that sets the `branch` field (merging branch name).
 func (s *OptionService) WithBranch(branch string) RequestOption {
 	return nonEmptyStringOption(ParamBranch, branch)
 }
 
-// WithColor returns an option that sets the `color` field.
 func (s *OptionService) WithColor(color string) RequestOption {
 	return nonEmptyStringOption(ParamColor, color)
 }
 
-// WithComment returns an option to set the `comment` parameter.
 func (s *OptionService) WithComment(comment string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamComment,
@@ -33,12 +29,10 @@ func (s *OptionService) WithComment(comment string) RequestOption {
 	}
 }
 
-// WithContent returns a option that sets the `content` field.
 func (s *OptionService) WithContent(content string) RequestOption {
 	return nonEmptyStringOption(ParamContent, content)
 }
 
-// WithDescription returns an option to set the `description` parameter.
 func (s *OptionService) WithDescription(description string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamDescription,
@@ -46,35 +40,32 @@ func (s *OptionService) WithDescription(description string) RequestOption {
 	}
 }
 
-// WithHookURL returns an option that sets the `hookUrl` parameter.
 func (s *OptionService) WithHookURL(hookURL string) RequestOption {
 	return nonEmptyStringOption(ParamHookURL, hookURL)
 }
 
-// WithInitialDate returns an option to set the `initialDate` parameter for Date type custom fields.
+// WithInitialDate sets `initialDate` for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDate(date string) RequestOption {
 	return dateFormatStringOption(ParamInitialDate, date)
 }
 
-// WithInitialDateMax returns an option to set the `max` parameter for Date type custom fields.
+// WithInitialDateMax sets `max` for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDateMax(date string) RequestOption {
 	return dateFormatStringOption(ParamMax, date)
 }
 
-// WithInitialDateMin returns an option to set the `min` parameter for Date type custom fields.
+// WithInitialDateMin sets `min` for Date type custom fields.
 // The value must be formatted as "yyyy-MM-dd".
 func (s *OptionService) WithInitialDateMin(date string) RequestOption {
 	return dateFormatStringOption(ParamMin, date)
 }
 
-// WithKey returns a option that sets the `key` field.
 func (s *OptionService) WithKey(key string) RequestOption {
 	return nonEmptyStringOption(ParamKey, key)
 }
 
-// WithKeyword returns an option to set the `keyword` parameter.
 func (s *OptionService) WithKeyword(keyword string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamKeyword,
@@ -82,7 +73,6 @@ func (s *OptionService) WithKeyword(keyword string) RequestOption {
 	}
 }
 
-// WithIssueSort returns an option to set the `sort` parameter for issue list.
 func (s *OptionService) WithIssueSort(sort model.IssueSort) RequestOption {
 	validSorts := []model.IssueSort{
 		model.IssueSortIssueType, model.IssueSortCategory, model.IssueSortVersion,
@@ -107,18 +97,15 @@ func (s *OptionService) WithIssueSort(sort model.IssueSort) RequestOption {
 	}
 }
 
-// WithMailAddress returns a option that sets the `mailAddress` field.
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
 	return nonEmptyStringOption(ParamMailAddress, mailAddress)
 }
 
-// WithName returns a option that sets the `name` field.
 func (s *OptionService) WithName(name string) RequestOption {
 	return nonEmptyStringOption(ParamName, name)
 }
 
-// WithOrder returns an option to set the `order` parameter.
 func (s *OptionService) WithOrder(order model.Order) RequestOption {
 	return &APIParamOption{
 		Type: ParamOrder,
@@ -133,7 +120,6 @@ func (s *OptionService) WithOrder(order model.Order) RequestOption {
 	}
 }
 
-// WithPassword returns a option that sets the `password` field.
 func (s *OptionService) WithPassword(password string) RequestOption {
 	return &APIParamOption{
 		Type: ParamPassword,
@@ -147,12 +133,10 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 	}
 }
 
-// WithSummary returns an option to set the `summary` parameter.
 func (s *OptionService) WithSummary(summary string) RequestOption {
 	return nonEmptyStringOption(ParamSummary, summary)
 }
 
-// WithTemplateDescription returns an option to set the `templateDescription` parameter.
 func (s *OptionService) WithTemplateDescription(description string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamTemplateDescription,
@@ -160,7 +144,6 @@ func (s *OptionService) WithTemplateDescription(description string) RequestOptio
 	}
 }
 
-// WithTemplateSummary returns an option to set the `templateSummary` parameter.
 func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamTemplateSummary,
@@ -168,7 +151,6 @@ func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
 	}
 }
 
-// WithTextFormattingRule returns a option that sets the `textFormattingRule` field.
 func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
@@ -183,7 +165,6 @@ func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOptio
 	}
 }
 
-// WithUnit returns an option to set the `unit` parameter for Number type custom fields.
 func (s *OptionService) WithUnit(unit string) RequestOption {
 	return &APIParamOption{
 		Type:    ParamUnit,
@@ -191,14 +172,8 @@ func (s *OptionService) WithUnit(unit string) RequestOption {
 	}
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  Option builder helpers
-// ──────────────────────────────────────────────────────────────
-//
-
 // dateFormatStringOption builds a RequestOption that validates the string matches
-// "yyyy-MM-dd" format and sets it.
+// "yyyy-MM-dd" format before setting it.
 func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
@@ -212,7 +187,7 @@ func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOp
 	}
 }
 
-// nonEmptyStringOption builds a RequestOption that validates the string is not empty and sets it.
+// nonEmptyStringOption builds a RequestOption that rejects empty strings.
 func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
@@ -226,13 +201,6 @@ func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOpt
 	}
 }
 
-//
-// ──────────────────────────────────────────────────────────────
-//  SetFunc factories
-// ──────────────────────────────────────────────────────────────
-//
-
-// setStringFunc returns a SetFunc that calls v.Set with the given string value.
 func setStringFunc(key APIParamOptionType, value string) func(url.Values) error {
 	return func(v url.Values) error {
 		v.Set(key.Value(), value)

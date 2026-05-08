@@ -5,10 +5,7 @@ import (
 	"mime/multipart"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  Wrapper interface for I/O abstractions
-// ──────────────────────────────────────────────────────────────
-
+// Wrapper abstracts I/O operations used in multipart uploads to allow test injection.
 type Wrapper interface {
 	Copy(dst io.Writer, src io.Reader) error
 	NewMultipartWriter(w io.Writer) MultipartWriter
@@ -19,10 +16,6 @@ type MultipartWriter interface {
 	FormDataContentType() string
 	Close() error
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Default wrapper implementations
-// ──────────────────────────────────────────────────────────────
 
 type DefaultWrapper struct{}
 

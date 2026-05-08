@@ -1,3 +1,5 @@
+// Package core provides the HTTP client, request/response primitives,
+// and option infrastructure used by all service packages.
 package core
 
 import (
@@ -19,17 +21,9 @@ const (
 	apiVersion = "v2"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  Doer interface (HTTP abstraction)
-// ──────────────────────────────────────────────────────────────
-
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Client structure and initialization
-// ──────────────────────────────────────────────────────────────
 
 type Client struct {
 	BaseURL *url.URL
@@ -39,12 +33,8 @@ type Client struct {
 	Method  *Method
 }
 
-// ──────────────────────────────────────────────────────────────
-//  HTTP Method function set
-// ──────────────────────────────────────────────────────────────
-
 // Method holds injected HTTP operation functions.
-// Each function delegates to Client.do() but can be replaced in tests
+// Each function delegates to Client.Do() but can be replaced in tests
 // for fine-grained unit testing of individual services.
 type Method struct {
 	Get      func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
@@ -55,10 +45,6 @@ type Method struct {
 	Upload   func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error)
 	Download func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Client constructor
-// ──────────────────────────────────────────────────────────────
 
 func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 	if token == "" {
@@ -91,7 +77,6 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 		Wrapper: &DefaultWrapper{},
 	}
 
-	// --- Inject HTTP Method Wrappers ------------------------------------------
 	c.Method = &Method{
 		Get:      c.Get,
 		Post:     c.Post,
@@ -104,10 +89,6 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 
 	return c, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  HTTP request creation and execution
-// ──────────────────────────────────────────────────────────────
 
 func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
@@ -223,10 +204,6 @@ func (c *Client) Upload(ctx context.Context, spath, fileName string, r io.Reader
 func (c *Client) Download(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Response helpers
-// ──────────────────────────────────────────────────────────────
 
 // CheckResponse validates an HTTP response and decodes API errors if present.
 // It closes the response body in error cases to avoid leaks.
