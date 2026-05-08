@@ -182,6 +182,36 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewSharedFileService(m)
 			s.GetFile(ctx, "TEST", 1) //nolint:errcheck
 		}},
+		{"UserService.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.All(ctx, "TEST", false) //nolint:errcheck
+		}},
+		{"UserService.Add", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.Add(ctx, "TEST", 1) //nolint:errcheck
+		}},
+		{"UserService.Delete", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.Delete(ctx, "TEST", 1) //nolint:errcheck
+		}},
+		{"UserService.AddAdmin", func(t *testing.T, m *core.Method) {
+			m.Post = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
+		}},
+		{"UserService.AdminAll", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.AdminAll(ctx, "TEST") //nolint:errcheck
+		}},
+		{"UserService.DeleteAdmin", func(t *testing.T, m *core.Method) {
+			m.Delete = makeMockFn(t)
+			s := project.NewUserService(m)
+			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
+		}},
 	}
 
 	for _, tc := range cases {
