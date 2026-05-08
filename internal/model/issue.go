@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Issue represents a issue of Backlog.
+// Issue represents a Backlog issue.
 type Issue struct {
 	ID             int            `json:"id,omitempty"`
 	ProjectID      int            `json:"projectId,omitempty"`
@@ -33,7 +33,7 @@ type Issue struct {
 	Stars          []*Star        `json:"stars,omitempty"`
 }
 
-// IssueType represents type of Issue.
+// IssueType represents the type of an issue.
 type IssueType struct {
 	ID           int    `json:"id,omitempty"`
 	ProjectID    int    `json:"projectId,omitempty"`
@@ -42,13 +42,13 @@ type IssueType struct {
 	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
-// Priority represents a priority.
+// Priority represents the priority of an issue.
 type Priority struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// Resolution represents a resolution.
+// Resolution represents the resolution of an issue.
 type Resolution struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`

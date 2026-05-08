@@ -3,7 +3,6 @@ package model
 // CustomFieldType represents the type identifier of a custom field.
 type CustomFieldType int
 
-// CustomFieldType represents the type of a custom field.
 const (
 	CustomFieldTypeText         CustomFieldType = 1
 	CustomFieldTypeSentence     CustomFieldType = 2
@@ -15,10 +14,9 @@ const (
 	CustomFieldTypeRadio        CustomFieldType = 8
 )
 
-// Format defines the text formatting rule for the Backlog wiki.
+// Format defines the text formatting rule for a Backlog space or project.
 type Format string
 
-// Format defines the text formatting rule for the Backlog wiki.
 const (
 	FormatMarkdown Format = "markdown"
 	FormatBacklog  Format = "backlog"
@@ -27,7 +25,6 @@ const (
 // IssueSort represents the field to sort issue list results by.
 type IssueSort string
 
-// IssueSort represents the field to sort issue list results by.
 const (
 	IssueSortIssueType      IssueSort = "issueType"
 	IssueSortCategory       IssueSort = "category"
@@ -50,19 +47,17 @@ const (
 	IssueSortChildIssue     IssueSort = "childIssue"
 )
 
-// Order defines the sort order (ascending or descending).
+// Order defines the sort order for list results.
 type Order string
 
-// Order defines the sort order (ascending or descending).
 const (
 	OrderAsc  Order = "asc"
 	OrderDesc Order = "desc"
 )
 
-// Role defines the type of user role within a project.
+// Role defines the user role type within a project.
 type Role int
 
-// Role defines the type of user role within a project.
 const (
 	_ Role = iota
 	RoleAdministrator

@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Project represents a project of Backlog.
+// Project represents a Backlog project.
 type Project struct {
 	ID                                int    `json:"id,omitempty"`
 	ProjectKey                        string `json:"projectKey,omitempty"`
@@ -14,13 +14,13 @@ type Project struct {
 	Archived                          bool   `json:"archived,omitempty"`
 }
 
-// DiskUsageProject represents disk usage of a specific project.
+// DiskUsageProject represents disk usage for a specific project.
 type DiskUsageProject struct {
 	DiskUsageBase
 	ProjectID int `json:"projectId,omitempty"`
 }
 
-// Webhook represents webhook of Backlog.
+// Webhook represents a Backlog webhook.
 type Webhook struct {
 	ID              int       `json:"id,omitempty"`
 	Name            string    `json:"name,omitempty"`

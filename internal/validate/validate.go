@@ -1,3 +1,4 @@
+// Package validate provides input validation helpers shared across service packages.
 package validate
 
 import "github.com/nattokin/go-backlog/internal/core"
