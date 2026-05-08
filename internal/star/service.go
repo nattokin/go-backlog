@@ -1,3 +1,4 @@
+// Package star implements the Backlog Star API service.
 package star
 
 import (
@@ -9,7 +10,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// Service handles communication with the star-related methods of the Backlog API.
+// Service handles star-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
@@ -62,11 +63,6 @@ func (s *Service) Remove(ctx context.Context, id int) error {
 	return nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new star Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
