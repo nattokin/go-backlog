@@ -200,6 +200,14 @@ func (s *PullRequestCommentService) Count(ctx context.Context, projectIDOrKey st
 	return count, convertError(err)
 }
 
+// One returns information about a specific comment on a pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
+func (s *PullRequestCommentService) One(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, commentID int) (*Comment, error) {
+	v, err := s.base.One(ctx, projectIDOrKey, repositoryIDOrName, prNumber, commentID)
+	return commentFromModel(v), convertError(err)
+}
+
 // Update updates a comment on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information
