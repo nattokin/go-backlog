@@ -389,7 +389,7 @@ func Test_spaceFromModel(t *testing.T) {
 		Lang:               "ja",
 		Timezone:           "Asia/Tokyo",
 		ReportSendTime:     "08:00:00",
-		TextFormattingRule: model.FormatMarkdown,
+		TextFormattingRule: "markdown",
 		Created:            created,
 		Updated:            updated,
 	}

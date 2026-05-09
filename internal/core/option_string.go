@@ -86,7 +86,7 @@ func (s *OptionService) WithOrder(order string) RequestOption {
 		Type: ParamOrder,
 		CheckFunc: func() error {
 			if order != "asc" && order != "desc" {
-				return NewValidationError(fmt.Sprintf("order must be only 'asc' or 'desc'"))
+				return NewValidationError("order must be only 'asc' or 'desc'")
 			}
 			return nil
 		},
@@ -136,7 +136,7 @@ func (s *OptionService) WithTextFormattingRule(format string) RequestOption {
 					return nil
 				}
 			}
-			return NewValidationError(fmt.Sprintf("format must be only 'backlog' or 'markdown'"))
+			return NewValidationError("format must be only 'backlog' or 'markdown'")
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}

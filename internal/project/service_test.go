@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -258,7 +257,7 @@ func TestService_Create(t *testing.T) {
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(model.FormatBacklog),
+				o.WithTextFormattingRule("backlog"),
 			},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -417,7 +416,7 @@ func TestService_Update(t *testing.T) {
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
-				o.WithTextFormattingRule(model.FormatBacklog),
+				o.WithTextFormattingRule("backlog"),
 				o.WithArchived(true),
 			},
 

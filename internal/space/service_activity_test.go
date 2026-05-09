@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/space"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -104,7 +103,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withOrder": {
 			opts: []core.RequestOption{
-				o.WithOrder(model.OrderAsc),
+				o.WithOrder("asc"),
 			},
 			wantError: false,
 			want: want{
@@ -122,7 +121,7 @@ func TestActivityService_List(t *testing.T) {
 				o.WithMinID(1),
 				o.WithMaxID(26),
 				o.WithCount(20),
-				o.WithOrder(model.OrderAsc),
+				o.WithOrder("asc"),
 			},
 			wantError: false,
 			want: want{
