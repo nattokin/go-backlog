@@ -68,7 +68,6 @@ func TestNewDate(t *testing.T) {
 				require.Error(t, err)
 				var target *backlog.InvalidDateStringError
 				assert.True(t, errors.As(err, &target))
-				assert.Equal(t, tc.input, target.Value)
 				assert.True(t, d.IsZero())
 			} else {
 				require.NoError(t, err)

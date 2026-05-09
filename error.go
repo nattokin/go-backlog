@@ -105,9 +105,9 @@ func convertError(err error) error {
 // InvalidDateStringError is returned when a string passed to [NewDate] is not
 // a valid date in "YYYY-MM-DD" format.
 type InvalidDateStringError struct {
-	Value string
+	value string
 }
 
 func (e *InvalidDateStringError) Error() string {
-	return fmt.Sprintf("backlog: invalid date string %q: expected \"YYYY-MM-DD\" format", e.Value)
+	return fmt.Sprintf("backlog: invalid date string %q: expected \"YYYY-MM-DD\" format", e.value)
 }
