@@ -1,3 +1,4 @@
+// Package issue implements the Backlog Issue API service.
 package issue
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// Service handles issue-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
@@ -284,10 +286,6 @@ func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*mod
 
 	return v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
