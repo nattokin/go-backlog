@@ -3,8 +3,6 @@ package core
 import (
 	"fmt"
 	"net/url"
-
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func (s *OptionService) WithBase(base string) RequestOption {
@@ -88,8 +86,7 @@ func (s *OptionService) WithOrder(order string) RequestOption {
 		Type: ParamOrder,
 		CheckFunc: func() error {
 			if order != "asc" && order != "desc" {
-				msg := fmt.Sprintf("order must be only 'asc' or 'desc'")
-				return NewValidationError(msg)
+				return NewValidationError(fmt.Sprintf("order must be only 'asc' or 'desc'"))
 			}
 			return nil
 		},
@@ -128,17 +125,20 @@ func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOption {
+var validFormats = []string{"backlog", "markdown"}
+
+func (s *OptionService) WithTextFormattingRule(format string) RequestOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
 		CheckFunc: func() error {
-			if format != model.FormatBacklog && format != model.FormatMarkdown {
-				msg := fmt.Sprintf("format must be only '%s' or '%s'", string(model.FormatBacklog), string(model.FormatMarkdown))
-				return NewValidationError(msg)
+			for _, v := range validFormats {
+				if format == v {
+					return nil
+				}
 			}
-			return nil
+			return NewValidationError(fmt.Sprintf("format must be only 'backlog' or 'markdown'"))
 		},
-		SetFunc: setStringFunc(ParamTextFormattingRule, string(format)),
+		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}
 }
 

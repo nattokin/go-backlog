@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestOptionService_string(t *testing.T) {
@@ -211,14 +210,14 @@ func TestOptionService_string(t *testing.T) {
 			wantErr: true,
 		},
 		"WithTextFormattingRule-valid-backlog": {
-			option:    o.WithTextFormattingRule(model.FormatBacklog),
+			option:    o.WithTextFormattingRule("backlog"),
 			key:       core.ParamTextFormattingRule.Value(),
-			wantValue: string(model.FormatBacklog),
+			wantValue: "backlog",
 		},
 		"WithTextFormattingRule-valid-markdown": {
-			option:    o.WithTextFormattingRule(model.FormatMarkdown),
+			option:    o.WithTextFormattingRule("markdown"),
 			key:       core.ParamTextFormattingRule.Value(),
-			wantValue: string(model.FormatMarkdown),
+			wantValue: "markdown",
 		},
 	}
 

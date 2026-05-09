@@ -171,7 +171,7 @@ func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) RequestOption
 
 // WithTextFormattingRule sets the text formatting rule.
 func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOption {
-	return s.base.WithTextFormattingRule(model.Format(format))
+	return s.base.WithTextFormattingRule(string(format))
 }
 
 // ──────────────────────────────────────────────────────────────
