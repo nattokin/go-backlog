@@ -252,7 +252,7 @@ func (s *PullRequestCommentOptionService) WithNotifiedUserIDs(ids []int) Request
 
 // WithOrder sets the sort order of results.
 func (s *PullRequestCommentOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // ──────────────────────────────────────────────────────────────

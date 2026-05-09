@@ -17,7 +17,7 @@ type Space struct {
 	Lang               string    `json:"lang,omitempty"`
 	Timezone           string    `json:"timezone,omitempty"`
 	ReportSendTime     string    `json:"reportSendTime,omitempty"`
-	TextFormattingRule Format    `json:"textFormattingRule,omitempty"`
+	TextFormattingRule string    `json:"textFormattingRule,omitempty"`
 	Created            time.Time `json:"created,omitempty"`
 	Updated            time.Time `json:"updated,omitempty"`
 }

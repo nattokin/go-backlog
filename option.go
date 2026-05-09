@@ -4,7 +4,6 @@ import (
 	"net/url"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 // RequestOption defines a common interface for all option types.
@@ -47,7 +46,7 @@ func (s *ActivityOptionService) WithCount(count int) RequestOption {
 
 // WithOrder sets the sort order of results.
 func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // ──────────────────────────────────────────────────────────────

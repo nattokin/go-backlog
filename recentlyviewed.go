@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/recentlyviewed"
 )
 
@@ -100,7 +99,7 @@ func (s *RecentlyViewedOptionService) WithOffset(offset int) RequestOption {
 
 // WithOrder sets the sort order of results.
 func (s *RecentlyViewedOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // ──────────────────────────────────────────────────────────────

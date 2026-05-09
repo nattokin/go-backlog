@@ -354,7 +354,7 @@ func (s *IssueCommentOptionService) WithMinID(id int) RequestOption {
 
 // WithOrder sets the sort order of results.
 func (s *IssueCommentOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
@@ -526,7 +526,7 @@ func (s *IssueOptionService) WithIDs(ids []int) RequestOption {
 
 // WithIssueSort sets the field to sort issue list results by.
 func (s *IssueOptionService) WithIssueSort(sort IssueSort) RequestOption {
-	return s.base.WithIssueSort(model.IssueSort(sort))
+	return s.base.WithIssueSort(string(sort))
 }
 
 // WithIssueTypeID returns an option to set the `issueTypeId` parameter.
@@ -561,7 +561,7 @@ func (s *IssueOptionService) WithOffset(offset int) RequestOption {
 
 // WithOrder sets the sort order of results.
 func (s *IssueOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // WithParentChild filters issues by subtask relationship.

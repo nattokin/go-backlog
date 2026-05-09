@@ -10,7 +10,7 @@ type Project struct {
 	ChartEnabled                      bool   `json:"chartEnabled,omitempty"`
 	SubtaskingEnabled                 bool   `json:"subtaskingEnabled,omitempty"`
 	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
-	TextFormattingRule                Format `json:"textFormattingRule,omitempty"`
+	TextFormattingRule                string `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
 }
 

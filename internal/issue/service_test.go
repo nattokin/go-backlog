@@ -13,7 +13,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/issue"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -56,8 +55,8 @@ func TestIssueService_All(t *testing.T) {
 		},
 		"success-with-sort-and-order": {
 			opts: []core.RequestOption{
-				o.WithIssueSort(model.IssueSortCreated),
-				o.WithOrder(model.OrderAsc),
+				o.WithIssueSort("created"),
+				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)

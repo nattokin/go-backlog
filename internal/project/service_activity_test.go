@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -99,7 +98,7 @@ func TestActivityService_List(t *testing.T) {
 		"success-withOrder": {
 			projectIDOrKey: "TEST",
 			opts: []core.RequestOption{
-				o.WithOrder(model.OrderAsc),
+				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
@@ -114,7 +113,7 @@ func TestActivityService_List(t *testing.T) {
 				o.WithMinID(1),
 				o.WithMaxID(26),
 				o.WithCount(20),
-				o.WithOrder(model.OrderAsc),
+				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/activities", spath)

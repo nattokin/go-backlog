@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestOptionService_string(t *testing.T) {
@@ -161,12 +160,12 @@ func TestOptionService_string(t *testing.T) {
 			wantValue: "kg",
 		},
 		"WithOrder-asc": {
-			option:    o.WithOrder(model.OrderAsc),
+			option:    o.WithOrder("asc"),
 			key:       core.ParamOrder.Value(),
 			wantValue: "asc",
 		},
 		"WithOrder-desc": {
-			option:    o.WithOrder(model.OrderDesc),
+			option:    o.WithOrder("desc"),
 			key:       core.ParamOrder.Value(),
 			wantValue: "desc",
 		},
@@ -211,14 +210,14 @@ func TestOptionService_string(t *testing.T) {
 			wantErr: true,
 		},
 		"WithTextFormattingRule-valid-backlog": {
-			option:    o.WithTextFormattingRule(model.FormatBacklog),
+			option:    o.WithTextFormattingRule("backlog"),
 			key:       core.ParamTextFormattingRule.Value(),
-			wantValue: string(model.FormatBacklog),
+			wantValue: "backlog",
 		},
 		"WithTextFormattingRule-valid-markdown": {
-			option:    o.WithTextFormattingRule(model.FormatMarkdown),
+			option:    o.WithTextFormattingRule("markdown"),
 			key:       core.ParamTextFormattingRule.Value(),
-			wantValue: string(model.FormatMarkdown),
+			wantValue: "markdown",
 		},
 	}
 
@@ -241,28 +240,28 @@ func TestOptionService_string(t *testing.T) {
 	// --- IssueSort option ---------------------------------------------------------
 	t.Run("WithIssueSort", func(t *testing.T) {
 		cases := map[string]struct {
-			sort    model.IssueSort
+			sort    string
 			wantErr bool
 		}{
-			"actualHours":    {sort: model.IssueSortActualHours},
-			"assignee":       {sort: model.IssueSortAssignee},
-			"attachment":     {sort: model.IssueSortAttachment},
-			"category":       {sort: model.IssueSortCategory},
-			"childIssue":     {sort: model.IssueSortChildIssue},
-			"created":        {sort: model.IssueSortCreated},
-			"createdUser":    {sort: model.IssueSortCreatedUser},
-			"dueDate":        {sort: model.IssueSortDueDate},
-			"estimatedHours": {sort: model.IssueSortEstimatedHours},
-			"issueType":      {sort: model.IssueSortIssueType},
-			"milestone":      {sort: model.IssueSortMilestone},
-			"priority":       {sort: model.IssueSortPriority},
-			"sharedFile":     {sort: model.IssueSortSharedFile},
-			"startDate":      {sort: model.IssueSortStartDate},
-			"status":         {sort: model.IssueSortStatus},
-			"summary":        {sort: model.IssueSortSummary},
-			"updated":        {sort: model.IssueSortUpdated},
-			"updatedUser":    {sort: model.IssueSortUpdatedUser},
-			"version":        {sort: model.IssueSortVersion},
+			"actualHours":    {sort: "actualHours"},
+			"assignee":       {sort: "assignee"},
+			"attachment":     {sort: "attachment"},
+			"category":       {sort: "category"},
+			"childIssue":     {sort: "childIssue"},
+			"created":        {sort: "created"},
+			"createdUser":    {sort: "createdUser"},
+			"dueDate":        {sort: "dueDate"},
+			"estimatedHours": {sort: "estimatedHours"},
+			"issueType":      {sort: "issueType"},
+			"milestone":      {sort: "milestone"},
+			"priority":       {sort: "priority"},
+			"sharedFile":     {sort: "sharedFile"},
+			"startDate":      {sort: "startDate"},
+			"status":         {sort: "status"},
+			"summary":        {sort: "summary"},
+			"updated":        {sort: "updated"},
+			"updatedUser":    {sort: "updatedUser"},
+			"version":        {sort: "version"},
 
 			"empty":   {sort: "", wantErr: true},
 			"invalid": {sort: "invalid", wantErr: true},
@@ -281,7 +280,7 @@ func TestOptionService_string(t *testing.T) {
 				}
 				require.NoError(t, err)
 				_ = opt.Set(q)
-				assert.Equal(t, string(tc.sort), q.Get(core.ParamSort.Value()))
+				assert.Equal(t, tc.sort, q.Get(core.ParamSort.Value()))
 			})
 		}
 	})

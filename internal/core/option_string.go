@@ -3,8 +3,6 @@ package core
 import (
 	"fmt"
 	"net/url"
-
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func (s *OptionService) WithBase(base string) RequestOption {
@@ -52,27 +50,25 @@ func (s *OptionService) WithKeyword(keyword string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithIssueSort(sort model.IssueSort) RequestOption {
-	validSorts := []model.IssueSort{
-		model.IssueSortIssueType, model.IssueSortCategory, model.IssueSortVersion,
-		model.IssueSortMilestone, model.IssueSortSummary, model.IssueSortStatus,
-		model.IssueSortPriority, model.IssueSortAttachment, model.IssueSortSharedFile,
-		model.IssueSortCreated, model.IssueSortCreatedUser, model.IssueSortUpdated,
-		model.IssueSortUpdatedUser, model.IssueSortAssignee, model.IssueSortStartDate,
-		model.IssueSortDueDate, model.IssueSortEstimatedHours, model.IssueSortActualHours,
-		model.IssueSortChildIssue,
-	}
+var validIssueSorts = []string{
+	"issueType", "category", "version", "milestone", "summary", "status",
+	"priority", "attachment", "sharedFile", "created", "createdUser",
+	"updated", "updatedUser", "assignee", "startDate", "dueDate",
+	"estimatedHours", "actualHours", "childIssue",
+}
+
+func (s *OptionService) WithIssueSort(sort string) RequestOption {
 	return &APIParamOption{
 		Type: ParamSort,
 		CheckFunc: func() error {
-			for _, v := range validSorts {
+			for _, v := range validIssueSorts {
 				if sort == v {
 					return nil
 				}
 			}
-			return NewValidationError(fmt.Sprintf("invalid sort value: %q", string(sort)))
+			return NewValidationError(fmt.Sprintf("invalid sort value: %q", sort))
 		},
-		SetFunc: setStringFunc(ParamSort, string(sort)),
+		SetFunc: setStringFunc(ParamSort, sort),
 	}
 }
 
@@ -85,17 +81,16 @@ func (s *OptionService) WithName(name string) RequestOption {
 	return nonEmptyStringOption(ParamName, name)
 }
 
-func (s *OptionService) WithOrder(order model.Order) RequestOption {
+func (s *OptionService) WithOrder(order string) RequestOption {
 	return &APIParamOption{
 		Type: ParamOrder,
 		CheckFunc: func() error {
-			if order != model.OrderAsc && order != model.OrderDesc {
-				msg := fmt.Sprintf("order must be only '%s' or '%s'", string(model.OrderAsc), string(model.OrderDesc))
-				return NewValidationError(msg)
+			if order != "asc" && order != "desc" {
+				return NewValidationError("order must be only 'asc' or 'desc'")
 			}
 			return nil
 		},
-		SetFunc: setStringFunc(ParamOrder, string(order)),
+		SetFunc: setStringFunc(ParamOrder, order),
 	}
 }
 
@@ -130,17 +125,20 @@ func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithTextFormattingRule(format model.Format) RequestOption {
+var validFormats = []string{"backlog", "markdown"}
+
+func (s *OptionService) WithTextFormattingRule(format string) RequestOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
 		CheckFunc: func() error {
-			if format != model.FormatBacklog && format != model.FormatMarkdown {
-				msg := fmt.Sprintf("format must be only '%s' or '%s'", string(model.FormatBacklog), string(model.FormatMarkdown))
-				return NewValidationError(msg)
+			for _, v := range validFormats {
+				if format == v {
+					return nil
+				}
 			}
-			return nil
+			return NewValidationError("format must be only 'backlog' or 'markdown'")
 		},
-		SetFunc: setStringFunc(ParamTextFormattingRule, string(format)),
+		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}
 }
 
