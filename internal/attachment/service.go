@@ -1,3 +1,4 @@
+// Package attachment implements shared HTTP logic for attachment-related Backlog API endpoints.
 package attachment
 
 import (
@@ -14,7 +15,6 @@ type Service struct {
 	method *core.Method
 }
 
-// List returns the list of attachments at spath.
 func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -29,7 +29,6 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, 
 	return v, nil
 }
 
-// Remove deletes the attachment at spath and returns the deleted attachment.
 func (s *Service) Remove(ctx context.Context, spath string) (*model.Attachment, error) {
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
@@ -45,6 +44,7 @@ func (s *Service) Remove(ctx context.Context, spath string) (*model.Attachment, 
 }
 
 // Download streams the attachment at spath.
+// The caller is responsible for closing FileData.Body after use.
 func (s *Service) Download(ctx context.Context, spath string) (*model.FileData, error) {
 	resp, err := s.method.Download(ctx, spath, nil)
 	if err != nil {
@@ -54,11 +54,6 @@ func (s *Service) Download(ctx context.Context, spath string) (*model.FileData, 
 	return core.DownloadResponse(resp)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new attachment Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
