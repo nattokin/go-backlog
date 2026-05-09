@@ -9,14 +9,13 @@ import (
 )
 
 // AttachmentService handles attachment-related Backlog API calls for a space.
-// It delegates all HTTP operations to the shared attachment.Service.
 type AttachmentService struct {
 	method *core.Method
 }
 
-// Upload uploads any file to the space.
-//
+// Upload uploads a file to the space.
 // The file name must not be empty.
+// The caller is responsible for closing the reader after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/post-attachment-file
 func (s *AttachmentService) Upload(ctx context.Context, fileName string, r io.Reader) (*model.Attachment, error) {
@@ -31,14 +30,8 @@ func (s *AttachmentService) Upload(ctx context.Context, fileName string, r io.Re
 	}
 
 	return &v, nil
-
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewAttachmentService creates and returns a new space AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
 	return &AttachmentService{method: method}
 }

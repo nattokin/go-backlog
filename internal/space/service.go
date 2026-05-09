@@ -1,3 +1,4 @@
+// Package space implements the Backlog Space API service.
 package space
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+// Service handles space-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
@@ -88,10 +90,6 @@ func (s *Service) UpdateNotification(ctx context.Context, content string) (*mode
 
 	return &v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
