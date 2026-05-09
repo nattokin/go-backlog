@@ -19,6 +19,11 @@ type Date struct {
 	value string
 }
 
+// NewDate returns a Date with the given "YYYY-MM-DD" string.
+func NewDate(s string) Date {
+	return Date{value: s}
+}
+
 // String returns the date as a "YYYY-MM-DD" string.
 // Returns an empty string when the date is unset.
 func (d Date) String() string {
