@@ -1,3 +1,4 @@
+// Package sharedfile implements shared HTTP logic for shared-file-related Backlog API endpoints.
 package sharedfile
 
 import (
@@ -18,7 +19,6 @@ type Service struct {
 	method *core.Method
 }
 
-// List returns the list of shared files at spath.
 func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -33,7 +33,6 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, 
 	return v, nil
 }
 
-// Link links shared files at spath using the given fileIDs.
 func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*model.SharedFile, error) {
 	if len(fileIDs) == 0 {
 		return nil, errors.New("fileIDs must not be empty")
@@ -60,7 +59,6 @@ func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*mod
 	return v, nil
 }
 
-// Unlink removes a shared file link at spath.
 func (s *Service) Unlink(ctx context.Context, spath string) (*model.SharedFile, error) {
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
@@ -75,11 +73,6 @@ func (s *Service) Unlink(ctx context.Context, spath string) (*model.SharedFile, 
 	return v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new shared-file Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
