@@ -18,7 +18,7 @@ type AttachmentService struct {
 	base *attachment.Service
 }
 
-// List returns a list of all attachments in the issue.
+// List returns a list of attachments on the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
 func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
@@ -30,7 +30,7 @@ func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*m
 	return s.base.List(ctx, spath)
 }
 
-// Remove removes a file attached to the issue.
+// Remove removes an attachment from the issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment
 func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
@@ -45,7 +45,7 @@ func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, att
 	return s.base.Remove(ctx, spath)
 }
 
-// Download downloads a file attached to the issue.
+// Download downloads an attachment from the issue.
 // The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment
@@ -61,11 +61,6 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 	return s.base.Download(ctx, spath)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewAttachmentService creates and returns a new issue AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
 	return &AttachmentService{base: attachment.NewService(method)}
 }

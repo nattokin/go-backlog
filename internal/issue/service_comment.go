@@ -12,7 +12,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// CommentService handles communication with the issue comment-related methods of the Backlog API.
+// CommentService handles issue comment-related Backlog API calls.
+// It delegates HTTP operations to the shared comment.Service and is
+// responsible only for validation and spath construction.
 type CommentService struct {
 	base   *comment.Service
 	method *core.Method
@@ -54,7 +56,7 @@ func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, e
 	return s.base.Count(ctx, spath)
 }
 
-// One returns information about a specific comment.
+// One returns a single comment on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment
 func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID int) (*model.Comment, error) {
@@ -168,11 +170,6 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 	return &v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewCommentService creates and returns a new issue CommentService.
 func NewCommentService(method *core.Method) *CommentService {
 	return &CommentService{
 		base:   comment.NewService(method),
