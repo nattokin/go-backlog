@@ -11,11 +11,16 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// ActivityService handles space activity-related Backlog API calls.
+// It delegates list operations to the shared activity.Service.
 type ActivityService struct {
 	base   *activity.Service
 	method *core.Method
 }
 
+// List returns a list of activities in the space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-activities
 func (s *ActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
 	return s.base.List(ctx, "space/activities", opts...)
 }
@@ -41,10 +46,6 @@ func (s *ActivityService) Get(ctx context.Context, activityID int) (*model.Activ
 
 	return &v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewActivityService(method *core.Method) *ActivityService {
 	return &ActivityService{
