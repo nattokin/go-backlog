@@ -34,7 +34,7 @@ func (d Date) IsZero() bool {
 // Returns [*InvalidDateStringError] if s is not a valid date.
 func NewDate(s string) (Date, error) {
 	if _, err := time.Parse("2006-01-02", s); err != nil {
-		return Date{}, &InvalidDateStringError{Value: s}
+		return Date{}, &InvalidDateStringError{value: s}
 	}
 	return Date{value: s}, nil
 }
