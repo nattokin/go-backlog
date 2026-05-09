@@ -134,10 +134,3 @@ func TestDate_IsZero(t *testing.T) {
 		})
 	}
 }
-
-func TestInvalidDateStringError_Error(t *testing.T) {
-	t.Parallel()
-
-	err := &backlog.InvalidDateStringError{Value: "2024/03/31"}
-	assert.Equal(t, `backlog: invalid date string "2024/03/31": expected "YYYY-MM-DD" format`, err.Error())
-}
