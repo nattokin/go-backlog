@@ -98,7 +98,7 @@ var Issue = issueFixtures{
 			Lang:        "ja",
 			MailAddress: "admin@example.com",
 		},
-		Created: mustTime("2024-01-10T09:00:00Z"),
+		Created: mustTimestamp("2024-01-10T09:00:00Z"),
 		UpdatedUser: &backlog.User{
 			ID:          1,
 			UserID:      "admin",
@@ -107,7 +107,7 @@ var Issue = issueFixtures{
 			Lang:        "ja",
 			MailAddress: "admin@example.com",
 		},
-		Updated: mustTime("2024-01-10T09:00:00Z"),
+		Updated: mustTimestamp("2024-01-10T09:00:00Z"),
 	},
 	ListJSON: `
 [
@@ -264,7 +264,7 @@ var Issue = issueFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Created: mustTime("2024-01-10T09:00:00Z"),
+			Created: mustTimestamp("2024-01-10T09:00:00Z"),
 			UpdatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
@@ -273,7 +273,7 @@ var Issue = issueFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Updated: mustTime("2024-01-10T09:00:00Z"),
+			Updated: mustTimestamp("2024-01-11T10:00:00Z"),
 		},
 		{
 			ID:        2,
@@ -309,7 +309,7 @@ var Issue = issueFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Created: mustTime("2024-01-11T10:00:00Z"),
+			Created: mustTimestamp("2024-01-11T10:00:00Z"),
 			UpdatedUser: &backlog.User{
 				ID:          2,
 				UserID:      "user1",
@@ -318,7 +318,7 @@ var Issue = issueFixtures{
 				Lang:        "en",
 				MailAddress: "user1@example.com",
 			},
-			Updated: mustTime("2024-01-15T14:30:00Z"),
+			Updated: mustTimestamp("2024-01-15T14:30:00Z"),
 		},
 	},
 }

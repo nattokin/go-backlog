@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -18,9 +17,9 @@ type Webhook struct {
 	AllEvent        bool
 	ActivityTypeIDs []int
 	CreatedUser     *User
-	Created         time.Time
+	Created         Timestamp
 	UpdatedUser     *User
-	Updated         time.Time
+	Updated         Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -188,9 +187,9 @@ func webhookFromModel(m *model.Webhook) *Webhook {
 		AllEvent:        m.AllEvent,
 		ActivityTypeIDs: m.ActivityTypeIDs,
 		CreatedUser:     userFromModel(m.CreatedUser),
-		Created:         m.Created,
+		Created:         Timestamp{m.Created},
 		UpdatedUser:     userFromModel(m.UpdatedUser),
-		Updated:         m.Updated,
+		Updated:         Timestamp{m.Updated},
 	}
 }
 

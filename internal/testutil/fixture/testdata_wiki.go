@@ -141,7 +141,7 @@ var Wiki = wikiFixtures{
 					Lang:        "ja",
 					MailAddress: "eguchi@nulab.example",
 				},
-				Created: mustTime("2014-01-06T11:10:45Z"),
+				Created: mustTimestamp("2014-01-06T11:10:45Z"),
 			},
 		},
 		SharedFiles: []*backlog.SharedFile{
@@ -159,7 +159,7 @@ var Wiki = wikiFixtures{
 					Lang:        "ja",
 					MailAddress: "takada@nulab.example",
 				},
-				Created: mustTime("2009-02-27T03:26:15Z"),
+				Created: mustTimestamp("2009-02-27T03:26:15Z"),
 				UpdatedUser: &backlog.User{
 					ID:          5686,
 					UserID:      "takada",
@@ -168,7 +168,7 @@ var Wiki = wikiFixtures{
 					Lang:        "ja",
 					MailAddress: "takada@nulab.example",
 				},
-				Updated: mustTime("2009-03-03T16:57:47Z"),
+				Updated: mustTimestamp("2009-03-03T16:57:47Z"),
 			},
 		},
 		Stars: []*backlog.Star{
@@ -184,7 +184,7 @@ var Wiki = wikiFixtures{
 					Lang:        "ja",
 					MailAddress: "eguchi@nulab.example",
 				},
-				Created: mustTime("2014-01-23T10:55:19Z"),
+				Created: mustTimestamp("2014-01-23T10:55:19Z"),
 			},
 			{
 				ID:      76,
@@ -199,7 +199,7 @@ var Wiki = wikiFixtures{
 					Lang:        "ja",
 					MailAddress: "eguchi@nulab.example",
 				},
-				Created: mustTime("2014-01-23T10:55:19Z"),
+				Created: mustTimestamp("2014-01-23T10:55:19Z"),
 			},
 		},
 		CreatedUser: &backlog.User{
@@ -210,7 +210,7 @@ var Wiki = wikiFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
-		Created: mustTime("2012-07-23T06:09:48Z"),
+		Created: mustTimestamp("2012-07-23T06:09:48Z"),
 		UpdatedUser: &backlog.User{
 			ID:          1,
 			UserID:      "admin",
@@ -219,7 +219,7 @@ var Wiki = wikiFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
-		Updated: mustTime("2012-07-23T06:09:48Z"),
+		Updated: mustTimestamp("2012-07-23T06:09:48Z"),
 	},
 	MinimumJSON: `
 {
@@ -275,7 +275,7 @@ var Wiki = wikiFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
-		Created: mustTime("2012-07-23T06:09:48Z"),
+		Created: mustTimestamp("2012-07-23T06:09:48Z"),
 		UpdatedUser: &backlog.User{
 			ID:          1,
 			UserID:      "admin",
@@ -284,7 +284,7 @@ var Wiki = wikiFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
-		Updated: mustTime("2012-07-23T06:09:48Z"),
+		Updated: mustTimestamp("2012-07-23T06:09:48Z"),
 	},
 	ListJSON: `
 [
@@ -362,7 +362,7 @@ var Wiki = wikiFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2013-05-30T09:11:36Z"),
+			Created: mustTimestamp("2013-05-30T09:11:36Z"),
 			UpdatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
@@ -371,7 +371,7 @@ var Wiki = wikiFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Updated: mustTime("2013-05-30T09:11:36Z"),
+			Updated: mustTimestamp("2013-05-30T09:11:36Z"),
 		},
 		{
 			ID:        115,
@@ -386,7 +386,7 @@ var Wiki = wikiFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2013-05-30T09:11:36Z"),
+			Created: mustTimestamp("2013-05-30T09:11:36Z"),
 			UpdatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
@@ -395,7 +395,7 @@ var Wiki = wikiFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Updated: mustTime("2013-05-30T09:11:36Z"),
+			Updated: mustTimestamp("2013-05-30T09:11:36Z"),
 		},
 	},
 }

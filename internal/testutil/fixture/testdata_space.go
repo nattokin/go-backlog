@@ -36,8 +36,8 @@ var Space = spaceFixtures{
 		Timezone:           "Asia/Tokyo",
 		ReportSendTime:     "08:00:00",
 		TextFormattingRule: backlog.FormatMarkdown,
-		Created:            mustTime("2008-07-06T15:00:00Z"),
-		Updated:            mustTime("2013-06-18T07:55:37Z"),
+		Created:            mustTimestamp("2008-07-06T15:00:00Z"),
+		Updated:            mustTimestamp("2013-06-18T07:55:37Z"),
 	},
 	DiskUsageJSON: `
 {
@@ -89,6 +89,6 @@ var Space = spaceFixtures{
 `,
 	Notification: &backlog.SpaceNotification{
 		Content: "Backlog is a project management tool.",
-		Updated: mustTime("2013-06-18T07:55:37Z"),
+		Updated: mustTimestamp("2013-06-18T07:55:37Z"),
 	},
 }

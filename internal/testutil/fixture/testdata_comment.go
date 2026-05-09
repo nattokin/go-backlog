@@ -43,8 +43,8 @@ var Comment = commentFixtures{
 			Lang:        "ja",
 			MailAddress: "takada@nulab.example",
 		},
-		Created: mustTime("2013-08-05T06:15:06Z"),
-		Updated: mustTime("2013-08-05T06:15:06Z"),
+		Created: mustTimestamp("2013-08-05T06:15:06Z"),
+		Updated: mustTimestamp("2013-08-05T06:15:06Z"),
 	},
 	ListJSON: `
 [
@@ -96,8 +96,8 @@ var Comment = commentFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Created: mustTime("2013-08-05T06:15:06Z"),
-			Updated: mustTime("2013-08-05T06:15:06Z"),
+			Created: mustTimestamp("2013-08-05T06:15:06Z"),
+			Updated: mustTimestamp("2013-08-05T06:15:06Z"),
 		},
 		{
 			ID:      2,
@@ -110,8 +110,8 @@ var Comment = commentFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Created: mustTime("2013-08-06T06:15:06Z"),
-			Updated: mustTime("2013-08-06T06:15:06Z"),
+			Created: mustTimestamp("2013-08-06T06:15:06Z"),
+			Updated: mustTimestamp("2013-08-06T06:15:06Z"),
 		},
 	},
 }

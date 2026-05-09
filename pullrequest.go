@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -24,12 +23,12 @@ type PullRequest struct {
 	Issue        *Issue
 	BaseCommit   string
 	BranchCommit string
-	CloseAt      time.Time
-	MergeAt      time.Time
+	CloseAt      Timestamp
+	MergeAt      Timestamp
 	CreatedUser  *User
-	Created      time.Time
+	Created      Timestamp
 	UpdatedUser  *User
-	Updated      time.Time
+	Updated      Timestamp
 	Attachments  []*Attachment
 	Stars        []*Star
 }
@@ -421,12 +420,12 @@ func pullRequestFromModel(m *model.PullRequest) *PullRequest {
 		Issue:        issueFromModel(m.Issue),
 		BaseCommit:   m.BaseCommit,
 		BranchCommit: m.BranchCommit,
-		CloseAt:      m.CloseAt,
-		MergeAt:      m.MergeAt,
+		CloseAt:      Timestamp{m.CloseAt},
+		MergeAt:      Timestamp{m.MergeAt},
 		CreatedUser:  userFromModel(m.CreatedUser),
-		Created:      m.Created,
+		Created:      Timestamp{m.Created},
 		UpdatedUser:  userFromModel(m.UpdatedUser),
-		Updated:      m.Updated,
+		Updated:      Timestamp{m.Updated},
 		Attachments:  attachments,
 		Stars:        stars,
 	}

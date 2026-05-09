@@ -71,7 +71,7 @@ var PullRequest = pullRequestFixtures{
 			Lang:        "ja",
 			MailAddress: "admin@example.com",
 		},
-		Created: mustTime("2024-01-10T09:00:00Z"),
+		Created: mustTimestamp("2024-01-10T09:00:00Z"),
 		UpdatedUser: &backlog.User{
 			ID:          1,
 			UserID:      "admin",
@@ -80,7 +80,7 @@ var PullRequest = pullRequestFixtures{
 			Lang:        "ja",
 			MailAddress: "admin@example.com",
 		},
-		Updated: mustTime("2024-01-10T09:00:00Z"),
+		Updated: mustTimestamp("2024-01-10T09:00:00Z"),
 	},
 	ListJSON: `
 [
@@ -185,7 +185,7 @@ var PullRequest = pullRequestFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Created: mustTime("2024-01-10T09:00:00Z"),
+			Created: mustTimestamp("2024-01-10T09:00:00Z"),
 			UpdatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
@@ -194,7 +194,7 @@ var PullRequest = pullRequestFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Updated: mustTime("2024-01-10T09:00:00Z"),
+			Updated: mustTimestamp("2024-01-10T09:00:00Z"),
 		},
 		{
 			ID:           3,
@@ -213,7 +213,7 @@ var PullRequest = pullRequestFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Created: mustTime("2024-01-11T10:00:00Z"),
+			Created: mustTimestamp("2024-01-11T10:00:00Z"),
 			UpdatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
@@ -222,7 +222,7 @@ var PullRequest = pullRequestFixtures{
 				Lang:        "ja",
 				MailAddress: "admin@example.com",
 			},
-			Updated: mustTime("2024-01-11T10:00:00Z"),
+			Updated: mustTimestamp("2024-01-11T10:00:00Z"),
 		},
 	},
 }

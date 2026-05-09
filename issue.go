@@ -29,15 +29,15 @@ type Issue struct {
 	Category       []*Category
 	Versions       []*Version
 	Milestone      []*Version
-	StartDate      time.Time
-	DueDate        time.Time
+	StartDate      Date
+	DueDate        Date
 	EstimatedHours int
 	ActualHours    int
 	ParentIssueID  int
 	CreatedUser    *User
-	Created        time.Time
+	Created        Timestamp
 	UpdatedUser    *User
-	Updated        time.Time
+	Updated        Timestamp
 	CustomFields   []*CustomField
 	Attachments    []*Attachment
 	SharedFiles    []*SharedFile
@@ -723,8 +723,8 @@ func versionFromModel(m *model.Version) *Version {
 		ProjectID:      m.ProjectID,
 		Name:           m.Name,
 		Description:    m.Description,
-		StartDate:      m.StartDate,
-		ReleaseDueDate: m.ReleaseDueDate,
+		StartDate:      Date{value: m.StartDate},
+		ReleaseDueDate: Date{value: m.ReleaseDueDate},
 		Archived:       m.Archived,
 		DisplayOrder:   m.DisplayOrder,
 	}
@@ -786,15 +786,15 @@ func issueFromModel(m *model.Issue) *Issue {
 		Category:       categoriesFromModel(m.Category),
 		Versions:       versionsFromModel(m.Versions),
 		Milestone:      versionsFromModel(m.Milestone),
-		StartDate:      m.StartDate,
-		DueDate:        m.DueDate,
+		StartDate:      Date{value: m.StartDate},
+		DueDate:        Date{value: m.DueDate},
 		EstimatedHours: m.EstimatedHours,
 		ActualHours:    m.ActualHours,
 		ParentIssueID:  m.ParentIssueID,
 		CreatedUser:    userFromModel(m.CreatedUser),
-		Created:        m.Created,
+		Created:        Timestamp{m.Created},
 		UpdatedUser:    userFromModel(m.UpdatedUser),
-		Updated:        m.Updated,
+		Updated:        Timestamp{m.Updated},
 		CustomFields:   customFieldsFromModel(m.CustomFields),
 		Attachments:    attachmentsFromModel(m.Attachments),
 		SharedFiles:    sharedFilesFromModel(m.SharedFiles),

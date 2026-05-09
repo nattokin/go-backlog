@@ -1,6 +1,8 @@
 package backlog
 
 import (
+	"fmt"
+
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
@@ -98,4 +100,14 @@ func convertError(err error) error {
 	default:
 		return err
 	}
+}
+
+// InvalidDateStringError is returned when a string passed to [NewDate] is not
+// a valid date in "YYYY-MM-DD" format.
+type InvalidDateStringError struct {
+	value string
+}
+
+func (e *InvalidDateStringError) Error() string {
+	return fmt.Sprintf("backlog: invalid date string %q: expected \"YYYY-MM-DD\" format", e.value)
 }

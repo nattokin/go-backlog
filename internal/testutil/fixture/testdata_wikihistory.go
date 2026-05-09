@@ -1,10 +1,12 @@
 package fixture
 
-import "github.com/nattokin/go-backlog/internal/model"
+import (
+	"github.com/nattokin/go-backlog"
+)
 
 type wikiHistoryFixtures struct {
 	ListJSON string
-	List     []*model.WikiHistory
+	List     []*backlog.WikiHistory
 }
 
 // WikiHistory provides test fixtures for WikiHistory-related tests.
@@ -43,13 +45,13 @@ var WikiHistory = wikiHistoryFixtures{
     }
 ]
 `,
-	List: []*model.WikiHistory{
+	List: []*backlog.WikiHistory{
 		{
 			PageID:  34,
 			Version: 2,
 			Name:    "Home",
 			Content: "## Updated content",
-			CreatedUser: &model.User{
+			CreatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
 				Name:        "admin",
@@ -57,14 +59,14 @@ var WikiHistory = wikiHistoryFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-06-10T09:00:00Z"),
+			Created: mustTimestamp("2014-06-10T09:00:00Z"),
 		},
 		{
 			PageID:  34,
 			Version: 1,
 			Name:    "Home",
 			Content: "## Initial content",
-			CreatedUser: &model.User{
+			CreatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
 				Name:        "admin",
@@ -72,7 +74,7 @@ var WikiHistory = wikiHistoryFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-06-01T09:00:00Z"),
+			Created: mustTimestamp("2014-06-01T09:00:00Z"),
 		},
 	},
 }

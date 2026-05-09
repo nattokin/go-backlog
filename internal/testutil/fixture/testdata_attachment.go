@@ -45,7 +45,7 @@ var Attachment = attachmentFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
-		Created: mustTime("2014-10-28T09:24:43Z"),
+		Created: mustTimestamp("2014-10-28T09:24:43Z"),
 	},
 	ListJSON: `
 [
@@ -90,7 +90,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-07-11T06:26:05Z"),
+			Created: mustTimestamp("2014-07-11T06:26:05Z"),
 		},
 		{
 			ID:   5,
@@ -102,7 +102,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-07-11T06:26:05Z"),
+			Created: mustTimestamp("2014-07-11T06:26:05Z"),
 		},
 	},
 	SingleListJSON: `
@@ -134,7 +134,7 @@ var Attachment = attachmentFixtures{
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2014-07-11T06:26:05Z"),
+			Created: mustTimestamp("2014-07-11T06:26:05Z"),
 		},
 	},
 	UploadJSON: `
