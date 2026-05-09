@@ -1,3 +1,4 @@
+// Package repository implements the Backlog Git Repository API service.
 package repository
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// Service handles git repository-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
@@ -36,7 +38,7 @@ func (s *Service) All(ctx context.Context, projectIDOrKey string) ([]*model.Repo
 	return v, nil
 }
 
-// One returns information about a specific Git repository.
+// One returns a specific Git repository.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-git-repository
 func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName string) (*model.Repository, error) {
@@ -60,10 +62,6 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 
 	return &v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
