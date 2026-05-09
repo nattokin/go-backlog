@@ -11,6 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// getUserList is a shared helper that fetches a list of users from the given spath.
 func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
@@ -25,6 +26,7 @@ func getUserList(ctx context.Context, m *core.Method, spath string, query url.Va
 	return v, nil
 }
 
+// addUser is a shared helper that adds a user by ID via POST to the given spath.
 func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
 	form := url.Values{}
 	form.Set("userId", strconv.Itoa(userID))
@@ -42,6 +44,7 @@ func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*mo
 	return &v, nil
 }
 
+// deleteUser is a shared helper that removes a user by ID via DELETE to the given spath.
 func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
 	form := url.Values{}
 	form.Set("userId", strconv.Itoa(userID))
@@ -59,7 +62,7 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (
 	return &v, nil
 }
 
-// UserService handles communication with the project user-related methods of the Backlog API.
+// UserService handles project user-related Backlog API calls.
 type UserService struct {
 	method *core.Method
 }
@@ -155,7 +158,6 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 	return deleteUser(ctx, s.method, spath, userID)
 }
 
-// NewUserService creates and returns a new project UserService.
 func NewUserService(method *core.Method) *UserService {
 	return &UserService{method: method}
 }

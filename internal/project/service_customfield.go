@@ -11,12 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ──────────────────────────────────────────────────────────────
-//  CustomFieldService
-// ──────────────────────────────────────────────────────────────
-
-// CustomFieldService handles communication with the custom-field-related
-// methods of the Backlog API.
+// CustomFieldService handles custom field-related Backlog API calls for a project.
 type CustomFieldService struct {
 	method *core.Method
 }
@@ -44,36 +39,6 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 }
 
 // Create adds a new custom field to a project.
-//
-// fieldType specifies the custom field type. Use the model.CustomFieldType constants:
-//   - model.CustomFieldTypeText
-//   - model.CustomFieldTypeSentence
-//   - model.CustomFieldTypeNumber
-//   - model.CustomFieldTypeDate
-//   - model.CustomFieldTypeSingleList
-//   - model.CustomFieldTypeMultipleList
-//   - model.CustomFieldTypeCheckbox
-//   - model.CustomFieldTypeRadio
-//
-// Common options (all types):
-//   - WithDescription
-//   - WithRequired
-//   - WithApplicableIssueTypeIDs
-//
-// Number type (CustomFieldTypeNumber) additional options:
-//   - WithMin, WithMax, WithInitialValue (float64)
-//   - WithUnit
-//
-// Date type (CustomFieldTypeDate) additional options:
-//   - WithInitialDateMin, WithInitialDateMax ("yyyy-MM-dd")
-//   - WithInitialValueType (1: today, 2: today+N, 3: specified date)
-//   - WithInitialShift (days, when initialValueType=2)
-//   - WithInitialDate ("yyyy-MM-dd", when initialValueType=3)
-//
-// List type (CustomFieldTypeSingleList/MultipleList/Checkbox/Radio) additional options:
-//   - WithItems
-//   - WithAllowInput
-//   - WithAllowAddItem
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType model.CustomFieldType, name string, opts ...core.RequestOption) (*model.CustomField, error) {
@@ -116,12 +81,6 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 }
 
 // Update updates a custom field in a project.
-//
-// At least one option must be provided. Supported options:
-//   - WithName
-//   - WithDescription
-//   - WithRequired
-//   - WithApplicableIssueTypeIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option core.RequestOption, opts ...core.RequestOption) (*model.CustomField, error) {
@@ -275,10 +234,6 @@ func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey 
 
 	return &v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
 
 func NewCustomFieldService(method *core.Method) *CustomFieldService {
 	return &CustomFieldService{method: method}

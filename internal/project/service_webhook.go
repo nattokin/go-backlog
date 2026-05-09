@@ -11,7 +11,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// WebhookService handles communication with the webhook related methods of the Backlog API.
+// WebhookService handles webhook-related Backlog API calls for a project.
 type WebhookService struct {
 	method *core.Method
 }
@@ -89,7 +89,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 	return v, nil
 }
 
-// Get returns information about a specific webhook.
+// Get returns a single webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-webhook/
 func (s *WebhookService) Get(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
@@ -184,11 +184,6 @@ func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webh
 	return v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewWebhookService creates and returns a new webhook WebhookService.
 func NewWebhookService(method *core.Method) *WebhookService {
 	return &WebhookService{method: method}
 }

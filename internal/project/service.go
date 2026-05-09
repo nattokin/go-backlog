@@ -1,3 +1,4 @@
+// Package project implements the Backlog Project API service.
 package project
 
 import (
@@ -11,10 +12,14 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// Service handles project-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
+// All returns a list of projects in the space.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
@@ -36,6 +41,9 @@ func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model
 	return v, nil
 }
 
+// One returns a single project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -55,6 +63,9 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 	return &v, nil
 }
 
+// Create creates a new project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *Service) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
 	option := &core.OptionService{}
 
@@ -78,6 +89,9 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...core.Req
 	return &v, nil
 }
 
+// Update updates a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *Service) Update(ctx context.Context, projectIDOrKey string, option core.RequestOption, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -107,6 +121,9 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, option core
 	return &v, nil
 }
 
+// Delete deletes a project.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
@@ -149,6 +166,7 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 }
 
 // Icon returns the icon image of a project.
+// The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
 func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileData, error) {
@@ -165,11 +183,7 @@ func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileD
 	return core.DownloadResponse(resp)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  CategoryService
-// ──────────────────────────────────────────────────────────────
-
-// CategoryService handles communication with the category-related methods of the Backlog API.
+// CategoryService handles category-related Backlog API calls for a project.
 type CategoryService struct {
 	method *core.Method
 }
@@ -282,11 +296,7 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 	return &v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  IssueTypeService
-// ──────────────────────────────────────────────────────────────
-
-// IssueTypeService handles communication with the issue-type-related methods of the Backlog API.
+// IssueTypeService handles issue type-related Backlog API calls for a project.
 type IssueTypeService struct {
 	method *core.Method
 }
@@ -376,6 +386,7 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 }
 
 // Delete deletes an issue type from a project.
+// substituteIssueTypeID specifies the issue type to migrate existing issues to.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-type
 func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, issueTypeID, substituteIssueTypeID int) (*model.IssueType, error) {
@@ -406,11 +417,7 @@ func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, is
 	return &v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  StatusService
-// ──────────────────────────────────────────────────────────────
-
-// StatusService handles communication with the status-related methods of the Backlog API.
+// StatusService handles status-related Backlog API calls for a project.
 type StatusService struct {
 	method *core.Method
 }
@@ -506,6 +513,7 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 }
 
 // Delete deletes a status from a project.
+// substituteStatusID specifies the status to migrate existing issues to.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
 func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*model.Status, error) {
@@ -570,10 +578,6 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 
 	return v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
