@@ -24,6 +24,10 @@ func TestOptionService_date(t *testing.T) {
 			key:       core.ParamCreatedSince.Value(),
 			wantValue: "2024-03-15",
 		},
+		"WithCreatedSince-invalid-empty": {
+			option:  o.WithCreatedSince(""),
+			wantErr: true,
+		},
 		"WithCreatedSince-invalid-format": {
 			option:  o.WithCreatedSince("2024/03/15"),
 			wantErr: true,
@@ -37,10 +41,18 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithCreatedUntil(""),
 			wantErr: true,
 		},
+		"WithCreatedUntil-invalid-format": {
+			option:  o.WithCreatedUntil("20240315"),
+			wantErr: true,
+		},
 		"WithDueDate-valid": {
 			option:    o.WithDueDate("2024-03-15"),
 			key:       core.ParamDueDate.Value(),
 			wantValue: "2024-03-15",
+		},
+		"WithDueDate-invalid-empty": {
+			option:  o.WithDueDate(""),
+			wantErr: true,
 		},
 		"WithDueDate-invalid-format": {
 			option:  o.WithDueDate("20240315"),
@@ -55,58 +67,31 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithDueDateSince(""),
 			wantErr: true,
 		},
+		"WithDueDateSince-invalid-format": {
+			option:  o.WithDueDateSince("2024/03/15"),
+			wantErr: true,
+		},
 		"WithDueDateUntil-valid": {
 			option:    o.WithDueDateUntil("2024-03-15"),
 			key:       core.ParamDueDateUntil.Value(),
 			wantValue: "2024-03-15",
 		},
+		"WithDueDateUntil-invalid-empty": {
+			option:  o.WithDueDateUntil(""),
+			wantErr: true,
+		},
 		"WithDueDateUntil-invalid-format": {
 			option:  o.WithDueDateUntil("2024-3-15"),
-			wantErr: true,
-		},
-		"WithInitialDate-valid": {
-			option:    o.WithInitialDate("2024-01-15"),
-			key:       core.ParamInitialDate.Value(),
-			wantValue: "2024-01-15",
-		},
-		"WithInitialDate-invalid-format": {
-			option:  o.WithInitialDate("2024/01/15"),
-			wantErr: true,
-		},
-		"WithInitialDate-invalid-empty": {
-			option:  o.WithInitialDate(""),
-			wantErr: true,
-		},
-		"WithInitialDateMax-valid": {
-			option:    o.WithInitialDateMax("2024-12-31"),
-			key:       core.ParamMax.Value(),
-			wantValue: "2024-12-31",
-		},
-		"WithInitialDateMax-invalid-format": {
-			option:  o.WithInitialDateMax("20241231"),
-			wantErr: true,
-		},
-		"WithInitialDateMax-invalid-empty": {
-			option:  o.WithInitialDateMax(""),
-			wantErr: true,
-		},
-		"WithInitialDateMin-valid": {
-			option:    o.WithInitialDateMin("2024-01-01"),
-			key:       core.ParamMin.Value(),
-			wantValue: "2024-01-01",
-		},
-		"WithInitialDateMin-invalid-format": {
-			option:  o.WithInitialDateMin("Jan 1 2024"),
-			wantErr: true,
-		},
-		"WithInitialDateMin-invalid-empty": {
-			option:  o.WithInitialDateMin(""),
 			wantErr: true,
 		},
 		"WithReleaseDueDate-valid": {
 			option:    o.WithReleaseDueDate("2024-03-15"),
 			key:       core.ParamReleaseDueDate.Value(),
 			wantValue: "2024-03-15",
+		},
+		"WithReleaseDueDate-invalid-empty": {
+			option:  o.WithReleaseDueDate(""),
+			wantErr: true,
 		},
 		"WithReleaseDueDate-invalid-format": {
 			option:  o.WithReleaseDueDate("2024/03/15"),
@@ -121,12 +106,20 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithStartDate(""),
 			wantErr: true,
 		},
+		"WithStartDate-invalid-format": {
+			option:  o.WithStartDate("20240315"),
+			wantErr: true,
+		},
 		"WithStartDateSince-valid": {
 			option:    o.WithStartDateSince("2024-03-15"),
 			key:       core.ParamStartDateSince.Value(),
 			wantValue: "2024-03-15",
 		},
-		"WithStartDateSince-invalid": {
+		"WithStartDateSince-invalid-empty": {
+			option:  o.WithStartDateSince(""),
+			wantErr: true,
+		},
+		"WithStartDateSince-invalid-format": {
 			option:  o.WithStartDateSince("20240315"),
 			wantErr: true,
 		},
@@ -135,7 +128,11 @@ func TestOptionService_date(t *testing.T) {
 			key:       core.ParamStartDateUntil.Value(),
 			wantValue: "2024-03-15",
 		},
-		"WithStartDateUntil-invalid": {
+		"WithStartDateUntil-invalid-empty": {
+			option:  o.WithStartDateUntil(""),
+			wantErr: true,
+		},
+		"WithStartDateUntil-invalid-format": {
 			option:  o.WithStartDateUntil("2024-3-5"),
 			wantErr: true,
 		},
@@ -148,13 +145,60 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithUpdatedSince(""),
 			wantErr: true,
 		},
+		"WithUpdatedSince-invalid-format": {
+			option:  o.WithUpdatedSince("2024/03/15"),
+			wantErr: true,
+		},
 		"WithUpdatedUntil-valid": {
 			option:    o.WithUpdatedUntil("2024-03-15"),
 			key:       core.ParamUpdatedUntil.Value(),
 			wantValue: "2024-03-15",
 		},
+		"WithUpdatedUntil-invalid-empty": {
+			option:  o.WithUpdatedUntil(""),
+			wantErr: true,
+		},
 		"WithUpdatedUntil-invalid-format": {
 			option:  o.WithUpdatedUntil("2024/03/15"),
+			wantErr: true,
+		},
+		"WithInitialDate-valid": {
+			option:    o.WithInitialDate("2024-01-15"),
+			key:       core.ParamInitialDate.Value(),
+			wantValue: "2024-01-15",
+		},
+		"WithInitialDate-invalid-empty": {
+			option:  o.WithInitialDate(""),
+			wantErr: true,
+		},
+		"WithInitialDate-invalid-format": {
+			option:  o.WithInitialDate("2024/01/15"),
+			wantErr: true,
+		},
+		"WithInitialDateMax-valid": {
+			option:    o.WithInitialDateMax("2024-12-31"),
+			key:       core.ParamMax.Value(),
+			wantValue: "2024-12-31",
+		},
+		"WithInitialDateMax-invalid-empty": {
+			option:  o.WithInitialDateMax(""),
+			wantErr: true,
+		},
+		"WithInitialDateMax-invalid-format": {
+			option:  o.WithInitialDateMax("20241231"),
+			wantErr: true,
+		},
+		"WithInitialDateMin-valid": {
+			option:    o.WithInitialDateMin("2024-01-01"),
+			key:       core.ParamMin.Value(),
+			wantValue: "2024-01-01",
+		},
+		"WithInitialDateMin-invalid-empty": {
+			option:  o.WithInitialDateMin(""),
+			wantErr: true,
+		},
+		"WithInitialDateMin-invalid-format": {
+			option:  o.WithInitialDateMin("Jan 1 2024"),
 			wantErr: true,
 		},
 	}
