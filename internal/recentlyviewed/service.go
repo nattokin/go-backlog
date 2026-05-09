@@ -1,3 +1,4 @@
+// Package recentlyviewed implements the Backlog Recently Viewed API service.
 package recentlyviewed
 
 import (
@@ -11,19 +12,13 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// Service handles communication with the recently-viewed methods of the Backlog API.
+// Service handles recently-viewed Backlog API calls.
 // All endpoints are scoped to the authenticated user (myself).
 type Service struct {
 	method *core.Method
 }
 
 // ListIssues returns a list of issues recently viewed by the authenticated user.
-//
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
-// such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
 func (s *Service) ListIssues(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
@@ -70,12 +65,6 @@ func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, erro
 
 // ListProjects returns a list of projects recently viewed by the authenticated user.
 //
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
-// such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
 func (s *Service) ListProjects(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 	query := url.Values{}
@@ -98,12 +87,6 @@ func (s *Service) ListProjects(ctx context.Context, opts ...core.RequestOption) 
 }
 
 // ListWikis returns a list of Wiki pages recently viewed by the authenticated user.
-//
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
-// such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
 func (s *Service) ListWikis(ctx context.Context, opts ...core.RequestOption) ([]*model.Wiki, error) {
@@ -148,11 +131,6 @@ func (s *Service) AddWiki(ctx context.Context, wikiID int) (*model.Wiki, error) 
 	return v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new recently viewed Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
