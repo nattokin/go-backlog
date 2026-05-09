@@ -11,18 +11,14 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// CommentService handles communication with the pull request comment-related methods of the Backlog API.
+// CommentService handles pull request comment-related Backlog API calls.
+// It delegates all HTTP operations to the shared comment.Service and is
+// responsible only for validation and spath construction.
 type CommentService struct {
 	base *comment.Service
 }
 
 // All returns a list of comments on a pull request.
-//
-// This method supports options:
-//   - WithMinID
-//   - WithMaxID
-//   - WithCount
-//   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *CommentService) All(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...core.RequestOption) ([]*model.Comment, error) {
@@ -41,10 +37,6 @@ func (s *CommentService) All(ctx context.Context, projectIDOrKey string, repoIDO
 }
 
 // Add adds a comment to a pull request.
-//
-// This method supports options:
-//   - WithNotifiedUserIDs
-//   - WithAttachmentIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...core.RequestOption) (*model.Comment, error) {
@@ -80,7 +72,7 @@ func (s *CommentService) Count(ctx context.Context, projectIDOrKey string, repoI
 	return s.base.Count(ctx, spath)
 }
 
-// One returns information about a specific comment on a pull request.
+// One returns a single comment on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *CommentService) One(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, commentID int) (*model.Comment, error) {
@@ -122,11 +114,6 @@ func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repo
 	return s.base.Update(ctx, spath, content)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
-
-// NewCommentService creates and returns a new pullrequest CommentService.
 func NewCommentService(method *core.Method) *CommentService {
 	return &CommentService{
 		base: comment.NewService(method),
