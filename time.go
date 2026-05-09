@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -19,9 +20,23 @@ type Date struct {
 	value string
 }
 
+// InvalidDateStringError is returned when a string passed to [NewDate] is not
+// a valid date in "YYYY-MM-DD" format.
+type InvalidDateStringError struct {
+	Value string
+}
+
+func (e *InvalidDateStringError) Error() string {
+	return fmt.Sprintf("backlog: invalid date string %q: expected \"YYYY-MM-DD\" format", e.Value)
+}
+
 // NewDate returns a Date with the given "YYYY-MM-DD" string.
-func NewDate(s string) Date {
-	return Date{value: s}
+// Returns [*InvalidDateStringError] if s is not a valid date.
+func NewDate(s string) (Date, error) {
+	if _, err := time.Parse("2006-01-02", s); err != nil {
+		return Date{}, &InvalidDateStringError{Value: s}
+	}
+	return Date{value: s}, nil
 }
 
 // String returns the date as a "YYYY-MM-DD" string.
