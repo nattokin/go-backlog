@@ -169,13 +169,15 @@ func (s *ProjectVersionOptionService) WithName(name string) RequestOption {
 }
 
 // WithReleaseDueDate sets the release due date.
-func (s *ProjectVersionOptionService) WithReleaseDueDate(d Date) RequestOption {
-	return s.base.WithReleaseDueDate(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *ProjectVersionOptionService) WithReleaseDueDate(date string) RequestOption {
+	return s.base.WithReleaseDueDate(date)
 }
 
 // WithStartDate sets the version start date.
-func (s *ProjectVersionOptionService) WithStartDate(d Date) RequestOption {
-	return s.base.WithStartDate(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *ProjectVersionOptionService) WithStartDate(date string) RequestOption {
+	return s.base.WithStartDate(date)
 }
 
 // ──────────────────────────────────────────────────────────────

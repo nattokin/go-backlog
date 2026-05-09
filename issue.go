@@ -469,13 +469,15 @@ func (s *IssueOptionService) WithCount(count int) RequestOption {
 }
 
 // WithCreatedSince filters issues created on or after the given date.
-func (s *IssueOptionService) WithCreatedSince(d Date) RequestOption {
-	return s.base.WithCreatedSince(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithCreatedSince(date string) RequestOption {
+	return s.base.WithCreatedSince(date)
 }
 
 // WithCreatedUntil filters issues created on or before the given date.
-func (s *IssueOptionService) WithCreatedUntil(d Date) RequestOption {
-	return s.base.WithCreatedUntil(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithCreatedUntil(date string) RequestOption {
+	return s.base.WithCreatedUntil(date)
 }
 
 // WithCreatedUserIDs filters issues by created user IDs.
@@ -489,18 +491,21 @@ func (s *IssueOptionService) WithDescription(description string) RequestOption {
 }
 
 // WithDueDate returns an option to set the `dueDate` parameter.
-func (s *IssueOptionService) WithDueDate(d Date) RequestOption {
-	return s.base.WithDueDate(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithDueDate(date string) RequestOption {
+	return s.base.WithDueDate(date)
 }
 
 // WithDueDateSince filters issues with a due date on or after the given date.
-func (s *IssueOptionService) WithDueDateSince(d Date) RequestOption {
-	return s.base.WithDueDateSince(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithDueDateSince(date string) RequestOption {
+	return s.base.WithDueDateSince(date)
 }
 
 // WithDueDateUntil filters issues with a due date on or before the given date.
-func (s *IssueOptionService) WithDueDateUntil(d Date) RequestOption {
-	return s.base.WithDueDateUntil(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithDueDateUntil(date string) RequestOption {
+	return s.base.WithDueDateUntil(date)
 }
 
 // WithEstimatedHours returns an option to set the `estimatedHours` parameter.
@@ -606,18 +611,21 @@ func (s *IssueOptionService) WithSharedFile(enabled bool) RequestOption {
 }
 
 // WithStartDate returns an option to set the `startDate` parameter.
-func (s *IssueOptionService) WithStartDate(d Date) RequestOption {
-	return s.base.WithStartDate(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithStartDate(date string) RequestOption {
+	return s.base.WithStartDate(date)
 }
 
 // WithStartDateSince filters issues with a start date on or after the given date.
-func (s *IssueOptionService) WithStartDateSince(d Date) RequestOption {
-	return s.base.WithStartDateSince(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithStartDateSince(date string) RequestOption {
+	return s.base.WithStartDateSince(date)
 }
 
 // WithStartDateUntil filters issues with a start date on or before the given date.
-func (s *IssueOptionService) WithStartDateUntil(d Date) RequestOption {
-	return s.base.WithStartDateUntil(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithStartDateUntil(date string) RequestOption {
+	return s.base.WithStartDateUntil(date)
 }
 
 // WithStatusID returns an option to set the `statusId` parameter.
@@ -636,13 +644,15 @@ func (s *IssueOptionService) WithSummary(summary string) RequestOption {
 }
 
 // WithUpdatedSince filters issues updated on or after the given date.
-func (s *IssueOptionService) WithUpdatedSince(d Date) RequestOption {
-	return s.base.WithUpdatedSince(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithUpdatedSince(date string) RequestOption {
+	return s.base.WithUpdatedSince(date)
 }
 
 // WithUpdatedUntil filters issues updated on or before the given date.
-func (s *IssueOptionService) WithUpdatedUntil(d Date) RequestOption {
-	return s.base.WithUpdatedUntil(d.String())
+// The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+func (s *IssueOptionService) WithUpdatedUntil(date string) RequestOption {
+	return s.base.WithUpdatedUntil(date)
 }
 
 // WithVersionIDs filters issues by version IDs.
