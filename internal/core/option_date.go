@@ -19,12 +19,34 @@ func (s *OptionService) WithDueDate(date string) RequestOption {
 	return dateFormatStringOption(ParamDueDate, date)
 }
 
-func (s *OptionService) WithUpdatedSince(date string) RequestOption {
-	return dateFormatStringOption(ParamUpdatedSince, date)
+func (s *OptionService) WithDueDateSince(date string) RequestOption {
+	return dateFormatStringOption(ParamDueDateSince, date)
 }
 
-func (s *OptionService) WithUpdatedUntil(date string) RequestOption {
-	return dateFormatStringOption(ParamUpdatedUntil, date)
+func (s *OptionService) WithDueDateUntil(date string) RequestOption {
+	return dateFormatStringOption(ParamDueDateUntil, date)
+}
+
+// WithInitialDate sets `initialDate` for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDate(date string) RequestOption {
+	return dateFormatStringOption(ParamInitialDate, date)
+}
+
+// WithInitialDateMax sets `max` for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDateMax(date string) RequestOption {
+	return dateFormatStringOption(ParamMax, date)
+}
+
+// WithInitialDateMin sets `min` for Date type custom fields.
+// The value must be formatted as "yyyy-MM-dd".
+func (s *OptionService) WithInitialDateMin(date string) RequestOption {
+	return dateFormatStringOption(ParamMin, date)
+}
+
+func (s *OptionService) WithReleaseDueDate(date string) RequestOption {
+	return dateFormatStringOption(ParamReleaseDueDate, date)
 }
 
 func (s *OptionService) WithStartDate(date string) RequestOption {
@@ -39,16 +61,12 @@ func (s *OptionService) WithStartDateUntil(date string) RequestOption {
 	return dateFormatStringOption(ParamStartDateUntil, date)
 }
 
-func (s *OptionService) WithDueDateSince(date string) RequestOption {
-	return dateFormatStringOption(ParamDueDateSince, date)
+func (s *OptionService) WithUpdatedSince(date string) RequestOption {
+	return dateFormatStringOption(ParamUpdatedSince, date)
 }
 
-func (s *OptionService) WithDueDateUntil(date string) RequestOption {
-	return dateFormatStringOption(ParamDueDateUntil, date)
-}
-
-func (s *OptionService) WithReleaseDueDate(date string) RequestOption {
-	return dateFormatStringOption(ParamReleaseDueDate, date)
+func (s *OptionService) WithUpdatedUntil(date string) RequestOption {
+	return dateFormatStringOption(ParamUpdatedUntil, date)
 }
 
 // dateFormatStringOption builds a RequestOption that validates the string matches

@@ -41,24 +41,6 @@ func (s *OptionService) WithHookURL(hookURL string) RequestOption {
 	return nonEmptyStringOption(ParamHookURL, hookURL)
 }
 
-// WithInitialDate sets `initialDate` for Date type custom fields.
-// The value must be formatted as "yyyy-MM-dd".
-func (s *OptionService) WithInitialDate(date string) RequestOption {
-	return dateFormatStringOption(ParamInitialDate, date)
-}
-
-// WithInitialDateMax sets `max` for Date type custom fields.
-// The value must be formatted as "yyyy-MM-dd".
-func (s *OptionService) WithInitialDateMax(date string) RequestOption {
-	return dateFormatStringOption(ParamMax, date)
-}
-
-// WithInitialDateMin sets `min` for Date type custom fields.
-// The value must be formatted as "yyyy-MM-dd".
-func (s *OptionService) WithInitialDateMin(date string) RequestOption {
-	return dateFormatStringOption(ParamMin, date)
-}
-
 func (s *OptionService) WithKey(key string) RequestOption {
 	return nonEmptyStringOption(ParamKey, key)
 }
