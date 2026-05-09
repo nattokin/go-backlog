@@ -3,7 +3,6 @@ package backlog
 import (
 	"context"
 	"io"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -46,14 +45,14 @@ type Space struct {
 	Timezone           string
 	ReportSendTime     string
 	TextFormattingRule Format
-	Created            time.Time
-	Updated            time.Time
+	Created            Timestamp
+	Updated            Timestamp
 }
 
 // SpaceNotification represents a notification of Space.
 type SpaceNotification struct {
 	Content string
-	Updated time.Time
+	Updated Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -193,8 +192,8 @@ func spaceFromModel(m *model.Space) *Space {
 		Timezone:           m.Timezone,
 		ReportSendTime:     m.ReportSendTime,
 		TextFormattingRule: Format(m.TextFormattingRule),
-		Created:            m.Created,
-		Updated:            m.Updated,
+		Created:            Timestamp{m.Created},
+		Updated:            Timestamp{m.Updated},
 	}
 }
 
@@ -239,6 +238,6 @@ func spaceNotificationFromModel(m *model.SpaceNotification) *SpaceNotification {
 	}
 	return &SpaceNotification{
 		Content: m.Content,
-		Updated: m.Updated,
+		Updated: Timestamp{m.Updated},
 	}
 }

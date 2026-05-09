@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -24,9 +23,9 @@ type Wiki struct {
 	SharedFiles []*SharedFile
 	Stars       []*Star
 	CreatedUser *User
-	Created     time.Time
+	Created     Timestamp
 	UpdatedUser *User
-	Updated     time.Time
+	Updated     Timestamp
 }
 
 // WikiHistory represents a version history entry for a wiki page.
@@ -36,7 +35,7 @@ type WikiHistory struct {
 	Name        string
 	Content     string
 	CreatedUser *User
-	Created     time.Time
+	Created     Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -351,9 +350,9 @@ func wikiFromModel(m *model.Wiki) *Wiki {
 		SharedFiles: sharedFiles,
 		Stars:       stars,
 		CreatedUser: userFromModel(m.CreatedUser),
-		Created:     m.Created,
+		Created:     Timestamp{m.Created},
 		UpdatedUser: userFromModel(m.UpdatedUser),
-		Updated:     m.Updated,
+		Updated:     Timestamp{m.Updated},
 	}
 }
 
@@ -375,7 +374,7 @@ func wikiHistoryFromModel(m *model.WikiHistory) *WikiHistory {
 		Name:        m.Name,
 		Content:     m.Content,
 		CreatedUser: userFromModel(m.CreatedUser),
-		Created:     m.Created,
+		Created:     Timestamp{m.Created},
 	}
 }
 

@@ -200,8 +200,8 @@ func Test_issueFromModel(t *testing.T) {
 				Milestone: []*model.Version{
 					{ID: 31, Name: "v1.1"},
 				},
-				StartDate:      created,
-				DueDate:        updated,
+				StartDate:      "2024-01-01",
+				DueDate:        "2024-06-01",
 				EstimatedHours: 8,
 				ActualHours:    4,
 				ParentIssueID:  0,
@@ -248,28 +248,28 @@ func Test_issueFromModel(t *testing.T) {
 				Milestone: []*Version{
 					{ID: 31, Name: "v1.1"},
 				},
-				StartDate:      created,
-				DueDate:        updated,
+				StartDate:      Date{value: "2024-01-01"},
+				DueDate:        Date{value: "2024-06-01"},
 				EstimatedHours: 8,
 				ActualHours:    4,
 				ParentIssueID:  0,
 				CreatedUser:    wantUser,
-				Created:        created,
+				Created:        Timestamp{created},
 				UpdatedUser:    wantUser,
-				Updated:        updated,
+				Updated:        Timestamp{updated},
 				CustomFields: []*CustomField{
 					{ID: 1, TypeID: 6, Name: "OS", Items: []*CustomFieldItem{
 						{ID: 1, Name: "Windows", DisplayOrder: 0},
 					}},
 				},
 				Attachments: []*Attachment{
-					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
+					{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: Timestamp{created}},
 				},
 				SharedFiles: []*SharedFile{
-					{ID: 20, Type: "file", Dir: "/", Name: "shared.txt", Size: 200, CreatedUser: wantUser, Created: created},
+					{ID: 20, Type: "file", Dir: "/", Name: "shared.txt", Size: 200, CreatedUser: wantUser, Created: Timestamp{created}},
 				},
 				Stars: []*Star{
-					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
+					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: Timestamp{created}},
 				},
 			},
 		},
@@ -361,17 +361,17 @@ func Test_pullRequestFromModel(t *testing.T) {
 		},
 		BaseCommit:   "abc123",
 		BranchCommit: "def456",
-		CloseAt:      closeAt,
-		MergeAt:      mergeAt,
+		CloseAt:      Timestamp{closeAt},
+		MergeAt:      Timestamp{mergeAt},
 		CreatedUser:  wantUser,
-		Created:      created,
+		Created:      Timestamp{created},
 		UpdatedUser:  wantUser,
-		Updated:      updated,
+		Updated:      Timestamp{updated},
 		Attachments: []*Attachment{
-			{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: created},
+			{ID: 10, Name: "file.txt", Size: 100, CreatedUser: wantUser, Created: Timestamp{created}},
 		},
 		Stars: []*Star{
-			{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: created},
+			{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: Timestamp{created}},
 		},
 	}
 	assert.Equal(t, want, pullRequestFromModel(input))
@@ -401,8 +401,8 @@ func Test_spaceFromModel(t *testing.T) {
 		Timezone:           "Asia/Tokyo",
 		ReportSendTime:     "08:00:00",
 		TextFormattingRule: FormatMarkdown,
-		Created:            created,
-		Updated:            updated,
+		Created:            Timestamp{created},
+		Updated:            Timestamp{updated},
 	}
 	assert.Equal(t, want, spaceFromModel(input))
 }
@@ -417,7 +417,7 @@ func Test_spaceNotificationFromModel(t *testing.T) {
 	}
 	want := &SpaceNotification{
 		Content: "Backlog is a project management tool.",
-		Updated: updated,
+		Updated: Timestamp{updated},
 	}
 	assert.Equal(t, want, spaceNotificationFromModel(input))
 }
@@ -433,15 +433,13 @@ func Test_statusFromModel(t *testing.T) {
 func Test_versionFromModel(t *testing.T) {
 	t.Parallel()
 
-	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-	due := time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)
 	input := &model.Version{
 		ID:             30,
 		ProjectID:      1,
 		Name:           "v1.0",
 		Description:    "first release",
-		StartDate:      start,
-		ReleaseDueDate: due,
+		StartDate:      "2024-01-01",
+		ReleaseDueDate: "2024-03-31",
 		Archived:       false,
 		DisplayOrder:   0,
 	}
@@ -450,8 +448,8 @@ func Test_versionFromModel(t *testing.T) {
 		ProjectID:      1,
 		Name:           "v1.0",
 		Description:    "first release",
-		StartDate:      start,
-		ReleaseDueDate: due,
+		StartDate:      Date{value: "2024-01-01"},
+		ReleaseDueDate: Date{value: "2024-03-31"},
 		Archived:       false,
 		DisplayOrder:   0,
 	}

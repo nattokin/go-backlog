@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"io"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/model"
 )
@@ -13,7 +12,7 @@ type Attachment struct {
 	Name        string
 	Size        int
 	CreatedUser *User
-	Created     time.Time
+	Created     Timestamp
 }
 
 // Activity represents a recent update or change in the project or space.
@@ -55,8 +54,8 @@ type Comment struct {
 	Content       string
 	ChangeLogs    []*ChangeLog
 	CreatedUser   *User
-	Created       time.Time
-	Updated       time.Time
+	Created       Timestamp
+	Updated       Timestamp
 	Stars         []*Star
 	Notifications []*Notification
 }
@@ -114,7 +113,7 @@ type Licence struct {
 	Git                               bool
 	IssueLimit                        int
 	LicenceTypeID                     int
-	LimitDate                         time.Time
+	LimitDate                         Timestamp
 	NulabAccount                      bool
 	ParentChildIssue                  bool
 	PostIssueByMail                   bool
@@ -124,7 +123,7 @@ type Licence struct {
 	PullRequestAttachmentNumLimit     int
 	RemoteAddress                     bool
 	RemoteAddressLimit                int
-	StartedOn                         time.Time
+	StartedOn                         Timestamp
 	StorageLimit                      int64
 	Subversion                        bool
 	SubversionExternal                bool
@@ -147,7 +146,7 @@ type Notification struct {
 	PullRequest         *PullRequest
 	PullRequestComment  *Comment
 	Sender              *User
-	Created             time.Time
+	Created             Timestamp
 }
 
 // SharedFile represents a file shared within the project or space.
@@ -158,9 +157,9 @@ type SharedFile struct {
 	Name        string
 	Size        int
 	CreatedUser *User
-	Created     time.Time
+	Created     Timestamp
 	UpdatedUser *User
-	Updated     time.Time
+	Updated     Timestamp
 }
 
 // Star represents a star added to an issue, wiki page, or pull request.
@@ -170,7 +169,7 @@ type Star struct {
 	URL       string
 	Title     string
 	Presenter *User
-	Created   time.Time
+	Created   Timestamp
 }
 
 // Status represents a project status that can be assigned to issues.
@@ -195,9 +194,9 @@ type Team struct {
 	Members      []*User
 	DisplayOrder int
 	CreatedUser  *User
-	Created      time.Time
+	Created      Timestamp
 	UpdatedUser  *User
-	Updated      time.Time
+	Updated      Timestamp
 }
 
 // Version represents a version or milestone in a project.
@@ -206,8 +205,8 @@ type Version struct {
 	ProjectID      int
 	Name           string
 	Description    string
-	StartDate      time.Time
-	ReleaseDueDate time.Time
+	StartDate      Date
+	ReleaseDueDate Date
 	Archived       bool
 	DisplayOrder   int
 }
@@ -219,9 +218,9 @@ type WatchingItem struct {
 	Note                string
 	Type                string
 	Issue               *Issue
-	LastContentUpdated  time.Time
-	Created             time.Time
-	Updated             time.Time
+	LastContentUpdated  Timestamp
+	Created             Timestamp
+	Updated             Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -310,7 +309,7 @@ func starFromModel(m *model.Star) *Star {
 		URL:       m.URL,
 		Title:     m.Title,
 		Presenter: userFromModel(m.Presenter),
-		Created:   m.Created,
+		Created:   Timestamp{m.Created},
 	}
 }
 
@@ -334,7 +333,7 @@ func attachmentFromModel(m *model.Attachment) *Attachment {
 		Name:        m.Name,
 		Size:        m.Size,
 		CreatedUser: userFromModel(m.CreatedUser),
-		Created:     m.Created,
+		Created:     Timestamp{m.Created},
 	}
 }
 
@@ -408,8 +407,8 @@ func commentFromModel(m *model.Comment) *Comment {
 		Content:       m.Content,
 		ChangeLogs:    changeLogs,
 		CreatedUser:   userFromModel(m.CreatedUser),
-		Created:       m.Created,
-		Updated:       m.Updated,
+		Created:       Timestamp{m.Created},
+		Updated:       Timestamp{m.Updated},
 		Stars:         starsFromModel(m.Stars),
 		Notifications: notifications,
 	}
@@ -430,7 +429,7 @@ func notificationFromModel(m *model.Notification) *Notification {
 		PullRequest:         pullRequestFromModel(m.PullRequest),
 		PullRequestComment:  commentFromModel(m.PullRequestComment),
 		Sender:              userFromModel(m.Sender),
-		Created:             m.Created,
+		Created:             Timestamp{m.Created},
 	}
 }
 
@@ -445,9 +444,9 @@ func sharedFileFromModel(m *model.SharedFile) *SharedFile {
 		Name:        m.Name,
 		Size:        m.Size,
 		CreatedUser: userFromModel(m.CreatedUser),
-		Created:     m.Created,
+		Created:     Timestamp{m.Created},
 		UpdatedUser: userFromModel(m.UpdatedUser),
-		Updated:     m.Updated,
+		Updated:     Timestamp{m.Updated},
 	}
 }
 
