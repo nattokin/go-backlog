@@ -40,6 +40,21 @@ var (
 	doerActivityOptionSpace   = newMockDoer(fixture.Activity.ListJSON)
 	doerActivityOptionProject = newMockDoer(fixture.Activity.ListJSON)
 	doerActivityOptionUser    = newMockDoer(fixture.Activity.ListJSON)
+
+	// ProjectCustomFieldOptionService
+	doerProjectCustomFieldOption = newMockDoer(fixture.CustomField.SingleJSON)
+
+	// ProjectIssueTypeOptionService
+	doerProjectIssueTypeOption = newMockDoer(fixture.IssueType.SingleJSON)
+
+	// ProjectStatusOptionService
+	doerProjectStatusOption = newMockDoer(fixture.Status.SingleJSON)
+
+	// ProjectVersionOptionService
+	doerProjectVersionOption = newMockDoer(fixture.Version.SingleJSON)
+
+	// ProjectWebhookOptionService
+	doerProjectWebhookOption = newMockDoer(fixture.Webhook.AllEventJSON)
 )
 
 // ExampleWikiOptionService demonstrates updating a wiki page using multiple options.
@@ -286,4 +301,105 @@ func ExampleActivityOptionService_userWithOptions() {
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
+}
+
+// ExampleProjectCustomFieldOptionService demonstrates updating a custom field using multiple options.
+func ExampleProjectCustomFieldOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectCustomFieldOption),
+	)
+
+	field, _ := c.Project.CustomField.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.CustomField.Option.WithName("Sprint"),
+		c.Project.CustomField.Option.WithDescription("Sprint number"),
+		c.Project.CustomField.Option.WithRequired(true),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
+	// Output:
+	// ID: 1, Name: Sprint
+}
+
+// ExampleProjectIssueTypeOptionService demonstrates updating an issue type using multiple options.
+func ExampleProjectIssueTypeOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectIssueTypeOption),
+	)
+
+	issueType, _ := c.Project.IssueType.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.IssueType.Option.WithName("Bug"),
+		c.Project.IssueType.Option.WithColor("#e30000"),
+	)
+	fmt.Printf("ID: %d, Name: %s, Color: %s\n", issueType.ID, issueType.Name, issueType.Color)
+	// Output:
+	// ID: 1, Name: Bug, Color: #e30000
+}
+
+// ExampleProjectStatusOptionService demonstrates updating a status using multiple options.
+func ExampleProjectStatusOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectStatusOption),
+	)
+
+	status, _ := c.Project.Status.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Status.Option.WithName("Open"),
+		c.Project.Status.Option.WithColor("#ed8077"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", status.ID, status.Name)
+	// Output:
+	// ID: 1, Name: Open
+}
+
+// ExampleProjectVersionOptionService demonstrates updating a version using multiple options.
+func ExampleProjectVersionOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectVersionOption),
+	)
+
+	version, _ := c.Project.Version.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Version.Option.WithName("Version 1.0"),
+		c.Project.Version.Option.WithDescription("First stable release"),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", version.ID, version.Name)
+	// Output:
+	// ID: 1, Name: Version 1.0
+}
+
+// ExampleProjectWebhookOptionService demonstrates updating a webhook using multiple options.
+func ExampleProjectWebhookOptionService() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerProjectWebhookOption),
+	)
+
+	wh, _ := c.Project.Webhook.Update(
+		context.Background(),
+		"TEST",
+		1,
+		c.Project.Webhook.Option.WithName("Example Webhook"),
+		c.Project.Webhook.Option.WithAllEvent(true),
+	)
+	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
+	// Output:
+	// ID: 1, Name: Example Webhook
 }
