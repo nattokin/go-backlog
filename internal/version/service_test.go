@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -88,7 +87,7 @@ func TestService_All(t *testing.T) {
 
 func TestService_Add(t *testing.T) {
 	o := &core.OptionService{}
-	date := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	date := "2025-01-01"
 
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -173,7 +172,8 @@ func TestService_Add(t *testing.T) {
 
 func TestService_Update(t *testing.T) {
 	o := &core.OptionService{}
-	date := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	date := "2025-01-01"
+
 	cases := map[string]struct {
 		projectIDOrKey string
 		versionID      int

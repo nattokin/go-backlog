@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -762,7 +761,7 @@ func TestIssueOptionService(t *testing.T) {
 	require.NoError(t, err)
 	s := c.Issue.Option
 
-	date := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	date := "2024-01-01"
 
 	cases := map[string]struct {
 		option  backlog.RequestOption

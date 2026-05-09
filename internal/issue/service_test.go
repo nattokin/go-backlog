@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -83,8 +82,8 @@ func TestIssueService_All(t *testing.T) {
 		},
 		"success-with-date-filters": {
 			opts: []core.RequestOption{
-				o.WithCreatedSince(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-				o.WithCreatedUntil(time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)),
+				o.WithCreatedSince("2024-01-01"),
+				o.WithCreatedUntil("2024-12-31"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
@@ -373,8 +372,8 @@ func TestIssueService_Create(t *testing.T) {
 			opts: []core.RequestOption{
 				o.WithDescription("some description"),
 				o.WithAssigneeID(5),
-				o.WithStartDate(time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)),
-				o.WithDueDate(time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC)),
+				o.WithStartDate("2024-06-01"),
+				o.WithDueDate("2024-06-30"),
 			},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
