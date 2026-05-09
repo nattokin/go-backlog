@@ -8,10 +8,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
-func (s *OptionService) WithActualHours(hours int) RequestOption {
-	return positiveIntOption(ParamActualHours, hours)
-}
-
 func (s *OptionService) WithAssigneeID(id int) RequestOption {
 	return positiveIntOption(ParamAssigneeID, id)
 }
@@ -23,10 +19,6 @@ func (s *OptionService) WithCommentID(id int) RequestOption {
 // WithCount sets `count`. Valid range: 1–100.
 func (s *OptionService) WithCount(count int) RequestOption {
 	return intRangeOption(ParamCount, count, 1, 100)
-}
-
-func (s *OptionService) WithEstimatedHours(hours int) RequestOption {
-	return positiveIntOption(ParamEstimatedHours, hours)
 }
 
 func (s *OptionService) WithFieldType(fieldType model.CustomFieldType) RequestOption {

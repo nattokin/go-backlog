@@ -767,7 +767,7 @@ func TestIssueOptionService(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"WithActualHours":     {option: s.WithActualHours(1), wantKey: core.ParamActualHours.Value()},
+		"WithActualHours":     {option: s.WithActualHours(1.0), wantKey: core.ParamActualHours.Value()},
 		"WithAssigneeID":      {option: s.WithAssigneeID(1), wantKey: core.ParamAssigneeID.Value()},
 		"WithAssigneeIDs":     {option: s.WithAssigneeIDs([]int{1}), wantKey: core.ParamAssigneeIDs.Value()},
 		"WithAttachment":      {option: s.WithAttachment(true), wantKey: core.ParamAttachment.Value()},
@@ -781,7 +781,7 @@ func TestIssueOptionService(t *testing.T) {
 		"WithDueDate":         {option: s.WithDueDate(date), wantKey: core.ParamDueDate.Value()},
 		"WithDueDateSince":    {option: s.WithDueDateSince(date), wantKey: core.ParamDueDateSince.Value()},
 		"WithDueDateUntil":    {option: s.WithDueDateUntil(date), wantKey: core.ParamDueDateUntil.Value()},
-		"WithEstimatedHours":  {option: s.WithEstimatedHours(1), wantKey: core.ParamEstimatedHours.Value()},
+		"WithEstimatedHours":  {option: s.WithEstimatedHours(1.0), wantKey: core.ParamEstimatedHours.Value()},
 		"WithHasDueDate":      {option: s.WithHasDueDate(false), wantKey: core.ParamHasDueDate.Value()},
 		"WithIDs":             {option: s.WithIDs([]int{1}), wantKey: core.ParamIDs.Value()},
 		"WithIssueSort":       {option: s.WithIssueSort(backlog.IssueSortCreated), wantKey: core.ParamSort.Value()},

@@ -30,8 +30,8 @@ type Issue struct {
 	Milestone      []*Version
 	StartDate      Date
 	DueDate        Date
-	EstimatedHours int
-	ActualHours    int
+	EstimatedHours float64
+	ActualHours    float64
 	ParentIssueID  int
 	CreatedUser    *User
 	Created        Timestamp
@@ -434,7 +434,7 @@ type IssueOptionService struct {
 }
 
 // WithActualHours returns an option to set the `actualHours` parameter.
-func (s *IssueOptionService) WithActualHours(hours int) RequestOption {
+func (s *IssueOptionService) WithActualHours(hours float64) RequestOption {
 	return s.base.WithActualHours(hours)
 }
 
@@ -509,7 +509,7 @@ func (s *IssueOptionService) WithDueDateUntil(date string) RequestOption {
 }
 
 // WithEstimatedHours returns an option to set the `estimatedHours` parameter.
-func (s *IssueOptionService) WithEstimatedHours(hours int) RequestOption {
+func (s *IssueOptionService) WithEstimatedHours(hours float64) RequestOption {
 	return s.base.WithEstimatedHours(hours)
 }
 
