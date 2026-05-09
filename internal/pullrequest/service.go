@@ -1,3 +1,4 @@
+// Package pullrequest implements the Backlog Pull Request API service.
 package pullrequest
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// Service handles pull request-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
@@ -208,10 +210,6 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 
 	return &v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{

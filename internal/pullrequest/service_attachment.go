@@ -18,7 +18,7 @@ type AttachmentService struct {
 	base *attachment.Service
 }
 
-// List returns a list of all attachments in the pull request.
+// List returns a list of attachments on the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
 func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
@@ -36,7 +36,7 @@ func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, rep
 	return s.base.List(ctx, spath)
 }
 
-// Remove removes a file attached to the pull request.
+// Remove removes an attachment from the pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
 func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
@@ -57,7 +57,7 @@ func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, r
 	return s.base.Remove(ctx, spath)
 }
 
-// Download downloads a file attached to the pull request.
+// Download downloads an attachment from the pull request.
 // The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
@@ -79,11 +79,6 @@ func (s *AttachmentService) Download(ctx context.Context, projectIDOrKey string,
 	return s.base.Download(ctx, spath)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewAttachmentService creates and returns a new pullrequest AttachmentService.
 func NewAttachmentService(method *core.Method) *AttachmentService {
 	return &AttachmentService{base: attachment.NewService(method)}
 }
