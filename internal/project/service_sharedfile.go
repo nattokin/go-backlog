@@ -10,8 +10,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// SharedFileService handles communication with the project shared-file-related methods of the Backlog API.
-// Kept here because GetFile is project-specific and does not fit the shared spath-agnostic pattern.
+// SharedFileService handles project shared-file-related Backlog API calls.
+// Kept separate from internal/sharedfile because GetFile is project-specific
+// and does not fit the spath-agnostic pattern used by that package.
 type SharedFileService struct {
 	method *core.Method
 }
@@ -39,6 +40,7 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]
 }
 
 // GetFile downloads a shared file from the project.
+// The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
 func (s *SharedFileService) GetFile(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
@@ -58,7 +60,6 @@ func (s *SharedFileService) GetFile(ctx context.Context, projectIDOrKey string, 
 	return core.DownloadResponse(resp)
 }
 
-// NewSharedFileService creates and returns a new project SharedFileService.
 func NewSharedFileService(method *core.Method) *SharedFileService {
 	return &SharedFileService{method: method}
 }
