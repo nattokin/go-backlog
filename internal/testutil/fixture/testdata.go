@@ -24,5 +24,5 @@ func mustTime(s string) time.Time {
 // mustTimestamp wraps mustTime as a backlog.Timestamp.
 // Used only for initializing package-level test fixture variables.
 func mustTimestamp(s string) backlog.Timestamp {
-	return backlog.Timestamp{mustTime(s)}
+	return backlog.Timestamp{Time: mustTime(s)}
 }
