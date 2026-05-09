@@ -1,3 +1,4 @@
+// Package comment implements shared HTTP logic for comment-related Backlog API endpoints.
 package comment
 
 import (
@@ -118,11 +119,6 @@ func (s *Service) Update(ctx context.Context, spath, content string) (*model.Com
 	return &v, nil
 }
 
-// ──────────────────────────────────────────────────────────────
-//  Constructor
-// ──────────────────────────────────────────────────────────────
-
-// NewService creates and returns a new comment Service.
 func NewService(method *core.Method) *Service {
 	return &Service{method: method}
 }
