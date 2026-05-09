@@ -2,12 +2,22 @@
 header = ""
 body = """
 ## What's Changed
-{% for group, commits in commits | group_by(attribute="group") %}
-### {{ group }}
-{% for commit in commits %}
-- {{ commit.message | upper_first }}\
-  {% if commit.breaking %} (**BREAKING**){% endif %}
+{% set breaking_commits = commits | filter(attribute="breaking", value=true) %}\
+{% if breaking_commits %}
+### ⚠️ Breaking Changes
+{% for commit in breaking_commits %}\
+- {{ commit.breaking_description | default(value=commit.message) | upper_first }}
 {% endfor %}
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}\
+{% if group != "⚠️ Breaking Changes" %}
+### {{ group }}
+{% for commit in commits %}\
+- {{ commit.message | upper_first }}\
+{% if commit.breaking %} **(BREAKING)**{% endif %}
+
+{% endfor %}
+{% endif %}\
 {% endfor %}
 """
 trim = true
@@ -17,9 +27,9 @@ footer = ""
 conventional_commits = true
 filter_unconventional = true
 commit_parsers = [
-  { message = "^feat!", group = "⚠️ Breaking Changes" },
-  { message = "^fix!", group = "⚠️ Breaking Changes" },
-  { message = "^refactor!", group = "⚠️ Breaking Changes" },
+  { message = "^feat!", group = "✨ Features" },
+  { message = "^fix!", group = "🐛 Bug Fixes" },
+  { message = "^refactor!", group = "🔨 Refactoring" },
   { message = "^feat", group = "✨ Features" },
   { message = "^fix", group = "🐛 Bug Fixes" },
   { message = "^refactor", group = "🔨 Refactoring" },
