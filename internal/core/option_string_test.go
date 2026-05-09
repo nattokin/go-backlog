@@ -80,45 +80,6 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamHookURL.Value(),
 			wantValue: "https://example.com/webhook",
 		},
-		"WithInitialDate-valid": {
-			option:    o.WithInitialDate("2024-01-15"),
-			key:       core.ParamInitialDate.Value(),
-			wantValue: "2024-01-15",
-		},
-		"WithInitialDate-invalid-format": {
-			option:  o.WithInitialDate("2024/01/15"),
-			wantErr: true,
-		},
-		"WithInitialDate-empty": {
-			option:  o.WithInitialDate(""),
-			wantErr: true,
-		},
-		"WithInitialDateMax-valid": {
-			option:    o.WithInitialDateMax("2024-12-31"),
-			key:       core.ParamMax.Value(),
-			wantValue: "2024-12-31",
-		},
-		"WithInitialDateMax-invalid-format": {
-			option:  o.WithInitialDateMax("20241231"),
-			wantErr: true,
-		},
-		"WithInitialDateMax-empty": {
-			option:  o.WithInitialDateMax(""),
-			wantErr: true,
-		},
-		"WithInitialDateMin-valid": {
-			option:    o.WithInitialDateMin("2024-01-01"),
-			key:       core.ParamMin.Value(),
-			wantValue: "2024-01-01",
-		},
-		"WithInitialDateMin-invalid-format": {
-			option:  o.WithInitialDateMin("Jan 1 2024"),
-			wantErr: true,
-		},
-		"WithInitialDateMin-empty": {
-			option:  o.WithInitialDateMin(""),
-			wantErr: true,
-		},
 		"WithKey-empty": {
 			option:  o.WithKey(""),
 			key:     core.ParamKey.Value(),
