@@ -198,22 +198,6 @@ func ExamplePullRequestCommentService_Update() {
 	// ID: 1, Content: This is a comment.
 }
 
-func ExamplePullRequestCommentOptionService_WithAttachmentIDs() {
-	c, _ := backlog.NewClient(
-		"https://example.backlog.com",
-		"token",
-		backlog.WithDoer(doerPullRequestCommentAdd),
-	)
-
-	comment, _ := c.PullRequest.Comment.Add(
-		context.Background(), "TEST", "myrepo", 1, "This is a comment.",
-		c.PullRequest.Comment.Option.WithAttachmentIDs([]int{1, 2}),
-	)
-	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
-	// Output:
-	// ID: 1, Content: This is a comment.
-}
-
 func ExamplePullRequestStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
