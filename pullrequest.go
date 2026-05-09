@@ -186,9 +186,9 @@ func (s *PullRequestCommentService) All(ctx context.Context, projectIDOrKey stri
 //   - WithAttachmentIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
-func (s *PullRequestCommentService) Add(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, content string, opts ...RequestOption) (*Comment, error) {
+func (s *PullRequestCommentService) Add(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, content string, opts ...RequestOption) ([]*Comment, error) {
 	v, err := s.base.Add(ctx, projectIDOrKey, repositoryIDOrName, prNumber, content, toCoreOptions(opts)...)
-	return commentFromModel(v), convertError(err)
+	return commentsFromModel(v), convertError(err)
 }
 
 // Count returns the number of comments on a pull request.
@@ -252,7 +252,7 @@ func (s *PullRequestCommentOptionService) WithNotifiedUserIDs(ids []int) Request
 
 // WithOrder sets the sort order of results.
 func (s *PullRequestCommentOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // ──────────────────────────────────────────────────────────────

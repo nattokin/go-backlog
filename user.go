@@ -184,7 +184,7 @@ func (s *UserStarOptionService) WithMinID(id int) RequestOption {
 
 // WithOrder sets the sort order of results.
 func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(model.Order(order))
+	return s.base.WithOrder(string(order))
 }
 
 // ──────────────────────────────────────────────────────────────
