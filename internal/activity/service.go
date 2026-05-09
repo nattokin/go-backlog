@@ -1,3 +1,4 @@
+// Package activity implements shared HTTP logic for activity-related Backlog API endpoints.
 package activity
 
 import (
@@ -34,10 +35,6 @@ func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOp
 
 	return v, nil
 }
-
-// ──────────────────────────────────────────────────────────────
-//  Constructors
-// ──────────────────────────────────────────────────────────────
 
 func NewService(method *core.Method) *Service {
 	return &Service{
