@@ -60,7 +60,7 @@ var Star = starFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
-			Created: mustTime("2024-01-15T10:00:00Z"),
+			Created: mustTimestamp("2024-01-15T10:00:00Z"),
 		},
 		{
 			ID:      20,
@@ -75,7 +75,7 @@ var Star = starFixtures{
 				Lang:        "ja",
 				MailAddress: "sato@nulab.example",
 			},
-			Created: mustTime("2024-02-20T12:00:00Z"),
+			Created: mustTimestamp("2024-02-20T12:00:00Z"),
 		},
 	},
 	CountJSON: `{"count": 42}`,

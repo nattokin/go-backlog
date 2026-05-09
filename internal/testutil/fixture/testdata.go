@@ -1,6 +1,10 @@
 package fixture
 
-import "time"
+import (
+	"time"
+
+	"github.com/nattokin/go-backlog"
+)
 
 // InvalidJSON is a malformed JSON string used to test JSON parse error handling.
 const InvalidJSON = `
@@ -20,5 +24,5 @@ func mustTime(s string) time.Time {
 // mustTimestamp wraps mustTime as a backlog.Timestamp.
 // Used only for initializing package-level test fixture variables.
 func mustTimestamp(s string) backlog.Timestamp {
-	return backlog.Timestamp{Time: mustTime(s)}
+	return backlog.Timestamp{mustTime(s)}
 }

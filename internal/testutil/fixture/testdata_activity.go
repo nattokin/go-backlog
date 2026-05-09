@@ -159,8 +159,8 @@ var Activity = activityFixtures{
 						Lang:        "ja",
 						MailAddress: "eguchi@nulab.example",
 					},
-					Created: mustTime("2014-07-21T06:48:40Z"),
-					Updated: mustTime("2014-07-21T06:48:40Z"),
+					Created: mustTimestamp("2014-07-21T06:48:40Z"),
+					Updated: mustTimestamp("2014-07-21T06:48:40Z"),
 					Stars: []*backlog.Star{
 						{
 							ID:      75,
@@ -175,7 +175,7 @@ var Activity = activityFixtures{
 								Lang:        "ja",
 								MailAddress: "eguchi@nulab.example",
 							},
-							Created: mustTime("2014-01-23T10:55:19Z"),
+							Created: mustTimestamp("2014-01-23T10:55:19Z"),
 						},
 					},
 					Notifications: []*backlog.Notification{

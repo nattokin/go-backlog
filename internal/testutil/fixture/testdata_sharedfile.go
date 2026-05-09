@@ -56,7 +56,7 @@ var SharedFile = sharedFileFixtures{
 			Lang:        "ja",
 			MailAddress: "takada@nulab.example",
 		},
-		Created: mustTime("2009-02-27T03:26:15Z"),
+		Created: mustTimestamp("2009-02-27T03:26:15Z"),
 		UpdatedUser: &backlog.User{
 			ID:          5686,
 			UserID:      "takada",
@@ -65,7 +65,7 @@ var SharedFile = sharedFileFixtures{
 			Lang:        "ja",
 			MailAddress: "takada@nulab.example",
 		},
-		Updated: mustTime("2009-03-03T16:57:47Z"),
+		Updated: mustTimestamp("2009-03-03T16:57:47Z"),
 	},
 	SingleListJSON: `
 [
@@ -111,7 +111,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Created: mustTime("2009-02-27T03:26:15Z"),
+			Created: mustTimestamp("2009-02-27T03:26:15Z"),
 			UpdatedUser: &backlog.User{
 				ID:          5686,
 				UserID:      "takada",
@@ -120,7 +120,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Updated: mustTime("2009-03-03T16:57:47Z"),
+			Updated: mustTimestamp("2009-03-03T16:57:47Z"),
 		},
 	},
 	ListJSON: `
@@ -192,7 +192,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Created: mustTime("2009-02-27T03:26:15Z"),
+			Created: mustTimestamp("2009-02-27T03:26:15Z"),
 			UpdatedUser: &backlog.User{
 				ID:          5686,
 				UserID:      "takada",
@@ -201,7 +201,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Updated: mustTime("2009-03-03T16:57:47Z"),
+			Updated: mustTimestamp("2009-03-03T16:57:47Z"),
 		},
 		{
 			ID:   454404,
@@ -217,7 +217,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Created: mustTime("2009-02-27T03:26:15Z"),
+			Created: mustTimestamp("2009-02-27T03:26:15Z"),
 			UpdatedUser: &backlog.User{
 				ID:          5686,
 				UserID:      "takada",
@@ -226,7 +226,7 @@ var SharedFile = sharedFileFixtures{
 				Lang:        "ja",
 				MailAddress: "takada@nulab.example",
 			},
-			Updated: mustTime("2009-03-03T16:57:47Z"),
+			Updated: mustTimestamp("2009-03-03T16:57:47Z"),
 		},
 	},
 }

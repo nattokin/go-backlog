@@ -29,7 +29,7 @@ var webhookAllEvent = &backlog.Webhook{
 		Lang:        "ja",
 		MailAddress: "eguchi@nulab.example",
 	},
-	Created: mustTime("2024-01-01T00:00:00Z"),
+	Created: mustTimestamp("2024-01-01T00:00:00Z"),
 	UpdatedUser: &backlog.User{
 		ID:          2,
 		UserID:      "normal_user",
@@ -38,7 +38,7 @@ var webhookAllEvent = &backlog.Webhook{
 		Lang:        "ja",
 		MailAddress: "sato@nulab.example",
 	},
-	Updated: mustTime("2024-01-02T00:00:00Z"),
+	Updated: mustTimestamp("2024-01-02T00:00:00Z"),
 }
 
 var webhookActivityTypes = &backlog.Webhook{
@@ -56,7 +56,7 @@ var webhookActivityTypes = &backlog.Webhook{
 		Lang:        "ja",
 		MailAddress: "eguchi@nulab.example",
 	},
-	Created: mustTime("2024-01-01T00:00:00Z"),
+	Created: mustTimestamp("2024-01-01T00:00:00Z"),
 	UpdatedUser: &backlog.User{
 		ID:          2,
 		UserID:      "normal_user",
@@ -65,7 +65,7 @@ var webhookActivityTypes = &backlog.Webhook{
 		Lang:        "ja",
 		MailAddress: "sato@nulab.example",
 	},
-	Updated: mustTime("2024-01-02T00:00:00Z"),
+	Updated: mustTimestamp("2024-01-02T00:00:00Z"),
 }
 
 var Webhook = webhookFixtures{

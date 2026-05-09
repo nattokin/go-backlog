@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -19,11 +18,11 @@ type Repository struct {
 	HTTPURL      string
 	SSHURL       string
 	DisplayOrder int
-	PushedAt     time.Time
+	PushedAt     Timestamp
 	CreatedUser  *User
-	Created      time.Time
+	Created      Timestamp
 	UpdatedUser  *User
-	Updated      time.Time
+	Updated      Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -78,11 +77,11 @@ func repositoryFromModel(m *model.Repository) *Repository {
 		HTTPURL:      m.HTTPURL,
 		SSHURL:       m.SSHURL,
 		DisplayOrder: m.DisplayOrder,
-		PushedAt:     m.PushedAt,
+		PushedAt:     Timestamp{m.PushedAt},
 		CreatedUser:  userFromModel(m.CreatedUser),
-		Created:      m.Created,
+		Created:      Timestamp{m.Created},
 		UpdatedUser:  userFromModel(m.UpdatedUser),
-		Updated:      m.Updated,
+		Updated:      Timestamp{m.Updated},
 	}
 }
 
