@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/project"
@@ -170,13 +169,13 @@ func (s *ProjectVersionOptionService) WithName(name string) RequestOption {
 }
 
 // WithReleaseDueDate sets the release due date.
-func (s *ProjectVersionOptionService) WithReleaseDueDate(t time.Time) RequestOption {
-	return s.base.WithReleaseDueDate(t)
+func (s *ProjectVersionOptionService) WithReleaseDueDate(d Date) RequestOption {
+	return s.base.WithReleaseDueDate(d.String())
 }
 
 // WithStartDate sets the version start date.
-func (s *ProjectVersionOptionService) WithStartDate(t time.Time) RequestOption {
-	return s.base.WithStartDate(t)
+func (s *ProjectVersionOptionService) WithStartDate(d Date) RequestOption {
+	return s.base.WithStartDate(d.String())
 }
 
 // ──────────────────────────────────────────────────────────────

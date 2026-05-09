@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -334,7 +333,9 @@ func TestProjectVersionOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
 
-	date := time.Date(2024, 3, 15, 0, 0, 0, 0, time.UTC)
+	date, err := backlog.NewDate("2024-03-15")
+	require.NoError(t, err)
+
 	s := c.Project.Version.Option
 
 	cases := map[string]struct {
