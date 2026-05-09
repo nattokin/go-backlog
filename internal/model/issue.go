@@ -20,8 +20,8 @@ type Issue struct {
 	Milestone      []*Version     `json:"milestone,omitempty"`
 	StartDate      string         `json:"startDate,omitempty"`
 	DueDate        string         `json:"dueDate,omitempty"`
-	EstimatedHours int            `json:"estimatedHours,omitempty"`
-	ActualHours    int            `json:"actualHours,omitempty"`
+	EstimatedHours float64        `json:"estimatedHours,omitempty"`
+	ActualHours    float64        `json:"actualHours,omitempty"`
 	ParentIssueID  int            `json:"parentIssueId,omitempty"`
 	CreatedUser    *User          `json:"createdUser,omitempty"`
 	Created        time.Time      `json:"created,omitempty"`
