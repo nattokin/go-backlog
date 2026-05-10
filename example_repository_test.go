@@ -5,20 +5,13 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// RepositoryService
-	doerRepositoryAll = newMockDoer(fixture.Repository.ListJSON)
-	doerRepositoryOne = newMockDoer(fixture.Repository.SingleJSON)
 )
 
 func ExampleRepositoryService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRepositoryAll),
+		backlog.WithDoer(doerRepositoryList),
 	)
 
 	repos, _ := c.Repository.All(context.Background(), "TEST")
@@ -31,7 +24,7 @@ func ExampleRepositoryService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRepositoryOne),
+		backlog.WithDoer(doerRepositorySingle),
 	)
 
 	repo, _ := c.Repository.One(context.Background(), "TEST", "foo")

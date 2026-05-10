@@ -6,29 +6,13 @@ import (
 	"strings"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// SpaceService
-	doerSpaceOne                = newMockDoer(fixture.Space.SpaceJSON)
-	doerSpaceDiskUsage          = newMockDoer(fixture.Space.DiskUsageJSON)
-	doerSpaceNotification       = newMockDoer(fixture.Space.NotificationJSON)
-	doerSpaceUpdateNotification = newMockDoer(fixture.Space.NotificationJSON)
-
-	// SpaceActivityService
-	doerSpaceActivityList = newMockDoer(fixture.Activity.ListJSON)
-	doerSpaceActivityGet  = newMockDoer(fixture.Activity.SingleJSON)
-
-	// SpaceAttachmentService
-	doerSpaceAttachmentUpload = newMockDoer(fixture.Attachment.UploadJSON)
 )
 
 func ExampleSpaceService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSpaceOne),
+		backlog.WithDoer(doerSpaceSpace),
 	)
 
 	space, _ := c.Space.One(context.Background())
@@ -67,7 +51,7 @@ func ExampleSpaceService_UpdateNotification() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSpaceUpdateNotification),
+		backlog.WithDoer(doerSpaceNotification),
 	)
 
 	notification, _ := c.Space.UpdateNotification(context.Background(), "Backlog is a project management tool.")
@@ -80,7 +64,7 @@ func ExampleSpaceActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSpaceActivityList),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.Space.Activity.List(context.Background())
@@ -93,7 +77,7 @@ func ExampleSpaceActivityService_Get() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSpaceActivityGet),
+		backlog.WithDoer(doerActivitySingle),
 	)
 
 	activity, _ := c.Space.Activity.Get(context.Background(), 3153)
@@ -106,7 +90,7 @@ func ExampleSpaceAttachmentService_Upload() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSpaceAttachmentUpload),
+		backlog.WithDoer(doerAttachmentUpload),
 	)
 
 	attachment, _ := c.Space.Attachment.Upload(context.Background(), "test.txt", strings.NewReader("hello"))

@@ -5,41 +5,17 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
 var (
-	// WikiService
-	doerWikiAll    = newMockDoer(fixture.Wiki.ListJSON)
-	doerWikiCount  = newMockDoer(`{"count": 5}`)
-	doerWikiOne    = newMockDoer(fixture.Wiki.MinimumJSON)
-	doerWikiCreate = newMockDoer(fixture.Wiki.MinimumJSON)
-	doerWikiUpdate = newMockDoer(fixture.Wiki.MinimumJSON)
-	doerWikiDelete = newMockDoer(fixture.Wiki.MinimumJSON)
-
-	// WikiAttachmentService
-	doerWikiAttachmentAttach   = newMockDoer(fixture.Attachment.ListJSON)
-	doerWikiAttachmentList     = newMockDoer(fixture.Attachment.ListJSON)
-	doerWikiAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
-	doerWikiAttachmentRemove   = newMockDoer(fixture.Attachment.SingleJSON)
-
-	// WikiHistoryService
-	doerWikiHistoryList = newMockDoer(fixture.WikiHistory.ListJSON)
-
-	// WikiSharedFileService
-	doerWikiSharedFileLink   = newMockDoer(fixture.SharedFile.ListJSON)
-	doerWikiSharedFileList   = newMockDoer(fixture.SharedFile.ListJSON)
-	doerWikiSharedFileUnlink = newMockDoer(fixture.SharedFile.SingleJSON)
-
-	// WikiStarService
-	doerWikiStarList = newMockDoer(fixture.Star.ListJSON)
+	doerWikiCount = newMockDoer(`{"count": 5}`)
 )
 
 func ExampleWikiService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiAll),
+		backlog.WithDoer(doerWikiList),
 	)
 
 	wikis, _ := c.Wiki.All(context.Background(), "MYPROJECT")
@@ -65,7 +41,7 @@ func ExampleWikiService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiOne),
+		backlog.WithDoer(doerWikiSingle),
 	)
 
 	wiki, _ := c.Wiki.One(context.Background(), 34)
@@ -78,7 +54,7 @@ func ExampleWikiService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiCreate),
+		backlog.WithDoer(doerWikiSingle),
 	)
 
 	wiki, _ := c.Wiki.Create(context.Background(), 56, "Minimum Wiki Page", "This is a minimal wiki page.")
@@ -91,7 +67,7 @@ func ExampleWikiService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiUpdate),
+		backlog.WithDoer(doerWikiSingle),
 	)
 
 	wiki, _ := c.Wiki.Update(
@@ -108,7 +84,7 @@ func ExampleWikiService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiDelete),
+		backlog.WithDoer(doerWikiSingle),
 	)
 
 	wiki, _ := c.Wiki.Delete(context.Background(), 34)
@@ -121,7 +97,7 @@ func ExampleWikiAttachmentService_Attach() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiAttachmentAttach),
+		backlog.WithDoer(doerAttachmentList),
 	)
 
 	attachments, _ := c.Wiki.Attachment.Attach(context.Background(), 34, []int{2, 5})
@@ -134,7 +110,7 @@ func ExampleWikiAttachmentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiAttachmentList),
+		backlog.WithDoer(doerAttachmentList),
 	)
 
 	attachments, _ := c.Wiki.Attachment.List(context.Background(), 34)
@@ -160,7 +136,7 @@ func ExampleWikiAttachmentService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiAttachmentRemove),
+		backlog.WithDoer(doerAttachmentSingle),
 	)
 
 	attachment, _ := c.Wiki.Attachment.Remove(context.Background(), 34, 8)
@@ -186,7 +162,7 @@ func ExampleWikiSharedFileService_Link() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiSharedFileLink),
+		backlog.WithDoer(doerSharedFileList),
 	)
 
 	files, _ := c.Wiki.SharedFile.Link(context.Background(), 34, []int{454403, 454404})
@@ -199,7 +175,7 @@ func ExampleWikiSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiSharedFileList),
+		backlog.WithDoer(doerSharedFileList),
 	)
 
 	files, _ := c.Wiki.SharedFile.List(context.Background(), 34)
@@ -212,7 +188,7 @@ func ExampleWikiSharedFileService_Unlink() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiSharedFileUnlink),
+		backlog.WithDoer(doerSharedFileSingle),
 	)
 
 	file, _ := c.Wiki.SharedFile.Unlink(context.Background(), 34, 454403)
@@ -225,7 +201,7 @@ func ExampleWikiStarService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiStarList),
+		backlog.WithDoer(doerStarList),
 	)
 
 	stars, _ := c.Wiki.Star.List(context.Background(), 34)

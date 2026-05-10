@@ -5,22 +5,13 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	doerRecentlyViewedListIssues   = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
-	doerRecentlyViewedAddIssue     = newMockDoer(fixture.RecentlyViewed.IssueSingleJSON)
-	doerRecentlyViewedListProjects = newMockDoer(fixture.RecentlyViewed.ProjectListJSON)
-	doerRecentlyViewedListWikis    = newMockDoer(fixture.RecentlyViewed.WikiListJSON)
-	doerRecentlyViewedAddWiki      = newMockDoer(fixture.RecentlyViewed.WikiSingleJSON)
 )
 
 func ExampleRecentlyViewedService_ListIssues() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRecentlyViewedListIssues),
+		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
 
 	issues, _ := c.RecentlyViewed.ListIssues(context.Background())
@@ -33,7 +24,7 @@ func ExampleRecentlyViewedService_AddIssue() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRecentlyViewedAddIssue),
+		backlog.WithDoer(doerRecentlyViewedIssueSingle),
 	)
 
 	issue, _ := c.RecentlyViewed.AddIssue(context.Background(), 1)
@@ -46,7 +37,7 @@ func ExampleRecentlyViewedService_ListProjects() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRecentlyViewedListProjects),
+		backlog.WithDoer(doerRecentlyViewedProjectList),
 	)
 
 	projects, _ := c.RecentlyViewed.ListProjects(context.Background())
@@ -59,7 +50,7 @@ func ExampleRecentlyViewedService_ListWikis() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRecentlyViewedListWikis),
+		backlog.WithDoer(doerRecentlyViewedWikiList),
 	)
 
 	wikis, _ := c.RecentlyViewed.ListWikis(context.Background())
@@ -72,7 +63,7 @@ func ExampleRecentlyViewedService_AddWiki() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerRecentlyViewedAddWiki),
+		backlog.WithDoer(doerRecentlyViewedWikiSingle),
 	)
 
 	wiki, _ := c.RecentlyViewed.AddWiki(context.Background(), 10)

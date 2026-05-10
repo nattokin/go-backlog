@@ -5,56 +5,6 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// WikiOptionService
-	doerWikiOption = newMockDoer(fixture.Wiki.MinimumJSON)
-
-	// IssueOptionService
-	doerIssueOption = newMockDoer(fixture.Issue.ListJSON)
-
-	// IssueCommentOptionService
-	doerIssueCommentOption = newMockDoer(fixture.Comment.ListJSON)
-
-	// ProjectOptionService
-	doerProjectOption = newMockDoer(fixture.Project.ListJSON)
-
-	// UserOptionService
-	doerUserOption = newMockDoer(fixture.User.SingleJSON)
-
-	// UserRecentlyViewedOptionService
-	doerUserRecentlyViewedOption = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
-
-	// UserStarOptionService
-	doerUserStarOption = newMockDoer(fixture.Star.ListJSON)
-
-	// PullRequestOptionService
-	doerPullRequestOption = newMockDoer(fixture.PullRequest.ListJSON)
-
-	// PullRequestCommentOptionService
-	doerPullRequestCommentOption = newMockDoer(fixture.Comment.ListJSON)
-
-	// ActivityOptionService
-	doerActivityOptionSpace   = newMockDoer(fixture.Activity.ListJSON)
-	doerActivityOptionProject = newMockDoer(fixture.Activity.ListJSON)
-	doerActivityOptionUser    = newMockDoer(fixture.Activity.ListJSON)
-
-	// ProjectCustomFieldOptionService
-	doerProjectCustomFieldOption = newMockDoer(fixture.CustomField.SingleJSON)
-
-	// ProjectIssueTypeOptionService
-	doerProjectIssueTypeOption = newMockDoer(fixture.IssueType.SingleJSON)
-
-	// ProjectStatusOptionService
-	doerProjectStatusOption = newMockDoer(fixture.Status.SingleJSON)
-
-	// ProjectVersionOptionService
-	doerProjectVersionOption = newMockDoer(fixture.Version.SingleJSON)
-
-	// ProjectWebhookOptionService
-	doerProjectWebhookOption = newMockDoer(fixture.Webhook.AllEventJSON)
 )
 
 // ExampleWikiOptionService demonstrates updating a wiki page using multiple options.
@@ -62,7 +12,7 @@ func ExampleWikiOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerWikiOption),
+		backlog.WithDoer(doerWikiSingle),
 	)
 
 	wiki, _ := c.Wiki.Update(
@@ -81,7 +31,7 @@ func ExampleIssueOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueOption),
+		backlog.WithDoer(doerIssueList),
 	)
 
 	issues, _ := c.Issue.All(
@@ -100,7 +50,7 @@ func ExampleIssueCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentOption),
+		backlog.WithDoer(doerCommentList),
 	)
 
 	comments, _ := c.Issue.Comment.All(
@@ -119,7 +69,7 @@ func ExampleProjectOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectOption),
+		backlog.WithDoer(doerProjectList),
 	)
 
 	projects, _ := c.Project.All(
@@ -137,7 +87,7 @@ func ExampleRecentlyViewedOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserRecentlyViewedOption),
+		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
 
 	issues, _ := c.RecentlyViewed.ListIssues(
@@ -155,7 +105,7 @@ func ExampleUserOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserOption),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.Update(
@@ -174,7 +124,7 @@ func ExampleUserStarOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserStarOption),
+		backlog.WithDoer(doerStarList),
 	)
 
 	stars, _ := c.User.Star.List(
@@ -193,7 +143,7 @@ func ExamplePullRequestOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerPullRequestOption),
+		backlog.WithDoer(doerPullRequestList),
 	)
 
 	prs, _ := c.PullRequest.All(
@@ -213,7 +163,7 @@ func ExamplePullRequestCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerPullRequestCommentOption),
+		backlog.WithDoer(doerCommentList),
 	)
 
 	comments, _ := c.PullRequest.Comment.All(
@@ -252,7 +202,7 @@ func ExampleActivityOptionService_spaceWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerActivityOptionSpace),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.Space.Activity.List(
@@ -270,7 +220,7 @@ func ExampleActivityOptionService_projectWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerActivityOptionProject),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.Project.Activity.List(
@@ -289,7 +239,7 @@ func ExampleActivityOptionService_userWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerActivityOptionUser),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.User.Activity.List(
@@ -308,7 +258,7 @@ func ExampleProjectCustomFieldOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldOption),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.Update(
@@ -329,7 +279,7 @@ func ExampleProjectIssueTypeOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectIssueTypeOption),
+		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
 	issueType, _ := c.Project.IssueType.Update(
@@ -349,7 +299,7 @@ func ExampleProjectStatusOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusOption),
+		backlog.WithDoer(doerStatusSingle),
 	)
 
 	status, _ := c.Project.Status.Update(
@@ -369,7 +319,7 @@ func ExampleProjectVersionOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectVersionOption),
+		backlog.WithDoer(doerVersionSingle),
 	)
 
 	version, _ := c.Project.Version.Update(
@@ -389,7 +339,7 @@ func ExampleProjectWebhookOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookOption),
+		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
 	wh, _ := c.Project.Webhook.Update(

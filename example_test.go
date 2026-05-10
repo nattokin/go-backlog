@@ -6,12 +6,6 @@ import (
 	"net/http"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	doerExample            = newMockDoer(fixture.Wiki.ListJSON)
-	doerExampleWithOptions = newMockDoer(fixture.Wiki.ListJSON)
 )
 
 // Example demonstrates basic usage: creating a client and listing wiki pages.
@@ -19,7 +13,7 @@ func Example() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerExample),
+		backlog.WithDoer(doerWikiList),
 	)
 
 	wikis, _ := c.Wiki.All(context.Background(), "MYPROJECT")
@@ -33,7 +27,7 @@ func Example_withOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerExampleWithOptions),
+		backlog.WithDoer(doerWikiList),
 	)
 
 	wikis, _ := c.Wiki.All(
