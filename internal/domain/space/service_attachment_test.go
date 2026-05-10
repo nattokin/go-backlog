@@ -58,7 +58,7 @@ func TestSpaceAttachmentService_Upload(t *testing.T) {
 			method.Upload = tc.mockUploadFn
 			s := space.NewAttachmentService(method)
 
-			f, err := os.Open("../../testdata/testfile")
+			f, err := os.Open("../../../testdata/testfile")
 			require.NoError(t, err)
 			defer f.Close()
 
