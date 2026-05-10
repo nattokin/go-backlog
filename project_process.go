@@ -5,7 +5,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
-	"github.com/nattokin/go-backlog/internal/shared/version"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -69,7 +68,7 @@ func (s *ProjectStatusService) UpdateOrder(ctx context.Context, projectIDOrKey s
 
 // ProjectVersionService handles communication with the project version/milestone-related methods of the Backlog API.
 type ProjectVersionService struct {
-	base   *version.Service
+	base   *project.VersionService
 	Option *ProjectVersionOptionService
 }
 
@@ -193,7 +192,7 @@ func newProjectStatusService(method *core.Method, option *core.OptionService) *P
 
 func newProjectVersionService(method *core.Method, option *core.OptionService) *ProjectVersionService {
 	return &ProjectVersionService{
-		base:   version.NewService(method),
+		base:   project.NewVersionService(method),
 		Option: newVersionOptionService(option),
 	}
 }
