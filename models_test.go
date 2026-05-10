@@ -168,7 +168,7 @@ func Test_issueFromModel(t *testing.T) {
 	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	updated := time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)
 
-	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: model.RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: 1, Lang: "ja", MailAddress: "admin@example.com"}
 	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
 
 	cases := map[string]struct {
@@ -314,7 +314,7 @@ func Test_pullRequestFromModel(t *testing.T) {
 	closeAt := time.Date(2024, 5, 1, 0, 0, 0, 0, time.UTC)
 	mergeAt := time.Date(2024, 5, 2, 0, 0, 0, 0, time.UTC)
 
-	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: model.RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: 1, Lang: "ja", MailAddress: "admin@example.com"}
 	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
 
 	input := &model.PullRequest{

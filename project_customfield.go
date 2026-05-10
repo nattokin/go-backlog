@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
@@ -50,7 +49,7 @@ func (s *ProjectCustomFieldService) All(ctx context.Context, projectIDOrKey stri
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType CustomFieldType, name string, opts ...RequestOption) (*CustomField, error) {
-	v, err := s.base.Create(ctx, projectIDOrKey, model.CustomFieldType(fieldType), name, toCoreOptions(opts)...)
+	v, err := s.base.Create(ctx, projectIDOrKey, int(fieldType), name, toCoreOptions(opts)...)
 	return customFieldFromModel(v), convertError(err)
 }
 

@@ -70,7 +70,7 @@ func (s *Service) Own(ctx context.Context) (*model.User, error) {
 // Add adds a new user to the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
-func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType model.Role) (*model.User, error) {
+func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType int) (*model.User, error) {
 	if userID == "" {
 		return nil, core.NewValidationError("userID must not be empty")
 	}

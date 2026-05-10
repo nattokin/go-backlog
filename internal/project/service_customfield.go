@@ -41,7 +41,7 @@ func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]
 // Create adds a new custom field to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
-func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType model.CustomFieldType, name string, opts ...core.RequestOption) (*model.CustomField, error) {
+func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType int, name string, opts ...core.RequestOption) (*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

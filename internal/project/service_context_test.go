@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 )
 
@@ -100,7 +99,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"CustomFieldService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
-			s.Create(ctx, "TEST", model.CustomFieldTypeText, "Sprint") //nolint:errcheck
+			s.Create(ctx, "TEST", 1, "Sprint") //nolint:errcheck
 		}},
 		{"CustomFieldService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)

@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -105,7 +104,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		fieldType      model.CustomFieldType
+		fieldType      int
 		name           string
 		opts           []core.RequestOption
 
@@ -115,7 +114,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -130,7 +129,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"success-with-opts": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 			opts:           []core.RequestOption{o.WithDescription("sprint number"), o.WithRequired(true)},
 
@@ -147,7 +146,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey: "",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 			wantErrType:    &core.ValidationError{},
 		},
@@ -159,20 +158,20 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"error-validation-name-empty": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "",
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -183,7 +182,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
-			fieldType:      model.CustomFieldTypeText,
+			fieldType:      1,
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {

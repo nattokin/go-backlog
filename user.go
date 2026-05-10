@@ -60,7 +60,7 @@ func (s *UserService) Own(ctx context.Context) (*User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
-	v, err := s.base.Add(ctx, userID, password, name, mailAddress, model.Role(roleType))
+	v, err := s.base.Add(ctx, userID, password, name, mailAddress, int(roleType))
 	return userFromModel(v), convertError(err)
 }
 
@@ -214,7 +214,7 @@ func (s *UserOptionService) WithPassword(password string) RequestOption {
 
 // WithRoleType sets the role type of a user.
 func (s *UserOptionService) WithRoleType(role Role) RequestOption {
-	return s.base.WithRoleType(model.Role(role))
+	return s.base.WithRoleType(int(role))
 }
 
 // WithSendMail sets whether to send a mail notification.
