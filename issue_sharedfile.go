@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/issue"
+	"github.com/nattokin/go-backlog/internal/domain/issue"
 )
 
 // IssueSharedFileService handles communication with the issue shared-file-related methods of the Backlog API.

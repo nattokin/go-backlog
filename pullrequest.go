@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/pullrequest"
 )
 
 // PullRequest represents pull request of Backlog git.

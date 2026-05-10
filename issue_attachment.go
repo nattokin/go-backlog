@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/issue"
+	"github.com/nattokin/go-backlog/internal/domain/issue"
 )
 
 // IssueAttachmentService handles communication with the issue attachment-related methods of the Backlog API.

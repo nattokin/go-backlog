@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/domain/space"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/space"
 )
 
 // ──────────────────────────────────────────────────────────────
