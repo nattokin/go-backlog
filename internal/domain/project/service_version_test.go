@@ -1,4 +1,4 @@
-package version_test
+package project_test
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/shared/version"
+	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestService_All(t *testing.T) {
+func TestVersionService_All(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -71,7 +71,7 @@ func TestService_All(t *testing.T) {
 			t.Parallel()
 			m := mock.NewMethod(t)
 			m.Get = tc.mockGetFn
-			s := version.NewService(m)
+			s := project.NewVersionService(m)
 			got, err := s.All(context.Background(), tc.projectIDOrKey, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -85,7 +85,7 @@ func TestService_All(t *testing.T) {
 	}
 }
 
-func TestService_Add(t *testing.T) {
+func TestVersionService_Add(t *testing.T) {
 	o := &core.OptionService{}
 	date := "2025-01-01"
 
@@ -156,7 +156,7 @@ func TestService_Add(t *testing.T) {
 			if tc.mockPostFn != nil {
 				m.Post = tc.mockPostFn
 			}
-			s := version.NewService(m)
+			s := project.NewVersionService(m)
 			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.name, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -170,7 +170,7 @@ func TestService_Add(t *testing.T) {
 	}
 }
 
-func TestService_Update(t *testing.T) {
+func TestVersionService_Update(t *testing.T) {
 	o := &core.OptionService{}
 	date := "2025-01-01"
 
@@ -246,7 +246,7 @@ func TestService_Update(t *testing.T) {
 			if tc.mockPatchFn != nil {
 				m.Patch = tc.mockPatchFn
 			}
-			s := version.NewService(m)
+			s := project.NewVersionService(m)
 			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.versionID, tc.option, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -260,7 +260,7 @@ func TestService_Update(t *testing.T) {
 	}
 }
 
-func TestService_Delete(t *testing.T) {
+func TestVersionService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		versionID      int
@@ -305,7 +305,7 @@ func TestService_Delete(t *testing.T) {
 
 			m := mock.NewMethod(t)
 			m.Delete = tc.mockDeleteFn
-			s := version.NewService(m)
+			s := project.NewVersionService(m)
 			got, err := s.Delete(context.Background(), tc.projectIDOrKey, tc.versionID)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

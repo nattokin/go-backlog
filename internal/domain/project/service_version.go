@@ -1,5 +1,5 @@
 // Package version implements the Backlog Version/Milestone API service.
-package version
+package project
 
 import (
 	"context"
@@ -12,15 +12,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// Service provides Version/Milestone API operations.
-type Service struct {
+// VersionService provides Version/Milestone API operations.
+type VersionService struct {
 	method *core.Method
 }
 
 // All returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
+func (s *VersionService) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.R
 // Add adds a version/milestone to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone
-func (s *Service) Add(ctx context.Context, projectIDOrKey, name string, opts ...core.RequestOption) (*model.Version, error) {
+func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *Service) Add(ctx context.Context, projectIDOrKey, name string, opts ...
 // Update updates a version/milestone.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
+func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, versionID i
 // Delete deletes a version/milestone.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-version-milestone
-func (s *Service) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*model.Version, error) {
+func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -149,6 +149,6 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string, versionID i
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
-	return &Service{method: method}
+func NewVersionService(method *core.Method) *VersionService {
+	return &VersionService{method: method}
 }
