@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/domain/repository"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/repository"
 )
 
 // Repository represents repository of Backlog git.

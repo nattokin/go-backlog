@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/star"
+	"github.com/nattokin/go-backlog/internal/domain/star"
 )
 
 // ──────────────────────────────────────────────────────────────

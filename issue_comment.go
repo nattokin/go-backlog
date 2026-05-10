@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/issue"
+	"github.com/nattokin/go-backlog/internal/domain/issue"
 )
 
 // IssueCommentService handles communication with the issue comment-related methods of the Backlog API.

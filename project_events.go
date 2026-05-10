@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/project"
 )
 
 // Webhook represents webhook of Backlog.
