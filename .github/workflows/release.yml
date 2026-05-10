@@ -6,17 +6,33 @@ on:
       - 'v*'
 
 jobs:
+  check-tag:
+    name: Check tag
+    runs-on: ubuntu-latest
+    outputs:
+      is-stable: ${{ steps.check.outputs.is-stable }}
+    steps:
+      - name: Check if stable release tag
+        id: check
+        run: |
+          if echo "${{ github.ref_name }}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "is-stable=true" >> $GITHUB_OUTPUT
+            echo "Tag ${{ github.ref_name }} is a stable release tag."
+          else
+            echo "is-stable=false" >> $GITHUB_OUTPUT
+            echo "Tag ${{ github.ref_name }} is not a stable release tag. Skipping release."
+          fi
+
   release:
     name: Release
+    needs: check-tag
+    if: needs.check-tag.outputs.is-stable == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: write
 
     steps:
-      - name: Verify stable release tag
-        run: echo "${{ github.ref_name }}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$'
-
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
