@@ -9,6 +9,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    if: github.ref_name =~ '^v[0-9]+\.[0-9]+\.[0-9]+$'
     permissions:
       contents: write
       issues: write
@@ -26,11 +27,20 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         run: node .github/scripts/milestone-check-and-close.js
 
+      - name: Get previous stable release tag
+        id: prev_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PREV=$(gh release list --repo ${{ github.repository }} --json tagName,isPrerelease,isDraft \
+            --jq '[.[] | select(.isPrerelease == false and .isDraft == false) | .tagName] | .[1]')
+          echo "tag=${PREV}" >> $GITHUB_OUTPUT
+
       - name: Generate changelog
         uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
         with:
           config: cliff.toml
-          args: --latest --strip header
+          args: --strip header ${{ steps.prev_release.outputs.tag }}..HEAD
         env:
           OUTPUT: CHANGELOG.md
 
