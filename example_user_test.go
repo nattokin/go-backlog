@@ -5,32 +5,13 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// UserService
-	doerUserAll    = newMockDoer(fixture.User.ListJSON)
-	doerUserOne    = newMockDoer(fixture.User.SingleJSON)
-	doerUserOwn    = newMockDoer(fixture.User.SingleJSON)
-	doerUserAdd    = newMockDoer(fixture.User.SingleJSON)
-	doerUserUpdate = newMockDoer(fixture.User.SingleJSON)
-	doerUserDelete = newMockDoer(fixture.User.SingleJSON)
-	doerUserIcon   = newMockBinaryDoer("image/png", "icon.png", []byte("PNG"))
-
-	// UserActivityService
-	doerUserActivityList = newMockDoer(fixture.Activity.ListJSON)
-
-	// UserStarService
-	doerUserStarCount = newMockDoer(fixture.Star.CountJSON)
-	doerUserStarList  = newMockDoer(fixture.Star.ListJSON)
 )
 
 func ExampleUserService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserAll),
+		backlog.WithDoer(doerUserList),
 	)
 
 	users, _ := c.User.All(context.Background())
@@ -43,7 +24,7 @@ func ExampleUserService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserOne),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.One(context.Background(), 1)
@@ -56,7 +37,7 @@ func ExampleUserService_Own() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserOwn),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.Own(context.Background())
@@ -69,7 +50,7 @@ func ExampleUserService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserAdd),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.Add(
@@ -89,7 +70,7 @@ func ExampleUserService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserUpdate),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.Update(
@@ -106,7 +87,7 @@ func ExampleUserService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserDelete),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.User.Delete(context.Background(), 1)
@@ -132,7 +113,7 @@ func ExampleUserActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserActivityList),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.User.Activity.List(context.Background(), 1)
@@ -145,7 +126,7 @@ func ExampleUserStarService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserStarCount),
+		backlog.WithDoer(doerStarCount),
 	)
 
 	count, _ := c.User.Star.Count(context.Background(), 1)
@@ -158,7 +139,7 @@ func ExampleUserStarService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerUserStarList),
+		backlog.WithDoer(doerStarList),
 	)
 
 	stars, _ := c.User.Star.List(context.Background(), 1)

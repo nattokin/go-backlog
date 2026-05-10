@@ -5,81 +5,13 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// ProjectService
-	doerProjectAll       = newMockDoer(fixture.Project.ListJSON)
-	doerProjectOne       = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectCreate    = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectUpdate    = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectDelete    = newMockDoer(fixture.Project.SingleJSON)
-	doerProjectDiskUsage = newMockDoer(fixture.Project.DiskUsageJSON)
-	doerProjectIcon      = newMockBinaryDoer("image/png", "test.png", []byte("PNG"))
-
-	// ProjectActivityService
-	doerProjectActivityList = newMockDoer(fixture.Activity.ListJSON)
-
-	// ProjectSharedFileService
-	doerProjectSharedFileList    = newMockDoer(fixture.SharedFile.ListJSON)
-	doerProjectSharedFileGetFile = newMockBinaryDoer("image/png", "shared.png", []byte("PNG"))
-
-	// ProjectCategoryService
-	doerProjectCategoryAll    = newMockDoer(fixture.Category.ListJSON)
-	doerProjectCategoryCreate = newMockDoer(fixture.Category.SingleJSON)
-	doerProjectCategoryUpdate = newMockDoer(fixture.Category.SingleJSON)
-	doerProjectCategoryDelete = newMockDoer(fixture.Category.SingleJSON)
-
-	// ProjectCustomFieldService
-	doerProjectCustomFieldAll            = newMockDoer(fixture.CustomField.ListJSON)
-	doerProjectCustomFieldCreate         = newMockDoer(fixture.CustomField.SingleJSON)
-	doerProjectCustomFieldUpdate         = newMockDoer(fixture.CustomField.SingleJSON)
-	doerProjectCustomFieldDelete         = newMockDoer(fixture.CustomField.SingleJSON)
-	doerProjectCustomFieldAddListItem    = newMockDoer(fixture.CustomField.SingleJSON)
-	doerProjectCustomFieldUpdateListItem = newMockDoer(fixture.CustomField.SingleJSON)
-	doerProjectCustomFieldDeleteListItem = newMockDoer(fixture.CustomField.SingleJSON)
-
-	// ProjectIssueTypeService
-	doerProjectIssueTypeAll    = newMockDoer(fixture.IssueType.ListJSON)
-	doerProjectIssueTypeCreate = newMockDoer(fixture.IssueType.SingleJSON)
-	doerProjectIssueTypeUpdate = newMockDoer(fixture.IssueType.SingleJSON)
-	doerProjectIssueTypeDelete = newMockDoer(fixture.IssueType.SingleJSON)
-
-	// ProjectUserService
-	doerProjectUserAll         = newMockDoer(fixture.User.ListJSON)
-	doerProjectUserAdd         = newMockDoer(fixture.User.SingleJSON)
-	doerProjectUserDelete      = newMockDoer(fixture.User.SingleJSON)
-	doerProjectUserAddAdmin    = newMockDoer(fixture.User.SingleJSON)
-	doerProjectUserAdminAll    = newMockDoer(fixture.User.ListJSON)
-	doerProjectUserDeleteAdmin = newMockDoer(fixture.User.SingleJSON)
-
-	// ProjectWebhookService
-	doerProjectWebhookAll    = newMockDoer(fixture.Webhook.ListJSON)
-	doerProjectWebhookCreate = newMockDoer(fixture.Webhook.AllEventJSON)
-	doerProjectWebhookOne    = newMockDoer(fixture.Webhook.AllEventJSON)
-	doerProjectWebhookUpdate = newMockDoer(fixture.Webhook.AllEventJSON)
-	doerProjectWebhookDelete = newMockDoer(fixture.Webhook.AllEventJSON)
-
-	// ProjectStatusService
-	doerProjectStatusAll         = newMockDoer(fixture.Status.ListJSON)
-	doerProjectStatusCreate      = newMockDoer(fixture.Status.SingleJSON)
-	doerProjectStatusUpdate      = newMockDoer(fixture.Status.SingleJSON)
-	doerProjectStatusDelete      = newMockDoer(fixture.Status.SingleJSON)
-	doerProjectStatusUpdateOrder = newMockDoer(fixture.Status.ListJSON)
-
-	// ProjectVersionService
-	doerProjectVersionAll    = newMockDoer(fixture.Version.ListJSON)
-	doerProjectVersionCreate = newMockDoer(fixture.Version.SingleJSON)
-	doerProjectVersionUpdate = newMockDoer(fixture.Version.SingleJSON)
-	doerProjectVersionDelete = newMockDoer(fixture.Version.SingleJSON)
 )
 
 func ExampleProjectService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectAll),
+		backlog.WithDoer(doerProjectList),
 	)
 
 	projects, _ := c.Project.All(context.Background())
@@ -92,7 +24,7 @@ func ExampleProjectService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectOne),
+		backlog.WithDoer(doerProjectSingle),
 	)
 
 	project, _ := c.Project.One(context.Background(), "TEST")
@@ -105,7 +37,7 @@ func ExampleProjectService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCreate),
+		backlog.WithDoer(doerProjectSingle),
 	)
 
 	project, _ := c.Project.Create(context.Background(), "TEST", "test")
@@ -118,7 +50,7 @@ func ExampleProjectService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUpdate),
+		backlog.WithDoer(doerProjectSingle),
 	)
 
 	project, _ := c.Project.Update(context.Background(), "TEST",
@@ -133,7 +65,7 @@ func ExampleProjectService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectDelete),
+		backlog.WithDoer(doerProjectSingle),
 	)
 
 	project, _ := c.Project.Delete(context.Background(), "TEST")
@@ -172,7 +104,7 @@ func ExampleProjectActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectActivityList),
+		backlog.WithDoer(doerActivityList),
 	)
 
 	activities, _ := c.Project.Activity.List(context.Background(), "TEST")
@@ -185,7 +117,7 @@ func ExampleProjectCategoryService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCategoryAll),
+		backlog.WithDoer(doerCategoryList),
 	)
 
 	categories, _ := c.Project.Category.All(context.Background(), "TEST")
@@ -198,7 +130,7 @@ func ExampleProjectCategoryService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCategoryCreate),
+		backlog.WithDoer(doerCategorySingle),
 	)
 
 	category, _ := c.Project.Category.Create(context.Background(), "TEST", "Bug")
@@ -211,7 +143,7 @@ func ExampleProjectCategoryService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCategoryUpdate),
+		backlog.WithDoer(doerCategorySingle),
 	)
 
 	category, _ := c.Project.Category.Update(context.Background(), "TEST", 12, "Bug Fixed")
@@ -224,7 +156,7 @@ func ExampleProjectCategoryService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCategoryDelete),
+		backlog.WithDoer(doerCategorySingle),
 	)
 
 	category, _ := c.Project.Category.Delete(context.Background(), "TEST", 12)
@@ -237,7 +169,7 @@ func ExampleProjectCustomFieldService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldAll),
+		backlog.WithDoer(doerCustomFieldList),
 	)
 
 	fields, _ := c.Project.CustomField.All(context.Background(), "TEST")
@@ -250,7 +182,7 @@ func ExampleProjectCustomFieldService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldCreate),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.Create(context.Background(), "TEST", backlog.CustomFieldTypeText, "Sprint")
@@ -263,7 +195,7 @@ func ExampleProjectCustomFieldService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldUpdate),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.Update(
@@ -281,7 +213,7 @@ func ExampleProjectCustomFieldService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldDelete),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.Delete(context.Background(), "TEST", 1)
@@ -294,7 +226,7 @@ func ExampleProjectCustomFieldService_AddListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldAddListItem),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.AddListItem(context.Background(), "TEST", 1, "Item1")
@@ -307,7 +239,7 @@ func ExampleProjectCustomFieldService_UpdateListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldUpdateListItem),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.UpdateListItem(context.Background(), "TEST", 1, 10, "Item1 Updated")
@@ -320,7 +252,7 @@ func ExampleProjectCustomFieldService_DeleteListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectCustomFieldDeleteListItem),
+		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
 	field, _ := c.Project.CustomField.DeleteListItem(context.Background(), "TEST", 1, 10)
@@ -333,7 +265,7 @@ func ExampleProjectIssueTypeService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectIssueTypeAll),
+		backlog.WithDoer(doerIssueTypeList),
 	)
 
 	issueTypes, _ := c.Project.IssueType.All(context.Background(), "TEST")
@@ -346,7 +278,7 @@ func ExampleProjectIssueTypeService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectIssueTypeCreate),
+		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
 	issueType, _ := c.Project.IssueType.Create(context.Background(), "TEST", "Bug", "#e30000")
@@ -359,7 +291,7 @@ func ExampleProjectIssueTypeService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectIssueTypeUpdate),
+		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
 	issueType, _ := c.Project.IssueType.Update(context.Background(), "TEST", 1,
@@ -374,7 +306,7 @@ func ExampleProjectIssueTypeService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectIssueTypeDelete),
+		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
 	issueType, _ := c.Project.IssueType.Delete(context.Background(), "TEST", 1, 2)
@@ -387,7 +319,7 @@ func ExampleProjectSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectSharedFileList),
+		backlog.WithDoer(doerSharedFileList),
 	)
 
 	files, _ := c.Project.SharedFile.List(context.Background(), "TEST")
@@ -400,7 +332,7 @@ func ExampleProjectSharedFileService_GetFile() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectSharedFileGetFile),
+		backlog.WithDoer(doerSharedFileGetFile),
 	)
 
 	file, _ := c.Project.SharedFile.GetFile(context.Background(), "TEST", 1)
@@ -413,7 +345,7 @@ func ExampleProjectUserService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserAll),
+		backlog.WithDoer(doerUserList),
 	)
 
 	users, _ := c.Project.User.All(context.Background(), "TEST", false)
@@ -426,7 +358,7 @@ func ExampleProjectUserService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserAdd),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.Project.User.Add(context.Background(), "TEST", 1)
@@ -439,7 +371,7 @@ func ExampleProjectUserService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserDelete),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.Project.User.Delete(context.Background(), "TEST", 1)
@@ -452,7 +384,7 @@ func ExampleProjectUserService_AddAdmin() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserAddAdmin),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.Project.User.AddAdmin(context.Background(), "TEST", 1)
@@ -465,7 +397,7 @@ func ExampleProjectUserService_AdminAll() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserAdminAll),
+		backlog.WithDoer(doerUserList),
 	)
 
 	users, _ := c.Project.User.AdminAll(context.Background(), "TEST")
@@ -478,7 +410,7 @@ func ExampleProjectUserService_DeleteAdmin() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectUserDeleteAdmin),
+		backlog.WithDoer(doerUserSingle),
 	)
 
 	user, _ := c.Project.User.DeleteAdmin(context.Background(), "TEST", 1)
@@ -491,7 +423,7 @@ func ExampleProjectWebhookService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookAll),
+		backlog.WithDoer(doerWebhookList),
 	)
 
 	webhooks, _ := c.Project.Webhook.All(context.Background(), "TEST")
@@ -504,7 +436,7 @@ func ExampleProjectWebhookService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookCreate),
+		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
 	wh, _ := c.Project.Webhook.Create(
@@ -523,7 +455,7 @@ func ExampleProjectWebhookService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookOne),
+		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
 	wh, _ := c.Project.Webhook.One(context.Background(), "TEST", 1)
@@ -536,7 +468,7 @@ func ExampleProjectWebhookService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookUpdate),
+		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
 	wh, _ := c.Project.Webhook.Update(
@@ -554,7 +486,7 @@ func ExampleProjectWebhookService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectWebhookDelete),
+		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
 	wh, _ := c.Project.Webhook.Delete(context.Background(), "TEST", 1)
@@ -567,7 +499,7 @@ func ExampleProjectStatusService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusAll),
+		backlog.WithDoer(doerStatusList),
 	)
 
 	statuses, _ := c.Project.Status.All(context.Background(), "TEST")
@@ -580,7 +512,7 @@ func ExampleProjectStatusService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusCreate),
+		backlog.WithDoer(doerStatusSingle),
 	)
 
 	status, _ := c.Project.Status.Create(context.Background(), "TEST", "Open", "#ed8077")
@@ -593,7 +525,7 @@ func ExampleProjectStatusService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusUpdate),
+		backlog.WithDoer(doerStatusSingle),
 	)
 
 	status, _ := c.Project.Status.Update(
@@ -611,7 +543,7 @@ func ExampleProjectStatusService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusDelete),
+		backlog.WithDoer(doerStatusSingle),
 	)
 
 	status, _ := c.Project.Status.Delete(context.Background(), "TEST", 1, 2)
@@ -624,7 +556,7 @@ func ExampleProjectStatusService_UpdateOrder() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectStatusUpdateOrder),
+		backlog.WithDoer(doerStatusList),
 	)
 
 	statuses, _ := c.Project.Status.UpdateOrder(context.Background(), "TEST", []int{1, 2})
@@ -637,7 +569,7 @@ func ExampleProjectVersionService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectVersionAll),
+		backlog.WithDoer(doerVersionList),
 	)
 
 	versions, _ := c.Project.Version.All(context.Background(), "TEST")
@@ -650,7 +582,7 @@ func ExampleProjectVersionService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectVersionCreate),
+		backlog.WithDoer(doerVersionSingle),
 	)
 
 	version, _ := c.Project.Version.Create(
@@ -667,7 +599,7 @@ func ExampleProjectVersionService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectVersionUpdate),
+		backlog.WithDoer(doerVersionSingle),
 	)
 
 	version, _ := c.Project.Version.Update(
@@ -685,7 +617,7 @@ func ExampleProjectVersionService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerProjectVersionDelete),
+		backlog.WithDoer(doerVersionSingle),
 	)
 
 	version, _ := c.Project.Version.Delete(context.Background(), "TEST", 1)

@@ -5,45 +5,13 @@ import (
 	"fmt"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/testutil/fixture"
-)
-
-var (
-	// IssueService
-	doerIssueAll          = newMockDoer(fixture.Issue.ListJSON)
-	doerIssueCount        = newMockDoer(`{"count":2}`)
-	doerIssueOne          = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueCreate       = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueUpdate       = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueDelete       = newMockDoer(fixture.Issue.SingleJSON)
-	doerIssueParticipants = newMockDoer(fixture.User.ListJSON)
-
-	// IssueAttachmentService
-	doerIssueAttachmentList     = newMockDoer(fixture.Attachment.ListJSON)
-	doerIssueAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
-	doerIssueAttachmentRemove   = newMockDoer(fixture.Attachment.SingleJSON)
-
-	// IssueCommentService
-	doerIssueCommentAll           = newMockDoer(fixture.Comment.ListJSON)
-	doerIssueCommentAdd           = newMockDoer(fixture.Comment.SingleJSON)
-	doerIssueCommentCount         = newMockDoer(`{"count":2}`)
-	doerIssueCommentDelete        = newMockDoer(fixture.Comment.SingleJSON)
-	doerIssueCommentNotifications = newMockDoer(`[{"id":25,"alreadyRead":false,"reason":2,"resourceAlreadyRead":false}]`)
-	doerIssueCommentNotify        = newMockDoer(fixture.Comment.SingleJSON)
-	doerIssueCommentOne           = newMockDoer(fixture.Comment.SingleJSON)
-	doerIssueCommentUpdate        = newMockDoer(fixture.Comment.SingleJSON)
-
-	// IssueSharedFileService
-	doerIssueSharedFileLink   = newMockDoer(fixture.SharedFile.ListJSON)
-	doerIssueSharedFileList   = newMockDoer(fixture.SharedFile.ListJSON)
-	doerIssueSharedFileUnlink = newMockDoer(fixture.SharedFile.SingleJSON)
 )
 
 func ExampleIssueService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueAll),
+		backlog.WithDoer(doerIssueList),
 	)
 
 	issues, _ := c.Issue.All(context.Background())
@@ -69,7 +37,7 @@ func ExampleIssueService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueOne),
+		backlog.WithDoer(doerIssueSingle),
 	)
 
 	issue, _ := c.Issue.One(context.Background(), "PRJ-1")
@@ -82,7 +50,7 @@ func ExampleIssueService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCreate),
+		backlog.WithDoer(doerIssueSingle),
 	)
 
 	issue, _ := c.Issue.Create(context.Background(), 10, "First issue", 2, 3)
@@ -95,7 +63,7 @@ func ExampleIssueService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueUpdate),
+		backlog.WithDoer(doerIssueSingle),
 	)
 
 	issue, _ := c.Issue.Update(context.Background(), "PRJ-1", c.Issue.Option.WithSummary("First issue"))
@@ -108,7 +76,7 @@ func ExampleIssueService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueDelete),
+		backlog.WithDoer(doerIssueSingle),
 	)
 
 	issue, _ := c.Issue.Delete(context.Background(), "PRJ-1")
@@ -121,7 +89,7 @@ func ExampleIssueService_Participants() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueParticipants),
+		backlog.WithDoer(doerUserList),
 	)
 
 	users, _ := c.Issue.Participants(context.Background(), "PRJ-1")
@@ -134,7 +102,7 @@ func ExampleIssueAttachmentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueAttachmentList),
+		backlog.WithDoer(doerAttachmentList),
 	)
 
 	attachments, _ := c.Issue.Attachment.List(context.Background(), "TEST-1")
@@ -147,7 +115,7 @@ func ExampleIssueAttachmentService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueAttachmentDownload),
+		backlog.WithDoer(doerAttachmentDownload),
 	)
 
 	file, _ := c.Issue.Attachment.Download(context.Background(), "TEST-1", 2)
@@ -160,7 +128,7 @@ func ExampleIssueAttachmentService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueAttachmentRemove),
+		backlog.WithDoer(doerAttachmentSingle),
 	)
 
 	attachment, _ := c.Issue.Attachment.Remove(context.Background(), "TEST-1", 8)
@@ -173,7 +141,7 @@ func ExampleIssueCommentService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentAll),
+		backlog.WithDoer(doerCommentList),
 	)
 
 	comments, _ := c.Issue.Comment.All(context.Background(), "PRJ-1")
@@ -186,7 +154,7 @@ func ExampleIssueCommentService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentAdd),
+		backlog.WithDoer(doerCommentSingle),
 	)
 
 	comment, _ := c.Issue.Comment.Add(context.Background(), "PRJ-1", "This is a comment.")
@@ -212,7 +180,7 @@ func ExampleIssueCommentService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentDelete),
+		backlog.WithDoer(doerCommentSingle),
 	)
 
 	comment, _ := c.Issue.Comment.Delete(context.Background(), "PRJ-1", 1)
@@ -238,7 +206,7 @@ func ExampleIssueCommentService_Notify() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentNotify),
+		backlog.WithDoer(doerCommentSingle),
 	)
 
 	comment, _ := c.Issue.Comment.Notify(context.Background(), "PRJ-1", 1, []int{5686})
@@ -251,7 +219,7 @@ func ExampleIssueCommentService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentOne),
+		backlog.WithDoer(doerCommentSingle),
 	)
 
 	comment, _ := c.Issue.Comment.One(context.Background(), "PRJ-1", 1)
@@ -264,7 +232,7 @@ func ExampleIssueCommentService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueCommentUpdate),
+		backlog.WithDoer(doerCommentSingle),
 	)
 
 	comment, _ := c.Issue.Comment.Update(context.Background(), "PRJ-1", 1, "This is a comment.")
@@ -277,7 +245,7 @@ func ExampleIssueSharedFileService_Link() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueSharedFileLink),
+		backlog.WithDoer(doerSharedFileList),
 	)
 
 	files, _ := c.Issue.SharedFile.Link(context.Background(), "TEST-1", []int{454403, 454404})
@@ -290,7 +258,7 @@ func ExampleIssueSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueSharedFileList),
+		backlog.WithDoer(doerSharedFileList),
 	)
 
 	files, _ := c.Issue.SharedFile.List(context.Background(), "TEST-1")
@@ -303,7 +271,7 @@ func ExampleIssueSharedFileService_Unlink() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerIssueSharedFileUnlink),
+		backlog.WithDoer(doerSharedFileSingle),
 	)
 
 	file, _ := c.Issue.SharedFile.Unlink(context.Background(), "TEST-1", 454403)
