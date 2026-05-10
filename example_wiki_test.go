@@ -7,10 +7,6 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-var (
-	doerWikiCount = newMockDoer(`{"count": 5}`)
-)
-
 func ExampleWikiService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",

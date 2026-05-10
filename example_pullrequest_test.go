@@ -7,11 +7,6 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-var (
-	doerPullRequestCount        = newMockDoer(`{"count":2}`)
-	doerPullRequestCommentCount = newMockDoer(`{"count":2}`)
-)
-
 func ExamplePullRequestService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",

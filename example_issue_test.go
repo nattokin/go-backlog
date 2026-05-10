@@ -7,12 +7,6 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-var (
-	doerIssueCount        = newMockDoer(`{"count":2}`)
-	doerIssueCommentCount = newMockDoer(`{"count":2}`)
-	doerIssueCommentNotifications = newMockDoer(`[{"id":25,"alreadyRead":false,"reason":2,"resourceAlreadyRead":false}]`)
-)
-
 func ExampleIssueService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",

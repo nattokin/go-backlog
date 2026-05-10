@@ -27,8 +27,11 @@ var (
 	doerCustomFieldSingle = newMockDoer(fixture.CustomField.SingleJSON)
 
 	// Issue
-	doerIssueList   = newMockDoer(fixture.Issue.ListJSON)
-	doerIssueSingle = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueList                 = newMockDoer(fixture.Issue.ListJSON)
+	doerIssueSingle               = newMockDoer(fixture.Issue.SingleJSON)
+	doerIssueCount                = newMockDoer(`{"count":2}`)
+	doerIssueCommentCount         = newMockDoer(`{"count":2}`)
+	doerIssueCommentNotifications = newMockDoer(`[{"id":25,"alreadyRead":false,"reason":2,"resourceAlreadyRead":false}]`)
 
 	// IssueType
 	doerIssueTypeList   = newMockDoer(fixture.IssueType.ListJSON)
@@ -41,15 +44,17 @@ var (
 	doerProjectIcon      = newMockBinaryDoer("image/png", "test.png", []byte("PNG"))
 
 	// PullRequest
-	doerPullRequestList   = newMockDoer(fixture.PullRequest.ListJSON)
-	doerPullRequestSingle = newMockDoer(fixture.PullRequest.SingleJSON)
+	doerPullRequestList         = newMockDoer(fixture.PullRequest.ListJSON)
+	doerPullRequestSingle       = newMockDoer(fixture.PullRequest.SingleJSON)
+	doerPullRequestCount        = newMockDoer(`{"count":2}`)
+	doerPullRequestCommentCount = newMockDoer(`{"count":2}`)
 
 	// RecentlyViewed
-	doerRecentlyViewedIssueList    = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
-	doerRecentlyViewedIssueSingle  = newMockDoer(fixture.RecentlyViewed.IssueSingleJSON)
-	doerRecentlyViewedProjectList  = newMockDoer(fixture.RecentlyViewed.ProjectListJSON)
-	doerRecentlyViewedWikiList     = newMockDoer(fixture.RecentlyViewed.WikiListJSON)
-	doerRecentlyViewedWikiSingle   = newMockDoer(fixture.RecentlyViewed.WikiSingleJSON)
+	doerRecentlyViewedIssueList   = newMockDoer(fixture.RecentlyViewed.IssueListJSON)
+	doerRecentlyViewedIssueSingle = newMockDoer(fixture.RecentlyViewed.IssueSingleJSON)
+	doerRecentlyViewedProjectList = newMockDoer(fixture.RecentlyViewed.ProjectListJSON)
+	doerRecentlyViewedWikiList    = newMockDoer(fixture.RecentlyViewed.WikiListJSON)
+	doerRecentlyViewedWikiSingle  = newMockDoer(fixture.RecentlyViewed.WikiSingleJSON)
 
 	// Repository
 	doerRepositoryList   = newMockDoer(fixture.Repository.ListJSON)
@@ -86,10 +91,11 @@ var (
 	doerWebhookAllEvent = newMockDoer(fixture.Webhook.AllEventJSON)
 
 	// Wiki
-	doerWikiList        = newMockDoer(fixture.Wiki.ListJSON)
-	doerWikiSingle      = newMockDoer(fixture.Wiki.MinimumJSON)
-	doerWikiHistoryList = newMockDoer(fixture.WikiHistory.ListJSON)
+	doerWikiList               = newMockDoer(fixture.Wiki.ListJSON)
+	doerWikiSingle             = newMockDoer(fixture.Wiki.MinimumJSON)
+	doerWikiHistoryList        = newMockDoer(fixture.WikiHistory.ListJSON)
 	doerWikiAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
 	doerSharedFileGetFile      = newMockBinaryDoer("image/png", "shared.png", []byte("PNG"))
 	doerAttachmentDownload     = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
+	doerWikiCount              = newMockDoer(`{"count": 5}`)
 )
