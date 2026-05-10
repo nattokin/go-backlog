@@ -88,13 +88,12 @@ type Role int
 
 // Available user roles within a project.
 const (
-	_ Role = iota
-	RoleAdministrator
-	RoleNormalUser
-	RoleReporter
-	RoleViewer
-	RoleGuestReporter
-	RoleGuestViewer
+	RoleAdministrator Role = 1
+	RoleNormalUser    Role = 2
+	RoleReporter      Role = 3
+	RoleViewer        Role = 4
+	RoleGuestReporter Role = 5
+	RoleGuestViewer   Role = 6
 )
 
 func (r Role) String() string {
