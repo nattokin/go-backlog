@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func (s *OptionService) WithAssigneeID(id int) RequestOption {
@@ -21,7 +19,7 @@ func (s *OptionService) WithCount(count int) RequestOption {
 	return intRangeOption(ParamCount, count, 1, 100)
 }
 
-func (s *OptionService) WithFieldType(fieldType model.CustomFieldType) RequestOption {
+func (s *OptionService) WithFieldType(fieldType int) RequestOption {
 	return positiveIntOption(ParamTypeID, int(fieldType))
 }
 
@@ -106,7 +104,7 @@ func (s *OptionService) WithResolutionID(id int) RequestOption {
 }
 
 // WithRoleType sets `roleType`. Valid range: 1–6.
-func (s *OptionService) WithRoleType(roleType model.Role) RequestOption {
+func (s *OptionService) WithRoleType(roleType int) RequestOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 

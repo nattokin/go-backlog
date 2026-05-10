@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
 )
 
 func TestOptionService_int(t *testing.T) {
@@ -67,12 +66,12 @@ func TestOptionService_int(t *testing.T) {
 			wantErr: true,
 		},
 		"WithFieldType-valid-1": {
-			option:    o.WithFieldType(model.CustomFieldTypeText),
+			option:    o.WithFieldType(1),
 			key:       core.ParamTypeID.Value(),
 			wantValue: 1,
 		},
 		"WithFieldType-valid-8": {
-			option:    o.WithFieldType(model.CustomFieldTypeRadio),
+			option:    o.WithFieldType(8),
 			key:       core.ParamTypeID.Value(),
 			wantValue: 8,
 		},

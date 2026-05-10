@@ -40,7 +40,7 @@ func TestUserService_One(t *testing.T) {
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    model.RoleAdministrator,
+				RoleType:    1,
 			},
 		},
 		"success-id-100": {
@@ -96,7 +96,7 @@ func TestUserService_Add(t *testing.T) {
 		password    string
 		name        string
 		mailAddress string
-		roleType    model.Role
+		roleType    int
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -108,7 +108,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "admin",
 			mailAddress: "eguchi@nulab.example",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
@@ -116,7 +116,7 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
@@ -124,7 +124,7 @@ func TestUserService_Add(t *testing.T) {
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    model.RoleAdministrator,
+				RoleType:    1,
 			},
 		},
 		"error-client-network": {
@@ -132,7 +132,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "error",
 			mailAddress: "error@example.com",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
@@ -146,7 +146,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "admin",
 			mailAddress: "admin@example.com",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -155,7 +155,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "",
 			name:        "admin",
 			mailAddress: "admin@example.com",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -164,7 +164,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "",
 			mailAddress: "admin@example.com",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -173,7 +173,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "password",
 			name:        "admin",
 			mailAddress: "",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -182,7 +182,7 @@ func TestUserService_Add(t *testing.T) {
 			password:    "",
 			name:        "",
 			mailAddress: "",
-			roleType:    model.RoleAdministrator,
+			roleType:    1,
 
 			wantErrType: &core.ValidationError{},
 		},
@@ -251,7 +251,7 @@ func TestUserService_All(t *testing.T) {
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    model.RoleAdministrator,
+				RoleType:    1,
 			},
 		},
 		"error-client-network": {
@@ -324,7 +324,7 @@ func TestUserService_Update(t *testing.T) {
 			opts: []core.RequestOption{
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
-				o.WithRoleType(model.RoleAdministrator),
+				o.WithRoleType(1),
 			},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -332,7 +332,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 
@@ -340,7 +340,7 @@ func TestUserService_Update(t *testing.T) {
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    model.RoleAdministrator,
+				RoleType:    1,
 			},
 		},
 		"error-response-invalid-json": {
@@ -392,11 +392,11 @@ func TestUserService_Update(t *testing.T) {
 		},
 		"success-option-withRoleType": {
 			id:     1,
-			option: o.WithRoleType(model.RoleAdministrator),
+			option: o.WithRoleType(1),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
-				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return nil, errors.New("error")
 			},
 
@@ -408,7 +408,7 @@ func TestUserService_Update(t *testing.T) {
 			opts: []core.RequestOption{
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
-				o.WithRoleType(model.RoleAdministrator),
+				o.WithRoleType(1),
 			},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -416,7 +416,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "testpassword1", form.Get("password"))
 				assert.Equal(t, "testname1", form.Get("name"))
 				assert.Equal(t, "test1@test.com", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(model.RoleAdministrator)), form.Get("roleType"))
+				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return nil, errors.New("error")
 			},
 
@@ -489,7 +489,7 @@ func TestUserService_Own(t *testing.T) {
 				UserID:      "admin",
 				Name:        "admin",
 				MailAddress: "eguchi@nulab.example",
-				RoleType:    model.RoleAdministrator,
+				RoleType:    1,
 			},
 		},
 		"error-client-network": {
@@ -722,7 +722,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := user.NewService(m)
-			s.Add(ctx, "u", "p", "n", "m@m.com", model.RoleAdministrator) //nolint:errcheck
+			s.Add(ctx, "u", "p", "n", "m@m.com", 1) //nolint:errcheck
 		}},
 		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
