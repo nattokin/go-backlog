@@ -14,7 +14,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -25,7 +24,6 @@ func TestUserService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-id-1": {
@@ -35,13 +33,6 @@ func TestUserService_One(t *testing.T) {
 				assert.Equal(t, "users/1", spath)
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
-			},
 		},
 		"success-id-100": {
 			id: 100,
@@ -50,8 +41,6 @@ func TestUserService_One(t *testing.T) {
 				assert.Equal(t, "users/100", spath)
 				return mock.NewJSONResponse(`{}`), nil
 			},
-
-			wantUser: &model.User{},
 		},
 		"error-validation-id-zero": {
 			id: 0,
@@ -82,10 +71,10 @@ func TestUserService_One(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, user)
 
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, 1, user.RoleType)
 		})
 	}
 }
@@ -100,7 +89,6 @@ func TestUserService_Add(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-add-user": {
@@ -118,13 +106,6 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-client-network": {
@@ -223,10 +204,10 @@ func TestUserService_Add(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, user)
 
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, 1, user.RoleType)
 		})
 	}
 }
@@ -236,7 +217,6 @@ func TestUserService_All(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantLen     int
-		wantFirst   *model.User
 		wantErrType error
 	}{
 		"success-get-users": {
@@ -245,14 +225,7 @@ func TestUserService_All(t *testing.T) {
 				assert.Nil(t, query)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
-
 			wantLen: 4,
-			wantFirst: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
-			},
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -260,7 +233,6 @@ func TestUserService_All(t *testing.T) {
 				assert.Nil(t, query)
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
@@ -269,7 +241,6 @@ func TestUserService_All(t *testing.T) {
 				assert.Nil(t, query)
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -297,10 +268,10 @@ func TestUserService_All(t *testing.T) {
 			require.Len(t, users, tc.wantLen)
 
 			require.NotNil(t, users[0])
-			assert.Equal(t, tc.wantFirst.UserID, users[0].UserID)
-			assert.Equal(t, tc.wantFirst.Name, users[0].Name)
-			assert.Equal(t, tc.wantFirst.MailAddress, users[0].MailAddress)
-			assert.Equal(t, tc.wantFirst.RoleType, users[0].RoleType)
+			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, 1, users[0].RoleType)
 		})
 	}
 }
@@ -315,7 +286,6 @@ func TestUserService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-update-user": {
@@ -334,13 +304,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-response-invalid-json": {
@@ -463,10 +426,10 @@ func TestUserService_Update(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, user)
 
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, 1, user.RoleType)
 		})
 	}
 }
@@ -475,7 +438,6 @@ func TestUserService_Own(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-get-own-user": {
@@ -483,13 +445,6 @@ func TestUserService_Own(t *testing.T) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-client-network": {
@@ -533,10 +488,10 @@ func TestUserService_Own(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, user)
-			assert.Equal(t, tc.wantUser.UserID, user.UserID)
-			assert.Equal(t, tc.wantUser.Name, user.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, user.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, user.RoleType)
+			assert.Equal(t, "admin", user.UserID)
+			assert.Equal(t, "admin", user.Name)
+			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
+			assert.Equal(t, 1, user.RoleType)
 		})
 	}
 }

@@ -13,7 +13,6 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -25,7 +24,6 @@ func TestProjectUserService_All(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantUsers   []*model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -37,15 +35,6 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
-
-			wantUsers: []*model.User{
-				{
-					UserID:      "admin",
-					Name:        "admin",
-					MailAddress: "eguchi@nulab.example",
-					RoleType:    1,
-				},
-			},
 		},
 		"success-excludeGroupMembers-true": {
 			projectKey:          "TEST2",
@@ -56,15 +45,6 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
-
-			wantUsers: []*model.User{
-				{
-					UserID:      "admin",
-					Name:        "admin",
-					MailAddress: "eguchi@nulab.example",
-					RoleType:    1,
-				},
-			},
 		},
 		"success-excludeGroupMembers-false": {
 			projectKey:          "TEST3",
@@ -74,15 +54,6 @@ func TestProjectUserService_All(t *testing.T) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
-			},
-
-			wantUsers: []*model.User{
-				{
-					UserID:      "admin",
-					Name:        "admin",
-					MailAddress: "eguchi@nulab.example",
-					RoleType:    1,
-				},
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -125,10 +96,10 @@ func TestProjectUserService_All(t *testing.T) {
 			assert.NoError(t, err)
 			require.Len(t, users, 4)
 			require.NotNil(t, users[0])
-			assert.Equal(t, tc.wantUsers[0].UserID, users[0].UserID)
-			assert.Equal(t, tc.wantUsers[0].Name, users[0].Name)
-			assert.Equal(t, tc.wantUsers[0].MailAddress, users[0].MailAddress)
-			assert.Equal(t, tc.wantUsers[0].RoleType, users[0].RoleType)
+			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, 1, users[0].RoleType)
 		})
 	}
 }
@@ -140,7 +111,6 @@ func TestProjectUserService_Add(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -151,13 +121,6 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -179,13 +142,6 @@ func TestProjectUserService_Add(t *testing.T) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-response-invalid-json": {
@@ -223,10 +179,10 @@ func TestProjectUserService_Add(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, u)
-			assert.Equal(t, tc.wantUser.UserID, u.UserID)
-			assert.Equal(t, tc.wantUser.Name, u.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
+			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
@@ -238,7 +194,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-delete-user": {
@@ -250,13 +205,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
-			},
 		},
 		"success-projectIDOrKey-number": {
 			projectKey: "1234",
@@ -266,13 +214,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "projects/1234/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -295,13 +236,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-response-invalid-json": {
@@ -339,10 +273,10 @@ func TestProjectUserService_Delete(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, u)
-			assert.Equal(t, tc.wantUser.UserID, u.UserID)
-			assert.Equal(t, tc.wantUser.Name, u.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
+			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
@@ -354,7 +288,6 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantUser    *model.User
 		wantErrType error
 	}{
 		"success-projectKey-valid": {
@@ -365,13 +298,6 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -393,13 +319,6 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 				assert.Equal(t, "projects/TEST2/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
-			},
-
-			wantUser: &model.User{
-				UserID:      "admin",
-				Name:        "admin",
-				MailAddress: "eguchi@nulab.example",
-				RoleType:    1,
 			},
 		},
 		"error-response-invalid-json": {
@@ -437,10 +356,10 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, u)
-			assert.Equal(t, tc.wantUser.UserID, u.UserID)
-			assert.Equal(t, tc.wantUser.Name, u.Name)
-			assert.Equal(t, tc.wantUser.MailAddress, u.MailAddress)
-			assert.Equal(t, tc.wantUser.RoleType, u.RoleType)
+			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
