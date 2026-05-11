@@ -13,17 +13,11 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
-	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestWikiService_All(t *testing.T) {
-	const testWiki1ID = 112
-	const testWiki2ID = 115
-	const testWiki1Name = "test1"
-	const testWiki2Name = "test2"
-
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -33,8 +27,6 @@ func TestWikiService_All(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
-		wantIDs     []int
-		wantNames   []string
 	}{
 		"success-projectIDOrKey-id": {
 			projectIDOrKey: "103",
@@ -44,9 +36,6 @@ func TestWikiService_All(t *testing.T) {
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
 				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
-
-			wantIDs:   []int{testWiki1ID, testWiki2ID},
-			wantNames: []string{testWiki1Name, testWiki2Name},
 		},
 
 		"success-projectIDOrKey-key-with-options": {
@@ -61,9 +50,6 @@ func TestWikiService_All(t *testing.T) {
 				assert.Equal(t, "test", query.Get("keyword"))
 				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
-
-			wantIDs:   []int{testWiki1ID, testWiki2ID},
-			wantNames: []string{testWiki1Name, testWiki2Name},
 		},
 
 		"error-validation-projectIDOrKey-empty": {
@@ -131,11 +117,9 @@ func TestWikiService_All(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, wikis)
 
-			assert.Len(t, wikis, len(tc.wantIDs))
-			for i := range wikis {
-				assert.Equal(t, tc.wantIDs[i], wikis[i].ID)
-				assert.Equal(t, tc.wantNames[i], wikis[i].Name)
-			}
+			assert.Len(t, wikis, 2)
+			assert.Equal(t, 112, wikis[0].ID)
+			assert.Equal(t, "test1", wikis[0].Name)
 		})
 	}
 }
@@ -231,9 +215,7 @@ func TestWikiService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType  error
-		wantWikiID   int
-		wantWikiName string
+		wantErrType error
 	}{
 		"success-wikiID-normal": {
 			wikiID: 34,
@@ -243,9 +225,6 @@ func TestWikiService_One(t *testing.T) {
 				assert.Nil(t, query)
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
-
-			wantWikiID:   34,
-			wantWikiName: "Maximum Wiki Page",
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
@@ -301,8 +280,8 @@ func TestWikiService_One(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, wiki)
-			assert.Equal(t, tc.wantWikiID, wiki.ID)
-			assert.Equal(t, tc.wantWikiName, wiki.Name)
+			assert.Equal(t, 34, wiki.ID)
+			assert.Equal(t, "Maximum Wiki Page", wiki.Name)
 		})
 	}
 }
@@ -318,7 +297,6 @@ func TestWikiService_Create(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantWiki    *model.Wiki
 		wantErrType error
 	}{
 		"success-projectID-name-content-minimum": {
@@ -332,12 +310,6 @@ func TestWikiService_Create(t *testing.T) {
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
 				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
-			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Minimum Wiki Page",
-				Content: "This is a minimal wiki page.",
 			},
 		},
 		"success-projectID-name-content-withMailNotify": {
@@ -353,12 +325,6 @@ func TestWikiService_Create(t *testing.T) {
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
-			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Minimum Wiki Page",
-				Content: "This is a minimal wiki page.",
 			},
 		},
 		"error-validation-projectID-zero": {
@@ -448,9 +414,9 @@ func TestWikiService_Create(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, wiki)
 
-			assert.Equal(t, tc.wantWiki.ID, wiki.ID)
-			assert.Equal(t, tc.wantWiki.Name, wiki.Name)
-			assert.Equal(t, tc.wantWiki.Content, wiki.Content)
+			assert.Equal(t, 34, wiki.ID)
+			assert.Equal(t, "Minimum Wiki Page", wiki.Name)
+			assert.Equal(t, "This is a minimal wiki page.", wiki.Content)
 		})
 	}
 }
@@ -466,7 +432,6 @@ func TestWikiService_Update(t *testing.T) {
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
 		wantErrType error
-		wantWiki    *model.Wiki
 	}{
 		"success-wikiID-name-only": {
 			wikiID: 34,
@@ -477,12 +442,6 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "New Page Name", form.Get("name"))
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
-			},
 		},
 		"success-wikiID-content-only": {
 			wikiID: 34,
@@ -492,12 +451,6 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
-			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
 			},
 		},
 		"success-wikiID-mailNotify-name": {
@@ -512,12 +465,6 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
-			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
 			},
 		},
 		"success-wikiID-full-options": {
@@ -534,12 +481,6 @@ func TestWikiService_Update(t *testing.T) {
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
-			},
-
-			wantWiki: &model.Wiki{
-				ID:      34,
-				Name:    "Maximum Wiki Page",
-				Content: "This is a muximal wiki page.",
 			},
 		},
 		"error-validation-required-option": {
@@ -614,9 +555,9 @@ func TestWikiService_Update(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, wiki)
 
-			assert.Equal(t, tc.wantWiki.ID, wiki.ID)
-			assert.Equal(t, tc.wantWiki.Name, wiki.Name)
-			assert.Equal(t, tc.wantWiki.Content, wiki.Content)
+			assert.Equal(t, 34, wiki.ID)
+			assert.Equal(t, "Maximum Wiki Page", wiki.Name)
+			assert.Equal(t, "This is a muximal wiki page.", wiki.Content)
 		})
 	}
 }
@@ -630,7 +571,6 @@ func TestWikiService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantWikiID  int
 		wantErrType error
 	}{
 		"success-wikiID-withMailNotify": {
@@ -642,8 +582,6 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "true", form.Get("mailNotify"))
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
-
-			wantWikiID: 34,
 		},
 		"success-wikiID-no-option": {
 			wikiID: 1,
@@ -652,8 +590,6 @@ func TestWikiService_Delete(t *testing.T) {
 				assert.Equal(t, "wikis/1", spath)
 				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
 			},
-
-			wantWikiID: 34,
 		},
 		"error-validation-wikiID-zero": {
 			wikiID:      0,
@@ -718,7 +654,7 @@ func TestWikiService_Delete(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, wiki)
 
-			assert.Equal(t, tc.wantWikiID, wiki.ID)
+			assert.Equal(t, 34, wiki.ID)
 		})
 	}
 }
