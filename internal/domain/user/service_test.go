@@ -39,7 +39,7 @@ func TestUserService_One(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
-				return mock.NewJSONResponse(`{}`), nil
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-id-zero": {
