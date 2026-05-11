@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,10 +19,8 @@ import (
 
 func TestUserService_One(t *testing.T) {
 	cases := map[string]struct {
-		id int
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
+		id          int
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErrType error
 	}{
 		"success-id-1": {
@@ -43,8 +40,7 @@ func TestUserService_One(t *testing.T) {
 			},
 		},
 		"error-validation-id-zero": {
-			id: 0,
-
+			id:          0,
 			wantErrType: &core.ValidationError{},
 		},
 	}
@@ -86,12 +82,10 @@ func TestUserService_Add(t *testing.T) {
 		name        string
 		mailAddress string
 		roleType    int
-
-		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
+		mockPostFn  func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErrType error
 	}{
-		"success-add-user": {
+		"success-roleType-1": {
 			userID:      "admin",
 			password:    "password",
 			name:        "admin",
@@ -104,9 +98,77 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
+				assert.Equal(t, "1", form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
+		},
+		"success-roleType-6": {
+			userID:      "admin",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "eguchi@nulab.example",
+			roleType:    6,
+
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "6", form.Get("roleType"))
+				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+			},
+		},
+		"error-validation-userID-empty": {
+			userID:      "",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "admin@example.com",
+			roleType:    1,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-password-empty": {
+			userID:      "admin",
+			password:    "",
+			name:        "admin",
+			mailAddress: "admin@example.com",
+			roleType:    1,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-name-empty": {
+			userID:      "admin",
+			password:    "password",
+			name:        "",
+			mailAddress: "admin@example.com",
+			roleType:    1,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-mailAddress-empty": {
+			userID:      "admin",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "",
+			roleType:    1,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-multiple-empty": {
+			userID:      "test",
+			password:    "",
+			name:        "",
+			mailAddress: "",
+			roleType:    1,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-roleType-0": {
+			userID:      "test",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "admin@example.com",
+			roleType:    0,
+			wantErrType: &core.ValidationError{},
+		},
+		"error-validation-roleType-7": {
+			userID:      "test",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "admin@example.com",
+			roleType:    7,
+			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {
 			userID:      "errorUser",
@@ -119,53 +181,7 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "users", spath)
 				return nil, errors.New("network failure")
 			},
-
 			wantErrType: errors.New(""),
-		},
-		"error-validation-userID-empty": {
-			userID:      "",
-			password:    "password",
-			name:        "admin",
-			mailAddress: "admin@example.com",
-			roleType:    1,
-
-			wantErrType: &core.ValidationError{},
-		},
-		"error-validation-password-empty": {
-			userID:      "admin",
-			password:    "",
-			name:        "admin",
-			mailAddress: "admin@example.com",
-			roleType:    1,
-
-			wantErrType: &core.ValidationError{},
-		},
-		"error-validation-name-empty": {
-			userID:      "admin",
-			password:    "password",
-			name:        "",
-			mailAddress: "admin@example.com",
-			roleType:    1,
-
-			wantErrType: &core.ValidationError{},
-		},
-		"error-validation-mailAddress-empty": {
-			userID:      "admin",
-			password:    "password",
-			name:        "admin",
-			mailAddress: "",
-			roleType:    1,
-
-			wantErrType: &core.ValidationError{},
-		},
-		"error-validation-multiple-empty": {
-			userID:      "test",
-			password:    "",
-			name:        "",
-			mailAddress: "",
-			roleType:    1,
-
-			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
 			userID:      "userID",
@@ -177,7 +193,6 @@ func TestUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -214,8 +229,7 @@ func TestUserService_Add(t *testing.T) {
 
 func TestUserService_All(t *testing.T) {
 	cases := map[string]struct {
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantLen     int
 		wantErrType error
 	}{
@@ -280,12 +294,10 @@ func TestUserService_Update(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		id     int
-		option core.RequestOption
-		opts   []core.RequestOption
-
+		id          int
+		option      core.RequestOption
+		opts        []core.RequestOption
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
 		wantErrType error
 	}{
 		"success-update-user": {
@@ -302,7 +314,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "password", form.Get("password"))
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
+				assert.Equal(t, "1", form.Get("roleType"))
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
 		},
@@ -314,7 +326,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "users/1234", spath)
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 		"success-option-withName": {
@@ -326,7 +337,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "testname", form.Get("name"))
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"success-option-withPassword": {
@@ -338,7 +348,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "testpassword", form.Get("password"))
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"success-option-withMailAddress": {
@@ -350,7 +359,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "test@test.com", form.Get("mailAddress"))
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"success-option-withRoleType": {
@@ -359,10 +367,9 @@ func TestUserService_Update(t *testing.T) {
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
-				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
+				assert.Equal(t, "1", form.Get("roleType"))
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"success-option-multiple": {
@@ -379,22 +386,19 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "testpassword1", form.Get("password"))
 				assert.Equal(t, "testname1", form.Get("name"))
 				assert.Equal(t, "test1@test.com", form.Get("mailAddress"))
-				assert.Equal(t, strconv.Itoa(int(1)), form.Get("roleType"))
+				assert.Equal(t, "1", form.Get("roleType"))
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-value": {
-			id:     1,
-			option: o.WithName(""),
-
+			id:          1,
+			option:      o.WithName(""),
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
-			id:     1,
-			option: mock.NewInvalidTypeOption(),
-
+			id:          1,
+			option:      mock.NewInvalidTypeOption(),
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
@@ -436,8 +440,7 @@ func TestUserService_Update(t *testing.T) {
 
 func TestUserService_Own(t *testing.T) {
 	cases := map[string]struct {
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
+		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErrType error
 	}{
 		"success-get-own-user": {
@@ -453,7 +456,6 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
@@ -462,7 +464,6 @@ func TestUserService_Own(t *testing.T) {
 				assert.Nil(t, query)
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -498,11 +499,9 @@ func TestUserService_Own(t *testing.T) {
 
 func TestUserService_Delete(t *testing.T) {
 	cases := map[string]struct {
-		id int
-
+		id           int
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-
-		wantErrType error
+		wantErrType  error
 	}{
 		"success-id-1": {
 			id: 1,
@@ -512,7 +511,6 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
-
 			wantErrType: nil,
 		},
 		"success-id-100": {
@@ -523,12 +521,10 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
 			},
-
 			wantErrType: nil,
 		},
 		"error-validation-id-zero": {
-			id: 0,
-
+			id:          0,
 			wantErrType: &core.ValidationError{},
 		},
 		"error-response-invalid-json": {
@@ -539,7 +535,6 @@ func TestUserService_Delete(t *testing.T) {
 				assert.Nil(t, form)
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -571,10 +566,8 @@ func TestUserService_Delete(t *testing.T) {
 
 func TestUserService_Icon(t *testing.T) {
 	cases := map[string]struct {
-		id int
-
-		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-
+		id              int
+		mockDownloadFn  func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErrType     error
 		wantFilename    string
 		wantContentType string
