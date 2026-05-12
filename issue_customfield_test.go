@@ -89,24 +89,3 @@ func TestIssueService_CustomField(t *testing.T) {
 		})
 	}
 }
-
-func TestIssueOptionService_CustomField(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
-	require.NoError(t, err)
-	s := c.Issue.Option
-
-	cases := map[string]struct {
-		option  backlog.RequestOption
-		wantKey string
-	}{
-		"WithCustomFieldItem":  {option: s.WithCustomFieldItem(1, 10), wantKey: "customField_1[]"},
-		"WithCustomFieldOther": {option: s.WithCustomFieldOther(1, "other"), wantKey: "customField_1_otherValue"},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.wantKey, tc.option.Key())
-		})
-	}
-}

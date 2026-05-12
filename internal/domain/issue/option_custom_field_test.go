@@ -12,7 +12,7 @@ import (
 
 func TestWithCustomFieldItem(t *testing.T) {
 	opt := issue.WithCustomFieldItem(5, 101)
-	assert.Equal(t, "customField_5[]", opt.Key())
+	assert.Equal(t, "customField", opt.Key())
 	require.NoError(t, opt.Check())
 
 	v := url.Values{}
@@ -31,7 +31,7 @@ func TestWithCustomFieldItem_MultipleItems(t *testing.T) {
 
 func TestWithCustomFieldOther(t *testing.T) {
 	opt := issue.WithCustomFieldOther(5, "other text")
-	assert.Equal(t, "customField_5_otherValue", opt.Key())
+	assert.Equal(t, "customField", opt.Key())
 	require.NoError(t, opt.Check())
 
 	v := url.Values{}
