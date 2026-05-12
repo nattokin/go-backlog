@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"context"
+	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
@@ -155,6 +156,9 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 //   - WithParentIssueID
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
+//   - WithCustomField (package-level generic function)
+//   - WithCustomFieldItem
+//   - WithCustomFieldOther
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
 func (s *IssueService) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...RequestOption) (*Issue, error) {
@@ -184,6 +188,9 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
 //   - WithComment
+//   - WithCustomField (package-level generic function)
+//   - WithCustomFieldItem
+//   - WithCustomFieldOther
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {
@@ -295,6 +302,23 @@ func (s *IssueOptionService) WithCreatedUntil(date string) RequestOption {
 // WithCreatedUserIDs filters issues by created user IDs.
 func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
 	return s.base.WithCreatedUserIDs(ids)
+}
+
+// WithCustomFieldItem returns an option to set a predefined item selection for a
+// list-type custom field (Single list, Multiple list, Checkbox, Radio).
+//
+// The parameter name is dynamically generated as "customField_{id}[]".
+// Can be called multiple times with the same id to select multiple items.
+func (s *IssueOptionService) WithCustomFieldItem(id int, itemID int) RequestOption {
+	return core.WithCustomFieldItem(id, itemID)
+}
+
+// WithCustomFieldOther returns an option to set the free-text "Other" value for a
+// list-type custom field where allowInput is enabled.
+//
+// The parameter name is dynamically generated as "customField_{id}_otherValue".
+func (s *IssueOptionService) WithCustomFieldOther(id int, value string) RequestOption {
+	return core.WithCustomFieldOther(id, value)
 }
 
 // WithDescription returns an option to set the `description` parameter.
@@ -470,6 +494,28 @@ func (s *IssueOptionService) WithUpdatedUntil(date string) RequestOption {
 // WithVersionIDs filters issues by version IDs.
 func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
 	return s.base.WithVersionIDs(ids)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Custom field package-level functions
+// ──────────────────────────────────────────────────────────────
+
+// WithCustomField returns a RequestOption that sets a custom field value for
+// non-list types (Text, Sentence, Number, Date).
+//
+// The parameter name is dynamically generated as "customField_{id}".
+// Supported value types: string, int, float64, time.Time.
+// time.Time values are formatted as "yyyy-MM-dd".
+//
+// Example:
+//
+//	c.Issue.Create(ctx, projectID, "Fix bug", issueTypeID, priorityID,
+//		backlog.WithCustomField(101, "v1.2.3"),
+//		backlog.WithCustomField(102, 42),
+//		backlog.WithCustomField(103, time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)),
+//	)
+func WithCustomField[T string | int | float64 | time.Time](id int, value T) RequestOption {
+	return core.WithCustomField(id, value)
 }
 
 // ──────────────────────────────────────────────────────────────
