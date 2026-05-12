@@ -153,7 +153,6 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 //   - WithMilestoneIDs
 //   - WithAssigneeID
 //   - WithParentIssueID
-//   - WithStatusID
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
 //

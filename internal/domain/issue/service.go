@@ -165,7 +165,6 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		core.ParamMilestoneIDs,
 		core.ParamAssigneeID,
 		core.ParamParentIssueID,
-		core.ParamStatusID,
 		core.ParamNotifiedUserIDs,
 		core.ParamAttachmentIDs,
 	}
