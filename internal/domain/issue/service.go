@@ -222,6 +222,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option core.R
 		core.ParamResolutionID,
 		core.ParamNotifiedUserIDs,
 		core.ParamAttachmentIDs,
+		core.ParamComment,
 	}
 	options := append([]core.RequestOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
