@@ -58,17 +58,17 @@ var Project = projectFixtures{
 }
 `,
 	Single: &backlog.Project{
-		ID:                         6,
-		ProjectKey:                 "TEST",
-		Name:                       "test",
-		TextFormattingRule:         backlog.FormatMarkdown,
-		UseResolvedForChart:        true,
-		UseWiki:                    true,
-		UseFileSharing:             true,
-		UseWikiTreeView:            true,
-		UseGit:                     true,
-		DisplayOrder:               2147483646,
-		UseDevAttributes:           true,
+		ID:                  6,
+		ProjectKey:          "TEST",
+		Name:                "test",
+		TextFormattingRule:  backlog.FormatMarkdown,
+		UseResolvedForChart: true,
+		UseWiki:             true,
+		UseFileSharing:      true,
+		UseWikiTreeView:     true,
+		UseGit:              true,
+		DisplayOrder:        2147483646,
+		UseDevAttributes:    true,
 	},
 	ListJSON: `
 [
