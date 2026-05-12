@@ -359,6 +359,7 @@ func TestIssueOptionService(t *testing.T) {
 		"WithAttachment":      {option: s.WithAttachment(true), wantKey: core.ParamAttachment.Value()},
 		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: core.ParamAttachmentIDs.Value()},
 		"WithCategoryIDs":     {option: s.WithCategoryIDs([]int{1}), wantKey: core.ParamCategoryIDs.Value()},
+		"WithComment":         {option: s.WithComment("comment"), wantKey: core.ParamComment.Value()},
 		"WithCount":           {option: s.WithCount(20), wantKey: core.ParamCount.Value()},
 		"WithCreatedSince":    {option: s.WithCreatedSince(date), wantKey: core.ParamCreatedSince.Value()},
 		"WithCreatedUntil":    {option: s.WithCreatedUntil(date), wantKey: core.ParamCreatedUntil.Value()},
