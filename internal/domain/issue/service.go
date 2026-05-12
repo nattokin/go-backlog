@@ -168,15 +168,19 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		core.ParamNotifiedUserIDs,
 		core.ParamAttachmentIDs,
 	}
+	regular, custom := core.SplitCustomFieldOptions(opts)
 	options := append(
 		[]core.RequestOption{
 			option.WithSummary(summary),
 			option.WithIssueTypeID(issueTypeID),
 			option.WithPriorityID(priorityID),
 		},
-		opts...,
+		regular...,
 	)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		return nil, err
+	}
+	if err := core.ApplyCustomFieldOptions(form, custom); err != nil {
 		return nil, err
 	}
 
@@ -224,8 +228,12 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option core.R
 		core.ParamAttachmentIDs,
 		core.ParamComment,
 	}
-	options := append([]core.RequestOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	allOpts := append([]core.RequestOption{option}, opts...)
+	regular, custom := core.SplitCustomFieldOptions(allOpts)
+	if err := core.ApplyOptions(form, validTypes, regular...); err != nil {
+		return nil, err
+	}
+	if err := core.ApplyCustomFieldOptions(form, custom); err != nil {
 		return nil, err
 	}
 
