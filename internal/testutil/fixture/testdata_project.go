@@ -45,14 +45,30 @@ var Project = projectFixtures{
     "subtaskingEnabled": false,
     "projectLeaderCanEditProjectLeader": false,
     "textFormattingRule": "markdown",
-    "archived": false
+    "archived": false,
+    "useResolvedForChart": true,
+    "useWiki": true,
+    "useFileSharing": true,
+    "useWikiTreeView": true,
+    "useSubversion": false,
+    "useGit": true,
+    "useOriginalImageSizeAtWiki": false,
+    "displayOrder": 2147483646,
+    "useDevAttributes": true
 }
 `,
 	Single: &backlog.Project{
-		ID:                 6,
-		ProjectKey:         "TEST",
-		Name:               "test",
-		TextFormattingRule: backlog.FormatMarkdown,
+		ID:                  6,
+		ProjectKey:          "TEST",
+		Name:                "test",
+		TextFormattingRule:  backlog.FormatMarkdown,
+		UseResolvedForChart: true,
+		UseWiki:             true,
+		UseFileSharing:      true,
+		UseWikiTreeView:     true,
+		UseGit:              true,
+		DisplayOrder:        2147483646,
+		UseDevAttributes:    true,
 	},
 	ListJSON: `
 [

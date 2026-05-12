@@ -22,6 +22,15 @@ type Project struct {
 	ProjectLeaderCanEditProjectLeader bool
 	TextFormattingRule                Format
 	Archived                          bool
+	UseResolvedForChart               bool
+	UseWiki                           bool
+	UseFileSharing                    bool
+	UseWikiTreeView                   bool
+	UseSubversion                     bool
+	UseGit                            bool
+	UseOriginalImageSizeAtWiki        bool
+	DisplayOrder                      int
+	UseDevAttributes                  bool
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -217,6 +226,15 @@ func projectFromModel(m *model.Project) *Project {
 		ProjectLeaderCanEditProjectLeader: m.ProjectLeaderCanEditProjectLeader,
 		TextFormattingRule:                Format(m.TextFormattingRule),
 		Archived:                          m.Archived,
+		UseResolvedForChart:               m.UseResolvedForChart,
+		UseWiki:                           m.UseWiki,
+		UseFileSharing:                    m.UseFileSharing,
+		UseWikiTreeView:                   m.UseWikiTreeView,
+		UseSubversion:                     m.UseSubversion,
+		UseGit:                            m.UseGit,
+		UseOriginalImageSizeAtWiki:        m.UseOriginalImageSizeAtWiki,
+		DisplayOrder:                      m.DisplayOrder,
+		UseDevAttributes:                  m.UseDevAttributes,
 	}
 }
 
