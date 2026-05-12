@@ -183,6 +183,7 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //   - WithResolutionID
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
+//   - WithComment
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {
@@ -267,6 +268,11 @@ func (s *IssueOptionService) WithAttachmentIDs(ids []int) RequestOption {
 // WithCategoryIDs filters issues by category IDs.
 func (s *IssueOptionService) WithCategoryIDs(ids []int) RequestOption {
 	return s.base.WithCategoryIDs(ids)
+}
+
+// WithComment returns an option to set the `comment` parameter.
+func (s *IssueOptionService) WithComment(comment string) RequestOption {
+	return s.base.WithComment(comment)
 }
 
 // WithCount sets the number of issues to retrieve (1-100).
