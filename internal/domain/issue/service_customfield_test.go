@@ -101,8 +101,8 @@ func TestIssueService_Update_CustomField(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option     core.RequestOption
-		opts       []core.RequestOption
+		option      core.RequestOption
+		opts        []core.RequestOption
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"WithCustomField-as-primary": {

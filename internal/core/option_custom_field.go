@@ -22,10 +22,10 @@ type customFieldOption struct {
 	setFunc func(url.Values) error
 }
 
-func (o *customFieldOption) Key() string           { return o.key }
-func (o *customFieldOption) Check() error          { return nil }
+func (o *customFieldOption) Key() string            { return o.key }
+func (o *customFieldOption) Check() error           { return nil }
 func (o *customFieldOption) Set(v url.Values) error { return o.setFunc(v) }
-func (o *customFieldOption) isCustomFieldOption()  {}
+func (o *customFieldOption) isCustomFieldOption()   {}
 
 // SplitCustomFieldOptions separates custom field options from regular options.
 // Custom field options are returned separately so callers can apply them without

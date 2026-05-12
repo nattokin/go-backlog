@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func TestWithCustomField_String(t *testing.T) {

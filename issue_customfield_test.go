@@ -185,10 +185,10 @@ func TestWithCustomField_Keys(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"string": {option: backlog.WithCustomField(1, "v"), wantKey: "customField_1"},
-		"int":    {option: backlog.WithCustomField(2, 0), wantKey: "customField_2"},
+		"string":  {option: backlog.WithCustomField(1, "v"), wantKey: "customField_1"},
+		"int":     {option: backlog.WithCustomField(2, 0), wantKey: "customField_2"},
 		"float64": {option: backlog.WithCustomField(3, 0.0), wantKey: "customField_3"},
-		"time":   {option: backlog.WithCustomField(4, time.Time{}), wantKey: "customField_4"},
+		"time":    {option: backlog.WithCustomField(4, time.Time{}), wantKey: "customField_4"},
 	}
 
 	for name, tc := range cases {
