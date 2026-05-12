@@ -2,7 +2,6 @@ package backlog
 
 import (
 	"context"
-	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
@@ -310,7 +309,7 @@ func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
 // The parameter name is dynamically generated as "customField_{id}[]".
 // Can be called multiple times with the same id to select multiple items.
 func (s *IssueOptionService) WithCustomFieldItem(id int, itemID int) RequestOption {
-	return core.WithCustomFieldItem(id, itemID)
+	return issue.WithCustomFieldItem(id, itemID)
 }
 
 // WithCustomFieldOther returns an option to set the free-text "Other" value for a
@@ -318,7 +317,7 @@ func (s *IssueOptionService) WithCustomFieldItem(id int, itemID int) RequestOpti
 //
 // The parameter name is dynamically generated as "customField_{id}_otherValue".
 func (s *IssueOptionService) WithCustomFieldOther(id int, value string) RequestOption {
-	return core.WithCustomFieldOther(id, value)
+	return issue.WithCustomFieldOther(id, value)
 }
 
 // WithDescription returns an option to set the `description` parameter.
@@ -494,28 +493,6 @@ func (s *IssueOptionService) WithUpdatedUntil(date string) RequestOption {
 // WithVersionIDs filters issues by version IDs.
 func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
 	return s.base.WithVersionIDs(ids)
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Custom field package-level functions
-// ──────────────────────────────────────────────────────────────
-
-// WithCustomField returns a RequestOption that sets a custom field value for
-// non-list types (Text, Sentence, Number, Date).
-//
-// The parameter name is dynamically generated as "customField_{id}".
-// Supported value types: string, int, float64, time.Time.
-// time.Time values are formatted as "yyyy-MM-dd".
-//
-// Example:
-//
-//	c.Issue.Create(ctx, projectID, "Fix bug", issueTypeID, priorityID,
-//		backlog.WithCustomField(101, "v1.2.3"),
-//		backlog.WithCustomField(102, 42),
-//		backlog.WithCustomField(103, time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)),
-//	)
-func WithCustomField[T string | int | float64 | time.Time](id int, value T) RequestOption {
-	return core.WithCustomField(id, value)
 }
 
 // ──────────────────────────────────────────────────────────────
