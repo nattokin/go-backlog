@@ -12,6 +12,15 @@ type Project struct {
 	ProjectLeaderCanEditProjectLeader bool   `json:"projectLeaderCanEditProjectLeader,omitempty"`
 	TextFormattingRule                string `json:"textFormattingRule,omitempty"`
 	Archived                          bool   `json:"archived,omitempty"`
+	UseResolvedForChart               bool   `json:"useResolvedForChart,omitempty"`
+	UseWiki                           bool   `json:"useWiki,omitempty"`
+	UseFileSharing                    bool   `json:"useFileSharing,omitempty"`
+	UseWikiTreeView                   bool   `json:"useWikiTreeView,omitempty"`
+	UseSubversion                     bool   `json:"useSubversion,omitempty"`
+	UseGit                            bool   `json:"useGit,omitempty"`
+	UseOriginalImageSizeAtWiki        bool   `json:"useOriginalImageSizeAtWiki,omitempty"`
+	DisplayOrder                      int    `json:"displayOrder,omitempty"`
+	UseDevAttributes                  bool   `json:"useDevAttributes,omitempty"`
 }
 
 // DiskUsageProject represents disk usage for a specific project.
