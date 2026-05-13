@@ -106,20 +106,70 @@ func TestWithCustomField(t *testing.T) {
 }
 
 func TestWithCustomFieldItems(t *testing.T) {
-	opt := issue.WithCustomFieldItems(5, []int{101})
-	assert.Equal(t, "customField", opt.Key())
-	require.NoError(t, opt.Check())
+	cases := map[string]struct {
+		id        int
+		itemIDs   []int
+		wantValue []string
+		wantErr   bool
+	}{
+		"single": {
+			id:        5,
+			itemIDs:   []int{101},
+			wantValue: []string{"101"},
+		},
+		"multiple": {
+			id:        5,
+			itemIDs:   []int{101, 202},
+			wantValue: []string{"101", "202"},
+		},
+		"invalid-id-zero": {
+			id:      0,
+			itemIDs: []int{101},
+			wantErr: true,
+		},
+		"invalid-id-negative": {
+			id:      -1,
+			itemIDs: []int{101},
+			wantErr: true,
+		},
+		"invalid-itemID-zero": {
+			id:      5,
+			itemIDs: []int{0},
+			wantErr: true,
+		},
+		"invalid-itemID-negative": {
+			id:      5,
+			itemIDs: []int{-1},
+			wantErr: true,
+		},
+		"invalid-itemID-in-middle": {
+			id:      5,
+			itemIDs: []int{101, -1, 202},
+			wantErr: true,
+		},
+	}
 
-	v := url.Values{}
-	require.NoError(t, opt.Set(v))
-	assert.Equal(t, []string{"101"}, v["customField_5"])
-}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-func TestWithCustomFieldItems_Multiple(t *testing.T) {
-	v := url.Values{}
-	opt := issue.WithCustomFieldItems(5, []int{101, 202})
-	require.NoError(t, opt.Set(v))
-	assert.Equal(t, []string{"101", "202"}, v["customField_5"])
+			opt := issue.WithCustomFieldItems(tc.id, tc.itemIDs)
+			assert.Equal(t, "customField", opt.Key())
+
+			err := opt.Check()
+			if tc.wantErr {
+				require.Error(t, err)
+				errType := &core.ValidationError{}
+				assert.ErrorAs(t, err, &errType)
+				return
+			}
+			require.NoError(t, err)
+
+			v := url.Values{}
+			require.NoError(t, opt.Set(v))
+			assert.Equal(t, tc.wantValue, v[fmt.Sprintf("customField_%d", tc.id)])
+		})
+	}
 }
 
 func TestWithCustomFieldOther(t *testing.T) {
