@@ -70,15 +70,24 @@ func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
 	return s.base.WithCreatedUserIDs(ids)
 }
 
-// WithCustomFieldItem returns an option to set a predefined item selection for a
+// WithCustomFieldItems returns an option to set predefined item selections for a
 // list-type custom field (Single list, Multiple list, Checkbox, Radio).
 //
-// The parameter name is dynamically generated as "customField_{id}[]".
-// Can be called multiple times with the same id to select multiple items.
+// The parameter name is dynamically generated as "customField_{id}". Multiple
+// item IDs are sent as repeated values under the same key, which the Backlog API
+// interprets as a list.
+//
+// Returns an error if id is less than 1.
 func (s *IssueOptionService) WithCustomFieldItems(id int, itemIDs []int) RequestOption {
 	return issue.WithCustomFieldItems(id, itemIDs)
 }
 
+// WithCustomFieldNum returns an option to set a Number type custom field value.
+//
+// The parameter name is dynamically generated as "customField_{id}".
+// Both integer and fractional values are supported (e.g. 1.0, -3.5).
+//
+// Returns an error if id is less than 1.
 func (s *IssueOptionService) WithCustomFieldNum(id int, value float64) RequestOption {
 	return issue.WithCustomField(id, value)
 }
@@ -87,14 +96,28 @@ func (s *IssueOptionService) WithCustomFieldNum(id int, value float64) RequestOp
 // list-type custom field where allowInput is enabled.
 //
 // The parameter name is dynamically generated as "customField_{id}_otherValue".
+//
+// Returns an error if id is less than 1.
 func (s *IssueOptionService) WithCustomFieldOther(id int, value string) RequestOption {
 	return issue.WithCustomFieldOther(id, value)
 }
 
+// WithCustomFieldString returns an option to set a Text or Sentence type custom
+// field value.
+//
+// The parameter name is dynamically generated as "customField_{id}".
+//
+// Returns an error if id is less than 1 or value is empty.
 func (s *IssueOptionService) WithCustomFieldString(id int, value string) RequestOption {
 	return issue.WithCustomField(id, value)
 }
 
+// WithCustomFieldTime returns an option to set a Date type custom field value.
+//
+// The parameter name is dynamically generated as "customField_{id}".
+// The value is formatted as "yyyy-MM-dd".
+//
+// Returns an error if id is less than 1 or value is a zero time.Time.
 func (s *IssueOptionService) WithCustomFieldTime(id int, value time.Time) RequestOption {
 	return issue.WithCustomField(id, value)
 }

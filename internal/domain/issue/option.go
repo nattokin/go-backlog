@@ -16,6 +16,9 @@ import (
 // The parameter name is dynamically generated as "customField_{id}".
 // Supported value types: string, float64, time.Time.
 // time.Time values are formatted as "yyyy-MM-dd".
+//
+// Returns an error if id is less than 1, value is an empty string, or value is
+// a zero time.Time.
 func WithCustomField[T string | float64 | time.Time](id int, value T) core.RequestOption {
 	return &core.APIParamOption{
 		Type: core.ParamCustomField,
@@ -56,10 +59,14 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 	}
 }
 
-// WithCustomFieldItem returns a RequestOption that adds a predefined item selection
+// WithCustomFieldItems returns a RequestOption that sets predefined item selections
 // for list-type custom fields (Single list, Multiple list, Checkbox, Radio).
 //
-// The parameter name is dynamically generated as "customField_{id}".
+// The parameter name is dynamically generated as "customField_{id}". Multiple
+// item IDs are sent as repeated values under the same key, which the Backlog API
+// interprets as a list.
+//
+// Returns an error if id is less than 1.
 func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
 	return &core.APIParamOption{
 		Type:      core.ParamCustomField,
@@ -74,10 +81,12 @@ func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
 	}
 }
 
-// WithCustomFieldOther returns a RequestOption that sets the free-text "Other" value
-// for list-type custom fields where allowInput is enabled.
+// WithCustomFieldOther returns a RequestOption that sets the free-text "Other"
+// value for list-type custom fields where allowInput is enabled.
 //
 // The parameter name is dynamically generated as "customField_{id}_otherValue".
+//
+// Returns an error if id is less than 1.
 func WithCustomFieldOther(id int, value string) core.RequestOption {
 	return &core.APIParamOption{
 		Type:      core.ParamCustomField,
