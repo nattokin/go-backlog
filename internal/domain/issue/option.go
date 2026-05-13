@@ -69,8 +69,14 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 // Returns an error if id is less than 1.
 func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
 	return &core.APIParamOption{
-		Type:      core.ParamCustomField,
-		CheckFunc: checkCustomFieldFunc(id),
+		Type: core.ParamCustomField,
+		CheckFunc: func() error {
+			if err := validate.ValidateCustomFieldID(id); err != nil {
+				return err
+			}
+
+			return validateItemIDs(itemIDs)
+		},
 		SetFunc: func(vals url.Values) error {
 			key := fmt.Sprintf("customField_%d", id)
 			for _, itemID := range itemIDs {
@@ -89,8 +95,10 @@ func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
 // Returns an error if id is less than 1.
 func WithCustomFieldOther(id int, value string) core.RequestOption {
 	return &core.APIParamOption{
-		Type:      core.ParamCustomField,
-		CheckFunc: checkCustomFieldFunc(id),
+		Type: core.ParamCustomField,
+		CheckFunc: func() error {
+			return validate.ValidateCustomFieldID(id)
+		},
 		SetFunc: func(vals url.Values) error {
 			key := fmt.Sprintf("customField_%d_otherValue", id)
 			vals.Set(key, value)
@@ -99,8 +107,12 @@ func WithCustomFieldOther(id int, value string) core.RequestOption {
 	}
 }
 
-func checkCustomFieldFunc(id int) func() error {
-	return func() error {
-		return validate.ValidateCustomFieldID(id)
+func validateItemIDs(ids []int) error {
+	for _, id := range ids {
+		if id < 1 {
+			return core.NewValidationError(fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
+		}
 	}
+
+	return nil
 }
