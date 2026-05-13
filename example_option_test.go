@@ -3,6 +3,7 @@ package backlog_test
 import (
 	"context"
 	"fmt"
+	"time"
 
 	backlog "github.com/nattokin/go-backlog"
 )
@@ -43,6 +44,60 @@ func ExampleIssueOptionService() {
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(issues), issues[0].ID, issues[0].Summary)
 	// Output:
 	// Count: 2, ID: 1, Summary: First issue
+}
+
+// ExampleIssueOptionService_customField demonstrates updating issues with custom fields.
+func ExampleIssueOptionService_customField() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueSingle),
+	)
+
+	params := map[string]struct {
+		id        int
+		numValue  float64
+		strValue  string
+		timeValue time.Time
+		itemIDs   []int
+	}{
+		"Num": {
+			id:       1,
+			numValue: 1.5,
+		},
+		"String": {
+			id:       2,
+			strValue: "test",
+		},
+		"Time": {
+			id:        3,
+			timeValue: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+		"Items": {
+			id:      4,
+			itemIDs: []int{1, 2},
+		},
+		"Other": {
+			id:       4,
+			strValue: "test",
+		},
+	}
+
+	issue, _ := c.Issue.Update(
+		context.Background(),
+		"Issue-1",
+		c.Issue.Option.WithCustomFieldNum(params["Num"].id, params["Num"].numValue),
+		c.Issue.Option.WithCustomFieldString(params["String"].id, params["String"].strValue),
+		c.Issue.Option.WithCustomFieldTime(params["Time"].id, params["Time"].timeValue),
+
+		// Select items from the list custom field.
+		c.Issue.Option.WithCustomFieldItems(params["Items"].id, params["Items"].itemIDs),
+		// Set the "Other" text value for the list custom field.
+		c.Issue.Option.WithCustomFieldOther(params["Other"].id, params["Other"].strValue),
+	)
+	fmt.Printf("ID: %d, Summary: %s\n", issue.ID, issue.Summary)
+	// Output:
+	// ID: 1, Summary: First issue
 }
 
 // ExampleIssueCommentOptionService demonstrates fetching comments with count and order options.

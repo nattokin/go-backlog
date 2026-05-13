@@ -27,6 +27,7 @@ const (
 	ParamCreatedSince                      APIParamOptionType = "createdSince"
 	ParamCreatedUntil                      APIParamOptionType = "createdUntil"
 	ParamCreatedUserIDs                    APIParamOptionType = "createdUserId[]"
+	ParamCustomField                       APIParamOptionType = "customField"
 	ParamDescription                       APIParamOptionType = "description"
 	ParamDueDate                           APIParamOptionType = "dueDate"
 	ParamDueDateSince                      APIParamOptionType = "dueDateSince"

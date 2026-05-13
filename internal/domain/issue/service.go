@@ -149,7 +149,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		return nil, err
 	}
 
-	option := &core.OptionService{}
+	o := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamSummary,
@@ -167,12 +167,13 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		core.ParamParentIssueID,
 		core.ParamNotifiedUserIDs,
 		core.ParamAttachmentIDs,
+		core.ParamCustomField,
 	}
 	options := append(
 		[]core.RequestOption{
-			option.WithSummary(summary),
-			option.WithIssueTypeID(issueTypeID),
-			option.WithPriorityID(priorityID),
+			o.WithSummary(summary),
+			o.WithIssueTypeID(issueTypeID),
+			o.WithPriorityID(priorityID),
 		},
 		opts...,
 	)
@@ -223,6 +224,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option core.R
 		core.ParamNotifiedUserIDs,
 		core.ParamAttachmentIDs,
 		core.ParamComment,
+		core.ParamCustomField,
 	}
 	options := append([]core.RequestOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
