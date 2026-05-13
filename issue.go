@@ -155,7 +155,7 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 //   - WithParentIssueID
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
-//   - WithCustomField (package-level generic function)
+//   - WithCustomField
 //   - WithCustomFieldItem
 //   - WithCustomFieldOther
 //
@@ -187,7 +187,7 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
 //   - WithComment
-//   - WithCustomField (package-level generic function)
+//   - WithCustomField
 //   - WithCustomFieldItem
 //   - WithCustomFieldOther
 //
