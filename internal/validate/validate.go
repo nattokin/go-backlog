@@ -24,6 +24,13 @@ func ValidateCommentID(commentID int) error {
 	return nil
 }
 
+func ValidateCustomFieldID(customFieldID int) error {
+	if customFieldID < 1 {
+		return core.NewValidationError("customFieldID must not be less than 1")
+	}
+	return nil
+}
+
 func ValidateIssueIDOrKey(issueIDOrKey string) error {
 	if issueIDOrKey == "" {
 		return core.NewValidationError("issueIDOrKey must not be empty")

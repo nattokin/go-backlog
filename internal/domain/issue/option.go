@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // WithCustomField returns a RequestOption that sets a custom field value for
@@ -19,7 +20,7 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 	return &core.APIParamOption{
 		Type: core.ParamCustomField,
 		CheckFunc: func() error {
-			if err := validateCustomFieldID(id); err != nil {
+			if err := validate.ValidateCustomFieldID(id); err != nil {
 				return err
 			}
 
@@ -91,14 +92,6 @@ func WithCustomFieldOther(id int, value string) core.RequestOption {
 
 func checkCustomFieldFunc(id int) func() error {
 	return func() error {
-		return validateCustomFieldID(id)
+		return validate.ValidateCustomFieldID(id)
 	}
-}
-
-func validateCustomFieldID(id int) error {
-	if id < 1 {
-		msg := fmt.Sprintf("invalid %s: must not be less than 1", core.ParamCustomField.Value())
-		return core.NewValidationError(msg)
-	}
-	return nil
 }
