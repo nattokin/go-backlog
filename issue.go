@@ -156,7 +156,7 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 //   - WithNotifiedUserIDs
 //   - WithAttachmentIDs
 //   - WithCustomField
-//   - WithCustomFieldItem
+//   - WithCustomFieldItems
 //   - WithCustomFieldOther
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
@@ -188,7 +188,7 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //   - WithAttachmentIDs
 //   - WithComment
 //   - WithCustomField
-//   - WithCustomFieldItem
+//   - WithCustomFieldItems
 //   - WithCustomFieldOther
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
