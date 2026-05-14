@@ -23,6 +23,7 @@ type Activity struct {
 	Content       *ActivityContent
 	Notifications []*Notification
 	CreatedUser   *User
+	Created       Timestamp
 }
 
 // ActivityContent represents the detailed content of an activity.
@@ -255,6 +256,7 @@ func activityFromModel(m *model.Activity) *Activity {
 		Content:       activityContentFromModel(m.Content),
 		Notifications: notifications,
 		CreatedUser:   userFromModel(m.CreatedUser),
+		Created:       Timestamp{m.Created},
 	}
 }
 

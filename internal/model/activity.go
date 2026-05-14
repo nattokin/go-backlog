@@ -1,6 +1,8 @@
 // Package model defines the data structures returned by the Backlog API.
 package model
 
+import "time"
+
 // Activity represents a recent update or change in the project or space.
 type Activity struct {
 	ID            int              `json:"id,omitempty"`
@@ -9,6 +11,7 @@ type Activity struct {
 	Content       *ActivityContent `json:"content,omitempty"`
 	Notifications []*Notification  `json:"notifications,omitempty"`
 	CreatedUser   *User            `json:"createdUser,omitempty"`
+	Created       time.Time        `json:"created,omitempty"`
 }
 
 // ActivityContent represents the detailed content of an activity.
