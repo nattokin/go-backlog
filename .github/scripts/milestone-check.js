@@ -2,6 +2,7 @@
 'use strict';
 
 const https = require('https');
+const fs = require('fs');
 
 // ──────────────────────────────────────────────────────────────
 //  Environment variables (injected by the workflow)
@@ -12,6 +13,7 @@ const {
   REPO_OWNER,
   REPO_NAME,
   TAG_NAME,
+  GITHUB_OUTPUT,
 } = process.env;
 
 // ──────────────────────────────────────────────────────────────
@@ -36,13 +38,8 @@ async function main() {
     process.exit(1);
   }
 
-  await githubRequest(
-    'PATCH',
-    `/repos/${REPO_OWNER}/${REPO_NAME}/milestones/${milestone.number}`,
-    { state: 'closed' },
-  );
-
-  console.log(`Milestone '${TAG_NAME}' closed successfully.`);
+  fs.appendFileSync(GITHUB_OUTPUT, `milestone_number=${milestone.number}\n`);
+  console.log(`Milestone check passed. Number: ${milestone.number}`);
 }
 
 main().catch(err => {
@@ -70,7 +67,7 @@ function githubRequest(method, path, data) {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github+json',
-        'User-Agent': 'milestone-check-and-close-script',
+        'User-Agent': 'milestone-check-script',
         'X-GitHub-Api-Version': '2022-11-28',
         ...(body
           ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
