@@ -64,7 +64,7 @@ func main() {
 		if a.Content != nil {
 			summary = a.Content.Summary
 		}
-		fmt.Printf("  [type:%d] %s — %s\n", a.Type, user, summary)
+		fmt.Printf("  [type:%d] %s — %s (%s)\n", a.Type, user, summary, a.Created.Format("2006-01-02 15:04:05"))
 	}
 }
 
