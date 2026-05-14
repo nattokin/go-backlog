@@ -202,6 +202,7 @@ var Activity = activityFixtures{
 				Lang:        "ja",
 				MailAddress: "eguchi@nulab.example",
 			},
+			Created: mustTimestamp("2014-07-21T06:48:40Z"),
 		},
 	},
 	SingleJSON: `{
@@ -260,5 +261,6 @@ var Activity = activityFixtures{
 			Lang:        "ja",
 			MailAddress: "eguchi@nulab.example",
 		},
+		Created: mustTimestamp("2014-07-21T06:48:40Z"),
 	},
 }
