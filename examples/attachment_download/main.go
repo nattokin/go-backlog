@@ -28,9 +28,12 @@ func main() {
 
 	args := flag.Args()
 	if len(args) < 2 {
-		log.Fatalln("Usage: go run . [--target issue|wiki] <ISSUE_KEY_OR_WIKI_ID> <OUTPUT_DIR>")
+		log.Fatalln("Usage: go run . [--target issue|wiki] <ID> <OUTPUT_DIR>")
 	}
-	key := args[0]
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		log.Fatalf("ID must be an integer, got %q", args[0])
+	}
 	outDir := args[1]
 
 	if err := os.MkdirAll(outDir, 0755); err != nil {
@@ -46,28 +49,25 @@ func main() {
 
 	switch *target {
 	case "issue":
-		downloadIssueAttachments(ctx, c, key, outDir)
+		downloadIssueAttachments(ctx, c, id, outDir)
 	case "wiki":
-		wikiID, err := strconv.Atoi(key)
-		if err != nil {
-			log.Fatalf("wiki ID must be an integer, got %q", key)
-		}
-		downloadWikiAttachments(ctx, c, wikiID, outDir)
+		downloadWikiAttachments(ctx, c, id, outDir)
 	default:
 		log.Fatalf("unknown target %q: must be issue or wiki", *target)
 	}
 }
 
-func downloadIssueAttachments(ctx context.Context, c *backlog.Client, issueKey, outDir string) {
-	attachments, err := c.Issue.Attachment.List(ctx, issueKey)
+func downloadIssueAttachments(ctx context.Context, c *backlog.Client, issueID int, outDir string) {
+	issueIDStr := strconv.Itoa(issueID)
+	attachments, err := c.Issue.Attachment.List(ctx, issueIDStr)
 	if err != nil {
 		log.Fatalf("failed to list attachments: %v", err)
 	}
-	fmt.Printf("%d attachment(s) found on issue %s\n", len(attachments), issueKey)
+	fmt.Printf("%d attachment(s) found on issue %d\n", len(attachments), issueID)
 
 	for _, a := range attachments {
 		fmt.Printf("  downloading %s...\n", a.Name)
-		fd, err := c.Issue.Attachment.Download(ctx, issueKey, a.ID)
+		fd, err := c.Issue.Attachment.Download(ctx, issueIDStr, a.ID)
 		if err != nil {
 			log.Printf("warning: failed to download %s: %v", a.Name, err)
 			continue

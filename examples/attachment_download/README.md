@@ -14,7 +14,7 @@ export BACKLOG_BASE_URL=https://example.backlog.com
 export BACKLOG_TOKEN=your_token
 
 # Download attachments from an issue
-go run . --target issue <ISSUE_KEY> <OUTPUT_DIR>
+go run . --target issue <ISSUE_ID> <OUTPUT_DIR>
 
 # Download attachments from a wiki page
 go run . --target wiki <WIKI_ID> <OUTPUT_DIR>
@@ -26,12 +26,19 @@ go run . --target wiki <WIKI_ID> <OUTPUT_DIR>
 |------|---------|-------------|
 | `--target` | `issue` | Target type: `issue` or `wiki` |
 
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `ID` | Numeric ID of the issue or wiki page |
+| `OUTPUT_DIR` | Directory to save downloaded files |
+
 ## Output
 
 Files are saved to `<OUTPUT_DIR>/` using the original filename returned by the API.
 
 ```
-3 attachment(s) found on issue MYPROJECT-42
+3 attachment(s) found on issue 100
   downloading report.pdf...
   downloading screenshot.png...
   downloading data.csv...
