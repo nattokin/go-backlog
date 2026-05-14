@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/nattokin/go-backlog"
@@ -60,11 +62,10 @@ func main() {
 		log.Fatalf("failed to fetch issues: %v", err)
 	}
 
-	// Header
-	fmt.Fprintln(os.Stdout, strings.Join([]string{
-		"ID", "Key", "Summary", "Status", "Assignee", "Priority",
-		"Comments", "Attachments", "Created", "Updated",
-	}, "\t"))
+	w := csv.NewWriter(os.Stdout)
+	w.Comma = '\t'
+
+	_ = w.Write([]string{"ID", "Key", "Summary", "Status", "Assignee", "Priority", "Comments", "Attachments", "Created", "Updated"})
 
 	for _, issue := range issues {
 		comments, err := c.Issue.Comment.All(ctx, issue.IssueKey)
@@ -90,19 +91,21 @@ func main() {
 			priorityName = issue.Priority.Name
 		}
 
-		fmt.Fprintf(os.Stdout, "%d\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%s\t%s\n",
-			issue.ID,
+		_ = w.Write([]string{
+			strconv.Itoa(issue.ID),
 			issue.IssueKey,
 			issue.Summary,
 			statusName,
 			assigneeName,
 			priorityName,
-			len(comments),
-			len(attachments),
+			strconv.Itoa(len(comments)),
+			strconv.Itoa(len(attachments)),
 			issue.Created.String(),
 			issue.Updated.String(),
-		)
+		})
 	}
+
+	w.Flush()
 }
 
 // parseIntList parses a comma-separated string of integers.
