@@ -33,6 +33,6 @@ Disk Usage (capacity: 10.00 GB)
   Subversion : 0 B
 
 Recent Activity (10 entries)
-  [type:1] John Doe — MYPROJECT-123: Fix login bug
+  [type:1] John Doe — MYPROJECT-123: Fix login bug (2026-05-14 10:00:00)
   ...
 ```
