@@ -57,7 +57,7 @@ func main() {
 		}
 	}
 
-	issues, err := c.Issue.All(ctx, opts...)
+	issues, err := c.Issue.List(ctx, opts...)
 	if err != nil {
 		log.Fatalf("failed to fetch issues: %v", err)
 	}
@@ -68,7 +68,7 @@ func main() {
 	_ = w.Write([]string{"ID", "Key", "Summary", "Status", "Assignee", "Priority", "Comments", "Attachments", "Created", "Updated"})
 
 	for _, issue := range issues {
-		comments, err := c.Issue.Comment.All(ctx, issue.IssueKey)
+		comments, err := c.Issue.Comment.List(ctx, issue.IssueKey)
 		if err != nil {
 			log.Printf("warning: failed to fetch comments for %s: %v", issue.IssueKey, err)
 		}

@@ -17,10 +17,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of pull requests.
+// List returns a list of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

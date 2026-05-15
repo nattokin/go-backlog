@@ -154,7 +154,7 @@ func TestIssueService_All(t *testing.T) {
 
 			s := issue.NewService(method)
 
-			issues, err := s.All(context.Background(), tc.opts...)
+			issues, err := s.List(context.Background(), tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -773,7 +773,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
-			s.All(ctx) //nolint:errcheck
+			s.List(ctx) //nolint:errcheck
 		}},
 		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
@@ -823,7 +823,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"CommentService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
-			s.All(ctx, "ISSUE-1") //nolint:errcheck
+			s.List(ctx, "ISSUE-1") //nolint:errcheck
 		}},
 		{"CommentService.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)

@@ -54,15 +54,15 @@ type WikiService struct {
 	Option *WikiOptionService
 }
 
-// All returns a list of all wiki pages in the project.
+// List returns a list of all wiki pages in the project.
 //
 // This method supports options returned by methods in "*Client.Wiki.Option",
 // such as:
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *WikiService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, toCoreOptions(opts)...)
+func (s *WikiService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
 	return wikisFromModel(v), convertError(err)
 }
 

@@ -54,7 +54,7 @@ type ProjectService struct {
 	Option *ProjectOptionService
 }
 
-// All returns a list of projects.
+// List returns a list of projects.
 //
 // This method supports options returned by methods in "*Client.Project.Option",
 // such as:
@@ -62,8 +62,8 @@ type ProjectService struct {
 //   - WithQueryArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *ProjectService) All(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
-	v, err := s.base.All(ctx, toCoreOptions(opts)...)
+func (s *ProjectService) List(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
+	v, err := s.base.List(ctx, toCoreOptions(opts)...)
 	return projectsFromModel(v), convertError(err)
 }
 

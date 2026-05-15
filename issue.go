@@ -80,7 +80,7 @@ type IssueService struct {
 	Option *IssueOptionService
 }
 
-// All returns a list of issues.
+// List returns a list of issues.
 //
 // This method supports options returned by methods in "*Client.Issue.Option",
 // such as:
@@ -115,8 +115,8 @@ type IssueService struct {
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *IssueService) All(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
-	v, err := s.base.All(ctx, toCoreOptions(opts)...)
+func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
+	v, err := s.base.List(ctx, toCoreOptions(opts)...)
 	return issuesFromModel(v), convertError(err)
 }
 

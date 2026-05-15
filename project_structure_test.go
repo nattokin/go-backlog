@@ -214,7 +214,7 @@ func TestProjectUserService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.User.All(ctx, "TEST", false)
+				got, err := c.Project.User.List(ctx, "TEST", false)
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
@@ -222,7 +222,7 @@ func TestProjectUserService(t *testing.T) {
 		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.User.All(ctx, "TEST", false)
+				_, err := c.Project.User.List(ctx, "TEST", false)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

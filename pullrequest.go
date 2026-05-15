@@ -47,7 +47,7 @@ type PullRequestService struct {
 	Star       *PullRequestStarService
 }
 
-// All returns a list of pull requests.
+// List returns a list of pull requests.
 //
 // This method supports options returned by methods in "*Client.PullRequest.Option",
 // such as:
@@ -59,8 +59,8 @@ type PullRequestService struct {
 //   - WithCount
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *PullRequestService) All(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) ([]*PullRequest, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, repositoryIDOrName, toCoreOptions(opts)...)
+func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) ([]*PullRequest, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, toCoreOptions(opts)...)
 	return pullRequestsFromModel(v), convertError(err)
 }
 

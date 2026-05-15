@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleIssueService_All() {
+func ExampleIssueService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerIssueList),
 	)
 
-	issues, _ := c.Issue.All(context.Background())
+	issues, _ := c.Issue.List(context.Background())
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(issues), issues[0].ID, issues[0].Summary)
 	// Output:
 	// Count: 2, ID: 1, Summary: First issue
@@ -137,14 +137,14 @@ func ExampleIssueAttachmentService_Remove() {
 	// ID: 8, Name: IMG0088.png
 }
 
-func ExampleIssueCommentService_All() {
+func ExampleIssueCommentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerCommentList),
 	)
 
-	comments, _ := c.Issue.Comment.All(context.Background(), "PRJ-1")
+	comments, _ := c.Issue.Comment.List(context.Background(), "PRJ-1")
 	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
 	// Output:
 	// Count: 2, ID: 1, Content: This is a comment.

@@ -136,7 +136,7 @@ func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
 		}}),
 	)
 	require.NoError(t, err)
-	_, err = c.Wiki.All(context.Background(), "PROJECT")
+	_, err = c.Wiki.List(context.Background(), "PROJECT")
 	assert.True(t, errors.Is(err, sentinel))
 }
 
@@ -164,7 +164,7 @@ func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 		}}),
 	)
 	require.NoError(t, err)
-	_, err = c.Wiki.All(context.Background(), "PROJECT")
+	_, err = c.Wiki.List(context.Background(), "PROJECT")
 	return err
 }
 
@@ -174,6 +174,6 @@ func callWikiAllWithInvalidOption(t *testing.T) error {
 	t.Helper()
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
-	_, err = c.Wiki.All(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
+	_, err = c.Wiki.List(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
 	return err
 }

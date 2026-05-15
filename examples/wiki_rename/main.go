@@ -30,7 +30,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	wikis, err := c.Wiki.All(context.Background(), projectKey)
+	wikis, err := c.Wiki.List(context.Background(), projectKey)
 	if err != nil {
 		log.Fatalln(err)
 	}

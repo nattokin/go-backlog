@@ -34,7 +34,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
-			s.All(ctx) //nolint:errcheck
+			s.List(ctx) //nolint:errcheck
 		}},
 		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
@@ -184,7 +184,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"UserService.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewUserService(m)
-			s.All(ctx, "TEST", false) //nolint:errcheck
+			s.List(ctx, "TEST", false) //nolint:errcheck
 		}},
 		{"UserService.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)

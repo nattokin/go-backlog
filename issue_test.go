@@ -30,7 +30,7 @@ func TestIssueService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.All(ctx)
+				got, err := c.Issue.List(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 1, got[0].ID)
@@ -46,7 +46,7 @@ func TestIssueService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.All(ctx,
+				got, err := c.Issue.List(ctx,
 					c.Issue.Option.WithKeyword("bug"),
 					c.Issue.Option.WithProjectIDs([]int{10, 20}),
 				)
@@ -57,7 +57,7 @@ func TestIssueService(t *testing.T) {
 		"All/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Issue.All(ctx)
+				_, err := c.Issue.List(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

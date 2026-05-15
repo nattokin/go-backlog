@@ -32,7 +32,7 @@ func TestWikiService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Wiki.All(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
+				got, err := c.Wiki.List(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 			},
@@ -40,7 +40,7 @@ func TestWikiService(t *testing.T) {
 		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Wiki.All(ctx, "TEST")
+				_, err := c.Wiki.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

@@ -61,7 +61,7 @@ func main() {
 	}
 	fmt.Printf("%d pull request(s) found in %s/%s\n", total, projectKey, repoName)
 
-	prs, err := c.PullRequest.All(ctx, projectKey, repoName, opts...)
+	prs, err := c.PullRequest.List(ctx, projectKey, repoName, opts...)
 	if err != nil {
 		log.Fatalf("failed to fetch pull requests: %v", err)
 	}
@@ -76,7 +76,7 @@ func main() {
 			assigneeName = pr.Assignee.Name
 		}
 
-		comments, err := c.PullRequest.Comment.All(ctx, projectKey, repoName, pr.Number)
+		comments, err := c.PullRequest.Comment.List(ctx, projectKey, repoName, pr.Number)
 		if err != nil {
 			log.Printf("warning: failed to fetch comments for PR #%d: %v", pr.Number, err)
 		}

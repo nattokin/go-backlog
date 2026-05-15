@@ -141,7 +141,7 @@ func TestCommentService_All(t *testing.T) {
 
 			s := pullrequest.NewCommentService(method)
 
-			got, err := s.All(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
+			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

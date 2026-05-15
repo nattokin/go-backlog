@@ -29,7 +29,7 @@ func TestIssueCommentService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.Comment.All(ctx, "PRJ-1")
+				got, err := c.Issue.Comment.List(ctx, "PRJ-1")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 1, got[0].ID)
@@ -45,7 +45,7 @@ func TestIssueCommentService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.Comment.All(ctx, "PRJ-1",
+				got, err := c.Issue.Comment.List(ctx, "PRJ-1",
 					c.Issue.Comment.Option.WithCount(20),
 					c.Issue.Comment.Option.WithOrder(backlog.OrderAsc),
 				)
@@ -56,7 +56,7 @@ func TestIssueCommentService(t *testing.T) {
 		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Issue.Comment.All(ctx, "PRJ-1")
+				_, err := c.Issue.Comment.List(ctx, "PRJ-1")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

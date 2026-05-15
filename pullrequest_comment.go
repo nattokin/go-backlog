@@ -13,7 +13,7 @@ type PullRequestCommentService struct {
 	Option *PullRequestCommentOptionService
 }
 
-// All returns a list of comments on a pull request.
+// List returns a list of comments on a pull request.
 //
 // This method supports options returned by methods in "*Client.PullRequest.Comment.Option",
 // such as:
@@ -23,8 +23,8 @@ type PullRequestCommentService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *PullRequestCommentService) All(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, opts ...RequestOption) ([]*Comment, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toCoreOptions(opts)...)
+func (s *PullRequestCommentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, opts ...RequestOption) ([]*Comment, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toCoreOptions(opts)...)
 	return commentsFromModel(v), convertError(err)
 }
 

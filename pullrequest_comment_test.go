@@ -29,7 +29,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.PullRequest.Comment.All(ctx, "TEST", "repo", 1)
+				got, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 1, got[0].ID)
@@ -45,7 +45,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.PullRequest.Comment.All(ctx, "TEST", "repo", 1,
+				got, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1,
 					c.PullRequest.Comment.Option.WithCount(20),
 					c.PullRequest.Comment.Option.WithOrder(backlog.OrderAsc),
 				)
@@ -56,7 +56,7 @@ func TestPullRequestCommentService(t *testing.T) {
 		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.PullRequest.Comment.All(ctx, "TEST", "repo", 1)
+				_, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

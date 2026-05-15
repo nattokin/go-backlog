@@ -83,11 +83,11 @@ type ProjectUserService struct {
 	base *project.UserService
 }
 
-// All returns all users in the project.
+// List returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, excludeGroupMembers)
+func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, excludeGroupMembers)
 	return usersFromModel(v), convertError(err)
 }
 

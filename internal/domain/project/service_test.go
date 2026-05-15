@@ -101,7 +101,7 @@ func TestService_All(t *testing.T) {
 			}
 			s := project.NewService(method)
 
-			projects, err := s.All(context.Background(), tc.opts...)
+			projects, err := s.List(context.Background(), tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

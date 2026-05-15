@@ -35,7 +35,7 @@ func ExampleIssueOptionService() {
 		backlog.WithDoer(doerIssueList),
 	)
 
-	issues, _ := c.Issue.All(
+	issues, _ := c.Issue.List(
 		context.Background(),
 		c.Issue.Option.WithProjectIDs([]int{10}),
 		c.Issue.Option.WithKeyword("first"),
@@ -108,7 +108,7 @@ func ExampleIssueCommentOptionService() {
 		backlog.WithDoer(doerCommentList),
 	)
 
-	comments, _ := c.Issue.Comment.All(
+	comments, _ := c.Issue.Comment.List(
 		context.Background(),
 		"PRJ-1",
 		c.Issue.Comment.Option.WithCount(20),
@@ -127,7 +127,7 @@ func ExampleProjectOptionService() {
 		backlog.WithDoer(doerProjectList),
 	)
 
-	projects, _ := c.Project.All(
+	projects, _ := c.Project.List(
 		context.Background(),
 		c.Project.Option.WithAll(true),
 		c.Project.Option.WithArchived(false),
@@ -201,7 +201,7 @@ func ExamplePullRequestOptionService() {
 		backlog.WithDoer(doerPullRequestList),
 	)
 
-	prs, _ := c.PullRequest.All(
+	prs, _ := c.PullRequest.List(
 		context.Background(),
 		"TEST",
 		"myrepo",
@@ -221,7 +221,7 @@ func ExamplePullRequestCommentOptionService() {
 		backlog.WithDoer(doerCommentList),
 	)
 
-	comments, _ := c.PullRequest.Comment.All(
+	comments, _ := c.PullRequest.Comment.List(
 		context.Background(),
 		"TEST",
 		"myrepo",

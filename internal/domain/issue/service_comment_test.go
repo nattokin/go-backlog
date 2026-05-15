@@ -113,7 +113,7 @@ func TestCommentService_All(t *testing.T) {
 
 			s := issue.NewCommentService(method)
 
-			got, err := s.All(context.Background(), tc.issueIDOrKey, tc.opts...)
+			got, err := s.List(context.Background(), tc.issueIDOrKey, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

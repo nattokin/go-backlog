@@ -18,10 +18,10 @@ type CommentService struct {
 	base *comment.Service
 }
 
-// All returns a list of comments on a pull request.
+// List returns a list of comments on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *CommentService) All(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...core.RequestOption) ([]*model.Comment, error) {
+func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...core.RequestOption) ([]*model.Comment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (s *CommentService) All(ctx context.Context, projectIDOrKey string, repoIDO
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
-	return s.base.All(ctx, spath, opts...)
+	return s.base.List(ctx, spath, opts...)
 }
 
 // Add adds a comment to a pull request.

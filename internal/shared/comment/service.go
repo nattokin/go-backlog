@@ -16,7 +16,7 @@ type Service struct {
 	method *core.Method
 }
 
-func (s *Service) All(ctx context.Context, spath string, opts ...core.RequestOption) ([]*model.Comment, error) {
+func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOption) ([]*model.Comment, error) {
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamMinID,

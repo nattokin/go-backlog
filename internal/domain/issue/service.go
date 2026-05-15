@@ -17,10 +17,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of issues.
+// List returns a list of issues.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
+func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamProjectIDs,

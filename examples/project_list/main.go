@@ -27,7 +27,7 @@ func main() {
 
 	ctx := context.Background()
 
-	projects, err := c.Project.All(ctx)
+	projects, err := c.Project.List(ctx)
 	if err != nil {
 		log.Fatalf("failed to fetch projects: %v", err)
 	}

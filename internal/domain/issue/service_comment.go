@@ -20,16 +20,16 @@ type CommentService struct {
 	method *core.Method
 }
 
-// All returns a list of comments on an issue.
+// List returns a list of comments on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
-func (s *CommentService) All(ctx context.Context, issueIDOrKey string, opts ...core.RequestOption) ([]*model.Comment, error) {
+func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...core.RequestOption) ([]*model.Comment, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments")
-	return s.base.All(ctx, spath, opts...)
+	return s.base.List(ctx, spath, opts...)
 }
 
 // Add adds a comment to an issue.

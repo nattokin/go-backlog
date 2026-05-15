@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleProjectService_All() {
+func ExampleProjectService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerProjectList),
 	)
 
-	projects, _ := c.Project.All(context.Background())
+	projects, _ := c.Project.List(context.Background())
 	fmt.Printf("ID: %d, Key: %s\n", projects[0].ID, projects[0].ProjectKey)
 	// Output:
 	// ID: 1, Key: TEST
@@ -341,14 +341,14 @@ func ExampleProjectSharedFileService_GetFile() {
 	// ContentType: image/png, FileName: shared.png
 }
 
-func ExampleProjectUserService_All() {
+func ExampleProjectUserService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.Project.User.All(context.Background(), "TEST", false)
+	users, _ := c.Project.User.List(context.Background(), "TEST", false)
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
@@ -565,14 +565,14 @@ func ExampleProjectStatusService_UpdateOrder() {
 	// ID: 1, Name: Open
 }
 
-func ExampleProjectVersionService_All() {
+func ExampleProjectVersionService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerVersionList),
 	)
 
-	versions, _ := c.Project.Version.All(context.Background(), "TEST")
+	versions, _ := c.Project.Version.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s\n", versions[0].ID, versions[0].Name)
 	// Output:
 	// ID: 1, Name: Version 1.0

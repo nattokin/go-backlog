@@ -17,10 +17,10 @@ type VersionService struct {
 	method *core.Method
 }
 
-// All returns versions/milestones in a project.
+// List returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *VersionService) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
+func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

@@ -31,7 +31,7 @@ func TestProjectVersionService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Version.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Version.All(ctx, "TEST")
+				got, err := c.Project.Version.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, fixture.Version.Single.ID, got[0].ID)
@@ -40,7 +40,7 @@ func TestProjectVersionService(t *testing.T) {
 		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Version.All(ctx, "TEST")
+				_, err := c.Project.Version.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
