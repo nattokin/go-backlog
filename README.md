@@ -34,10 +34,10 @@ c, err := backlog.NewClient(
 )
 
 // Get all Wiki pages in a project.
-wikis, err := c.Wiki.All(context.Background(), "MYPROJECT")
+wikis, err := c.Wiki.List(context.Background(), "MYPROJECT")
 
 // Filter by keyword using an option.
-wikis, err = c.Wiki.All(context.Background(), "MYPROJECT",
+wikis, err = c.Wiki.List(context.Background(), "MYPROJECT",
     c.Wiki.Option.WithKeyword("design"),
 )
 ```

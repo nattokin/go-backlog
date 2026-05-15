@@ -16,10 +16,10 @@ type CustomFieldService struct {
 	method *core.Method
 }
 
-// All returns a list of custom fields in a project.
+// List returns a list of custom fields in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-custom-field-list
-func (s *CustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]*model.CustomField, error) {
+func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([]*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

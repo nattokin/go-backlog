@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestCommentService_All(t *testing.T) {
+func TestCommentService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {

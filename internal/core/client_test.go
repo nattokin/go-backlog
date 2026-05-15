@@ -747,7 +747,7 @@ type httpCapture struct {
 // Example:
 //
 //	client, captured := makeClient(t)
-//	_, _ = client.Wiki.All()
+//	_, _ = client.Wiki.List()
 //	assert.Equal(t, "GET", captured.Method)
 //	assert.Contains(t, captured.URL.Path, "/api/v2/wikis")
 func makeClient(t *testing.T) (*core.Client, *httpCapture) {

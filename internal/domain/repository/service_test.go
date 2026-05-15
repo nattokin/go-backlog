@@ -22,7 +22,7 @@ const (
 	testRepo    = "repo1"
 )
 
-func TestRepositoryService_All(t *testing.T) {
+func TestRepositoryService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -73,7 +73,7 @@ func TestRepositoryService_All(t *testing.T) {
 			}
 
 			s := repository.NewService(method)
-			got, err := s.All(context.Background(), tc.projectIDOrKey)
+			got, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -194,10 +194,10 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"RepositoryService.All", func(t *testing.T, m *core.Method) {
+		{"RepositoryService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := repository.NewService(m)
-			s.All(ctx, testProject) //nolint:errcheck
+			s.List(ctx, testProject) //nolint:errcheck
 		}},
 		{"RepositoryService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)

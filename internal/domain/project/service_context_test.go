@@ -71,10 +71,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewActivityService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"CategoryService.All", func(t *testing.T, m *core.Method) {
+		{"CategoryService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewCategoryService(m)
-			s.All(ctx, "TEST") //nolint:errcheck
+			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"CategoryService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
@@ -91,10 +91,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewCategoryService(m)
 			s.Delete(ctx, "TEST", 12) //nolint:errcheck
 		}},
-		{"CustomFieldService.All", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
-			s.All(ctx, "TEST") //nolint:errcheck
+			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"CustomFieldService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
@@ -126,10 +126,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewCustomFieldService(m)
 			s.DeleteListItem(ctx, "TEST", 1, 10) //nolint:errcheck
 		}},
-		{"IssueTypeService.All", func(t *testing.T, m *core.Method) {
+		{"IssueTypeService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
-			s.All(ctx, "TEST") //nolint:errcheck
+			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"IssueTypeService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
@@ -146,10 +146,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewIssueTypeService(m)
 			s.Delete(ctx, "TEST", 1, 2) //nolint:errcheck
 		}},
-		{"StatusService.All", func(t *testing.T, m *core.Method) {
+		{"StatusService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewStatusService(m)
-			s.All(ctx, "TEST") //nolint:errcheck
+			s.List(ctx, "TEST") //nolint:errcheck
 		}},
 		{"StatusService.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
@@ -181,10 +181,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewSharedFileService(m)
 			s.Download(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.All", func(t *testing.T, m *core.Method) {
+		{"UserService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewUserService(m)
-			s.All(ctx, "TEST", false) //nolint:errcheck
+			s.List(ctx, "TEST", false) //nolint:errcheck
 		}},
 		{"UserService.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
@@ -201,10 +201,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := project.NewUserService(m)
 			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.AdminAll", func(t *testing.T, m *core.Method) {
+		{"UserService.AdminList", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewUserService(m)
-			s.AdminAll(ctx, "TEST") //nolint:errcheck
+			s.AdminList(ctx, "TEST") //nolint:errcheck
 		}},
 		{"UserService.DeleteAdmin", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)

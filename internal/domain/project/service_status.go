@@ -16,10 +16,10 @@ type StatusService struct {
 	method *core.Method
 }
 
-// All returns a list of statuses in a project.
+// List returns a list of statuses in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
-func (s *StatusService) All(ctx context.Context, projectIDOrKey string) ([]*model.Status, error) {
+func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*model.Status, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

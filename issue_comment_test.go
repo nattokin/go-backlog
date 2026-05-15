@@ -53,7 +53,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.List(ctx, "PRJ-1")

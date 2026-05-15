@@ -59,10 +59,10 @@ type ProjectWebhookService struct {
 	Option *ProjectWebhookOptionService
 }
 
-// All returns a list of webhooks in the project.
+// List returns a list of webhooks in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks
-func (s *ProjectWebhookService) All(ctx context.Context, projectIDOrKey string) ([]*Webhook, error) {
+func (s *ProjectWebhookService) List(ctx context.Context, projectIDOrKey string) ([]*Webhook, error) {
 	v, err := s.base.List(ctx, projectIDOrKey)
 	return webhooksFromModel(v), convertError(err)
 }

@@ -18,11 +18,11 @@ type ProjectCustomFieldService struct {
 	Option *ProjectCustomFieldOptionService
 }
 
-// All returns a list of custom fields in a project.
+// List returns a list of custom fields in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-custom-field-list
-func (s *ProjectCustomFieldService) All(ctx context.Context, projectIDOrKey string) ([]*CustomField, error) {
-	v, err := s.base.All(ctx, projectIDOrKey)
+func (s *ProjectCustomFieldService) List(ctx context.Context, projectIDOrKey string) ([]*CustomField, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return customFieldsFromModel(v), convertError(err)
 }
 

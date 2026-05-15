@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestStatusService_All(t *testing.T) {
+func TestStatusService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -83,7 +83,7 @@ func TestStatusService_All(t *testing.T) {
 			}
 			s := project.NewStatusService(method)
 
-			statuses, err := s.All(context.Background(), tc.projectIDOrKey)
+			statuses, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

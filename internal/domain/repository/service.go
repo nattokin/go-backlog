@@ -16,10 +16,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of Git repositories in a project.
+// List returns a list of Git repositories in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories
-func (s *Service) All(ctx context.Context, projectIDOrKey string) ([]*model.Repository, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Repository, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

@@ -39,7 +39,7 @@ func main() {
 
 	ctx := context.Background()
 
-	// Resolve project key to project ID required by Issue.All.
+	// Resolve project key to project ID required by Issue.List.
 	project, err := c.Project.One(ctx, projectKey)
 	if err != nil {
 		log.Fatalf("failed to get project %q: %v", projectKey, err)

@@ -37,7 +37,7 @@ func main() {
 	for _, p := range projects {
 		fmt.Printf("\n[%s] %s (ID: %d)\n", p.ProjectKey, p.Name, p.ID)
 
-		issueTypes, err := c.Project.IssueType.All(ctx, p.ProjectKey)
+		issueTypes, err := c.Project.IssueType.List(ctx, p.ProjectKey)
 		if err != nil {
 			log.Printf("warning: failed to fetch issue types for %s: %v", p.ProjectKey, err)
 		}
@@ -47,7 +47,7 @@ func main() {
 		}
 		fmt.Printf("  Issue Types : %s\n", strings.Join(names, ", "))
 
-		statuses, err := c.Project.Status.All(ctx, p.ProjectKey)
+		statuses, err := c.Project.Status.List(ctx, p.ProjectKey)
 		if err != nil {
 			log.Printf("warning: failed to fetch statuses for %s: %v", p.ProjectKey, err)
 		}

@@ -113,14 +113,14 @@ func ExampleProjectActivityService_List() {
 	// ID: 3153, Type: 2
 }
 
-func ExampleProjectCategoryService_All() {
+func ExampleProjectCategoryService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerCategoryList),
 	)
 
-	categories, _ := c.Project.Category.All(context.Background(), "TEST")
+	categories, _ := c.Project.Category.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s\n", categories[0].ID, categories[0].Name)
 	// Output:
 	// ID: 12, Name: Bug
@@ -165,14 +165,14 @@ func ExampleProjectCategoryService_Delete() {
 	// ID: 12, Name: Bug
 }
 
-func ExampleProjectCustomFieldService_All() {
+func ExampleProjectCustomFieldService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerCustomFieldList),
 	)
 
-	fields, _ := c.Project.CustomField.All(context.Background(), "TEST")
+	fields, _ := c.Project.CustomField.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s\n", fields[0].ID, fields[0].Name)
 	// Output:
 	// ID: 1, Name: Sprint
@@ -261,14 +261,14 @@ func ExampleProjectCustomFieldService_DeleteListItem() {
 	// ID: 1, Name: Sprint
 }
 
-func ExampleProjectIssueTypeService_All() {
+func ExampleProjectIssueTypeService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerIssueTypeList),
 	)
 
-	issueTypes, _ := c.Project.IssueType.All(context.Background(), "TEST")
+	issueTypes, _ := c.Project.IssueType.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s, Color: %s\n", issueTypes[0].ID, issueTypes[0].Name, issueTypes[0].Color)
 	// Output:
 	// ID: 1, Name: Bug, Color: #e30000
@@ -341,14 +341,14 @@ func ExampleProjectSharedFileService_Download() {
 	// ContentType: image/png, FileName: shared.png
 }
 
-func ExampleProjectUserService_All() {
+func ExampleProjectUserService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.Project.User.All(context.Background(), "TEST", false)
+	users, _ := c.Project.User.List(context.Background(), "TEST", false)
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
@@ -393,14 +393,14 @@ func ExampleProjectUserService_AddAdmin() {
 	// ID: 1, UserID: admin
 }
 
-func ExampleProjectUserService_AdminAll() {
+func ExampleProjectUserService_AdminList() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.Project.User.AdminAll(context.Background(), "TEST")
+	users, _ := c.Project.User.AdminList(context.Background(), "TEST")
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
@@ -419,14 +419,14 @@ func ExampleProjectUserService_DeleteAdmin() {
 	// ID: 1, UserID: admin
 }
 
-func ExampleProjectWebhookService_All() {
+func ExampleProjectWebhookService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerWebhookList),
 	)
 
-	webhooks, _ := c.Project.Webhook.All(context.Background(), "TEST")
+	webhooks, _ := c.Project.Webhook.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s\n", webhooks[0].ID, webhooks[0].Name)
 	// Output:
 	// ID: 1, Name: Example Webhook
@@ -495,14 +495,14 @@ func ExampleProjectWebhookService_Delete() {
 	// ID: 1, Name: Example Webhook
 }
 
-func ExampleProjectStatusService_All() {
+func ExampleProjectStatusService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerStatusList),
 	)
 
-	statuses, _ := c.Project.Status.All(context.Background(), "TEST")
+	statuses, _ := c.Project.Status.List(context.Background(), "TEST")
 	fmt.Printf("ID: %d, Name: %s\n", statuses[0].ID, statuses[0].Name)
 	// Output:
 	// ID: 1, Name: Open

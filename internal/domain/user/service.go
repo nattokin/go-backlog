@@ -31,10 +31,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of all users in the space.
+// List returns a list of all users in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
-func (s *Service) All(ctx context.Context) ([]*model.User, error) {
+func (s *Service) List(ctx context.Context) ([]*model.User, error) {
 	resp, err := s.method.Get(ctx, "users", nil)
 	if err != nil {
 		return nil, err

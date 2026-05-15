@@ -25,22 +25,22 @@ func TestUserService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users", req.URL.Path)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.User.All(ctx)
+				got, err := c.User.List(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.User.All(ctx)
+				_, err := c.User.List(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

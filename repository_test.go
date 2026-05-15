@@ -21,14 +21,14 @@ func TestRepositoryService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Repository.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Repository.All(ctx, "TEST")
+				got, err := c.Repository.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 5, got[0].ID)
@@ -37,10 +37,10 @@ func TestRepositoryService(t *testing.T) {
 				assert.Equal(t, "bar", got[1].Name)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Repository.All(ctx, "TEST")
+				_, err := c.Repository.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
