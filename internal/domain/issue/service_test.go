@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueService_All(t *testing.T) {
+func TestIssueService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -770,7 +770,7 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.List(ctx) //nolint:errcheck
@@ -820,7 +820,7 @@ func Test_contextPropagation(t *testing.T) {
 			s := issue.NewAttachmentService(m)
 			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.All", func(t *testing.T, m *core.Method) {
+		{"CommentService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.List(ctx, "ISSUE-1") //nolint:errcheck

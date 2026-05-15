@@ -22,7 +22,7 @@ const (
 	testRepo    = "repo1"
 )
 
-func TestPullRequestService_All(t *testing.T) {
+func TestPullRequestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -658,7 +658,7 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.List(ctx, testProject, testRepo) //nolint:errcheck
@@ -698,7 +698,7 @@ func Test_contextPropagation(t *testing.T) {
 			s := pullrequest.NewAttachmentService(m)
 			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
-		{"CommentService.All", func(t *testing.T, m *core.Method) {
+		{"CommentService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
 			s.List(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
