@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestWikiService_All(t *testing.T) {
+func TestWikiService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -677,7 +677,7 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
