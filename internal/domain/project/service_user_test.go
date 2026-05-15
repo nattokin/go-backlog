@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectUserService_All(t *testing.T) {
+func TestProjectUserService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectKey          string
 		excludeGroupMembers bool

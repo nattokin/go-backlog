@@ -18,7 +18,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestService_All(t *testing.T) {
+func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
