@@ -89,10 +89,10 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 	return v, nil
 }
 
-// Get returns a single webhook.
+// One returns a single webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-webhook/
-func (s *WebhookService) Get(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
+func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

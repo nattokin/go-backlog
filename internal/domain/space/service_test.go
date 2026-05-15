@@ -317,10 +317,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := space.NewActivityService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"ActivityService.Get", func(t *testing.T, m *core.Method) {
+		{"ActivityService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewActivityService(m)
-			s.Get(ctx, 1) //nolint:errcheck
+			s.One(ctx, 1) //nolint:errcheck
 		}},
 		{"AttachmentService.Upload", func(t *testing.T, m *core.Method) {
 			m.Upload = makeMockUploadFn(t)

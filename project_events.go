@@ -85,7 +85,7 @@ func (s *ProjectWebhookService) Create(ctx context.Context, projectIDOrKey, name
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-webhook
 func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, webhookID int) (*Webhook, error) {
-	v, err := s.base.Get(ctx, projectIDOrKey, webhookID)
+	v, err := s.base.One(ctx, projectIDOrKey, webhookID)
 	return webhookFromModel(v), convertError(err)
 }
 

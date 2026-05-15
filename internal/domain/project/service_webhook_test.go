@@ -241,7 +241,7 @@ func TestWebhookService_Add(t *testing.T) {
 	}
 }
 
-func TestWebhookService_Get(t *testing.T) {
+func TestWebhookService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		webhookID      int
@@ -305,7 +305,7 @@ func TestWebhookService_Get(t *testing.T) {
 			method.Get = tc.mockGetFn
 			s := project.NewWebhookService(method)
 
-			got, err := s.Get(context.Background(), tc.projectIDOrKey, tc.webhookID)
+			got, err := s.One(context.Background(), tc.projectIDOrKey, tc.webhookID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
