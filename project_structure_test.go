@@ -163,7 +163,7 @@ func TestProjectSharedFileService(t *testing.T) {
 				return mock.NewBinaryResponse("image.png", "image/png", []byte("PNG")), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.SharedFile.GetFile(ctx, "TEST", 1)
+				got, err := c.Project.SharedFile.Download(ctx, "TEST", 1)
 				require.NoError(t, err)
 				require.NotNil(t, got)
 				assert.Equal(t, "image.png", got.Filename)

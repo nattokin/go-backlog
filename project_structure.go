@@ -65,12 +65,12 @@ func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey stri
 	return sharedFilesFromModel(v), convertError(err)
 }
 
-// GetFile downloads a shared file from the project.
+// Download downloads a shared file from the project.
 // The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
-func (s *ProjectSharedFileService) GetFile(ctx context.Context, projectIDOrKey string, sharedFileID int) (*FileData, error) {
-	v, err := s.base.GetFile(ctx, projectIDOrKey, sharedFileID)
+func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*FileData, error) {
+	v, err := s.base.Download(ctx, projectIDOrKey, sharedFileID)
 	return fileDataFromModel(v), convertError(err)
 }
 

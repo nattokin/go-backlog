@@ -328,14 +328,14 @@ func ExampleProjectSharedFileService_List() {
 	// ID: 454403, Name: 01_buz.png
 }
 
-func ExampleProjectSharedFileService_GetFile() {
+func ExampleProjectSharedFileService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(doerSharedFileGetFile),
+		backlog.WithDoer(doerSharedFileGetDownload),
 	)
 
-	file, _ := c.Project.SharedFile.GetFile(context.Background(), "TEST", 1)
+	file, _ := c.Project.SharedFile.Download(context.Background(), "TEST", 1)
 	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
 	// Output:
 	// ContentType: image/png, FileName: shared.png
