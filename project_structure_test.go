@@ -207,22 +207,22 @@ func TestProjectUserService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"List": {
+		"All": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.User.List(ctx, "TEST", false)
+				got, err := c.Project.User.All(ctx, "TEST", false)
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
 		},
-		"List/error": {
+		"All/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.User.List(ctx, "TEST", false)
+				_, err := c.Project.User.All(ctx, "TEST", false)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

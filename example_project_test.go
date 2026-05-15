@@ -341,14 +341,14 @@ func ExampleProjectSharedFileService_GetFile() {
 	// ContentType: image/png, FileName: shared.png
 }
 
-func ExampleProjectUserService_List() {
+func ExampleProjectUserService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.Project.User.List(context.Background(), "TEST", false)
+	users, _ := c.Project.User.All(context.Background(), "TEST", false)
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin

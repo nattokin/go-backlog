@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectUserService_List(t *testing.T) {
+func TestProjectUserService_All(t *testing.T) {
 	cases := map[string]struct {
 		projectKey          string
 		excludeGroupMembers bool
@@ -84,7 +84,7 @@ func TestProjectUserService_List(t *testing.T) {
 			}
 			s := project.NewUserService(method)
 
-			users, err := s.List(context.Background(), tc.projectKey, tc.excludeGroupMembers)
+			users, err := s.All(context.Background(), tc.projectKey, tc.excludeGroupMembers)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
