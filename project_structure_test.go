@@ -207,7 +207,7 @@ func TestProjectUserService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
@@ -219,7 +219,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Len(t, got, 4)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.List(ctx, "TEST", false)

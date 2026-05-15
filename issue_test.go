@@ -23,7 +23,7 @@ func TestIssueService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
@@ -37,7 +37,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, 2, got[1].ID)
 			},
 		},
-		"All/with-options": {
+		"List/with-options": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)

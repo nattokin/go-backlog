@@ -23,7 +23,7 @@ func TestProjectService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
@@ -36,7 +36,7 @@ func TestProjectService(t *testing.T) {
 				assert.Len(t, got, 3)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.List(ctx)

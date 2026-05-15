@@ -24,7 +24,7 @@ func TestWikiService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis", req.URL.Path)
@@ -37,7 +37,7 @@ func TestWikiService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.List(ctx, "TEST")
