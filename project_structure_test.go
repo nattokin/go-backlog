@@ -156,7 +156,7 @@ func TestProjectSharedFileService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		"GetFile": {
+		"Download": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/files/1", req.URL.Path)
@@ -174,7 +174,7 @@ func TestProjectSharedFileService(t *testing.T) {
 				got.Body.Close()
 			},
 		},
-		"GetFile/error": {
+		"Download/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Icon(ctx, 1)

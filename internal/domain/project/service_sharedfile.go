@@ -11,7 +11,7 @@ import (
 )
 
 // SharedFileService handles project shared-file-related Backlog API calls.
-// Kept separate from internal/sharedfile because GetFile is project-specific
+// Kept separate from internal/sharedfile because Download is project-specific
 // and does not fit the spath-agnostic pattern used by that package.
 type SharedFileService struct {
 	method *core.Method
