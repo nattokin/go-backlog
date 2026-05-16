@@ -204,14 +204,14 @@ type Version struct {
 
 // WatchingItem represents an item in a user's watching list.
 type WatchingItem struct {
-	ID                  int
-	ResourceAlreadyRead bool
-	Note                string
-	Type                string
-	Issue               *Issue
-	LastContentUpdated  Timestamp
-	Created             Timestamp
-	Updated             Timestamp
+	ID                 int
+	AlreadyRead        bool
+	Note               string
+	Type               string
+	Issue              *Issue
+	LastContentUpdated Timestamp
+	Created            Timestamp
+	Updated            Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────

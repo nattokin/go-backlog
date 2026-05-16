@@ -193,12 +193,12 @@ type Version struct {
 
 // WatchingItem represents an entry in a user's watching list.
 type WatchingItem struct {
-	ID                  int       `json:"id,omitempty"`
-	ResourceAlreadyRead bool      `json:"resourceAlreadyRead,omitempty"`
-	Note                string    `json:"note,omitempty"`
-	Type                string    `json:"type,omitempty"`
-	Issue               *Issue    `json:"issue,omitempty"`
-	LastContentUpdated  time.Time `json:"lastContentUpdated,omitempty"`
-	Created             time.Time `json:"created,omitempty"`
-	Updated             time.Time `json:"updated,omitempty"`
+	ID                 int       `json:"id,omitempty"`
+	AlreadyRead        bool      `json:"alreadyRead,omitempty"`
+	Note               string    `json:"note,omitempty"`
+	Type               string    `json:"type,omitempty"`
+	Issue              *Issue    `json:"issue,omitempty"`
+	LastContentUpdated time.Time `json:"lastContentUpdated,omitempty"`
+	Created            time.Time `json:"created,omitempty"`
+	Updated            time.Time `json:"updated,omitempty"`
 }
