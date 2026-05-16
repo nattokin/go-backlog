@@ -66,7 +66,7 @@ func TestIssueOptionService(t *testing.T) {
 		"WithStartDateSince":    {option: s.WithStartDateSince(date), wantKey: core.ParamStartDateSince.Value()},
 		"WithStartDateUntil":    {option: s.WithStartDateUntil(date), wantKey: core.ParamStartDateUntil.Value()},
 		"WithStatusID":          {option: s.WithStatusID(1), wantKey: core.ParamStatusID.Value()},
-		"WithStatusIDs":         {option: s.WithStatusIDs([]int{1}), wantKey: core.ParamStatusIDs.Value()},
+		"WithStatusIDs":         {option: s.WithStatusIDs([]int{backlog.IssueStatusOpen}), wantKey: core.ParamStatusIDs.Value()},
 		"WithSummary":           {option: s.WithSummary("summary"), wantKey: core.ParamSummary.Value()},
 		"WithUpdatedSince":      {option: s.WithUpdatedSince(date), wantKey: core.ParamUpdatedSince.Value()},
 		"WithUpdatedUntil":      {option: s.WithUpdatedUntil(date), wantKey: core.ParamUpdatedUntil.Value()},
