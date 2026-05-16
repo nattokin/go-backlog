@@ -10,13 +10,12 @@ import (
 	"github.com/nattokin/go-backlog"
 )
 
-// prStatusIDs maps status name to Backlog API status IDs.
-// 1=Open, 2=Closed, 3=Merged, 4=Draft
+// prStatusIDs maps status name to Backlog pull request status ID constants.
 var prStatusIDs = map[string]int{
-	"open":   1,
-	"closed": 2,
-	"merged": 3,
-	"draft":  4,
+	"open":   backlog.PullRequestStatusOpen,
+	"closed": backlog.PullRequestStatusClosed,
+	"merged": backlog.PullRequestStatusMerged,
+	"draft":  backlog.PullRequestStatusDraft,
 }
 
 func main() {

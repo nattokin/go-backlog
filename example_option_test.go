@@ -205,7 +205,7 @@ func ExamplePullRequestOptionService() {
 		context.Background(),
 		"TEST",
 		"myrepo",
-		c.PullRequest.Option.WithStatusIDs([]int{1}),
+		c.PullRequest.Option.WithStatusIDs([]int{backlog.PullRequestStatusOpen}),
 		c.PullRequest.Option.WithCount(50),
 	)
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(prs), prs[0].ID, prs[0].Summary)
