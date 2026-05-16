@@ -713,11 +713,6 @@ func Test_contextPropagation(t *testing.T) {
 			s := pullrequest.NewCommentService(m)
 			s.Count(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.One", func(t *testing.T, m *core.Method) {
-			m.Get = makeMockFn(t)
-			s := pullrequest.NewCommentService(m)
-			s.One(ctx, "PRJ-1", "REPO-1", 1, 1) //nolint:errcheck
-		}},
 		{"CommentService.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)

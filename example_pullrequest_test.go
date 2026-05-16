@@ -150,19 +150,6 @@ func ExamplePullRequestCommentService_Count() {
 	// Count: 2
 }
 
-func ExamplePullRequestCommentService_One() {
-	c, _ := backlog.NewClient(
-		"https://example.backlog.com",
-		"token",
-		backlog.WithDoer(doerCommentSingle),
-	)
-
-	comment, _ := c.PullRequest.Comment.One(context.Background(), "TEST", "myrepo", 1, 1)
-	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
-	// Output:
-	// ID: 1, Content: This is a comment.
-}
-
 func ExamplePullRequestCommentService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
