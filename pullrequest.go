@@ -23,6 +23,7 @@ type PullRequest struct {
 	Issue        *Issue
 	BaseCommit   string
 	BranchCommit string
+	MergeCommit  string
 	CloseAt      Timestamp
 	MergeAt      Timestamp
 	CreatedUser  *User
@@ -311,6 +312,7 @@ func pullRequestFromModel(m *model.PullRequest) *PullRequest {
 		Issue:        issueFromModel(m.Issue),
 		BaseCommit:   m.BaseCommit,
 		BranchCommit: m.BranchCommit,
+		MergeCommit:  m.MergeCommit,
 		CloseAt:      Timestamp{m.CloseAt},
 		MergeAt:      Timestamp{m.MergeAt},
 		CreatedUser:  userFromModel(m.CreatedUser),

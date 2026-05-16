@@ -29,6 +29,7 @@ var PullRequest = pullRequestFixtures{
     "issue": null,
     "baseCommit": null,
     "branchCommit": null,
+    "mergeCommit": "abc123def456",
     "closeAt": null,
     "mergeAt": null,
     "createdUser": {
@@ -63,6 +64,7 @@ var PullRequest = pullRequestFixtures{
 		Base:         "main",
 		Branch:       "feature/foo",
 		Status:       &backlog.Status{ID: 1, Name: "Open"},
+		MergeCommit:  "abc123def456",
 		CreatedUser: &backlog.User{
 			ID:          1,
 			UserID:      "admin",
@@ -101,6 +103,7 @@ var PullRequest = pullRequestFixtures{
         "issue": null,
         "baseCommit": null,
         "branchCommit": null,
+        "mergeCommit": "abc123def456",
         "closeAt": null,
         "mergeAt": null,
         "createdUser": {
@@ -177,6 +180,7 @@ var PullRequest = pullRequestFixtures{
 			Base:         "main",
 			Branch:       "feature/foo",
 			Status:       &backlog.Status{ID: 1, Name: "Open"},
+			MergeCommit:  "abc123def456",
 			CreatedUser: &backlog.User{
 				ID:          1,
 				UserID:      "admin",
