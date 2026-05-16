@@ -48,7 +48,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.List(ctx, "TEST", "repo",
-					c.PullRequest.Option.WithStatusIDs([]int{1, 2}),
+					c.PullRequest.Option.WithStatusIDs([]int{backlog.PullRequestStatusOpen, backlog.PullRequestStatusClosed}),
 					c.PullRequest.Option.WithCount(10),
 				)
 				require.NoError(t, err)
@@ -85,7 +85,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Count(ctx, "TEST", "repo",
-					c.PullRequest.Option.WithStatusIDs([]int{1}),
+					c.PullRequest.Option.WithStatusIDs([]int{backlog.PullRequestStatusOpen}),
 				)
 				require.NoError(t, err)
 				assert.Equal(t, 3, got)
@@ -400,7 +400,7 @@ func TestPullRequestOptionService(t *testing.T) {
 		"WithIssueIDs":        {option: s.WithIssueIDs([]int{1}), wantKey: core.ParamIssueIDs.Value()},
 		"WithNotifiedUserIDs": {option: s.WithNotifiedUserIDs([]int{1}), wantKey: core.ParamNotifiedUserIDs.Value()},
 		"WithOffset":          {option: s.WithOffset(0), wantKey: core.ParamOffset.Value()},
-		"WithStatusIDs":       {option: s.WithStatusIDs([]int{1}), wantKey: core.ParamStatusIDs.Value()},
+		"WithStatusIDs":       {option: s.WithStatusIDs([]int{backlog.PullRequestStatusOpen}), wantKey: core.ParamStatusIDs.Value()},
 		"WithSummary":         {option: s.WithSummary("summary"), wantKey: core.ParamSummary.Value()},
 	}
 

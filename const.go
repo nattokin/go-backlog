@@ -114,3 +114,19 @@ func (r Role) String() string {
 		return fmt.Sprintf("unknown Role type %d", r)
 	}
 }
+
+// Issue status ID constants for use with [IssueOptionService.WithStatusIDs].
+const (
+	IssueStatusOpen       = 1
+	IssueStatusInProgress = 2
+	IssueStatusResolved   = 3
+	IssueStatusClosed     = 4
+)
+
+// Pull request status ID constants for use with [PullRequestOptionService.WithStatusIDs].
+const (
+	PullRequestStatusOpen   = 1
+	PullRequestStatusClosed = 2
+	PullRequestStatusMerged = 3
+	PullRequestStatusDraft  = 4
+)
