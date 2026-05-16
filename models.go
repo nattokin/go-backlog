@@ -214,8 +214,8 @@ type Version struct {
 	DisplayOrder   int
 }
 
-// WatchingItem represents an item in a user's watching list.
-type WatchingItem struct {
+// Watching represents an item in a user's watching list.
+type Watching struct {
 	ID                 int
 	AlreadyRead        bool
 	Note               string

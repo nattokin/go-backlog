@@ -212,8 +212,8 @@ type Version struct {
 	DisplayOrder   int    `json:"displayOrder,omitempty"`
 }
 
-// WatchingItem represents an entry in a user's watching list.
-type WatchingItem struct {
+// Watching represents an entry in a user's watching list.
+type Watching struct {
 	ID                 int       `json:"id,omitempty"`
 	AlreadyRead        bool      `json:"alreadyRead,omitempty"`
 	Note               string    `json:"note,omitempty"`
