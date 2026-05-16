@@ -44,9 +44,9 @@ type Category struct {
 
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
-	Field         string
-	NewValue      string
-	OriginalValue string
+	Field          string
+	NewValue       string
+	OriginalValue  string
 	AttachmentInfo *struct {
 		ID   int
 		Name string
