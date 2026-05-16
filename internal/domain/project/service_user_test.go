@@ -18,27 +18,28 @@ import (
 )
 
 func TestProjectUserService_List(t *testing.T) {
+	opt := &core.OptionService{}
+
 	cases := map[string]struct {
-		projectKey          string
-		excludeGroupMembers bool
+		projectKey string
+		opts       []core.RequestOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType error
 	}{
-		"success-projectKey-valid": {
-			projectKey:          "TEST",
-			excludeGroupMembers: false,
+		"success-no-options": {
+			projectKey: "TEST",
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
-				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
+				assert.Empty(t, query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 		},
 		"success-excludeGroupMembers-true": {
-			projectKey:          "TEST2",
-			excludeGroupMembers: true,
+			projectKey: "TEST2",
+			opts:       []core.RequestOption{opt.WithExcludeGroupMembers(true)},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
@@ -47,14 +48,20 @@ func TestProjectUserService_List(t *testing.T) {
 			},
 		},
 		"success-excludeGroupMembers-false": {
-			projectKey:          "TEST3",
-			excludeGroupMembers: false,
+			projectKey: "TEST3",
+			opts:       []core.RequestOption{opt.WithExcludeGroupMembers(false)},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
+		},
+		"error-invalid-option": {
+			projectKey: "TEST",
+			opts:       []core.RequestOption{opt.WithArchived(true)},
+
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-validation-projectKey-empty": {
 			projectKey: "",
@@ -66,7 +73,6 @@ func TestProjectUserService_List(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
-				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
 			},
 
@@ -84,7 +90,7 @@ func TestProjectUserService_List(t *testing.T) {
 			}
 			s := project.NewUserService(method)
 
-			users, err := s.List(context.Background(), tc.projectKey, tc.excludeGroupMembers)
+			users, err := s.List(context.Background(), tc.projectKey, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

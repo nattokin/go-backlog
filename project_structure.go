@@ -81,13 +81,19 @@ func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey 
 // ProjectUserService has methods for user of project.
 type ProjectUserService struct {
 	base *project.UserService
+
+	Option *ProjectUserOptionService
 }
 
 // List returns all users in the project.
 //
+// This method supports options returned by methods in "*Client.Project.User.Option",
+// such as:
+//   - WithExcludeGroupMembers
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, excludeGroupMembers)
+func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*User, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
 	return usersFromModel(v), convertError(err)
 }
 
@@ -132,6 +138,21 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectUserOptionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectUserOptionService provides a domain-specific set of option builders
+// for operations within the ProjectUserService.
+type ProjectUserOptionService struct {
+	base *core.OptionService
+}
+
+// WithExcludeGroupMembers sets whether to exclude users who joined only via group membership.
+func (s *ProjectUserOptionService) WithExcludeGroupMembers(enabled bool) RequestOption {
+	return s.base.WithExcludeGroupMembers(enabled)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
@@ -147,8 +168,15 @@ func newProjectSharedFileService(method *core.Method) *ProjectSharedFileService 
 	}
 }
 
-func newProjectUserService(method *core.Method, _ *core.OptionService) *ProjectUserService {
+func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
 	return &ProjectUserService{
-		base: project.NewUserService(method),
+		base:   project.NewUserService(method),
+		Option: newProjectUserOptionService(option),
+	}
+}
+
+func newProjectUserOptionService(option *core.OptionService) *ProjectUserOptionService {
+	return &ProjectUserOptionService{
+		base: option,
 	}
 }

@@ -211,10 +211,24 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
+				assert.Empty(t, req.URL.Query().Get("excludeGroupMembers"))
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.User.List(ctx, "TEST", false)
+				got, err := c.Project.User.List(ctx, "TEST")
+				require.NoError(t, err)
+				assert.Len(t, got, 4)
+			},
+		},
+		"List/with-option": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
+				assert.Equal(t, "true", req.URL.Query().Get("excludeGroupMembers"))
+				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.User.List(ctx, "TEST", c.Project.User.Option.WithExcludeGroupMembers(true))
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
@@ -222,7 +236,7 @@ func TestProjectUserService(t *testing.T) {
 		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.User.List(ctx, "TEST", false)
+				_, err := c.Project.User.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
