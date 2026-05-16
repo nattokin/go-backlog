@@ -438,7 +438,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 }
 
-func TestUserService_Own(t *testing.T) {
+func TestUserService_Me(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErrType error
@@ -478,7 +478,7 @@ func TestUserService_Own(t *testing.T) {
 			}
 			s := user.NewService(method)
 
-			user, err := s.Own(context.Background())
+			user, err := s.Me(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -662,10 +662,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := user.NewService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"Service.Own", func(t *testing.T, m *core.Method) {
+		{"Service.Me", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := user.NewService(m)
-			s.Own(ctx) //nolint:errcheck
+			s.Me(ctx) //nolint:errcheck
 		}},
 		{"Service.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)

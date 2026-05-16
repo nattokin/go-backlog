@@ -67,11 +67,11 @@ type SpaceService struct {
 	Attachment *SpaceAttachmentService
 }
 
-// One returns information about your space.
+// Info returns information about your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space
-func (s *SpaceService) One(ctx context.Context) (*Space, error) {
-	v, err := s.base.One(ctx)
+func (s *SpaceService) Info(ctx context.Context) (*Space, error) {
+	v, err := s.base.Info(ctx)
 	return spaceFromModel(v), convertError(err)
 }
 

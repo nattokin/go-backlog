@@ -33,14 +33,14 @@ func ExampleUserService_One() {
 	// ID: 1, UserID: admin
 }
 
-func ExampleUserService_Own() {
+func ExampleUserService_Me() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserSingle),
 	)
 
-	user, _ := c.User.Own(context.Background())
+	user, _ := c.User.Me(context.Background())
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin

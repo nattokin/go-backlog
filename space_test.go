@@ -16,7 +16,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestSpaceService_One(t *testing.T) {
+func TestSpaceService_Info(t *testing.T) {
 	ctx := context.Background()
 
 	cases := map[string]struct {
@@ -43,7 +43,7 @@ func TestSpaceService_One(t *testing.T) {
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
 			require.NoError(t, err)
 
-			got, err := c.Space.One(ctx)
+			got, err := c.Space.Info(ctx)
 
 			if tc.wantErr {
 				require.Error(t, err)

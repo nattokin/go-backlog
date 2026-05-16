@@ -60,10 +60,10 @@ func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
 	return getUser(ctx, s.method, spath)
 }
 
-// Own returns the currently authenticated user.
+// Me returns the currently authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
-func (s *Service) Own(ctx context.Context) (*model.User, error) {
+func (s *Service) Me(ctx context.Context) (*model.User, error) {
 	return getUser(ctx, s.method, "users/myself")
 }
 

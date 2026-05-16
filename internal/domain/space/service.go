@@ -14,10 +14,10 @@ type Service struct {
 	method *core.Method
 }
 
-// One returns information about your space.
+// Info returns information about your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space
-func (s *Service) One(ctx context.Context) (*model.Space, error) {
+func (s *Service) Info(ctx context.Context) (*model.Space, error) {
 	resp, err := s.method.Get(ctx, "space", nil)
 	if err != nil {
 		return nil, err

@@ -8,14 +8,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleSpaceService_One() {
+func ExampleSpaceService_Info() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerSpaceSpace),
 	)
 
-	space, _ := c.Space.One(context.Background())
+	space, _ := c.Space.Info(context.Background())
 	fmt.Printf("SpaceKey: %s, Name: %s\n", space.SpaceKey, space.Name)
 	// Output:
 	// SpaceKey: nulab, Name: Nulab Inc.
