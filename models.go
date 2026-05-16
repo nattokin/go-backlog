@@ -80,16 +80,6 @@ type CustomFieldItem struct {
 	DisplayOrder int
 }
 
-// DiskUsageBase represents the disk usage breakdown by storage type.
-type DiskUsageBase struct {
-	Issue      int
-	Wiki       int
-	File       int
-	Subversion int
-	Git        int
-	GitLFS     int
-}
-
 // FileData represents a downloaded binary file with its metadata.
 // Body must be closed by the caller after use.
 type FileData struct {
