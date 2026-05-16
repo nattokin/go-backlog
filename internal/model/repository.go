@@ -17,6 +17,7 @@ type PullRequest struct {
 	Issue        *Issue        `json:"issue,omitempty"`
 	BaseCommit   string        `json:"baseCommit,omitempty"`
 	BranchCommit string        `json:"branchCommit,omitempty"`
+	MergeCommit  string        `json:"mergeCommit,omitempty"`
 	CloseAt      time.Time     `json:"closeAt,omitempty"`
 	MergeAt      time.Time     `json:"mergeAt,omitempty"`
 	CreatedUser  *User         `json:"createdUser,omitempty"`
