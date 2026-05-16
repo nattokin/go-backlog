@@ -16,6 +16,9 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 )
 
+// pullRequestLastPageJSON is a single-element array used to simulate the last page of a paginated response.
+const pullRequestLastPageJSON = `[{"id":4,"projectId":3,"repositoryId":5,"number":3,"summary":"last PR","description":"","base":"main","branch":"feature/baz","status":{"id":1,"name":"Open"},"assignee":null,"issue":null,"baseCommit":null,"branchCommit":null,"mergeCommit":null,"closeAt":null,"mergeAt":null,"createdUser":{"id":1,"userId":"admin","name":"admin","roleType":1,"lang":"ja","mailAddress":"admin@example.com"},"created":"2024-01-12T10:00:00Z","updatedUser":{"id":1,"userId":"admin","name":"admin","roleType":1,"lang":"ja","mailAddress":"admin@example.com"},"updated":"2024-01-12T10:00:00Z","attachments":[],"stars":[]}]`
+
 func TestPullRequestServiceAll(t *testing.T) {
 	ctx := context.Background()
 
@@ -41,7 +44,7 @@ func TestPullRequestServiceAll(t *testing.T) {
 					assert.Equal(t, "2", req.URL.Query().Get("offset"))
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewBufferString(fixture.PullRequest.SingleJSON)),
+						Body:       io.NopCloser(bytes.NewBufferString(pullRequestLastPageJSON)),
 					}, nil
 				default:
 					t.Errorf("unexpected request #%d", n)
@@ -61,7 +64,7 @@ func TestPullRequestServiceAll(t *testing.T) {
 		assert.Len(t, got, 3)
 		assert.Equal(t, 2, got[0].ID)
 		assert.Equal(t, 3, got[1].ID)
-		assert.Equal(t, 2, got[2].ID) // SingleJSON has id=2
+		assert.Equal(t, 4, got[2].ID)
 	})
 
 	t.Run("All/break", func(t *testing.T) {
