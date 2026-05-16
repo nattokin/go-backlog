@@ -223,6 +223,11 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 - [Get User Recent Updates](https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates) - Returns a user's recent updates.
 
+### Client.User.[Star](https://pkg.go.dev/github.com/nattokin/go-backlog#UserStarService)
+
+- [Get Received Star List](https://developer.nulab.com/docs/backlog/api/2/get-received-star-list) - Returns a list of stars received by a user.
+- [Count User Received Stars](https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars) - Returns the number of stars received by a user.
+
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 
 - [Get Wiki Page List](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list/) - Returns a list of Wiki pages.
