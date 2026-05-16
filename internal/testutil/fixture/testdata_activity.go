@@ -192,6 +192,14 @@ var Activity = activityFixtures{
 					ID:          25,
 					AlreadyRead: false,
 					Reason:      2,
+					User: &backlog.User{
+						ID:          5686,
+						UserID:      "takada",
+						Name:        "takada",
+						RoleType:    backlog.RoleNormalUser,
+						Lang:        "ja",
+						MailAddress: "takada@nulab.example",
+					},
 				},
 			},
 			CreatedUser: &backlog.User{

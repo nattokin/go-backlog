@@ -137,6 +137,7 @@ type Notification struct {
 	PullRequest         *PullRequest
 	PullRequestComment  *Comment
 	Sender              *User
+	User                *User
 	Created             Timestamp
 }
 
@@ -421,6 +422,7 @@ func notificationFromModel(m *model.Notification) *Notification {
 		PullRequest:         pullRequestFromModel(m.PullRequest),
 		PullRequestComment:  commentFromModel(m.PullRequestComment),
 		Sender:              userFromModel(m.Sender),
+		User:                userFromModel(m.User),
 		Created:             Timestamp{m.Created},
 	}
 }
