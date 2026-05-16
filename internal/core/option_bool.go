@@ -37,6 +37,12 @@ func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
 	return boolOption(ParamChartEnabled, enabled)
 }
 
+// WithExcludeGroupMembers sets `excludeGroupMembers`.
+// When true, users who joined the project only via group membership are excluded from the result.
+func (s *OptionService) WithExcludeGroupMembers(enabled bool) RequestOption {
+	return boolOption(ParamExcludeGroupMembers, enabled)
+}
+
 // WithHasDueDate sets `hasDueDate`.
 // Note: Setting this to true is not supported by the Backlog API and will result in an error.
 func (s *OptionService) WithHasDueDate(enabled bool) RequestOption {

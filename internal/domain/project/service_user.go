@@ -62,6 +62,10 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (
 	return &v, nil
 }
 
+var validUserListOptions = []core.APIParamOptionType{
+	core.ParamExcludeGroupMembers,
+}
+
 // UserService handles project user-related Backlog API calls.
 type UserService struct {
 	method *core.Method
@@ -69,14 +73,20 @@ type UserService struct {
 
 // List returns a list of users in the project.
 //
+// This method supports options returned by methods in "*Client.Project.User.Option",
+// such as:
+//   - WithExcludeGroupMembers
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *UserService) List(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*model.User, error) {
+func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
 
 	query := url.Values{}
-	query.Set("excludeGroupMembers", strconv.FormatBool(excludeGroupMembers))
+	if err := core.ApplyOptions(query, validUserListOptions, opts...); err != nil {
+		return nil, err
+	}
 
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return getUserList(ctx, s.method, spath, query)

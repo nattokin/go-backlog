@@ -348,7 +348,24 @@ func ExampleProjectUserService_List() {
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.Project.User.List(context.Background(), "TEST", false)
+	users, _ := c.Project.User.List(context.Background(), "TEST")
+	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
+	// Output:
+	// ID: 1, UserID: admin
+}
+
+func ExampleProjectUserService_List_excludeGroupMembers() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerUserList),
+	)
+
+	users, _ := c.Project.User.List(
+		context.Background(),
+		"TEST",
+		c.Project.User.Option.WithExcludeGroupMembers(true),
+	)
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
