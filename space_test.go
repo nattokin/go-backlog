@@ -16,7 +16,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestSpaceService_One(t *testing.T) {
+func TestSpaceService_Info(t *testing.T) {
 	ctx := context.Background()
 
 	cases := map[string]struct {
@@ -43,7 +43,7 @@ func TestSpaceService_One(t *testing.T) {
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
 			require.NoError(t, err)
 
-			got, err := c.Space.One(ctx)
+			got, err := c.Space.Info(ctx)
 
 			if tc.wantErr {
 				require.Error(t, err)
@@ -234,30 +234,30 @@ func TestSpaceActivityService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		"Get": {
+		"One": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/activities/3153", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Activity.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Space.Activity.Get(ctx, 3153)
+				got, err := c.Space.Activity.One(ctx, 3153)
 				require.NoError(t, err)
 				require.NotNil(t, got)
 				assert.Equal(t, 3153, got.ID)
 				assert.Equal(t, 2, got.Type)
 			},
 		},
-		"Get/error-invalid-id": {
+		"One/error-invalid-id": {
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Space.Activity.Get(ctx, 0)
+				_, err := c.Space.Activity.One(ctx, 0)
 				require.Error(t, err)
 			},
 		},
-		"Get/error-api": {
+		"One/error-api": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Space.Activity.Get(ctx, 1)
+				_, err := c.Space.Activity.One(ctx, 1)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

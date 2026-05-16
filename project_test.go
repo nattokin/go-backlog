@@ -23,7 +23,7 @@ func TestProjectService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
@@ -31,15 +31,15 @@ func TestProjectService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.All(ctx, c.Project.Option.WithArchived(true))
+				got, err := c.Project.List(ctx, c.Project.Option.WithArchived(true))
 				require.NoError(t, err)
 				assert.Len(t, got, 3)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newAuthErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.All(ctx)
+				_, err := c.Project.List(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

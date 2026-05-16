@@ -16,10 +16,10 @@ type IssueTypeService struct {
 	method *core.Method
 }
 
-// All returns a list of issue types in a project.
+// List returns a list of issue types in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list
-func (s *IssueTypeService) All(ctx context.Context, projectIDOrKey string) ([]*model.IssueType, error) {
+func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*model.IssueType, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

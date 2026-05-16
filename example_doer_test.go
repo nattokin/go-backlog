@@ -95,7 +95,7 @@ var (
 	doerWikiSingle             = newMockDoer(fixture.Wiki.MinimumJSON)
 	doerWikiHistoryList        = newMockDoer(fixture.WikiHistory.ListJSON)
 	doerWikiAttachmentDownload = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
-	doerSharedFileGetFile      = newMockBinaryDoer("image/png", "shared.png", []byte("PNG"))
+	doerSharedFileGetDownload  = newMockBinaryDoer("image/png", "shared.png", []byte("PNG"))
 	doerAttachmentDownload     = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
 	doerWikiCount              = newMockDoer(`{"count": 5}`)
 )

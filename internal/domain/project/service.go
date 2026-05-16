@@ -16,10 +16,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of projects in the space.
+// List returns a list of projects in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *Service) All(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
+func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}

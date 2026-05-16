@@ -27,7 +27,7 @@ func main() {
 	ctx := context.Background()
 
 	// Space info
-	space, err := c.Space.One(ctx)
+	space, err := c.Space.Info(ctx)
 	if err != nil {
 		log.Fatalf("failed to fetch space info: %v", err)
 	}

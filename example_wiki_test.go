@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleWikiService_All() {
+func ExampleWikiService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerWikiList),
 	)
 
-	wikis, _ := c.Wiki.All(context.Background(), "MYPROJECT")
+	wikis, _ := c.Wiki.List(context.Background(), "MYPROJECT")
 	fmt.Printf("ID: %d, Name: %s\n", wikis[0].ID, wikis[0].Name)
 	// Output:
 	// ID: 112, Name: test1

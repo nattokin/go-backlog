@@ -25,10 +25,10 @@ func (s *ActivityService) List(ctx context.Context, opts ...core.RequestOption) 
 	return s.base.List(ctx, "space/activities", opts...)
 }
 
-// Get returns a single activity by its ID.
+// One returns a single activity by its ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-activity
-func (s *ActivityService) Get(ctx context.Context, activityID int) (*model.Activity, error) {
+func (s *ActivityService) One(ctx context.Context, activityID int) (*model.Activity, error) {
 	if err := validate.ValidateActivityID(activityID); err != nil {
 		return nil, err
 	}

@@ -24,7 +24,7 @@ func TestWikiService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis", req.URL.Path)
@@ -32,15 +32,15 @@ func TestWikiService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Wiki.All(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
+				got, err := c.Wiki.List(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Wiki.All(ctx, "TEST")
+				_, err := c.Wiki.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

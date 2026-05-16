@@ -22,7 +22,7 @@ const (
 	testRepo    = "repo1"
 )
 
-func TestPullRequestService_All(t *testing.T) {
+func TestPullRequestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -140,7 +140,7 @@ func TestPullRequestService_All(t *testing.T) {
 			}
 
 			s := pullrequest.NewService(method)
-			prs, err := s.All(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.opts...)
+			prs, err := s.List(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -658,10 +658,10 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.All(ctx, testProject, testRepo) //nolint:errcheck
+			s.List(ctx, testProject, testRepo) //nolint:errcheck
 		}},
 		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
@@ -698,10 +698,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := pullrequest.NewAttachmentService(m)
 			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
-		{"CommentService.All", func(t *testing.T, m *core.Method) {
+		{"CommentService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
-			s.All(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
+			s.List(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
 		}},
 		{"CommentService.Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)

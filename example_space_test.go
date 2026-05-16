@@ -8,14 +8,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleSpaceService_One() {
+func ExampleSpaceService_Info() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerSpaceSpace),
 	)
 
-	space, _ := c.Space.One(context.Background())
+	space, _ := c.Space.Info(context.Background())
 	fmt.Printf("SpaceKey: %s, Name: %s\n", space.SpaceKey, space.Name)
 	// Output:
 	// SpaceKey: nulab, Name: Nulab Inc.
@@ -73,14 +73,14 @@ func ExampleSpaceActivityService_List() {
 	// ID: 3153, Type: 2
 }
 
-func ExampleSpaceActivityService_Get() {
+func ExampleSpaceActivityService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerActivitySingle),
 	)
 
-	activity, _ := c.Space.Activity.Get(context.Background(), 3153)
+	activity, _ := c.Space.Activity.One(context.Background(), 3153)
 	fmt.Printf("ID: %d, Type: %d\n", activity.ID, activity.Type)
 	// Output:
 	// ID: 3153, Type: 2

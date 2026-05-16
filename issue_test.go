@@ -23,21 +23,21 @@ func TestIssueService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.All(ctx)
+				got, err := c.Issue.List(ctx)
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 1, got[0].ID)
 				assert.Equal(t, 2, got[1].ID)
 			},
 		},
-		"All/with-options": {
+		"List/with-options": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
@@ -46,7 +46,7 @@ func TestIssueService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Issue.All(ctx,
+				got, err := c.Issue.List(ctx,
 					c.Issue.Option.WithKeyword("bug"),
 					c.Issue.Option.WithProjectIDs([]int{10, 20}),
 				)
@@ -54,10 +54,10 @@ func TestIssueService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Issue.All(ctx)
+				_, err := c.Issue.List(ctx)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

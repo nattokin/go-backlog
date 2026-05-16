@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueTypeService_All(t *testing.T) {
+func TestIssueTypeService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -83,7 +83,7 @@ func TestIssueTypeService_All(t *testing.T) {
 			}
 			s := project.NewIssueTypeService(method)
 
-			issueTypes, err := s.All(context.Background(), tc.projectIDOrKey)
+			issueTypes, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

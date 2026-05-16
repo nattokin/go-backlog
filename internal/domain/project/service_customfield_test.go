@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestCustomFieldService_All(t *testing.T) {
+func TestCustomFieldService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -83,7 +83,7 @@ func TestCustomFieldService_All(t *testing.T) {
 			}
 			s := project.NewCustomFieldService(method)
 
-			fields, err := s.All(context.Background(), tc.projectIDOrKey)
+			fields, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

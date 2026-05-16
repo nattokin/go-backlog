@@ -13,7 +13,7 @@ type IssueCommentService struct {
 	Option *IssueCommentOptionService
 }
 
-// All returns a list of comments on an issue.
+// List returns a list of comments on an issue.
 //
 // This method supports options returned by methods in "*Client.Issue.Comment.Option",
 // such as:
@@ -23,8 +23,8 @@ type IssueCommentService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
-func (s *IssueCommentService) All(ctx context.Context, issueIDOrKey string, opts ...RequestOption) ([]*Comment, error) {
-	v, err := s.base.All(ctx, issueIDOrKey, toCoreOptions(opts)...)
+func (s *IssueCommentService) List(ctx context.Context, issueIDOrKey string, opts ...RequestOption) ([]*Comment, error) {
+	v, err := s.base.List(ctx, issueIDOrKey, toCoreOptions(opts)...)
 	return commentsFromModel(v), convertError(err)
 }
 

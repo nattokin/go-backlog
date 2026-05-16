@@ -99,7 +99,7 @@ func TestSharedFileService_List(t *testing.T) {
 	}
 }
 
-func TestSharedFileService_GetFile(t *testing.T) {
+func TestSharedFileService_Download(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		sharedFileID   int
@@ -167,7 +167,7 @@ func TestSharedFileService_GetFile(t *testing.T) {
 			}
 			s := project.NewSharedFileService(method)
 
-			got, err := s.GetFile(context.Background(), tc.projectIDOrKey, tc.sharedFileID)
+			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.sharedFileID)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

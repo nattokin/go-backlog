@@ -42,7 +42,7 @@ func main() {
 
 	ctx := context.Background()
 
-	wikis, err := c.Wiki.All(ctx, projectKey)
+	wikis, err := c.Wiki.List(ctx, projectKey)
 	if err != nil {
 		log.Fatalf("failed to fetch wiki list: %v", err)
 	}

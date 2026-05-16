@@ -192,7 +192,7 @@ func TestActivityService_List(t *testing.T) {
 	}
 }
 
-func TestActivityService_Get(t *testing.T) {
+func TestActivityService_One(t *testing.T) {
 	type want struct {
 		spath string
 	}
@@ -250,7 +250,7 @@ func TestActivityService_Get(t *testing.T) {
 			}
 			s := space.NewActivityService(method)
 
-			if resp, err := s.Get(context.Background(), tc.activityID); tc.wantError {
+			if resp, err := s.One(context.Background(), tc.activityID); tc.wantError {
 				require.Error(t, err)
 				assert.Nil(t, resp)
 			} else {

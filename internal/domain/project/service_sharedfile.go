@@ -11,7 +11,7 @@ import (
 )
 
 // SharedFileService handles project shared-file-related Backlog API calls.
-// Kept separate from internal/sharedfile because GetFile is project-specific
+// Kept separate from internal/sharedfile because Download is project-specific
 // and does not fit the spath-agnostic pattern used by that package.
 type SharedFileService struct {
 	method *core.Method
@@ -39,11 +39,11 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]
 	return v, nil
 }
 
-// GetFile downloads a shared file from the project.
+// Download downloads a shared file from the project.
 // The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
-func (s *SharedFileService) GetFile(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
+func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

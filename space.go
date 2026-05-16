@@ -67,11 +67,11 @@ type SpaceService struct {
 	Attachment *SpaceAttachmentService
 }
 
-// One returns information about your space.
+// Info returns information about your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space
-func (s *SpaceService) One(ctx context.Context) (*Space, error) {
-	v, err := s.base.One(ctx)
+func (s *SpaceService) Info(ctx context.Context) (*Space, error) {
+	v, err := s.base.Info(ctx)
 	return spaceFromModel(v), convertError(err)
 }
 
@@ -128,11 +128,11 @@ func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) 
 	return activitiesFromModel(v), convertError(err)
 }
 
-// Get returns a single activity by its ID.
+// One returns a single activity by its ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-activity
-func (s *SpaceActivityService) Get(ctx context.Context, activityID int) (*Activity, error) {
-	v, err := s.base.Get(ctx, activityID)
+func (s *SpaceActivityService) One(ctx context.Context, activityID int) (*Activity, error) {
+	v, err := s.base.One(ctx, activityID)
 	return activityFromModel(v), convertError(err)
 }
 

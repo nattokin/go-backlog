@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestCategoryService_All(t *testing.T) {
+func TestCategoryService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -83,7 +83,7 @@ func TestCategoryService_All(t *testing.T) {
 			}
 			s := project.NewCategoryService(method)
 
-			categories, err := s.All(context.Background(), tc.projectIDOrKey)
+			categories, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

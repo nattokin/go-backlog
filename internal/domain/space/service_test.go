@@ -18,7 +18,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestSpaceService_One(t *testing.T) {
+func TestSpaceService_Info(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -62,7 +62,7 @@ func TestSpaceService_One(t *testing.T) {
 
 			s := space.NewService(method)
 
-			got, err := s.One(context.Background())
+			got, err := s.Info(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -292,10 +292,10 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.One", func(t *testing.T, m *core.Method) {
+		{"Service.Info", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewService(m)
-			s.One(ctx) //nolint:errcheck
+			s.Info(ctx) //nolint:errcheck
 		}},
 		{"Service.DiskUsage", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
@@ -317,10 +317,10 @@ func Test_contextPropagation(t *testing.T) {
 			s := space.NewActivityService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"ActivityService.Get", func(t *testing.T, m *core.Method) {
+		{"ActivityService.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewActivityService(m)
-			s.Get(ctx, 1) //nolint:errcheck
+			s.One(ctx, 1) //nolint:errcheck
 		}},
 		{"AttachmentService.Upload", func(t *testing.T, m *core.Method) {
 			m.Upload = makeMockUploadFn(t)

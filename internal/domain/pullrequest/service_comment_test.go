@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestCommentService_All(t *testing.T) {
+func TestCommentService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -141,7 +141,7 @@ func TestCommentService_All(t *testing.T) {
 
 			s := pullrequest.NewCommentService(method)
 
-			got, err := s.All(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
+			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)

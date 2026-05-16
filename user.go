@@ -32,11 +32,11 @@ type UserService struct {
 	Option *UserOptionService
 }
 
-// All returns all users in your space.
+// List returns all users in your space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-list
-func (s *UserService) All(ctx context.Context) ([]*User, error) {
-	v, err := s.base.All(ctx)
+func (s *UserService) List(ctx context.Context) ([]*User, error) {
+	v, err := s.base.List(ctx)
 	return usersFromModel(v), convertError(err)
 }
 
@@ -48,11 +48,11 @@ func (s *UserService) One(ctx context.Context, id int) (*User, error) {
 	return userFromModel(v), convertError(err)
 }
 
-// Own returns your own user.
+// Me returns your own user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-own-user
-func (s *UserService) Own(ctx context.Context) (*User, error) {
-	v, err := s.base.Own(ctx)
+func (s *UserService) Me(ctx context.Context) (*User, error) {
+	v, err := s.base.Me(ctx)
 	return userFromModel(v), convertError(err)
 }
 

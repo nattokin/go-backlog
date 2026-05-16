@@ -23,22 +23,22 @@ func TestProjectCategoryService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/categories", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Category.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Category.All(ctx, "TEST")
+				got, err := c.Project.Category.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Category.All(ctx, "TEST")
+				_, err := c.Project.Category.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -156,14 +156,14 @@ func TestProjectSharedFileService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		"GetFile": {
+		"Download": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/files/1", req.URL.Path)
 				return mock.NewBinaryResponse("image.png", "image/png", []byte("PNG")), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.SharedFile.GetFile(ctx, "TEST", 1)
+				got, err := c.Project.SharedFile.Download(ctx, "TEST", 1)
 				require.NoError(t, err)
 				require.NotNil(t, got)
 				assert.Equal(t, "image.png", got.Filename)
@@ -174,7 +174,7 @@ func TestProjectSharedFileService(t *testing.T) {
 				got.Body.Close()
 			},
 		},
-		"GetFile/error": {
+		"Download/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Icon(ctx, 1)
@@ -207,22 +207,22 @@ func TestProjectUserService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.User.All(ctx, "TEST", false)
+				got, err := c.Project.User.List(ctx, "TEST", false)
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.User.All(ctx, "TEST", false)
+				_, err := c.Project.User.List(ctx, "TEST", false)
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -300,22 +300,22 @@ func TestProjectUserService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		"AdminAll": {
+		"AdminList": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
 				return mock.NewJSONResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.User.AdminAll(ctx, "TEST")
+				got, err := c.Project.User.AdminList(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 4)
 			},
 		},
-		"AdminAll/error": {
+		"AdminList/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.User.AdminAll(ctx, "TEST")
+				_, err := c.Project.User.AdminList(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

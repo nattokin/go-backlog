@@ -64,23 +64,23 @@ func TestProjectWebhookService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/webhooks", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Webhook.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Webhook.All(ctx, "TEST")
+				got, err := c.Project.Webhook.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 1, got[0].ID)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Webhook.All(ctx, "TEST")
+				_, err := c.Project.Webhook.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

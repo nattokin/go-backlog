@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleRepositoryService_All() {
+func ExampleRepositoryService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerRepositoryList),
 	)
 
-	repos, _ := c.Repository.All(context.Background(), "TEST")
+	repos, _ := c.Repository.List(context.Background(), "TEST")
 	fmt.Printf("Count: %d, ID: %d, Name: %s\n", len(repos), repos[0].ID, repos[0].Name)
 	// Output:
 	// Count: 2, ID: 5, Name: foo

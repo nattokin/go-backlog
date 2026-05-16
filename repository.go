@@ -34,11 +34,11 @@ type RepositoryService struct {
 	base *repository.Service
 }
 
-// All returns a list of Git repositories in a project.
+// List returns a list of Git repositories in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories
-func (s *RepositoryService) All(ctx context.Context, projectIDOrKey string) ([]*Repository, error) {
-	v, err := s.base.All(ctx, projectIDOrKey)
+func (s *RepositoryService) List(ctx context.Context, projectIDOrKey string) ([]*Repository, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return repositoriesFromModel(v), convertError(err)
 }
 

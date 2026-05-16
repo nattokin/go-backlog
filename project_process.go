@@ -17,11 +17,11 @@ type ProjectStatusService struct {
 	Option *ProjectStatusOptionService
 }
 
-// All returns a list of statuses in a project.
+// List returns a list of statuses in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
-func (s *ProjectStatusService) All(ctx context.Context, projectIDOrKey string) ([]*Status, error) {
-	v, err := s.base.All(ctx, projectIDOrKey)
+func (s *ProjectStatusService) List(ctx context.Context, projectIDOrKey string) ([]*Status, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return statusesFromModel(v), convertError(err)
 }
 
@@ -72,15 +72,15 @@ type ProjectVersionService struct {
 	Option *ProjectVersionOptionService
 }
 
-// All returns a list of versions/milestones in the project.
+// List returns a list of versions/milestones in the project.
 //
 // This method supports options returned by methods in "*Client.Project.Version.Option",
 // such as:
 //   - WithArchived
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/
-func (s *ProjectVersionService) All(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, toCoreOptions(opts)...)
+func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
 	return versionsFromModel(v), convertError(err)
 }
 

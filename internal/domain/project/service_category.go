@@ -16,10 +16,10 @@ type CategoryService struct {
 	method *core.Method
 }
 
-// All returns a list of categories in a project.
+// List returns a list of categories in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-category-list
-func (s *CategoryService) All(ctx context.Context, projectIDOrKey string) ([]*model.Category, error) {
+func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*model.Category, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

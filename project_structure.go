@@ -16,11 +16,11 @@ type ProjectCategoryService struct {
 	base *project.CategoryService
 }
 
-// All returns a list of categories in a project.
+// List returns a list of categories in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-category-list
-func (s *ProjectCategoryService) All(ctx context.Context, projectIDOrKey string) ([]*Category, error) {
-	v, err := s.base.All(ctx, projectIDOrKey)
+func (s *ProjectCategoryService) List(ctx context.Context, projectIDOrKey string) ([]*Category, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return categoriesFromModel(v), convertError(err)
 }
 
@@ -65,12 +65,12 @@ func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey stri
 	return sharedFilesFromModel(v), convertError(err)
 }
 
-// GetFile downloads a shared file from the project.
+// Download downloads a shared file from the project.
 // The caller is responsible for closing FileData.Body after use.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
-func (s *ProjectSharedFileService) GetFile(ctx context.Context, projectIDOrKey string, sharedFileID int) (*FileData, error) {
-	v, err := s.base.GetFile(ctx, projectIDOrKey, sharedFileID)
+func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*FileData, error) {
+	v, err := s.base.Download(ctx, projectIDOrKey, sharedFileID)
 	return fileDataFromModel(v), convertError(err)
 }
 
@@ -83,11 +83,11 @@ type ProjectUserService struct {
 	base *project.UserService
 }
 
-// All returns all users in the project.
+// List returns all users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *ProjectUserService) All(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
-	v, err := s.base.All(ctx, projectIDOrKey, excludeGroupMembers)
+func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, excludeGroupMembers bool) ([]*User, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, excludeGroupMembers)
 	return usersFromModel(v), convertError(err)
 }
 
@@ -115,11 +115,11 @@ func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string
 	return userFromModel(v), convertError(err)
 }
 
-// AdminAll returns a list of all admin users in the project.
+// AdminList returns a list of all admin users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
-func (s *ProjectUserService) AdminAll(ctx context.Context, projectIDOrKey string) ([]*User, error) {
-	v, err := s.base.AdminAll(ctx, projectIDOrKey)
+func (s *ProjectUserService) AdminList(ctx context.Context, projectIDOrKey string) ([]*User, error) {
+	v, err := s.base.AdminList(ctx, projectIDOrKey)
 	return usersFromModel(v), convertError(err)
 }
 

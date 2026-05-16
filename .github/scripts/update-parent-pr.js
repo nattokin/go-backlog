@@ -201,7 +201,7 @@ function normalizeDescription(body) {
  * Format (no leading "- " on the parent row to avoid GitHub's duplicate link rendering):
  *
  *   feat!: add context.Context to WikiService (#107)
- *   - Add ctx to Wiki.All
+ *   - Add ctx to Wiki.List
  *   - Add ctx to Wiki.Create
  *
  * The parent row is identified by `(#childNumber)` on a non-indented, non-list line.

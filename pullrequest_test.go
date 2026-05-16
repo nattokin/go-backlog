@@ -24,21 +24,21 @@ func TestPullRequestService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
 				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.PullRequest.All(ctx, "TEST", "repo")
+				got, err := c.PullRequest.List(ctx, "TEST", "repo")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 2, got[0].ID)
 				assert.Equal(t, 3, got[1].ID)
 			},
 		},
-		"All/with-options": {
+		"List/with-options": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
@@ -47,7 +47,7 @@ func TestPullRequestService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.PullRequest.All(ctx, "TEST", "repo",
+				got, err := c.PullRequest.List(ctx, "TEST", "repo",
 					c.PullRequest.Option.WithStatusIDs([]int{1, 2}),
 					c.PullRequest.Option.WithCount(10),
 				)
@@ -55,10 +55,10 @@ func TestPullRequestService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.PullRequest.All(ctx, "TEST", "repo")
+				_, err := c.PullRequest.List(ctx, "TEST", "repo")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

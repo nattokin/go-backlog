@@ -16,7 +16,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectCustomFieldService_All(t *testing.T) {
+func TestProjectCustomFieldService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		doFunc         func(*http.Request) (*http.Response, error)
@@ -59,7 +59,7 @@ func TestProjectCustomFieldService_All(t *testing.T) {
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
 			require.NoError(t, err)
 
-			fields, err := c.Project.CustomField.All(context.Background(), tc.projectIDOrKey)
+			fields, err := c.Project.CustomField.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

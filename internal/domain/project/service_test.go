@@ -18,7 +18,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestService_All(t *testing.T) {
+func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -101,7 +101,7 @@ func TestService_All(t *testing.T) {
 			}
 			s := project.NewService(method)
 
-			projects, err := s.All(context.Background(), tc.opts...)
+			projects, err := s.List(context.Background(), tc.opts...)
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)

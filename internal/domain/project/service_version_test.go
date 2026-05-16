@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestVersionService_All(t *testing.T) {
+func TestVersionService_List(t *testing.T) {
 	option := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -72,7 +72,7 @@ func TestVersionService_All(t *testing.T) {
 			m := mock.NewMethod(t)
 			m.Get = tc.mockGetFn
 			s := project.NewVersionService(m)
-			got, err := s.All(context.Background(), tc.projectIDOrKey, tc.opts...)
+			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.opts...)
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)

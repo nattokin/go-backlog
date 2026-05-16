@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExamplePullRequestService_All() {
+func ExamplePullRequestService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerPullRequestList),
 	)
 
-	prs, _ := c.PullRequest.All(context.Background(), "TEST", "myrepo")
+	prs, _ := c.PullRequest.List(context.Background(), "TEST", "myrepo")
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(prs), prs[0].ID, prs[0].Summary)
 	// Output:
 	// Count: 2, ID: 2, Summary: test PR
@@ -111,14 +111,14 @@ func ExamplePullRequestAttachmentService_Remove() {
 	// ID: 8, Name: IMG0088.png
 }
 
-func ExamplePullRequestCommentService_All() {
+func ExamplePullRequestCommentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerCommentList),
 	)
 
-	comments, _ := c.PullRequest.Comment.All(context.Background(), "TEST", "myrepo", 1)
+	comments, _ := c.PullRequest.Comment.List(context.Background(), "TEST", "myrepo", 1)
 	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
 	// Output:
 	// Count: 2, ID: 1, Content: This is a comment.

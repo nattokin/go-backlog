@@ -16,10 +16,10 @@ type Service struct {
 	method *core.Method
 }
 
-// All returns a list of wiki pages in the project.
+// List returns a list of wiki pages in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *Service) All(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

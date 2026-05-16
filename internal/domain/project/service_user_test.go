@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestProjectUserService_All(t *testing.T) {
+func TestProjectUserService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectKey          string
 		excludeGroupMembers bool
@@ -84,7 +84,7 @@ func TestProjectUserService_All(t *testing.T) {
 			}
 			s := project.NewUserService(method)
 
-			users, err := s.All(context.Background(), tc.projectKey, tc.excludeGroupMembers)
+			users, err := s.List(context.Background(), tc.projectKey, tc.excludeGroupMembers)
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
@@ -364,7 +364,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 	}
 }
 
-func TestProjectUserService_AdminAll(t *testing.T) {
+func TestProjectUserService_AdminList(t *testing.T) {
 	cases := map[string]struct {
 		projectKey string
 
@@ -400,7 +400,7 @@ func TestProjectUserService_AdminAll(t *testing.T) {
 			}
 			s := project.NewUserService(method)
 
-			users, err := s.AdminAll(context.Background(), tc.projectKey)
+			users, err := s.AdminList(context.Background(), tc.projectKey)
 
 			assert.Error(t, err)
 			assert.IsType(t, tc.wantErrType, err)

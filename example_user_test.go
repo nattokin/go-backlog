@@ -7,14 +7,14 @@ import (
 	backlog "github.com/nattokin/go-backlog"
 )
 
-func ExampleUserService_All() {
+func ExampleUserService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserList),
 	)
 
-	users, _ := c.User.All(context.Background())
+	users, _ := c.User.List(context.Background())
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
@@ -33,14 +33,14 @@ func ExampleUserService_One() {
 	// ID: 1, UserID: admin
 }
 
-func ExampleUserService_Own() {
+func ExampleUserService_Me() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
 		backlog.WithDoer(doerUserSingle),
 	)
 
-	user, _ := c.User.Own(context.Background())
+	user, _ := c.User.Me(context.Background())
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin

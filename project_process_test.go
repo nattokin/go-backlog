@@ -24,23 +24,23 @@ func TestProjectVersionService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/versions", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Version.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Version.All(ctx, "TEST")
+				got, err := c.Project.Version.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, fixture.Version.Single.ID, got[0].ID)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Version.All(ctx, "TEST")
+				_, err := c.Project.Version.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -154,14 +154,14 @@ func TestProjectStatusService(t *testing.T) {
 		doFunc func(req *http.Request) (*http.Response, error)
 		call   func(t *testing.T, c *backlog.Client)
 	}{
-		"All": {
+		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/statuses", req.URL.Path)
 				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.Status.All(ctx, "TEST")
+				got, err := c.Project.Status.List(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, fixture.Status.Single.ID, got[0].ID)
@@ -169,10 +169,10 @@ func TestProjectStatusService(t *testing.T) {
 				assert.Equal(t, fixture.Status.Single.Color, got[0].Color)
 			},
 		},
-		"All/error": {
+		"List/error": {
 			doFunc: newNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.Status.All(ctx, "TEST")
+				_, err := c.Project.Status.List(ctx, "TEST")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
