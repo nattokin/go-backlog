@@ -306,6 +306,34 @@ func Test_issueFromModel(t *testing.T) {
 	}
 }
 
+func Test_notificationFromModel(t *testing.T) {
+	t.Parallel()
+
+	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: 1, Lang: "ja", MailAddress: "admin@example.com"}
+	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
+
+	input := &model.Notification{
+		ID:                  10,
+		AlreadyRead:         false,
+		Reason:              2,
+		ResourceAlreadyRead: true,
+		Sender:              user,
+		User:                user,
+		Created:             created,
+	}
+	want := &Notification{
+		ID:                  10,
+		AlreadyRead:         false,
+		Reason:              2,
+		ResourceAlreadyRead: true,
+		Sender:              wantUser,
+		User:                wantUser,
+		Created:             Timestamp{created},
+	}
+	assert.Equal(t, want, notificationFromModel(input))
+}
+
 func Test_pullRequestFromModel(t *testing.T) {
 	t.Parallel()
 

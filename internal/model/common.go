@@ -126,6 +126,7 @@ type Notification struct {
 	PullRequest         *PullRequest `json:"pullRequest,omitempty"`
 	PullRequestComment  *Comment     `json:"pullRequestComment,omitempty"`
 	Sender              *User        `json:"sender,omitempty"`
+	User                *User        `json:"user,omitempty"`
 	Created             time.Time    `json:"created,omitempty"`
 }
 
