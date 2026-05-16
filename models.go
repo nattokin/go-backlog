@@ -47,6 +47,17 @@ type ChangeLog struct {
 	Field         string
 	NewValue      string
 	OriginalValue string
+	AttachmentInfo *struct {
+		ID   int
+		Name string
+	}
+	AttributeInfo *struct {
+		ID     int
+		TypeID string
+	}
+	NotificationInfo *struct {
+		Type string
+	}
 }
 
 // Comment represents a comment on an issue or pull request.
@@ -285,11 +296,37 @@ func changeLogFromModel(m *model.ChangeLog) *ChangeLog {
 	if m == nil {
 		return nil
 	}
-	return &ChangeLog{
+	out := &ChangeLog{
 		Field:         m.Field,
 		NewValue:      m.NewValue,
 		OriginalValue: m.OriginalValue,
 	}
+	if m.AttachmentInfo != nil {
+		out.AttachmentInfo = &struct {
+			ID   int
+			Name string
+		}{
+			ID:   m.AttachmentInfo.ID,
+			Name: m.AttachmentInfo.Name,
+		}
+	}
+	if m.AttributeInfo != nil {
+		out.AttributeInfo = &struct {
+			ID     int
+			TypeID string
+		}{
+			ID:     m.AttributeInfo.ID,
+			TypeID: m.AttributeInfo.TypeID,
+		}
+	}
+	if m.NotificationInfo != nil {
+		out.NotificationInfo = &struct {
+			Type string
+		}{
+			Type: m.NotificationInfo.Type,
+		}
+	}
+	return out
 }
 
 func starFromModel(m *model.Star) *Star {

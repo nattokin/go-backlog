@@ -12,9 +12,101 @@ import (
 func Test_changeLogFromModel(t *testing.T) {
 	t.Parallel()
 
-	input := &model.ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"}
-	want := &ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"}
-	assert.Equal(t, want, changeLogFromModel(input))
+	cases := map[string]struct {
+		input *model.ChangeLog
+		want  *ChangeLog
+	}{
+		"basic_fields_only": {
+			input: &model.ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"},
+			want:  &ChangeLog{Field: "status", NewValue: "4", OriginalValue: "1"},
+		},
+		"with_attachment_info": {
+			input: &model.ChangeLog{
+				Field:          "attachment",
+				AttachmentInfo: &model.AttachmentInfo{ID: 10, Name: "file.txt"},
+			},
+			want: &ChangeLog{
+				Field: "attachment",
+				AttachmentInfo: &struct {
+					ID   int
+					Name string
+				}{ID: 10, Name: "file.txt"},
+			},
+		},
+		"with_attribute_info": {
+			input: &model.ChangeLog{
+				Field:         "attribute",
+				AttributeInfo: &model.AttributeInfo{ID: 5, TypeID: "text"},
+			},
+			want: &ChangeLog{
+				Field: "attribute",
+				AttributeInfo: &struct {
+					ID     int
+					TypeID string
+				}{ID: 5, TypeID: "text"},
+			},
+		},
+		"with_notification_info": {
+			input: &model.ChangeLog{
+				Field:            "notification",
+				NotificationInfo: &model.NotificationInfo{Type: "issueAssigned"},
+			},
+			want: &ChangeLog{
+				Field: "notification",
+				NotificationInfo: &struct {
+					Type string
+				}{Type: "issueAssigned"},
+			},
+		},
+		"with_all_info_fields": {
+			input: &model.ChangeLog{
+				Field:            "status",
+				NewValue:         "4",
+				OriginalValue:    "1",
+				AttachmentInfo:   &model.AttachmentInfo{ID: 10, Name: "file.txt"},
+				AttributeInfo:    &model.AttributeInfo{ID: 5, TypeID: "text"},
+				NotificationInfo: &model.NotificationInfo{Type: "issueAssigned"},
+			},
+			want: &ChangeLog{
+				Field:         "status",
+				NewValue:      "4",
+				OriginalValue: "1",
+				AttachmentInfo: &struct {
+					ID   int
+					Name string
+				}{ID: 10, Name: "file.txt"},
+				AttributeInfo: &struct {
+					ID     int
+					TypeID string
+				}{ID: 5, TypeID: "text"},
+				NotificationInfo: &struct {
+					Type string
+				}{Type: "issueAssigned"},
+			},
+		},
+		"nil_info_fields_remain_nil": {
+			input: &model.ChangeLog{
+				Field:            "status",
+				AttachmentInfo:   nil,
+				AttributeInfo:    nil,
+				NotificationInfo: nil,
+			},
+			want: &ChangeLog{
+				Field:            "status",
+				AttachmentInfo:   nil,
+				AttributeInfo:    nil,
+				NotificationInfo: nil,
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, changeLogFromModel(tc.input))
+		})
+	}
 }
 
 func Test_customFieldFromModel(t *testing.T) {

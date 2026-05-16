@@ -14,6 +14,23 @@ type Attachment struct {
 	Created     time.Time `json:"created,omitempty"`
 }
 
+// AttachmentInfo represents information about an attachment involved in a change log entry.
+type AttachmentInfo struct {
+	ID   int    `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+// AttributeInfo represents information about a custom attribute involved in a change log entry.
+type AttributeInfo struct {
+	ID     int    `json:"id,omitempty"`
+	TypeID string `json:"typeId,omitempty"`
+}
+
+// NotificationInfo represents information about a notification involved in a change log entry.
+type NotificationInfo struct {
+	Type string `json:"type,omitempty"`
+}
+
 // Category represents a project category.
 type Category struct {
 	ID           int    `json:"id,omitempty"`
@@ -23,9 +40,12 @@ type Category struct {
 
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
-	Field         string `json:"field,omitempty"`
-	NewValue      string `json:"newValue,omitempty"`
-	OriginalValue string `json:"originalValue,omitempty"`
+	Field            string            `json:"field,omitempty"`
+	NewValue         string            `json:"newValue,omitempty"`
+	OriginalValue    string            `json:"originalValue,omitempty"`
+	AttachmentInfo   *AttachmentInfo   `json:"attachmentInfo,omitempty"`
+	AttributeInfo    *AttributeInfo    `json:"attributeInfo,omitempty"`
+	NotificationInfo *NotificationInfo `json:"notificationInfo,omitempty"`
 }
 
 // Comment represents a comment on an issue or pull request.
