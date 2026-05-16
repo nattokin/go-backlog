@@ -72,27 +72,6 @@ func (s *CommentService) Count(ctx context.Context, projectIDOrKey string, repoI
 	return s.base.Count(ctx, spath)
 }
 
-// One returns a single comment on a pull request.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *CommentService) One(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, commentID int) (*model.Comment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
-	}
-
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", strconv.Itoa(commentID))
-	return s.base.One(ctx, spath)
-}
-
 // Update updates a comment on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information
