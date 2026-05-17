@@ -63,9 +63,9 @@ func TestIssueService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		// All: verifies that count/offset are sent correctly, model conversion works,
-		// and convertError propagates. Pagination logic and break/error cases are
-		// covered in internal/domain/issue tests.
+		// All: verifies that count/offset are sent correctly and model conversion works.
+		// Call-time validation error propagation is verified in All/error.
+		// Pagination logic and break/HTTP-error cases are covered in internal/domain/issue tests.
 		"All": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -88,12 +88,11 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"All/error": {
-			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.All(ctx, 0)
 				require.Error(t, err)
-				var target *backlog.APIResponseError
-				assert.False(t, errors.As(err, &target))
+				var target *backlog.ValidationError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Count": {
