@@ -1,11 +1,14 @@
 package issue_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -171,6 +174,105 @@ func TestIssueService_List(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestIssueService_All(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("multi-page", func(t *testing.T) {
+		t.Parallel()
+
+		// page 1: full page (perPage=2), page 2: 1 item (signals last page)
+		var callCount atomic.Int32
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
+			n := callCount.Add(1)
+			assert.Equal(t, "2", query.Get("count"))
+			switch n {
+			case 1:
+				assert.Equal(t, "0", query.Get("offset"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(fixture.Issue.ListJSON)),
+				}, nil
+			case 2:
+				assert.Equal(t, "2", query.Get("offset"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(issueLastPageJSON)),
+				}, nil
+			default:
+				t.Errorf("unexpected request #%d", n)
+				return nil, nil
+			}
+		}
+
+		s := issue.NewService(method)
+		var got []int
+		for iss, err := range s.All(ctx, 2) {
+			require.NoError(t, err)
+			got = append(got, iss.ID)
+		}
+
+		assert.Equal(t, int32(2), callCount.Load())
+		assert.Equal(t, []int{1, 2, 3}, got)
+	})
+
+	t.Run("break", func(t *testing.T) {
+		t.Parallel()
+
+		var callCount atomic.Int32
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
+			n := callCount.Add(1)
+			if n > 1 {
+				t.Errorf("unexpected request #%d after break", n)
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(fixture.Issue.ListJSON)),
+			}, nil
+		}
+
+		s := issue.NewService(method)
+		var got []int
+		for iss, err := range s.All(ctx, 2) {
+			require.NoError(t, err)
+			got = append(got, iss.ID)
+			break
+		}
+
+		assert.Equal(t, int32(1), callCount.Load())
+		assert.Len(t, got, 1)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Parallel()
+
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
+			return nil, errors.New("network error")
+		}
+
+		s := issue.NewService(method)
+		for iss, err := range s.All(ctx, 10) {
+			assert.Nil(t, iss)
+			require.Error(t, err)
+			break
+		}
+	})
+
+	t.Run("error-invalid-count", func(t *testing.T) {
+		t.Parallel()
+
+		s := issue.NewService(mock.NewMethod(t))
+		for iss, err := range s.All(ctx, 0) {
+			assert.Nil(t, iss)
+			require.Error(t, err)
+			assert.IsType(t, &core.ValidationError{}, err)
+			break
+		}
+	})
 }
 
 func TestIssueService_Count(t *testing.T) {
@@ -774,6 +876,13 @@ func Test_contextPropagation(t *testing.T) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.List(ctx) //nolint:errcheck
+		}},
+		{"Service.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := issue.NewService(m)
+			for range s.All(ctx, 10) {
+				break
+			}
 		}},
 		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)

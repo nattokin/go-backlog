@@ -3,6 +3,7 @@ package issue
 
 import (
 	"context"
+	"iter"
 	"net/url"
 	"path"
 	"strconv"
@@ -68,6 +69,23 @@ func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*mode
 	}
 
 	return v, nil
+}
+
+// All returns an iterator that lazily fetches all issues with automatic pagination.
+//
+// perPage controls how many issues are fetched per API call (1-100).
+// Iteration stops automatically when all issues have been returned.
+// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
+func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOption) iter.Seq2[*model.Issue, error] {
+	o := &core.OptionService{}
+	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.Issue, error) {
+		return s.List(ctx, append(opts,
+			o.WithCount(perPage),
+			o.WithOffset(offset),
+		)...)
+	})
 }
 
 // Count returns the total count of issues matching the given filters.
