@@ -4,6 +4,7 @@ package pullrequest
 import (
 	"context"
 	"iter"
+	"maps"
 	"net/url"
 	"path"
 	"strconv"
@@ -13,35 +14,35 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// filterValidTypes are the options accepted by both List and All (filter params only).
+var filterValidTypes = []core.APIParamOptionType{
+	core.ParamStatusIDs,
+	core.ParamAssigneeIDs,
+	core.ParamIssueIDs,
+	core.ParamCreatedUserIDs,
+}
+
+// listValidTypes are the options accepted by List (filter params + pagination).
+var listValidTypes = append(filterValidTypes,
+	core.ParamOffset,
+	core.ParamCount,
+)
+
 // Service handles pull request-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
-// List returns a list of pull requests.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
+// validateListArgs validates the path arguments shared by List and All.
+func (s *Service) validateListArgs(projectIDOrKey string, repoIDOrName string) error {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+		return err
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
+	return validate.ValidateRepositoryIDOrName(repoIDOrName)
+}
 
-	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamStatusIDs,
-		core.ParamAssigneeIDs,
-		core.ParamIssueIDs,
-		core.ParamCreatedUserIDs,
-		core.ParamOffset,
-		core.ParamCount,
-	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return nil, err
-	}
-
+// list fetches a page of pull requests using the given pre-built query.
+func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
@@ -52,25 +53,55 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
-
 	return v, nil
 }
 
-// All returns an iterator that lazily fetches all pull requests with automatic pagination.
+// List returns a list of pull requests.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
+func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
+	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
+		return nil, err
+	}
+
+	query := url.Values{}
+	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+		return nil, err
+	}
+
+	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
+}
+
+// All returns an iterator that lazily fetches all pull requests with automatic
+// pagination, along with any validation error encountered at call time.
 //
 // perPage controls how many pull requests are fetched per API call (1-100).
 // Iteration stops automatically when all pull requests have been returned.
-// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+// Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) iter.Seq2[*model.PullRequest, error] {
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (iter.Seq2[*model.PullRequest, error], error) {
 	o := &core.OptionService{}
+	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
+		return nil, err
+	}
+
+	countOpt := o.WithCount(perPage)
+	if err := countOpt.Check(); err != nil {
+		return nil, err
+	}
+
+	baseQuery := url.Values{}
+	countOpt.Set(baseQuery)
+	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+		return nil, err
+	}
+
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
-		return s.List(ctx, projectIDOrKey, repoIDOrName, append(opts,
-			o.WithCount(perPage),
-			o.WithOffset(offset),
-		)...)
-	})
+		q := maps.Clone(baseQuery)
+		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
+		return s.list(ctx, projectIDOrKey, repoIDOrName, q)
+	}), nil
 }
 
 // Count returns the number of pull requests.
