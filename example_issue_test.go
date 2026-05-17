@@ -27,8 +27,13 @@ func ExampleIssueService_All() {
 		backlog.WithDoer(doerIssueList),
 	)
 
+	seq, err := c.Issue.All(context.Background(), 100)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	var ids []int
-	for issue, err := range c.Issue.All(context.Background(), 100) {
+	for issue, err := range seq {
 		if err != nil {
 			break
 		}

@@ -208,8 +208,10 @@ func TestIssueService_All(t *testing.T) {
 		}
 
 		s := issue.NewService(method)
+		seq, err := s.All(ctx, 2)
+		require.NoError(t, err)
 		var got []int
-		for iss, err := range s.All(ctx, 2) {
+		for iss, err := range seq {
 			require.NoError(t, err)
 			got = append(got, iss.ID)
 		}
@@ -235,8 +237,10 @@ func TestIssueService_All(t *testing.T) {
 		}
 
 		s := issue.NewService(method)
+		seq, err := s.All(ctx, 2)
+		require.NoError(t, err)
 		var got []int
-		for iss, err := range s.All(ctx, 2) {
+		for iss, err := range seq {
 			require.NoError(t, err)
 			got = append(got, iss.ID)
 			break
@@ -255,7 +259,9 @@ func TestIssueService_All(t *testing.T) {
 		}
 
 		s := issue.NewService(method)
-		for iss, err := range s.All(ctx, 10) {
+		seq, err := s.All(ctx, 10)
+		require.NoError(t, err)
+		for iss, err := range seq {
 			assert.Nil(t, iss)
 			require.Error(t, err)
 			break
@@ -266,12 +272,38 @@ func TestIssueService_All(t *testing.T) {
 		t.Parallel()
 
 		s := issue.NewService(mock.NewMethod(t))
-		for iss, err := range s.All(ctx, 0) {
-			assert.Nil(t, iss)
-			require.Error(t, err)
-			assert.IsType(t, &core.ValidationError{}, err)
-			break
-		}
+		_, err := s.All(ctx, 0)
+		require.Error(t, err)
+		assert.IsType(t, &core.ValidationError{}, err)
+	})
+
+	t.Run("error-invalid-option", func(t *testing.T) {
+		t.Parallel()
+
+		s := issue.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, mock.NewInvalidTypeOption())
+		require.Error(t, err)
+		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+	})
+
+	t.Run("error-offset-passed-to-all", func(t *testing.T) {
+		t.Parallel()
+
+		o := &core.OptionService{}
+		s := issue.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, o.WithOffset(5))
+		require.Error(t, err)
+		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+	})
+
+	t.Run("error-sort-passed-to-all", func(t *testing.T) {
+		t.Parallel()
+
+		o := &core.OptionService{}
+		s := issue.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, o.WithIssueSort("created"))
+		require.Error(t, err)
+		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
 	})
 }
 
@@ -880,7 +912,9 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
-			for range s.All(ctx, 10) {
+			seq, err := s.All(ctx, 10)
+			require.NoError(t, err)
+			for range seq {
 				break
 			}
 		}},

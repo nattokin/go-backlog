@@ -75,8 +75,10 @@ func TestIssueService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
+				seq, err := c.Issue.All(ctx, 100)
+				require.NoError(t, err)
 				var got []*backlog.Issue
-				for iss, err := range c.Issue.All(ctx, 100) {
+				for iss, err := range seq {
 					require.NoError(t, err)
 					got = append(got, iss)
 				}
@@ -88,13 +90,24 @@ func TestIssueService(t *testing.T) {
 		"All/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				for iss, err := range c.Issue.All(ctx, 10) {
+				seq, err := c.Issue.All(ctx, 10)
+				require.NoError(t, err)
+				for iss, err := range seq {
 					assert.Nil(t, iss)
 					require.Error(t, err)
 					var target *backlog.APIResponseError
 					assert.True(t, errors.As(err, &target))
 					break
 				}
+			},
+		},
+		"All/validation-error": {
+			doFunc: newInternalServerErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.All(ctx, 0)
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.False(t, errors.As(err, &target))
 			},
 		},
 		"Count": {

@@ -121,11 +121,14 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 	return issuesFromModel(v), convertError(err)
 }
 
-// All returns an iterator that lazily fetches all issues with automatic pagination.
+// All returns an iterator that lazily fetches all issues with automatic
+// pagination, along with any validation error encountered at call time.
 //
 // perPage controls how many issues are fetched per API call (1-100).
 // Iteration stops automatically when all issues have been returned.
-// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+// The caller must not pass WithCount, WithOffset, WithIssueSort, or WithOrder
+// in opts; those are managed internally or unsupported. If they are passed,
+// an error is returned immediately.
 //
 // This method supports filter options returned by methods in "*Client.Issue.Option",
 // such as:
@@ -142,8 +145,6 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //   - WithParentChild
 //   - WithAttachment
 //   - WithSharedFile
-//   - WithIssueSort
-//   - WithOrder
 //   - WithCreatedSince
 //   - WithCreatedUntil
 //   - WithUpdatedSince
@@ -158,14 +159,18 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //   - WithKeyword
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOption) iter.Seq2[*Issue, error] {
+func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOption) (iter.Seq2[*Issue, error], error) {
+	seq, err := s.base.All(ctx, perPage, toCoreOptions(opts)...)
+	if err != nil {
+		return nil, convertError(err)
+	}
 	return func(yield func(*Issue, error) bool) {
-		for v, err := range s.base.All(ctx, perPage, toCoreOptions(opts)...) {
+		for v, err := range seq {
 			if !yield(issueFromModel(v), convertError(err)) {
 				return
 			}
 		}
-	}
+	}, nil
 }
 
 // Count returns the total count of issues matching the given filters.
