@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"context"
+	"iter"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
@@ -118,6 +119,53 @@ type IssueService struct {
 func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
 	v, err := s.base.List(ctx, toCoreOptions(opts)...)
 	return issuesFromModel(v), convertError(err)
+}
+
+// All returns an iterator that lazily fetches all issues with automatic pagination.
+//
+// perPage controls how many issues are fetched per API call (1-100).
+// Iteration stops automatically when all issues have been returned.
+// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+//
+// This method supports filter options returned by methods in "*Client.Issue.Option",
+// such as:
+//   - WithProjectIDs
+//   - WithIssueTypeIDs
+//   - WithCategoryIDs
+//   - WithVersionIDs
+//   - WithMilestoneIDs
+//   - WithStatusIDs
+//   - WithPriorityIDs
+//   - WithAssigneeIDs
+//   - WithCreatedUserIDs
+//   - WithResolutionIDs
+//   - WithParentChild
+//   - WithAttachment
+//   - WithSharedFile
+//   - WithIssueSort
+//   - WithOrder
+//   - WithCreatedSince
+//   - WithCreatedUntil
+//   - WithUpdatedSince
+//   - WithUpdatedUntil
+//   - WithStartDateSince
+//   - WithStartDateUntil
+//   - WithDueDateSince
+//   - WithDueDateUntil
+//   - WithHasDueDate
+//   - WithIDs
+//   - WithParentIssueIDs
+//   - WithKeyword
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
+func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOption) iter.Seq2[*Issue, error] {
+	return func(yield func(*Issue, error) bool) {
+		for v, err := range s.base.All(ctx, perPage, toCoreOptions(opts)...) {
+			if !yield(issueFromModel(v), convertError(err)) {
+				return
+			}
+		}
+	}
 }
 
 // Count returns the total count of issues matching the given filters.
