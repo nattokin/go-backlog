@@ -64,6 +64,40 @@ func TestPullRequestService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		// All: verifies that count/offset are sent correctly, model conversion works,
+		// and convertError propagates. Pagination logic and break/error cases are
+		// covered in internal/domain/pullrequest tests.
+		"All": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
+				assert.Equal(t, "100", req.URL.Query().Get("count"))
+				assert.Equal(t, "0", req.URL.Query().Get("offset"))
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				var got []*backlog.PullRequest
+				for pr, err := range c.PullRequest.All(ctx, 100, "TEST", "repo") {
+					require.NoError(t, err)
+					got = append(got, pr)
+				}
+				assert.Len(t, got, 2)
+				assert.Equal(t, 2, got[0].ID)
+				assert.Equal(t, 3, got[1].ID)
+			},
+		},
+		"All/error": {
+			doFunc: newInternalServerErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				for pr, err := range c.PullRequest.All(ctx, 10, "TEST", "repo") {
+					assert.Nil(t, pr)
+					require.Error(t, err)
+					var target *backlog.APIResponseError
+					assert.True(t, errors.As(err, &target))
+					break
+				}
+			},
+		},
 		"Count": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)

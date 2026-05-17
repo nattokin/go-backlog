@@ -3,6 +3,7 @@ package pullrequest
 
 import (
 	"context"
+	"iter"
 	"net/url"
 	"path"
 	"strconv"
@@ -53,6 +54,23 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	}
 
 	return v, nil
+}
+
+// All returns an iterator that lazily fetches all pull requests with automatic pagination.
+//
+// perPage controls how many pull requests are fetched per API call (1-100).
+// Iteration stops automatically when all pull requests have been returned.
+// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) iter.Seq2[*model.PullRequest, error] {
+	o := &core.OptionService{}
+	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
+		return s.List(ctx, projectIDOrKey, repoIDOrName, append(opts,
+			o.WithCount(perPage),
+			o.WithOffset(offset),
+		)...)
+	})
 }
 
 // Count returns the number of pull requests.

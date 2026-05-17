@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"context"
+	"iter"
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
@@ -63,6 +64,30 @@ type PullRequestService struct {
 func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) ([]*PullRequest, error) {
 	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, toCoreOptions(opts)...)
 	return pullRequestsFromModel(v), convertError(err)
+}
+
+// All returns an iterator that lazily fetches all pull requests with automatic pagination.
+//
+// perPage controls how many pull requests are fetched per API call (1-100).
+// Iteration stops automatically when all pull requests have been returned.
+// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+//
+// This method supports filter options returned by methods in "*Client.PullRequest.Option",
+// such as:
+//   - WithStatusIDs
+//   - WithAssigneeIDs
+//   - WithIssueIDs
+//   - WithCreatedUserIDs
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
+func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) iter.Seq2[*PullRequest, error] {
+	return func(yield func(*PullRequest, error) bool) {
+		for v, err := range s.base.All(ctx, perPage, projectIDOrKey, repositoryIDOrName, toCoreOptions(opts)...) {
+			if !yield(pullRequestFromModel(v), convertError(err)) {
+				return
+			}
+		}
+	}
 }
 
 // Count returns the number of pull requests.

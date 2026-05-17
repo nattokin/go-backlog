@@ -1,11 +1,14 @@
 package pullrequest_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -157,6 +160,105 @@ func TestPullRequestService_List(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPullRequestService_All(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("multi-page", func(t *testing.T) {
+		t.Parallel()
+
+		// page 1: full page (perPage=2), page 2: 1 item (signals last page)
+		var callCount atomic.Int32
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
+			n := callCount.Add(1)
+			assert.Equal(t, "2", query.Get("count"))
+			switch n {
+			case 1:
+				assert.Equal(t, "0", query.Get("offset"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(fixture.PullRequest.ListJSON)),
+				}, nil
+			case 2:
+				assert.Equal(t, "2", query.Get("offset"))
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(pullRequestLastPageJSON)),
+				}, nil
+			default:
+				t.Errorf("unexpected request #%d", n)
+				return nil, nil
+			}
+		}
+
+		s := pullrequest.NewService(method)
+		var got []int
+		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
+			require.NoError(t, err)
+			got = append(got, pr.Number)
+		}
+
+		assert.Equal(t, int32(2), callCount.Load())
+		assert.Equal(t, []int{1, 2, 3}, got)
+	})
+
+	t.Run("break", func(t *testing.T) {
+		t.Parallel()
+
+		var callCount atomic.Int32
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
+			n := callCount.Add(1)
+			if n > 1 {
+				t.Errorf("unexpected request #%d after break", n)
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(fixture.PullRequest.ListJSON)),
+			}, nil
+		}
+
+		s := pullrequest.NewService(method)
+		var got []int
+		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
+			require.NoError(t, err)
+			got = append(got, pr.Number)
+			break
+		}
+
+		assert.Equal(t, int32(1), callCount.Load())
+		assert.Len(t, got, 1)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		t.Parallel()
+
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
+			return nil, errors.New("network error")
+		}
+
+		s := pullrequest.NewService(method)
+		for pr, err := range s.All(ctx, 10, testProject, testRepo) {
+			assert.Nil(t, pr)
+			require.Error(t, err)
+			break
+		}
+	})
+
+	t.Run("error-invalid-project", func(t *testing.T) {
+		t.Parallel()
+
+		s := pullrequest.NewService(mock.NewMethod(t))
+		for pr, err := range s.All(ctx, 10, "", testRepo) {
+			assert.Nil(t, pr)
+			require.Error(t, err)
+			assert.IsType(t, &core.ValidationError{}, err)
+			break
+		}
+	})
 }
 
 func TestPullRequestService_Count(t *testing.T) {
@@ -662,6 +764,13 @@ func Test_contextPropagation(t *testing.T) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.List(ctx, testProject, testRepo) //nolint:errcheck
+		}},
+		{"Service.All", func(t *testing.T, m *core.Method) {
+			m.Get = makeMockFn(t)
+			s := pullrequest.NewService(m)
+			for range s.All(ctx, 10, testProject, testRepo) {
+				break
+			}
 		}},
 		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
