@@ -14,8 +14,8 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// filterValidTypes are the options accepted by both List and All (filter params only,
-// excluding WithOffset, WithCount, WithIssueSort, and WithOrder).
+// filterValidTypes are the options accepted by both List and All (filter + sort params,
+// excluding WithOffset and WithCount).
 var filterValidTypes = []core.APIParamOptionType{
 	core.ParamProjectIDs,
 	core.ParamIssueTypeIDs,
@@ -30,6 +30,8 @@ var filterValidTypes = []core.APIParamOptionType{
 	core.ParamParentChild,
 	core.ParamAttachment,
 	core.ParamSharedFile,
+	core.ParamSort,
+	core.ParamOrder,
 	core.ParamCreatedSince,
 	core.ParamCreatedUntil,
 	core.ParamUpdatedSince,
@@ -44,10 +46,8 @@ var filterValidTypes = []core.APIParamOptionType{
 	core.ParamKeyword,
 }
 
-// listValidTypes are the options accepted by List (filter params + sort/pagination).
+// listValidTypes are the options accepted by List (filter/sort params + pagination).
 var listValidTypes = append(filterValidTypes,
-	core.ParamSort,
-	core.ParamOrder,
 	core.ParamOffset,
 	core.ParamCount,
 )
@@ -88,7 +88,6 @@ func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*mode
 // perPage controls how many issues are fetched per API call (1-100).
 // Iteration stops automatically when all issues have been returned.
 // Passing WithCount or WithOffset in opts returns an error immediately.
-// Passing WithIssueSort or WithOrder in opts also returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOption) (iter.Seq2[*model.Issue, error], error) {
