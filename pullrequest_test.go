@@ -66,7 +66,7 @@ func TestPullRequestService(t *testing.T) {
 		},
 		// All: verifies that count/offset are sent correctly and model conversion works.
 		// Call-time validation error propagation is verified in All/error.
-		// Pagination logic and break/HTTP-error cases are covered in internal/domain/pullrequest tests.
+		// Pagination logic and HTTP-error cases are covered in internal/domain/pullrequest tests.
 		"All": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -86,6 +86,25 @@ func TestPullRequestService(t *testing.T) {
 				assert.Len(t, got, 2)
 				assert.Equal(t, 2, got[0].ID)
 				assert.Equal(t, 3, got[1].ID)
+			},
+		},
+		"All/break": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				seq, err := c.PullRequest.All(ctx, 100, "TEST", "repo")
+				require.NoError(t, err)
+				var got []*backlog.PullRequest
+				for pr, err := range seq {
+					require.NoError(t, err)
+					got = append(got, pr)
+					break
+				}
+				assert.Len(t, got, 1)
+				assert.Equal(t, 2, got[0].ID)
 			},
 		},
 		"All/error": {
