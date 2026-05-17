@@ -152,6 +152,40 @@ func (s *PullRequestService) Update(ctx context.Context, projectIDOrKey string, 
 }
 
 // ──────────────────────────────────────────────────────────────
+//  PullRequestAttachmentService
+// ──────────────────────────────────────────────────────────────
+
+// PullRequestAttachmentService handles communication with the pull request attachment-related methods of the Backlog API.
+type PullRequestAttachmentService struct {
+	base *pullrequest.AttachmentService
+}
+
+// List returns a list of all attachments in the pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
+func (s *PullRequestAttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*Attachment, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber)
+	return attachmentsFromModel(v), convertError(err)
+}
+
+// Remove removes a file attached to the pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
+func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*Attachment, error) {
+	v, err := s.base.Remove(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
+	return attachmentFromModel(v), convertError(err)
+}
+
+// Download downloads a file attached to the pull request.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
+func (s *PullRequestAttachmentService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*FileData, error) {
+	v, err := s.base.Download(ctx, projectIDOrKey, repositoryIDOrName, prNumber, attachmentID)
+	return fileDataFromModel(v), convertError(err)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  PullRequestStarService
 // ──────────────────────────────────────────────────────────────
 
@@ -175,6 +209,81 @@ func (s *PullRequestStarService) Remove(ctx context.Context, starID int) error {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  PullRequestOptionService
+// ──────────────────────────────────────────────────────────────
+
+// PullRequestOptionService provides a domain-specific set of option builders
+// for operations within the PullRequestService.
+type PullRequestOptionService struct {
+	base *core.OptionService
+}
+
+// WithAssigneeID returns an option to set the `assigneeId` parameter.
+func (s *PullRequestOptionService) WithAssigneeID(id int) RequestOption {
+	return s.base.WithAssigneeID(id)
+}
+
+// WithAssigneeIDs filters pull requests by assignee user IDs.
+func (s *PullRequestOptionService) WithAssigneeIDs(ids []int) RequestOption {
+	return s.base.WithAssigneeIDs(ids)
+}
+
+// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+func (s *PullRequestOptionService) WithAttachmentIDs(ids []int) RequestOption {
+	return s.base.WithAttachmentIDs(ids)
+}
+
+// WithComment returns an option to set the `comment` parameter.
+func (s *PullRequestOptionService) WithComment(comment string) RequestOption {
+	return s.base.WithComment(comment)
+}
+
+// WithCount sets the number of pull requests to retrieve.
+func (s *PullRequestOptionService) WithCount(count int) RequestOption {
+	return s.base.WithCount(count)
+}
+
+// WithCreatedUserIDs filters pull requests by created user IDs.
+func (s *PullRequestOptionService) WithCreatedUserIDs(ids []int) RequestOption {
+	return s.base.WithCreatedUserIDs(ids)
+}
+
+// WithDescription returns an option to set the `description` parameter.
+func (s *PullRequestOptionService) WithDescription(description string) RequestOption {
+	return s.base.WithDescription(description)
+}
+
+// WithIssueID returns an option to set the `issueId` parameter.
+func (s *PullRequestOptionService) WithIssueID(id int) RequestOption {
+	return s.base.WithIssueID(id)
+}
+
+// WithIssueIDs filters pull requests by issue IDs.
+func (s *PullRequestOptionService) WithIssueIDs(ids []int) RequestOption {
+	return s.base.WithIssueIDs(ids)
+}
+
+// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+func (s *PullRequestOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
+	return s.base.WithNotifiedUserIDs(ids)
+}
+
+// WithOffset sets the number of pull requests to skip.
+func (s *PullRequestOptionService) WithOffset(offset int) RequestOption {
+	return s.base.WithOffset(offset)
+}
+
+// WithStatusIDs filters pull requests by status IDs.
+func (s *PullRequestOptionService) WithStatusIDs(ids []int) RequestOption {
+	return s.base.WithStatusIDs(ids)
+}
+
+// WithSummary returns an option to set the `summary` parameter.
+func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
+	return s.base.WithSummary(summary)
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
@@ -190,8 +299,20 @@ func newPullRequestService(method *core.Method, option *core.OptionService) *Pul
 	}
 }
 
+func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachmentService {
+	return &PullRequestAttachmentService{
+		base: pullrequest.NewAttachmentService(method),
+	}
+}
+
 func newPullRequestStarService(method *core.Method, option *core.OptionService) *PullRequestStarService {
 	return &PullRequestStarService{star: newStarService(method, option)}
+}
+
+func newPullRequestOptionService(option *core.OptionService) *PullRequestOptionService {
+	return &PullRequestOptionService{
+		base: option,
+	}
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -201,6 +322,14 @@ func newPullRequestStarService(method *core.Method, option *core.OptionService) 
 func pullRequestFromModel(m *model.PullRequest) *PullRequest {
 	if m == nil {
 		return nil
+	}
+	attachments := make([]*Attachment, len(m.Attachments))
+	for i, v := range m.Attachments {
+		attachments[i] = attachmentFromModel(v)
+	}
+	stars := make([]*Star, len(m.Stars))
+	for i, v := range m.Stars {
+		stars[i] = starFromModel(v)
 	}
 	return &PullRequest{
 		ID:           m.ID,
