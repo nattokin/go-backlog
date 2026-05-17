@@ -13,37 +13,36 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// filterValidTypes are the options accepted by both List and All (filter params only).
+var filterValidTypes = []core.APIParamOptionType{
+	core.ParamStatusIDs,
+	core.ParamAssigneeIDs,
+	core.ParamIssueIDs,
+	core.ParamCreatedUserIDs,
+}
+
+// listValidTypes are the options accepted by List (filter params + pagination).
+var listValidTypes = append(filterValidTypes,
+	core.ParamOffset,
+	core.ParamCount,
+)
+
 // Service handles pull request-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
-// buildListQuery validates projectIDOrKey, repoIDOrName, and opts, then returns
-// a url.Values with WithCount(perPage) already applied.
-// perPage must be a valid count value (1-100).
-func (s *Service) buildListQuery(projectIDOrKey string, repoIDOrName string, perPage int, opts []core.RequestOption) (url.Values, error) {
+// validateRepo validates projectIDOrKey and repoIDOrName, applies opts to query
+// using validTypes, and returns any error. This is the shared setup logic for
+// List and All.
+func (s *Service) validateAndApplyOptions(query url.Values, validTypes []core.APIParamOptionType, projectIDOrKey string, repoIDOrName string, opts []core.RequestOption) error {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+		return err
 	}
 	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
+		return err
 	}
-
-	o := &core.OptionService{}
-	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamStatusIDs,
-		core.ParamAssigneeIDs,
-		core.ParamIssueIDs,
-		core.ParamCreatedUserIDs,
-		core.ParamOffset,
-		core.ParamCount,
-	}
-	allOpts := append(opts, o.WithCount(perPage))
-	if err := core.ApplyOptions(query, validTypes, allOpts...); err != nil {
-		return nil, err
-	}
-	return query, nil
+	return core.ApplyOptions(query, validTypes, opts...)
 }
 
 // list fetches a page of pull requests using the given pre-built query.
@@ -65,26 +64,10 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamStatusIDs,
-		core.ParamAssigneeIDs,
-		core.ParamIssueIDs,
-		core.ParamCreatedUserIDs,
-		core.ParamOffset,
-		core.ParamCount,
-	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+	if err := s.validateAndApplyOptions(query, listValidTypes, projectIDOrKey, repoIDOrName, opts); err != nil {
 		return nil, err
 	}
-
 	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
 }
 
@@ -93,13 +76,21 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 //
 // perPage controls how many pull requests are fetched per API call (1-100).
 // Iteration stops automatically when all pull requests have been returned.
-// The caller must not pass WithCount or WithOffset in opts; those are managed
-// internally. If they are passed, an error is returned immediately.
+// Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (iter.Seq2[*model.PullRequest, error], error) {
-	baseQuery, err := s.buildListQuery(projectIDOrKey, repoIDOrName, perPage, opts)
-	if err != nil {
+	o := &core.OptionService{}
+	countOpt := o.WithCount(perPage)
+	if err := countOpt.Check(); err != nil {
+		return nil, err
+	}
+
+	baseQuery := url.Values{}
+	if err := s.validateAndApplyOptions(baseQuery, filterValidTypes, projectIDOrKey, repoIDOrName, opts); err != nil {
+		return nil, err
+	}
+	if err := countOpt.Set(baseQuery); err != nil {
 		return nil, err
 	}
 
