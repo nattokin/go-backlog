@@ -362,12 +362,12 @@ func pullRequestFromModel(m *model.PullRequest) *PullRequest {
 	}
 }
 
-func pullRequestsFromModel(m []*model.PullRequest) []*PullRequest {
-	if m == nil {
+func pullRequestsFromModel(ms []*model.PullRequest) []*PullRequest {
+	if ms == nil {
 		return nil
 	}
-	result := make([]*PullRequest, len(m))
-	for i, v := range m {
+	result := make([]*PullRequest, len(ms))
+	for i, v := range ms {
 		result[i] = pullRequestFromModel(v)
 	}
 	return result
