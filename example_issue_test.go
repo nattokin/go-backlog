@@ -20,6 +20,25 @@ func ExampleIssueService_List() {
 	// Count: 2, ID: 1, Summary: First issue
 }
 
+func ExampleIssueService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerIssueList),
+	)
+
+	var ids []int
+	for issue, err := range c.Issue.All(context.Background(), 100) {
+		if err != nil {
+			break
+		}
+		ids = append(ids, issue.ID)
+	}
+	fmt.Printf("Count: %d, IDs: %v\n", len(ids), ids)
+	// Output:
+	// Count: 2, IDs: [1 2]
+}
+
 func ExampleIssueService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
