@@ -126,9 +126,8 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //
 // perPage controls how many issues are fetched per API call (1-100).
 // Iteration stops automatically when all issues have been returned.
-// The caller must not pass WithCount, WithOffset, WithIssueSort, or WithOrder
-// in opts; those are managed internally or unsupported. If they are passed,
-// an error is returned immediately.
+// The caller must not pass WithCount or WithOffset in opts; those are managed
+// internally. If they are passed, an error is returned immediately.
 //
 // This method supports filter options returned by methods in "*Client.Issue.Option",
 // such as:
@@ -145,6 +144,8 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //   - WithParentChild
 //   - WithAttachment
 //   - WithSharedFile
+//   - WithIssueSort
+//   - WithOrder
 //   - WithCreatedSince
 //   - WithCreatedUntil
 //   - WithUpdatedSince
