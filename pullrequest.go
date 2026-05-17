@@ -103,7 +103,12 @@ func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKe
 
 // Count returns the number of pull requests.
 //
-// This method supports the same filter options as All, except WithOffset and WithCount.
+// This method supports options returned by methods in "*Client.PullRequest.Option",
+// such as:
+//   - WithStatusIDs
+//   - WithAssigneeIDs
+//   - WithIssueIDs
+//   - WithCreatedUserIDs
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
 func (s *PullRequestService) Count(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) (int, error) {
