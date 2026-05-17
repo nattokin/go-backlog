@@ -3,33 +3,23 @@ package backlog
 import (
 	"context"
 	"iter"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
-// allSeq is a generic helper that drives offset-based pagination over any list endpoint.
-// fetch must accept (ctx, offset) and return a page of results.
-// Iteration stops when the page is shorter than perPage, signalling the last page.
-func allSeq[T any](
+// allSeq returns an iter.Seq2 that drives offset-based pagination.
+// It delegates to core.AllSeq and converts each element via the provided convert function.
+func allSeq[M, T any](
 	ctx context.Context,
 	perPage int,
-	fetch func(ctx context.Context, offset int) ([]*T, error),
+	fetch func(ctx context.Context, offset int) ([]*M, error),
+	convert func(*M) *T,
 ) iter.Seq2[*T, error] {
 	return func(yield func(*T, error) bool) {
-		offset := 0
-		for {
-			items, err := fetch(ctx, offset)
-			if err != nil {
-				yield(nil, err)
+		for v, err := range core.AllSeq(ctx, perPage, fetch) {
+			if !yield(convert(v), err) {
 				return
 			}
-			for _, item := range items {
-				if !yield(item, nil) {
-					return
-				}
-			}
-			if len(items) < perPage {
-				return
-			}
-			offset += len(items)
 		}
 	}
 }
