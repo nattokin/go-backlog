@@ -92,9 +92,7 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 	}
 
 	baseQuery := url.Values{}
-	if err := countOpt.Set(baseQuery); err != nil {
-		return nil, err
-	}
+	countOpt.Set(baseQuery)
 	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
 		return nil, err
 	}
