@@ -4,6 +4,7 @@ package pullrequest
 import (
 	"context"
 	"iter"
+	"maps"
 	"net/url"
 	"path"
 	"strconv"
@@ -81,37 +82,28 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (iter.Seq2[*model.PullRequest, error], error) {
 	o := &core.OptionService{}
+	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
+		return nil, err
+	}
+
 	countOpt := o.WithCount(perPage)
 	if err := countOpt.Check(); err != nil {
 		return nil, err
 	}
 
-	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
-		return nil, err
-	}
-
 	baseQuery := url.Values{}
-	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+	if err := countOpt.Set(baseQuery); err != nil {
 		return nil, err
 	}
-	if err := countOpt.Set(baseQuery); err != nil {
+	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
 		return nil, err
 	}
 
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
-		q := cloneQuery(baseQuery)
+		q := maps.Clone(baseQuery)
 		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
 		return s.list(ctx, projectIDOrKey, repoIDOrName, q)
 	}), nil
-}
-
-// cloneQuery returns a shallow copy of url.Values.
-func cloneQuery(src url.Values) url.Values {
-	dst := make(url.Values, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
-	return dst
 }
 
 // Count returns the number of pull requests.
