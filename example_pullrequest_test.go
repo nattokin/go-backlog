@@ -20,6 +20,25 @@ func ExamplePullRequestService_List() {
 	// Count: 2, ID: 2, Summary: test PR
 }
 
+func ExamplePullRequestService_All() {
+	c, _ := backlog.NewClient(
+		"https://example.backlog.com",
+		"token",
+		backlog.WithDoer(doerPullRequestList),
+	)
+
+	var ids []int
+	for pr, err := range c.PullRequest.All(context.Background(), 100, "TEST", "myrepo") {
+		if err != nil {
+			break
+		}
+		ids = append(ids, pr.ID)
+	}
+	fmt.Printf("Count: %d, IDs: %v\n", len(ids), ids)
+	// Output:
+	// Count: 2, IDs: [2 3]
+}
+
 func ExamplePullRequestService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
