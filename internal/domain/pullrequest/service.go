@@ -32,17 +32,12 @@ type Service struct {
 	method *core.Method
 }
 
-// validateRepo validates projectIDOrKey and repoIDOrName, applies opts to query
-// using validTypes, and returns any error. This is the shared setup logic for
-// List and All.
-func (s *Service) validateAndApplyOptions(query url.Values, validTypes []core.APIParamOptionType, projectIDOrKey string, repoIDOrName string, opts []core.RequestOption) error {
+// validateListArgs validates the path arguments shared by List and All.
+func (s *Service) validateListArgs(projectIDOrKey string, repoIDOrName string) error {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return err
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return err
-	}
-	return core.ApplyOptions(query, validTypes, opts...)
+	return validate.ValidateRepositoryIDOrName(repoIDOrName)
 }
 
 // list fetches a page of pull requests using the given pre-built query.
@@ -64,10 +59,15 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
-	query := url.Values{}
-	if err := s.validateAndApplyOptions(query, listValidTypes, projectIDOrKey, repoIDOrName, opts); err != nil {
+	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
 		return nil, err
 	}
+
+	query := url.Values{}
+	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+		return nil, err
+	}
+
 	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
 }
 
@@ -86,8 +86,12 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 		return nil, err
 	}
 
+	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
+		return nil, err
+	}
+
 	baseQuery := url.Values{}
-	if err := s.validateAndApplyOptions(baseQuery, filterValidTypes, projectIDOrKey, repoIDOrName, opts); err != nil {
+	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
 		return nil, err
 	}
 	if err := countOpt.Set(baseQuery); err != nil {
