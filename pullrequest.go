@@ -81,12 +81,15 @@ func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, re
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *PullRequestService) All(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, perPage int, opts ...RequestOption) iter.Seq2[*PullRequest, error] {
-	return allSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*PullRequest, error) {
-		return s.List(ctx, projectIDOrKey, repositoryIDOrName, append(opts,
-			s.Option.WithCount(perPage),
-			s.Option.WithOffset(offset),
-		)...)
-	})
+	return allSeq(ctx, perPage,
+		func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
+			return s.base.All(ctx, projectIDOrKey, repositoryIDOrName, perPage, toCoreOptions(opts)...)(func(v *model.PullRequest, err error) bool {
+				// unwrap: we only need the fetch function, not the iterator itself
+				return false
+			})
+		},
+		pullRequestFromModel,
+	)
 }
 
 // Count returns the number of pull requests.
