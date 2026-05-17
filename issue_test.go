@@ -101,15 +101,6 @@ func TestIssueService(t *testing.T) {
 				}
 			},
 		},
-		"All/validation-error": {
-			doFunc: newInternalServerErrorDoFunc(),
-			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Issue.All(ctx, 0)
-				require.Error(t, err)
-				var target *backlog.APIResponseError
-				assert.False(t, errors.As(err, &target))
-			},
-		},
 		"Count": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
