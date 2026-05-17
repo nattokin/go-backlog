@@ -64,6 +64,34 @@ func TestPullRequestService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
+		// All: verifies model conversion and convertError propagation.
+		// Pagination logic and break/error cases are covered in internal/domain/pullrequest tests.
+		"All": {
+			call: func(t *testing.T, c *backlog.Client) {
+				c2, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(newMockDoer(fixture.PullRequest.ListJSON)))
+				require.NoError(t, err)
+				var got []*backlog.PullRequest
+				for pr, err := range c2.PullRequest.All(ctx, "TEST", "repo", 100) {
+					require.NoError(t, err)
+					got = append(got, pr)
+				}
+				assert.Len(t, got, 2)
+				assert.Equal(t, 2, got[0].ID)
+				assert.Equal(t, 3, got[1].ID)
+			},
+		},
+		"All/error": {
+			doFunc: newInternalServerErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				for pr, err := range c.PullRequest.All(ctx, "TEST", "repo", 10) {
+					assert.Nil(t, pr)
+					require.Error(t, err)
+					var target *backlog.APIResponseError
+					assert.True(t, errors.As(err, &target))
+					break
+				}
+			},
+		},
 		"Count": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -215,7 +243,13 @@ func TestPullRequestService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			var doer backlog.Doer
+			if tc.doFunc != nil {
+				doer = &mockDoer{do: tc.doFunc}
+			} else {
+				doer = newMockDoer("")
+			}
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doer))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
