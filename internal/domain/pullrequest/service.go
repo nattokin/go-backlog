@@ -18,6 +18,49 @@ type Service struct {
 	method *core.Method
 }
 
+// buildListQuery validates projectIDOrKey, repoIDOrName, and opts, then returns
+// a url.Values with WithCount(perPage) already applied.
+// perPage must be a valid count value (1-100).
+func (s *Service) buildListQuery(projectIDOrKey string, repoIDOrName string, perPage int, opts []core.RequestOption) (url.Values, error) {
+	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
+		return nil, err
+	}
+	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
+		return nil, err
+	}
+
+	o := &core.OptionService{}
+	query := url.Values{}
+	validTypes := []core.APIParamOptionType{
+		core.ParamStatusIDs,
+		core.ParamAssigneeIDs,
+		core.ParamIssueIDs,
+		core.ParamCreatedUserIDs,
+		core.ParamOffset,
+		core.ParamCount,
+	}
+	allOpts := append(opts, o.WithCount(perPage))
+	if err := core.ApplyOptions(query, validTypes, allOpts...); err != nil {
+		return nil, err
+	}
+	return query, nil
+}
+
+// list fetches a page of pull requests using the given pre-built query.
+func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
+	resp, err := s.method.Get(ctx, spath, query)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.PullRequest{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
 // List returns a list of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
@@ -42,35 +85,38 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
-	resp, err := s.method.Get(ctx, spath, query)
+	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
+}
+
+// All returns an iterator that lazily fetches all pull requests with automatic
+// pagination, along with any validation error encountered at call time.
+//
+// perPage controls how many pull requests are fetched per API call (1-100).
+// Iteration stops automatically when all pull requests have been returned.
+// The caller must not pass WithCount or WithOffset in opts; those are managed
+// internally. If they are passed, an error is returned immediately.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (iter.Seq2[*model.PullRequest, error], error) {
+	baseQuery, err := s.buildListQuery(projectIDOrKey, repoIDOrName, perPage, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	v := []*model.PullRequest{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return v, nil
+	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
+		q := cloneQuery(baseQuery)
+		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
+		return s.list(ctx, projectIDOrKey, repoIDOrName, q)
+	}), nil
 }
 
-// All returns an iterator that lazily fetches all pull requests with automatic pagination.
-//
-// perPage controls how many pull requests are fetched per API call (1-100).
-// Iteration stops automatically when all pull requests have been returned.
-// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) iter.Seq2[*model.PullRequest, error] {
-	o := &core.OptionService{}
-	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
-		return s.List(ctx, projectIDOrKey, repoIDOrName, append(opts,
-			o.WithCount(perPage),
-			o.WithOffset(offset),
-		)...)
-	})
+// cloneQuery returns a shallow copy of url.Values.
+func cloneQuery(src url.Values) url.Values {
+	dst := make(url.Values, len(src))
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
 }
 
 // Count returns the number of pull requests.

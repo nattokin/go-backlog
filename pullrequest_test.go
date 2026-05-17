@@ -76,8 +76,10 @@ func TestPullRequestService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
+				seq, err := c.PullRequest.All(ctx, 100, "TEST", "repo")
+				require.NoError(t, err)
 				var got []*backlog.PullRequest
-				for pr, err := range c.PullRequest.All(ctx, 100, "TEST", "repo") {
+				for pr, err := range seq {
 					require.NoError(t, err)
 					got = append(got, pr)
 				}
@@ -89,13 +91,24 @@ func TestPullRequestService(t *testing.T) {
 		"All/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				for pr, err := range c.PullRequest.All(ctx, 10, "TEST", "repo") {
+				seq, err := c.PullRequest.All(ctx, 10, "TEST", "repo")
+				require.NoError(t, err)
+				for pr, err := range seq {
 					assert.Nil(t, pr)
 					require.Error(t, err)
 					var target *backlog.APIResponseError
 					assert.True(t, errors.As(err, &target))
 					break
 				}
+			},
+		},
+		"All/validation-error": {
+			doFunc: newInternalServerErrorDoFunc(),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.PullRequest.All(ctx, 0, "TEST", "repo")
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.False(t, errors.As(err, &target))
 			},
 		},
 		"Count": {

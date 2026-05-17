@@ -194,8 +194,10 @@ func TestPullRequestService_All(t *testing.T) {
 		}
 
 		s := pullrequest.NewService(method)
+		seq, err := s.All(ctx, 2, testProject, testRepo)
+		require.NoError(t, err)
 		var got []int
-		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
+		for pr, err := range seq {
 			require.NoError(t, err)
 			got = append(got, pr.Number)
 		}
@@ -221,8 +223,10 @@ func TestPullRequestService_All(t *testing.T) {
 		}
 
 		s := pullrequest.NewService(method)
+		seq, err := s.All(ctx, 2, testProject, testRepo)
+		require.NoError(t, err)
 		var got []int
-		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
+		for pr, err := range seq {
 			require.NoError(t, err)
 			got = append(got, pr.Number)
 			break
@@ -241,7 +245,9 @@ func TestPullRequestService_All(t *testing.T) {
 		}
 
 		s := pullrequest.NewService(method)
-		for pr, err := range s.All(ctx, 10, testProject, testRepo) {
+		seq, err := s.All(ctx, 10, testProject, testRepo)
+		require.NoError(t, err)
+		for pr, err := range seq {
 			assert.Nil(t, pr)
 			require.Error(t, err)
 			break
@@ -252,12 +258,27 @@ func TestPullRequestService_All(t *testing.T) {
 		t.Parallel()
 
 		s := pullrequest.NewService(mock.NewMethod(t))
-		for pr, err := range s.All(ctx, 10, "", testRepo) {
-			assert.Nil(t, pr)
-			require.Error(t, err)
-			assert.IsType(t, &core.ValidationError{}, err)
-			break
-		}
+		_, err := s.All(ctx, 10, "", testRepo)
+		require.Error(t, err)
+		assert.IsType(t, &core.ValidationError{}, err)
+	})
+
+	t.Run("error-invalid-count", func(t *testing.T) {
+		t.Parallel()
+
+		s := pullrequest.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 0, testProject, testRepo)
+		require.Error(t, err)
+		assert.IsType(t, &core.ValidationError{}, err)
+	})
+
+	t.Run("error-invalid-option", func(t *testing.T) {
+		t.Parallel()
+
+		s := pullrequest.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, testProject, testRepo, mock.NewInvalidTypeOption())
+		require.Error(t, err)
+		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
 	})
 }
 
@@ -768,7 +789,9 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			for range s.All(ctx, 10, testProject, testRepo) {
+			seq, err := s.All(ctx, 10, testProject, testRepo)
+			require.NoError(t, err)
+			for range seq {
 				break
 			}
 		}},

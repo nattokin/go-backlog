@@ -27,8 +27,13 @@ func ExamplePullRequestService_All() {
 		backlog.WithDoer(doerPullRequestList),
 	)
 
+	seq, err := c.PullRequest.All(context.Background(), 100, "TEST", "myrepo")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	var ids []int
-	for pr, err := range c.PullRequest.All(context.Background(), 100, "TEST", "myrepo") {
+	for pr, err := range seq {
 		if err != nil {
 			break
 		}
