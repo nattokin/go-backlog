@@ -63,9 +63,9 @@ func TestIssueService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		// All: verifies that count/offset are sent correctly, model conversion works,
-		// and convertError propagates. Pagination logic and break/error cases are
-		// covered in internal/domain/issue tests.
+		// All: verifies that count/offset are sent correctly and model conversion works.
+		// Call-time validation error propagation is verified in All/error.
+		// Pagination logic and HTTP-error cases are covered in internal/domain/issue tests.
 		"All": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
@@ -75,8 +75,10 @@ func TestIssueService(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
+				seq, err := c.Issue.All(ctx, 100)
+				require.NoError(t, err)
 				var got []*backlog.Issue
-				for iss, err := range c.Issue.All(ctx, 100) {
+				for iss, err := range seq {
 					require.NoError(t, err)
 					got = append(got, iss)
 				}
@@ -85,16 +87,31 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, 2, got[1].ID)
 			},
 		},
-		"All/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+		"All/break": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/issues", req.URL.Path)
+				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+			},
 			call: func(t *testing.T, c *backlog.Client) {
-				for iss, err := range c.Issue.All(ctx, 10) {
-					assert.Nil(t, iss)
-					require.Error(t, err)
-					var target *backlog.APIResponseError
-					assert.True(t, errors.As(err, &target))
+				seq, err := c.Issue.All(ctx, 100)
+				require.NoError(t, err)
+				var got []*backlog.Issue
+				for iss, err := range seq {
+					require.NoError(t, err)
+					got = append(got, iss)
 					break
 				}
+				assert.Len(t, got, 1)
+				assert.Equal(t, 1, got[0].ID)
+			},
+		},
+		"All/error": {
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Issue.All(ctx, 0)
+				require.Error(t, err)
+				var target *backlog.ValidationError
+				assert.True(t, errors.As(err, &target))
 			},
 		},
 		"Count": {

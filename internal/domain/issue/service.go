@@ -4,6 +4,7 @@ package issue
 import (
 	"context"
 	"iter"
+	"maps"
 	"net/url"
 	"path"
 	"strconv"
@@ -13,51 +14,51 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
+// filterValidTypes are the options accepted by both List and All (filter + sort params,
+// excluding WithOffset and WithCount).
+var filterValidTypes = []core.APIParamOptionType{
+	core.ParamProjectIDs,
+	core.ParamIssueTypeIDs,
+	core.ParamCategoryIDs,
+	core.ParamVersionIDs,
+	core.ParamMilestoneIDs,
+	core.ParamStatusIDs,
+	core.ParamPriorityIDs,
+	core.ParamAssigneeIDs,
+	core.ParamCreatedUserIDs,
+	core.ParamResolutionIDs,
+	core.ParamParentChild,
+	core.ParamAttachment,
+	core.ParamSharedFile,
+	core.ParamSort,
+	core.ParamOrder,
+	core.ParamCreatedSince,
+	core.ParamCreatedUntil,
+	core.ParamUpdatedSince,
+	core.ParamUpdatedUntil,
+	core.ParamStartDateSince,
+	core.ParamStartDateUntil,
+	core.ParamDueDateSince,
+	core.ParamDueDateUntil,
+	core.ParamHasDueDate,
+	core.ParamIDs,
+	core.ParamParentIssueIDs,
+	core.ParamKeyword,
+}
+
+// listValidTypes are the options accepted by List (filter/sort params + pagination).
+var listValidTypes = append(filterValidTypes,
+	core.ParamOffset,
+	core.ParamCount,
+)
+
 // Service handles issue-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
-// List returns a list of issues.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
-	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamProjectIDs,
-		core.ParamIssueTypeIDs,
-		core.ParamCategoryIDs,
-		core.ParamVersionIDs,
-		core.ParamMilestoneIDs,
-		core.ParamStatusIDs,
-		core.ParamPriorityIDs,
-		core.ParamAssigneeIDs,
-		core.ParamCreatedUserIDs,
-		core.ParamResolutionIDs,
-		core.ParamParentChild,
-		core.ParamAttachment,
-		core.ParamSharedFile,
-		core.ParamSort,
-		core.ParamOrder,
-		core.ParamOffset,
-		core.ParamCount,
-		core.ParamCreatedSince,
-		core.ParamCreatedUntil,
-		core.ParamUpdatedSince,
-		core.ParamUpdatedUntil,
-		core.ParamStartDateSince,
-		core.ParamStartDateUntil,
-		core.ParamDueDateSince,
-		core.ParamDueDateUntil,
-		core.ParamHasDueDate,
-		core.ParamIDs,
-		core.ParamParentIssueIDs,
-		core.ParamKeyword,
-	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return nil, err
-	}
-
+// list fetches a page of issues using the given pre-built query.
+func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, error) {
 	resp, err := s.method.Get(ctx, "issues", query)
 	if err != nil {
 		return nil, err
@@ -67,25 +68,47 @@ func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*mode
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
-
 	return v, nil
 }
 
-// All returns an iterator that lazily fetches all issues with automatic pagination.
+// List returns a list of issues.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
+func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
+	query := url.Values{}
+	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+		return nil, err
+	}
+	return s.list(ctx, query)
+}
+
+// All returns an iterator that lazily fetches all issues with automatic
+// pagination, along with any validation error encountered at call time.
 //
 // perPage controls how many issues are fetched per API call (1-100).
 // Iteration stops automatically when all issues have been returned.
-// The caller must not pass WithCount or WithOffset in opts; those are managed internally.
+// Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOption) iter.Seq2[*model.Issue, error] {
+func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOption) (iter.Seq2[*model.Issue, error], error) {
 	o := &core.OptionService{}
+
+	countOpt := o.WithCount(perPage)
+	if err := countOpt.Check(); err != nil {
+		return nil, err
+	}
+
+	baseQuery := url.Values{}
+	countOpt.Set(baseQuery)
+	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+		return nil, err
+	}
+
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.Issue, error) {
-		return s.List(ctx, append(opts,
-			o.WithCount(perPage),
-			o.WithOffset(offset),
-		)...)
-	})
+		q := maps.Clone(baseQuery)
+		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
+		return s.list(ctx, q)
+	}), nil
 }
 
 // Count returns the total count of issues matching the given filters.
