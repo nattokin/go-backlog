@@ -290,6 +290,16 @@ func TestPullRequestService_All(t *testing.T) {
 		require.Error(t, err)
 		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
 	})
+
+	t.Run("error-count-passed-to-all", func(t *testing.T) {
+		t.Parallel()
+
+		o := &core.OptionService{}
+		s := pullrequest.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, testProject, testRepo, o.WithCount(50))
+		require.Error(t, err)
+		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+	})
 }
 
 func TestPullRequestService_Count(t *testing.T) {
