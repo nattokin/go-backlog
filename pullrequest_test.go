@@ -77,7 +77,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				var got []*backlog.PullRequest
-				for pr, err := range c.PullRequest.All(ctx, "TEST", "repo", 100) {
+				for pr, err := range c.PullRequest.All(ctx, 100, "TEST", "repo") {
 					require.NoError(t, err)
 					got = append(got, pr)
 				}
@@ -89,7 +89,7 @@ func TestPullRequestService(t *testing.T) {
 		"All/error": {
 			doFunc: newInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				for pr, err := range c.PullRequest.All(ctx, "TEST", "repo", 10) {
+				for pr, err := range c.PullRequest.All(ctx, 10, "TEST", "repo") {
 					assert.Nil(t, pr)
 					require.Error(t, err)
 					var target *backlog.APIResponseError

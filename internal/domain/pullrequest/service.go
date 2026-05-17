@@ -63,7 +63,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // The caller must not pass WithCount or WithOffset in opts; those are managed internally.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, projectIDOrKey string, repoIDOrName string, perPage int, opts ...core.RequestOption) iter.Seq2[*model.PullRequest, error] {
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) iter.Seq2[*model.PullRequest, error] {
 	o := &core.OptionService{}
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
 		return s.List(ctx, projectIDOrKey, repoIDOrName, append(opts,

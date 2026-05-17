@@ -195,7 +195,7 @@ func TestPullRequestService_All(t *testing.T) {
 
 		s := pullrequest.NewService(method)
 		var got []int
-		for pr, err := range s.All(ctx, testProject, testRepo, 2) {
+		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
 			require.NoError(t, err)
 			got = append(got, pr.Number)
 		}
@@ -222,7 +222,7 @@ func TestPullRequestService_All(t *testing.T) {
 
 		s := pullrequest.NewService(method)
 		var got []int
-		for pr, err := range s.All(ctx, testProject, testRepo, 2) {
+		for pr, err := range s.All(ctx, 2, testProject, testRepo) {
 			require.NoError(t, err)
 			got = append(got, pr.Number)
 			break
@@ -241,7 +241,7 @@ func TestPullRequestService_All(t *testing.T) {
 		}
 
 		s := pullrequest.NewService(method)
-		for pr, err := range s.All(ctx, testProject, testRepo, 10) {
+		for pr, err := range s.All(ctx, 10, testProject, testRepo) {
 			assert.Nil(t, pr)
 			require.Error(t, err)
 			break
@@ -252,7 +252,7 @@ func TestPullRequestService_All(t *testing.T) {
 		t.Parallel()
 
 		s := pullrequest.NewService(mock.NewMethod(t))
-		for pr, err := range s.All(ctx, "", testRepo, 10) {
+		for pr, err := range s.All(ctx, 10, "", testRepo) {
 			assert.Nil(t, pr)
 			require.Error(t, err)
 			assert.IsType(t, &core.ValidationError{}, err)
@@ -768,7 +768,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			for range s.All(ctx, testProject, testRepo, 10) {
+			for range s.All(ctx, 10, testProject, testRepo) {
 				break
 			}
 		}},
