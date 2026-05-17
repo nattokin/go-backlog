@@ -64,12 +64,15 @@ func TestPullRequestService(t *testing.T) {
 				assert.True(t, errors.As(err, &target))
 			},
 		},
-		// All: verifies model conversion and convertError propagation.
-		// Pagination logic and break/error cases are covered in internal/domain/pullrequest tests.
+		// All: verifies that count/offset are sent correctly, model conversion works,
+		// and convertError propagates. Pagination logic and break/error cases are
+		// covered in internal/domain/pullrequest tests.
 		"All": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
+				assert.Equal(t, "100", req.URL.Query().Get("count"))
+				assert.Equal(t, "0", req.URL.Query().Get("offset"))
 				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
