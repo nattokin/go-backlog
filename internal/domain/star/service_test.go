@@ -160,7 +160,7 @@ func TestStarService_Remove(t *testing.T) {
 	}
 }
 
-func Test_contextPropagation(t *testing.T) {
+func TestService_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -176,13 +176,13 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.Add", func(t *testing.T, m *core.Method) {
+		{"Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			o := &core.OptionService{}
 			s := star.NewService(m)
 			s.Add(ctx, o.WithIssueID(1)) //nolint:errcheck
 		}},
-		{"Service.Remove", func(t *testing.T, m *core.Method) {
+		{"Remove", func(t *testing.T, m *core.Method) {
 			m.Delete = makeMockFn(t)
 			s := star.NewService(m)
 			s.Remove(ctx, 1) //nolint:errcheck

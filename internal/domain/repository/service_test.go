@@ -178,7 +178,7 @@ func TestRepositoryService_One(t *testing.T) {
 	}
 }
 
-func Test_contextPropagation(t *testing.T) {
+func TestService_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
@@ -194,12 +194,12 @@ func Test_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"RepositoryService.List", func(t *testing.T, m *core.Method) {
+		{"List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := repository.NewService(m)
 			s.List(ctx, testProject) //nolint:errcheck
 		}},
-		{"RepositoryService.One", func(t *testing.T, m *core.Method) {
+		{"One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := repository.NewService(m)
 			s.One(ctx, testProject, testRepo) //nolint:errcheck
