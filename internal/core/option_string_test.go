@@ -109,6 +109,26 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamMailAddress.Value(),
 			wantValue: "test@example.com",
 		},
+		"WithMailAddress-valid-plus": {
+			option:    o.WithMailAddress("user+tag@example.co.jp"),
+			key:       core.ParamMailAddress.Value(),
+			wantValue: "user+tag@example.co.jp",
+		},
+		"WithMailAddress-invalid-no-at": {
+			option:  o.WithMailAddress("notanemail"),
+			key:     core.ParamMailAddress.Value(),
+			wantErr: true,
+		},
+		"WithMailAddress-invalid-display-name": {
+			option:  o.WithMailAddress("John Doe <john@example.com>"),
+			key:     core.ParamMailAddress.Value(),
+			wantErr: true,
+		},
+		"WithMailAddress-invalid-angle-bracket": {
+			option:  o.WithMailAddress("<john@example.com>"),
+			key:     core.ParamMailAddress.Value(),
+			wantErr: true,
+		},
 		"WithName-empty": {
 			option:  o.WithName(""),
 			key:     core.ParamName.Value(),

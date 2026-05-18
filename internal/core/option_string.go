@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"net/mail"
 	"net/url"
 )
 
@@ -73,8 +74,17 @@ func (s *OptionService) WithIssueSort(sort string) RequestOption {
 }
 
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
-	// ToDo: validate mailAddress (Note: The validation remains as simple not-empty check)
-	return nonEmptyStringOption(ParamMailAddress, mailAddress)
+	return &APIParamOption{
+		Type: ParamMailAddress,
+		CheckFunc: func() error {
+			addr, err := mail.ParseAddress(mailAddress)
+			if err != nil || addr.Address != mailAddress {
+				return NewValidationError(fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
+			}
+			return nil
+		},
+		SetFunc: setStringFunc(ParamMailAddress, mailAddress),
+	}
 }
 
 func (s *OptionService) WithName(name string) RequestOption {

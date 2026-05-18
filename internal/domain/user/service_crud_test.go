@@ -129,7 +129,7 @@ func TestUserService_Add(t *testing.T) {
 			userID:      "userID",
 			password:    "password",
 			name:        "name",
-			mailAddress: "mailAdress",
+			mailAddress: "error@example.com",
 			roleType:    1,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
