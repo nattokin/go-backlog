@@ -35,12 +35,12 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.List(ctx, testProject, testRepo) //nolint:errcheck
+			s.List(ctx, "PRJ", "repo1") //nolint:errcheck
 		}},
 		{"Service.All", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			seq, err := s.All(ctx, 10, testProject, testRepo)
+			seq, err := s.All(ctx, 10, "PRJ", "repo1")
 			require.NoError(t, err)
 			for range seq {
 				break
@@ -49,22 +49,22 @@ func Test_contextPropagation(t *testing.T) {
 		{"Service.Count", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.Count(ctx, testProject, testRepo) //nolint:errcheck
+			s.Count(ctx, "PRJ", "repo1") //nolint:errcheck
 		}},
 		{"Service.One", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.One(ctx, testProject, testRepo, 1) //nolint:errcheck
+			s.One(ctx, "PRJ", "repo1", 1) //nolint:errcheck
 		}},
 		{"Service.Create", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.Create(ctx, testProject, testRepo, "summary", "desc", "main", "feature/foo") //nolint:errcheck
+			s.Create(ctx, "PRJ", "repo1", "summary", "desc", "main", "feature/foo") //nolint:errcheck
 		}},
 		{"Service.Update", func(t *testing.T, m *core.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewService(m)
-			s.Update(ctx, testProject, testRepo, 1, o.WithSummary("x")) //nolint:errcheck
+			s.Update(ctx, "PRJ", "repo1", 1, o.WithSummary("x")) //nolint:errcheck
 		}},
 		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
 			m.Get = makeMockFn(t)
