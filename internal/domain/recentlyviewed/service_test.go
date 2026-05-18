@@ -359,27 +359,27 @@ func TestService_contextPropagation(t *testing.T) {
 		name string
 		call func(t *testing.T, m *core.Method)
 	}{
-		{"Service.ListIssues", func(t *testing.T, m *core.Method) {
+		{"ListIssues", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListIssues(ctx) //nolint:errcheck
 		}},
-		{"Service.AddIssue", func(t *testing.T, m *core.Method) {
+		{"AddIssue", func(t *testing.T, m *core.Method) {
 			m.Post = makePostFn(t)
 			s := recentlyviewed.NewService(m)
 			s.AddIssue(ctx, 1) //nolint:errcheck
 		}},
-		{"Service.ListProjects", func(t *testing.T, m *core.Method) {
+		{"ListProjects", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListProjects(ctx) //nolint:errcheck
 		}},
-		{"Service.ListWikis", func(t *testing.T, m *core.Method) {
+		{"ListWikis", func(t *testing.T, m *core.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListWikis(ctx) //nolint:errcheck
 		}},
-		{"Service.AddWiki", func(t *testing.T, m *core.Method) {
+		{"AddWiki", func(t *testing.T, m *core.Method) {
 			m.Post = makePostFn(t)
 			s := recentlyviewed.NewService(m)
 			s.AddWiki(ctx, 1) //nolint:errcheck
