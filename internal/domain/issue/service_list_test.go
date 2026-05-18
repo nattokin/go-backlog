@@ -138,6 +138,12 @@ func TestIssueService_List(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -182,7 +188,6 @@ func TestIssueService_All(t *testing.T) {
 	t.Run("multi-page", func(t *testing.T) {
 		t.Parallel()
 
-		// page 1: full page (perPage=2), page 2: 1 item (signals last page)
 		var callCount atomic.Int32
 		method := mock.NewMethod(t)
 		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
@@ -264,6 +269,25 @@ func TestIssueService_All(t *testing.T) {
 		for iss, err := range seq {
 			assert.Nil(t, iss)
 			require.Error(t, err)
+			break
+		}
+	})
+
+	t.Run("error-api-error", func(t *testing.T) {
+		t.Parallel()
+
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
+			return nil, &core.APIResponseError{}
+		}
+
+		s := issue.NewService(method)
+		seq, err := s.All(ctx, 10)
+		require.NoError(t, err)
+		for iss, err := range seq {
+			assert.Nil(t, iss)
+			require.Error(t, err)
+			assert.IsType(t, &core.APIResponseError{}, err)
 			break
 		}
 	})

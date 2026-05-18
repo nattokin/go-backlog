@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -18,10 +19,8 @@ import (
 func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
-
-		expectError bool
-
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+		expectError  bool
+		mockGetFn    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "TEST-1",
@@ -30,7 +29,6 @@ func TestSharedFileService_List(t *testing.T) {
 				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
-
 		"success-numeric-id": {
 			issueIDOrKey: "1234",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -38,19 +36,16 @@ func TestSharedFileService_List(t *testing.T) {
 				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
-
 		"error-issueIDOrKey-empty": {
 			issueIDOrKey: "",
 			expectError:  true,
 			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-issueIDOrKey-zero": {
 			issueIDOrKey: "0",
 			expectError:  true,
 			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-client": {
 			issueIDOrKey: "TEST-1",
 			expectError:  true,
@@ -58,7 +53,15 @@ func TestSharedFileService_List(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
+		"error-client-api-error": {
+			issueIDOrKey: "TEST-1",
+			expectError:  true,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
+			},
+		},
 		"error-invalid-json": {
 			issueIDOrKey: "TEST-1",
 			expectError:  true,
@@ -87,7 +90,6 @@ func TestSharedFileService_List(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
-
 			for i, w := range fixture.SharedFile.List {
 				assert.Equal(t, w.ID, files[i].ID)
 				assert.Equal(t, w.Type, files[i].Type)
@@ -103,10 +105,8 @@ func TestSharedFileService_Link(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		fileIDs      []int
-
-		expectError bool
-
-		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		expectError  bool
+		mockPostFn   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
 			issueIDOrKey: "TEST-1",
@@ -117,7 +117,6 @@ func TestSharedFileService_Link(t *testing.T) {
 				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 		},
-
 		"success-multiple": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{454403, 454404},
@@ -125,28 +124,24 @@ func TestSharedFileService_Link(t *testing.T) {
 				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
-
 		"error-issueIDOrKey-empty": {
 			issueIDOrKey: "",
 			fileIDs:      []int{1},
 			expectError:  true,
 			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
-
 		"error-fileIDs-empty": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{},
 			expectError:  true,
 			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
-
 		"error-fileIDs-invalid": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{0, 1},
 			expectError:  true,
 			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
-
 		"error-client": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{454403},
@@ -155,7 +150,16 @@ func TestSharedFileService_Link(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
+		"error-client-api-error": {
+			issueIDOrKey: "TEST-1",
+			fileIDs:      []int{454403},
+			expectError:  true,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
+			},
+		},
 		"error-invalid-json": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{454403},
@@ -185,7 +189,6 @@ func TestSharedFileService_Link(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, files)
 			assert.NotEmpty(t, files)
-
 			for _, f := range files {
 				assert.Positive(t, f.ID)
 				assert.NotEmpty(t, f.Name)
@@ -198,9 +201,7 @@ func TestSharedFileService_Unlink(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		fileID       int
-
-		expectError bool
-
+		expectError  bool
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
@@ -211,35 +212,30 @@ func TestSharedFileService_Unlink(t *testing.T) {
 				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
 			},
 		},
-
 		"error-issueIDOrKey-empty": {
 			issueIDOrKey: "",
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-issueIDOrKey-zero": {
 			issueIDOrKey: "0",
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-fileID-zero": {
 			issueIDOrKey: "TEST-1",
 			fileID:       0,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-fileID-negative": {
 			issueIDOrKey: "TEST-1",
 			fileID:       -1,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-client": {
 			issueIDOrKey: "TEST-1",
 			fileID:       454403,
@@ -248,7 +244,16 @@ func TestSharedFileService_Unlink(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
+		"error-client-api-error": {
+			issueIDOrKey: "TEST-1",
+			fileID:       454403,
+			expectError:  true,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
+			},
+		},
 		"error-invalid-json": {
 			issueIDOrKey: "TEST-1",
 			fileID:       454403,
@@ -277,7 +282,6 @@ func TestSharedFileService_Unlink(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, file)
-
 			assert.Equal(t, fixture.SharedFile.Single.ID, file.ID)
 			assert.Equal(t, fixture.SharedFile.Single.Name, file.Name)
 			assert.Equal(t, fixture.SharedFile.Single.Type, file.Type)
