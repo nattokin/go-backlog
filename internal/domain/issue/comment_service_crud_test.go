@@ -81,6 +81,14 @@ func TestCommentService_Add(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			content:      "x",
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
@@ -155,6 +163,14 @@ func TestCommentService_One(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			commentID:    42,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -228,6 +244,14 @@ func TestCommentService_Delete(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
+		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			commentID:    42,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
@@ -314,6 +338,15 @@ func TestCommentService_Update(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
+		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			commentID:    42,
+			content:      "x",
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",

@@ -67,6 +67,12 @@ func TestIssueService_Count(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewJSONResponse(fixture.InvalidJSON), nil
@@ -148,6 +154,13 @@ func TestIssueService_Participants(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
+		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",

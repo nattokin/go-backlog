@@ -33,13 +33,11 @@ func TestIssueAttachmentService_List(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
-
 		"error-invalid-issueIDOrKey": {
 			issueIDOrKey: "0",
 			expectError:  true,
 			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-client": {
 			issueIDOrKey: "1234",
 			expectError:  true,
@@ -47,7 +45,15 @@ func TestIssueAttachmentService_List(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
+		"error-client-api-error": {
+			issueIDOrKey: "1234",
+			expectError:  true,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
+			},
+		},
 		"error-invalid-json": {
 			issueIDOrKey: "1234",
 			expectError:  true,
@@ -75,9 +81,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
-
 			assert.Len(t, attachments, len(tc.wantIDs))
-
 			for i, id := range tc.wantIDs {
 				assert.Equal(t, id, attachments[i].ID)
 			}
@@ -104,21 +108,18 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
-
 		"error-empty-issueKey": {
 			issueIDOrKey: "",
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-attachmentID-zero": {
 			issueIDOrKey: "test",
 			attachmentID: 0,
 			expectError:  true,
 			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-client": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
@@ -127,7 +128,16 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
+		"error-client-api-error": {
+			issueIDOrKey: "1234",
+			attachmentID: 8,
+			expectError:  true,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
+			},
+		},
 		"error-invalid-json": {
 			issueIDOrKey: "1234",
 			attachmentID: 8,
@@ -156,7 +166,6 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
-
 			assert.Equal(t, tc.wantID, attachment.ID)
 		})
 	}
@@ -212,6 +221,14 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
+		},
+		"error-client-api-error": {
+			issueIDOrKey: "TEST-1",
+			attachmentID: 10,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
 		},
 	}
 

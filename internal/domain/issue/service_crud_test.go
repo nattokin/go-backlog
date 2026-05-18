@@ -57,6 +57,13 @@ func TestIssueService_One(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -194,6 +201,16 @@ func TestIssueService_Create(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			projectID:   10,
+			summary:     "New issue",
+			issueTypeID: 2,
+			priorityID:  3,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			projectID:   10,
 			summary:     "New issue",
@@ -312,6 +329,14 @@ func TestIssueService_Update(t *testing.T) {
 			},
 			wantErrType: errors.New(""),
 		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			option:       o.WithSummary("x"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
+		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("x"),
@@ -388,6 +413,13 @@ func TestIssueService_Delete(t *testing.T) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
+		},
+		"error-client-api-error": {
+			issueIDOrKey: "PRJ-1",
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				return nil, &core.APIResponseError{}
+			},
+			wantErrType: &core.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",

@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -27,7 +28,6 @@ func TestWikiHistoryService_List(t *testing.T) {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/history", spath)
-
 				return mock.NewJSONResponse(fixture.WikiHistory.ListJSON), nil
 			},
 		},
@@ -49,6 +49,16 @@ func TestWikiHistoryService_List(t *testing.T) {
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
+			},
+		},
+
+		"error-client-api-error": {
+			wikiID:      1234,
+			expectError: true,
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				apiErr := &core.APIResponseError{}
+				assert.IsType(t, &core.APIResponseError{}, apiErr)
+				return nil, apiErr
 			},
 		},
 
