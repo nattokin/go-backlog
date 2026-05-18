@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestSpaceService_Info(t *testing.T) {
+func TestService_Info(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -78,7 +78,7 @@ func TestSpaceService_Info(t *testing.T) {
 	}
 }
 
-func TestSpaceService_DiskUsage(t *testing.T) {
+func TestService_DiskUsage(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -142,7 +142,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 	}
 }
 
-func TestSpaceService_Notification(t *testing.T) {
+func TestService_Notification(t *testing.T) {
 	cases := map[string]struct {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -200,7 +200,7 @@ func TestSpaceService_Notification(t *testing.T) {
 	}
 }
 
-func TestSpaceService_UpdateNotification(t *testing.T) {
+func TestService_UpdateNotification(t *testing.T) {
 	cases := map[string]struct {
 		content string
 

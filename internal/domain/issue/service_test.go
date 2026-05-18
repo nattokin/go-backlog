@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueService_Count(t *testing.T) {
+func TestService_Count(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -107,7 +107,7 @@ func TestIssueService_Count(t *testing.T) {
 	}
 }
 
-func TestIssueService_Participants(t *testing.T) {
+func TestService_Participants(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 

@@ -20,7 +20,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueService_List(t *testing.T) {
+func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -182,7 +182,7 @@ func TestIssueService_List(t *testing.T) {
 	}
 }
 
-func TestIssueService_All(t *testing.T) {
+func TestService_All(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("multi-page", func(t *testing.T) {

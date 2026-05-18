@@ -22,7 +22,7 @@ const (
 	testRepo    = "repo1"
 )
 
-func TestRepositoryService_List(t *testing.T) {
+func TestService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 
@@ -92,7 +92,7 @@ func TestRepositoryService_List(t *testing.T) {
 	}
 }
 
-func TestRepositoryService_One(t *testing.T) {
+func TestService_One(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string

@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestIssueService_One(t *testing.T) {
+func TestService_One(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 
@@ -100,7 +100,7 @@ func TestIssueService_One(t *testing.T) {
 	}
 }
 
-func TestIssueService_Create(t *testing.T) {
+func TestService_Create(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -250,7 +250,7 @@ func TestIssueService_Create(t *testing.T) {
 	}
 }
 
-func TestIssueService_Update(t *testing.T) {
+func TestService_Update(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -374,7 +374,7 @@ func TestIssueService_Update(t *testing.T) {
 	}
 }
 
-func TestIssueService_Delete(t *testing.T) {
+func TestService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 

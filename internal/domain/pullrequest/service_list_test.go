@@ -20,7 +20,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestPullRequestService_List(t *testing.T) {
+func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -157,7 +157,7 @@ func TestPullRequestService_List(t *testing.T) {
 	}
 }
 
-func TestPullRequestService_All(t *testing.T) {
+func TestService_All(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("multi-page", func(t *testing.T) {
