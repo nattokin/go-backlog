@@ -160,7 +160,7 @@ func TestStarService_Remove(t *testing.T) {
 	}
 }
 
-func Test_contextPropagation(t *testing.T) {
+func TestService_contextPropagation(t *testing.T) {
 	type ctxKey struct{}
 	sentinel := &struct{}{}
 	ctx := context.WithValue(context.Background(), ctxKey{}, sentinel)
