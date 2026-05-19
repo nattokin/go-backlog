@@ -38,6 +38,73 @@ func TestService_List(t *testing.T) {
 			},
 			wantIDs: []int{1, 2},
 		},
+		"success-with-all-options": {
+			opts: []core.RequestOption{
+				o.WithProjectIDs([]int{1}),
+				o.WithIssueTypeIDs([]int{2}),
+				o.WithCategoryIDs([]int{3}),
+				o.WithVersionIDs([]int{4}),
+				o.WithMilestoneIDs([]int{5}),
+				o.WithStatusIDs([]int{1}),
+				o.WithPriorityIDs([]int{2}),
+				o.WithAssigneeIDs([]int{10}),
+				o.WithCreatedUserIDs([]int{11}),
+				o.WithResolutionIDs([]int{1}),
+				o.WithParentChild(0),
+				o.WithAttachment(true),
+				o.WithSharedFile(true),
+				o.WithCreatedSince("2024-01-01"),
+				o.WithCreatedUntil("2024-12-31"),
+				o.WithUpdatedSince("2024-02-01"),
+				o.WithUpdatedUntil("2024-11-30"),
+				o.WithStartDateSince("2024-03-01"),
+				o.WithStartDateUntil("2024-10-31"),
+				o.WithDueDateSince("2024-04-01"),
+				o.WithDueDateUntil("2024-09-30"),
+				o.WithHasDueDate(false),
+				o.WithIDs([]int{100}),
+				o.WithParentIssueIDs([]int{200}),
+				o.WithKeyword("test"),
+				o.WithIssueSort("created"),
+				o.WithOrder("asc"),
+				o.WithOffset(10),
+				o.WithCount(50),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues", spath)
+				assert.Equal(t, []string{"1"}, query["projectId[]"])
+				assert.Equal(t, []string{"2"}, query["issueTypeId[]"])
+				assert.Equal(t, []string{"3"}, query["categoryId[]"])
+				assert.Equal(t, []string{"4"}, query["versionId[]"])
+				assert.Equal(t, []string{"5"}, query["milestoneId[]"])
+				assert.Equal(t, []string{"1"}, query["statusId[]"])
+				assert.Equal(t, []string{"2"}, query["priorityId[]"])
+				assert.Equal(t, []string{"10"}, query["assigneeId[]"])
+				assert.Equal(t, []string{"11"}, query["createdUserId[]"])
+				assert.Equal(t, []string{"1"}, query["resolutionId[]"])
+				assert.Equal(t, "0", query.Get("parentChild"))
+				assert.Equal(t, "true", query.Get("attachment"))
+				assert.Equal(t, "true", query.Get("sharedFile"))
+				assert.Equal(t, "2024-01-01", query.Get("createdSince"))
+				assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
+				assert.Equal(t, "2024-02-01", query.Get("updatedSince"))
+				assert.Equal(t, "2024-11-30", query.Get("updatedUntil"))
+				assert.Equal(t, "2024-03-01", query.Get("startDateSince"))
+				assert.Equal(t, "2024-10-31", query.Get("startDateUntil"))
+				assert.Equal(t, "2024-04-01", query.Get("dueDateSince"))
+				assert.Equal(t, "2024-09-30", query.Get("dueDateUntil"))
+				assert.Equal(t, "false", query.Get("hasDueDate"))
+				assert.Equal(t, []string{"100"}, query["id[]"])
+				assert.Equal(t, []string{"200"}, query["parentIssueId[]"])
+				assert.Equal(t, "test", query.Get("keyword"))
+				assert.Equal(t, "created", query.Get("sort"))
+				assert.Equal(t, "asc", query.Get("order"))
+				assert.Equal(t, "10", query.Get("offset"))
+				assert.Equal(t, "50", query.Get("count"))
+				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+			},
+			wantIDs: []int{1, 2},
+		},
 		"success-with-projectIDs": {
 			opts: []core.RequestOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -223,6 +290,83 @@ func TestService_All(t *testing.T) {
 
 		assert.Equal(t, int32(2), callCount.Load())
 		assert.Equal(t, []int{1, 2, 3}, got)
+	})
+
+	t.Run("success-with-all-options", func(t *testing.T) {
+		t.Parallel()
+
+		o := &core.OptionService{}
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
+			assert.Equal(t, []string{"1"}, query["projectId[]"])
+			assert.Equal(t, []string{"2"}, query["issueTypeId[]"])
+			assert.Equal(t, []string{"3"}, query["categoryId[]"])
+			assert.Equal(t, []string{"4"}, query["versionId[]"])
+			assert.Equal(t, []string{"5"}, query["milestoneId[]"])
+			assert.Equal(t, []string{"1"}, query["statusId[]"])
+			assert.Equal(t, []string{"2"}, query["priorityId[]"])
+			assert.Equal(t, []string{"10"}, query["assigneeId[]"])
+			assert.Equal(t, []string{"11"}, query["createdUserId[]"])
+			assert.Equal(t, []string{"1"}, query["resolutionId[]"])
+			assert.Equal(t, "0", query.Get("parentChild"))
+			assert.Equal(t, "true", query.Get("attachment"))
+			assert.Equal(t, "true", query.Get("sharedFile"))
+			assert.Equal(t, "2024-01-01", query.Get("createdSince"))
+			assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
+			assert.Equal(t, "2024-02-01", query.Get("updatedSince"))
+			assert.Equal(t, "2024-11-30", query.Get("updatedUntil"))
+			assert.Equal(t, "2024-03-01", query.Get("startDateSince"))
+			assert.Equal(t, "2024-10-31", query.Get("startDateUntil"))
+			assert.Equal(t, "2024-04-01", query.Get("dueDateSince"))
+			assert.Equal(t, "2024-09-30", query.Get("dueDateUntil"))
+			assert.Equal(t, "false", query.Get("hasDueDate"))
+			assert.Equal(t, []string{"100"}, query["id[]"])
+			assert.Equal(t, []string{"200"}, query["parentIssueId[]"])
+			assert.Equal(t, "test", query.Get("keyword"))
+			assert.Equal(t, "created", query.Get("sort"))
+			assert.Equal(t, "asc", query.Get("order"))
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(issueLastPageJSON)),
+			}, nil
+		}
+
+		s := issue.NewService(method)
+		seq, err := s.All(ctx, 10,
+			o.WithProjectIDs([]int{1}),
+			o.WithIssueTypeIDs([]int{2}),
+			o.WithCategoryIDs([]int{3}),
+			o.WithVersionIDs([]int{4}),
+			o.WithMilestoneIDs([]int{5}),
+			o.WithStatusIDs([]int{1}),
+			o.WithPriorityIDs([]int{2}),
+			o.WithAssigneeIDs([]int{10}),
+			o.WithCreatedUserIDs([]int{11}),
+			o.WithResolutionIDs([]int{1}),
+			o.WithParentChild(0),
+			o.WithAttachment(true),
+			o.WithSharedFile(true),
+			o.WithCreatedSince("2024-01-01"),
+			o.WithCreatedUntil("2024-12-31"),
+			o.WithUpdatedSince("2024-02-01"),
+			o.WithUpdatedUntil("2024-11-30"),
+			o.WithStartDateSince("2024-03-01"),
+			o.WithStartDateUntil("2024-10-31"),
+			o.WithDueDateSince("2024-04-01"),
+			o.WithDueDateUntil("2024-09-30"),
+			o.WithHasDueDate(false),
+			o.WithIDs([]int{100}),
+			o.WithParentIssueIDs([]int{200}),
+			o.WithKeyword("test"),
+			o.WithIssueSort("created"),
+			o.WithOrder("asc"),
+		)
+		require.NoError(t, err)
+		for iss, err := range seq {
+			require.NoError(t, err)
+			assert.NotNil(t, iss)
+			break
+		}
 	})
 
 	t.Run("break", func(t *testing.T) {
