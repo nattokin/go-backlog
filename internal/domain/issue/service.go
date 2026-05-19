@@ -52,6 +52,64 @@ var listValidTypes = append(filterValidTypes,
 	core.ParamCount,
 )
 
+// countValidTypes are the options accepted by Count (filter params only,
+// excluding sort and pagination).
+var countValidTypes = []core.APIParamOptionType{
+	core.ParamProjectIDs,
+	core.ParamIssueTypeIDs,
+	core.ParamCategoryIDs,
+	core.ParamVersionIDs,
+	core.ParamMilestoneIDs,
+	core.ParamStatusIDs,
+	core.ParamPriorityIDs,
+	core.ParamAssigneeIDs,
+	core.ParamCreatedUserIDs,
+	core.ParamResolutionIDs,
+	core.ParamParentChild,
+	core.ParamAttachment,
+	core.ParamSharedFile,
+	core.ParamCreatedSince,
+	core.ParamCreatedUntil,
+	core.ParamUpdatedSince,
+	core.ParamUpdatedUntil,
+	core.ParamStartDateSince,
+	core.ParamStartDateUntil,
+	core.ParamDueDateSince,
+	core.ParamDueDateUntil,
+	core.ParamHasDueDate,
+	core.ParamIDs,
+	core.ParamParentIssueIDs,
+	core.ParamKeyword,
+}
+
+// createValidTypes are the options accepted by Create.
+var createValidTypes = []core.APIParamOptionType{
+	core.ParamSummary,
+	core.ParamIssueTypeID,
+	core.ParamPriorityID,
+	core.ParamDescription,
+	core.ParamStartDate,
+	core.ParamDueDate,
+	core.ParamEstimatedHours,
+	core.ParamActualHours,
+	core.ParamCategoryIDs,
+	core.ParamVersionIDs,
+	core.ParamMilestoneIDs,
+	core.ParamAssigneeID,
+	core.ParamParentIssueID,
+	core.ParamNotifiedUserIDs,
+	core.ParamAttachmentIDs,
+	core.ParamCustomField,
+}
+
+// updateValidTypes are the options accepted by Update (createValidTypes plus
+// status, resolution, and comment).
+var updateValidTypes = append(createValidTypes,
+	core.ParamStatusID,
+	core.ParamResolutionID,
+	core.ParamComment,
+)
+
 // Service handles issue-related Backlog API calls.
 type Service struct {
 	method *core.Method
@@ -116,34 +174,7 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOpti
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
 func (s *Service) Count(ctx context.Context, opts ...core.RequestOption) (int, error) {
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamProjectIDs,
-		core.ParamIssueTypeIDs,
-		core.ParamCategoryIDs,
-		core.ParamVersionIDs,
-		core.ParamMilestoneIDs,
-		core.ParamStatusIDs,
-		core.ParamPriorityIDs,
-		core.ParamAssigneeIDs,
-		core.ParamCreatedUserIDs,
-		core.ParamResolutionIDs,
-		core.ParamParentChild,
-		core.ParamAttachment,
-		core.ParamSharedFile,
-		core.ParamCreatedSince,
-		core.ParamCreatedUntil,
-		core.ParamUpdatedSince,
-		core.ParamUpdatedUntil,
-		core.ParamStartDateSince,
-		core.ParamStartDateUntil,
-		core.ParamDueDateSince,
-		core.ParamDueDateUntil,
-		core.ParamHasDueDate,
-		core.ParamIDs,
-		core.ParamParentIssueIDs,
-		core.ParamKeyword,
-	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+	if err := core.ApplyOptions(query, countValidTypes, opts...); err != nil {
 		return 0, err
 	}
 
@@ -192,24 +223,6 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 
 	o := &core.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamSummary,
-		core.ParamIssueTypeID,
-		core.ParamPriorityID,
-		core.ParamDescription,
-		core.ParamStartDate,
-		core.ParamDueDate,
-		core.ParamEstimatedHours,
-		core.ParamActualHours,
-		core.ParamCategoryIDs,
-		core.ParamVersionIDs,
-		core.ParamMilestoneIDs,
-		core.ParamAssigneeID,
-		core.ParamParentIssueID,
-		core.ParamNotifiedUserIDs,
-		core.ParamAttachmentIDs,
-		core.ParamCustomField,
-	}
 	options := append(
 		[]core.RequestOption{
 			o.WithSummary(summary),
@@ -218,7 +231,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		},
 		opts...,
 	)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -246,29 +259,8 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option core.R
 	}
 
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamSummary,
-		core.ParamDescription,
-		core.ParamIssueTypeID,
-		core.ParamCategoryIDs,
-		core.ParamVersionIDs,
-		core.ParamMilestoneIDs,
-		core.ParamStartDate,
-		core.ParamDueDate,
-		core.ParamEstimatedHours,
-		core.ParamActualHours,
-		core.ParamAssigneeID,
-		core.ParamParentIssueID,
-		core.ParamPriorityID,
-		core.ParamStatusID,
-		core.ParamResolutionID,
-		core.ParamNotifiedUserIDs,
-		core.ParamAttachmentIDs,
-		core.ParamComment,
-		core.ParamCustomField,
-	}
 	options := append([]core.RequestOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
 		return nil, err
 	}
 
