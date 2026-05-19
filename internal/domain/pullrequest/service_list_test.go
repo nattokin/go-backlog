@@ -42,6 +42,28 @@ func TestService_List(t *testing.T) {
 			},
 			wantNumbers: []int{1, 2},
 		},
+		"success-with-all-options": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo1",
+			opts: []core.RequestOption{
+				o.WithStatusIDs([]int{1, 2}),
+				o.WithAssigneeIDs([]int{10}),
+				o.WithIssueIDs([]int{100}),
+				o.WithCreatedUserIDs([]int{11}),
+				o.WithOffset(5),
+				o.WithCount(50),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"1", "2"}, query["statusId[]"])
+				assert.Equal(t, []string{"10"}, query["assigneeId[]"])
+				assert.Equal(t, []string{"100"}, query["issueId[]"])
+				assert.Equal(t, []string{"11"}, query["createdUserId[]"])
+				assert.Equal(t, "5", query.Get("offset"))
+				assert.Equal(t, "50", query.Get("count"))
+				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+			},
+			wantNumbers: []int{1, 2},
+		},
 		"success-with-statusIDs": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -199,6 +221,37 @@ func TestService_All(t *testing.T) {
 
 		assert.Equal(t, int32(2), callCount.Load())
 		assert.Equal(t, []int{1, 2, 3}, got)
+	})
+
+	t.Run("success-with-all-options", func(t *testing.T) {
+		t.Parallel()
+
+		o := &core.OptionService{}
+		method := mock.NewMethod(t)
+		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
+			assert.Equal(t, []string{"1", "2"}, query["statusId[]"])
+			assert.Equal(t, []string{"10"}, query["assigneeId[]"])
+			assert.Equal(t, []string{"100"}, query["issueId[]"])
+			assert.Equal(t, []string{"11"}, query["createdUserId[]"])
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(pullRequestLastPageJSON)),
+			}, nil
+		}
+
+		s := pullrequest.NewService(method)
+		seq, err := s.All(ctx, 10, "PRJ", "repo1",
+			o.WithStatusIDs([]int{1, 2}),
+			o.WithAssigneeIDs([]int{10}),
+			o.WithIssueIDs([]int{100}),
+			o.WithCreatedUserIDs([]int{11}),
+		)
+		require.NoError(t, err)
+		for pr, err := range seq {
+			require.NoError(t, err)
+			assert.NotNil(t, pr)
+			break
+		}
 	})
 
 	t.Run("break", func(t *testing.T) {
