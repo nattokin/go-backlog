@@ -14,44 +14,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// filterValidTypes are the options accepted by both List and All (filter + sort params,
-// excluding WithOffset and WithCount).
-var filterValidTypes = []core.APIParamOptionType{
-	core.ParamProjectIDs,
-	core.ParamIssueTypeIDs,
-	core.ParamCategoryIDs,
-	core.ParamVersionIDs,
-	core.ParamMilestoneIDs,
-	core.ParamStatusIDs,
-	core.ParamPriorityIDs,
-	core.ParamAssigneeIDs,
-	core.ParamCreatedUserIDs,
-	core.ParamResolutionIDs,
-	core.ParamParentChild,
-	core.ParamAttachment,
-	core.ParamSharedFile,
-	core.ParamSort,
-	core.ParamOrder,
-	core.ParamCreatedSince,
-	core.ParamCreatedUntil,
-	core.ParamUpdatedSince,
-	core.ParamUpdatedUntil,
-	core.ParamStartDateSince,
-	core.ParamStartDateUntil,
-	core.ParamDueDateSince,
-	core.ParamDueDateUntil,
-	core.ParamHasDueDate,
-	core.ParamIDs,
-	core.ParamParentIssueIDs,
-	core.ParamKeyword,
-}
-
-// listValidTypes are the options accepted by List (filter/sort params + pagination).
-var listValidTypes = append(filterValidTypes,
-	core.ParamOffset,
-	core.ParamCount,
-)
-
 // countValidTypes are the options accepted by Count (filter params only,
 // excluding sort and pagination).
 var countValidTypes = []core.APIParamOptionType{
@@ -81,6 +43,18 @@ var countValidTypes = []core.APIParamOptionType{
 	core.ParamParentIssueIDs,
 	core.ParamKeyword,
 }
+
+// filterValidTypes are the options accepted by All (countValidTypes plus sort and order).
+var filterValidTypes = append(countValidTypes,
+	core.ParamSort,
+	core.ParamOrder,
+)
+
+// listValidTypes are the options accepted by List (filterValidTypes plus pagination).
+var listValidTypes = append(filterValidTypes,
+	core.ParamOffset,
+	core.ParamCount,
+)
 
 // createValidTypes are the options accepted by Create.
 var createValidTypes = []core.APIParamOptionType{
