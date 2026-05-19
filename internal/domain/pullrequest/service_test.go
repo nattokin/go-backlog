@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestPullRequestService_Count(t *testing.T) {
+func TestService_Count(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {

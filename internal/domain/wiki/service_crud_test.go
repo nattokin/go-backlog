@@ -17,7 +17,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestWikiService_One(t *testing.T) {
+func TestService_One(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
@@ -94,7 +94,7 @@ func TestWikiService_One(t *testing.T) {
 	}
 }
 
-func TestWikiService_Create(t *testing.T) {
+func TestService_Create(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -229,7 +229,7 @@ func TestWikiService_Create(t *testing.T) {
 	}
 }
 
-func TestWikiService_Update(t *testing.T) {
+func TestService_Update(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
@@ -370,7 +370,7 @@ func TestWikiService_Update(t *testing.T) {
 	}
 }
 
-func TestWikiService_Delete(t *testing.T) {
+func TestService_Delete(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
