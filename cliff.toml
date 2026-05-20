@@ -2,15 +2,15 @@
 header = ""
 body = """
 ## What's Changed
+{% if commits | length == 0 %}
+No changes to production code in this release.
+{% else %}\
 {% set breaking_commits = commits | filter(attribute="breaking", value=true) %}\
 {% if breaking_commits %}
 ### ⚠️ Breaking Changes
 {% for commit in breaking_commits %}\
 - {{ commit.breaking_description | default(value=commit.message) | upper_first }}
 {% endfor %}
-{% endif %}\
-{% if commits | length == 0 %}
-No changes to production code in this release.
 {% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}\
 {% if group != "⚠️ Breaking Changes" %}
@@ -21,7 +21,8 @@ No changes to production code in this release.
 
 {% endfor %}
 {% endif %}\
-{% endfor %}
+{% endfor %}\
+{% endif %}
 """
 trim = true
 footer = ""
