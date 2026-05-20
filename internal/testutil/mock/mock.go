@@ -20,12 +20,12 @@ import (
 //  Doer mock
 // ──────────────────────────────────────────────────────────────
 
-type MockDoer struct {
+type Doer struct {
 	T      *testing.T
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
 
-func (m *MockDoer) Do(req *http.Request) (*http.Response, error) {
+func (m *Doer) Do(req *http.Request) (*http.Response, error) {
 	assert.NotNil(m.T, req)
 	return m.DoFunc(req)
 }
@@ -34,32 +34,32 @@ func (m *MockDoer) Do(req *http.Request) (*http.Response, error) {
 //  Wrapper mock
 // ──────────────────────────────────────────────────────────────
 
-type MockWrapper struct {
+type Wrapper struct {
 	CreateErr error
 	CopyErr   error
 	CloseErr  error
 }
 
-func (w MockWrapper) NewMultipartWriter(_ io.Writer) core.MultipartWriter {
-	return &MockMultipartWriter{wrapper: w}
+func (w Wrapper) NewMultipartWriter(_ io.Writer) core.MultipartWriter {
+	return &multipartWriter{wrapper: w}
 }
 
-func (w MockWrapper) Copy(_ io.Writer, _ io.Reader) error {
+func (w Wrapper) Copy(_ io.Writer, _ io.Reader) error {
 	return w.CopyErr
 }
 
-type MockMultipartWriter struct {
-	wrapper MockWrapper
+type multipartWriter struct {
+	wrapper Wrapper
 }
 
-func (mw *MockMultipartWriter) CreateFormFile(fieldname, filename string) (io.Writer, error) {
+func (mw *multipartWriter) CreateFormFile(fieldname, filename string) (io.Writer, error) {
 	if mw.wrapper.CreateErr != nil {
 		return nil, mw.wrapper.CreateErr
 	}
 	return io.Discard, nil
 }
-func (mw *MockMultipartWriter) FormDataContentType() string { return "mock/type" }
-func (mw *MockMultipartWriter) Close() error                { return mw.wrapper.CloseErr }
+func (mw *multipartWriter) FormDataContentType() string { return "mock/type" }
+func (mw *multipartWriter) Close() error                { return mw.wrapper.CloseErr }
 
 // ──────────────────────────────────────────────────────────────
 //  RequestOption mock
@@ -160,7 +160,7 @@ func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error))
 		}
 	}
 
-	c, err := core.NewClient(testBaseURL, testToken, core.WithDoer(&MockDoer{T: t, DoFunc: doFunc}))
+	c, err := core.NewClient(testBaseURL, testToken, core.WithDoer(&Doer{T: t, DoFunc: doFunc}))
 	require.NoError(t, err)
 
 	return c
