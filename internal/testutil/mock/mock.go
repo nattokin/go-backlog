@@ -87,7 +87,7 @@ func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
 	}
 }
 
-// NewInvalidTypeOption returns a RequestOption whose has invalid type.
+// NewInvalidTypeOption returns a RequestOption with an invalid type.
 func NewInvalidTypeOption() *core.APIParamOption {
 	return &core.APIParamOption{
 		Type:      "invalid",
@@ -206,7 +206,7 @@ func NewNoContentDoFunc() func(*http.Request) (*http.Response, error) {
 }
 
 // NewBinaryDoFunc returns a doFunc that always responds with HTTP 200 and a binary
-// file download response.
+// file download response with the given filename, Content-Type, and body.
 func NewBinaryDoFunc(filename, contentType string, body []byte) func(*http.Request) (*http.Response, error) {
 	return func(_ *http.Request) (*http.Response, error) {
 		return NewBinaryResponse(filename, contentType, body), nil
@@ -227,7 +227,7 @@ func NewNotFoundDoFunc() func(*http.Request) (*http.Response, error) {
 	}
 }
 
-// NewInternalServerErrorDoFunc returns a doFunc that always responds with HTTP 500.
+// NewInternalServerErrorDoFunc returns a doFunc that always responds with HTTP 500 Internal Server Error.
 func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) {
 	return func(_ *http.Request) (*http.Response, error) {
 		return NewInternalServerErrorResponse(), nil
@@ -246,6 +246,8 @@ const (
 // NewClient creates a test Client with the given doFunc as its Doer.
 // If doFunc is nil, the client responds to every request with HTTP 200 and an empty JSON object.
 // baseURL and token are fixed to well-known test values.
+// T is not set on the underlying Doer; use NewCaptureClient or construct Doer directly when
+// assertion on the request is needed.
 func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *core.Client {
 	t.Helper()
 

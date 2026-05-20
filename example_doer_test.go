@@ -101,22 +101,25 @@ var (
 	doerWikiCount              = newMockDoer(`{"count": 5}`)
 )
 
-// newMockDoer returns a mockDoer that always responds with HTTP 200 and the given body.
+// newMockDoer returns a *mock.Doer that always responds with HTTP 200 and the given JSON body.
+// Used as a lightweight Doer for Example tests, which run without *testing.T.
 func newMockDoer(json string) *mock.Doer {
 	return &mock.Doer{
 		DoFunc: mock.NewJSONDoFunc(json),
 	}
 }
 
-// newMockBinaryDoer returns a mockDoer that always responds with HTTP 200
-// and the given binary body, filename, and Content-Type.
+// newMockBinaryDoer returns a *mock.Doer that always responds with HTTP 200
+// and a binary file download response with the given Content-Type, filename, and body.
+// Used as a lightweight Doer for Example tests, which run without *testing.T.
 func newMockBinaryDoer(contentType, filename string, body []byte) *mock.Doer {
 	return &mock.Doer{
 		DoFunc: mock.NewBinaryDoFunc(filename, contentType, body),
 	}
 }
 
-// doerNoContent is a mockDoer that always responds with HTTP 204 No Content.
+// doerNoContent is a *mock.Doer that always responds with HTTP 204 No Content.
+// Used as a lightweight Doer for Example tests, which run without *testing.T.
 var doerNoContent = &mock.Doer{
 	DoFunc: mock.NewNoContentDoFunc(),
 }
