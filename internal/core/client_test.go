@@ -82,7 +82,7 @@ func TestNewClient_initialization(t *testing.T) {
 	t.Run("with-Doer", func(t *testing.T) {
 		t.Parallel()
 
-		mockDoer := &mock.MockDoer{T: t,
+		mockDoer := &mock.Doer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
 		c, err := core.NewClient(baseURL, token, core.WithDoer(mockDoer))
@@ -562,7 +562,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *core.Client) {
-				c.Wrapper = mock.MockWrapper{CreateErr: errors.New("mock createFormFile error")}
+				c.Wrapper = mock.Wrapper{CreateErr: errors.New("mock createFormFile error")}
 			},
 		},
 
@@ -571,7 +571,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *core.Client) {
-				c.Wrapper = mock.MockWrapper{CloseErr: errors.New("mock close error")}
+				c.Wrapper = mock.Wrapper{CloseErr: errors.New("mock close error")}
 			},
 		},
 
@@ -580,7 +580,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			fileName: "filename",
 			fileData: "dummy",
 			setup: func(c *core.Client) {
-				c.Wrapper = mock.MockWrapper{CopyErr: errors.New("mock copy error")}
+				c.Wrapper = mock.Wrapper{CopyErr: errors.New("mock copy error")}
 			},
 		},
 	}
