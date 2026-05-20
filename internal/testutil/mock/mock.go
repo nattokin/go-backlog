@@ -141,7 +141,7 @@ func NewBinaryResponse(filename, contentType string, body []byte) *http.Response
 
 const (
 	testBaseURL = "https://example.com"
-	testToken   = "testtoken"
+	testToken   = "token"
 )
 
 // NewClient creates a test Client with the given doFunc as its Doer.

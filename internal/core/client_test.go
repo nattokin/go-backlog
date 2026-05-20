@@ -37,19 +37,19 @@ func TestNewClient_validation(t *testing.T) {
 		},
 		"missing-baseURL": {
 			baseURL:   "",
-			token:     "token123",
+			token:     "token",
 			wantError: true,
 			errMsg:    "missing baseURL",
 		},
 
 		"invalid-baseURL": {
 			baseURL:   "://invalid-url",
-			token:     "token123",
+			token:     "token",
 			wantError: true,
 		},
 		"valid-input": {
 			baseURL:   "https://example.com",
-			token:     "token123",
+			token:     "token",
 			wantError: false,
 		},
 	}
@@ -77,7 +77,7 @@ func TestNewClient_validation(t *testing.T) {
 
 func TestNewClient_initialization(t *testing.T) {
 	baseURL := "https://example.com"
-	token := "token123"
+	token := "token"
 
 	t.Run("with-Doer", func(t *testing.T) {
 		t.Parallel()
@@ -189,10 +189,7 @@ func TestClient_Do(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://example.backlog.com", "test", &mock.MockDoer{
-				T:      t,
-				DoFunc: tc.doFunc,
-			})
+			c := mock.NewClient(t, tc.doFunc)
 
 			res, err := c.Do(
 				context.Background(),
@@ -322,7 +319,7 @@ func TestClient_NewRequest(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://example.backlog.com", "test", nil)
+			c := mock.NewClient(t, nil)
 			request, err := c.NewRequest(
 				context.Background(),
 				tc.method,
@@ -348,17 +345,17 @@ func TestClient_NewRequest(t *testing.T) {
 func TestClient_method(t *testing.T) {
 	cases := map[string]struct {
 		call    func(c *core.Client) (*http.Response, error)
-		check   func(t *testing.T, captured *httpCapture)
+		check   func(t *testing.T, captured *mock.Capture)
 		wantErr bool
 	}{
 		"GET": {
 			call: func(c *core.Client) (*http.Response, error) {
 				return c.Method.Get(context.Background(), "/path1", nil)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Empty(t, captured.Body)
 				assert.Empty(t, captured.Header.Get("Content-Type"))
@@ -371,10 +368,10 @@ func TestClient_method(t *testing.T) {
 				form.Add("k", "v")
 				return c.Method.Post(context.Background(), "/path2", form)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 				assert.Contains(t, string(captured.Body), "k=v")
@@ -387,10 +384,10 @@ func TestClient_method(t *testing.T) {
 				form.Add("id", "123")
 				return c.Method.Patch(context.Background(), "/path3", form)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PATCH", captured.Method)
 				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=123")
 			},
@@ -402,10 +399,10 @@ func TestClient_method(t *testing.T) {
 				form.Add("content", "hello")
 				return c.Method.Put(context.Background(), "/path4", form)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PUT", captured.Method)
 				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 				assert.Contains(t, string(captured.Body), "content=hello")
@@ -418,10 +415,10 @@ func TestClient_method(t *testing.T) {
 				form.Add("id", "321")
 				return c.Method.Delete(context.Background(), "/path5", form)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "DELETE", captured.Method)
 				assert.Equal(t, "/api/v2/path5", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=321")
 			},
@@ -432,10 +429,10 @@ func TestClient_method(t *testing.T) {
 				buf := bytes.NewBufferString("dummyfiledata")
 				return c.Method.Upload(context.Background(), "/upload-path", "file.txt", buf)
 			},
-			check: func(t *testing.T, captured *httpCapture) {
+			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
-				assert.Equal(t, "Bearer token123", captured.Header.Get("Authorization"))
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 
 				ct := captured.Header.Get("Content-Type")
@@ -519,7 +516,7 @@ func TestClient_method(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, captured := makeClient(t)
+			c, captured := mock.NewCaptureClient(t, "{}")
 
 			resp, err := tc.call(c)
 
@@ -592,7 +589,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := newClientMock(t, "https://example.backlog.com", "test", nil)
+			c := mock.NewClient(t, nil)
 
 			if tc.setup != nil {
 				tc.setup(c)
@@ -716,89 +713,4 @@ func TestCheckResponse(t *testing.T) {
 		})
 
 	}
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Test helper types and functions
-// ──────────────────────────────────────────────────────────────
-
-// httpCapture holds the details of the most recent HTTP request executed
-// by a mock Doer during testing. It is used to inspect the outgoing request
-// generated by the Client to verify correctness in unit tests.
-//
-// Captured fields:
-//   - Method: HTTP method used (GET, POST, PATCH, PUT, etc.)
-//   - URL: Full request URL, including query parameters
-//   - Header: All headers set on the request
-//   - Body: Raw request body data
-type httpCapture struct {
-	Method string
-	URL    *url.URL
-	Header http.Header
-	Body   []byte
-}
-
-// makeClient creates and returns a test Client along with an httpCapture instance
-// that records the details of each request made by the client.
-//
-// This helper is primarily used in unit tests to verify that the Client constructs
-// correct HTTP requests without performing actual network calls.
-//
-// Example:
-//
-//	client, captured := makeClient(t)
-//	_, _ = client.Wiki.List()
-//	assert.Equal(t, "GET", captured.Method)
-//	assert.Contains(t, captured.URL.Path, "/api/v2/wikis")
-func makeClient(t *testing.T) (*core.Client, *httpCapture) {
-	t.Helper()
-
-	captured := &httpCapture{}
-
-	c := newClientMock(t, "https://example.com", "token123", &mock.MockDoer{
-		T: t,
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			var bodyBytes []byte
-			if req.Body != nil {
-				bodyBytes, _ = io.ReadAll(req.Body)
-			}
-
-			captured.Method = req.Method
-			captured.URL = req.URL
-			captured.Header = req.Header
-			captured.Body = bodyBytes
-
-			return mock.NewJSONResponse(`{}`), nil
-		},
-	})
-
-	return c, captured
-}
-
-// ──────────────────────────────────────────────────────────────
-//  NewClient mock
-// ──────────────────────────────────────────────────────────────
-
-// newClientMock creates and returns a test Client instance initialized with the given Doer.
-func newClientMock(t *testing.T, baseURL, token string, doer core.Doer) *core.Client {
-	t.Helper()
-
-	if doer == nil {
-		doer = &mock.MockDoer{
-			T: t,
-			DoFunc: func(_ *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Status:     http.StatusText(http.StatusOK),
-					Body:       io.NopCloser(bytes.NewBufferString(`{}`)),
-					Header:     make(http.Header),
-				}, nil
-			},
-		}
-	}
-
-	c, err := core.NewClient(baseURL, token, core.WithDoer(doer))
-	require.NoError(t, err)
-
-	return c
 }
