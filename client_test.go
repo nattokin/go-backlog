@@ -38,7 +38,7 @@ func TestNewClient(t *testing.T) {
 	})
 
 	t.Run("with-doer", func(t *testing.T) {
-		mockDoer := &mock.MockDoer{T: t,
+		mockDoer := &mock.Doer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, nil },
 		}
 		c, err := NewClient(baseURL, token, WithDoer(mockDoer))
