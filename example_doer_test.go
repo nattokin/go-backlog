@@ -1,7 +1,12 @@
 package backlog_test
 
 import (
+	"bytes"
+	"io"
+	"net/http"
+
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 var (
@@ -99,3 +104,36 @@ var (
 	doerAttachmentDownload     = newMockBinaryDoer("image/png", "A.png", []byte("PNG"))
 	doerWikiCount              = newMockDoer(`{"count": 5}`)
 )
+
+// newMockDoer returns a mockDoer that always responds with HTTP 200 and the given body.
+func newMockDoer(json string) *mock.Doer {
+	return &mock.Doer{
+		DoFunc: func(_ *http.Request) (*http.Response, error) {
+			return mock.NewJSONResponse(json), nil
+		},
+	}
+}
+
+// newMockBinaryDoer returns a mockDoer that always responds with HTTP 200
+// and the given binary body, filename, and Content-Type.
+func newMockBinaryDoer(contentType, filename string, body []byte) *mock.Doer {
+	return &mock.Doer{
+		DoFunc: func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Header: http.Header{
+					"Content-Type":        []string{contentType},
+					"Content-Disposition": []string{"attachment; filename=" + filename},
+				},
+				Body: io.NopCloser(bytes.NewReader(body)),
+			}, nil
+		},
+	}
+}
+
+// doerNoContent is a mockDoer that always responds with HTTP 204 No Content.
+var doerNoContent = &mock.Doer{
+	DoFunc: func(_ *http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+	},
+}

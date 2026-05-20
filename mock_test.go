@@ -1,7 +1,6 @@
 package backlog_test
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 	"strings"
@@ -13,42 +12,6 @@ type mockDoer struct {
 
 func (d *mockDoer) Do(req *http.Request) (*http.Response, error) {
 	return d.do(req)
-}
-
-// newMockDoer returns a mockDoer that always responds with HTTP 200 and the given body.
-func newMockDoer(body string) *mockDoer {
-	return &mockDoer{
-		do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewBufferString(body)),
-			}, nil
-		},
-	}
-}
-
-// newMockBinaryDoer returns a mockDoer that always responds with HTTP 200
-// and the given binary body, filename, and Content-Type.
-func newMockBinaryDoer(contentType, filename string, body []byte) *mockDoer {
-	return &mockDoer{
-		do: func(_ *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Header: http.Header{
-					"Content-Type":        []string{contentType},
-					"Content-Disposition": []string{"attachment; filename=" + filename},
-				},
-				Body: io.NopCloser(bytes.NewReader(body)),
-			}, nil
-		},
-	}
-}
-
-// doerNoContent is a mockDoer that always responds with HTTP 204 No Content.
-var doerNoContent = &mockDoer{
-	do: func(_ *http.Request) (*http.Response, error) {
-		return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
-	},
 }
 
 // newAuthErrorDoFunc returns a doFunc that always responds with HTTP 401 Unauthorized
