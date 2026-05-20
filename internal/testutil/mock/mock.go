@@ -181,6 +181,60 @@ func NewInternalServerErrorResponse() *http.Response {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  DoFunc helpers
+// ──────────────────────────────────────────────────────────────
+
+// NewJSONDoFunc returns a doFunc that always responds with HTTP 200 and the given JSON body.
+func NewJSONDoFunc(json string) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewJSONResponse(json), nil
+	}
+}
+
+// NewCreatedJSONDoFunc returns a doFunc that always responds with HTTP 201 and the given JSON body.
+func NewCreatedJSONDoFunc(json string) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewCreatedJSONResponse(json), nil
+	}
+}
+
+// NewNoContentDoFunc returns a doFunc that always responds with HTTP 204 No Content.
+func NewNoContentDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewNoContentResponse(), nil
+	}
+}
+
+// NewBinaryDoFunc returns a doFunc that always responds with HTTP 200 and a binary
+// file download response.
+func NewBinaryDoFunc(filename, contentType string, body []byte) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewBinaryResponse(filename, contentType, body), nil
+	}
+}
+
+// NewUnauthorizedDoFunc returns a doFunc that always responds with HTTP 401 Unauthorized.
+func NewUnauthorizedDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewUnauthorizedResponse(), nil
+	}
+}
+
+// NewNotFoundDoFunc returns a doFunc that always responds with HTTP 404 Not Found.
+func NewNotFoundDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewNotFoundResponse(), nil
+	}
+}
+
+// NewInternalServerErrorDoFunc returns a doFunc that always responds with HTTP 500.
+func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewInternalServerErrorResponse(), nil
+	}
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Client helpers
 // ──────────────────────────────────────────────────────────────
 
@@ -209,23 +263,6 @@ func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error))
 	require.NoError(t, err)
 
 	return c
-}
-
-// NewNoContentClient creates a test Client that always responds with HTTP 204 No Content.
-func NewNoContentClient(t *testing.T) *core.Client {
-	t.Helper()
-	return NewClient(t, func(_ *http.Request) (*http.Response, error) {
-		return NewNoContentResponse(), nil
-	})
-}
-
-// NewBinaryClient creates a test Client that always responds with HTTP 200 and a binary
-// file download response. It is the client-level counterpart of NewBinaryResponse.
-func NewBinaryClient(t *testing.T, filename, contentType string, body []byte) *core.Client {
-	t.Helper()
-	return NewClient(t, func(_ *http.Request) (*http.Response, error) {
-		return NewBinaryResponse(filename, contentType, body), nil
-	})
 }
 
 // Capture holds the details of the most recent HTTP request executed by the
