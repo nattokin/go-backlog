@@ -30,7 +30,7 @@ func TestService_One(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -38,7 +38,7 @@ func TestService_One(t *testing.T) {
 			issueIDOrKey: "1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -67,7 +67,7 @@ func TestService_One(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -126,7 +126,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "New issue", form.Get("summary"))
 				assert.Equal(t, "2", form.Get("issueTypeId"))
 				assert.Equal(t, "3", form.Get("priorityId"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -151,7 +151,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "5", form.Get("assigneeId"))
 				assert.Equal(t, "2024-06-01", form.Get("startDate"))
 				assert.Equal(t, "2024-06-30", form.Get("dueDate"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -217,7 +217,7 @@ func TestService_Create(t *testing.T) {
 			issueTypeID: 2,
 			priorityID:  3,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -269,7 +269,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
 				assert.Equal(t, "Updated summary", form.Get("summary"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -287,7 +287,7 @@ func TestService_Update(t *testing.T) {
 				assert.Equal(t, "2", form.Get("statusId"))
 				assert.Equal(t, "1", form.Get("resolutionId"))
 				assert.Equal(t, "5", form.Get("assigneeId"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -297,7 +297,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1", spath)
 				assert.Equal(t, "updated desc", form.Get("description"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -341,7 +341,7 @@ func TestService_Update(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("x"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -387,7 +387,7 @@ func TestService_Delete(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -395,7 +395,7 @@ func TestService_Delete(t *testing.T) {
 			issueIDOrKey: "1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1", spath)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -424,7 +424,7 @@ func TestService_Delete(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

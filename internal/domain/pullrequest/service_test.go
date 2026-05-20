@@ -35,7 +35,7 @@ func TestService_Count(t *testing.T) {
 			repoIDOrName:   "repo1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/count", spath)
-				return mock.NewJSONResponse(`{"count":5}`), nil
+				return mock.NewResponse(`{"count":5}`), nil
 			},
 			wantCount: 5,
 		},
@@ -45,7 +45,7 @@ func TestService_Count(t *testing.T) {
 			opts:           []core.RequestOption{o.WithAssigneeIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"10", "20"}, query["assigneeId[]"])
-				return mock.NewJSONResponse(`{"count":2}`), nil
+				return mock.NewResponse(`{"count":2}`), nil
 			},
 			wantCount: 2,
 		},
@@ -77,7 +77,7 @@ func TestService_Count(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

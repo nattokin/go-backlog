@@ -37,7 +37,7 @@ func TestCommentService_List(t *testing.T) {
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -53,7 +53,7 @@ func TestCommentService_List(t *testing.T) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -69,7 +69,7 @@ func TestCommentService_List(t *testing.T) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "10", query.Get("minId"))
 				assert.Equal(t, "100", query.Get("maxId"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -124,7 +124,7 @@ func TestCommentService_List(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -183,7 +183,7 @@ func TestCommentService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "This is a comment.", form.Get("content"))
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -197,7 +197,7 @@ func TestCommentService_Add(t *testing.T) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "Notifying users.", form.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -211,7 +211,7 @@ func TestCommentService_Add(t *testing.T) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "Attaching files.", form.Get("content"))
 				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -281,7 +281,7 @@ func TestCommentService_Add(t *testing.T) {
 			prNumber:       1,
 			content:        "x",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -331,7 +331,7 @@ func TestCommentService_Count(t *testing.T) {
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments/count", spath)
-				return mock.NewJSONResponse(`{"count":7}`), nil
+				return mock.NewResponse(`{"count":7}`), nil
 			},
 			wantCount: 7,
 		},
@@ -379,7 +379,7 @@ func TestCommentService_Count(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -433,7 +433,7 @@ func TestCommentService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments/42", spath)
 				assert.Equal(t, "Updated content.", form.Get("content"))
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -511,7 +511,7 @@ func TestCommentService_Update(t *testing.T) {
 			commentID:      42,
 			content:        "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

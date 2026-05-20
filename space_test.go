@@ -27,11 +27,11 @@ func TestSpaceService_Info(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Space.SpaceJSON), nil
+				return mock.NewResponse(fixture.Space.SpaceJSON), nil
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -40,7 +40,7 @@ func TestSpaceService_Info(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.Info(ctx)
@@ -72,11 +72,11 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/diskUsage", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Space.DiskUsageJSON), nil
+				return mock.NewResponse(fixture.Space.DiskUsageJSON), nil
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -85,7 +85,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.DiskUsage(ctx)
@@ -119,11 +119,11 @@ func TestSpaceService_Notification(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
+				return mock.NewResponse(fixture.Space.NotificationJSON), nil
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -132,7 +132,7 @@ func TestSpaceService_Notification(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.Notification(ctx)
@@ -166,7 +166,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 				assert.Equal(t, "/api/v2/space/notification", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Backlog is a project management tool.", req.FormValue("content"))
-				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
+				return mock.NewResponse(fixture.Space.NotificationJSON), nil
 			},
 		},
 		"error-validation-empty-content": {
@@ -175,7 +175,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		},
 		"error-api": {
 			content: "content",
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -184,7 +184,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.UpdateNotification(ctx, tc.content)
@@ -217,7 +217,7 @@ func TestSpaceActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/space/activities", req.URL.Path)
 				assert.Equal(t, "20", req.URL.Query().Get("count"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Space.Activity.List(ctx, c.Space.Activity.Option.WithCount(20))
@@ -226,7 +226,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.List(ctx)
 				require.Error(t, err)
@@ -238,7 +238,7 @@ func TestSpaceActivityService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/activities/3153", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Activity.SingleJSON), nil
+				return mock.NewResponse(fixture.Activity.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Space.Activity.One(ctx, 3153)
@@ -255,7 +255,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"One/error-api": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.One(ctx, 1)
 				require.Error(t, err)
@@ -276,7 +276,7 @@ func TestSpaceActivityService(t *testing.T) {
 				doFunc = tc.doFunc
 			}
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -291,10 +291,10 @@ func TestSpaceAttachmentService(t *testing.T) {
 			assert.Equal(t, http.MethodPost, req.Method)
 			assert.Equal(t, "/api/v2/space/attachment", req.URL.Path)
 			assert.True(t, strings.HasPrefix(req.Header.Get("Content-Type"), "multipart/form-data"))
-			return mock.NewJSONResponse(fixture.Attachment.UploadJSON), nil
+			return mock.NewResponse(fixture.Attachment.UploadJSON), nil
 		}
 
-		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 		require.NoError(t, err)
 
 		f, err := os.Open("testdata/testfile")
@@ -309,9 +309,9 @@ func TestSpaceAttachmentService(t *testing.T) {
 	})
 
 	t.Run("Upload/error", func(t *testing.T) {
-		doFunc := newAuthErrorDoFunc()
+		doFunc := mock.NewUnauthorizedDoFunc()
 
-		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 		require.NoError(t, err)
 
 		_, err = c.Space.Attachment.Upload(ctx, "testfile", strings.NewReader("data"))

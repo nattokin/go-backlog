@@ -87,7 +87,7 @@ func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
 	}
 }
 
-// NewInvalidTypeOption returns a RequestOption whose has invalid type.
+// NewInvalidTypeOption returns a RequestOption with an invalid type.
 func NewInvalidTypeOption() *core.APIParamOption {
 	return &core.APIParamOption{
 		Type:      "invalid",
@@ -100,23 +100,31 @@ func NewInvalidTypeOption() *core.APIParamOption {
 //  HTTP response helpers
 // ──────────────────────────────────────────────────────────────
 
-// NewJSONResponse returns an HTTP 200 OK response with the given JSON string as body.
+// NewResponse returns an HTTP 200 OK response with the given JSON string as body.
 // It allocates a fresh reader on each call so the body can only be consumed once,
 // matching the behaviour of a real HTTP response.
-func NewJSONResponse(json string) *http.Response {
+func NewResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }
 
-// NewCreatedJSONResponse returns an HTTP 201 Created response with the given JSON string as body.
+// NewCreatedResponse returns an HTTP 201 Created response with the given JSON string as body.
 // It allocates a fresh reader on each call so the body can only be consumed once,
 // matching the behaviour of a real HTTP response.
-func NewCreatedJSONResponse(json string) *http.Response {
+func NewCreatedResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusCreated,
 		Body:       io.NopCloser(strings.NewReader(json)),
+	}
+}
+
+// NewNoContentResponse returns an HTTP 204 No Content response with an empty body.
+func NewNoContentResponse() *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusNoContent,
+		Body:       http.NoBody,
 	}
 }
 
@@ -126,12 +134,103 @@ func NewCreatedJSONResponse(json string) *http.Response {
 // body is the raw bytes of the file content.
 func NewBinaryResponse(filename, contentType string, body []byte) *http.Response {
 	header := http.Header{}
-	header.Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	header.Set("Content-Disposition", "attachment; filename="+filename)
 	header.Set("Content-Type", contentType)
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Header:     header,
 		Body:       io.NopCloser(bytes.NewReader(body)),
+	}
+}
+
+// NewErrorResponse returns an HTTP response with the given status code and JSON error body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func NewErrorResponse(statusCode int, json string) *http.Response {
+	return &http.Response{
+		StatusCode: statusCode,
+		Body:       io.NopCloser(strings.NewReader(json)),
+	}
+}
+
+// NewUnauthorizedResponse returns an HTTP 401 Unauthorized response with a Backlog
+// authentication failure error body.
+func NewUnauthorizedResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusUnauthorized,
+		`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`,
+	)
+}
+
+// NewNotFoundResponse returns an HTTP 404 Not Found response with a generic Backlog
+// not-found error body.
+func NewNotFoundResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusNotFound,
+		`{"errors":[{"message":"No such resource.","code":6,"moreInfo":""}]}`,
+	)
+}
+
+// NewInternalServerErrorResponse returns an HTTP 500 Internal Server Error response
+// with a generic Backlog internal server error body.
+func NewInternalServerErrorResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusInternalServerError,
+		`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`,
+	)
+}
+
+// ──────────────────────────────────────────────────────────────
+//  DoFunc helpers
+// ──────────────────────────────────────────────────────────────
+
+// NewDoFunc returns a doFunc that always responds with HTTP 200 and the given JSON body.
+func NewDoFunc(json string) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewResponse(json), nil
+	}
+}
+
+// NewCreatedDoFunc returns a doFunc that always responds with HTTP 201 and the given JSON body.
+func NewCreatedDoFunc(json string) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewCreatedResponse(json), nil
+	}
+}
+
+// NewNoContentDoFunc returns a doFunc that always responds with HTTP 204 No Content.
+func NewNoContentDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewNoContentResponse(), nil
+	}
+}
+
+// NewBinaryDoFunc returns a doFunc that always responds with HTTP 200 and a binary
+// file download response with the given filename, Content-Type, and body.
+func NewBinaryDoFunc(filename, contentType string, body []byte) func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewBinaryResponse(filename, contentType, body), nil
+	}
+}
+
+// NewUnauthorizedDoFunc returns a doFunc that always responds with HTTP 401 Unauthorized.
+func NewUnauthorizedDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewUnauthorizedResponse(), nil
+	}
+}
+
+// NewNotFoundDoFunc returns a doFunc that always responds with HTTP 404 Not Found.
+func NewNotFoundDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewNotFoundResponse(), nil
+	}
+}
+
+// NewInternalServerErrorDoFunc returns a doFunc that always responds with HTTP 500 Internal Server Error.
+func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) {
+	return func(_ *http.Request) (*http.Response, error) {
+		return NewInternalServerErrorResponse(), nil
 	}
 }
 
@@ -147,6 +246,8 @@ const (
 // NewClient creates a test Client with the given doFunc as its Doer.
 // If doFunc is nil, the client responds to every request with HTTP 200 and an empty JSON object.
 // baseURL and token are fixed to well-known test values.
+// T is not set on the underlying Doer; use NewCaptureClient or construct Doer directly when
+// assertion on the request is needed.
 func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *core.Client {
 	t.Helper()
 
@@ -212,7 +313,7 @@ func NewCaptureClient(t *testing.T, responseJSON string) (*core.Client, *Capture
 		captured.Header = req.Header
 		captured.Body = bodyBytes
 
-		return NewJSONResponse(responseJSON), nil
+		return NewResponse(responseJSON), nil
 	})
 
 	return c, captured

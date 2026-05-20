@@ -32,7 +32,7 @@ func TestCategoryService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Category.ListJSON), nil
+				return mock.NewResponse(fixture.Category.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -43,7 +43,7 @@ func TestCategoryService_List(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6/categories", spath)
-				return mock.NewJSONResponse(fixture.Category.ListJSON), nil
+				return mock.NewResponse(fixture.Category.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -66,7 +66,7 @@ func TestCategoryService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -115,7 +115,7 @@ func TestCategoryService_Create(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories", spath)
 				assert.Equal(t, "Bug", form.Get("name"))
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -145,7 +145,7 @@ func TestCategoryService_Create(t *testing.T) {
 			name:           "Bug",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -197,7 +197,7 @@ func TestCategoryService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories/12", spath)
 				assert.Equal(t, "Bug Fixed", form.Get("name"))
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -237,7 +237,7 @@ func TestCategoryService_Update(t *testing.T) {
 			name:           "Bug Fixed",
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -286,7 +286,7 @@ func TestCategoryService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories/12", spath)
 				assert.NotNil(t, form)
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -316,7 +316,7 @@ func TestCategoryService_Delete(t *testing.T) {
 			categoryID:     12,
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

@@ -25,7 +25,7 @@ func TestRepositoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Repository.ListJSON), nil
+				return mock.NewResponse(fixture.Repository.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Repository.List(ctx, "TEST")
@@ -38,7 +38,7 @@ func TestRepositoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Repository.List(ctx, "TEST")
 				require.Error(t, err)
@@ -50,7 +50,7 @@ func TestRepositoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/foo", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Repository.SingleJSON), nil
+				return mock.NewResponse(fixture.Repository.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Repository.One(ctx, "TEST", "foo")
@@ -61,7 +61,7 @@ func TestRepositoryService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Repository.One(ctx, "TEST", "foo")
 				require.Error(t, err)
@@ -75,7 +75,7 @@ func TestRepositoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

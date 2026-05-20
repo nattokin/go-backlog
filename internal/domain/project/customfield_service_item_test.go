@@ -35,7 +35,7 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items", spath)
 				assert.Equal(t, "Item1", form.Get("name"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -75,7 +75,7 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 			name:           "Item1",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -128,7 +128,7 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items/10", spath)
 				assert.Equal(t, "Item1 Updated", form.Get("name"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -180,7 +180,7 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 			name:           "Item1 Updated",
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -231,7 +231,7 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items/10", spath)
 				assert.NotNil(t, form)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -271,7 +271,7 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 			itemID:         10,
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

@@ -26,7 +26,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.List(ctx, "PRJ-1")
@@ -42,7 +42,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
 				assert.Equal(t, "20", req.URL.Query().Get("count"))
 				assert.Equal(t, "asc", req.URL.Query().Get("order"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.List(ctx, "PRJ-1",
@@ -54,7 +54,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.List(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -68,7 +68,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "This is a comment.", req.PostForm.Get("content"))
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Add(ctx, "PRJ-1", "This is a comment.")
@@ -84,7 +84,7 @@ func TestIssueCommentService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Notifying users.", req.PostForm.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, req.PostForm["notifiedUserId[]"])
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Add(ctx, "PRJ-1", "Notifying users.",
@@ -95,7 +95,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Add(ctx, "PRJ-1", "This is a comment.")
 				require.Error(t, err)
@@ -107,7 +107,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/count", req.URL.Path)
-				return mock.NewJSONResponse(`{"count":7}`), nil
+				return mock.NewResponse(`{"count":7}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Count(ctx, "PRJ-1")
@@ -116,7 +116,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Count(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -128,7 +128,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.One(ctx, "PRJ-1", 42)
@@ -138,7 +138,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.One(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -150,7 +150,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Delete(ctx, "PRJ-1", 42)
@@ -159,7 +159,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Delete(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -173,7 +173,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated content.", req.PostForm.Get("content"))
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
@@ -182,7 +182,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
 				require.Error(t, err)
@@ -194,7 +194,7 @@ func TestIssueCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42/notifications", req.URL.Path)
-				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Notifications(ctx, "PRJ-1", 42)
@@ -205,7 +205,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Notifications/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Notifications(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -219,7 +219,7 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1/comments/42/notifications", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"5", "6"}, req.PostForm["notifiedUserId[]"])
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Comment.Notify(ctx, "PRJ-1", 42, []int{5, 6})
@@ -228,7 +228,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Notify/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Notify(ctx, "PRJ-1", 42, []int{5, 6})
 				require.Error(t, err)
@@ -242,7 +242,7 @@ func TestIssueCommentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

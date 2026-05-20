@@ -26,7 +26,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.List(ctx, "TEST-1")
@@ -37,7 +37,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.List(ctx, "TEST-1")
 				require.Error(t, err)
@@ -49,7 +49,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments/8", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
@@ -58,7 +58,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
 				require.Error(t, err)
@@ -85,7 +85,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			},
 		},
 		"Download/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Attachment.Download(ctx, "TEST-1", 10)
 				require.Error(t, err)
@@ -99,7 +99,7 @@ func TestIssueAttachmentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

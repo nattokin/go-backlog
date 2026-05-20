@@ -31,7 +31,7 @@ func TestService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"error-validation-wikiID-zero": {
@@ -59,7 +59,7 @@ func TestService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -117,7 +117,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "56", form.Get("projectId"))
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
-				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MinimumJSON), nil
 			},
 		},
 		"success-projectID-name-content-withMailNotify": {
@@ -132,7 +132,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "Minimum Wiki Page", form.Get("name"))
 				assert.Equal(t, "This is a minimal wiki page.", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MinimumJSON), nil
 			},
 		},
 		"error-validation-projectID-zero": {
@@ -192,7 +192,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "1", form.Get("projectId"))
 				assert.Equal(t, "Test", form.Get("name"))
 				assert.Equal(t, "content", form.Get("content"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -248,7 +248,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "New Page Name", form.Get("name"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"success-wikiID-content-only": {
@@ -258,7 +258,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Content", form.Get("content"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"success-wikiID-mailNotify-name": {
@@ -272,7 +272,7 @@ func TestService_Update(t *testing.T) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"success-wikiID-full-options": {
@@ -288,7 +288,7 @@ func TestService_Update(t *testing.T) {
 				assert.Equal(t, "Full Options Name", form.Get("name"))
 				assert.Equal(t, "Full Options Content", form.Get("content"))
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"error-validation-required-option": {
@@ -333,7 +333,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/14", spath)
 				assert.Equal(t, "New Name", form.Get("name"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -388,7 +388,7 @@ func TestService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"success-wikiID-no-option": {
@@ -396,7 +396,7 @@ func TestService_Delete(t *testing.T) {
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1", spath)
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
 		"error-validation-wikiID-zero": {
@@ -432,7 +432,7 @@ func TestService_Delete(t *testing.T) {
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

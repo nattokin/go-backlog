@@ -28,7 +28,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
 				assert.Equal(t, "true", req.URL.Query().Get("archived"))
-				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
+				return mock.NewResponse(fixture.Project.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.List(ctx, c.Project.Option.WithArchived(true))
@@ -37,7 +37,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.List(ctx)
 				require.Error(t, err)
@@ -49,7 +49,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.One(ctx, "TEST")
@@ -58,7 +58,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.One(ctx, "TEST")
 				require.Error(t, err)
@@ -74,7 +74,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "TEST", req.PostForm.Get("key"))
 				assert.Equal(t, "test", req.PostForm.Get("name"))
 				assert.Equal(t, "true", req.PostForm.Get("chartEnabled"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Create(ctx, "TEST", "test", c.Project.Option.WithChartEnabled(true))
@@ -83,7 +83,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Create(ctx, "TEST", "test")
 				require.Error(t, err)
@@ -97,7 +97,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "new-name", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
@@ -106,7 +106,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
 				require.Error(t, err)
@@ -118,7 +118,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Delete(ctx, "TEST")
@@ -127,7 +127,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Delete(ctx, "TEST")
 				require.Error(t, err)
@@ -139,7 +139,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/diskUsage", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.DiskUsageJSON), nil
+				return mock.NewResponse(fixture.Project.DiskUsageJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.DiskUsage(ctx, "TEST")
@@ -149,7 +149,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"DiskUsage/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.DiskUsage(ctx, "TEST")
 				require.Error(t, err)
@@ -176,7 +176,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Icon/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Icon(ctx, "TEST")
 				require.Error(t, err)
@@ -190,7 +190,7 @@ func TestProjectService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

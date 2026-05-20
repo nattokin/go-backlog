@@ -38,7 +38,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 					"projects/TEST/git/repositories/test/pullRequests/1234/attachments",
 					spath,
 				)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
 
@@ -82,7 +82,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			prNumber:           10,
 			expectError:        true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -143,7 +143,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 					"projects/TEST/git/repositories/test/pullRequests/1234/attachments/8",
 					spath,
 				)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
 
@@ -201,7 +201,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			attachmentID:       8,
 			expectError:        true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

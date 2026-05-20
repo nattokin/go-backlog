@@ -29,7 +29,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis", req.URL.Path)
 				assert.Equal(t, "backlog", req.URL.Query().Get("keyword"))
-				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
+				return mock.NewResponse(fixture.Wiki.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.List(ctx, "TEST", c.Wiki.Option.WithKeyword("backlog"))
@@ -38,7 +38,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.List(ctx, "TEST")
 				require.Error(t, err)
@@ -50,7 +50,7 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/count", req.URL.Path)
-				return mock.NewJSONResponse(`{"count": 34}`), nil
+				return mock.NewResponse(`{"count": 34}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Count(ctx, "TEST")
@@ -59,7 +59,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Count(ctx, "TEST")
 				require.Error(t, err)
@@ -71,7 +71,7 @@ func TestWikiService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.One(ctx, 34)
@@ -80,7 +80,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.One(ctx, 34)
 				require.Error(t, err)
@@ -97,7 +97,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "Test Wiki", req.PostForm.Get("name"))
 				assert.Equal(t, "content", req.PostForm.Get("content"))
 				assert.Equal(t, "true", req.PostForm.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MinimumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MinimumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content", c.Wiki.Option.WithMailNotify(true))
@@ -106,7 +106,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content")
 				require.Error(t, err)
@@ -120,7 +120,7 @@ func TestWikiService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "New Name", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
@@ -129,7 +129,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
 				require.Error(t, err)
@@ -146,7 +146,7 @@ func TestWikiService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "true", form.Get("mailNotify"))
-				return mock.NewJSONResponse(fixture.Wiki.MaximumJSON), nil
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Delete(ctx, 34, c.Wiki.Option.WithMailNotify(true))
@@ -155,7 +155,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Delete(ctx, 34)
 				require.Error(t, err)
@@ -169,7 +169,7 @@ func TestWikiService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -189,7 +189,7 @@ func TestWikiAttachmentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"2", "5"}, req.PostForm["attachmentId[]"])
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
@@ -200,7 +200,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Attach/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
 				require.Error(t, err)
@@ -212,7 +212,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/attachments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.List(ctx, 34)
@@ -223,7 +223,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.List(ctx, 34)
 				require.Error(t, err)
@@ -235,7 +235,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/attachments/8", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
@@ -244,7 +244,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
 				require.Error(t, err)
@@ -271,7 +271,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Download/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Download(ctx, 1, 20)
 				require.Error(t, err)
@@ -285,7 +285,7 @@ func TestWikiAttachmentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -303,7 +303,7 @@ func TestWikiHistoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/history", req.URL.Path)
-				return mock.NewJSONResponse(fixture.WikiHistory.ListJSON), nil
+				return mock.NewResponse(fixture.WikiHistory.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.History.List(ctx, 34)
@@ -316,7 +316,7 @@ func TestWikiHistoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.History.List(ctx, 34)
 				require.Error(t, err)
@@ -330,7 +330,7 @@ func TestWikiHistoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -348,7 +348,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.List(ctx, 34)
@@ -361,7 +361,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.List(ctx, 34)
 				require.Error(t, err)
@@ -375,7 +375,7 @@ func TestWikiSharedFileService(t *testing.T) {
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"454403", "454404"}, req.PostForm["fileId[]"])
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403, 454404})
@@ -386,7 +386,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Link/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403})
 				require.Error(t, err)
@@ -398,7 +398,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/sharedFiles/454403", req.URL.Path)
-				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
+				return mock.NewResponse(fixture.SharedFile.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
@@ -409,7 +409,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Unlink/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
 				require.Error(t, err)
@@ -423,7 +423,7 @@ func TestWikiSharedFileService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -441,7 +441,7 @@ func TestWikiStarService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/wikis/34/stars", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Star.ListJSON), nil
+				return mock.NewResponse(fixture.Star.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Wiki.Star.List(ctx, 34)
@@ -452,7 +452,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Star.List(ctx, 34)
 				require.Error(t, err)
@@ -474,7 +474,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Add(ctx, 34)
 				require.Error(t, err)
@@ -499,7 +499,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Remove(ctx, 42)
 				require.Error(t, err)
@@ -513,7 +513,7 @@ func TestWikiStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

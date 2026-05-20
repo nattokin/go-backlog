@@ -28,7 +28,7 @@ func TestWikiHistoryService_List(t *testing.T) {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/history", spath)
-				return mock.NewJSONResponse(fixture.WikiHistory.ListJSON), nil
+				return mock.NewResponse(fixture.WikiHistory.ListJSON), nil
 			},
 		},
 
@@ -66,7 +66,7 @@ func TestWikiHistoryService_List(t *testing.T) {
 			wikiID:      1234,
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

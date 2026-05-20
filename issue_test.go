@@ -27,7 +27,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.List(ctx)
@@ -43,7 +43,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.List(ctx,
@@ -55,7 +55,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.List(ctx)
 				require.Error(t, err)
@@ -72,7 +72,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
 				assert.Equal(t, "100", req.URL.Query().Get("count"))
 				assert.Equal(t, "0", req.URL.Query().Get("offset"))
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				seq, err := c.Issue.All(ctx, 100)
@@ -91,7 +91,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Issue.ListJSON), nil
+				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				seq, err := c.Issue.All(ctx, 100)
@@ -118,7 +118,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
-				return mock.NewJSONResponse(`{"count":5}`), nil
+				return mock.NewResponse(`{"count":5}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx)
@@ -132,7 +132,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/count", req.URL.Path)
 				assert.Equal(t, "bug", req.URL.Query().Get("keyword"))
 				assert.Equal(t, []string{"10", "20"}, req.URL.Query()["projectId[]"])
-				return mock.NewJSONResponse(`{"count":2}`), nil
+				return mock.NewResponse(`{"count":2}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Count(ctx,
@@ -144,7 +144,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Count(ctx)
 				require.Error(t, err)
@@ -156,7 +156,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.One(ctx, "PRJ-1")
@@ -167,7 +167,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.One(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -184,7 +184,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "New issue", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("issueTypeId"))
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
@@ -204,7 +204,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "3", req.PostForm.Get("priorityId"))
 				assert.Equal(t, "details here", req.PostForm.Get("description"))
 				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
-				return mock.NewCreatedJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Create(ctx, 10, "New issue", 2, 3,
@@ -216,7 +216,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
 				require.Error(t, err)
@@ -230,7 +230,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
@@ -246,7 +246,7 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
 				assert.Equal(t, "2", req.PostForm.Get("statusId"))
 				assert.Equal(t, "1", req.PostForm.Get("resolutionId"))
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Update(ctx, "PRJ-1",
@@ -259,7 +259,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
 				require.Error(t, err)
@@ -271,7 +271,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Issue.SingleJSON), nil
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Delete(ctx, "PRJ-1")
@@ -281,7 +281,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Delete(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -293,7 +293,7 @@ func TestIssueService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/PRJ-1/participants", req.URL.Path)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Participants(ctx, "PRJ-1")
@@ -304,7 +304,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Participants/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Participants(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -318,7 +318,7 @@ func TestIssueService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -346,7 +346,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Add(ctx, 1)
 				require.Error(t, err)
@@ -371,7 +371,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Remove(ctx, 42)
 				require.Error(t, err)
@@ -385,7 +385,7 @@ func TestIssueStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

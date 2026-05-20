@@ -33,7 +33,7 @@ func TestCommentService_List(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -41,7 +41,7 @@ func TestCommentService_List(t *testing.T) {
 			issueIDOrKey: "1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1/comments", spath)
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -55,7 +55,7 @@ func TestCommentService_List(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -69,7 +69,7 @@ func TestCommentService_List(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "10", query.Get("minId"))
 				assert.Equal(t, "100", query.Get("maxId"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
@@ -103,7 +103,7 @@ func TestCommentService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -152,7 +152,7 @@ func TestCommentService_Count(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/count", spath)
-				return mock.NewJSONResponse(`{"count":7}`), nil
+				return mock.NewResponse(`{"count":7}`), nil
 			},
 			wantCount: 7,
 		},
@@ -181,7 +181,7 @@ func TestCommentService_Count(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -228,7 +228,7 @@ func TestCommentService_Notifications(t *testing.T) {
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42/notifications", spath)
-				return mock.NewJSONResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewResponse(`[{"id":1},{"id":2}]`), nil
 			},
 			wantLen: 2,
 		},
@@ -262,7 +262,7 @@ func TestCommentService_Notifications(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -312,7 +312,7 @@ func TestCommentService_Notify(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42/notifications", spath)
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -357,7 +357,7 @@ func TestCommentService_Notify(t *testing.T) {
 			commentID:    42,
 			userIDs:      []int{5},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

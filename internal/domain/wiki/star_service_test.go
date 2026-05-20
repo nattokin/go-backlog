@@ -28,7 +28,7 @@ func TestWikiStarService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34/stars", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Star.ListJSON), nil
+				return mock.NewResponse(fixture.Star.ListJSON), nil
 			},
 			wantLen: 2,
 		},
@@ -53,7 +53,7 @@ func TestWikiStarService_List(t *testing.T) {
 		"error-json-decode": {
 			wikiID: 34,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErr: true,
 		},

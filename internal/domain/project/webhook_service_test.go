@@ -27,7 +27,7 @@ func TestWebhookService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks", spath)
-				return mock.NewJSONResponse("[" + fixture.Webhook.AllEventJSON + "," + fixture.Webhook.ActivityTypesJSON + "]"), nil
+				return mock.NewResponse("[" + fixture.Webhook.AllEventJSON + "," + fixture.Webhook.ActivityTypesJSON + "]"), nil
 			},
 		},
 		"error-client": {
@@ -41,7 +41,7 @@ func TestWebhookService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			wantErrType:    &json.SyntaxError{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 		"error-project-empty": {
@@ -98,7 +98,7 @@ func TestWebhookService_Add(t *testing.T) {
 				assert.Equal(t, "projects/TEST/webhooks", spath)
 				assert.Equal(t, "false", form.Get("allEvent"))
 				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
 		"success-all-event-true": {
@@ -114,7 +114,7 @@ func TestWebhookService_Add(t *testing.T) {
 				assert.Equal(t, "webhook", form.Get("name"))
 				assert.Equal(t, "https://example.com/webhook", form.Get("hookUrl"))
 				assert.Equal(t, "true", form.Get("allEvent"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
 		"success-activity-types-only": {
@@ -128,7 +128,7 @@ func TestWebhookService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks", spath)
 				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
 		"error-all-event-false-without-activity-types": {
@@ -213,7 +213,7 @@ func TestWebhookService_Add(t *testing.T) {
 			},
 			wantErrType: &json.SyntaxError{},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -256,7 +256,7 @@ func TestWebhookService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
 		"error-client-network": {
@@ -280,7 +280,7 @@ func TestWebhookService_One(t *testing.T) {
 			wantErrType:    &json.SyntaxError{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 		"error-webhookID-negative": {
@@ -341,7 +341,7 @@ func TestWebhookService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
 		"success-all-event-false-with-activity-types": {
@@ -354,7 +354,7 @@ func TestWebhookService_Update(t *testing.T) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				assert.Equal(t, "false", form.Get("allEvent"))
 				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Webhook.ActivityTypesJSON), nil
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
 		"success-all-event-true": {
@@ -365,7 +365,7 @@ func TestWebhookService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
 				assert.Equal(t, "true", form.Get("allEvent"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
 		"error-all-event-false-without-activity-types": {
@@ -444,7 +444,7 @@ func TestWebhookService_Update(t *testing.T) {
 			opt:            option.WithAllEvent(true),
 			wantErrType:    &json.SyntaxError{},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -484,7 +484,7 @@ func TestWebhookService_Delete(t *testing.T) {
 			wantID:         fixture.Webhook.AllEvent.ID,
 			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
 		"error-client-network": {
@@ -502,7 +502,7 @@ func TestWebhookService_Delete(t *testing.T) {
 			wantErrType:    &json.SyntaxError{},
 			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 		"error-project-empty": {

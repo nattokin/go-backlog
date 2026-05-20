@@ -27,7 +27,7 @@ func TestSharedFileService_List(t *testing.T) {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles", spath)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
@@ -55,7 +55,7 @@ func TestSharedFileService_List(t *testing.T) {
 			wikiID:      1234,
 			expectError: true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -106,7 +106,7 @@ func TestSharedFileService_Link(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles", spath)
 				assert.Equal(t, []string{"454403"}, form["fileId[]"])
-				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 		},
 
@@ -114,7 +114,7 @@ func TestSharedFileService_Link(t *testing.T) {
 			wikiID:  1,
 			fileIDs: []int{454403, 454404},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
@@ -153,7 +153,7 @@ func TestSharedFileService_Link(t *testing.T) {
 			fileIDs:     []int{454403},
 			expectError: true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -200,7 +200,7 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			fileID: 454403,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/sharedFiles/454403", spath)
-				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
+				return mock.NewResponse(fixture.SharedFile.SingleJSON), nil
 			},
 		},
 
@@ -246,7 +246,7 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			fileID:      454403,
 			expectError: true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

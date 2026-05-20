@@ -36,7 +36,7 @@ func TestService_List(t *testing.T) {
 				assert.Equal(t, "projects", spath)
 				require.NotNil(t, query)
 				assert.Empty(t, query)
-				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
+				return mock.NewResponse(fixture.Project.ListJSON), nil
 			},
 
 			wantIDs:     []int{1, 2, 3},
@@ -53,7 +53,7 @@ func TestService_List(t *testing.T) {
 				assert.Equal(t, "projects", spath)
 				assert.Equal(t, "false", query.Get("all"))
 				assert.Equal(t, "true", query.Get("archived"))
-				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
+				return mock.NewResponse(fixture.Project.ListJSON), nil
 			},
 
 			wantIDs:     []int{1, 2, 3},
@@ -83,7 +83,7 @@ func TestService_List(t *testing.T) {
 			opts: []core.RequestOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -136,7 +136,7 @@ func TestService_DiskUsage(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/diskUsage", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Project.DiskUsageJSON), nil
+				return mock.NewResponse(fixture.Project.DiskUsageJSON), nil
 			},
 			wantProjectID: 1,
 			wantIssue:     11931,
@@ -157,7 +157,7 @@ func TestService_DiskUsage(t *testing.T) {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/diskUsage", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

@@ -40,7 +40,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:           []core.RequestOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/activities", spath)
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{
 				spath:          "projects/TEST/activities",
@@ -58,7 +58,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{activityTypeID: []string{"1"}},
 		},
@@ -69,7 +69,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("minId"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{minID: "1"},
 		},
@@ -80,7 +80,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("maxId"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{maxID: "1"},
 		},
@@ -91,7 +91,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("count"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{count: "1"},
 		},
@@ -102,7 +102,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{order: "asc"},
 		},
@@ -122,7 +122,7 @@ func TestActivityService_List(t *testing.T) {
 				assert.Equal(t, "26", query.Get("maxId"))
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			want: want{
 				spath:          "projects/TEST/activities",
@@ -148,7 +148,7 @@ func TestActivityService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

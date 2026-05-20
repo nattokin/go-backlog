@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestStarService_Add(t *testing.T) {
@@ -83,7 +84,7 @@ func TestStarService_Add(t *testing.T) {
 			},
 		},
 		"error-api": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Star.Add(ctx, c.Star.Option.WithIssueID(1))
 				require.Error(t, err)
@@ -97,11 +98,11 @@ func TestStarService_Add(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			var doer *mockDoer
+			var doer *mock.Doer
 			if tc.doFunc != nil {
-				doer = &mockDoer{do: tc.doFunc}
+				doer = &mock.Doer{DoFunc: tc.doFunc}
 			} else {
-				doer = &mockDoer{do: func(req *http.Request) (*http.Response, error) {
+				doer = &mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 					return nil, errors.New("should not be called")
 				}}
 			}
@@ -140,7 +141,7 @@ func TestStarService_Remove(t *testing.T) {
 		},
 		"error-api": {
 			starID:  1,
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -149,11 +150,11 @@ func TestStarService_Remove(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			var doer *mockDoer
+			var doer *mock.Doer
 			if tc.doFunc != nil {
-				doer = &mockDoer{do: tc.doFunc}
+				doer = &mock.Doer{DoFunc: tc.doFunc}
 			} else {
-				doer = &mockDoer{do: func(req *http.Request) (*http.Response, error) {
+				doer = &mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 					return nil, errors.New("should not be called")
 				}}
 			}

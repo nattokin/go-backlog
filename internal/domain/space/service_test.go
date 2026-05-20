@@ -29,7 +29,7 @@ func TestService_Info(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Space.SpaceJSON), nil
+				return mock.NewResponse(fixture.Space.SpaceJSON), nil
 			},
 			wantSpaceKey: "nulab",
 			wantName:     "Nulab Inc.",
@@ -44,7 +44,7 @@ func TestService_Info(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -91,7 +91,7 @@ func TestService_DiskUsage(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/diskUsage", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Space.DiskUsageJSON), nil
+				return mock.NewResponse(fixture.Space.DiskUsageJSON), nil
 			},
 			wantCapacity:  1073741824,
 			wantIssue:     119511,
@@ -107,7 +107,7 @@ func TestService_DiskUsage(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/diskUsage", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -153,7 +153,7 @@ func TestService_Notification(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
+				return mock.NewResponse(fixture.Space.NotificationJSON), nil
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
@@ -167,7 +167,7 @@ func TestService_Notification(t *testing.T) {
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -214,7 +214,7 @@ func TestService_UpdateNotification(t *testing.T) {
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
 				assert.Equal(t, "Backlog is a project management tool.", form.Get("content"))
-				return mock.NewJSONResponse(fixture.Space.NotificationJSON), nil
+				return mock.NewResponse(fixture.Space.NotificationJSON), nil
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
@@ -235,7 +235,7 @@ func TestService_UpdateNotification(t *testing.T) {
 			content: "some content",
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

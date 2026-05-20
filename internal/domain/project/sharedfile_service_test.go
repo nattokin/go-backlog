@@ -30,7 +30,7 @@ func TestSharedFileService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/files", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 		"success-project-id": {
@@ -38,7 +38,7 @@ func TestSharedFileService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234/files", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 		"error-validation-projectIDOrKey-empty": {
@@ -59,7 +59,7 @@ func TestSharedFileService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

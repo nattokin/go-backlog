@@ -13,6 +13,7 @@ import (
 
 	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -131,7 +132,7 @@ func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
+		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			return nil, sentinel
 		}}),
 	)
@@ -156,7 +157,7 @@ func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"token",
-		backlog.WithDoer(&mockDoer{do: func(req *http.Request) (*http.Response, error) {
+		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: statusCode,
 				Body:       io.NopCloser(strings.NewReader(body)),
