@@ -183,16 +183,20 @@ type Capture struct {
 }
 
 // NewCaptureClient creates a test Client whose Doer records each outgoing
-// request into the returned *Capture and responds with HTTP 200 and an empty
-// JSON object. Use the *Capture to assert on the request that the Client built.
+// request into the returned *Capture and responds with HTTP 200 and the given
+// responseJSON as the body. Use the *Capture to assert on the request that the
+// Client built.
+//
+// Pass "{}" as responseJSON when the response content is not relevant to the
+// test, making it explicit that the return value carries no meaning.
 //
 // Example:
 //
-//	client, capture := mock.NewCaptureClient(t)
+//	client, capture := mock.NewCaptureClient(t, "{}")
 //	_, _ = client.Method.Get(ctx, "/wikis", nil)
 //	assert.Equal(t, "GET", capture.Method)
 //	assert.Equal(t, "/api/v2/wikis", capture.URL.Path)
-func NewCaptureClient(t *testing.T) (*core.Client, *Capture) {
+func NewCaptureClient(t *testing.T, responseJSON string) (*core.Client, *Capture) {
 	t.Helper()
 
 	captured := &Capture{}
@@ -208,7 +212,7 @@ func NewCaptureClient(t *testing.T) (*core.Client, *Capture) {
 		captured.Header = req.Header
 		captured.Body = bodyBytes
 
-		return NewJSONResponse(`{}`), nil
+		return NewJSONResponse(responseJSON), nil
 	})
 
 	return c, captured
