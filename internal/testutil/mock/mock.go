@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
 )
@@ -132,6 +133,85 @@ func NewBinaryResponse(filename, contentType string, body []byte) *http.Response
 		Header:     header,
 		Body:       io.NopCloser(bytes.NewReader(body)),
 	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Client helpers
+// ──────────────────────────────────────────────────────────────
+
+const (
+	testBaseURL = "https://example.com"
+	testToken   = "testtoken"
+)
+
+// NewClient creates a test Client with the given doFunc as its Doer.
+// If doFunc is nil, the client responds to every request with HTTP 200 and an empty JSON object.
+// baseURL and token are fixed to well-known test values.
+func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *core.Client {
+	t.Helper()
+
+	if doFunc == nil {
+		doFunc = func(_ *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(`{}`)),
+				Header:     make(http.Header),
+			}, nil
+		}
+	}
+
+	c, err := core.NewClient(testBaseURL, testToken, core.WithDoer(&MockDoer{T: t, DoFunc: doFunc}))
+	require.NoError(t, err)
+
+	return c
+}
+
+// Capture holds the details of the most recent HTTP request executed by the
+// client returned from NewCaptureClient. It is used in tests to inspect the
+// outgoing request and verify that the Client constructs it correctly.
+//
+// Captured fields:
+//   - Method: HTTP method used (GET, POST, PATCH, PUT, etc.)
+//   - URL:    Full request URL, including query parameters
+//   - Header: All headers set on the request
+//   - Body:   Raw request body bytes
+type Capture struct {
+	Method string
+	URL    *url.URL
+	Header http.Header
+	Body   []byte
+}
+
+// NewCaptureClient creates a test Client whose Doer records each outgoing
+// request into the returned *Capture and responds with HTTP 200 and an empty
+// JSON object. Use the *Capture to assert on the request that the Client built.
+//
+// Example:
+//
+//	client, capture := mock.NewCaptureClient(t)
+//	_, _ = client.Method.Get(ctx, "/wikis", nil)
+//	assert.Equal(t, "GET", capture.Method)
+//	assert.Equal(t, "/api/v2/wikis", capture.URL.Path)
+func NewCaptureClient(t *testing.T) (*core.Client, *Capture) {
+	t.Helper()
+
+	captured := &Capture{}
+
+	c := NewClient(t, func(req *http.Request) (*http.Response, error) {
+		var bodyBytes []byte
+		if req.Body != nil {
+			bodyBytes, _ = io.ReadAll(req.Body)
+		}
+
+		captured.Method = req.Method
+		captured.URL = req.URL
+		captured.Header = req.Header
+		captured.Body = bodyBytes
+
+		return NewJSONResponse(`{}`), nil
+	})
+
+	return c, captured
 }
 
 // ──────────────────────────────────────────────────────────────
