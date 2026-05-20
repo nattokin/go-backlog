@@ -3,7 +3,7 @@ header = ""
 body = """
 ## What's Changed
 {% if commits | length == 0 %}
-No changes to production code in this release.
+This release contains no changes affecting library behavior.
 {% else %}\
 {% set breaking_commits = commits | filter(attribute="breaking", value=true) %}\
 {% if breaking_commits %}
