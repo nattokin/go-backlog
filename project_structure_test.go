@@ -27,7 +27,7 @@ func TestProjectCategoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/categories", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Category.ListJSON), nil
+				return mock.NewResponse(fixture.Category.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Category.List(ctx, "TEST")
@@ -50,7 +50,7 @@ func TestProjectCategoryService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/categories", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Bug", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Category.Create(ctx, "TEST", "Bug")
@@ -73,7 +73,7 @@ func TestProjectCategoryService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/categories/12", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Bug Fixed", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Category.Update(ctx, "TEST", 12, "Bug Fixed")
@@ -94,7 +94,7 @@ func TestProjectCategoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/categories/12", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Category.SingleJSON), nil
+				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Category.Delete(ctx, "TEST", 12)
@@ -135,7 +135,7 @@ func TestProjectSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/files", req.URL.Path)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.SharedFile.List(ctx, "TEST")
@@ -212,7 +212,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				assert.Empty(t, req.URL.Query().Get("excludeGroupMembers"))
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.List(ctx, "TEST")
@@ -225,7 +225,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				assert.Equal(t, "true", req.URL.Query().Get("excludeGroupMembers"))
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.List(ctx, "TEST", c.Project.User.Option.WithExcludeGroupMembers(true))
@@ -248,7 +248,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/users", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Add(ctx, "TEST", 1)
@@ -274,7 +274,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.Delete(ctx, "TEST", 1)
@@ -297,7 +297,7 @@ func TestProjectUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "1", req.PostForm.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
@@ -318,7 +318,7 @@ func TestProjectUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/administrators", req.URL.Path)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.AdminList(ctx, "TEST")
@@ -344,7 +344,7 @@ func TestProjectUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)

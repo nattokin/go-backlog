@@ -27,7 +27,7 @@ func TestUserService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			wantLen: 4,
 		},
@@ -43,7 +43,7 @@ func TestUserService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -89,7 +89,7 @@ func TestUserService_Me(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-client-network": {
@@ -104,7 +104,7 @@ func TestUserService_Me(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

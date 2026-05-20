@@ -41,7 +41,7 @@ func TestUserService_Add(t *testing.T) {
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, "1", form.Get("roleType"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"success-roleType-6": {
@@ -53,7 +53,7 @@ func TestUserService_Add(t *testing.T) {
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "6", form.Get("roleType"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-userID-empty": {
@@ -133,7 +133,7 @@ func TestUserService_Add(t *testing.T) {
 			roleType:    1,
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -180,7 +180,7 @@ func TestUserService_One(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"success-id-100": {
@@ -188,7 +188,7 @@ func TestUserService_One(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-id-zero": {
@@ -252,7 +252,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, "1", form.Get("roleType"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-response-invalid-json": {
@@ -261,7 +261,7 @@ func TestUserService_Update(t *testing.T) {
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -387,7 +387,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
 				assert.Nil(t, form)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -397,7 +397,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/100", spath)
 				assert.Nil(t, form)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -411,7 +411,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234", spath)
 				assert.Nil(t, form)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

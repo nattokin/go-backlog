@@ -34,7 +34,7 @@ func TestProjectUserService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Empty(t, query.Get("excludeGroupMembers"))
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 		},
 		"success-excludeGroupMembers-true": {
@@ -44,7 +44,7 @@ func TestProjectUserService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 		},
 		"success-excludeGroupMembers-false": {
@@ -54,7 +54,7 @@ func TestProjectUserService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 		},
 		"error-invalid-option": {
@@ -73,7 +73,7 @@ func TestProjectUserService_List(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -126,7 +126,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -147,7 +147,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-response-invalid-json": {
@@ -157,7 +157,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -209,7 +209,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"success-projectIDOrKey-number": {
@@ -219,7 +219,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -241,7 +241,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-response-invalid-json": {
@@ -251,7 +251,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -303,7 +303,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-validation-projectKey-empty": {
@@ -324,7 +324,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-response-invalid-json": {
@@ -334,7 +334,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/administrators", spath)
 				assert.Equal(t, "1", form.Get("userId"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

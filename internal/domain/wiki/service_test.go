@@ -34,7 +34,7 @@ func TestService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
-				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
+				return mock.NewResponse(fixture.Wiki.ListJSON), nil
 			},
 		},
 
@@ -48,7 +48,7 @@ func TestService_List(t *testing.T) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
 				assert.Equal(t, "test", query.Get("keyword"))
-				return mock.NewJSONResponse(fixture.Wiki.ListJSON), nil
+				return mock.NewResponse(fixture.Wiki.ListJSON), nil
 			},
 		},
 
@@ -87,7 +87,7 @@ func TestService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -139,7 +139,7 @@ func TestService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "103", query.Get("projectIdOrKey"))
-				return mock.NewJSONResponse(`{"count": 34}`), nil
+				return mock.NewResponse(`{"count": 34}`), nil
 			},
 
 			wantCount: 34,
@@ -150,7 +150,7 @@ func TestService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
-				return mock.NewJSONResponse(`{"count": 10}`), nil
+				return mock.NewResponse(`{"count": 10}`), nil
 			},
 
 			wantCount: 10,
@@ -176,7 +176,7 @@ func TestService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/count", spath)
 				assert.Equal(t, "1", query.Get("projectIdOrKey"))
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

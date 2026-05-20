@@ -30,7 +30,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			wantIDs:      []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments", spath)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
 		"error-invalid-issueIDOrKey": {
@@ -58,7 +58,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			issueIDOrKey: "1234",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -105,7 +105,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			wantID:       8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1234/attachments/8", spath)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
 		"error-empty-issueKey": {
@@ -143,7 +143,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

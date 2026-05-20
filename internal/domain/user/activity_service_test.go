@@ -32,7 +32,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234/activities", spath)
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-withActivityTypeIDs": {
@@ -40,7 +40,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{o.WithActivityTypeIDs([]int{1})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-withMinID": {
@@ -48,7 +48,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{o.WithMinID(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("minId"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-withMaxID": {
@@ -56,7 +56,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{o.WithMaxID(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("maxId"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-withCount": {
@@ -64,7 +64,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{o.WithCount(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("count"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-withOrder": {
@@ -72,7 +72,7 @@ func TestActivityService_List(t *testing.T) {
 			opts:   []core.RequestOption{o.WithOrder("asc")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"success-multiple-options": {
@@ -91,7 +91,7 @@ func TestActivityService_List(t *testing.T) {
 				assert.Equal(t, "26", query.Get("maxId"))
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
 		"error-validation-userID-zero": {
@@ -109,7 +109,7 @@ func TestActivityService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			userID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

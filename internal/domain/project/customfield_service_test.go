@@ -32,7 +32,7 @@ func TestCustomFieldService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.CustomField.ListJSON), nil
+				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -43,7 +43,7 @@ func TestCustomFieldService_List(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6/customFields", spath)
-				return mock.NewJSONResponse(fixture.CustomField.ListJSON), nil
+				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -66,7 +66,7 @@ func TestCustomFieldService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -122,7 +122,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 				assert.Equal(t, "1", form.Get("typeId"))
 				assert.Equal(t, "Sprint", form.Get("name"))
 				assert.Empty(t, form.Get("description"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -139,7 +139,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 				assert.Equal(t, "Sprint", form.Get("name"))
 				assert.Equal(t, "sprint number", form.Get("description"))
 				assert.Equal(t, "true", form.Get("required"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -186,7 +186,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			name:           "Sprint",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -241,7 +241,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)
 				assert.Equal(t, "Sprint Updated", form.Get("name"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -256,7 +256,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)
 				assert.Equal(t, "Sprint Updated", form.Get("name"))
 				assert.Equal(t, "true", form.Get("required"))
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -296,7 +296,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 			option:         o.WithName("Sprint Updated"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -345,7 +345,7 @@ func TestCustomFieldService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)
 				assert.NotNil(t, form)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -375,7 +375,7 @@ func TestCustomFieldService_Delete(t *testing.T) {
 			customFieldID:  1,
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

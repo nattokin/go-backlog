@@ -36,7 +36,7 @@ func TestVersionService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
 				assert.Equal(t, "true", query.Get("archived"))
-				return mock.NewJSONResponse(fixture.Version.ListJSON), nil
+				return mock.NewResponse(fixture.Version.ListJSON), nil
 			},
 		},
 		"error-project-empty": {
@@ -61,7 +61,7 @@ func TestVersionService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			wantErrType:    &json.SyntaxError{},
 			mockGetFn: func(context.Context, string, url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -105,7 +105,7 @@ func TestVersionService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
 				assert.Equal(t, "v1", form.Get("name"))
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
 		"error-name-empty": {
@@ -143,7 +143,7 @@ func TestVersionService_Add(t *testing.T) {
 			name:           "v1",
 			wantErrType:    &json.SyntaxError{},
 			mockPostFn: func(context.Context, string, url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}
@@ -191,7 +191,7 @@ func TestVersionService_Update(t *testing.T) {
 			wantID:         fixture.Version.Single.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
 		"error-versionID-negative": {
@@ -226,7 +226,7 @@ func TestVersionService_Update(t *testing.T) {
 			option:         o.WithName("name"),
 			wantErrType:    &json.SyntaxError{},
 			mockPatchFn: func(context.Context, string, url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 		"error-versionID-zero": {
@@ -272,7 +272,7 @@ func TestVersionService_Delete(t *testing.T) {
 			projectIDOrKey: "TEST", versionID: 1, wantID: fixture.Version.Single.ID,
 			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
 		"error-versionID-zero": {
@@ -294,7 +294,7 @@ func TestVersionService_Delete(t *testing.T) {
 		"error-invalid-json": {
 			projectIDOrKey: "TEST", versionID: 1, wantErrType: &json.SyntaxError{},
 			mockDeleteFn: func(context.Context, string, url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
 	}

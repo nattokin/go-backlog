@@ -29,7 +29,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users", req.URL.Path)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.List(ctx)
@@ -50,7 +50,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.One(ctx, 1)
@@ -71,7 +71,7 @@ func TestUserService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/myself", req.URL.Path)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Me(ctx)
@@ -97,7 +97,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "password", req.PostForm.Get("password"))
 				assert.Equal(t, "New User", req.PostForm.Get("name"))
 				assert.Equal(t, "new@example.com", req.PostForm.Get("mailAddress"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleAdministrator)
@@ -120,7 +120,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "updated-user", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
@@ -146,7 +146,7 @@ func TestUserService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Empty(t, form)
-				return mock.NewJSONResponse(fixture.User.SingleJSON), nil
+				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Delete(ctx, 1)
@@ -215,7 +215,7 @@ func TestUserActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/users/1/activities", req.URL.Path)
 				assert.Equal(t, "5", req.URL.Query().Get("minId"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.User.Activity.List(ctx, 1, c.User.Activity.Option.WithMinID(5))

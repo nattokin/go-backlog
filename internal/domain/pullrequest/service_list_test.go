@@ -38,7 +38,7 @@ func TestService_List(t *testing.T) {
 			repoIDOrName:   "repo1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests", spath)
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -60,7 +60,7 @@ func TestService_List(t *testing.T) {
 				assert.Equal(t, []string{"11"}, query["createdUserId[]"])
 				assert.Equal(t, "5", query.Get("offset"))
 				assert.Equal(t, "50", query.Get("count"))
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -70,7 +70,7 @@ func TestService_List(t *testing.T) {
 			opts:           []core.RequestOption{o.WithStatusIDs([]int{1, 2})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1", "2"}, query["statusId[]"])
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -84,7 +84,7 @@ func TestService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "50", query.Get("count"))
 				assert.Equal(t, "10", query.Get("offset"))
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			wantNumbers: []int{1, 2},
 		},
@@ -144,7 +144,7 @@ func TestService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

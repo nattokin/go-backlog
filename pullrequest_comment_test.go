@@ -26,7 +26,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1)
@@ -42,7 +42,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments", req.URL.Path)
 				assert.Equal(t, "20", req.URL.Query().Get("count"))
 				assert.Equal(t, "asc", req.URL.Query().Get("order"))
-				return mock.NewJSONResponse(fixture.Comment.ListJSON), nil
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1,
@@ -68,7 +68,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "This is a comment.", req.PostForm.Get("content"))
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.Add(ctx, "TEST", "repo", 1, "This is a comment.")
@@ -84,7 +84,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Notifying users.", req.PostForm.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, req.PostForm["notifiedUserId[]"])
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.Add(ctx, "TEST", "repo", 1, "Notifying users.",
@@ -107,7 +107,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments/count", req.URL.Path)
-				return mock.NewJSONResponse(`{"count":7}`), nil
+				return mock.NewResponse(`{"count":7}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.Count(ctx, "TEST", "repo", 1)
@@ -130,7 +130,7 @@ func TestPullRequestCommentService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/comments/42", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated content.", req.PostForm.Get("content"))
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Comment.Update(ctx, "TEST", "repo", 1, 42, "Updated content.")

@@ -25,7 +25,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
-				return mock.NewJSONResponse(fixture.SharedFile.ListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.List(ctx, "TEST-1")
@@ -50,7 +50,7 @@ func TestIssueSharedFileService(t *testing.T) {
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"454403"}, req.PostForm["fileId[]"])
-				return mock.NewJSONResponse(fixture.SharedFile.SingleListJSON), nil
+				return mock.NewResponse(fixture.SharedFile.SingleListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Link(ctx, "TEST-1", []int{454403})
@@ -72,7 +72,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/sharedFiles/454403", req.URL.Path)
-				return mock.NewJSONResponse(fixture.SharedFile.SingleJSON), nil
+				return mock.NewResponse(fixture.SharedFile.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.SharedFile.Unlink(ctx, "TEST-1", 454403)

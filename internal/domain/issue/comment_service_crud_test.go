@@ -36,7 +36,7 @@ func TestCommentService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "This is a comment.", form.Get("content"))
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -48,7 +48,7 @@ func TestCommentService_Add(t *testing.T) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "Notifying users.", form.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
-				return mock.NewCreatedJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -93,7 +93,7 @@ func TestCommentService_Add(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -141,7 +141,7 @@ func TestCommentService_One(t *testing.T) {
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -175,7 +175,7 @@ func TestCommentService_One(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -223,7 +223,7 @@ func TestCommentService_Delete(t *testing.T) {
 			commentID:    42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -257,7 +257,7 @@ func TestCommentService_Delete(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -308,7 +308,7 @@ func TestCommentService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments/42", spath)
 				assert.Equal(t, "Updated content.", form.Get("content"))
-				return mock.NewJSONResponse(fixture.Comment.SingleJSON), nil
+				return mock.NewResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
@@ -353,7 +353,7 @@ func TestCommentService_Update(t *testing.T) {
 			commentID:    42,
 			content:      "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

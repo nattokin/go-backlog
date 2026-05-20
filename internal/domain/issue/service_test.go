@@ -31,7 +31,7 @@ func TestService_Count(t *testing.T) {
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
-				return mock.NewJSONResponse(`{"count":42}`), nil
+				return mock.NewResponse(`{"count":42}`), nil
 			},
 			wantCount: 42,
 		},
@@ -40,7 +40,7 @@ func TestService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
-				return mock.NewJSONResponse(`{"count":5}`), nil
+				return mock.NewResponse(`{"count":5}`), nil
 			},
 			wantCount: 5,
 		},
@@ -49,7 +49,7 @@ func TestService_Count(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
 				assert.Equal(t, "bug", query.Get("keyword"))
-				return mock.NewJSONResponse(`{"count":3}`), nil
+				return mock.NewResponse(`{"count":3}`), nil
 			},
 			wantCount: 3,
 		},
@@ -75,7 +75,7 @@ func TestService_Count(t *testing.T) {
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -120,7 +120,7 @@ func TestService_Participants(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/participants", spath)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			wantIDs: []int{1, 2, 3, 4},
 		},
@@ -128,7 +128,7 @@ func TestService_Participants(t *testing.T) {
 			issueIDOrKey: "1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/1/participants", spath)
-				return mock.NewJSONResponse(fixture.User.ListJSON), nil
+				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			wantIDs: []int{1, 2, 3, 4},
 		},
@@ -136,7 +136,7 @@ func TestService_Participants(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/participants", spath)
-				return mock.NewJSONResponse(`[]`), nil
+				return mock.NewResponse(`[]`), nil
 			},
 			wantIDs: []int{},
 		},
@@ -165,7 +165,7 @@ func TestService_Participants(t *testing.T) {
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

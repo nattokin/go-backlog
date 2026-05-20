@@ -105,7 +105,7 @@ var (
 // Used as a lightweight Doer for Example tests, which run without *testing.T.
 func newMockDoer(json string) *mock.Doer {
 	return &mock.Doer{
-		DoFunc: mock.NewJSONDoFunc(json),
+		DoFunc: mock.NewDoFunc(json),
 	}
 }
 

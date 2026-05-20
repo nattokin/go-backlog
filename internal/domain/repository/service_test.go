@@ -35,7 +35,7 @@ func TestService_List(t *testing.T) {
 			projectIDOrKey: testProject,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories", spath)
-				return mock.NewJSONResponse(fixture.Repository.ListJSON), nil
+				return mock.NewResponse(fixture.Repository.ListJSON), nil
 			},
 			wantIDs: []int{5, 6},
 		},
@@ -57,7 +57,7 @@ func TestService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: testProject,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -108,7 +108,7 @@ func TestService_One(t *testing.T) {
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1", spath)
-				return mock.NewJSONResponse(fixture.Repository.SingleJSON), nil
+				return mock.NewResponse(fixture.Repository.SingleJSON), nil
 			},
 			wantID:   5,
 			wantName: "foo",
@@ -145,7 +145,7 @@ func TestService_One(t *testing.T) {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

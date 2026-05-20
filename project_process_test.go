@@ -28,7 +28,7 @@ func TestProjectVersionService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/versions", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Version.ListJSON), nil
+				return mock.NewResponse(fixture.Version.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Version.List(ctx, "TEST")
@@ -53,7 +53,7 @@ func TestProjectVersionService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "v1.0.0", req.PostForm.Get("name"))
 				assert.Equal(t, "first release", req.PostForm.Get("description"))
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Version.Create(
@@ -81,7 +81,7 @@ func TestProjectVersionService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/versions/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "v1.0.1", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Version.Update(
@@ -112,7 +112,7 @@ func TestProjectVersionService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/versions/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Version.SingleJSON), nil
+				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Version.Delete(ctx, "TEST", 1)
@@ -158,7 +158,7 @@ func TestProjectStatusService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/statuses", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
+				return mock.NewResponse(fixture.Status.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Status.List(ctx, "TEST")
@@ -185,7 +185,7 @@ func TestProjectStatusService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Open", req.PostForm.Get("name"))
 				assert.Equal(t, "#ed8077", req.PostForm.Get("color"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Status.Create(ctx, "TEST", "Open", "#ed8077")
@@ -211,7 +211,7 @@ func TestProjectStatusService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Closed", req.PostForm.Get("name"))
 				assert.Equal(t, "#f5ab35", req.PostForm.Get("color"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Status.Update(
@@ -248,7 +248,7 @@ func TestProjectStatusService(t *testing.T) {
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
 				assert.Equal(t, "2", form.Get("substituteStatusId"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Status.Delete(ctx, "TEST", 1, 2)
@@ -271,7 +271,7 @@ func TestProjectStatusService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/statuses/updateDisplayOrder", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, []string{"2", "1"}, req.PostForm["statusId[]"])
-				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
+				return mock.NewResponse(fixture.Status.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Status.UpdateOrder(ctx, "TEST", []int{2, 1})

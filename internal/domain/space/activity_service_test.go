@@ -177,7 +177,7 @@ func TestActivityService_List(t *testing.T) {
 					return nil, errors.New("error")
 				}
 
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			}
 			s := space.NewActivityService(method)
 
@@ -243,9 +243,9 @@ func TestActivityService_One(t *testing.T) {
 				case "error-request":
 					return nil, errors.New("error")
 				case "error-invalid-json":
-					return mock.NewJSONResponse(fixture.InvalidJSON), nil
+					return mock.NewResponse(fixture.InvalidJSON), nil
 				default:
-					return mock.NewJSONResponse(fixture.Activity.SingleJSON), nil
+					return mock.NewResponse(fixture.Activity.SingleJSON), nil
 				}
 			}
 			s := space.NewActivityService(method)

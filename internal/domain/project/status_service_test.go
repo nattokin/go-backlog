@@ -32,7 +32,7 @@ func TestStatusService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/statuses", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
+				return mock.NewResponse(fixture.Status.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -43,7 +43,7 @@ func TestStatusService_List(t *testing.T) {
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6/statuses", spath)
-				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
+				return mock.NewResponse(fixture.Status.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -66,7 +66,7 @@ func TestStatusService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -118,7 +118,7 @@ func TestStatusService_Create(t *testing.T) {
 				assert.Equal(t, "projects/TEST/statuses", spath)
 				assert.Equal(t, "Open", form.Get("name"))
 				assert.Equal(t, "#ed8077", form.Get("color"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -158,7 +158,7 @@ func TestStatusService_Create(t *testing.T) {
 			color:          "#ed8077",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -218,7 +218,7 @@ func TestStatusService_Update(t *testing.T) {
 				assert.Equal(t, "projects/TEST/statuses/1", spath)
 				assert.Equal(t, "Open Updated", form.Get("name"))
 				assert.Equal(t, "#f5ab35", form.Get("color"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -258,7 +258,7 @@ func TestStatusService_Update(t *testing.T) {
 			option:         o.WithName("Open"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -309,7 +309,7 @@ func TestStatusService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/statuses/1", spath)
 				assert.Equal(t, "2", form.Get("substituteStatusId"))
-				return mock.NewJSONResponse(fixture.Status.SingleJSON), nil
+				return mock.NewResponse(fixture.Status.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -349,7 +349,7 @@ func TestStatusService_Delete(t *testing.T) {
 			substituteStatusID: 2,
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -399,7 +399,7 @@ func TestStatusService_UpdateOrder(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/statuses/updateDisplayOrder", spath)
 				assert.Equal(t, []string{"2", "1"}, form["statusId[]"])
-				return mock.NewJSONResponse(fixture.Status.ListJSON), nil
+				return mock.NewResponse(fixture.Status.ListJSON), nil
 			},
 
 			wantLen:     2,
@@ -435,7 +435,7 @@ func TestStatusService_UpdateOrder(t *testing.T) {
 			statusIDs:      []int{1, 2},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

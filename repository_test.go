@@ -25,7 +25,7 @@ func TestRepositoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Repository.ListJSON), nil
+				return mock.NewResponse(fixture.Repository.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Repository.List(ctx, "TEST")
@@ -50,7 +50,7 @@ func TestRepositoryService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/foo", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Repository.SingleJSON), nil
+				return mock.NewResponse(fixture.Repository.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Repository.One(ctx, "TEST", "foo")

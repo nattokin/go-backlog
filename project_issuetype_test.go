@@ -25,7 +25,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/issueTypes", req.URL.Path)
-				return mock.NewJSONResponse(fixture.IssueType.ListJSON), nil
+				return mock.NewResponse(fixture.IssueType.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.List(ctx, "TEST")
@@ -52,7 +52,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Bug", req.PostForm.Get("name"))
 				assert.Equal(t, "#e30000", req.PostForm.Get("color"))
-				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
+				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.Create(ctx, "TEST", "Bug", "#e30000")
@@ -67,7 +67,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "default summary", req.PostForm.Get("templateSummary"))
 				assert.Equal(t, "default description", req.PostForm.Get("templateDescription"))
-				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
+				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.Create(ctx, "TEST", "Bug", "#e30000",
@@ -93,7 +93,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/issueTypes/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Bug Updated", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
+				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.Update(ctx, "TEST", 1,
@@ -110,7 +110,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 				assert.Equal(t, "#990000", req.PostForm.Get("color"))
 				assert.Equal(t, "new summary", req.PostForm.Get("templateSummary"))
 				assert.Equal(t, "new description", req.PostForm.Get("templateDescription"))
-				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
+				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.Update(ctx, "TEST", 1,
@@ -138,7 +138,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/issueTypes/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.IssueType.SingleJSON), nil
+				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.IssueType.Delete(ctx, "TEST", 1, 2)

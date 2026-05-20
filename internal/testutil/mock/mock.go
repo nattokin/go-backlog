@@ -100,20 +100,20 @@ func NewInvalidTypeOption() *core.APIParamOption {
 //  HTTP response helpers
 // ──────────────────────────────────────────────────────────────
 
-// NewJSONResponse returns an HTTP 200 OK response with the given JSON string as body.
+// NewResponse returns an HTTP 200 OK response with the given JSON string as body.
 // It allocates a fresh reader on each call so the body can only be consumed once,
 // matching the behaviour of a real HTTP response.
-func NewJSONResponse(json string) *http.Response {
+func NewResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(strings.NewReader(json)),
 	}
 }
 
-// NewCreatedJSONResponse returns an HTTP 201 Created response with the given JSON string as body.
+// NewCreatedResponse returns an HTTP 201 Created response with the given JSON string as body.
 // It allocates a fresh reader on each call so the body can only be consumed once,
 // matching the behaviour of a real HTTP response.
-func NewCreatedJSONResponse(json string) *http.Response {
+func NewCreatedResponse(json string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusCreated,
 		Body:       io.NopCloser(strings.NewReader(json)),
@@ -184,17 +184,17 @@ func NewInternalServerErrorResponse() *http.Response {
 //  DoFunc helpers
 // ──────────────────────────────────────────────────────────────
 
-// NewJSONDoFunc returns a doFunc that always responds with HTTP 200 and the given JSON body.
-func NewJSONDoFunc(json string) func(*http.Request) (*http.Response, error) {
+// NewDoFunc returns a doFunc that always responds with HTTP 200 and the given JSON body.
+func NewDoFunc(json string) func(*http.Request) (*http.Response, error) {
 	return func(_ *http.Request) (*http.Response, error) {
-		return NewJSONResponse(json), nil
+		return NewResponse(json), nil
 	}
 }
 
-// NewCreatedJSONDoFunc returns a doFunc that always responds with HTTP 201 and the given JSON body.
-func NewCreatedJSONDoFunc(json string) func(*http.Request) (*http.Response, error) {
+// NewCreatedDoFunc returns a doFunc that always responds with HTTP 201 and the given JSON body.
+func NewCreatedDoFunc(json string) func(*http.Request) (*http.Response, error) {
 	return func(_ *http.Request) (*http.Response, error) {
-		return NewCreatedJSONResponse(json), nil
+		return NewCreatedResponse(json), nil
 	}
 }
 
@@ -313,7 +313,7 @@ func NewCaptureClient(t *testing.T, responseJSON string) (*core.Client, *Capture
 		captured.Header = req.Header
 		captured.Body = bodyBytes
 
-		return NewJSONResponse(responseJSON), nil
+		return NewResponse(responseJSON), nil
 	})
 
 	return c, captured

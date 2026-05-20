@@ -34,7 +34,7 @@ func TestService_One(t *testing.T) {
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/1", spath)
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -70,7 +70,7 @@ func TestService_One(t *testing.T) {
 			repoIDOrName:   "repo1",
 			prNumber:       1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -132,7 +132,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "test description", form.Get("description"))
 				assert.Equal(t, "main", form.Get("base"))
 				assert.Equal(t, "feature/foo", form.Get("branch"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -152,7 +152,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "5", form.Get("assigneeId"))
 				assert.Equal(t, "10", form.Get("issueId"))
 				assert.Equal(t, []string{"1", "2"}, form["notifiedUserId[]"])
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -241,7 +241,7 @@ func TestService_Create(t *testing.T) {
 			base:           "main",
 			branch:         "feature/foo",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -296,7 +296,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo1/pullRequests/1", spath)
 				assert.Equal(t, "Updated PR", form.Get("summary"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -309,7 +309,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "Updated PR", form.Get("summary"))
 				assert.Equal(t, "looks good", form.Get("comment"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -320,7 +320,7 @@ func TestService_Update(t *testing.T) {
 			option:         o.WithIssueID(42),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "42", form.Get("issueId"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			wantNumber: 1,
 		},
@@ -375,7 +375,7 @@ func TestService_Update(t *testing.T) {
 			prNumber:       1,
 			option:         o.WithSummary("x"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

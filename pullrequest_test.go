@@ -28,7 +28,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.List(ctx, "TEST", "repo")
@@ -44,7 +44,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
 				assert.Equal(t, []string{"1", "2"}, req.URL.Query()["statusId[]"])
 				assert.Equal(t, "10", req.URL.Query().Get("count"))
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.List(ctx, "TEST", "repo",
@@ -73,7 +73,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
 				assert.Equal(t, "100", req.URL.Query().Get("count"))
 				assert.Equal(t, "0", req.URL.Query().Get("offset"))
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				seq, err := c.PullRequest.All(ctx, 100, "TEST", "repo")
@@ -92,7 +92,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests", req.URL.Path)
-				return mock.NewJSONResponse(fixture.PullRequest.ListJSON), nil
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				seq, err := c.PullRequest.All(ctx, 100, "TEST", "repo")
@@ -119,7 +119,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/count", req.URL.Path)
-				return mock.NewJSONResponse(`{"count":5}`), nil
+				return mock.NewResponse(`{"count":5}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Count(ctx, "TEST", "repo")
@@ -132,7 +132,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/count", req.URL.Path)
 				assert.Equal(t, []string{"1"}, req.URL.Query()["statusId[]"])
-				return mock.NewJSONResponse(`{"count":3}`), nil
+				return mock.NewResponse(`{"count":3}`), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Count(ctx, "TEST", "repo",
@@ -155,7 +155,7 @@ func TestPullRequestService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.One(ctx, "TEST", "repo", 1)
@@ -182,7 +182,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "details", req.PostForm.Get("description"))
 				assert.Equal(t, "main", req.PostForm.Get("base"))
 				assert.Equal(t, "feature/foo", req.PostForm.Get("branch"))
-				return mock.NewCreatedJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Create(ctx, "TEST", "repo", "new PR", "details", "main", "feature/foo")
@@ -199,7 +199,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "new PR", req.PostForm.Get("summary"))
 				assert.Equal(t, "5", req.PostForm.Get("assigneeId"))
 				assert.Equal(t, []string{"10", "20"}, req.PostForm["notifiedUserId[]"])
-				return mock.NewCreatedJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewCreatedResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Create(ctx, "TEST", "repo", "new PR", "", "main", "feature/foo",
@@ -225,7 +225,7 @@ func TestPullRequestService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Update(ctx, "TEST", "repo", 1, c.PullRequest.Option.WithSummary("Updated summary"))
@@ -240,7 +240,7 @@ func TestPullRequestService(t *testing.T) {
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "Updated summary", req.PostForm.Get("summary"))
 				assert.Equal(t, "a note", req.PostForm.Get("comment"))
-				return mock.NewJSONResponse(fixture.PullRequest.SingleJSON), nil
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Update(ctx, "TEST", "repo", 1,
@@ -284,7 +284,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/attachments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Attachment.List(ctx, "TEST", "repo", 1)
@@ -307,7 +307,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/git/repositories/repo/pullRequests/1/attachments/8", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.PullRequest.Attachment.Remove(ctx, "TEST", "repo", 1, 8)

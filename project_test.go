@@ -28,7 +28,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects", req.URL.Path)
 				assert.Equal(t, "true", req.URL.Query().Get("archived"))
-				return mock.NewJSONResponse(fixture.Project.ListJSON), nil
+				return mock.NewResponse(fixture.Project.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.List(ctx, c.Project.Option.WithArchived(true))
@@ -49,7 +49,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.One(ctx, "TEST")
@@ -74,7 +74,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "TEST", req.PostForm.Get("key"))
 				assert.Equal(t, "test", req.PostForm.Get("name"))
 				assert.Equal(t, "true", req.PostForm.Get("chartEnabled"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Create(ctx, "TEST", "test", c.Project.Option.WithChartEnabled(true))
@@ -97,7 +97,7 @@ func TestProjectService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "new-name", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
@@ -118,7 +118,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Delete(ctx, "TEST")
@@ -139,7 +139,7 @@ func TestProjectService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/diskUsage", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Project.DiskUsageJSON), nil
+				return mock.NewResponse(fixture.Project.DiskUsageJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.DiskUsage(ctx, "TEST")

@@ -27,7 +27,7 @@ func TestProjectActivityService(t *testing.T) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/activities", req.URL.Path)
 				assert.Equal(t, "10", req.URL.Query().Get("count"))
-				return mock.NewJSONResponse(fixture.Activity.ListJSON), nil
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Activity.List(ctx, "TEST", c.Project.Activity.Option.WithCount(10))
@@ -68,7 +68,7 @@ func TestProjectWebhookService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/webhooks", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Webhook.ListJSON), nil
+				return mock.NewResponse(fixture.Webhook.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.List(ctx, "TEST")
@@ -94,7 +94,7 @@ func TestProjectWebhookService(t *testing.T) {
 				assert.Equal(t, "notify", req.PostForm.Get("name"))
 				assert.Equal(t, "https://example.com/webhook", req.PostForm.Get("hookUrl"))
 				assert.Equal(t, "true", req.PostForm.Get("allEvent"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.Create(
@@ -127,7 +127,7 @@ func TestProjectWebhookService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/webhooks/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.One(ctx, "TEST", 1)
@@ -150,7 +150,7 @@ func TestProjectWebhookService(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/webhooks/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "updated", req.PostForm.Get("name"))
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.Update(
@@ -181,7 +181,7 @@ func TestProjectWebhookService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/projects/TEST/webhooks/1", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Webhook.AllEventJSON), nil
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.Delete(ctx, "TEST", 1)

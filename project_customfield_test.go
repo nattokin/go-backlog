@@ -27,7 +27,7 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.ListJSON), nil
+				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
 			wantLen:     2,
 			wantErrType: nil,
@@ -46,7 +46,7 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -91,7 +91,7 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields", r.URL.Path)
 				assert.Equal(t, http.MethodPost, r.Method)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -127,7 +127,7 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 			fieldType:      backlog.CustomFieldTypeText,
 			name:           "Sprint",
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -173,7 +173,7 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 			},
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -203,7 +203,7 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 			customFieldID:  1,
 			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -244,7 +244,7 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 			customFieldID:  1,
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -270,7 +270,7 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -314,7 +314,7 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 			name:           "Item1",
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -350,7 +350,7 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 			customFieldID:  1,
 			name:           "Item1",
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -395,7 +395,7 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 			name:           "Item1 Updated",
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -443,7 +443,7 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 			itemID:         10,
 			name:           "Item1 Updated",
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},
@@ -486,7 +486,7 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			itemID:         10,
 			doFunc: func(r *http.Request) (*http.Response, error) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
-				return mock.NewJSONResponse(fixture.CustomField.SingleJSON), nil
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 			wantErrType: nil,
 		},
@@ -522,7 +522,7 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			customFieldID:  1,
 			itemID:         10,
 			doFunc: func(r *http.Request) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
 		},

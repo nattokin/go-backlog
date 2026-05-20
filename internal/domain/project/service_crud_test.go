@@ -32,7 +32,7 @@ func TestService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -43,7 +43,7 @@ func TestService_One(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6", spath)
 				assert.Nil(t, query)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -66,7 +66,7 @@ func TestService_One(t *testing.T) {
 			projectIDOrKey: "TEST",
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -123,7 +123,7 @@ func TestService_Create(t *testing.T) {
 				assert.NotNil(t, form)
 				assert.Equal(t, "TEST", form.Get("key"))
 				assert.Equal(t, "test", form.Get("name"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -139,7 +139,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "", form.Get("subtaskingEnabled"))
 				assert.Equal(t, "", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "", form.Get("textFormattingRule"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -161,7 +161,7 @@ func TestService_Create(t *testing.T) {
 				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
 				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -217,7 +217,7 @@ func TestService_Create(t *testing.T) {
 			name: "test",
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -271,7 +271,7 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -283,7 +283,7 @@ func TestService_Update(t *testing.T) {
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -324,7 +324,7 @@ func TestService_Update(t *testing.T) {
 				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
 				assert.Equal(t, "true", form.Get("archived"))
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -360,7 +360,7 @@ func TestService_Update(t *testing.T) {
 			option:         o.WithName("test"),
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},
@@ -406,7 +406,7 @@ func TestService_Delete(t *testing.T) {
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST", spath)
 				assert.NotNil(t, form)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -416,7 +416,7 @@ func TestService_Delete(t *testing.T) {
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234", spath)
-				return mock.NewJSONResponse(fixture.Project.SingleJSON), nil
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 
 			wantErrType: nil,
@@ -442,7 +442,7 @@ func TestService_Delete(t *testing.T) {
 			projectIDOrKey: "TEST",
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return mock.NewJSONResponse(fixture.InvalidJSON), nil
+				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 
 			wantErrType: &json.SyntaxError{},

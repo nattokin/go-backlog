@@ -26,7 +26,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.ListJSON), nil
+				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.List(ctx, "TEST-1")
@@ -49,7 +49,7 @@ func TestIssueAttachmentService(t *testing.T) {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
 				assert.Equal(t, "/api/v2/issues/TEST-1/attachments/8", req.URL.Path)
-				return mock.NewJSONResponse(fixture.Attachment.SingleJSON), nil
+				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Issue.Attachment.Remove(ctx, "TEST-1", 8)
