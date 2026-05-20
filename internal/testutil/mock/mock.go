@@ -120,19 +120,64 @@ func NewCreatedJSONResponse(json string) *http.Response {
 	}
 }
 
+// NewNoContentResponse returns an HTTP 204 No Content response with an empty body.
+func NewNoContentResponse() *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusNoContent,
+		Body:       http.NoBody,
+	}
+}
+
 // NewBinaryResponse returns an HTTP 200 OK response simulating a binary file download.
 // filename is used to construct the Content-Disposition header.
 // contentType is set as the Content-Type header.
 // body is the raw bytes of the file content.
 func NewBinaryResponse(filename, contentType string, body []byte) *http.Response {
 	header := http.Header{}
-	header.Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	header.Set("Content-Disposition", "attachment; filename="+filename)
 	header.Set("Content-Type", contentType)
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Header:     header,
 		Body:       io.NopCloser(bytes.NewReader(body)),
 	}
+}
+
+// NewErrorResponse returns an HTTP response with the given status code and JSON error body.
+// It allocates a fresh reader on each call so the body can only be consumed once,
+// matching the behaviour of a real HTTP response.
+func NewErrorResponse(statusCode int, json string) *http.Response {
+	return &http.Response{
+		StatusCode: statusCode,
+		Body:       io.NopCloser(strings.NewReader(json)),
+	}
+}
+
+// NewUnauthorizedResponse returns an HTTP 401 Unauthorized response with a Backlog
+// authentication failure error body.
+func NewUnauthorizedResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusUnauthorized,
+		`{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`,
+	)
+}
+
+// NewNotFoundResponse returns an HTTP 404 Not Found response with a generic Backlog
+// not-found error body.
+func NewNotFoundResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusNotFound,
+		`{"errors":[{"message":"No such resource.","code":6,"moreInfo":""}]}`,
+	)
+}
+
+// NewInternalServerErrorResponse returns an HTTP 500 Internal Server Error response
+// with a generic Backlog internal server error body.
+func NewInternalServerErrorResponse() *http.Response {
+	return NewErrorResponse(
+		http.StatusInternalServerError,
+		`{"errors":[{"message":"Internal Server Error","code":1,"moreInfo":""}]}`,
+	)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -164,6 +209,23 @@ func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error))
 	require.NoError(t, err)
 
 	return c
+}
+
+// NewNoContentClient creates a test Client that always responds with HTTP 204 No Content.
+func NewNoContentClient(t *testing.T) *core.Client {
+	t.Helper()
+	return NewClient(t, func(_ *http.Request) (*http.Response, error) {
+		return NewNoContentResponse(), nil
+	})
+}
+
+// NewBinaryClient creates a test Client that always responds with HTTP 200 and a binary
+// file download response. It is the client-level counterpart of NewBinaryResponse.
+func NewBinaryClient(t *testing.T, filename, contentType string, body []byte) *core.Client {
+	t.Helper()
+	return NewClient(t, func(_ *http.Request) (*http.Response, error) {
+		return NewBinaryResponse(filename, contentType, body), nil
+	})
 }
 
 // Capture holds the details of the most recent HTTP request executed by the
