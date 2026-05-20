@@ -38,7 +38,7 @@ func TestRepositoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Repository.List(ctx, "TEST")
 				require.Error(t, err)
@@ -61,7 +61,7 @@ func TestRepositoryService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Repository.One(ctx, "TEST", "foo")
 				require.Error(t, err)
@@ -75,7 +75,7 @@ func TestRepositoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

@@ -37,7 +37,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.IssueType.List(ctx, "TEST")
 				require.Error(t, err)
@@ -79,7 +79,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.IssueType.Create(ctx, "TEST", "Bug", "#e30000")
 				require.Error(t, err)
@@ -124,7 +124,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.IssueType.Update(ctx, "TEST", 1,
 					c.Project.IssueType.Option.WithName("Bug Updated"),
@@ -147,7 +147,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.IssueType.Delete(ctx, "TEST", 1, 2)
 				require.Error(t, err)
@@ -161,7 +161,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

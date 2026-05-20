@@ -31,7 +31,7 @@ func TestSpaceService_Info(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -40,7 +40,7 @@ func TestSpaceService_Info(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.Info(ctx)
@@ -76,7 +76,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -85,7 +85,7 @@ func TestSpaceService_DiskUsage(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.DiskUsage(ctx)
@@ -123,7 +123,7 @@ func TestSpaceService_Notification(t *testing.T) {
 			},
 		},
 		"error": {
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -132,7 +132,7 @@ func TestSpaceService_Notification(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.Notification(ctx)
@@ -175,7 +175,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		},
 		"error-api": {
 			content: "content",
-			doFunc:  newAuthErrorDoFunc(),
+			doFunc:  mock.NewUnauthorizedDoFunc(),
 			wantErr: true,
 		},
 	}
@@ -184,7 +184,7 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			got, err := c.Space.UpdateNotification(ctx, tc.content)
@@ -226,7 +226,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.List(ctx)
 				require.Error(t, err)
@@ -255,7 +255,7 @@ func TestSpaceActivityService(t *testing.T) {
 			},
 		},
 		"One/error-api": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Space.Activity.One(ctx, 1)
 				require.Error(t, err)
@@ -276,7 +276,7 @@ func TestSpaceActivityService(t *testing.T) {
 				doFunc = tc.doFunc
 			}
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -294,7 +294,7 @@ func TestSpaceAttachmentService(t *testing.T) {
 			return mock.NewJSONResponse(fixture.Attachment.UploadJSON), nil
 		}
 
-		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 		require.NoError(t, err)
 
 		f, err := os.Open("testdata/testfile")
@@ -309,9 +309,9 @@ func TestSpaceAttachmentService(t *testing.T) {
 	})
 
 	t.Run("Upload/error", func(t *testing.T) {
-		doFunc := newAuthErrorDoFunc()
+		doFunc := mock.NewUnauthorizedDoFunc()
 
-		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: doFunc}))
+		c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
 		require.NoError(t, err)
 
 		_, err = c.Space.Attachment.Upload(ctx, "testfile", strings.NewReader("data"))

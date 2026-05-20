@@ -56,7 +56,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.List(ctx, "TEST", "repo")
 				require.Error(t, err)
@@ -143,7 +143,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Count(ctx, "TEST", "repo")
 				require.Error(t, err)
@@ -165,7 +165,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.One(ctx, "TEST", "repo", 1)
 				require.Error(t, err)
@@ -211,7 +211,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Create(ctx, "TEST", "repo", "new PR", "", "main", "feature/foo")
 				require.Error(t, err)
@@ -252,7 +252,7 @@ func TestPullRequestService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Update(ctx, "TEST", "repo", 1, c.PullRequest.Option.WithSummary("Updated summary"))
 				require.Error(t, err)
@@ -266,7 +266,7 @@ func TestPullRequestService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -295,7 +295,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Attachment.List(ctx, "TEST", "repo", 1)
 				require.Error(t, err)
@@ -316,7 +316,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Attachment.Remove(ctx, "TEST", "repo", 1, 8)
 				require.Error(t, err)
@@ -343,7 +343,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 			},
 		},
 		"Download/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Attachment.Download(ctx, "TEST", "repo1", 5, 30)
 				require.Error(t, err)
@@ -357,7 +357,7 @@ func TestPullRequestAttachmentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -385,7 +385,7 @@ func TestPullRequestStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Add(ctx, 2)
 				require.Error(t, err)
@@ -410,7 +410,7 @@ func TestPullRequestStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.PullRequest.Star.Remove(ctx, 42)
 				require.Error(t, err)
@@ -424,7 +424,7 @@ func TestPullRequestStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

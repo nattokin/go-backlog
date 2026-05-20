@@ -55,7 +55,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.List(ctx)
 				require.Error(t, err)
@@ -144,7 +144,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newInternalServerErrorDoFunc(),
+			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Count(ctx)
 				require.Error(t, err)
@@ -167,7 +167,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.One(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -216,7 +216,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Create(ctx, 10, "New issue", 2, 3)
 				require.Error(t, err)
@@ -259,7 +259,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Update(ctx, "PRJ-1", c.Issue.Option.WithSummary("Updated summary"))
 				require.Error(t, err)
@@ -281,7 +281,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Delete(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -304,7 +304,7 @@ func TestIssueService(t *testing.T) {
 			},
 		},
 		"Participants/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Participants(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -318,7 +318,7 @@ func TestIssueService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -346,7 +346,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Add(ctx, 1)
 				require.Error(t, err)
@@ -371,7 +371,7 @@ func TestIssueStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Issue.Star.Remove(ctx, 42)
 				require.Error(t, err)
@@ -385,7 +385,7 @@ func TestIssueStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

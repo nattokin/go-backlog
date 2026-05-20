@@ -54,7 +54,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Comment.List(ctx, "TEST", "repo", 1)
 				require.Error(t, err)
@@ -95,7 +95,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Comment.Add(ctx, "TEST", "repo", 1, "x")
 				require.Error(t, err)
@@ -116,7 +116,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Comment.Count(ctx, "TEST", "repo", 1)
 				require.Error(t, err)
@@ -139,7 +139,7 @@ func TestPullRequestCommentService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.PullRequest.Comment.Update(ctx, "TEST", "repo", 1, 42, "Updated content.")
 				require.Error(t, err)
@@ -153,7 +153,7 @@ func TestPullRequestCommentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

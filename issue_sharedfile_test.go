@@ -36,7 +36,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.List(ctx, "TEST-1")
 				require.Error(t, err)
@@ -60,7 +60,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"Link/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.Link(ctx, "TEST-1", []int{454403})
 				require.Error(t, err)
@@ -82,7 +82,7 @@ func TestIssueSharedFileService(t *testing.T) {
 			},
 		},
 		"Unlink/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.SharedFile.Unlink(ctx, "TEST-1", 454403)
 				require.Error(t, err)
@@ -96,7 +96,7 @@ func TestIssueSharedFileService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

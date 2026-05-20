@@ -54,7 +54,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.List(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -95,7 +95,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Add(ctx, "PRJ-1", "This is a comment.")
 				require.Error(t, err)
@@ -116,7 +116,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Count(ctx, "PRJ-1")
 				require.Error(t, err)
@@ -138,7 +138,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.One(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -159,7 +159,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Delete(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -182,7 +182,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Update(ctx, "PRJ-1", 42, "Updated content.")
 				require.Error(t, err)
@@ -205,7 +205,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Notifications/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Notifications(ctx, "PRJ-1", 42)
 				require.Error(t, err)
@@ -228,7 +228,7 @@ func TestIssueCommentService(t *testing.T) {
 			},
 		},
 		"Notify/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Issue.Comment.Notify(ctx, "PRJ-1", 42, []int{5, 6})
 				require.Error(t, err)
@@ -242,7 +242,7 @@ func TestIssueCommentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

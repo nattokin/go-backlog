@@ -38,7 +38,7 @@ func TestProjectVersionService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Version.List(ctx, "TEST")
 				require.Error(t, err)
@@ -67,7 +67,7 @@ func TestProjectVersionService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Version.Create(ctx, "TEST", "v1.0.0")
 				require.Error(t, err)
@@ -95,7 +95,7 @@ func TestProjectVersionService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Version.Update(
 					ctx,
@@ -122,7 +122,7 @@ func TestProjectVersionService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Version.Delete(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -139,7 +139,7 @@ func TestProjectVersionService(t *testing.T) {
 			c, err := backlog.NewClient(
 				"https://example.backlog.com",
 				"token",
-				backlog.WithDoer(&mockDoer{do: tc.doFunc}),
+				backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}),
 			)
 			require.NoError(t, err)
 			tc.call(t, c)
@@ -170,7 +170,7 @@ func TestProjectStatusService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Status.List(ctx, "TEST")
 				require.Error(t, err)
@@ -196,7 +196,7 @@ func TestProjectStatusService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Status.Create(ctx, "TEST", "Open", "#ed8077")
 				require.Error(t, err)
@@ -226,7 +226,7 @@ func TestProjectStatusService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Status.Update(
 					ctx,
@@ -257,7 +257,7 @@ func TestProjectStatusService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Status.Delete(ctx, "TEST", 1, 2)
 				require.Error(t, err)
@@ -280,7 +280,7 @@ func TestProjectStatusService(t *testing.T) {
 			},
 		},
 		"UpdateOrder/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Status.UpdateOrder(ctx, "TEST", []int{2, 1})
 				require.Error(t, err)
@@ -294,7 +294,7 @@ func TestProjectStatusService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

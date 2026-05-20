@@ -38,7 +38,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.List(ctx)
 				require.Error(t, err)
@@ -59,7 +59,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.One(ctx, 1)
 				require.Error(t, err)
@@ -80,7 +80,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Me/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Me(ctx)
 				require.Error(t, err)
@@ -106,7 +106,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Add(ctx, "newuser", "password", "New User", "new@example.com", backlog.RoleGuestReporter)
 				require.Error(t, err)
@@ -129,7 +129,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Update(ctx, 1, c.User.Option.WithName("updated-user"))
 				require.Error(t, err)
@@ -155,7 +155,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Delete(ctx, 1)
 				require.Error(t, err)
@@ -182,7 +182,7 @@ func TestUserService(t *testing.T) {
 			},
 		},
 		"Icon/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Icon(ctx, 1)
 				require.Error(t, err)
@@ -196,7 +196,7 @@ func TestUserService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -224,7 +224,7 @@ func TestUserActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Activity.List(ctx, 1)
 				require.Error(t, err)
@@ -238,7 +238,7 @@ func TestUserActivityService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

@@ -37,7 +37,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.List(ctx)
 				require.Error(t, err)
@@ -58,7 +58,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.One(ctx, "TEST")
 				require.Error(t, err)
@@ -83,7 +83,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Create(ctx, "TEST", "test")
 				require.Error(t, err)
@@ -106,7 +106,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Update(ctx, "TEST", c.Project.Option.WithName("new-name"))
 				require.Error(t, err)
@@ -127,7 +127,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Delete(ctx, "TEST")
 				require.Error(t, err)
@@ -149,7 +149,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"DiskUsage/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.DiskUsage(ctx, "TEST")
 				require.Error(t, err)
@@ -176,7 +176,7 @@ func TestProjectService(t *testing.T) {
 			},
 		},
 		"Icon/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Icon(ctx, "TEST")
 				require.Error(t, err)
@@ -190,7 +190,7 @@ func TestProjectService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

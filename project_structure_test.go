@@ -36,7 +36,7 @@ func TestProjectCategoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Category.List(ctx, "TEST")
 				require.Error(t, err)
@@ -59,7 +59,7 @@ func TestProjectCategoryService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Category.Create(ctx, "TEST", "Bug")
 				require.Error(t, err)
@@ -82,7 +82,7 @@ func TestProjectCategoryService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Category.Update(ctx, "TEST", 12, "Bug Fixed")
 				require.Error(t, err)
@@ -103,7 +103,7 @@ func TestProjectCategoryService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Category.Delete(ctx, "TEST", 12)
 				require.Error(t, err)
@@ -117,7 +117,7 @@ func TestProjectCategoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -148,7 +148,7 @@ func TestProjectSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.SharedFile.List(ctx, "TEST")
 				require.Error(t, err)
@@ -175,7 +175,7 @@ func TestProjectSharedFileService(t *testing.T) {
 			},
 		},
 		"Download/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.User.Icon(ctx, 1)
 				require.Error(t, err)
@@ -192,7 +192,7 @@ func TestProjectSharedFileService(t *testing.T) {
 			c, err := backlog.NewClient(
 				"https://example.backlog.com",
 				"token",
-				backlog.WithDoer(&mockDoer{do: tc.doFunc}),
+				backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}),
 			)
 			require.NoError(t, err)
 			tc.call(t, c)
@@ -234,7 +234,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.List(ctx, "TEST")
 				require.Error(t, err)
@@ -257,7 +257,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.Add(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -283,7 +283,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.Delete(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -306,7 +306,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"AddAdmin/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.AddAdmin(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -327,7 +327,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"AdminList/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.AdminList(ctx, "TEST")
 				require.Error(t, err)
@@ -353,7 +353,7 @@ func TestProjectUserService(t *testing.T) {
 			},
 		},
 		"DeleteAdmin/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.User.DeleteAdmin(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -367,7 +367,7 @@ func TestProjectUserService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

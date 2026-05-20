@@ -36,7 +36,7 @@ func TestProjectActivityService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Activity.List(ctx, "TEST")
 				require.Error(t, err)
@@ -50,7 +50,7 @@ func TestProjectActivityService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -78,7 +78,7 @@ func TestProjectWebhookService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Webhook.List(ctx, "TEST")
 				require.Error(t, err)
@@ -109,7 +109,7 @@ func TestProjectWebhookService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Webhook.Create(
 					ctx,
@@ -136,7 +136,7 @@ func TestProjectWebhookService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Webhook.One(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -164,7 +164,7 @@ func TestProjectWebhookService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Project.Webhook.Update(
 					ctx,
@@ -191,7 +191,7 @@ func TestProjectWebhookService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.Project.Webhook.Delete(ctx, "TEST", 1)
 				require.Error(t, err)
@@ -208,7 +208,7 @@ func TestProjectWebhookService(t *testing.T) {
 			c, err := backlog.NewClient(
 				"https://example.backlog.com",
 				"token",
-				backlog.WithDoer(&mockDoer{do: tc.doFunc}),
+				backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}),
 			)
 			require.NoError(t, err)
 			tc.call(t, c)

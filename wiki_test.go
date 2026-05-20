@@ -38,7 +38,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.List(ctx, "TEST")
 				require.Error(t, err)
@@ -59,7 +59,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Count/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Count(ctx, "TEST")
 				require.Error(t, err)
@@ -80,7 +80,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"One/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.One(ctx, 34)
 				require.Error(t, err)
@@ -106,7 +106,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Create/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Create(ctx, 56, "Test Wiki", "content")
 				require.Error(t, err)
@@ -129,7 +129,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Update/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Update(ctx, 34, c.Wiki.Option.WithName("New Name"))
 				require.Error(t, err)
@@ -155,7 +155,7 @@ func TestWikiService(t *testing.T) {
 			},
 		},
 		"Delete/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Delete(ctx, 34)
 				require.Error(t, err)
@@ -169,7 +169,7 @@ func TestWikiService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -200,7 +200,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Attach/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Attach(ctx, 34, []int{2, 5})
 				require.Error(t, err)
@@ -223,7 +223,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.List(ctx, 34)
 				require.Error(t, err)
@@ -244,7 +244,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Remove(ctx, 34, 8)
 				require.Error(t, err)
@@ -271,7 +271,7 @@ func TestWikiAttachmentService(t *testing.T) {
 			},
 		},
 		"Download/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Attachment.Download(ctx, 1, 20)
 				require.Error(t, err)
@@ -285,7 +285,7 @@ func TestWikiAttachmentService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -316,7 +316,7 @@ func TestWikiHistoryService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.History.List(ctx, 34)
 				require.Error(t, err)
@@ -330,7 +330,7 @@ func TestWikiHistoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -361,7 +361,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.List(ctx, 34)
 				require.Error(t, err)
@@ -386,7 +386,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Link/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Link(ctx, 34, []int{454403})
 				require.Error(t, err)
@@ -409,7 +409,7 @@ func TestWikiSharedFileService(t *testing.T) {
 			},
 		},
 		"Unlink/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.SharedFile.Unlink(ctx, 34, 454403)
 				require.Error(t, err)
@@ -423,7 +423,7 @@ func TestWikiSharedFileService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -452,7 +452,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"List/error": {
-			doFunc: newNotFoundDoFunc(),
+			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				_, err := c.Wiki.Star.List(ctx, 34)
 				require.Error(t, err)
@@ -474,7 +474,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"Add/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Add(ctx, 34)
 				require.Error(t, err)
@@ -499,7 +499,7 @@ func TestWikiStarService(t *testing.T) {
 			},
 		},
 		"Remove/error": {
-			doFunc: newAuthErrorDoFunc(),
+			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
 				err := c.Wiki.Star.Remove(ctx, 42)
 				require.Error(t, err)
@@ -513,7 +513,7 @@ func TestWikiStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mockDoer{do: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
