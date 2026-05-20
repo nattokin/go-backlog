@@ -9,6 +9,9 @@ body = """
 - {{ commit.breaking_description | default(value=commit.message) | upper_first }}
 {% endfor %}
 {% endif %}\
+{% if commits | length == 0 %}
+No changes to production code in this release.
+{% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}\
 {% if group != "⚠️ Breaking Changes" %}
 ### {{ group }}
@@ -36,6 +39,7 @@ commit_parsers = [
   { message = "^docs", group = "📚 Documentation" },
   { message = "^ci", group = "⚙️ CI" },
   { message = "^chore", group = "🧹 Chores" },
+  { message = "^test", skip = true },
   { message = ".*", skip = true },
 ]
 filter_commits = true
