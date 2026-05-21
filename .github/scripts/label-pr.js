@@ -31,6 +31,7 @@ const LABEL_RULES = [
   { pattern: /^docs:/,     labels: ['documentation'] },
   { pattern: /^ci:/,       labels: ['ci'] },
   { pattern: /^chore:/,    labels: ['chore'] },
+  { pattern: /^test:/,     labels: ['test'] },
 ];
 
 // ──────────────────────────────────────────────────────────────
