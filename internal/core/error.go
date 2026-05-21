@@ -62,17 +62,19 @@ func (e *InvalidOptionKeyError) Error() string {
 
 // ValidationError represents an argument validation error.
 type ValidationError struct {
-	message string
+	Param   string
+	Message string
 }
 
-func NewValidationError(msg string) *ValidationError {
+func NewValidationError(param, msg string) *ValidationError {
 	return &ValidationError{
-		message: msg,
+		Param:   param,
+		Message: msg,
 	}
 }
 
 func (e *ValidationError) Error() string {
-	return e.message
+	return e.Message
 }
 
 // InternalClientError represents client-side configuration or usage errors.

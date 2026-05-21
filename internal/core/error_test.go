@@ -70,8 +70,14 @@ func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
-	e := core.NewValidationError(msg)
+	e := core.NewValidationError("someParam", msg)
 	assert.EqualError(t, e, msg)
+}
+
+func TestValidationError_Fields(t *testing.T) {
+	e := core.NewValidationError("offset", "offset must not be negative")
+	assert.Equal(t, "offset", e.Param)
+	assert.Equal(t, "offset must not be negative", e.Message)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -98,12 +104,13 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 // TestValidationError_errorsAs verifies that ValidationError can be unwrapped
 // with errors.As by callers.
 func TestValidationError_errorsAs(t *testing.T) {
-	err := core.NewValidationError("invalid argument")
+	err := core.NewValidationError("key", "invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *core.ValidationError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "invalid argument", target.Error())
+	assert.Equal(t, "key", target.Param)
 }
 
 // TestInvalidOptionKeyError_errorsAs_query verifies that InvalidOptionKeyError

@@ -69,7 +69,7 @@ func (s *OptionService) WithOffset(offset int) RequestOption {
 		Type: ParamOffset,
 		CheckFunc: func() error {
 			if offset < 0 {
-				return NewValidationError("offset must not be negative")
+				return NewValidationError(ParamOffset.Value(), "offset must not be negative")
 			}
 			return nil
 		},
@@ -126,7 +126,7 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOp
 		Type: paramType,
 		CheckFunc: func() error {
 			if value < min || value > max {
-				return NewValidationError(fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
+				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
 			}
 			return nil
 		},
@@ -140,7 +140,7 @@ func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
 		Type: paramType,
 		CheckFunc: func() error {
 			if value < 1 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
+				return NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
 			}
 			return nil
 		},

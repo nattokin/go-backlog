@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/nattokin/go-backlog/internal/core"
@@ -59,12 +60,18 @@ func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
 // Use [errors.As] to check whether a returned error is a *ValidationError.
+// When multiple options fail validation, errors.As and errors.Join are used
+// to collect all failures; iterate with errors.Join's Unwrap() []error to
+// inspect each individual *ValidationError.
 type ValidationError struct {
 	core *core.ValidationError
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string { return e.core.Error() }
+func (e *ValidationError) Error() string { return e.core.Message }
+
+// Param returns the name of the parameter or argument that failed validation.
+func (e *ValidationError) Param() string { return e.core.Param }
 
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing token
@@ -98,6 +105,17 @@ func convertError(err error) error {
 	case *core.InternalClientError:
 		return &InternalClientError{core: e}
 	default:
+		// Handle errors.Join output: if the error wraps multiple errors,
+		// convert each individually and re-join.
+		type unwrapMulti interface{ Unwrap() []error }
+		if me, ok := err.(unwrapMulti); ok {
+			errs := me.Unwrap()
+			converted := make([]error, len(errs))
+			for i, e := range errs {
+				converted[i] = convertError(e)
+			}
+			return errors.Join(converted...)
+		}
 		return err
 	}
 }
