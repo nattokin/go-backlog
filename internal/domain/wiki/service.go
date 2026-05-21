@@ -139,7 +139,7 @@ func (s *Service) Update(ctx context.Context, wikiID int, option core.RequestOpt
 	}
 
 	if !form.Has("name") && !form.Has("content") {
-		return nil, core.NewValidationError("requires an option to modify wiki content or name (WithName or WithContent)")
+		return nil, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)")
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))

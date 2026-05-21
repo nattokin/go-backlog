@@ -82,7 +82,7 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 		return nil, err
 	}
 	if statusID < 1 {
-		return nil, core.NewValidationError("statusId must not be less than 1")
+		return nil, core.NewValidationError("statusId", "statusId must not be less than 1")
 	}
 
 	form := url.Values{}
@@ -115,10 +115,10 @@ func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statu
 		return nil, err
 	}
 	if statusID < 1 {
-		return nil, core.NewValidationError("statusId must not be less than 1")
+		return nil, core.NewValidationError("statusId", "statusId must not be less than 1")
 	}
 	if substituteStatusID < 1 {
-		return nil, core.NewValidationError("substituteStatusId must not be less than 1")
+		return nil, core.NewValidationError("substituteStatusId", "substituteStatusId must not be less than 1")
 	}
 
 	form := url.Values{}
@@ -146,11 +146,11 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 	if len(statusIDs) == 0 {
-		return nil, core.NewValidationError("statusIDs must not be empty")
+		return nil, core.NewValidationError("statusIDs", "statusIDs must not be empty")
 	}
 	for _, id := range statusIDs {
 		if id < 1 {
-			return nil, core.NewValidationError("each statusId must not be less than 1")
+			return nil, core.NewValidationError("statusId", "each statusId must not be less than 1")
 		}
 	}
 

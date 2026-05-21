@@ -76,7 +76,7 @@ func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOp
 		Type: paramType,
 		CheckFunc: func() error {
 			if !datePattern.MatchString(date) {
-				return NewValidationError(fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
+				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
 			}
 			return nil
 		},

@@ -46,7 +46,7 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 	if fieldType < 1 {
-		return nil, core.NewValidationError("fieldType must not be less than 1")
+		return nil, core.NewValidationError("fieldType", "fieldType must not be less than 1")
 	}
 
 	option := &core.OptionService{}
@@ -88,7 +88,7 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId must not be less than 1")
+		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
 	}
 
 	form := url.Values{}
@@ -123,7 +123,7 @@ func (s *CustomFieldService) Delete(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId must not be less than 1")
+		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
@@ -148,7 +148,7 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 		return nil, err
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId must not be less than 1")
+		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
 	}
 
 	option := (&core.OptionService{}).WithName(name)
@@ -180,10 +180,10 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 		return nil, err
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId must not be less than 1")
+		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
 	}
 	if itemID < 1 {
-		return nil, core.NewValidationError("itemId must not be less than 1")
+		return nil, core.NewValidationError("itemId", "itemId must not be less than 1")
 	}
 
 	option := (&core.OptionService{}).WithName(name)
@@ -215,10 +215,10 @@ func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey 
 		return nil, err
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId must not be less than 1")
+		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
 	}
 	if itemID < 1 {
-		return nil, core.NewValidationError("itemId must not be less than 1")
+		return nil, core.NewValidationError("itemId", "itemId must not be less than 1")
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))

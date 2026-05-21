@@ -75,7 +75,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 		return nil, err
 	}
 	if categoryID < 1 {
-		return nil, core.NewValidationError("categoryId must not be less than 1")
+		return nil, core.NewValidationError("categoryId", "categoryId must not be less than 1")
 	}
 
 	option := (&core.OptionService{}).WithName(name)
@@ -107,7 +107,7 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 		return nil, err
 	}
 	if categoryID < 1 {
-		return nil, core.NewValidationError("categoryId must not be less than 1")
+		return nil, core.NewValidationError("categoryId", "categoryId must not be less than 1")
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))

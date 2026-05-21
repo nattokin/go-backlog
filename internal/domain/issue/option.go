@@ -31,11 +31,11 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 			switch v := any(value).(type) {
 			case string:
 				if v == "" {
-					return core.NewValidationError(fmt.Sprintf("%s value must not be empty", name))
+					return core.NewValidationError(name, fmt.Sprintf("%s value must not be empty", name))
 				}
 			case time.Time:
 				if v.IsZero() {
-					return core.NewValidationError(fmt.Sprintf("%s date must not be zero value", name))
+					return core.NewValidationError(name, fmt.Sprintf("%s date must not be zero value", name))
 				}
 			}
 
@@ -110,7 +110,7 @@ func WithCustomFieldOther(id int, value string) core.RequestOption {
 func validateItemIDs(ids []int) error {
 	for _, id := range ids {
 		if id < 1 {
-			return core.NewValidationError(fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
+			return core.NewValidationError("customField_itemID", fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
 		}
 	}
 

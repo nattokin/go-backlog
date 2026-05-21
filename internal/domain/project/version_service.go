@@ -56,7 +56,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 		return nil, err
 	}
 	if name == "" {
-		return nil, core.NewValidationError("name is required")
+		return nil, core.NewValidationError("name", "name is required")
 	}
 
 	option := &core.OptionService{}

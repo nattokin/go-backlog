@@ -37,7 +37,7 @@ func (s *OptionService) WithItems(items []string) RequestOption {
 		CheckFunc: func() error {
 			for i, item := range items {
 				if item == "" {
-					return NewValidationError(fmt.Sprintf("items[%d] must not be empty", i))
+					return NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
 				}
 			}
 			return nil
@@ -136,7 +136,7 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 // validateActivityTypeID ensures the ID is within the valid range [1, 26].
 func validateActivityTypeID(id int, key string) error {
 	if id < 1 || id > MaxActivityTypeID {
-		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
+		return NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
 	return nil
 }
@@ -146,7 +146,7 @@ func validateActivityTypeID(id int, key string) error {
 func validatePositiveInts(values []int, paramName string) error {
 	for _, v := range values {
 		if v < 1 {
-			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
+			return NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
 		}
 	}
 	return nil

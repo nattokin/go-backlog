@@ -72,7 +72,7 @@ func (s *Service) Me(ctx context.Context) (*model.User, error) {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType int) (*model.User, error) {
 	if userID == "" {
-		return nil, core.NewValidationError("userID must not be empty")
+		return nil, core.NewValidationError("userID", "userID must not be empty")
 	}
 
 	option := &core.OptionService{}

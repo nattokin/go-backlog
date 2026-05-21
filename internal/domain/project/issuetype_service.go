@@ -76,7 +76,7 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 		return nil, err
 	}
 	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId must not be less than 1")
+		return nil, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1")
 	}
 
 	form := url.Values{}
@@ -109,10 +109,10 @@ func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, is
 		return nil, err
 	}
 	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId must not be less than 1")
+		return nil, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1")
 	}
 	if substituteIssueTypeID < 1 {
-		return nil, core.NewValidationError("substituteIssueTypeId must not be less than 1")
+		return nil, core.NewValidationError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1")
 	}
 
 	form := url.Values{}
