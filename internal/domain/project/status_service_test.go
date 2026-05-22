@@ -199,8 +199,8 @@ func TestStatusService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		statusID       int
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -210,7 +210,7 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			statusID:       1,
 			option:         o.WithName("Open Updated"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithColor("#f5ab35"),
 			},
 

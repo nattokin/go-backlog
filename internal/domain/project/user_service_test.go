@@ -22,7 +22,7 @@ func TestProjectUserService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		projectKey string
-		opts       []core.RequestOption
+		opts       []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -39,7 +39,7 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"success-excludeGroupMembers-true": {
 			projectKey: "TEST2",
-			opts:       []core.RequestOption{opt.WithExcludeGroupMembers(true)},
+			opts:       []*core.APIParamOption{opt.WithExcludeGroupMembers(true)},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST2/users", spath)
@@ -49,7 +49,7 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"success-excludeGroupMembers-false": {
 			projectKey: "TEST3",
-			opts:       []core.RequestOption{opt.WithExcludeGroupMembers(false)},
+			opts:       []*core.APIParamOption{opt.WithExcludeGroupMembers(false)},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST3/users", spath)
@@ -59,7 +59,7 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"error-invalid-option": {
 			projectKey: "TEST",
-			opts:       []core.RequestOption{opt.WithArchived(true)},
+			opts:       []*core.APIParamOption{opt.WithArchived(true)},
 
 			wantErrType: &core.InvalidOptionKeyError{},
 		},

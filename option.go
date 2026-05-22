@@ -61,8 +61,8 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-func toCoreOptions(opts []RequestOption) []core.RequestOption {
-	coreOpts := make([]core.RequestOption, len(opts))
+func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
+	coreOpts := make([]*core.APIParamOption, len(opts))
 	for i, o := range opts {
 		coreOpts[i] = o
 	}

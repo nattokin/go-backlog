@@ -24,7 +24,7 @@ func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		opts []core.RequestOption
+		opts []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -39,7 +39,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-all-options": {
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithProjectIDs([]int{1}),
 				o.WithIssueTypeIDs([]int{2}),
 				o.WithCategoryIDs([]int{3}),
@@ -106,7 +106,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-projectIDs": {
-			opts: []core.RequestOption{o.WithProjectIDs([]int{10, 20})},
+			opts: []*core.APIParamOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
@@ -115,7 +115,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-keyword": {
-			opts: []core.RequestOption{o.WithKeyword("bug")},
+			opts: []*core.APIParamOption{o.WithKeyword("bug")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, "bug", query.Get("keyword"))
@@ -124,7 +124,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-sort-and-order": {
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithIssueSort("created"),
 				o.WithOrder("asc"),
 			},
@@ -137,7 +137,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-count-and-offset": {
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCount(50),
 				o.WithOffset(100),
 			},
@@ -150,7 +150,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-date-filters": {
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCreatedSince("2024-01-01"),
 				o.WithCreatedUntil("2024-12-31"),
 			},
@@ -163,7 +163,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-parentChild": {
-			opts: []core.RequestOption{o.WithParentChild(1)},
+			opts: []*core.APIParamOption{o.WithParentChild(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, "1", query.Get("parentChild"))
@@ -172,31 +172,31 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"error-option-invalid-type": {
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-projectID": {
-			opts:        []core.RequestOption{o.WithProjectIDs([]int{0})},
+			opts:        []*core.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-sort": {
-			opts:        []core.RequestOption{o.WithIssueSort("invalid")},
+			opts:        []*core.APIParamOption{o.WithIssueSort("invalid")},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-parentChild": {
-			opts:        []core.RequestOption{o.WithParentChild(5)},
+			opts:        []*core.APIParamOption{o.WithParentChild(5)},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-count": {
-			opts:        []core.RequestOption{o.WithCount(0)},
+			opts:        []*core.APIParamOption{o.WithCount(0)},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-invalid-offset": {
-			opts:        []core.RequestOption{o.WithOffset(-1)},
+			opts:        []*core.APIParamOption{o.WithOffset(-1)},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-option-set-failed": {
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamKeyword)},
+			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {

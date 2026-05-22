@@ -106,7 +106,7 @@ func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, e
 // List returns a list of issues.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
+func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Issue, error) {
 	query := url.Values{}
 	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
 		return nil, err
@@ -122,11 +122,11 @@ func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*mode
 // Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOption) (iter.Seq2[*model.Issue, error], error) {
+func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOption) (iter.Seq2[*model.Issue, error], error) {
 	o := &core.OptionService{}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Check(); err != nil {
+	if err := countOpt.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -146,7 +146,7 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...core.RequestOpti
 // Count returns the total count of issues matching the given filters.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
-func (s *Service) Count(ctx context.Context, opts ...core.RequestOption) (int, error) {
+func (s *Service) Count(ctx context.Context, opts ...*core.APIParamOption) (int, error) {
 	query := url.Values{}
 	if err := core.ApplyOptions(query, countValidTypes, opts...); err != nil {
 		return 0, err
@@ -190,7 +190,7 @@ func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, e
 // Create creates a new issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
-func (s *Service) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...core.RequestOption) (*model.Issue, error) {
+func (s *Service) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...*core.APIParamOption) (*model.Issue, error) {
 	if err := validate.ValidateProjectID(projectID); err != nil {
 		return nil, err
 	}
@@ -198,7 +198,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 	o := &core.OptionService{}
 	form := url.Values{}
 	options := append(
-		[]core.RequestOption{
+		[]*core.APIParamOption{
 			o.WithSummary(summary),
 			o.WithIssueTypeID(issueTypeID),
 			o.WithPriorityID(priorityID),
@@ -227,13 +227,13 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 // Update updates an existing issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
-func (s *Service) Update(ctx context.Context, issueIDOrKey string, option core.RequestOption, opts ...core.RequestOption) (*model.Issue, error) {
+func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Issue, error) {
 	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
 		return nil, err
 	}

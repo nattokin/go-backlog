@@ -41,7 +41,7 @@ func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([
 // Create adds a new custom field to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
-func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType int, name string, opts ...core.RequestOption) (*model.CustomField, error) {
+func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType int, name string, opts ...*core.APIParamOption) (*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 		// List type
 		core.ParamItems, core.ParamAllowInput, core.ParamAllowAddItem,
 	}
-	options := append([]core.RequestOption{option.WithFieldType(fieldType), option.WithName(name)}, opts...)
+	options := append([]*core.APIParamOption{option.WithFieldType(fieldType), option.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 // Update updates a custom field in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
-func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option core.RequestOption, opts ...core.RequestOption) (*model.CustomField, error) {
+func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.CustomField, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 		core.ParamName, core.ParamDescription,
 		core.ParamRequired, core.ParamApplicableIssueTypeIDs,
 	}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Check(); err != nil {
+	if err := option.Validate(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}
@@ -187,7 +187,7 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Check(); err != nil {
+	if err := option.Validate(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}

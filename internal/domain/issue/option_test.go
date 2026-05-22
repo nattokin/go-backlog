@@ -15,7 +15,7 @@ import (
 
 func TestWithCustomField(t *testing.T) {
 	cases := map[string]struct {
-		option    core.RequestOption
+		option    *core.APIParamOption
 		key       string
 		wantValue string
 		wantErr   bool

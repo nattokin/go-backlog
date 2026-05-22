@@ -21,7 +21,7 @@ type ActivityService struct {
 // List returns a list of activities in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-activities
-func (s *ActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
+func (s *ActivityService) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Activity, error) {
 	return s.base.List(ctx, "space/activities", opts...)
 }
 

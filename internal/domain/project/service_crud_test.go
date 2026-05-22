@@ -108,7 +108,7 @@ func TestService_Create(t *testing.T) {
 	cases := map[string]struct {
 		key  string
 		name string
-		opts []core.RequestOption
+		opts []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -132,7 +132,7 @@ func TestService_Create(t *testing.T) {
 		"success-without-option": {
 			key:  "TEST",
 			name: "test",
-			opts: []core.RequestOption{},
+			opts: []*core.APIParamOption{},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
@@ -149,7 +149,7 @@ func TestService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
@@ -185,7 +185,7 @@ func TestService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithTextFormattingRule("invalid"),
 			},
 
@@ -196,7 +196,7 @@ func TestService_Create(t *testing.T) {
 			key:  "TEST",
 			name: "test",
 
-			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts: []*core.APIParamOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
@@ -257,8 +257,8 @@ func TestService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -307,7 +307,7 @@ func TestService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			option:         o.WithKey("TEST1"),
 
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithName("test1"),
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),

@@ -108,7 +108,7 @@ func TestService_Create(t *testing.T) {
 		summary     string
 		issueTypeID int
 		priorityID  int
-		opts        []core.RequestOption
+		opts        []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -135,7 +135,7 @@ func TestService_Create(t *testing.T) {
 			summary:     "New issue",
 			issueTypeID: 2,
 			priorityID:  3,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithDescription("some description"),
 				o.WithAssigneeID(5),
 				o.WithStartDate("2024-06-01"),
@@ -188,7 +188,7 @@ func TestService_Create(t *testing.T) {
 			summary:     "New issue",
 			issueTypeID: 2,
 			priorityID:  3,
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
@@ -255,8 +255,8 @@ func TestService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		issueIDOrKey string
-		option       core.RequestOption
-		opts         []core.RequestOption
+		option       *core.APIParamOption
+		opts         []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -276,7 +276,7 @@ func TestService_Update(t *testing.T) {
 		"success-with-extra-options": {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("Updated summary"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithStatusID(2),
 				o.WithResolutionID(1),
 				o.WithAssigneeID(5),

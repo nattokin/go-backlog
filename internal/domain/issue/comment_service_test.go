@@ -22,7 +22,7 @@ func TestCommentService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		issueIDOrKey string
-		opts         []core.RequestOption
+		opts         []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -47,7 +47,7 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"success-with-count-and-order": {
 			issueIDOrKey: "PRJ-1",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCount(20),
 				o.WithOrder("asc"),
 			},
@@ -61,7 +61,7 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"success-with-minID-maxID": {
 			issueIDOrKey: "PRJ-1",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithMinID(10),
 				o.WithMaxID(100),
 			},
@@ -83,7 +83,7 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
-			opts:         []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {

@@ -112,7 +112,7 @@ func TestService_Create(t *testing.T) {
 		description    string
 		base           string
 		branch         string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -143,7 +143,7 @@ func TestService_Create(t *testing.T) {
 			description:    "test description",
 			base:           "main",
 			branch:         "feature/foo",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithAssigneeID(5),
 				o.WithIssueID(10),
 				o.WithNotifiedUserIDs([]int{1, 2}),
@@ -208,7 +208,7 @@ func TestService_Create(t *testing.T) {
 			description:    "desc",
 			base:           "main",
 			branch:         "feature/foo",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-assigneeID": {
@@ -218,7 +218,7 @@ func TestService_Create(t *testing.T) {
 			description:    "desc",
 			base:           "main",
 			branch:         "feature/foo",
-			opts:           []core.RequestOption{o.WithAssigneeID(0)},
+			opts:           []*core.APIParamOption{o.WithAssigneeID(0)},
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-client-network": {
@@ -280,8 +280,8 @@ func TestService_Update(t *testing.T) {
 		projectIDOrKey string
 		repoIDOrName   string
 		prNumber       int
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -305,7 +305,7 @@ func TestService_Update(t *testing.T) {
 			repoIDOrName:   "repo1",
 			prNumber:       1,
 			option:         o.WithSummary("Updated PR"),
-			opts:           []core.RequestOption{o.WithComment("looks good")},
+			opts:           []*core.APIParamOption{o.WithComment("looks good")},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "Updated PR", form.Get("summary"))
 				assert.Equal(t, "looks good", form.Get("comment"))

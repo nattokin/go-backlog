@@ -21,7 +21,7 @@ func TestService_Count(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		opts []core.RequestOption
+		opts []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -36,7 +36,7 @@ func TestService_Count(t *testing.T) {
 			wantCount: 42,
 		},
 		"success-with-projectIDs": {
-			opts: []core.RequestOption{o.WithProjectIDs([]int{10, 20})},
+			opts: []*core.APIParamOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
@@ -45,7 +45,7 @@ func TestService_Count(t *testing.T) {
 			wantCount: 5,
 		},
 		"success-with-keyword": {
-			opts: []core.RequestOption{o.WithKeyword("bug")},
+			opts: []*core.APIParamOption{o.WithKeyword("bug")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/count", spath)
 				assert.Equal(t, "bug", query.Get("keyword"))
@@ -54,11 +54,11 @@ func TestService_Count(t *testing.T) {
 			wantCount: 3,
 		},
 		"error-option-invalid-type": {
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-projectID": {
-			opts:        []core.RequestOption{o.WithProjectIDs([]int{0})},
+			opts:        []*core.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantErrType: &core.ValidationError{},
 		},
 		"error-client-network": {

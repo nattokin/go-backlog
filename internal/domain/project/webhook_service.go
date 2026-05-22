@@ -41,7 +41,7 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 // Add adds a new webhook to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook/
-func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...core.RequestOption) (*model.Webhook, error) {
+func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...*core.APIParamOption) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		core.ParamActivityTypeIDs,
 	}
 	options := append(
-		[]core.RequestOption{
+		[]*core.APIParamOption{
 			option.WithName(name),
 			option.WithHookURL(hookURL),
 		},
@@ -117,7 +117,7 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 // Update updates a webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook/
-func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option core.RequestOption, opts ...core.RequestOption) (*model.Webhook, error) {
+func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Webhook, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	}
 
 	form := url.Values{}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, []core.APIParamOptionType{
 		core.ParamName,
 		core.ParamDescription,

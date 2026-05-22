@@ -23,7 +23,7 @@ func TestService_Count(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -42,7 +42,7 @@ func TestService_Count(t *testing.T) {
 		"success-with-assigneeIDs": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{o.WithAssigneeIDs([]int{10, 20})},
+			opts:           []*core.APIParamOption{o.WithAssigneeIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"10", "20"}, query["assigneeId[]"])
 				return mock.NewResponse(`{"count":2}`), nil
@@ -62,7 +62,7 @@ func TestService_Count(t *testing.T) {
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {

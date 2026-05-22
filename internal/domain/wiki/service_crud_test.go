@@ -101,7 +101,7 @@ func TestService_Create(t *testing.T) {
 		projectID int
 		name      string
 		content   string
-		opts      []core.RequestOption
+		opts      []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -124,7 +124,7 @@ func TestService_Create(t *testing.T) {
 			projectID: 56,
 			name:      "Minimum Wiki Page",
 			content:   "This is a minimal wiki page.",
-			opts:      []core.RequestOption{o.WithMailNotify(true)},
+			opts:      []*core.APIParamOption{o.WithMailNotify(true)},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
@@ -157,14 +157,14 @@ func TestService_Create(t *testing.T) {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-faild": {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamMailNotify)},
+			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -234,8 +234,8 @@ func TestService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		wikiID int
-		option core.RequestOption
-		opts   []core.RequestOption
+		option *core.APIParamOption
+		opts   []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -264,7 +264,7 @@ func TestService_Update(t *testing.T) {
 		"success-wikiID-mailNotify-name": {
 			wikiID: 34,
 			option: o.WithMailNotify(true),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithName("Full Options Name"),
 			},
 
@@ -278,7 +278,7 @@ func TestService_Update(t *testing.T) {
 		"success-wikiID-full-options": {
 			wikiID: 34,
 			option: o.WithName("Full Options Name"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithContent("Full Options Content"),
 				o.WithMailNotify(true),
 			},
@@ -304,7 +304,7 @@ func TestService_Update(t *testing.T) {
 		"error-option-invalid-type": {
 			wikiID: 12,
 			option: mock.NewInvalidTypeOption(),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithName("New Name"),
 			},
 			wantErrType: &core.InvalidOptionKeyError{},
@@ -375,7 +375,7 @@ func TestService_Delete(t *testing.T) {
 
 	cases := map[string]struct {
 		wikiID int
-		opts   []core.RequestOption
+		opts   []*core.APIParamOption
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -383,7 +383,7 @@ func TestService_Delete(t *testing.T) {
 	}{
 		"success-wikiID-withMailNotify": {
 			wikiID: 34,
-			opts:   []core.RequestOption{o.WithMailNotify(true)},
+			opts:   []*core.APIParamOption{o.WithMailNotify(true)},
 
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
@@ -409,12 +409,12 @@ func TestService_Delete(t *testing.T) {
 		},
 		"error-option-set-faild": {
 			wikiID:      1,
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamMailNotify)},
+			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
 			wikiID:      1,
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {

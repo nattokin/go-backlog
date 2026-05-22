@@ -22,7 +22,7 @@ func TestVersionService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 		wantErrType    error
 		wantLen        int
 		mockGetFn      func(context.Context, string, url.Values) (*http.Response, error)
@@ -30,7 +30,7 @@ func TestVersionService_List(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			wantLen:        2,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				option.WithArchived(true),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -46,7 +46,7 @@ func TestVersionService_List(t *testing.T) {
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
@@ -92,7 +92,7 @@ func TestVersionService_Add(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		name           string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 		wantErrType    error
 		wantID         int
 		mockPostFn     func(context.Context, string, url.Values) (*http.Response, error)
@@ -100,7 +100,7 @@ func TestVersionService_Add(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
-			opts:           []core.RequestOption{o.WithDescription("desc"), o.WithStartDate(date), o.WithReleaseDueDate(date)},
+			opts:           []*core.APIParamOption{o.WithDescription("desc"), o.WithStartDate(date), o.WithReleaseDueDate(date)},
 			wantID:         fixture.Version.Single.ID,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
@@ -111,25 +111,25 @@ func TestVersionService_Add(t *testing.T) {
 		"error-name-empty": {
 			projectIDOrKey: "TEST",
 			name:           "",
-			opts:           []core.RequestOption{o.WithDescription("desc")},
+			opts:           []*core.APIParamOption{o.WithDescription("desc")},
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-project-empty": {
 			projectIDOrKey: "",
 			name:           "v1",
-			opts:           []core.RequestOption{o.WithDescription("desc")},
+			opts:           []*core.APIParamOption{o.WithDescription("desc")},
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-type": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
-			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamDescription)},
+			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamDescription)},
 			wantErrType:    errors.New(""),
 		},
 		"error-client-network": {
@@ -177,8 +177,8 @@ func TestVersionService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		versionID      int
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 		wantErrType    error
 		wantID         int
 		mockPatchFn    func(context.Context, string, url.Values) (*http.Response, error)
@@ -187,7 +187,7 @@ func TestVersionService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			versionID:      1,
 			option:         o.WithName("name"),
-			opts:           []core.RequestOption{o.WithReleaseDueDate(date)},
+			opts:           []*core.APIParamOption{o.WithReleaseDueDate(date)},
 			wantID:         fixture.Version.Single.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)

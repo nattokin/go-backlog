@@ -24,7 +24,7 @@ func TestCommentService_List(t *testing.T) {
 		projectIDOrKey string
 		repoIDOrName   string
 		prNumber       int
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -45,7 +45,7 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCount(20),
 				o.WithOrder("asc"),
 			},
@@ -61,7 +61,7 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithMinID(10),
 				o.WithMaxID(100),
 			},
@@ -107,7 +107,7 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
@@ -168,7 +168,7 @@ func TestCommentService_Add(t *testing.T) {
 		repoIDOrName   string
 		prNumber       int
 		content        string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -192,7 +192,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "Notifying users.",
-			opts:           []core.RequestOption{o.WithNotifiedUserIDs([]int{5, 6})},
+			opts:           []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "Notifying users.", form.Get("content"))
@@ -206,7 +206,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "Attaching files.",
-			opts:           []core.RequestOption{o.WithAttachmentIDs([]int{10, 11})},
+			opts:           []*core.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "Attaching files.", form.Get("content"))
@@ -262,7 +262,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "x",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {

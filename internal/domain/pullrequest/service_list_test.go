@@ -26,7 +26,7 @@ func TestService_List(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -45,7 +45,7 @@ func TestService_List(t *testing.T) {
 		"success-with-all-options": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithStatusIDs([]int{1, 2}),
 				o.WithAssigneeIDs([]int{10}),
 				o.WithIssueIDs([]int{100}),
@@ -67,7 +67,7 @@ func TestService_List(t *testing.T) {
 		"success-with-statusIDs": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{o.WithStatusIDs([]int{1, 2})},
+			opts:           []*core.APIParamOption{o.WithStatusIDs([]int{1, 2})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1", "2"}, query["statusId[]"])
 				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
@@ -77,7 +77,7 @@ func TestService_List(t *testing.T) {
 		"success-with-count-and-offset": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCount(50),
 				o.WithOffset(10),
 			},
@@ -111,25 +111,25 @@ func TestService_List(t *testing.T) {
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-statusID": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{o.WithStatusIDs([]int{0})},
+			opts:           []*core.APIParamOption{o.WithStatusIDs([]int{0})},
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-invalid-count": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{o.WithCount(0)},
+			opts:           []*core.APIParamOption{o.WithCount(0)},
 			wantErrType:    &core.ValidationError{},
 		},
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamOffset)},
+			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamOffset)},
 			wantErrType:    errors.New(""),
 		},
 		"error-client-network": {

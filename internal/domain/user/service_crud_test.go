@@ -232,15 +232,15 @@ func TestUserService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		id          int
-		option      core.RequestOption
-		opts        []core.RequestOption
+		option      *core.APIParamOption
+		opts        []*core.APIParamOption
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErrType error
 	}{
 		"success-update-user": {
 			id:     1,
 			option: o.WithPassword("password"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
 				o.WithRoleType(1),
@@ -312,7 +312,7 @@ func TestUserService_Update(t *testing.T) {
 		"success-option-multiple": {
 			id:     1,
 			option: o.WithPassword("testpassword1"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
 				o.WithRoleType(1),

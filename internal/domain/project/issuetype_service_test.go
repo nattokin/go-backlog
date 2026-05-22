@@ -199,8 +199,8 @@ func TestIssueTypeService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		issueTypeID    int
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -210,7 +210,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
 			option:         o.WithName("Bug Updated"),
-			opts:           []core.RequestOption{o.WithColor("#990000")},
+			opts:           []*core.APIParamOption{o.WithColor("#990000")},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/issueTypes/1", spath)

@@ -22,7 +22,7 @@ func TestService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -40,7 +40,7 @@ func TestService_List(t *testing.T) {
 
 		"success-projectIDOrKey-key-with-options": {
 			projectIDOrKey: "PRJ_KEY",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithKeyword("test"),
 			},
 
@@ -59,13 +59,13 @@ func TestService_List(t *testing.T) {
 
 		"error-option-invalid-type": {
 			projectIDOrKey: "invalid",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			opts:           []core.RequestOption{mock.NewFailingSetOption(core.ParamKeyword)},
+			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
 			wantErrType:    errors.New(""),
 		},
 

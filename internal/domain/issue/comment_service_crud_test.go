@@ -23,7 +23,7 @@ func TestCommentService_Add(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		content      string
-		opts         []core.RequestOption
+		opts         []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -43,7 +43,7 @@ func TestCommentService_Add(t *testing.T) {
 		"success-with-notifiedUserIDs": {
 			issueIDOrKey: "PRJ-1",
 			content:      "Notifying users.",
-			opts:         []core.RequestOption{o.WithNotifiedUserIDs([]int{5, 6})},
+			opts:         []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "Notifying users.", form.Get("content"))
@@ -70,7 +70,7 @@ func TestCommentService_Add(t *testing.T) {
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
-			opts:         []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {

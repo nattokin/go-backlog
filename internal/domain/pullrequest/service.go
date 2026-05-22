@@ -59,7 +59,7 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // List returns a list of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) ([]*model.PullRequest, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) ([]*model.PullRequest, error) {
 	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
 		return nil, err
 	}
@@ -80,14 +80,14 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (iter.Seq2[*model.PullRequest, error], error) {
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
 	o := &core.OptionService{}
 	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
 		return nil, err
 	}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Check(); err != nil {
+	if err := countOpt.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -107,7 +107,7 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 // Count returns the number of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
-func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...core.RequestOption) (int, error) {
+func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (int, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return 0, err
 	}
@@ -171,7 +171,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 // Create creates a new pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request
-func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrName string, summary string, description string, base string, branch string, opts ...core.RequestOption) (*model.PullRequest, error) {
+func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrName string, summary string, description string, base string, branch string, opts ...*core.APIParamOption) (*model.PullRequest, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		core.ParamAttachmentIDs,
 	}
 	options := append(
-		[]core.RequestOption{
+		[]*core.APIParamOption{
 			option.WithSummary(summary),
 			option.WithDescription(description),
 			option.WithBase(base),
@@ -221,7 +221,7 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 // Update updates an existing pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, option core.RequestOption, opts ...core.RequestOption) (*model.PullRequest, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.PullRequest, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		core.ParamNotifiedUserIDs,
 		core.ParamComment,
 	}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

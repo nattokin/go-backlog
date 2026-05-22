@@ -15,7 +15,7 @@ func TestOptionService_float(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option    core.RequestOption
+		option    *core.APIParamOption
 		key       string
 		wantValue float64
 	}{

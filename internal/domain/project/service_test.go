@@ -21,7 +21,7 @@ func TestService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		opts []core.RequestOption
+		opts []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -30,7 +30,7 @@ func TestService_List(t *testing.T) {
 		wantErrType error
 	}{
 		"success-without-option": {
-			opts: []core.RequestOption{},
+			opts: []*core.APIParamOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
@@ -44,7 +44,7 @@ func TestService_List(t *testing.T) {
 			wantErrType: nil,
 		},
 		"success-with-valid-option": {
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithAll(false),
 				o.WithArchived(true),
 			},
@@ -61,17 +61,17 @@ func TestService_List(t *testing.T) {
 			wantErrType: nil,
 		},
 		"error-option-set-failed": {
-			opts: []core.RequestOption{mock.NewFailingSetOption(core.ParamAll)},
+			opts: []*core.APIParamOption{mock.NewFailingSetOption(core.ParamAll)},
 
 			wantErrType: errors.New(""),
 		},
 		"error-option-invalid-type": {
-			opts: []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts: []*core.APIParamOption{mock.NewInvalidTypeOption()},
 
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
-			opts: []core.RequestOption{},
+			opts: []*core.APIParamOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
@@ -80,7 +80,7 @@ func TestService_List(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			opts: []core.RequestOption{},
+			opts: []*core.APIParamOption{},
 
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil

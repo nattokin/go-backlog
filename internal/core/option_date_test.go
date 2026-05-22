@@ -14,7 +14,7 @@ func TestOptionService_date(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option    core.RequestOption
+		option    *core.APIParamOption
 		key       string
 		wantValue string
 		wantErr   bool

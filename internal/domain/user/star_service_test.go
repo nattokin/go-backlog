@@ -21,7 +21,7 @@ func TestUserStarService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		userID    int
-		opts      []core.RequestOption
+		opts      []*core.APIParamOption
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
@@ -36,7 +36,7 @@ func TestUserStarService_List(t *testing.T) {
 		},
 		"success-with-count": {
 			userID: 2,
-			opts:   []core.RequestOption{o.WithCount(5)},
+			opts:   []*core.APIParamOption{o.WithCount(5)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/2/stars", spath)
 				assert.Equal(t, "5", query.Get("count"))
@@ -50,7 +50,7 @@ func TestUserStarService_List(t *testing.T) {
 		},
 		"error-invalid-option": {
 			userID:  1,
-			opts:    []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:    []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErr: true,
 		},
 		"error-client-network": {

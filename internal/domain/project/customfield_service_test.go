@@ -106,7 +106,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 		projectIDOrKey string
 		fieldType      int
 		name           string
-		opts           []core.RequestOption
+		opts           []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -131,7 +131,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-			opts:           []core.RequestOption{o.WithDescription("sprint number"), o.WithRequired(true)},
+			opts:           []*core.APIParamOption{o.WithDescription("sprint number"), o.WithRequired(true)},
 
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields", spath)
@@ -166,7 +166,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-			opts:           []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		"error-client-network": {
@@ -226,8 +226,8 @@ func TestCustomFieldService_Update(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		customFieldID  int
-		option         core.RequestOption
-		opts           []core.RequestOption
+		option         *core.APIParamOption
+		opts           []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -250,7 +250,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
-			opts:           []core.RequestOption{o.WithRequired(true)},
+			opts:           []*core.APIParamOption{o.WithRequired(true)},
 
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)

@@ -21,7 +21,7 @@ type Service struct {
 // ListIssues returns a list of issues recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
-func (s *Service) ListIssues(ctx context.Context, opts ...core.RequestOption) ([]*model.Issue, error) {
+func (s *Service) ListIssues(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Issue, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
 	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
@@ -66,7 +66,7 @@ func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, erro
 // ListProjects returns a list of projects recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
-func (s *Service) ListProjects(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
+func (s *Service) ListProjects(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Project, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
 	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
@@ -89,7 +89,7 @@ func (s *Service) ListProjects(ctx context.Context, opts ...core.RequestOption) 
 // ListWikis returns a list of Wiki pages recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
-func (s *Service) ListWikis(ctx context.Context, opts ...core.RequestOption) ([]*model.Wiki, error) {
+func (s *Service) ListWikis(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
 	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
