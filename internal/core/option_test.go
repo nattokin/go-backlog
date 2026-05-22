@@ -19,7 +19,7 @@ func TestAPIParamOption(t *testing.T) {
 		"SetFunc-nil": {
 			option: &core.APIParamOption{
 				Type:      core.ParamKey,
-				CheckFunc: func() error { return nil },
+				CheckFunc: func() core.ValidationResult { return nil },
 				SetFunc:   nil,
 			},
 			expectPanic: true,
@@ -58,6 +58,8 @@ func TestAPIParamOption(t *testing.T) {
 func TestApplyOptions(t *testing.T) {
 	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
 
+	ok := func() core.ValidationResult { return core.NewValidationError("", "").Ok() }
+
 	cases := map[string]struct {
 		opts        []core.RequestOption
 		wantErr     bool
@@ -66,18 +68,30 @@ func TestApplyOptions(t *testing.T) {
 		"nilOption": {
 			opts:        []core.RequestOption{nil},
 			wantErr:     true,
-			wantErrType: &core.ValidationError{},
+			wantErrType: &core.InvalidOptionError{},
 		},
 		"nilOption-second": {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
-					Type:    core.ParamKey,
-					SetFunc: func(_ url.Values) error { return nil },
+					Type:      core.ParamKey,
+					CheckFunc: ok,
+					SetFunc:   func(_ url.Values) error { return nil },
 				},
 				nil,
 			},
 			wantErr:     true,
-			wantErrType: &core.ValidationError{},
+			wantErrType: &core.InvalidOptionError{},
+		},
+		"nilValidationResult": {
+			opts: []core.RequestOption{
+				&core.APIParamOption{
+					Type:      core.ParamKey,
+					CheckFunc: func() core.ValidationResult { return nil },
+					SetFunc:   func(_ url.Values) error { return nil },
+				},
+			},
+			wantErr:     true,
+			wantErrType: &core.InvalidOptionError{},
 		},
 		"invalidKey": {
 			opts: []core.RequestOption{
@@ -93,7 +107,7 @@ func TestApplyOptions(t *testing.T) {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
 					Type:      core.ParamKey,
-					CheckFunc: func() error { return core.NewValidationError("key", "check failed") },
+					CheckFunc: func() core.ValidationResult { return core.NewValidationError("key", "check failed") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
@@ -104,12 +118,12 @@ func TestApplyOptions(t *testing.T) {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
 					Type:      core.ParamKey,
-					CheckFunc: func() error { return core.NewValidationError("key", "key is empty") },
+					CheckFunc: func() core.ValidationResult { return core.NewValidationError("key", "key is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 				&core.APIParamOption{
 					Type:      core.ParamName,
-					CheckFunc: func() error { return core.NewValidationError("name", "name is empty") },
+					CheckFunc: func() core.ValidationResult { return core.NewValidationError("name", "name is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
@@ -119,8 +133,9 @@ func TestApplyOptions(t *testing.T) {
 		"success": {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
-					Type:    core.ParamKey,
-					SetFunc: func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
+					Type:      core.ParamKey,
+					CheckFunc: ok,
+					SetFunc:   func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
 				},
 			},
 			wantErr: false,
@@ -157,12 +172,12 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 
 	opt1 := &core.APIParamOption{
 		Type:      core.ParamKey,
-		CheckFunc: func() error { return core.NewValidationError("key", "key is empty") },
+		CheckFunc: func() core.ValidationResult { return core.NewValidationError("key", "key is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 	opt2 := &core.APIParamOption{
 		Type:      core.ParamName,
-		CheckFunc: func() error { return core.NewValidationError("name", "name is empty") },
+		CheckFunc: func() core.ValidationResult { return core.NewValidationError("name", "name is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 
@@ -173,6 +188,6 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 	var ves core.ValidationErrors
 	require.True(t, errors.As(err, &ves))
 	require.Len(t, ves, 2)
-	assert.Equal(t, "key", ves[0].Param)
-	assert.Equal(t, "name", ves[1].Param)
+	assert.Equal(t, "key", ves[0].Target())
+	assert.Equal(t, "name", ves[1].Target())
 }

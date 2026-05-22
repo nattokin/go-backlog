@@ -70,22 +70,21 @@ func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
-	e := core.NewValidationError("someParam", msg)
+	e := core.NewValidationError("someTarget", msg)
 	assert.EqualError(t, e, msg)
 }
 
 func TestValidationError_Fields(t *testing.T) {
 	e := core.NewValidationError("offset", "offset must not be negative")
-	assert.Equal(t, "offset", e.Param)
-	assert.Equal(t, "offset must not be negative", e.Message)
+	assert.Equal(t, "offset", e.Target())
+	assert.Equal(t, "offset must not be negative", e.Message())
+	assert.False(t, e.Valid())
 }
 
 // ──────────────────────────────────────────────────────────────
 //  errors.As assertion tests
 // ──────────────────────────────────────────────────────────────
 
-// TestAPIResponseError_errorsAs verifies that APIResponseError returned from
-// checkResponse can be unwrapped with errors.As by callers.
 func TestAPIResponseError_errorsAs(t *testing.T) {
 	resp := &http.Response{
 		StatusCode: 404,
@@ -101,8 +100,6 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 	assert.Equal(t, 404, target.StatusCode)
 }
 
-// TestValidationError_errorsAs verifies that ValidationError can be unwrapped
-// with errors.As by callers.
 func TestValidationError_errorsAs(t *testing.T) {
 	err := core.NewValidationError("key", "invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
@@ -110,11 +107,9 @@ func TestValidationError_errorsAs(t *testing.T) {
 	var target *core.ValidationError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "invalid argument", target.Error())
-	assert.Equal(t, "key", target.Param)
+	assert.Equal(t, "key", target.Target())
 }
 
-// TestInvalidOptionKeyError_errorsAs_query verifies that InvalidOptionKeyError
-// can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []core.APIParamOptionType{core.ParamAll, core.ParamArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
@@ -124,8 +119,6 @@ func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 	assert.Equal(t, core.ParamActivityTypeIDs.Value(), target.Invalid)
 }
 
-// TestInvalidOptionKeyError_errorsAs_form verifies that InvalidOptionKeyError
-// can be unwrapped with errors.As by callers.
 func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
 	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []core.APIParamOptionType{core.ParamName, core.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
@@ -135,8 +128,6 @@ func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
 	assert.Equal(t, core.ParamKey.Value(), target.Invalid)
 }
 
-// TestInternalClientError_errorsAs verifies that InternalClientError can be
-// unwrapped with errors.As by callers.
 func TestInternalClientError_errorsAs(t *testing.T) {
 	err := core.NewInternalClientError("missing token")
 	wrapped := fmt.Errorf("wrap: %w", err)
@@ -144,4 +135,13 @@ func TestInternalClientError_errorsAs(t *testing.T) {
 	var target *core.InternalClientError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "missing token", target.Error())
+}
+
+func TestInvalidOptionError_errorsAs(t *testing.T) {
+	err := core.NewInvalidOptionError("nil option is not allowed")
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.InvalidOptionError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, "nil option is not allowed", target.Error())
 }

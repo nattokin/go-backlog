@@ -109,7 +109,7 @@ func (t APIParamOptionType) Value() string {
 // RequestOption is implemented by all option types that can be applied to an API request.
 type RequestOption interface {
 	Key() string
-	Check() error
+	Check() ValidationResult
 	Set(url.Values) error
 }
 
@@ -123,16 +123,16 @@ type OptionService struct{}
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType     // canonical API parameter key
-	CheckFunc func() error           // optional validation executed before applying the option
-	SetFunc   func(url.Values) error // applies the value to the request parameters
+	Type      APIParamOptionType          // canonical API parameter key
+	CheckFunc func() ValidationResult     // optional validation executed before applying the option
+	SetFunc   func(url.Values) error      // applies the value to the request parameters
 }
 
 func (o *APIParamOption) Key() string {
 	return o.Type.Value()
 }
 
-func (o *APIParamOption) Check() error {
+func (o *APIParamOption) Check() ValidationResult {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
 	}
@@ -157,25 +157,26 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 }
 
 // ApplyOptions validates and applies request options to the given url.Values.
-// Validation errors from Check() are collected across all options and returned
-// as ValidationErrors so callers can inspect all invalid inputs at once.
-// Non-validation errors (InvalidOptionKeyError, nil option) are returned immediately.
+// Validation errors from Check() are collected into ValidationErrors and returned
+// together so callers can inspect all invalid inputs at once.
+// InvalidOptionKeyError, nil options, and nil ValidationResult are returned immediately.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
 	var errs ValidationErrors
 
 	for _, opt := range opts {
 		if opt == nil {
-			return NewValidationError("", "nil option is not allowed")
+			return NewInvalidOptionError("nil option is not allowed")
 		}
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
-		if err := opt.Check(); err != nil {
-			if ve, ok := err.(*ValidationError); ok {
-				errs = append(errs, ve)
-				continue
-			}
-			return err
+		result := opt.Check()
+		if result == nil {
+			return NewInvalidOptionError("Check() must not return nil")
+		}
+		if !result.Valid() {
+			errs = append(errs, NewValidationError(result.Target(), result.Message()))
+			continue
 		}
 		if err := opt.Set(v); err != nil {
 			return err

@@ -60,22 +60,48 @@ func (e *InvalidOptionKeyError) Error() string {
 	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
 }
 
-// ValidationError represents an argument validation error.
-type ValidationError struct {
-	Param   string
-	Message string
+// InvalidOptionError represents an error for an invalid option, such as a nil
+// option or a Check() implementation that returned a nil ValidationResult.
+type InvalidOptionError struct {
+	message string
 }
 
-func NewValidationError(param, msg string) *ValidationError {
+func NewInvalidOptionError(msg string) *InvalidOptionError {
+	return &InvalidOptionError{message: msg}
+}
+
+func (e *InvalidOptionError) Error() string {
+	return e.message
+}
+
+// ValidationResult is the return type of RequestOption.Check().
+// Implementations must return a non-nil ValidationResult; returning nil is
+// treated as a programming error and causes ApplyOptions to return an
+// InvalidOptionError.
+type ValidationResult interface {
+	Valid() bool
+	Target() string
+	Message() string
+}
+
+// ValidationError represents an argument validation error.
+// It implements ValidationResult.
+type ValidationError struct {
+	target  string
+	message string
+}
+
+func NewValidationError(target, msg string) *ValidationError {
 	return &ValidationError{
-		Param:   param,
-		Message: msg,
+		target:  target,
+		message: msg,
 	}
 }
 
-func (e *ValidationError) Error() string {
-	return e.Message
-}
+func (e *ValidationError) Valid() bool      { return false }
+func (e *ValidationError) Target() string   { return e.target }
+func (e *ValidationError) Message() string  { return e.message }
+func (e *ValidationError) Error() string    { return e.message }
 
 // ValidationErrors is a collection of ValidationError values returned when
 // multiple options fail validation simultaneously.
