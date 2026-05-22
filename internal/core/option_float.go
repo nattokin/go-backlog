@@ -51,7 +51,7 @@ func positiveFloat64Option(paramType APIParamOptionType, value float64) RequestO
 		Type: paramType,
 		CheckFunc: func() error {
 			if value <= 0 {
-				return NewValidationError(fmt.Sprintf("invalid %s: must be greater than 0", paramType.Value()))
+				return NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must be greater than 0", paramType.Value()))
 			}
 			return nil
 		},
