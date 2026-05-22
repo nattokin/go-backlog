@@ -10,21 +10,14 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// WithCustomField returns a RequestOption that sets a custom field value for
+// WithCustomField returns a *APIParamOption that sets a custom field value for
 // non-list types (Text, Sentence, Number, Date).
-//
-// The parameter name is dynamically generated as "customField_{id}".
-// Supported value types: string, float64, time.Time.
-// time.Time values are formatted as "yyyy-MM-dd".
-//
-// Returns an error if id is less than 1, value is an empty string, or value is
-// a zero time.Time.
-func WithCustomField[T string | float64 | time.Time](id int, value T) core.RequestOption {
+func WithCustomField[T string | float64 | time.Time](id int, value T) *core.APIParamOption {
 	return &core.APIParamOption{
 		Type: core.ParamCustomField,
-		CheckFunc: func() error {
-			if err := validate.ValidateCustomFieldID(id); err != nil {
-				return err
+		CheckFunc: func() *core.ValidationError {
+			if ve := validate.ValidateCustomFieldID(id); ve != nil {
+				return ve
 			}
 
 			name := core.ParamCustomField.Value()
@@ -38,7 +31,6 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 					return core.NewValidationError(name, fmt.Sprintf("%s date must not be zero value", name))
 				}
 			}
-
 			return nil
 		},
 		SetFunc: func(vals url.Values) error {
@@ -52,29 +44,21 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) core.Reque
 			case time.Time:
 				serialized = v.Format("2006-01-02")
 			}
-
 			vals.Set(key, serialized)
 			return nil
 		},
 	}
 }
 
-// WithCustomFieldItems returns a RequestOption that sets predefined item selections
-// for list-type custom fields (Single list, Multiple list, Checkbox, Radio).
-//
-// The parameter name is dynamically generated as "customField_{id}". Multiple
-// item IDs are sent as repeated values under the same key, which the Backlog API
-// interprets as a list.
-//
-// Returns an error if id is less than 1.
-func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
+// WithCustomFieldItems returns a *APIParamOption that sets predefined item selections
+// for list-type custom fields.
+func WithCustomFieldItems(id int, itemIDs []int) *core.APIParamOption {
 	return &core.APIParamOption{
 		Type: core.ParamCustomField,
-		CheckFunc: func() error {
-			if err := validate.ValidateCustomFieldID(id); err != nil {
-				return err
+		CheckFunc: func() *core.ValidationError {
+			if ve := validate.ValidateCustomFieldID(id); ve != nil {
+				return ve
 			}
-
 			return validateItemIDs(itemIDs)
 		},
 		SetFunc: func(vals url.Values) error {
@@ -87,16 +71,12 @@ func WithCustomFieldItems(id int, itemIDs []int) core.RequestOption {
 	}
 }
 
-// WithCustomFieldOther returns a RequestOption that sets the free-text "Other"
+// WithCustomFieldOther returns a *APIParamOption that sets the free-text "Other"
 // value for list-type custom fields where allowInput is enabled.
-//
-// The parameter name is dynamically generated as "customField_{id}_otherValue".
-//
-// Returns an error if id is less than 1.
-func WithCustomFieldOther(id int, value string) core.RequestOption {
+func WithCustomFieldOther(id int, value string) *core.APIParamOption {
 	return &core.APIParamOption{
 		Type: core.ParamCustomField,
-		CheckFunc: func() error {
+		CheckFunc: func() *core.ValidationError {
 			return validate.ValidateCustomFieldID(id)
 		},
 		SetFunc: func(vals url.Values) error {
@@ -107,12 +87,11 @@ func WithCustomFieldOther(id int, value string) core.RequestOption {
 	}
 }
 
-func validateItemIDs(ids []int) error {
+func validateItemIDs(ids []int) *core.ValidationError {
 	for _, id := range ids {
 		if id < 1 {
 			return core.NewValidationError("customField_itemID", fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
 		}
 	}
-
 	return nil
 }

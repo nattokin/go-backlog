@@ -106,35 +106,40 @@ func (t APIParamOptionType) Value() string {
 	return string(t)
 }
 
-// RequestOption is implemented by all option types that can be applied to an API request.
-type RequestOption interface {
-	Key() string
-	Check() ValidationResult
-	Set(url.Values) error
-}
-
-// OptionService provides builder methods for constructing RequestOption values.
+// OptionService provides builder methods for constructing *APIParamOption values.
 // Each XxxOptionService selectively exposes only the valid methods for its API endpoint.
 type OptionService struct{}
 
-// APIParamOption is the internal implementation of RequestOption.
+// APIParamOption is the option type used for all API request parameters.
 //
 // It pairs an API parameter key with optional validation (CheckFunc) and
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType             // canonical API parameter key
-	CheckFunc func() ValidationResult        // optional validation executed before applying the option
-	SetFunc   func(url.Values) error         // applies the value to the request parameters
+	Type      APIParamOptionType          // canonical API parameter key
+	CheckFunc func() *ValidationError     // optional validation; nil means no validation
+	SetFunc   func(url.Values) error      // applies the value to the request parameters
 }
 
 func (o *APIParamOption) Key() string {
 	return o.Type.Value()
 }
 
-func (o *APIParamOption) Check() ValidationResult {
+// Validate runs the option's validation and returns a *ValidationError if it
+// fails, or nil if it passes. Callers within internal packages should use this
+// method directly instead of Check().
+func (o *APIParamOption) Validate() *ValidationError {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
+	}
+	return nil
+}
+
+// Check runs Validate and returns the result as a ValidationResult.
+// Returns OK when validation passes (including when CheckFunc is nil).
+func (o *APIParamOption) Check() ValidationResult {
+	if ve := o.Validate(); ve != nil {
+		return ve
 	}
 	return OK
 }
@@ -157,10 +162,10 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 }
 
 // ApplyOptions validates and applies request options to the given url.Values.
-// Validation errors from Check() are collected into ValidationErrors and returned
+// Validation errors from Validate() are collected into ValidationErrors and returned
 // together so callers can inspect all invalid inputs at once.
-// InvalidOptionKeyError, nil options, and nil ValidationResult are returned immediately.
-func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
+// InvalidOptionKeyError and nil options are returned immediately.
+func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIParamOption) error {
 	var errs ValidationErrors
 
 	for _, opt := range opts {
@@ -170,12 +175,8 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...Request
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
-		result := opt.Check()
-		if result == nil {
-			return NewInvalidOptionError("Check() must not return nil")
-		}
-		if !result.Valid() {
-			errs = append(errs, NewValidationError(result.Target(), result.Message()))
+		if ve := opt.Validate(); ve != nil {
+			errs = append(errs, ve)
 			continue
 		}
 		if err := opt.Set(v); err != nil {
