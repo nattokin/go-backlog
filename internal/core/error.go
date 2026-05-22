@@ -84,6 +84,16 @@ type ValidationResult interface {
 	Message() string
 }
 
+// validationOK is a singleton ValidationResult representing a successful check.
+type validationOK struct{}
+
+func (validationOK) Valid() bool    { return true }
+func (validationOK) Target() string { return "" }
+func (validationOK) Message() string { return "" }
+
+// OK is the ValidationResult to return from CheckFunc when validation passes.
+var OK ValidationResult = validationOK{}
+
 // ValidationError represents an argument validation error.
 // It implements ValidationResult.
 type ValidationError struct {
@@ -98,10 +108,10 @@ func NewValidationError(target, msg string) *ValidationError {
 	}
 }
 
-func (e *ValidationError) Valid() bool      { return false }
-func (e *ValidationError) Target() string   { return e.target }
-func (e *ValidationError) Message() string  { return e.message }
-func (e *ValidationError) Error() string    { return e.message }
+func (e *ValidationError) Valid() bool       { return false }
+func (e *ValidationError) Target() string    { return e.target }
+func (e *ValidationError) Message() string   { return e.message }
+func (e *ValidationError) Error() string     { return e.message }
 
 // ValidationErrors is a collection of ValidationError values returned when
 // multiple options fail validation simultaneously.

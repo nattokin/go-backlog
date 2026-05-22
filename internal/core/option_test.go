@@ -19,7 +19,7 @@ func TestAPIParamOption(t *testing.T) {
 		"SetFunc-nil": {
 			option: &core.APIParamOption{
 				Type:      core.ParamKey,
-				CheckFunc: func() core.ValidationResult { return nil },
+				CheckFunc: func() core.ValidationResult { return core.OK },
 				SetFunc:   nil,
 			},
 			expectPanic: true,
@@ -58,8 +58,6 @@ func TestAPIParamOption(t *testing.T) {
 func TestApplyOptions(t *testing.T) {
 	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
 
-	ok := func() core.ValidationResult { return core.NewValidationError("", "").Ok() }
-
 	cases := map[string]struct {
 		opts        []core.RequestOption
 		wantErr     bool
@@ -73,9 +71,8 @@ func TestApplyOptions(t *testing.T) {
 		"nilOption-second": {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
-					Type:      core.ParamKey,
-					CheckFunc: ok,
-					SetFunc:   func(_ url.Values) error { return nil },
+					Type:    core.ParamKey,
+					SetFunc: func(_ url.Values) error { return nil },
 				},
 				nil,
 			},
@@ -133,9 +130,8 @@ func TestApplyOptions(t *testing.T) {
 		"success": {
 			opts: []core.RequestOption{
 				&core.APIParamOption{
-					Type:      core.ParamKey,
-					CheckFunc: ok,
-					SetFunc:   func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
+					Type:    core.ParamKey,
+					SetFunc: func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
 				},
 			},
 			wantErr: false,

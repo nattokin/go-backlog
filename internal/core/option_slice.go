@@ -9,13 +9,13 @@ import (
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	return &APIParamOption{
 		Type: ParamActivityTypeIDs,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			for _, id := range typeIDs {
-				if err := validateActivityTypeID(id, "activityTypeIds"); err != nil {
-					return err
+				if result := validateActivityTypeID(id, "activityTypeIds"); !result.Valid() {
+					return result
 				}
 			}
-			return nil
+			return OK
 		},
 		SetFunc: addIntFunc(ParamActivityTypeIDs, typeIDs),
 	}
@@ -34,13 +34,13 @@ func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
 func (s *OptionService) WithItems(items []string) RequestOption {
 	return &APIParamOption{
 		Type: ParamItems,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			for i, item := range items {
 				if item == "" {
 					return NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
 				}
 			}
-			return nil
+			return OK
 		},
 		SetFunc: addStringFunc(ParamItems, items),
 	}
@@ -106,7 +106,7 @@ func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
 func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			return validatePositiveInts(values, paramName)
 		},
 		SetFunc: addIntFunc(paramType, values),
@@ -134,20 +134,20 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 }
 
 // validateActivityTypeID ensures the ID is within the valid range [1, 26].
-func validateActivityTypeID(id int, key string) error {
+func validateActivityTypeID(id int, key string) ValidationResult {
 	if id < 1 || id > MaxActivityTypeID {
 		return NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
-	return nil
+	return OK
 }
 
 // validatePositiveInts checks that all values in the slice are >= 1.
 // paramName is used in the error message (e.g. "projectId").
-func validatePositiveInts(values []int, paramName string) error {
+func validatePositiveInts(values []int, paramName string) ValidationResult {
 	for _, v := range values {
 		if v < 1 {
 			return NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
 		}
 	}
-	return nil
+	return OK
 }

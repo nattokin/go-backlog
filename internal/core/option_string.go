@@ -61,10 +61,10 @@ var validIssueSorts = []string{
 func (s *OptionService) WithIssueSort(sort string) RequestOption {
 	return &APIParamOption{
 		Type: ParamSort,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			for _, v := range validIssueSorts {
 				if sort == v {
-					return nil
+					return OK
 				}
 			}
 			return NewValidationError(ParamSort.Value(), fmt.Sprintf("invalid sort value: %q", sort))
@@ -76,12 +76,12 @@ func (s *OptionService) WithIssueSort(sort string) RequestOption {
 func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			addr, err := mail.ParseAddress(mailAddress)
 			if err != nil || addr.Address != mailAddress {
 				return NewValidationError(ParamMailAddress.Value(), fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setStringFunc(ParamMailAddress, mailAddress),
 	}
@@ -94,11 +94,11 @@ func (s *OptionService) WithName(name string) RequestOption {
 func (s *OptionService) WithOrder(order string) RequestOption {
 	return &APIParamOption{
 		Type: ParamOrder,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if order != "asc" && order != "desc" {
 				return NewValidationError(ParamOrder.Value(), "order must be only 'asc' or 'desc'")
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setStringFunc(ParamOrder, order),
 	}
@@ -107,11 +107,11 @@ func (s *OptionService) WithOrder(order string) RequestOption {
 func (s *OptionService) WithPassword(password string) RequestOption {
 	return &APIParamOption{
 		Type: ParamPassword,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if len(password) < 8 {
 				return NewValidationError(ParamPassword.Value(), "password must be at least 8 characters long")
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setStringFunc(ParamPassword, password),
 	}
@@ -140,10 +140,10 @@ var validFormats = []string{"backlog", "markdown"}
 func (s *OptionService) WithTextFormattingRule(format string) RequestOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			for _, v := range validFormats {
 				if format == v {
-					return nil
+					return OK
 				}
 			}
 			return NewValidationError(ParamTextFormattingRule.Value(), "format must be only 'backlog' or 'markdown'")
@@ -163,11 +163,11 @@ func (s *OptionService) WithUnit(unit string) RequestOption {
 func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if value == "" {
 				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setStringFunc(paramType, value),
 	}

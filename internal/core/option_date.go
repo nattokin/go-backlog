@@ -74,11 +74,11 @@ func (s *OptionService) WithUpdatedUntil(date string) RequestOption {
 func dateFormatStringOption(paramType APIParamOptionType, date string) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if !datePattern.MatchString(date) {
 				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setStringFunc(paramType, date),
 	}

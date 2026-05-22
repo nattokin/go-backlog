@@ -67,11 +67,11 @@ func (s *OptionService) WithMinID(id int) RequestOption {
 func (s *OptionService) WithOffset(offset int) RequestOption {
 	return &APIParamOption{
 		Type: ParamOffset,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if offset < 0 {
 				return NewValidationError(ParamOffset.Value(), "offset must not be negative")
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setIntFunc(ParamOffset, offset),
 	}
@@ -124,11 +124,11 @@ func (s *OptionService) WithWikiID(id int) RequestOption {
 func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if value < min || value > max {
 				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setIntFunc(paramType, value),
 	}
@@ -138,11 +138,11 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) RequestOp
 func positiveIntOption(paramType APIParamOptionType, value int) RequestOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() ValidationResult {
 			if value < 1 {
 				return NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
 			}
-			return nil
+			return OK
 		},
 		SetFunc: setIntFunc(paramType, value),
 	}
