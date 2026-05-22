@@ -98,7 +98,7 @@ func TestApplyOptions(t *testing.T) {
 				},
 			},
 			wantErr:     true,
-			wantErrType: &core.ValidationError{},
+			wantErrType: core.ValidationErrors(nil),
 		},
 		"checkError-multiple": {
 			opts: []core.RequestOption{
@@ -113,7 +113,8 @@ func TestApplyOptions(t *testing.T) {
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
-			wantErr: true,
+			wantErr:     true,
+			wantErrType: core.ValidationErrors(nil),
 		},
 		"success": {
 			opts: []core.RequestOption{
@@ -150,7 +151,7 @@ func TestApplyOptions(t *testing.T) {
 }
 
 // TestApplyOptions_multipleValidationErrors verifies that when multiple options
-// fail Check(), all errors are collected and returned together via errors.Join.
+// fail Check(), all errors are collected and returned as ValidationErrors.
 func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
 
@@ -169,18 +170,9 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 	err := core.ApplyOptions(v, validTypes, opt1, opt2)
 	require.Error(t, err)
 
-	var ve *core.ValidationError
-	assert.True(t, errors.As(err, &ve))
-
-	joined := err.(interface{ Unwrap() []error })
-	unwrapped := joined.Unwrap()
-	require.Len(t, unwrapped, 2)
-
-	var ve1 *core.ValidationError
-	require.True(t, errors.As(unwrapped[0], &ve1))
-	assert.Equal(t, "key", ve1.Param)
-
-	var ve2 *core.ValidationError
-	require.True(t, errors.As(unwrapped[1], &ve2))
-	assert.Equal(t, "name", ve2.Param)
+	var ves core.ValidationErrors
+	require.True(t, errors.As(err, &ves))
+	require.Len(t, ves, 2)
+	assert.Equal(t, "key", ves[0].Param)
+	assert.Equal(t, "name", ves[1].Param)
 }
