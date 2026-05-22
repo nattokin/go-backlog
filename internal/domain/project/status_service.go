@@ -48,11 +48,11 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 
 	opt := &core.OptionService{}
 	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
+	if err := nameOpt.Validate(); err != nil {
 		return nil, err
 	}
 	colorOpt := opt.WithColor(color)
-	if err := colorOpt.Check(); err != nil {
+	if err := colorOpt.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -77,7 +77,7 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 // Update updates a status in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option core.RequestOption, opts ...core.RequestOption) (*model.Status, error) {
+func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Status, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -107,7 +107,6 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 }
 
 // Delete deletes a status from a project.
-// substituteStatusID specifies the status to migrate existing issues to.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
 func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*model.Status, error) {
