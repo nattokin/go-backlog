@@ -60,9 +60,6 @@ func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
 // Use [errors.As] to check whether a returned error is a *ValidationError.
-// When multiple options fail validation, errors.As and errors.Join are used
-// to collect all failures; iterate with errors.Join's Unwrap() []error to
-// inspect each individual *ValidationError.
 type ValidationError struct {
 	core *core.ValidationError
 }
@@ -102,20 +99,15 @@ func convertError(err error) error {
 		return &InvalidOptionKeyError{core: e}
 	case *core.ValidationError:
 		return &ValidationError{core: e}
+	case core.ValidationErrors:
+		converted := make([]error, len(e))
+		for i, ve := range e {
+			converted[i] = &ValidationError{core: ve}
+		}
+		return errors.Join(converted...)
 	case *core.InternalClientError:
 		return &InternalClientError{core: e}
 	default:
-		// Handle errors.Join output: if the error wraps multiple errors,
-		// convert each individually and re-join.
-		type unwrapMulti interface{ Unwrap() []error }
-		if me, ok := err.(unwrapMulti); ok {
-			errs := me.Unwrap()
-			converted := make([]error, len(errs))
-			for i, e := range errs {
-				converted[i] = convertError(e)
-			}
-			return errors.Join(converted...)
-		}
 		return err
 	}
 }

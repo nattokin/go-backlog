@@ -77,6 +77,18 @@ func (e *ValidationError) Error() string {
 	return e.Message
 }
 
+// ValidationErrors is a collection of ValidationError values returned when
+// multiple options fail validation simultaneously.
+type ValidationErrors []*ValidationError
+
+func (es ValidationErrors) Error() string {
+	msgs := make([]string, len(es))
+	for i, e := range es {
+		msgs[i] = e.Error()
+	}
+	return strings.Join(msgs, "\n")
+}
+
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like missing Token
 // or malformed base URL.

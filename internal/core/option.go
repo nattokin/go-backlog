@@ -1,9 +1,6 @@
 package core
 
-import (
-	"errors"
-	"net/url"
-)
+import "net/url"
 
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
@@ -161,10 +158,10 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 
 // ApplyOptions validates and applies request options to the given url.Values.
 // Validation errors from Check() are collected across all options and returned
-// together via errors.Join so callers can inspect all invalid inputs at once.
+// as ValidationErrors so callers can inspect all invalid inputs at once.
 // Non-validation errors (InvalidOptionKeyError, nil option) are returned immediately.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
-	var validationErrs []error
+	var errs ValidationErrors
 
 	for _, opt := range opts {
 		if opt == nil {
@@ -174,13 +171,19 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...Request
 			return err
 		}
 		if err := opt.Check(); err != nil {
-			validationErrs = append(validationErrs, err)
-			continue
+			if ve, ok := err.(*ValidationError); ok {
+				errs = append(errs, ve)
+				continue
+			}
+			return err
 		}
 		if err := opt.Set(v); err != nil {
 			return err
 		}
 	}
 
-	return errors.Join(validationErrs...)
+	if len(errs) > 0 {
+		return errs
+	}
+	return nil
 }
