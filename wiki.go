@@ -104,7 +104,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
-	v, err := s.base.Update(ctx, wikiID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, wikiID, toCoreOption(option), toCoreOptions(opts)...)
 	return wikiFromModel(v), convertError(err)
 }
 

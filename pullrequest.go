@@ -152,7 +152,7 @@ func (s *PullRequestService) Create(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
 func (s *PullRequestService) Update(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, option RequestOption, opts ...RequestOption) (*PullRequest, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, repositoryIDOrName, prNumber, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toCoreOption(option), toCoreOptions(opts)...)
 	return pullRequestFromModel(v), convertError(err)
 }
 

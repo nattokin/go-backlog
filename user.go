@@ -75,7 +75,7 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(ctx context.Context, id int, option RequestOption, opts ...RequestOption) (*User, error) {
-	v, err := s.base.Update(ctx, id, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, id, toCoreOption(option), toCoreOptions(opts)...)
 	return userFromModel(v), convertError(err)
 }
 

@@ -104,7 +104,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, option RequestOption, opts ...RequestOption) (*Project, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, toCoreOption(option), toCoreOptions(opts)...)
 	return projectFromModel(v), convertError(err)
 }
 

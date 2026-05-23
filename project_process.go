@@ -42,7 +42,7 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
 func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option RequestOption, opts ...RequestOption) (*Status, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, statusID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOption(option), toCoreOptions(opts)...)
 	return statusFromModel(v), convertError(err)
 }
 
@@ -110,7 +110,7 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
 func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option RequestOption, opts ...RequestOption) (*Version, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, versionID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toCoreOption(option), toCoreOptions(opts)...)
 	return versionFromModel(v), convertError(err)
 }
 

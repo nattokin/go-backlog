@@ -101,7 +101,7 @@ func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook
 func (s *ProjectWebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option RequestOption, opts ...RequestOption) (*Webhook, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, toCoreOption(option), toCoreOptions(opts)...)
 	return webhookFromModel(v), convertError(err)
 }
 
