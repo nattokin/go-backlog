@@ -90,6 +90,9 @@ func (e *ValidationError) Error() string { return e.message }
 // Target returns the name of the parameter or argument that failed validation.
 func (e *ValidationError) Target() string { return e.target }
 
+// Message returns the validation error message.
+func (e *ValidationError) Message() string { return e.message }
+
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing token
 // or a malformed base URL.
