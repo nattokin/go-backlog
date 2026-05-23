@@ -112,75 +112,75 @@ type ProjectCustomFieldOptionService struct {
 
 // WithName sets the custom field name.
 func (s *ProjectCustomFieldOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // WithDescription sets the custom field description.
 func (s *ProjectCustomFieldOptionService) WithDescription(description string) RequestOption {
-	return s.base.WithDescription(description)
+	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
 // WithRequired sets whether the custom field is required.
 func (s *ProjectCustomFieldOptionService) WithRequired(required bool) RequestOption {
-	return s.base.WithRequired(required)
+	return &requestOption{opt: s.base.WithRequired(required)}
 }
 
 // WithApplicableIssueTypeIDs sets the issue type IDs to which the custom field applies.
 func (s *ProjectCustomFieldOptionService) WithApplicableIssueTypeIDs(ids []int) RequestOption {
-	return s.base.WithApplicableIssueTypeIDs(ids)
+	return &requestOption{opt: s.base.WithApplicableIssueTypeIDs(ids)}
 }
 
 // WithMin sets the minimum value for a number type custom field.
 func (s *ProjectCustomFieldOptionService) WithMin(min float64) RequestOption {
-	return s.base.WithMin(min)
+	return &requestOption{opt: s.base.WithMin(min)}
 }
 
 // WithMax sets the maximum value for a number type custom field.
 func (s *ProjectCustomFieldOptionService) WithMax(max float64) RequestOption {
-	return s.base.WithMax(max)
+	return &requestOption{opt: s.base.WithMax(max)}
 }
 
 // WithInitialValue sets the initial value for a number type custom field.
 func (s *ProjectCustomFieldOptionService) WithInitialValue(value float64) RequestOption {
-	return s.base.WithInitialValue(value)
+	return &requestOption{opt: s.base.WithInitialValue(value)}
 }
 
 // WithUnit sets the unit string for a number type custom field.
 func (s *ProjectCustomFieldOptionService) WithUnit(unit string) RequestOption {
-	return s.base.WithUnit(unit)
+	return &requestOption{opt: s.base.WithUnit(unit)}
 }
 
 // WithInitialValueType sets the initial value type for a date type custom field.
 // 1: today, 2: today+N days, 3: specified date.
 func (s *ProjectCustomFieldOptionService) WithInitialValueType(initialValueType int) RequestOption {
-	return s.base.WithInitialValueType(initialValueType)
+	return &requestOption{opt: s.base.WithInitialValueType(initialValueType)}
 }
 
 // WithInitialDate sets the initial date ("yyyy-MM-dd") for a date type custom field
 // when InitialValueType is 3.
 func (s *ProjectCustomFieldOptionService) WithInitialDate(date string) RequestOption {
-	return s.base.WithInitialDate(date)
+	return &requestOption{opt: s.base.WithInitialDate(date)}
 }
 
 // WithInitialShift sets the number of days to shift from today for a date type custom field
 // when InitialValueType is 2.
 func (s *ProjectCustomFieldOptionService) WithInitialShift(days int) RequestOption {
-	return s.base.WithInitialShift(days)
+	return &requestOption{opt: s.base.WithInitialShift(days)}
 }
 
 // WithItems sets the list items for a list type custom field.
 func (s *ProjectCustomFieldOptionService) WithItems(items []string) RequestOption {
-	return s.base.WithItems(items)
+	return &requestOption{opt: s.base.WithItems(items)}
 }
 
 // WithAllowInput sets whether free-text input is allowed for a list type custom field.
 func (s *ProjectCustomFieldOptionService) WithAllowInput(enabled bool) RequestOption {
-	return s.base.WithAllowInput(enabled)
+	return &requestOption{opt: s.base.WithAllowInput(enabled)}
 }
 
 // WithAllowAddItem sets whether users can add new items to a list type custom field.
 func (s *ProjectCustomFieldOptionService) WithAllowAddItem(enabled bool) RequestOption {
-	return s.base.WithAllowAddItem(enabled)
+	return &requestOption{opt: s.base.WithAllowAddItem(enabled)}
 }
 
 // ──────────────────────────────────────────────────────────────

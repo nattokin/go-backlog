@@ -247,7 +247,7 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {
-	v, err := s.base.Update(ctx, issueIDOrKey, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, issueIDOrKey, toCoreOption(option), toCoreOptions(opts)...)
 	return issueFromModel(v), convertError(err)
 }
 

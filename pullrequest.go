@@ -225,67 +225,67 @@ type PullRequestOptionService struct {
 
 // WithAssigneeID returns an option to set the `assigneeId` parameter.
 func (s *PullRequestOptionService) WithAssigneeID(id int) RequestOption {
-	return s.base.WithAssigneeID(id)
+	return &requestOption{opt: s.base.WithAssigneeID(id)}
 }
 
 // WithAssigneeIDs filters pull requests by assignee user IDs.
 func (s *PullRequestOptionService) WithAssigneeIDs(ids []int) RequestOption {
-	return s.base.WithAssigneeIDs(ids)
+	return &requestOption{opt: s.base.WithAssigneeIDs(ids)}
 }
 
 // WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
 func (s *PullRequestOptionService) WithAttachmentIDs(ids []int) RequestOption {
-	return s.base.WithAttachmentIDs(ids)
+	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
 // WithComment returns an option to set the `comment` parameter.
 func (s *PullRequestOptionService) WithComment(comment string) RequestOption {
-	return s.base.WithComment(comment)
+	return &requestOption{opt: s.base.WithComment(comment)}
 }
 
 // WithCount sets the number of pull requests to retrieve.
 func (s *PullRequestOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithCreatedUserIDs filters pull requests by created user IDs.
 func (s *PullRequestOptionService) WithCreatedUserIDs(ids []int) RequestOption {
-	return s.base.WithCreatedUserIDs(ids)
+	return &requestOption{opt: s.base.WithCreatedUserIDs(ids)}
 }
 
 // WithDescription returns an option to set the `description` parameter.
 func (s *PullRequestOptionService) WithDescription(description string) RequestOption {
-	return s.base.WithDescription(description)
+	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
 // WithIssueID returns an option to set the `issueId` parameter.
 func (s *PullRequestOptionService) WithIssueID(id int) RequestOption {
-	return s.base.WithIssueID(id)
+	return &requestOption{opt: s.base.WithIssueID(id)}
 }
 
 // WithIssueIDs filters pull requests by issue IDs.
 func (s *PullRequestOptionService) WithIssueIDs(ids []int) RequestOption {
-	return s.base.WithIssueIDs(ids)
+	return &requestOption{opt: s.base.WithIssueIDs(ids)}
 }
 
 // WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
 func (s *PullRequestOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
-	return s.base.WithNotifiedUserIDs(ids)
+	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
 
 // WithOffset sets the number of pull requests to skip.
 func (s *PullRequestOptionService) WithOffset(offset int) RequestOption {
-	return s.base.WithOffset(offset)
+	return &requestOption{opt: s.base.WithOffset(offset)}
 }
 
 // WithStatusIDs filters pull requests by status IDs.
 func (s *PullRequestOptionService) WithStatusIDs(ids []int) RequestOption {
-	return s.base.WithStatusIDs(ids)
+	return &requestOption{opt: s.base.WithStatusIDs(ids)}
 }
 
 // WithSummary returns an option to set the `summary` parameter.
 func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
-	return s.base.WithSummary(summary)
+	return &requestOption{opt: s.base.WithSummary(summary)}
 }
 
 // ──────────────────────────────────────────────────────────────

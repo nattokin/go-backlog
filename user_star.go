@@ -45,22 +45,22 @@ type UserStarOptionService struct {
 
 // WithCount sets the number of results to return.
 func (s *UserStarOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithMaxID sets the maximum ID to filter results.
 func (s *UserStarOptionService) WithMaxID(id int) RequestOption {
-	return s.base.WithMaxID(id)
+	return &requestOption{opt: s.base.WithMaxID(id)}
 }
 
 // WithMinID sets the minimum ID to filter results.
 func (s *UserStarOptionService) WithMinID(id int) RequestOption {
-	return s.base.WithMinID(id)
+	return &requestOption{opt: s.base.WithMinID(id)}
 }
 
 // WithOrder sets the sort order of results.
 func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(string(order))
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 func newUserStarService(method *core.Method, option *core.OptionService) *UserStarService {

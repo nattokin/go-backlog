@@ -74,22 +74,22 @@ type ProjectIssueTypeOptionService struct {
 
 // WithColor sets the issue type color.
 func (s *ProjectIssueTypeOptionService) WithColor(color string) RequestOption {
-	return s.base.WithColor(color)
+	return &requestOption{opt: s.base.WithColor(color)}
 }
 
 // WithName sets the issue type name.
 func (s *ProjectIssueTypeOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // WithTemplateDescription sets the default description template for new issues of this type.
 func (s *ProjectIssueTypeOptionService) WithTemplateDescription(description string) RequestOption {
-	return s.base.WithTemplateDescription(description)
+	return &requestOption{opt: s.base.WithTemplateDescription(description)}
 }
 
 // WithTemplateSummary sets the default summary template for new issues of this type.
 func (s *ProjectIssueTypeOptionService) WithTemplateSummary(summary string) RequestOption {
-	return s.base.WithTemplateSummary(summary)
+	return &requestOption{opt: s.base.WithTemplateSummary(summary)}
 }
 
 // ──────────────────────────────────────────────────────────────

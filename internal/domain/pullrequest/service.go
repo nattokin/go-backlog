@@ -38,7 +38,11 @@ func (s *Service) validateListArgs(projectIDOrKey string, repoIDOrName string) e
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return err
 	}
-	return validate.ValidateRepositoryIDOrName(repoIDOrName)
+	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // list fetches a page of pull requests using the given pre-built query.

@@ -125,27 +125,27 @@ type ProjectWebhookOptionService struct {
 
 // WithActivityTypeIDs sets activity type IDs for webhook events.
 func (s *ProjectWebhookOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return s.base.WithActivityTypeIDs(typeIDs)
+	return &requestOption{opt: s.base.WithActivityTypeIDs(typeIDs)}
 }
 
 // WithAllEvent sets whether the webhook receives all events.
 func (s *ProjectWebhookOptionService) WithAllEvent(enabled bool) RequestOption {
-	return s.base.WithAllEvent(enabled)
+	return &requestOption{opt: s.base.WithAllEvent(enabled)}
 }
 
 // WithDescription sets the webhook description.
 func (s *ProjectWebhookOptionService) WithDescription(description string) RequestOption {
-	return s.base.WithDescription(description)
+	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
 // WithHookURL sets the webhook URL.
 func (s *ProjectWebhookOptionService) WithHookURL(hookURL string) RequestOption {
-	return s.base.WithHookURL(hookURL)
+	return &requestOption{opt: s.base.WithHookURL(hookURL)}
 }
 
 // WithName sets the webhook name.
 func (s *ProjectWebhookOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // ──────────────────────────────────────────────────────────────
