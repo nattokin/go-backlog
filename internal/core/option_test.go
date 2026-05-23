@@ -79,13 +79,12 @@ func TestApplyOptions(t *testing.T) {
 			wantErr:     true,
 			wantErrType: &core.InvalidOptionError{},
 		},
+		// nilValidationResult is only possible with a custom RequestOption
+		// implementation that returns nil from Check(); *APIParamOption.Check()
+		// always returns OK when Validate() returns nil.
 		"nilValidationResult": {
 			opts: []core.RequestOption{
-				&core.APIParamOption{
-					Type:      core.ParamKey,
-					CheckFunc: func() *core.ValidationError { return nil },
-					SetFunc:   func(_ url.Values) error { return nil },
-				},
+				nilCheckOption{},
 			},
 			wantErr:     true,
 			wantErrType: &core.InvalidOptionError{},
@@ -160,6 +159,14 @@ func TestApplyOptions(t *testing.T) {
 		})
 	}
 }
+
+// nilCheckOption is a custom RequestOption whose Check() always returns nil,
+// used to test that ApplyOptions returns InvalidOptionError in that case.
+type nilCheckOption struct{}
+
+func (nilCheckOption) Key() string                    { return core.ParamKey.Value() }
+func (nilCheckOption) Check() core.ValidationResult   { return nil }
+func (nilCheckOption) Set(_ url.Values) error         { return nil }
 
 // TestApplyOptions_multipleValidationErrors verifies that when multiple options
 // fail Check(), all errors are collected and returned as ValidationErrors.

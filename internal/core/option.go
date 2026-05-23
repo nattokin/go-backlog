@@ -169,9 +169,9 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 }
 
 // ApplyOptions validates and applies request options to the given url.Values.
-// Validation errors from Validate() are collected into ValidationErrors and returned
+// Validation errors from Check() are collected into ValidationErrors and returned
 // together so callers can inspect all invalid inputs at once.
-// InvalidOptionKeyError and nil options are returned immediately.
+// InvalidOptionKeyError, nil options, and nil ValidationResult are returned immediately.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
 	var errs ValidationErrors
 
@@ -183,12 +183,13 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...Request
 			return err
 		}
 
-		ve := opt.Check()
-		if ve == nil {
-			return NewInvalidOptionError("option is invalid")
+		result := opt.Check()
+		if result == nil {
+			return NewInvalidOptionError("Check() must not return nil")
 		}
-		if !ve.Valid() {
-			errs = append(errs, NewValidationError(ve.Target(), ve.Message()))
+		if !result.Valid() {
+			errs = append(errs, NewValidationError(result.Target(), result.Message()))
+			continue
 		}
 
 		if err := opt.Set(v); err != nil {
