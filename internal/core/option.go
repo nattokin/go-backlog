@@ -138,8 +138,8 @@ func (o *APIParamOption) Key() string {
 	return o.key()
 }
 
-// Check runs Validate and returns the result as a ValidationResult.
-// Returns OK when validation passes (including when CheckFunc is nil).
+// Check runs the option's validation and returns a *ValidationError if it
+// fails, or nil if validation passes (including when CheckFunc is nil).
 func (o *APIParamOption) Check() *ValidationError {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
@@ -178,16 +178,10 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIPar
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
-
-		result := opt.Check()
-		if result == nil {
-			return NewInvalidOptionError("Check() must not return nil")
-		}
-		if !result.Valid() {
-			errs = append(errs, NewValidationError(result.Target(), result.Message()))
+		if ve := opt.Check(); ve != nil {
+			errs = append(errs, ve)
 			continue
 		}
-
 		if err := opt.Set(v); err != nil {
 			return err
 		}
