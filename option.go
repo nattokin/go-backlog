@@ -15,6 +15,21 @@ type RequestOption interface {
 	Set(url.Values) error
 }
 
+// requestOption is the internal implementation of RequestOption that wraps
+// a *core.APIParamOption, converting *core.ValidationError to *ValidationError.
+type requestOption struct {
+	opt *core.APIParamOption
+}
+
+func (o *requestOption) Key() string { return o.opt.Key() }
+func (o *requestOption) Check() *ValidationError {
+	if ve := o.opt.Check(); ve != nil {
+		return &ValidationError{target: ve.Target(), message: ve.Message()}
+	}
+	return nil
+}
+func (o *requestOption) Set(v url.Values) error { return o.opt.Set(v) }
+
 // ──────────────────────────────────────────────────────────────
 //  ActivityOptionService
 // ──────────────────────────────────────────────────────────────
@@ -26,27 +41,27 @@ type ActivityOptionService struct {
 
 // WithActivityTypeIDs filters activities by type IDs.
 func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return fromCoreOption(s.base.WithActivityTypeIDs(typeIDs))
+	return &requestOption{opt: s.base.WithActivityTypeIDs(typeIDs)}
 }
 
 // WithMinID filters activities whose ID is greater than or equal to id.
 func (s *ActivityOptionService) WithMinID(id int) RequestOption {
-	return fromCoreOption(s.base.WithMinActivityTypeID(id))
+	return &requestOption{opt: s.base.WithMinActivityTypeID(id)}
 }
 
 // WithMaxID filters activities whose ID is less than or equal to id.
 func (s *ActivityOptionService) WithMaxID(id int) RequestOption {
-	return fromCoreOption(s.base.WithMaxActivityTypeID(id))
+	return &requestOption{opt: s.base.WithMaxActivityTypeID(id)}
 }
 
 // WithCount sets the number of activities to retrieve.
 func (s *ActivityOptionService) WithCount(count int) RequestOption {
-	return fromCoreOption(s.base.WithCount(count))
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithOrder sets the sort order of results.
 func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
-	return fromCoreOption(s.base.WithOrder(string(order)))
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -60,25 +75,6 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 // ──────────────────────────────────────────────────────────────
 //  Helpers
 // ──────────────────────────────────────────────────────────────
-
-// fromCoreOption wraps a *core.APIParamOption as a RequestOption, converting
-// *core.ValidationError to *ValidationError in Check().
-func fromCoreOption(opt *core.APIParamOption) RequestOption {
-	return &coreOptionWrapper{opt: opt}
-}
-
-type coreOptionWrapper struct {
-	opt *core.APIParamOption
-}
-
-func (w *coreOptionWrapper) Key() string { return w.opt.Key() }
-func (w *coreOptionWrapper) Check() *ValidationError {
-	if ve := w.opt.Check(); ve != nil {
-		return &ValidationError{target: ve.Target(), message: ve.Message()}
-	}
-	return nil
-}
-func (w *coreOptionWrapper) Set(v url.Values) error { return w.opt.Set(v) }
 
 // toCoreOptions converts a slice of RequestOption to []*core.APIParamOption.
 func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
