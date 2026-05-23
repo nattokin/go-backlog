@@ -306,12 +306,12 @@ func TestOptionService_int(t *testing.T) {
 			t.Parallel()
 
 			form := url.Values{}
-			err := tc.option.Check()
+			ve := tc.option.Check()
 			if tc.wantErr {
-				assert.Error(t, err)
+				assert.NotNil(t, ve)
 				return
 			}
-			require.NoError(t, err)
+			require.Nil(t, ve)
 			_ = tc.option.Set(form)
 			assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
 		})
