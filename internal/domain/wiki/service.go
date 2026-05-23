@@ -19,7 +19,7 @@ type Service struct {
 // List returns a list of wiki pages in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Wiki, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 // Create creates a new wiki page in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/create-wiki-page
-func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...*core.APIParamOption) (*model.Wiki, error) {
+func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateProjectID(projectID); err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]*core.APIParamOption{option.WithName(name), option.WithContent(content)}, opts...)
+	options := append([]core.RequestOption{option.WithName(name), option.WithContent(content)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
@@ -125,14 +125,14 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 // Update updates an existing wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Wiki, error) {
+func (s *Service) Update(ctx context.Context, wikiID int, option core.RequestOption, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}
 
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]core.RequestOption{option}, opts...)
 
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 // Delete deletes a wiki page by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParamOption) (*model.Wiki, error) {
+func (s *Service) Delete(ctx context.Context, wikiID int, opts ...core.RequestOption) (*model.Wiki, error) {
 	if err := validate.ValidateWikiID(wikiID); err != nil {
 		return nil, err
 	}

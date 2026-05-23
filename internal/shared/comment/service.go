@@ -16,7 +16,7 @@ type Service struct {
 	method *core.Method
 }
 
-func (s *Service) List(ctx context.Context, spath string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOption) ([]*model.Comment, error) {
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamMinID,
@@ -41,7 +41,7 @@ func (s *Service) List(ctx context.Context, spath string, opts ...*core.APIParam
 	return v, nil
 }
 
-func (s *Service) Add(ctx context.Context, spath, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+func (s *Service) Add(ctx context.Context, spath, content string, opts ...core.RequestOption) (*model.Comment, error) {
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
@@ -50,7 +50,7 @@ func (s *Service) Add(ctx context.Context, spath, content string, opts ...*core.
 		core.ParamAttachmentIDs,
 	}
 	options := append(
-		[]*core.APIParamOption{option.WithContent(content)},
+		[]core.RequestOption{option.WithContent(content)},
 		opts...,
 	)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {

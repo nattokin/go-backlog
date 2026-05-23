@@ -20,7 +20,7 @@ type VersionService struct {
 // List returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Version, error) {
+func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 // Add adds a version/milestone to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone
-func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...*core.APIParamOption) (*model.Version, error) {
+func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 // Update updates a version/milestone.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone
-func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Version, error) {
+func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

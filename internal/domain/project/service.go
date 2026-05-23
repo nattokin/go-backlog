@@ -19,7 +19,7 @@ type Service struct {
 // List returns a list of projects in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Project, error) {
+func (s *Service) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Project, error) {
 
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
@@ -65,7 +65,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 // Create creates a new project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *Service) Create(ctx context.Context, key, name string, opts ...*core.APIParamOption) (*model.Project, error) {
+func (s *Service) Create(ctx context.Context, key, name string, opts ...core.RequestOption) (*model.Project, error) {
 	option := &core.OptionService{}
 
 	form := url.Values{}
@@ -91,7 +91,7 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...*core.AP
 // Update updates a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Project, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, option core.RequestOption, opts ...core.RequestOption) (*model.Project, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

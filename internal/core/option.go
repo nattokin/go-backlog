@@ -106,6 +106,13 @@ func (t APIParamOptionType) Value() string {
 	return string(t)
 }
 
+// RequestOption is implemented by all option types that can be applied to an API request.
+type RequestOption interface {
+	Key() string
+	Check() ValidationResult
+	Set(url.Values) error
+}
+
 // OptionService provides builder methods for constructing *APIParamOption values.
 // Each XxxOptionService selectively exposes only the valid methods for its API endpoint.
 type OptionService struct{}
@@ -116,9 +123,9 @@ type OptionService struct{}
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType          // canonical API parameter key
-	CheckFunc func() *ValidationError     // optional validation; nil means no validation
-	SetFunc   func(url.Values) error      // applies the value to the request parameters
+	Type      APIParamOptionType      // canonical API parameter key
+	CheckFunc func() *ValidationError // optional validation; nil means no validation
+	SetFunc   func(url.Values) error  // applies the value to the request parameters
 }
 
 func (o *APIParamOption) Key() string {
@@ -165,7 +172,7 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 // Validation errors from Validate() are collected into ValidationErrors and returned
 // together so callers can inspect all invalid inputs at once.
 // InvalidOptionKeyError and nil options are returned immediately.
-func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIParamOption) error {
+func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
 	var errs ValidationErrors
 
 	for _, opt := range opts {
@@ -175,10 +182,15 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIPar
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
-		if ve := opt.Validate(); ve != nil {
-			errs = append(errs, ve)
-			continue
+
+		ve := opt.Check()
+		if ve == nil {
+			return NewInvalidOptionError("option is invalid")
 		}
+		if !ve.Valid() {
+			errs = append(errs, NewValidationError(ve.Target(), ve.Message()))
+		}
+
 		if err := opt.Set(v); err != nil {
 			return err
 		}

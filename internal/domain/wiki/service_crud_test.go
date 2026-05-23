@@ -234,7 +234,7 @@ func TestService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		wikiID int
-		option *core.APIParamOption
+		option core.RequestOption
 		opts   []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)

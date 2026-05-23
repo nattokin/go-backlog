@@ -78,7 +78,7 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
-	options := []*core.APIParamOption{
+	options := []core.RequestOption{
 		option.WithPassword(password),
 		option.WithName(name),
 		option.WithMailAddress(mailAddress),
@@ -106,11 +106,11 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 // Update updates an existing user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *Service) Update(ctx context.Context, id int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.User, error) {
+func (s *Service) Update(ctx context.Context, id int, option core.RequestOption, opts ...core.RequestOption) (*model.User, error) {
 	baseOpt := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
-	options := append([]*core.APIParamOption{baseOpt.WithUserID(id), option}, opts...)
+	options := append([]core.RequestOption{baseOpt.WithUserID(id), option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}

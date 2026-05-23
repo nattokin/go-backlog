@@ -21,7 +21,7 @@ type CommentService struct {
 // List returns a list of comments on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...core.RequestOption) ([]*model.Comment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 // Add adds a comment to a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
-func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...core.RequestOption) (*model.Comment, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

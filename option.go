@@ -11,9 +11,25 @@ import (
 // Callers can implement this interface to provide custom options (e.g. for mocking in tests).
 type RequestOption interface {
 	Key() string
-	Check() error
+	Check() ValidationResult
 	Set(url.Values) error
 }
+
+type ValidationResult interface {
+	Valid() bool
+	Target() string
+	Message() string
+}
+
+type apiParamOption struct {
+	key   func() string
+	check func() core.ValidationResult
+	set   func(url.Values) error
+}
+
+func (o *apiParamOption) Key() string                  { return o.key() }
+func (o *apiParamOption) Check() core.ValidationResult { return o.check() }
+func (o *apiParamOption) Set(v url.Values) error       { return o.set(v) }
 
 // ──────────────────────────────────────────────────────────────
 //  ActivityOptionService
@@ -26,7 +42,12 @@ type ActivityOptionService struct {
 
 // WithActivityTypeIDs filters activities by type IDs.
 func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return s.base.WithActivityTypeIDs(typeIDs)
+	option := s.base.WithActivityTypeIDs(typeIDs)
+	return &apiParamOption{
+		key:   option.Key,
+		check: func() ValidationResult { return option.Check() },
+		set:   option.Set,
+	}
 }
 
 // WithMinID filters activities whose ID is greater than or equal to id.
@@ -61,10 +82,18 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
-	coreOpts := make([]*core.APIParamOption, len(opts))
+func toCoreOptions(opts []RequestOption) []core.RequestOption {
+	coreOpts := make([]core.RequestOption, len(opts))
 	for i, o := range opts {
-		coreOpts[i] = o
+		coreOpts[i] = toCoreOption(o)
 	}
 	return coreOpts
+}
+
+func toCoreOption(option RequestOption) core.RequestOption {
+	return &apiParamOption{
+		key:   option.Key,
+		check: func() core.ValidationResult { return option.Check() },
+		set:   option.Set,
+	}
 }

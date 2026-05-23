@@ -19,7 +19,7 @@ type StarService struct {
 // List returns a list of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
-func (s *StarService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Star, error) {
+func (s *StarService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Star, error) {
 	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}

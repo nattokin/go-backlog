@@ -41,7 +41,7 @@ func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*
 // Create adds a new issue type to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-type
-func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...*core.APIParamOption) (*model.IssueType, error) {
+func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...core.RequestOption) (*model.IssueType, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 // Update updates an issue type in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
-func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.IssueType, error) {
+func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option core.RequestOption, opts ...core.RequestOption) (*model.IssueType, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

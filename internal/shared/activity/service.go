@@ -16,7 +16,7 @@ type Service struct {
 	method *core.Method
 }
 
-func (s *Service) List(ctx context.Context, spath string, opts ...*core.APIParamOption) ([]*model.Activity, error) {
+func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOption) ([]*model.Activity, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamActivityTypeIDs, core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
 	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
