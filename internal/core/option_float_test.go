@@ -71,8 +71,7 @@ func TestOptionService_float(t *testing.T) {
 			t.Parallel()
 
 			form := url.Values{}
-			err := tc.option.Check()
-			require.NoError(t, err)
+			require.Nil(t, tc.option.Check())
 			_ = tc.option.Set(form)
 			assert.Equal(t, strconv.FormatFloat(tc.wantValue, 'f', -1, 64), form.Get(tc.key))
 		})
