@@ -138,23 +138,13 @@ func (o *APIParamOption) Key() string {
 	return o.key()
 }
 
-// Validate runs the option's validation and returns a *ValidationError if it
-// fails, or nil if it passes. Callers within internal packages should use this
-// method directly instead of Check().
-func (o *APIParamOption) Validate() *ValidationError {
+// Check runs Validate and returns the result as a ValidationResult.
+// Returns OK when validation passes (including when CheckFunc is nil).
+func (o *APIParamOption) Check() *ValidationError {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
 	}
 	return nil
-}
-
-// Check runs Validate and returns the result as a ValidationResult.
-// Returns OK when validation passes (including when CheckFunc is nil).
-func (o *APIParamOption) Check() ValidationResult {
-	if ve := o.Validate(); ve != nil {
-		return ve
-	}
-	return OK
 }
 
 func (o *APIParamOption) Set(v url.Values) error {

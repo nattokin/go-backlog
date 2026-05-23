@@ -47,7 +47,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Validate(); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}
@@ -79,7 +79,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Validate(); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}

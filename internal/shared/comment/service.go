@@ -100,7 +100,7 @@ func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error)
 
 func (s *Service) Update(ctx context.Context, spath, content string) (*model.Comment, error) {
 	option := (&core.OptionService{}).WithContent(content)
-	if err := option.Validate(); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}

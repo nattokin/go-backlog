@@ -87,7 +87,7 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 	}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Validate(); err != nil {
+	if err := countOpt.Check(); err != nil {
 		return nil, err
 	}
 

@@ -126,7 +126,7 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOp
 	o := &core.OptionService{}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Validate(); err != nil {
+	if err := countOpt.Check(); err != nil {
 		return nil, err
 	}
 

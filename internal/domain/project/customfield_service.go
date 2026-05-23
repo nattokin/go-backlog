@@ -152,7 +152,7 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Validate(); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}
@@ -187,7 +187,7 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 	}
 
 	option := (&core.OptionService{}).WithName(name)
-	if err := option.Validate(); err != nil {
+	if err := option.Check(); err != nil {
 		return nil, err
 	}
 	form := url.Values{}

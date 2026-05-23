@@ -48,11 +48,11 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 
 	opt := &core.OptionService{}
 	nameOpt := opt.WithName(name)
-	if err := nameOpt.Validate(); err != nil {
+	if err := nameOpt.Check(); err != nil {
 		return nil, err
 	}
 	colorOpt := opt.WithColor(color)
-	if err := colorOpt.Validate(); err != nil {
+	if err := colorOpt.Check(); err != nil {
 		return nil, err
 	}
 
