@@ -58,7 +58,7 @@ func (e *InvalidOptionKeyError) InvalidKey() string { return e.core.Invalid }
 func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 
 // InvalidOptionError is returned when an option itself is invalid, such as a
-// nil option being passed or a Check() implementation returning nil.
+// nil option being passed.
 // Use [errors.As] to check whether a returned error is an *InvalidOptionError.
 type InvalidOptionError struct {
 	core *core.InvalidOptionError
@@ -75,6 +75,13 @@ func (e *InvalidOptionError) Error() string { return e.core.Error() }
 type ValidationError struct {
 	target  string
 	message string
+}
+
+// NewValidationError creates a new ValidationError with the given target and message.
+// target identifies the parameter or argument that failed validation.
+// Use this when implementing a custom [RequestOption] to return validation failures.
+func NewValidationError(target, message string) *ValidationError {
+	return &ValidationError{target: target, message: message}
 }
 
 // Error implements the error interface.
@@ -97,9 +104,6 @@ func (e *InternalClientError) Error() string { return e.core.Error() }
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
 // leaking into the public API surface.
-//
-// Only error types that core returns directly (without wrapping) are converted
-// here; *Error is excluded because it is never returned standalone.
 func convertError(err error) error {
 	if err == nil {
 		return nil
