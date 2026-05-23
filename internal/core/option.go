@@ -118,13 +118,18 @@ type OptionService struct{}
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType      // canonical API parameter key
+	Type      APIParamOptionType // canonical API parameter key
+	KeyFunc   func() string
 	CheckFunc func() *ValidationError // optional validation; nil means no validation
 	SetFunc   func(url.Values) error  // applies the value to the request parameters
 }
 
-func (o *APIParamOption) Key() string {
+func (o *APIParamOption) key() string {
 	return o.Type.Value()
+}
+
+func (o *APIParamOption) Key() string {
+	return o.key()
 }
 
 // Validate runs the option's validation and returns a *ValidationError if it

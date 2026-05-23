@@ -42,12 +42,7 @@ type ActivityOptionService struct {
 
 // WithActivityTypeIDs filters activities by type IDs.
 func (s *ActivityOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	option := s.base.WithActivityTypeIDs(typeIDs)
-	return &apiParamOption{
-		key:   option.Key,
-		check: func() ValidationResult { return option.Check() },
-		set:   option.Set,
-	}
+	return s.base.WithActivityTypeIDs(typeIDs)
 }
 
 // WithMinID filters activities whose ID is greater than or equal to id.
@@ -82,18 +77,21 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-func toCoreOptions(opts []RequestOption) []core.RequestOption {
-	coreOpts := make([]core.RequestOption, len(opts))
+func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
+	coreOpts := make([]*core.APIParamOption, len(opts))
 	for i, o := range opts {
 		coreOpts[i] = toCoreOption(o)
 	}
 	return coreOpts
 }
 
-func toCoreOption(option RequestOption) core.RequestOption {
-	return &apiParamOption{
-		key:   option.Key,
-		check: func() core.ValidationResult { return option.Check() },
-		set:   option.Set,
+func toCoreOption(option RequestOption) *core.APIParamOption {
+	return &core.APIParamOption{
+		KeyFunc: option.Key,
+		CheckFunc: func() *core.ValidationError {
+			result := option.Check()
+			return core.NewValidationError(result.Target(), result.Message())
+		},
+		SetFunc: option.Set,
 	}
 }
