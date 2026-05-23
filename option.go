@@ -21,16 +21,6 @@ type ValidationResult interface {
 	Message() string
 }
 
-type apiParamOption struct {
-	key   func() string
-	check func() core.ValidationResult
-	set   func(url.Values) error
-}
-
-func (o *apiParamOption) Key() string                  { return o.key() }
-func (o *apiParamOption) Check() core.ValidationResult { return o.check() }
-func (o *apiParamOption) Set(v url.Values) error       { return o.set(v) }
-
 // ──────────────────────────────────────────────────────────────
 //  ActivityOptionService
 // ──────────────────────────────────────────────────────────────
@@ -90,6 +80,9 @@ func toCoreOption(option RequestOption) *core.APIParamOption {
 		KeyFunc: option.Key,
 		CheckFunc: func() *core.ValidationError {
 			result := option.Check()
+			if result == nil || result.Valid() {
+				return nil
+			}
 			return core.NewValidationError(result.Target(), result.Message())
 		},
 		SetFunc: option.Set,
