@@ -13,7 +13,7 @@ import (
 
 func TestAPIParamOption(t *testing.T) {
 	cases := map[string]struct {
-		option      *APIParamOption
+		option      *core.APIParamOption
 		expectPanic bool
 	}{
 		"SetFunc-nil": {
@@ -59,17 +59,17 @@ func TestApplyOptions(t *testing.T) {
 	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
 
 	cases := map[string]struct {
-		opts        []core.RequestOption
+		opts        []*core.APIParamOption
 		wantErr     bool
 		wantErrType any
 	}{
 		"nilOption": {
-			opts:        []*APIParamOption{nil},
+			opts:        []*core.APIParamOption{nil},
 			wantErr:     true,
 			wantErrType: &core.InvalidOptionError{},
 		},
 		"nilOption-second": {
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:    core.ParamKey,
 					SetFunc: func(_ url.Values) error { return nil },
@@ -83,23 +83,18 @@ func TestApplyOptions(t *testing.T) {
 		// implementation that returns nil from Check(); *APIParamOption.Check()
 		// always returns OK when Validate() returns nil.
 		"nilValidationResult": {
-<<<<<<< Updated upstream
-			opts: []core.RequestOption{
-				nilCheckOption{},
-=======
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:      core.ParamKey,
 					CheckFunc: func() *core.ValidationError { return nil },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
->>>>>>> Stashed changes
 			},
 			wantErr:     true,
 			wantErrType: &core.InvalidOptionError{},
 		},
 		"invalidKey": {
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:    core.ParamOffset,
 					SetFunc: func(_ url.Values) error { return nil },
@@ -109,7 +104,7 @@ func TestApplyOptions(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		"checkError-single": {
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:      core.ParamKey,
 					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "check failed") },
@@ -120,7 +115,7 @@ func TestApplyOptions(t *testing.T) {
 			wantErrType: core.ValidationErrors(nil),
 		},
 		"checkError-multiple": {
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:      core.ParamKey,
 					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
@@ -136,7 +131,7 @@ func TestApplyOptions(t *testing.T) {
 			wantErrType: core.ValidationErrors(nil),
 		},
 		"success": {
-			opts: []*APIParamOption{
+			opts: []*core.APIParamOption{
 				&core.APIParamOption{
 					Type:    core.ParamKey,
 					SetFunc: func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
@@ -145,7 +140,7 @@ func TestApplyOptions(t *testing.T) {
 			wantErr: false,
 		},
 		"noOptions": {
-			opts:    []*APIParamOption{},
+			opts:    []*core.APIParamOption{},
 			wantErr: false,
 		},
 	}
@@ -173,9 +168,9 @@ func TestApplyOptions(t *testing.T) {
 // used to test that ApplyOptions returns InvalidOptionError in that case.
 type nilCheckOption struct{}
 
-func (nilCheckOption) Key() string                    { return core.ParamKey.Value() }
-func (nilCheckOption) Check() core.ValidationResult   { return nil }
-func (nilCheckOption) Set(_ url.Values) error         { return nil }
+func (nilCheckOption) Key() string                  { return core.ParamKey.Value() }
+func (nilCheckOption) Check() core.ValidationResult { return nil }
+func (nilCheckOption) Set(_ url.Values) error       { return nil }
 
 // TestApplyOptions_multipleValidationErrors verifies that when multiple options
 // fail Check(), all errors are collected and returned as ValidationErrors.
