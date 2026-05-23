@@ -10,7 +10,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// WithCustomField returns a *APIParamOption that sets a custom field value for
+// WithCustomField returns a *core.APIParamOption that sets a custom field value for
 // non-list types (Text, Sentence, Number, Date).
 func WithCustomField[T string | float64 | time.Time](id int, value T) *core.APIParamOption {
 	return &core.APIParamOption{
@@ -50,7 +50,7 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) *core.APIP
 	}
 }
 
-// WithCustomFieldItems returns a *APIParamOption that sets predefined item selections
+// WithCustomFieldItems returns a *core.APIParamOption that sets predefined item selections
 // for list-type custom fields.
 func WithCustomFieldItems(id int, itemIDs []int) *core.APIParamOption {
 	return &core.APIParamOption{
@@ -71,7 +71,7 @@ func WithCustomFieldItems(id int, itemIDs []int) *core.APIParamOption {
 	}
 }
 
-// WithCustomFieldOther returns a *APIParamOption that sets the free-text "Other"
+// WithCustomFieldOther returns a *core.APIParamOption that sets the free-text "Other"
 // value for list-type custom fields where allowInput is enabled.
 func WithCustomFieldOther(id int, value string) *core.APIParamOption {
 	return &core.APIParamOption{

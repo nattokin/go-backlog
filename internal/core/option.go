@@ -1,6 +1,8 @@
 package core
 
-import "net/url"
+import (
+	"net/url"
+)
 
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
@@ -106,13 +108,6 @@ func (t APIParamOptionType) Value() string {
 	return string(t)
 }
 
-// RequestOption is implemented by all option types that can be applied to an API request.
-type RequestOption interface {
-	Key() string
-	Check() ValidationResult
-	Set(url.Values) error
-}
-
 // OptionService provides builder methods for constructing *APIParamOption values.
 // Each XxxOptionService selectively exposes only the valid methods for its API endpoint.
 type OptionService struct{}
@@ -171,8 +166,13 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 // ApplyOptions validates and applies request options to the given url.Values.
 // Validation errors from Check() are collected into ValidationErrors and returned
 // together so callers can inspect all invalid inputs at once.
+<<<<<<< Updated upstream
 // InvalidOptionKeyError, nil options, and nil ValidationResult are returned immediately.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
+=======
+// InvalidOptionKeyError and nil options are returned immediately.
+func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIParamOption) error {
+>>>>>>> Stashed changes
 	var errs ValidationErrors
 
 	for _, opt := range opts {

@@ -14,7 +14,7 @@ func TestOptionService_slice(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option   *core.APIParamOption
+		option   *APIParamOption
 		key      string
 		wantVals []string
 		wantErr  bool

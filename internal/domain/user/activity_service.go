@@ -21,7 +21,7 @@ type ActivityService struct {
 // List returns a list of activities for the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *ActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
+func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Activity, error) {
 	if err := validate.ValidateUserID(userID); err != nil {
 		return nil, err
 	}

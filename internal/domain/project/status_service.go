@@ -77,7 +77,7 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 // Update updates a status in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option core.RequestOption, opts ...core.RequestOption) (*model.Status, error) {
+func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Status, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}

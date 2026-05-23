@@ -15,7 +15,7 @@ func TestOptionService_bool(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *APIParamOption
 		key       string
 		wantValue bool
 	}{

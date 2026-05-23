@@ -78,7 +78,7 @@ type UserService struct {
 //   - WithExcludeGroupMembers
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.User, error) {
+func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.User, error) {
 	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
 		return nil, err
 	}
