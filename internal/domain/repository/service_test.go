@@ -28,8 +28,9 @@ func TestService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantIDs     []int
+		wantErrType            error
+		wantValidationErrCount int
+		wantIDs                []int
 	}{
 		"success": {
 			projectIDOrKey: testProject,
@@ -39,14 +40,18 @@ func TestService_List(t *testing.T) {
 			},
 			wantIDs: []int{5, 6},
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: testProject,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -71,14 +76,23 @@ func TestService_List(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := repository.NewService(method)
 			got, err := s.List(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -99,11 +113,12 @@ func TestService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
-		wantName    string
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
+		wantName               string
 	}{
-		"success-by-name": {
+		"success": {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -113,26 +128,35 @@ func TestService_One(t *testing.T) {
 			wantID:   5,
 			wantName: "foo",
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   testRepo,
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           testRepo,
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			repoIDOrName:   testRepo,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			repoIDOrName:           testRepo,
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: testProject,
-			repoIDOrName:   "",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         testProject,
+			repoIDOrName:           "",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-repoIDOrName": {
-			projectIDOrKey: testProject,
-			repoIDOrName:   "0",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-zero": {
+			projectIDOrKey:         testProject,
+			repoIDOrName:           "0",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,
@@ -159,14 +183,23 @@ func TestService_One(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := repository.NewService(method)
 			got, err := s.One(context.Background(), tc.projectIDOrKey, tc.repoIDOrName)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
