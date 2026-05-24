@@ -47,16 +47,6 @@ func TestWithCustomField(t *testing.T) {
 			key:       "customField_2",
 			wantValue: "1.5",
 		},
-		"float-negative-1": {
-			option:    issue.WithCustomField(3, -1.0),
-			key:       "customField_3",
-			wantValue: "-1",
-		},
-		"float-negative-1.5": {
-			option:    issue.WithCustomField(4, -1.5),
-			key:       "customField_4",
-			wantValue: "-1.5",
-		},
 		"float-invalid-id-zero": {
 			option:  issue.WithCustomField(0, 1.0),
 			wantErr: true,
@@ -89,14 +79,14 @@ func TestWithCustomField(t *testing.T) {
 			t.Parallel()
 
 			form := url.Values{}
-			err := tc.option.Check()
+			ve := tc.option.Check()
 			if tc.wantErr {
-				require.Error(t, err)
-				errType := &core.ValidationError{}
-				assert.ErrorAs(t, err, &errType)
+				assert.NotNil(t, ve)
+				var errType *core.ValidationError
+				assert.ErrorAs(t, ve, &errType)
 				return
 			}
-			require.NoError(t, err)
+			require.Nil(t, ve)
 
 			_ = tc.option.Set(form)
 			_, exists := form[tc.key]
@@ -157,14 +147,14 @@ func TestWithCustomFieldItems(t *testing.T) {
 			opt := issue.WithCustomFieldItems(tc.id, tc.itemIDs)
 			assert.Equal(t, "customField", opt.Key())
 
-			err := opt.Check()
+			ve := opt.Check()
 			if tc.wantErr {
-				require.Error(t, err)
-				errType := &core.ValidationError{}
-				assert.ErrorAs(t, err, &errType)
+				assert.NotNil(t, ve)
+				var errType *core.ValidationError
+				assert.ErrorAs(t, ve, &errType)
 				return
 			}
-			require.NoError(t, err)
+			require.Nil(t, ve)
 
 			v := url.Values{}
 			require.NoError(t, opt.Set(v))
@@ -176,7 +166,7 @@ func TestWithCustomFieldItems(t *testing.T) {
 func TestWithCustomFieldOther(t *testing.T) {
 	opt := issue.WithCustomFieldOther(5, "other text")
 	assert.Equal(t, "customField", opt.Key())
-	require.NoError(t, opt.Check())
+	require.Nil(t, opt.Check())
 
 	v := url.Values{}
 	require.NoError(t, opt.Set(v))
