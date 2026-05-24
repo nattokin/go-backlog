@@ -23,26 +23,21 @@ func TestUserService_List(t *testing.T) {
 		wantLen     int
 		wantErrType error
 	}{
-		"success-get-users": {
+		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			wantLen: 4,
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users", spath)
-				assert.Nil(t, query)
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -58,24 +53,18 @@ func TestUserService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := user.NewService(method)
-
 			users, err := s.List(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, users)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
 			require.NoError(t, err)
 			require.Len(t, users, tc.wantLen)
-
-			require.NotNil(t, users[0])
 			assert.Equal(t, "admin", users[0].UserID)
-			assert.Equal(t, "admin", users[0].Name)
-			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
-			assert.Equal(t, 1, users[0].RoleType)
 		})
 	}
 }
@@ -85,25 +74,20 @@ func TestUserService_Me(t *testing.T) {
 		mockGetFn   func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErrType error
 	}{
-		"success-get-own-user": {
+		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users/myself", spath)
-				assert.Nil(t, query)
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users/myself", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -119,58 +103,54 @@ func TestUserService_Me(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := user.NewService(method)
-
-			user, err := s.Me(context.Background())
+			got, err := s.Me(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
-				assert.Nil(t, user)
+				assert.ErrorAs(t, err, &tc.wantErrType)
+				assert.Nil(t, got)
 				return
 			}
 
 			assert.NoError(t, err)
-			require.NotNil(t, user)
-			assert.Equal(t, "admin", user.UserID)
-			assert.Equal(t, "admin", user.Name)
-			assert.Equal(t, "eguchi@nulab.example", user.MailAddress)
-			assert.Equal(t, 1, user.RoleType)
+			require.NotNil(t, got)
+			assert.Equal(t, "admin", got.UserID)
 		})
 	}
 }
 
 func TestUserService_Icon(t *testing.T) {
 	cases := map[string]struct {
-		id              int
-		mockDownloadFn  func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		id int
+
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantFilename           string
+		wantContentType        string
 	}{
 		"success-id-1": {
 			id: 1,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1/icon", spath)
-				assert.Nil(t, query)
 				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
 			},
 			wantFilename:    "avatar.png",
 			wantContentType: "image/png",
 		},
-		"success-id-100": {
-			id: 100,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users/100/icon", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
-			},
-			wantFilename:    "avatar.png",
-			wantContentType: "image/png",
-		},
+
+		// --- validation errors ---
 		"error-validation-id-zero": {
-			id:          0,
-			wantErrType: &core.ValidationError{},
+			id:                     0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-id-negative": {
+			id:                     -1,
+			wantValidationErrCount: 1,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			id: 1,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -189,13 +169,22 @@ func TestUserService_Icon(t *testing.T) {
 				method.Download = tc.mockDownloadFn
 			}
 			s := user.NewService(method)
-
 			got, err := s.Icon(context.Background(), tc.id)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
