@@ -18,46 +18,73 @@ import (
 )
 
 func TestVersionService_List(t *testing.T) {
-	option := &core.OptionService{}
+	o := &core.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		opts           []*core.APIParamOption
-		wantErrType    error
-		wantLen        int
-		mockGetFn      func(context.Context, string, url.Values) (*http.Response, error)
+
+		mockGetFn func(context.Context, string, url.Values) (*http.Response, error)
+
+		wantLen                int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			wantLen:        2,
-			opts: []*core.APIParamOption{
-				option.WithArchived(true),
-			},
+			opts:           []*core.APIParamOption{o.WithArchived(true)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
 				assert.Equal(t, "true", query.Get("archived"))
 				return mock.NewResponse(fixture.Version.ListJSON), nil
 			},
 		},
-		"error-project-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
-			mockGetFn:      mock.NewUnexpectedGetFn(t),
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
-		"error-option-invalid-type": {
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			opts:                   []*core.APIParamOption{o.WithArchived(true), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectIDOrKey: "",
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
 
-		"error-client": {
+		// --- other errors ---
+		"error-client-network": {
 			projectIDOrKey: "TEST",
 			wantErrType:    errors.New(""),
 			mockGetFn: func(context.Context, string, url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 		},
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			wantErrType:    &json.SyntaxError{},
 			mockGetFn: func(context.Context, string, url.Values) (*http.Response, error) {
@@ -70,15 +97,37 @@ func TestVersionService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			m := mock.NewMethod(t)
-			m.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				m.Get = tc.mockGetFn
+			}
 			s := project.NewVersionService(m)
 			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
+
 			require.NoError(t, err)
 			require.Len(t, got, tc.wantLen)
 		})
@@ -93,9 +142,13 @@ func TestVersionService_Add(t *testing.T) {
 		projectIDOrKey string
 		name           string
 		opts           []*core.APIParamOption
-		wantErrType    error
-		wantID         int
-		mockPostFn     func(context.Context, string, url.Values) (*http.Response, error)
+
+		mockPostFn func(context.Context, string, url.Values) (*http.Response, error)
+
+		wantID                 int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -108,24 +161,57 @@ func TestVersionService_Add(t *testing.T) {
 				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
-		"error-name-empty": {
-			projectIDOrKey: "TEST",
-			name:           "",
-			opts:           []*core.APIParamOption{o.WithDescription("desc")},
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors: argument only ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			name:                   "v1",
+			wantValidationErrCount: 1,
 		},
-		"error-project-empty": {
-			projectIDOrKey: "",
-			name:           "v1",
-			opts:           []*core.APIParamOption{o.WithDescription("desc")},
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors: fixed option only ---
+		"error-validation-name-empty": {
+			projectIDOrKey:         "TEST",
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
-		"error-option-invalid-type": {
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			name:                   "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			name:                   "v1",
+			opts:                   []*core.APIParamOption{o.WithDescription("desc"), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			name:                   "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectIDOrKey: "",
+			name:           "",
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
@@ -151,19 +237,38 @@ func TestVersionService_Add(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-
 			m := mock.NewMethod(t)
 			if tc.mockPostFn != nil {
 				m.Post = tc.mockPostFn
 			}
 			s := project.NewVersionService(m)
 			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.name, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
+
 			require.NoError(t, err)
 			assert.Equal(t, tc.wantID, got.ID)
 		})
@@ -179,9 +284,13 @@ func TestVersionService_Update(t *testing.T) {
 		versionID      int
 		option         *core.APIParamOption
 		opts           []*core.APIParamOption
-		wantErrType    error
-		wantID         int
-		mockPatchFn    func(context.Context, string, url.Values) (*http.Response, error)
+
+		mockPatchFn func(context.Context, string, url.Values) (*http.Response, error)
+
+		wantID                 int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -194,31 +303,79 @@ func TestVersionService_Update(t *testing.T) {
 				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
-		"error-versionID-negative": {
-			projectIDOrKey: "TEST",
-			versionID:      -1,
-			option:         o.WithName("name"),
-			wantErrType:    &core.ValidationError{},
-			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
+
+		// --- validation errors: argument only ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			versionID:              1,
+			option:                 o.WithName("name"),
+			wantValidationErrCount: 1,
 		},
-		"error-option-invalid-type": {
+		"error-validation-versionID-zero": {
+			projectIDOrKey:         "TEST",
+			versionID:              0,
+			option:                 o.WithName("name"),
+			wantValidationErrCount: 1,
+		},
+		"error-validation-versionID-negative": {
+			projectIDOrKey:         "TEST",
+			versionID:              -1,
+			option:                 o.WithName("name"),
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: fixed option only ---
+		"error-validation-fixed-option": {
+			projectIDOrKey:         "TEST",
+			versionID:              1,
+			option:                 o.WithName(""),
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			versionID:              0,
+			option:                 o.WithName(""),
+			wantValidationErrCount: 3,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			versionID:              1,
+			option:                 o.WithName("name"),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			versionID:              0,
+			option:                 o.WithName(""),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
 			option:         mock.NewInvalidTypeOption(),
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectIDOrKey: "",
+			versionID:      0,
+			option:         mock.NewInvalidTypeOption(),
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
 			option:         mock.NewFailingSetOption(core.ParamArchived),
 			wantErrType:    errors.New(""),
-		},
-		"error-project-empty": {
-			projectIDOrKey: "",
-			versionID:      1,
-			option:         o.WithName("name"),
-			wantErrType:    &core.ValidationError{},
-			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
@@ -229,31 +386,43 @@ func TestVersionService_Update(t *testing.T) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 		},
-		"error-versionID-zero": {
-			projectIDOrKey: "TEST",
-			versionID:      0,
-			option:         o.WithName("name"),
-			wantErrType:    &core.ValidationError{},
-			mockPatchFn:    mock.NewUnexpectedPatchFn(t),
-		},
 	}
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-
 			m := mock.NewMethod(t)
 			if tc.mockPatchFn != nil {
 				m.Patch = tc.mockPatchFn
 			}
 			s := project.NewVersionService(m)
 			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.versionID, tc.option, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
+
 			require.NoError(t, err)
 			assert.Equal(t, tc.wantID, got.ID)
 		})
@@ -264,35 +433,56 @@ func TestVersionService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		versionID      int
-		wantErrType    error
-		wantID         int
-		mockDeleteFn   func(context.Context, string, url.Values) (*http.Response, error)
+
+		mockDeleteFn func(context.Context, string, url.Values) (*http.Response, error)
+
+		wantID                 int
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
-			projectIDOrKey: "TEST", versionID: 1, wantID: fixture.Version.Single.ID,
+			projectIDOrKey: "TEST",
+			versionID:      1,
+			wantID:         fixture.Version.Single.ID,
 			mockDeleteFn: func(ctx context.Context, spath string, _ url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)
 				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
-		"error-versionID-zero": {
-			projectIDOrKey: "TEST", versionID: 0, wantErrType: &core.ValidationError{}, mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			versionID:              1,
+			wantValidationErrCount: 1,
 		},
-		"error-versionID-negative": {
-			projectIDOrKey: "TEST",
-			versionID:      -1,
-			wantErrType:    &core.ValidationError{},
-			mockDeleteFn:   mock.NewUnexpectedDeleteFn(t),
+		"error-validation-versionID-zero": {
+			projectIDOrKey:         "TEST",
+			versionID:              0,
+			wantValidationErrCount: 1,
 		},
-		"error-project-empty": {
-			projectIDOrKey: "", versionID: 1, wantErrType: &core.ValidationError{}, mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+		"error-validation-versionID-negative": {
+			projectIDOrKey:         "TEST",
+			versionID:              -1,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			versionID:              0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
-			projectIDOrKey: "TEST", versionID: 1, wantErrType: errors.New(""),
-			mockDeleteFn: func(context.Context, string, url.Values) (*http.Response, error) { return nil, errors.New("network") },
+			projectIDOrKey: "TEST",
+			versionID:      1,
+			wantErrType:    errors.New(""),
+			mockDeleteFn:   func(context.Context, string, url.Values) (*http.Response, error) { return nil, errors.New("network") },
 		},
-		"error-invalid-json": {
-			projectIDOrKey: "TEST", versionID: 1, wantErrType: &json.SyntaxError{},
+		"error-response-invalid-json": {
+			projectIDOrKey: "TEST",
+			versionID:      1,
+			wantErrType:    &json.SyntaxError{},
 			mockDeleteFn: func(context.Context, string, url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
@@ -302,17 +492,30 @@ func TestVersionService_Delete(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-
 			m := mock.NewMethod(t)
-			m.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				m.Delete = tc.mockDeleteFn
+			}
 			s := project.NewVersionService(m)
 			got, err := s.Delete(context.Background(), tc.projectIDOrKey, tc.versionID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
+
 			require.NoError(t, err)
 			assert.Equal(t, tc.wantID, got.ID)
 		})
