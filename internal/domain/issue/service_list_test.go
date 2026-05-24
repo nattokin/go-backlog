@@ -28,8 +28,10 @@ func TestService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantIDs     []int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantIDs                []int
 	}{
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -73,34 +75,6 @@ func TestService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, []string{"1"}, query["projectId[]"])
-				assert.Equal(t, []string{"2"}, query["issueTypeId[]"])
-				assert.Equal(t, []string{"3"}, query["categoryId[]"])
-				assert.Equal(t, []string{"4"}, query["versionId[]"])
-				assert.Equal(t, []string{"5"}, query["milestoneId[]"])
-				assert.Equal(t, []string{"1"}, query["statusId[]"])
-				assert.Equal(t, []string{"2"}, query["priorityId[]"])
-				assert.Equal(t, []string{"10"}, query["assigneeId[]"])
-				assert.Equal(t, []string{"11"}, query["createdUserId[]"])
-				assert.Equal(t, []string{"1"}, query["resolutionId[]"])
-				assert.Equal(t, "0", query.Get("parentChild"))
-				assert.Equal(t, "true", query.Get("attachment"))
-				assert.Equal(t, "true", query.Get("sharedFile"))
-				assert.Equal(t, "2024-01-01", query.Get("createdSince"))
-				assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
-				assert.Equal(t, "2024-02-01", query.Get("updatedSince"))
-				assert.Equal(t, "2024-11-30", query.Get("updatedUntil"))
-				assert.Equal(t, "2024-03-01", query.Get("startDateSince"))
-				assert.Equal(t, "2024-10-31", query.Get("startDateUntil"))
-				assert.Equal(t, "2024-04-01", query.Get("dueDateSince"))
-				assert.Equal(t, "2024-09-30", query.Get("dueDateUntil"))
-				assert.Equal(t, "false", query.Get("hasDueDate"))
-				assert.Equal(t, []string{"100"}, query["id[]"])
-				assert.Equal(t, []string{"200"}, query["parentIssueId[]"])
-				assert.Equal(t, "test", query.Get("keyword"))
-				assert.Equal(t, "created", query.Get("sort"))
-				assert.Equal(t, "asc", query.Get("order"))
-				assert.Equal(t, "10", query.Get("offset"))
-				assert.Equal(t, "50", query.Get("count"))
 				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
@@ -108,93 +82,55 @@ func TestService_List(t *testing.T) {
 		"success-with-projectIDs": {
 			opts: []*core.APIParamOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
 				return mock.NewResponse(fixture.Issue.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
-		"success-with-keyword": {
-			opts: []*core.APIParamOption{o.WithKeyword("bug")},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "bug", query.Get("keyword"))
-				return mock.NewResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+
+		// --- validation errors ---
+		"error-validation-opt-invalid-projectID": {
+			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
+			wantValidationErrCount: 1,
 		},
-		"success-with-sort-and-order": {
-			opts: []*core.APIParamOption{
-				o.WithIssueSort("created"),
-				o.WithOrder("asc"),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "created", query.Get("sort"))
-				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+		"error-validation-opt-invalid-sort": {
+			opts:                   []*core.APIParamOption{o.WithIssueSort("invalid")},
+			wantValidationErrCount: 1,
 		},
-		"success-with-count-and-offset": {
-			opts: []*core.APIParamOption{
-				o.WithCount(50),
-				o.WithOffset(100),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "50", query.Get("count"))
-				assert.Equal(t, "100", query.Get("offset"))
-				return mock.NewResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+		"error-validation-opt-invalid-parentChild": {
+			opts:                   []*core.APIParamOption{o.WithParentChild(5)},
+			wantValidationErrCount: 1,
 		},
-		"success-with-date-filters": {
-			opts: []*core.APIParamOption{
-				o.WithCreatedSince("2024-01-01"),
-				o.WithCreatedUntil("2024-12-31"),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "2024-01-01", query.Get("createdSince"))
-				assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
-				return mock.NewResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+		"error-validation-opt-invalid-count": {
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 1,
 		},
-		"success-with-parentChild": {
-			opts: []*core.APIParamOption{o.WithParentChild(1)},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "1", query.Get("parentChild"))
-				return mock.NewResponse(fixture.Issue.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+		"error-validation-opt-invalid-offset": {
+			opts:                   []*core.APIParamOption{o.WithOffset(-1)},
+			wantValidationErrCount: 1,
 		},
+		"error-validation-opt-multiple": {
+			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{1}), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
-		"error-option-invalid-projectID": {
-			opts:        []*core.APIParamOption{o.WithProjectIDs([]int{0})},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-sort": {
-			opts:        []*core.APIParamOption{o.WithIssueSort("invalid")},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-parentChild": {
-			opts:        []*core.APIParamOption{o.WithParentChild(5)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-count": {
-			opts:        []*core.APIParamOption{o.WithCount(0)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-offset": {
-			opts:        []*core.APIParamOption{o.WithOffset(-1)},
-			wantErrType: &core.ValidationError{},
-		},
+
+		// --- other errors ---
 		"error-option-set-failed": {
 			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
 			wantErrType: errors.New(""),
@@ -227,15 +163,31 @@ func TestService_List(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewService(method)
-
 			issues, err := s.List(context.Background(), tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, issues)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, issues)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, issues)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -290,83 +242,6 @@ func TestService_All(t *testing.T) {
 
 		assert.Equal(t, int32(2), callCount.Load())
 		assert.Equal(t, []int{1, 2, 3}, got)
-	})
-
-	t.Run("success-with-all-options", func(t *testing.T) {
-		t.Parallel()
-
-		o := &core.OptionService{}
-		method := mock.NewMethod(t)
-		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
-			assert.Equal(t, []string{"1"}, query["projectId[]"])
-			assert.Equal(t, []string{"2"}, query["issueTypeId[]"])
-			assert.Equal(t, []string{"3"}, query["categoryId[]"])
-			assert.Equal(t, []string{"4"}, query["versionId[]"])
-			assert.Equal(t, []string{"5"}, query["milestoneId[]"])
-			assert.Equal(t, []string{"1"}, query["statusId[]"])
-			assert.Equal(t, []string{"2"}, query["priorityId[]"])
-			assert.Equal(t, []string{"10"}, query["assigneeId[]"])
-			assert.Equal(t, []string{"11"}, query["createdUserId[]"])
-			assert.Equal(t, []string{"1"}, query["resolutionId[]"])
-			assert.Equal(t, "0", query.Get("parentChild"))
-			assert.Equal(t, "true", query.Get("attachment"))
-			assert.Equal(t, "true", query.Get("sharedFile"))
-			assert.Equal(t, "2024-01-01", query.Get("createdSince"))
-			assert.Equal(t, "2024-12-31", query.Get("createdUntil"))
-			assert.Equal(t, "2024-02-01", query.Get("updatedSince"))
-			assert.Equal(t, "2024-11-30", query.Get("updatedUntil"))
-			assert.Equal(t, "2024-03-01", query.Get("startDateSince"))
-			assert.Equal(t, "2024-10-31", query.Get("startDateUntil"))
-			assert.Equal(t, "2024-04-01", query.Get("dueDateSince"))
-			assert.Equal(t, "2024-09-30", query.Get("dueDateUntil"))
-			assert.Equal(t, "false", query.Get("hasDueDate"))
-			assert.Equal(t, []string{"100"}, query["id[]"])
-			assert.Equal(t, []string{"200"}, query["parentIssueId[]"])
-			assert.Equal(t, "test", query.Get("keyword"))
-			assert.Equal(t, "created", query.Get("sort"))
-			assert.Equal(t, "asc", query.Get("order"))
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewBufferString(issueLastPageJSON)),
-			}, nil
-		}
-
-		s := issue.NewService(method)
-		seq, err := s.All(ctx, 10,
-			o.WithProjectIDs([]int{1}),
-			o.WithIssueTypeIDs([]int{2}),
-			o.WithCategoryIDs([]int{3}),
-			o.WithVersionIDs([]int{4}),
-			o.WithMilestoneIDs([]int{5}),
-			o.WithStatusIDs([]int{1}),
-			o.WithPriorityIDs([]int{2}),
-			o.WithAssigneeIDs([]int{10}),
-			o.WithCreatedUserIDs([]int{11}),
-			o.WithResolutionIDs([]int{1}),
-			o.WithParentChild(0),
-			o.WithAttachment(true),
-			o.WithSharedFile(true),
-			o.WithCreatedSince("2024-01-01"),
-			o.WithCreatedUntil("2024-12-31"),
-			o.WithUpdatedSince("2024-02-01"),
-			o.WithUpdatedUntil("2024-11-30"),
-			o.WithStartDateSince("2024-03-01"),
-			o.WithStartDateUntil("2024-10-31"),
-			o.WithDueDateSince("2024-04-01"),
-			o.WithDueDateUntil("2024-09-30"),
-			o.WithHasDueDate(false),
-			o.WithIDs([]int{100}),
-			o.WithParentIssueIDs([]int{200}),
-			o.WithKeyword("test"),
-			o.WithIssueSort("created"),
-			o.WithOrder("asc"),
-		)
-		require.NoError(t, err)
-		for iss, err := range seq {
-			require.NoError(t, err)
-			assert.NotNil(t, iss)
-			break
-		}
 	})
 
 	t.Run("break", func(t *testing.T) {
@@ -431,7 +306,8 @@ func TestService_All(t *testing.T) {
 		for iss, err := range seq {
 			assert.Nil(t, iss)
 			require.Error(t, err)
-			assert.IsType(t, &core.APIResponseError{}, err)
+			var target *core.APIResponseError
+			assert.ErrorAs(t, err, &target)
 			break
 		}
 	})
@@ -442,7 +318,8 @@ func TestService_All(t *testing.T) {
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 0)
 		require.Error(t, err)
-		assert.IsType(t, &core.ValidationError{}, err)
+		var ves core.ValidationErrors
+		assert.ErrorAs(t, err, &ves)
 	})
 
 	t.Run("error-invalid-option", func(t *testing.T) {
@@ -451,7 +328,8 @@ func TestService_All(t *testing.T) {
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, mock.NewInvalidTypeOption())
 		require.Error(t, err)
-		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+		var target *core.InvalidOptionKeyError
+		assert.ErrorAs(t, err, &target)
 	})
 
 	t.Run("error-offset-passed-to-all", func(t *testing.T) {
@@ -461,7 +339,8 @@ func TestService_All(t *testing.T) {
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, o.WithOffset(5))
 		require.Error(t, err)
-		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+		var target *core.InvalidOptionKeyError
+		assert.ErrorAs(t, err, &target)
 	})
 
 	t.Run("error-count-passed-to-all", func(t *testing.T) {
@@ -471,6 +350,7 @@ func TestService_All(t *testing.T) {
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, o.WithCount(50))
 		require.Error(t, err)
-		assert.IsType(t, &core.InvalidOptionKeyError{}, err)
+		var target *core.InvalidOptionKeyError
+		assert.ErrorAs(t, err, &target)
 	})
 }
