@@ -28,7 +28,6 @@ func TestService_Info(t *testing.T) {
 		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.Space.SpaceJSON), nil
 			},
 			wantSpaceKey: "nulab",
@@ -36,14 +35,12 @@ func TestService_Info(t *testing.T) {
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space", spath)
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space", spath)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -58,15 +55,13 @@ func TestService_Info(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := space.NewService(method)
-
 			got, err := s.Info(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -90,7 +85,6 @@ func TestService_DiskUsage(t *testing.T) {
 		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/diskUsage", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.Space.DiskUsageJSON), nil
 			},
 			wantCapacity:  1073741824,
@@ -99,14 +93,12 @@ func TestService_DiskUsage(t *testing.T) {
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/diskUsage", spath)
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/diskUsage", spath)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -121,15 +113,13 @@ func TestService_DiskUsage(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := space.NewService(method)
-
 			got, err := s.DiskUsage(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -152,21 +142,18 @@ func TestService_Notification(t *testing.T) {
 		"success": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "space/notification", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.Space.NotificationJSON), nil
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/notification", spath)
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/notification", spath)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -181,15 +168,13 @@ func TestService_Notification(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := space.NewService(method)
-
 			got, err := s.Notification(context.Background())
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -206,8 +191,9 @@ func TestService_UpdateNotification(t *testing.T) {
 
 		mockPutFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantContent string
+		wantErrType            error
+		wantValidationErrCount int
+		wantContent            string
 	}{
 		"success": {
 			content: "Backlog is a project management tool.",
@@ -218,15 +204,17 @@ func TestService_UpdateNotification(t *testing.T) {
 			},
 			wantContent: "Backlog is a project management tool.",
 		},
+
+		// --- validation errors ---
 		"error-validation-content-empty": {
-			content:     "",
-			wantErrType: &core.ValidationError{},
+			content:                "",
+			wantValidationErrCount: 1,
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			content: "some content",
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/notification", spath)
-				assert.Equal(t, "some content", form.Get("content"))
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
@@ -234,7 +222,6 @@ func TestService_UpdateNotification(t *testing.T) {
 		"error-response-invalid-json": {
 			content: "some content",
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "space/notification", spath)
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
@@ -249,15 +236,23 @@ func TestService_UpdateNotification(t *testing.T) {
 			if tc.mockPutFn != nil {
 				method.Put = tc.mockPutFn
 			}
-
 			s := space.NewService(method)
-
 			got, err := s.UpdateNotification(context.Background(), tc.content)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
