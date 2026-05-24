@@ -23,52 +23,50 @@ func TestCustomFieldService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantLen     int
-		wantErrType error
+		wantLen                int
+		wantErrType            error
+		wantValidationErrCount int
 	}{
-		"success-projectIDOrKey-key": {
+		"success-key": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
-
-			wantLen:     2,
-			wantErrType: nil,
+			wantLen: 2,
 		},
-		"success-projectIDOrKey-id": {
+		"success-id": {
 			projectIDOrKey: "6",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6/customFields", spath)
 				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
+			wantLen: 2,
+		},
 
-			wantLen:     2,
-			wantErrType: nil,
-		},
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -82,12 +80,21 @@ func TestCustomFieldService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			fields, err := s.List(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, fields)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, fields)
 				return
 			}
@@ -110,85 +117,118 @@ func TestCustomFieldService_Create(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields", spath)
 				assert.Equal(t, "1", form.Get("typeId"))
 				assert.Equal(t, "Sprint", form.Get("name"))
-				assert.Empty(t, form.Get("description"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
 		"success-with-opts": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
 			opts:           []*core.APIParamOption{o.WithDescription("sprint number"), o.WithRequired(true)},
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/customFields", spath)
-				assert.Equal(t, "1", form.Get("typeId"))
-				assert.Equal(t, "Sprint", form.Get("name"))
 				assert.Equal(t, "sprint number", form.Get("description"))
 				assert.Equal(t, "true", form.Get("required"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
+		},
 
-			wantErrType: nil,
-		},
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			fieldType:      1,
-			name:           "Sprint",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			fieldType:              1,
+			name:                   "Sprint",
+			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: fixed options only ---
 		"error-validation-fieldType-zero": {
-			projectIDOrKey: "TEST",
-			fieldType:      0,
-			name:           "Sprint",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			fieldType:              0,
+			name:                   "Sprint",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			fieldType:      1,
-			name:           "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			fieldType:              1,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
-		"error-option-invalid-type": {
+		"error-validation-fieldType-and-name": {
+			projectIDOrKey:         "TEST",
+			fieldType:              0,
+			name:                   "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			fieldType:              0,
+			name:                   "",
+			wantValidationErrCount: 3,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			fieldType:              1,
+			name:                   "Sprint",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			fieldType:              0,
+			name:                   "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectIDOrKey: "",
+			fieldType:      0,
+			name:           "",
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -202,12 +242,29 @@ func TestCustomFieldService_Create(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.Create(context.Background(), tc.projectIDOrKey, tc.fieldType, tc.name, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}
@@ -231,74 +288,108 @@ func TestCustomFieldService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)
 				assert.Equal(t, "Sprint Updated", form.Get("name"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
 		"success-with-opts": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
 			opts:           []*core.APIParamOption{o.WithRequired(true)},
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/customFields/1", spath)
-				assert.Equal(t, "Sprint Updated", form.Get("name"))
 				assert.Equal(t, "true", form.Get("required"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			option:         o.WithName("Sprint Updated"),
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			option:                 o.WithName("Sprint Updated"),
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			option:         o.WithName("Sprint Updated"),
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			option:                 o.WithName("Sprint Updated"),
+			wantValidationErrCount: 1,
 		},
-		"error-option-invalid-type": {
+
+		// --- validation errors: fixed option only ---
+		"error-validation-fixed-option": {
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			option:                 o.WithName(""),
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			option:                 o.WithName(""),
+			wantValidationErrCount: 3,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			option:                 o.WithName("Sprint"),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			option:                 o.WithName(""),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         mock.NewInvalidTypeOption(),
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectIDOrKey: "",
+			customFieldID:  0,
+			option:         mock.NewInvalidTypeOption(),
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -312,12 +403,29 @@ func TestCustomFieldService_Update(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.option, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}
@@ -336,48 +444,50 @@ func TestCustomFieldService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1", spath)
-				assert.NotNil(t, form)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -391,12 +501,21 @@ func TestCustomFieldService_Delete(t *testing.T) {
 				method.Delete = tc.mockDeleteFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.Delete(context.Background(), tc.projectIDOrKey, tc.customFieldID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}

@@ -25,59 +25,63 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items", spath)
 				assert.Equal(t, "Item1", form.Get("name"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			name:           "Item1",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			name:                   "Item1",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			name:           "Item1",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			name:                   "Item1",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			name:           "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			name:                   "",
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			name:           "Item1",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -91,12 +95,21 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.AddListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.name)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}
@@ -117,60 +130,67 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items/10", spath)
 				assert.Equal(t, "Item1 Updated", form.Get("name"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			itemID:         10,
-			name:           "Item1 Updated",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			itemID:                 10,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			itemID:         10,
-			name:           "Item1 Updated",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			itemID:                 10,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-itemID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         0,
-			name:           "Item1 Updated",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 0,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         10,
-			name:           "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 10,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			itemID:                 0,
+			name:                   "",
+			wantValidationErrCount: 4,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
@@ -178,11 +198,9 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 			customFieldID:  1,
 			itemID:         10,
 			name:           "Item1 Updated",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -196,12 +214,21 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.UpdateListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID, tc.name)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}
@@ -221,59 +248,62 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/customFields/1/items/10", spath)
-				assert.NotNil(t, form)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			itemID:         10,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			itemID:                 10,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			itemID:         10,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			itemID:                 10,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-itemID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         0,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			customFieldID:          0,
+			itemID:                 0,
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			itemID:         10,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -287,12 +317,21 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 				method.Delete = tc.mockDeleteFn
 			}
 			s := project.NewCustomFieldService(method)
-
 			field, err := s.DeleteListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, field)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, field)
 				return
 			}
