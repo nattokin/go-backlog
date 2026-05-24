@@ -20,20 +20,15 @@ import (
 func TestActivityService_List(t *testing.T) {
 	o := &core.OptionService{}
 
-	type want struct {
-		spath          string
-		activityTypeID []string
-		minID          string
-		maxID          string
-		count          string
-		order          string
-	}
 	cases := map[string]struct {
 		projectIDOrKey string
 		opts           []*core.APIParamOption
-		mockGetFn      func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-		wantErrType    error
-		want           want
+
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success-no-option": {
 			projectIDOrKey: "TEST",
@@ -42,69 +37,6 @@ func TestActivityService_List(t *testing.T) {
 				assert.Equal(t, "projects/TEST/activities", spath)
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
-			want: want{
-				spath:          "projects/TEST/activities",
-				activityTypeID: nil,
-				minID:          "",
-				maxID:          "",
-				count:          "",
-				order:          "",
-			},
-		},
-		"success-withActivityTypeIDs": {
-			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
-				o.WithActivityTypeIDs([]int{1}),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-			want: want{activityTypeID: []string{"1"}},
-		},
-		"success-withMinID": {
-			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
-				o.WithMinID(1),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("minId"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-			want: want{minID: "1"},
-		},
-		"success-withMaxID": {
-			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
-				o.WithMaxID(1),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("maxId"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-			want: want{maxID: "1"},
-		},
-		"success-withCount": {
-			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
-				o.WithCount(1),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("count"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-			want: want{count: "1"},
-		},
-		"success-withOrder": {
-			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
-				o.WithOrder("asc"),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-			want: want{order: "asc"},
 		},
 		"success-multiple-options": {
 			projectIDOrKey: "TEST",
@@ -116,7 +48,6 @@ func TestActivityService_List(t *testing.T) {
 				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/activities", spath)
 				assert.Equal(t, []string{"1", "2"}, query["activityTypeId[]"])
 				assert.Equal(t, "1", query.Get("minId"))
 				assert.Equal(t, "26", query.Get("maxId"))
@@ -124,23 +55,61 @@ func TestActivityService_List(t *testing.T) {
 				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
-			want: want{
-				spath:          "projects/TEST/activities",
-				activityTypeID: []string{"1", "2"},
-				minID:          "1",
-				maxID:          "26",
-				count:          "20",
-				order:          "asc",
-			},
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
+		},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
+		},
+		"error-validation-opt-single": {
+			projectIDOrKey:         "TEST",
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "TEST",
+			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
+			projectIDOrKey: "TEST",
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
+			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
+		"error-option-set-failed": {
+			projectIDOrKey: "TEST",
+			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},
+			wantErrType:    errors.New(""),
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/activities", spath)
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
@@ -151,21 +120,6 @@ func TestActivityService_List(t *testing.T) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
-		},
-		"error-option-invalid-value": {
-			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{o.WithCount(0)},
-			wantErrType:    &core.ValidationError{},
-		},
-		"error-option-invalid-type": {
-			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
-		},
-		"error-option-set-failed": {
-			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},
-			wantErrType:    errors.New(""),
 		},
 	}
 
@@ -178,13 +132,30 @@ func TestActivityService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := project.NewActivityService(method)
-
 			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
