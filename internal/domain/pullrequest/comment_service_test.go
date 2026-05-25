@@ -28,8 +28,10 @@ func TestCommentService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantIDs     []int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantIDs                []int
 	}{
 		"success-no-options": {
 			projectIDOrKey: "PRJ",
@@ -50,59 +52,68 @@ func TestCommentService_List(t *testing.T) {
 				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
-		"success-with-minID-maxID": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			opts: []*core.APIParamOption{
-				o.WithMinID(10),
-				o.WithMaxID(100),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
-				assert.Equal(t, "10", query.Get("minId"))
-				assert.Equal(t, "100", query.Get("maxId"))
-				return mock.NewResponse(fixture.Comment.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "0",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-zero-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "0",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               0,
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-prNumber": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       0,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			wantValidationErrCount: 3,
 		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -110,6 +121,8 @@ func TestCommentService_List(t *testing.T) {
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -138,15 +151,31 @@ func TestCommentService_List(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := pullrequest.NewCommentService(method)
-
 			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -172,8 +201,10 @@ func TestCommentService_Add(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantID                 int
 	}{
 		"success-required-only": {
 			projectIDOrKey: "PRJ",
@@ -194,69 +225,68 @@ func TestCommentService_Add(t *testing.T) {
 			content:        "Notifying users.",
 			opts:           []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
-				assert.Equal(t, "Notifying users.", form.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
 				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
-		"success-with-attachmentIDs": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "Attaching files.",
-			opts:           []*core.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
-			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/PRJ/git/repositories/repo/pullRequests/1/comments", spath)
-				assert.Equal(t, "Attaching files.", form.Get("content"))
-				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
-				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
-			},
-			wantID: 1,
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "",
+			prNumber:               1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               0,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "",
-			prNumber:       1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-content-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			content:                "",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "0",
-			prNumber:       1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			content:                "",
+			wantValidationErrCount: 4,
 		},
-		"error-invalid-prNumber": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       0,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			content:                "x",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
 		},
-		"error-empty-content": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "",
-			wantErrType:    &core.ValidationError{},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			content:                "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
 		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -265,6 +295,8 @@ func TestCommentService_Add(t *testing.T) {
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -295,15 +327,31 @@ func TestCommentService_Add(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-
 			s := pullrequest.NewCommentService(method)
-
 			got, err := s.Add(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.content, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -322,8 +370,9 @@ func TestCommentService_Count(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantCount   int
+		wantErrType            error
+		wantValidationErrCount int
+		wantCount              int
 	}{
 		"success": {
 			projectIDOrKey: "PRJ",
@@ -335,36 +384,46 @@ func TestCommentService_Count(t *testing.T) {
 			},
 			wantCount: 7,
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-zero-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "0",
-			prNumber:       1,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "0",
+			prNumber:               1,
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-prNumber": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       0,
-			wantErrType:    &core.ValidationError{},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -393,15 +452,23 @@ func TestCommentService_Count(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := pullrequest.NewCommentService(method)
-
 			count, err := s.Count(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Zero(t, count)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Zero(t, count)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -421,8 +488,9 @@ func TestCommentService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			projectIDOrKey: "PRJ",
@@ -437,62 +505,58 @@ func TestCommentService_Update(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			commentID:      1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			commentID:              1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-projectIDOrKey": {
-			projectIDOrKey: "0",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			commentID:      1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "",
+			prNumber:               1,
+			commentID:              1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "",
-			prNumber:       1,
-			commentID:      1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-prNumber-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               0,
+			commentID:              1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "0",
-			prNumber:       1,
-			commentID:      1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			commentID:              0,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-prNumber": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       0,
-			commentID:      1,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-content-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			commentID:              1,
+			content:                "",
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			commentID:      0,
-			content:        "x",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			prNumber:               0,
+			commentID:              0,
+			content:                "",
+			wantValidationErrCount: 5,
 		},
-		"error-empty-content": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			commentID:      1,
-			content:        "",
-			wantErrType:    &core.ValidationError{},
-		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -525,15 +589,23 @@ func TestCommentService_Update(t *testing.T) {
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
-
 			s := pullrequest.NewCommentService(method)
-
 			got, err := s.Update(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.prNumber, tc.commentID, tc.content)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

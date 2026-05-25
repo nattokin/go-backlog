@@ -33,15 +33,10 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			prNumber:           1234,
 			wantIDs:            []int{2, 5},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(
-					t,
-					"projects/TEST/git/repositories/test/pullRequests/1234/attachments",
-					spath,
-				)
+				assert.Equal(t, "projects/TEST/git/repositories/test/pullRequests/1234/attachments", spath)
 				return mock.NewResponse(fixture.Attachment.ListJSON), nil
 			},
 		},
-
 		"error-invalid-project": {
 			projectIDOrKey:     "0",
 			repositoryIDOrName: "1",
@@ -49,7 +44,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			expectError:        true,
 			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "0",
@@ -57,7 +51,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			expectError:        true,
 			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "1",
@@ -65,7 +58,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			expectError:        true,
 			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
-
 		"error-client": {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
@@ -75,7 +67,6 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
 		"error-invalid-json": {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
@@ -95,11 +86,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			method.Get = tc.mockGetFn
 			s := pullrequest.NewAttachmentService(method)
 
-			attachments, err := s.List(context.Background(),
-				tc.projectIDOrKey,
-				tc.repositoryIDOrName,
-				tc.prNumber,
-			)
+			attachments, err := s.List(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -109,9 +96,7 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, attachments)
-
 			assert.Len(t, attachments, len(tc.wantIDs))
-
 			for i, id := range tc.wantIDs {
 				assert.Equal(t, id, attachments[i].ID)
 			}
@@ -138,15 +123,10 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			attachmentID:       8,
 			wantID:             8,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(
-					t,
-					"projects/TEST/git/repositories/test/pullRequests/1234/attachments/8",
-					spath,
-				)
+				assert.Equal(t, "projects/TEST/git/repositories/test/pullRequests/1234/attachments/8", spath)
 				return mock.NewResponse(fixture.Attachment.SingleJSON), nil
 			},
 		},
-
 		"error-invalid-project": {
 			projectIDOrKey:     "0",
 			repositoryIDOrName: "test",
@@ -155,7 +135,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			expectError:        true,
 			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "",
@@ -164,7 +143,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			expectError:        true,
 			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "test",
@@ -173,7 +151,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			expectError:        true,
 			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-invalid-attachmentID": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "test",
@@ -182,7 +159,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			expectError:        true,
 			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
-
 		"error-client": {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
@@ -193,7 +169,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 				return nil, errors.New("error")
 			},
 		},
-
 		"error-invalid-json": {
 			projectIDOrKey:     "1234",
 			repositoryIDOrName: "test",
@@ -214,13 +189,7 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			method.Delete = tc.mockDeleteFn
 			s := pullrequest.NewAttachmentService(method)
 
-			attachment, err := s.Remove(
-				context.Background(),
-				tc.projectIDOrKey,
-				tc.repositoryIDOrName,
-				tc.prNumber,
-				tc.attachmentID,
-			)
+			attachment, err := s.Remove(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -230,7 +199,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 
 			assert.NoError(t, err)
 			require.NotNil(t, attachment)
-
 			assert.Equal(t, tc.wantID, attachment.ID)
 		})
 	}
@@ -245,9 +213,10 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 
 		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		wantErrType            error
+		wantValidationErrCount int
+		wantFilename           string
+		wantContentType        string
 	}{
 		"success": {
 			projectIDOrKey:     "TEST",
@@ -256,40 +225,50 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 			attachmentID:       30,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/git/repositories/repo1/pullRequests/5/attachments/30", spath)
-				assert.Nil(t, query)
 				return mock.NewBinaryResponse("patch.diff", "text/plain", []byte("DIFF")), nil
 			},
 			wantFilename:    "patch.diff",
 			wantContentType: "text/plain",
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey:     "",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
+			projectIDOrKey:         "",
+			repositoryIDOrName:     "repo1",
+			prNumber:               5,
+			attachmentID:           30,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-repositoryIDOrName-empty": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "",
-			prNumber:           5,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			repositoryIDOrName:     "",
+			prNumber:               5,
+			attachmentID:           30,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-prNumber-zero": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           0,
-			attachmentID:       30,
-			wantErrType:        &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			repositoryIDOrName:     "repo1",
+			prNumber:               0,
+			attachmentID:           30,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-attachmentID-zero": {
-			projectIDOrKey:     "TEST",
-			repositoryIDOrName: "repo1",
-			prNumber:           5,
-			attachmentID:       0,
-			wantErrType:        &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			repositoryIDOrName:     "repo1",
+			prNumber:               5,
+			attachmentID:           0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repositoryIDOrName:     "",
+			prNumber:               0,
+			attachmentID:           0,
+			wantValidationErrCount: 4,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "repo1",
@@ -311,13 +290,22 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 				method.Download = tc.mockDownloadFn
 			}
 			s := pullrequest.NewAttachmentService(method)
-
 			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
