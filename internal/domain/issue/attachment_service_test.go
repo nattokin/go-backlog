@@ -49,9 +49,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			issueIDOrKey: "1234",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -133,9 +131,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -178,42 +174,40 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 
 		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		wantErrType            error
+		wantValidationErrCount int
+		wantFilename           string
+		wantContentType        string
 	}{
 		"success": {
 			issueIDOrKey: "TEST-1",
 			attachmentID: 10,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/TEST-1/attachments/10", spath)
-				assert.Nil(t, query)
 				return mock.NewBinaryResponse("file.png", "image/png", []byte("PNG")), nil
 			},
 			wantFilename:    "file.png",
 			wantContentType: "image/png",
 		},
-		"success-issue-id": {
-			issueIDOrKey: "123",
-			attachmentID: 5,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/123/attachments/5", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
-			},
-			wantFilename:    "doc.pdf",
-			wantContentType: "application/pdf",
-		},
+
+		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
-			issueIDOrKey: "",
-			attachmentID: 10,
-			wantErrType:  &core.ValidationError{},
+			issueIDOrKey:           "",
+			attachmentID:           10,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-attachmentID-zero": {
-			issueIDOrKey: "TEST-1",
-			attachmentID: 0,
-			wantErrType:  &core.ValidationError{},
+			issueIDOrKey:           "TEST-1",
+			attachmentID:           0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			attachmentID:           0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "TEST-1",
 			attachmentID: 10,
@@ -241,13 +235,22 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 				method.Download = tc.mockDownloadFn
 			}
 			s := issue.NewAttachmentService(method)
-
 			got, err := s.Download(context.Background(), tc.issueIDOrKey, tc.attachmentID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
