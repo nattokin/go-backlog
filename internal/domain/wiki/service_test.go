@@ -26,9 +26,9 @@ func TestService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType             error
-		wantValidationErrCount  int
-		wantInvalidOptionError  bool
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success-minimum": {
 			projectIDOrKey: "103",
@@ -59,8 +59,8 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-single": {
-			projectIDOrKey:         "PRJ",
-			opts:                   []*core.APIParamOption{o.WithKeyword("")},
+			projectIDOrKey: "PRJ",
+			opts:           []*core.APIParamOption{o.WithKeyword("")},
 			// keyword allows empty — use an option that actually validates
 			// no validation error expected here; replaced below
 		},
@@ -74,13 +74,13 @@ func TestService_List(t *testing.T) {
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			opts:                   []*core.APIParamOption{o.WithKeyword("test"), nil},
-			wantInvalidOptionError:  true,
+			wantInvalidOptionError: true,
 		},
 		// --- fail-fast: nil option among validation-erroring values ---
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			opts:                   []*core.APIParamOption{nil},
-			wantInvalidOptionError:  true,
+			wantInvalidOptionError: true,
 		},
 
 		// --- fail-fast: invalid option key ---

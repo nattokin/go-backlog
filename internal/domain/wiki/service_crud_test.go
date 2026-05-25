@@ -410,16 +410,16 @@ func TestService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
-			wikiID:  13,
-			option:  o.WithName("New Name"),
+			wikiID: 13,
+			option: o.WithName("New Name"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			wikiID:  14,
-			option:  o.WithName("New Name"),
+			wikiID: 14,
+			option: o.WithName("New Name"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
