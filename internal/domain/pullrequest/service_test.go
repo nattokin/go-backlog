@@ -27,8 +27,10 @@ func TestService_Count(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantCount   int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantCount              int
 	}{
 		"success-no-options": {
 			projectIDOrKey: "PRJ",
@@ -49,22 +51,47 @@ func TestService_Count(t *testing.T) {
 			},
 			wantCount: 2,
 		},
-		"error-empty-projectIDOrKey": {
-			projectIDOrKey: "",
-			repoIDOrName:   "repo1",
-			wantErrType:    &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "repo1",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-repoIDOrName": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "",
-			wantErrType:    &core.ValidationError{},
+		"error-validation-repoIDOrName-empty": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo1",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectIDOrKey:         "",
+			repoIDOrName:           "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -91,14 +118,31 @@ func TestService_Count(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := pullrequest.NewService(method)
 			count, err := s.Count(context.Background(), tc.projectIDOrKey, tc.repoIDOrName, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Zero(t, count)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Zero(t, count)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Zero(t, count)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
