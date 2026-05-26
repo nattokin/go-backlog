@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,8 +21,12 @@ type IssueTypeService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list
 func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
@@ -42,16 +47,27 @@ func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-type
 func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...*core.APIParamOption) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
 	options := append([]*core.APIParamOption{option.WithName(name), option.WithColor(color)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
@@ -72,18 +88,32 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
 func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1")
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
 	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if issueTypeID < 1 {
+			ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if issueTypeID < 1 {
+		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
@@ -104,14 +134,18 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-type
 func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, issueTypeID, substituteIssueTypeID int) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1")
+		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
 	if substituteIssueTypeID < 1 {
-		return nil, core.NewValidationError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1")
+		ves = append(ves, core.NewValidationError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form := url.Values{}

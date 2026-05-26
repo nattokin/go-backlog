@@ -3,6 +3,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 
@@ -20,7 +21,6 @@ type Service struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Project, error) {
-
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
@@ -44,8 +44,12 @@ func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*mo
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
@@ -92,10 +96,6 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...*core.AP
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Project, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
@@ -103,7 +103,22 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *cor
 	}
 	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
@@ -124,8 +139,12 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *cor
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey)
@@ -146,8 +165,12 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage
 func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.DiskUsageProject, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "diskUsage")
@@ -169,8 +192,12 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
 func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileData, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "image")

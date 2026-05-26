@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,8 +21,12 @@ type CustomFieldService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-custom-field-list
 func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([]*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields")
@@ -42,13 +47,6 @@ func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType int, name string, opts ...*core.APIParamOption) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if fieldType < 1 {
-		return nil, core.NewValidationError("fieldType", "fieldType must not be less than 1")
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
@@ -63,7 +61,22 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 	}
 	options := append([]*core.APIParamOption{option.WithFieldType(fieldType), option.WithName(name)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields")
@@ -84,13 +97,6 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamName, core.ParamDescription,
@@ -98,7 +104,28 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 	}
 	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if customFieldID < 1 {
+			ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if customFieldID < 1 {
+		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
@@ -119,11 +146,15 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-custom-field
 func (s *CustomFieldService) Delete(ctx context.Context, projectIDOrKey string, customFieldID int) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
+		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
@@ -144,17 +175,21 @@ func (s *CustomFieldService) Delete(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-list-item-for-list-type-custom-field
 func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey string, customFieldID int, name string) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	option := (&core.OptionService{}).WithName(name)
+	var ves core.ValidationErrors
+	if ve := option.Check(); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
+		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
-	option := (&core.OptionService{}).WithName(name)
-	if err := option.Check(); err != nil {
-		return nil, err
-	}
 	form := url.Values{}
 	option.Set(form)
 
@@ -176,20 +211,24 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-list-item-for-list-type-custom-field
 func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey string, customFieldID, itemID int, name string) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	option := (&core.OptionService{}).WithName(name)
+	var ves core.ValidationErrors
+	if ve := option.Check(); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
+		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
 	}
 	if itemID < 1 {
-		return nil, core.NewValidationError("itemId", "itemId must not be less than 1")
+		ves = append(ves, core.NewValidationError("itemId", "itemId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
-	option := (&core.OptionService{}).WithName(name)
-	if err := option.Check(); err != nil {
-		return nil, err
-	}
 	form := url.Values{}
 	option.Set(form)
 
@@ -211,14 +250,18 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-list-item-for-list-type-custom-field
 func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey string, customFieldID, itemID int) (*model.CustomField, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if customFieldID < 1 {
-		return nil, core.NewValidationError("customFieldId", "customFieldId must not be less than 1")
+		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
 	}
 	if itemID < 1 {
-		return nil, core.NewValidationError("itemId", "itemId must not be less than 1")
+		ves = append(ves, core.NewValidationError("itemId", "itemId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
