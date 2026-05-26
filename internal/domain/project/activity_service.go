@@ -22,29 +22,28 @@ type ActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Activity, error) {
-	argVe := validate.ValidateProjectIDOrKey(projectIDOrKey)
-
-	spath := path.Join("projects", projectIDOrKey, "activities")
-	result, err := s.base.List(ctx, spath, opts...)
-	if err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			if argVe != nil {
-				return nil, core.ValidationErrors{argVe}
+	// Run option validation first (fail-fast on nil/invalidKey via ApplyOptions
+	// inside base.List). If that returns a non-ValidationErrors error, we still
+	// need to check the argument and surface it as ValidationErrors.
+	// However, to avoid firing HTTP when the argument is invalid, we validate
+	// the argument up front and return early before calling the shared service.
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		// Still run ApplyOptions to respect fail-fast (nil option takes priority).
+		var dummy [0]core.APIParamOptionType
+		if err := core.ApplyOptions(nil, dummy[:], opts...); err != nil {
+			var ves core.ValidationErrors
+			if errors.As(err, &ves) {
+				ves = append(ves, ve)
+				return nil, ves
 			}
+			// fail-fast (InvalidOptionError or InvalidOptionKeyError): return as-is
 			return nil, err
 		}
-		if argVe != nil {
-			ves = append(ves, argVe)
-		}
-		return nil, ves
+		return nil, core.ValidationErrors{ve}
 	}
 
-	if argVe != nil {
-		return nil, core.ValidationErrors{argVe}
-	}
-
-	return result, nil
+	spath := path.Join("projects", projectIDOrKey, "activities")
+	return s.base.List(ctx, spath, opts...)
 }
 
 func NewActivityService(method *core.Method) *ActivityService {
