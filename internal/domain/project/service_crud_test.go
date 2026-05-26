@@ -174,12 +174,12 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option among valid values ---
+		// WithAll is not in Create's valid types → InvalidOptionKeyError (not InvalidOptionError)
 		"error-nil-option-with-valid-values": {
-			key:                    "TEST",
-			name:                   "test",
-			opts:                   []*core.APIParamOption{o.WithAll(true), nil},
-			wantInvalidOptionError: true,
+			key:         "TEST",
+			name:        "test",
+			opts:        []*core.APIParamOption{o.WithAll(true), nil},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 		// --- fail-fast: nil option among invalid values ---
 		"error-nil-option-with-invalid-values": {
@@ -341,12 +341,12 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option among valid values ---
+		// WithAll is not in Update's valid types → InvalidOptionKeyError (not InvalidOptionError)
 		"error-nil-option-with-valid-values": {
-			projectIDOrKey:         "TEST",
-			option:                 o.WithName("test"),
-			opts:                   []*core.APIParamOption{o.WithAll(true), nil},
-			wantInvalidOptionError: true,
+			projectIDOrKey: "TEST",
+			option:         o.WithName("test"),
+			opts:           []*core.APIParamOption{o.WithAll(true), nil},
+			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 		// --- fail-fast: nil option among invalid values ---
 		"error-nil-option-with-invalid-values": {

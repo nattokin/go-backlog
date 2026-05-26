@@ -51,10 +51,11 @@ func TestService_List(t *testing.T) {
 			wantNames: []string{"test", "test2", "test3"},
 		},
 
-		// --- validation errors: optional opt ---
+		// WithTextFormattingRule is not in List's valid types (all, archived only)
+		// → InvalidOptionKeyError, not ValidationErrors
 		"error-validation-opt-single": {
-			opts:                   []*core.APIParamOption{o.WithTextFormattingRule("invalid")},
-			wantValidationErrCount: 1,
+			opts:        []*core.APIParamOption{o.WithTextFormattingRule("invalid")},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
 		// --- fail-fast: nil option among valid values ---
@@ -62,10 +63,11 @@ func TestService_List(t *testing.T) {
 			opts:                   []*core.APIParamOption{o.WithAll(true), nil},
 			wantInvalidOptionError: true,
 		},
-		// --- fail-fast: nil option among invalid values ---
+		// WithTextFormattingRule hits invalid key before nil is checked
+		// → InvalidOptionKeyError
 		"error-nil-option-with-invalid-values": {
-			opts:                   []*core.APIParamOption{o.WithTextFormattingRule("invalid"), nil},
-			wantInvalidOptionError: true,
+			opts:        []*core.APIParamOption{o.WithTextFormattingRule("invalid"), nil},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
 		// --- fail-fast: invalid option key ---

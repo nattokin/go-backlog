@@ -51,9 +51,10 @@ func TestService_Count(t *testing.T) {
 			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantValidationErrCount: 1,
 		},
+		// WithCount is not in the valid types for Count — results in InvalidOptionKeyError
 		"error-validation-opt-multiple": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
-			wantValidationErrCount: 2,
+			opts:        []*core.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
+			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
 		// --- fail-fast: nil option ---
