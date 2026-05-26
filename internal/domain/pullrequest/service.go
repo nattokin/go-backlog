@@ -3,6 +3,7 @@ package pullrequest
 
 import (
 	"context"
+	"errors"
 	"iter"
 	"maps"
 	"net/url"
@@ -33,18 +34,6 @@ type Service struct {
 	method *core.Method
 }
 
-// validateListArgs validates the path arguments shared by List and All.
-func (s *Service) validateListArgs(projectIDOrKey string, repoIDOrName string) error {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // list fetches a page of pull requests using the given pre-built query.
 func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
@@ -64,13 +53,30 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) ([]*model.PullRequest, error) {
-	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
-		return nil, err
-	}
-
 	query := url.Values{}
 	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
@@ -86,13 +92,21 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
 	o := &core.OptionService{}
-	if err := s.validateListArgs(projectIDOrKey, repoIDOrName); err != nil {
-		return nil, err
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Check(); err != nil {
-		return nil, err
+	if ve := countOpt.Check(); ve != nil {
+		return nil, core.ValidationErrors{ve}
 	}
 
 	baseQuery := url.Values{}
@@ -112,13 +126,6 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
 func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (int, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return 0, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return 0, err
-	}
-
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamStatusIDs,
@@ -127,7 +134,28 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 		core.ParamCreatedUserIDs,
 	}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return 0, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return 0, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		return 0, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return 0, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", "count")
@@ -148,14 +176,18 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request
 func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int) (*model.PullRequest, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))
@@ -176,13 +208,6 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request
 func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrName string, summary string, description string, base string, branch string, opts ...*core.APIParamOption) (*model.PullRequest, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
@@ -205,7 +230,28 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		opts...,
 	)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
@@ -226,16 +272,6 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
 func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.PullRequest, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamSummary,
@@ -247,7 +283,34 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	}
 	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))

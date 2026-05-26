@@ -2,6 +2,7 @@ package pullrequest
 
 import (
 	"context"
+	"errors"
 	"path"
 	"strconv"
 
@@ -22,50 +23,98 @@ type CommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
+	result, err := s.base.List(ctx, spath, opts...)
+	if err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
-	return s.base.List(ctx, spath, opts...)
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 // Add adds a comment to a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
+	result, err := s.base.Add(ctx, spath, content, opts...)
+	if err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
-	return s.base.Add(ctx, spath, content, opts...)
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 // Count returns the number of comments on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-request-comments
 func (s *CommentService) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int) (int, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return 0, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return 0, err
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return 0, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return 0, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", "count")
@@ -76,21 +125,39 @@ func (s *CommentService) Count(ctx context.Context, projectIDOrKey string, repoI
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information
 func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, commentID int, content string) (*model.Comment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", strconv.Itoa(commentID))
-	return s.base.Update(ctx, spath, content)
+	result, err := s.base.Update(ctx, spath, content)
+	if err != nil {
+		var updateVes core.ValidationErrors
+		if !errors.As(err, &updateVes) {
+			if len(ves) > 0 {
+				return nil, ves
+			}
+			return nil, err
+		}
+		ves = append(ves, updateVes...)
+		return nil, ves
+	}
+
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 func NewCommentService(method *core.Method) *CommentService {

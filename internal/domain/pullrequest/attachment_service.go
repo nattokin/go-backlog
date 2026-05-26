@@ -22,14 +22,18 @@ type AttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment
 func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int) ([]*model.Attachment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repositoryIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repositoryIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
@@ -40,17 +44,21 @@ func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, rep
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments
 func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.Attachment, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repositoryIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repositoryIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
@@ -62,17 +70,21 @@ func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, r
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
 func (s *AttachmentService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*model.FileData, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repositoryIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repositoryIDOrName); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidatePRNumber(prNumber); err != nil {
-		return nil, err
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
