@@ -3,6 +3,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -52,8 +53,12 @@ func (s *Service) List(ctx context.Context) ([]*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
 func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
-	if err := validate.ValidateUserID(id); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(id); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
@@ -71,10 +76,6 @@ func (s *Service) Me(ctx context.Context) (*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType int) (*model.User, error) {
-	if userID == "" {
-		return nil, core.NewValidationError("userID", "userID must not be empty")
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
@@ -85,7 +86,22 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 		option.WithRoleType(roleType),
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if userID == "" {
+			ves = append(ves, core.NewValidationError("userID", "userID must not be empty"))
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if userID == "" {
+		ves = append(ves, core.NewValidationError("userID", "userID must not be empty"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form.Set("userId", userID)
@@ -134,8 +150,12 @@ func (s *Service) Update(ctx context.Context, id int, option *core.APIParamOptio
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
 func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
-	if err := validate.ValidateUserID(id); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(id); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("users", strconv.Itoa(id))
@@ -157,8 +177,12 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
 func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
-	if err := validate.ValidateUserID(id); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(id); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("users", strconv.Itoa(id), "icon")
