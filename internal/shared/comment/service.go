@@ -104,10 +104,15 @@ func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error)
 	return &v, nil
 }
 
-// ApplyUpdateOptions validates content for Update.
+// ApplyUpdateOptions validates content and writes it into form.
+// Returns a *ValidationError if content is invalid, nil otherwise.
 func (s *Service) ApplyUpdateOptions(form url.Values, content string) *core.ValidationError {
 	option := (&core.OptionService{}).WithContent(content)
-	return option.Check()
+	if ve := option.Check(); ve != nil {
+		return ve
+	}
+	option.Set(form)
+	return nil
 }
 
 // FetchUpdate executes the PATCH request for updating a comment.
