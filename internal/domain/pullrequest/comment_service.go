@@ -19,42 +19,8 @@ type CommentService struct {
 	base *comment.Service
 }
 
-// List returns a list of comments on a pull request.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
-	result, err := s.base.List(ctx, spath, opts...)
-	if err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			var argVes core.ValidationErrors
-			if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if len(argVes) > 0 {
-				return nil, argVes
-			}
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
-
+// listArgVes returns ValidationErrors for the three path arguments.
+func listArgVes(projectIDOrKey, repoIDOrName string, prNumber int) core.ValidationErrors {
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
@@ -65,8 +31,29 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if len(ves) > 0 {
+	return ves
+}
+
+// List returns a list of comments on a pull request.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
+func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
+	result, err := s.base.List(ctx, spath, opts...)
+	if err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			if argVes := listArgVes(projectIDOrKey, repoIDOrName, prNumber); len(argVes) > 0 {
+				return nil, argVes
+			}
+			return nil, err
+		}
+		ves = append(ves, listArgVes(projectIDOrKey, repoIDOrName, prNumber)...)
 		return nil, ves
+	}
+
+	if argVes := listArgVes(projectIDOrKey, repoIDOrName, prNumber); len(argVes) > 0 {
+		return nil, argVes
 	}
 
 	return result, nil
@@ -81,45 +68,17 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
-			var argVes core.ValidationErrors
-			if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-				argVes = append(argVes, ve)
-			}
-			if len(argVes) > 0 {
+			if argVes := listArgVes(projectIDOrKey, repoIDOrName, prNumber); len(argVes) > 0 {
 				return nil, argVes
 			}
 			return nil, err
 		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-			ves = append(ves, ve)
-		}
+		ves = append(ves, listArgVes(projectIDOrKey, repoIDOrName, prNumber)...)
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
-	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-		ves = append(ves, ve)
-	}
-	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-		ves = append(ves, ve)
-	}
-	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if argVes := listArgVes(projectIDOrKey, repoIDOrName, prNumber); len(argVes) > 0 {
+		return nil, argVes
 	}
 
 	return result, nil

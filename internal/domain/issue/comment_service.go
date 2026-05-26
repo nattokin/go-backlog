@@ -25,24 +25,26 @@ type CommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+	argVe := validate.ValidateIssueIDOrKey(issueIDOrKey)
+
 	spath := path.Join("issues", issueIDOrKey, "comments")
 	result, err := s.base.List(ctx, spath, opts...)
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
-			if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-				return nil, core.ValidationErrors{ve}
+			if argVe != nil {
+				return nil, core.ValidationErrors{argVe}
 			}
 			return nil, err
 		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
+		if argVe != nil {
+			ves = append(ves, argVe)
 		}
 		return nil, ves
 	}
 
-	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		return nil, core.ValidationErrors{ve}
+	if argVe != nil {
+		return nil, core.ValidationErrors{argVe}
 	}
 
 	return result, nil
@@ -52,24 +54,26 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+	argVe := validate.ValidateIssueIDOrKey(issueIDOrKey)
+
 	spath := path.Join("issues", issueIDOrKey, "comments")
 	result, err := s.base.Add(ctx, spath, content, opts...)
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
-			if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-				return nil, core.ValidationErrors{ve}
+			if argVe != nil {
+				return nil, core.ValidationErrors{argVe}
 			}
 			return nil, err
 		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
+		if argVe != nil {
+			ves = append(ves, argVe)
 		}
 		return nil, ves
 	}
 
-	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		return nil, core.ValidationErrors{ve}
+	if argVe != nil {
+		return nil, core.ValidationErrors{argVe}
 	}
 
 	return result, nil

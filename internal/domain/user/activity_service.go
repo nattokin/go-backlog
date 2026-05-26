@@ -23,24 +23,26 @@ type ActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Activity, error) {
+	argVe := validate.ValidateUserID(userID)
+
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
 	result, err := s.base.List(ctx, spath, opts...)
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
-			if ve := validate.ValidateUserID(userID); ve != nil {
-				return nil, core.ValidationErrors{ve}
+			if argVe != nil {
+				return nil, core.ValidationErrors{argVe}
 			}
 			return nil, err
 		}
-		if ve := validate.ValidateUserID(userID); ve != nil {
-			ves = append(ves, ve)
+		if argVe != nil {
+			ves = append(ves, argVe)
 		}
 		return nil, ves
 	}
 
-	if ve := validate.ValidateUserID(userID); ve != nil {
-		return nil, core.ValidationErrors{ve}
+	if argVe != nil {
+		return nil, core.ValidationErrors{argVe}
 	}
 
 	return result, nil
