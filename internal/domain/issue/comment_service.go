@@ -25,6 +25,11 @@ type CommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+	var argVes core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		argVes = append(argVes, ve)
+	}
+
 	spath := path.Join("issues", issueIDOrKey, "comments")
 	result, err := s.base.List(ctx, spath, opts...)
 	if err != nil {
@@ -32,18 +37,12 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
+		ves = append(ves, argVes...)
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
-	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if len(argVes) > 0 {
+		return nil, argVes
 	}
 
 	return result, nil
@@ -53,6 +52,11 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+	var argVes core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		argVes = append(argVes, ve)
+	}
+
 	spath := path.Join("issues", issueIDOrKey, "comments")
 	result, err := s.base.Add(ctx, spath, content, opts...)
 	if err != nil {
@@ -60,18 +64,12 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
+		ves = append(ves, argVes...)
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
-	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if len(argVes) > 0 {
+		return nil, argVes
 	}
 
 	return result, nil
@@ -156,15 +154,15 @@ func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commen
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
 	result, err := s.base.Update(ctx, spath, content)
 	if err != nil {
-		var updateVes core.ValidationErrors
-		if !errors.As(err, &updateVes) {
-			if len(ves) > 0 {
-				return nil, ves
-			}
-			return nil, err
+		var ve *core.ValidationError
+		if errors.As(err, &ve) {
+			ves = append(ves, ve)
+			return nil, ves
 		}
-		ves = append(ves, updateVes...)
-		return nil, ves
+		if len(ves) > 0 {
+			return nil, ves
+		}
+		return nil, err
 	}
 
 	if len(ves) > 0 {
