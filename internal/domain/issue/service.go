@@ -3,6 +3,7 @@ package issue
 
 import (
 	"context"
+	"errors"
 	"iter"
 	"maps"
 	"net/url"
@@ -126,8 +127,8 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOp
 	o := &core.OptionService{}
 
 	countOpt := o.WithCount(perPage)
-	if err := countOpt.Check(); err != nil {
-		return nil, err
+	if ve := countOpt.Check(); ve != nil {
+		return nil, core.ValidationErrors{ve}
 	}
 
 	baseQuery := url.Values{}
@@ -169,8 +170,12 @@ func (s *Service) Count(ctx context.Context, opts ...*core.APIParamOption) (int,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue
 func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey)
@@ -191,10 +196,6 @@ func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, e
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
 func (s *Service) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...*core.APIParamOption) (*model.Issue, error) {
-	if err := validate.ValidateProjectID(projectID); err != nil {
-		return nil, err
-	}
-
 	o := &core.OptionService{}
 	form := url.Values{}
 	options := append(
@@ -206,7 +207,22 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		opts...,
 	)
 	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectID(projectID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectID(projectID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form.Set("projectId", strconv.Itoa(projectID))
@@ -228,14 +244,25 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Issue, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
-	}
-
 	form := url.Values{}
 	options := append([]*core.APIParamOption{option}, opts...)
 	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey)
@@ -256,8 +283,12 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue
 func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey)
@@ -278,8 +309,12 @@ func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-participant-list
 func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*model.User, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "participants")

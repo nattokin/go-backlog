@@ -22,8 +22,12 @@ type AttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments
 func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*model.Attachment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments")
@@ -34,11 +38,15 @@ func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*m
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment
 func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.Attachment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
@@ -50,11 +58,15 @@ func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, att
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment
 func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*model.FileData, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))

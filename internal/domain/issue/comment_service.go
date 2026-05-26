@@ -2,6 +2,7 @@ package issue
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -24,32 +25,68 @@ type CommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	spath := path.Join("issues", issueIDOrKey, "comments")
+	result, err := s.base.List(ctx, spath, opts...)
+	if err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "comments")
-	return s.base.List(ctx, spath, opts...)
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 // Add adds a comment to an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	spath := path.Join("issues", issueIDOrKey, "comments")
+	result, err := s.base.Add(ctx, spath, content, opts...)
+	if err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "comments")
-	return s.base.Add(ctx, spath, content, opts...)
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 // Count returns the number of comments on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-comment
 func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return 0, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return 0, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", "count")
@@ -60,11 +97,15 @@ func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, e
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment
 func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID int) (*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
@@ -75,11 +116,15 @@ func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-comment
 func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commentID int) (*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
@@ -100,26 +145,48 @@ func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commen
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-comment
 func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commentID int, content string) (*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
-	return s.base.Update(ctx, spath, content)
+	result, err := s.base.Update(ctx, spath, content)
+	if err != nil {
+		var updateVes core.ValidationErrors
+		if !errors.As(err, &updateVes) {
+			if len(ves) > 0 {
+				return nil, ves
+			}
+			return nil, err
+		}
+		ves = append(ves, updateVes...)
+		return nil, ves
+	}
+
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	return result, nil
 }
 
 // Notifications returns a list of notifications on a comment.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-comment-notifications
 func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string, commentID int) ([]*model.Notification, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
@@ -140,20 +207,34 @@ func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment-notification
 func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commentID int, userIDs []int) (*model.Comment, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateCommentID(commentID); err != nil {
-		return nil, err
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamNotifiedUserIDs,
 	}
 	if err := core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs)); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateCommentID(commentID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateCommentID(commentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
