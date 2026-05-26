@@ -30,6 +30,9 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
+			if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+				return nil, core.ValidationErrors{ve}
+			}
 			return nil, err
 		}
 		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
@@ -38,12 +41,8 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+		return nil, core.ValidationErrors{ve}
 	}
 
 	return result, nil
@@ -58,6 +57,9 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
+			if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+				return nil, core.ValidationErrors{ve}
+			}
 			return nil, err
 		}
 		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
@@ -66,12 +68,8 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+		return nil, core.ValidationErrors{ve}
 	}
 
 	return result, nil

@@ -28,6 +28,9 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.AP
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
+			if ve := validate.ValidateUserID(userID); ve != nil {
+				return nil, core.ValidationErrors{ve}
+			}
 			return nil, err
 		}
 		if ve := validate.ValidateUserID(userID); ve != nil {
@@ -36,12 +39,8 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.AP
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
 	if ve := validate.ValidateUserID(userID); ve != nil {
-		ves = append(ves, ve)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+		return nil, core.ValidationErrors{ve}
 	}
 
 	return result, nil

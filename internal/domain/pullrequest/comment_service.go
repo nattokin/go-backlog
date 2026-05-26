@@ -28,6 +28,19 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
+			var argVes core.ValidationErrors
+			if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if len(argVes) > 0 {
+				return nil, argVes
+			}
 			return nil, err
 		}
 		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -68,6 +81,19 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 	if err != nil {
 		var ves core.ValidationErrors
 		if !errors.As(err, &ves) {
+			var argVes core.ValidationErrors
+			if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+				argVes = append(argVes, ve)
+			}
+			if len(argVes) > 0 {
+				return nil, argVes
+			}
 			return nil, err
 		}
 		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
