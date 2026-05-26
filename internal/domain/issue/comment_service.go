@@ -21,45 +21,60 @@ type CommentService struct {
 	method *core.Method
 }
 
-// applyOptsOrArgErr runs ApplyOptions with empty validTypes to trigger
-// fail-fast (nil option) before returning the argument error.
-// Returns the error to propagate, or nil if the argument error should be used.
-func applyOptsForArgErr(argVe *core.ValidationError, opts []*core.APIParamOption) error {
-	var dummy [0]core.APIParamOptionType
-	if err := core.ApplyOptions(nil, dummy[:], opts...); err != nil {
-		var ves core.ValidationErrors
-		if errors.As(err, &ves) {
-			ves = append(ves, argVe)
-			return ves
-		}
-		// fail-fast (InvalidOptionError): takes priority over arg error
-		return err
-	}
-	return core.ValidationErrors{argVe}
-}
-
 // List returns a list of comments on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+	query := url.Values{}
+	if err := s.base.ApplyListOptions(query, opts...); err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		return nil, applyOptsForArgErr(ve, opts)
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments")
-	return s.base.List(ctx, spath, opts...)
+	return s.base.FetchList(ctx, spath, query)
 }
 
 // Add adds a comment to an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+	form := url.Values{}
+	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-		return nil, applyOptsForArgErr(ve, opts)
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments")
-	return s.base.Add(ctx, spath, content, opts...)
+	return s.base.FetchAdd(ctx, spath, form)
 }
 
 // Count returns the number of comments on an issue.
@@ -137,21 +152,17 @@ func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commen
 	if ve := validate.ValidateCommentID(commentID); ve != nil {
 		ves = append(ves, ve)
 	}
+
+	form := url.Values{}
+	if ve := s.base.ApplyUpdateOptions(form, content); ve != nil {
+		ves = append(ves, ve)
+	}
 	if len(ves) > 0 {
 		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
-	result, err := s.base.Update(ctx, spath, content)
-	if err != nil {
-		var ve *core.ValidationError
-		if errors.As(err, &ve) {
-			return nil, core.ValidationErrors{ve}
-		}
-		return nil, err
-	}
-
-	return result, nil
+	return s.base.FetchUpdate(ctx, spath, form)
 }
 
 // Notifications returns a list of notifications on a comment.

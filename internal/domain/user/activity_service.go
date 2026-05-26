@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"net/url"
 	"path"
 	"strconv"
 
@@ -23,21 +24,28 @@ type ActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Activity, error) {
-	if ve := validate.ValidateUserID(userID); ve != nil {
-		var dummy [0]core.APIParamOptionType
-		if err := core.ApplyOptions(nil, dummy[:], opts...); err != nil {
-			var ves core.ValidationErrors
-			if errors.As(err, &ves) {
-				ves = append(ves, ve)
-				return nil, ves
-			}
+	query := url.Values{}
+	if err := s.base.ApplyOptions(query, opts...); err != nil {
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		return nil, core.ValidationErrors{ve}
+		if ve := validate.ValidateUserID(userID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(userID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return s.base.List(ctx, spath, opts...)
+	return s.base.Fetch(ctx, spath, query)
 }
 
 func NewActivityService(method *core.Method) *ActivityService {
