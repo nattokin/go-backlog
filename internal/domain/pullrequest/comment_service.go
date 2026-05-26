@@ -23,17 +23,6 @@ type CommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
-	var argVes core.ValidationErrors
-	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-		argVes = append(argVes, ve)
-	}
-	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-		argVes = append(argVes, ve)
-	}
-	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-		argVes = append(argVes, ve)
-	}
-
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
 	result, err := s.base.List(ctx, spath, opts...)
 	if err != nil {
@@ -41,12 +30,30 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		ves = append(ves, argVes...)
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+			ves = append(ves, ve)
+		}
 		return nil, ves
 	}
 
-	if len(argVes) > 0 {
-		return nil, argVes
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	return result, nil
@@ -56,17 +63,6 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
-	var argVes core.ValidationErrors
-	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-		argVes = append(argVes, ve)
-	}
-	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-		argVes = append(argVes, ve)
-	}
-	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-		argVes = append(argVes, ve)
-	}
-
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
 	result, err := s.base.Add(ctx, spath, content, opts...)
 	if err != nil {
@@ -74,12 +70,30 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		ves = append(ves, argVes...)
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+			ves = append(ves, ve)
+		}
+		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+			ves = append(ves, ve)
+		}
 		return nil, ves
 	}
 
-	if len(argVes) > 0 {
-		return nil, argVes
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	return result, nil
