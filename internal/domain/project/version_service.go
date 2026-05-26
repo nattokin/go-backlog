@@ -27,18 +27,15 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 		core.ParamArchived,
 		core.ParamAll,
 	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -73,18 +70,15 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 		core.ParamReleaseDueDate,
 	}
 	options := append([]*core.APIParamOption{option.WithName(name)}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -119,21 +113,15 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 		core.ParamArchived,
 	}
 	options := append([]*core.APIParamOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateVersionID(versionID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

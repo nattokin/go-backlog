@@ -54,21 +54,15 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) ([]*model.PullRequest, error) {
 	query := url.Values{}
-	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -84,10 +78,6 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 
 // All returns an iterator that lazily fetches all pull requests with automatic
 // pagination, along with any validation error encountered at call time.
-//
-// perPage controls how many pull requests are fetched per API call (1-100).
-// Iteration stops automatically when all pull requests have been returned.
-// Passing WithCount or WithOffset in opts returns an error immediately.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
@@ -133,21 +123,15 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 		core.ParamIssueIDs,
 		core.ParamCreatedUserIDs,
 	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return 0, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		return 0, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return 0, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -229,21 +213,15 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		},
 		opts...,
 	)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -282,24 +260,15 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		core.ParamComment,
 	}
 	options := append([]*core.APIParamOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

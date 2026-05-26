@@ -63,18 +63,15 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		},
 		opts...,
 	)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -144,6 +141,8 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Webhook, error) {
 	form := url.Values{}
 	options := append([]*core.APIParamOption{option}, opts...)
+
+	var ves core.ValidationErrors
 	if err := core.ApplyOptions(form, []core.APIParamOptionType{
 		core.ParamName,
 		core.ParamDescription,
@@ -151,20 +150,12 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		core.ParamAllEvent,
 		core.ParamActivityTypeIDs,
 	}, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateWebhookID(webhookID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		ves = append(ves, optVes...)
 	}
-
-	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

@@ -51,18 +51,15 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
 	options := append([]*core.APIParamOption{option.WithName(name), option.WithColor(color)}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -91,21 +88,15 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
 	options := append([]*core.APIParamOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if issueTypeID < 1 {
-			ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

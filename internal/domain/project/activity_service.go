@@ -24,18 +24,15 @@ type ActivityService struct {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Activity, error) {
 	query := url.Values{}
-	if err := s.base.ApplyOptions(query, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := s.base.ApplyOptions(query, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

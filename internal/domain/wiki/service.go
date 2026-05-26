@@ -23,18 +23,15 @@ type Service struct {
 func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamKeyword}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -119,18 +116,15 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]*core.APIParamOption{option.WithName(name), option.WithContent(content)}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectID(projectID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -160,18 +154,15 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]*core.APIParamOption{option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateWikiID(wikiID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -202,18 +193,15 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParamOption) (*model.Wiki, error) {
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamMailNotify}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateWikiID(wikiID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}

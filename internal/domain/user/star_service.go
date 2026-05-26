@@ -23,18 +23,15 @@ type StarService struct {
 func (s *StarService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Star, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateUserID(userID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}

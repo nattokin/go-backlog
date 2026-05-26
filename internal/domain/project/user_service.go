@@ -74,25 +74,18 @@ type UserService struct {
 
 // List returns a list of users in the project.
 //
-// This method supports options returned by methods in "*Client.Project.User.Option",
-// such as:
-//   - WithExcludeGroupMembers
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.User, error) {
 	query := url.Values{}
-	if err := core.ApplyOptions(query, validUserListOptions, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(query, validUserListOptions, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
