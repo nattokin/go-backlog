@@ -3,6 +3,7 @@ package wiki
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,14 +21,25 @@ type Service struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamKeyword}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	query.Set("projectIdOrKey", projectIDOrKey)
@@ -49,8 +61,12 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return 0, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return 0, ves
 	}
 
 	query := url.Values{}
@@ -73,8 +89,12 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
@@ -95,16 +115,27 @@ func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/create-wiki-page
 func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...*core.APIParamOption) (*model.Wiki, error) {
-	if err := validate.ValidateProjectID(projectID); err != nil {
-		return nil, err
-	}
-
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]*core.APIParamOption{option.WithName(name), option.WithContent(content)}, opts...)
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateProjectID(projectID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectID(projectID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form.Set("projectId", strconv.Itoa(projectID))
@@ -126,20 +157,29 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Wiki, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
 	options := append([]*core.APIParamOption{option}, opts...)
-
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateWikiID(wikiID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
 	}
 
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
 	if !form.Has("name") && !form.Has("content") {
-		return nil, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)")
+		ves = append(ves, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
@@ -160,14 +200,25 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParamOption) (*model.Wiki, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
-	}
-
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamMailNotify}
 	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		return nil, err
+		var ves core.ValidationErrors
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
+		if ve := validate.ValidateWikiID(wikiID); ve != nil {
+			ves = append(ves, ve)
+		}
+		return nil, ves
+	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))

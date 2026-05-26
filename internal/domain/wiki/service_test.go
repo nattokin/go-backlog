@@ -58,14 +58,7 @@ func TestService_List(t *testing.T) {
 			projectIDOrKey:         "0",
 			wantValidationErrCount: 1,
 		},
-		"error-validation-opt-single": {
-			projectIDOrKey: "PRJ",
-			opts:           []*core.APIParamOption{o.WithKeyword("")},
-			// keyword allows empty — use an option that actually validates
-			// no validation error expected here; replaced below
-		},
 		"error-validation-all": {
-			// projectIDOrKey invalid + opt with validation error
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
 		},
