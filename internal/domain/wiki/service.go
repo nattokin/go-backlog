@@ -166,7 +166,9 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if !form.Has("name") && !form.Has("content") {
+	// Only check name/content presence when there are no option errors.
+	// If option errors exist, the caller already knows which options are invalid.
+	if len(ves) == 0 && !form.Has("name") && !form.Has("content") {
 		ves = append(ves, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)"))
 	}
 	if len(ves) > 0 {
