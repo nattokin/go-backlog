@@ -2,7 +2,6 @@ package pullrequest
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -26,20 +25,7 @@ type CommentService struct {
 func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
 	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		return nil, err
 	}
 
 	var ves core.ValidationErrors
@@ -66,20 +52,7 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
 	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidatePRNumber(prNumber); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		return nil, err
 	}
 
 	var ves core.ValidationErrors

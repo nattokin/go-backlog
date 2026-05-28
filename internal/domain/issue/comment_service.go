@@ -27,14 +27,7 @@ type CommentService struct {
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
 	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		return nil, err
 	}
 
 	var ves core.ValidationErrors
@@ -55,14 +48,7 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
 	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		return nil, err
 	}
 
 	var ves core.ValidationErrors
@@ -204,17 +190,7 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 		core.ParamNotifiedUserIDs,
 	}
 	if err := core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs)); err != nil {
-		var ves core.ValidationErrors
-		if !errors.As(err, &ves) {
-			return nil, err
-		}
-		if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
-			ves = append(ves, ve)
-		}
-		if ve := validate.ValidateCommentID(commentID); ve != nil {
-			ves = append(ves, ve)
-		}
-		return nil, ves
+		return nil, err
 	}
 
 	var ves core.ValidationErrors
