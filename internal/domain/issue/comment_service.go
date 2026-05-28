@@ -26,11 +26,15 @@ type CommentService struct {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
-	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		return nil, err
-	}
 
 	var ves core.ValidationErrors
+	if err := s.base.ApplyListOptions(query, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -47,11 +51,15 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
-	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		return nil, err
-	}
 
 	var ves core.ValidationErrors
+	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -189,11 +197,15 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 	validTypes := []core.APIParamOptionType{
 		core.ParamNotifiedUserIDs,
 	}
-	if err := core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs)); err != nil {
-		return nil, err
-	}
 
 	var ves core.ValidationErrors
+	if err := core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs)); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

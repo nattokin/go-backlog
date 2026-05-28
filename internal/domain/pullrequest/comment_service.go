@@ -2,6 +2,7 @@ package pullrequest
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -24,11 +25,15 @@ type CommentService struct {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
-	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		return nil, err
-	}
 
 	var ves core.ValidationErrors
+	if err := s.base.ApplyListOptions(query, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -51,11 +56,15 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
-	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		return nil, err
-	}
 
 	var ves core.ValidationErrors
+	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
