@@ -49,7 +49,7 @@ func TestService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -58,9 +58,19 @@ func TestService_List(t *testing.T) {
 			projectIDOrKey:         "0",
 			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: option only ---
+		"error-option-validation-with-valid-arg": {
+			projectIDOrKey:         "PRJ",
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: option + argument ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
-			wantValidationErrCount: 1,
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
+			wantValidationErrCount: 2,
 		},
 
 		// --- fail-fast: nil option among valid values ---
