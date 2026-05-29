@@ -166,12 +166,11 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all (argument + fixed option + optional opts) ---
+		// --- validation errors: all (argument + fixed options) ---
 		"error-validation-all": {
 			projectID:              0,
 			name:                   "",
 			content:                "",
-			opts:                   []*core.APIParamOption{o.WithContent("")},
 			wantValidationErrCount: 3,
 		},
 
@@ -362,10 +361,10 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all (argument + fixed option + optional opts) ---
+		// --- validation errors: all (argument + options) ---
 		"error-validation-all": {
 			wikiID:                 0,
-			option:                 o.WithMailNotify(true),
+			option:                 o.WithName(""),
 			opts:                   []*core.APIParamOption{o.WithContent("")},
 			wantValidationErrCount: 3,
 		},
