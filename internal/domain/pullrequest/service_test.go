@@ -52,7 +52,7 @@ func TestService_Count(t *testing.T) {
 			wantCount: 2,
 		},
 
-		// --- validation errors ---
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -63,10 +63,21 @@ func TestService_Count(t *testing.T) {
 			repoIDOrName:           "",
 			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: option only ---
+		"error-option-validation-with-valid-args": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo1",
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamStatusIDs)},
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: option + arguments ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
-			wantValidationErrCount: 2,
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamStatusIDs)},
+			wantValidationErrCount: 3,
 		},
 
 		// --- fail-fast: nil option ---
