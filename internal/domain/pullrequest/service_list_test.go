@@ -311,6 +311,16 @@ func TestService_All(t *testing.T) {
 		assert.ErrorAs(t, err, &ves)
 	})
 
+	t.Run("error-invalid-repo", func(t *testing.T) {
+		t.Parallel()
+
+		s := pullrequest.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 10, "PRJ", "")
+		require.Error(t, err)
+		var ves core.ValidationErrors
+		assert.ErrorAs(t, err, &ves)
+	})
+
 	t.Run("error-invalid-count", func(t *testing.T) {
 		t.Parallel()
 
