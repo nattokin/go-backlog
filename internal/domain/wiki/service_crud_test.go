@@ -177,17 +177,17 @@ func TestService_Create(t *testing.T) {
 
 		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
-			projectID: 1,
-			name:      "Test",
-			content:   "content",
-			opts:      []*core.APIParamOption{o.WithMailNotify(true), nil},
+			projectID:              1,
+			name:                   "Test",
+			content:                "content",
+			opts:                   []*core.APIParamOption{o.WithMailNotify(true), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
-			projectID: 0,
-			name:      "",
-			content:   "",
-			opts:      []*core.APIParamOption{nil},
+			projectID:              0,
+			name:                   "",
+			content:                "",
+			opts:                   []*core.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -413,16 +413,16 @@ func TestService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
-			wikiID:  34,
-			option:  o.WithName("Updated Name"),
+			wikiID: 34,
+			option: o.WithName("Updated Name"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			wikiID:  34,
-			option:  o.WithName("Updated Name"),
+			wikiID: 34,
+			option: o.WithName("Updated Name"),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
