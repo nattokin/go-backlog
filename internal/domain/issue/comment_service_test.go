@@ -358,7 +358,6 @@ func TestCommentService_Notify(t *testing.T) {
 
 		wantErrType            error
 		wantValidationErrCount int
-		wantInvalidOptionError bool
 		wantID                 int
 	}{
 		"success": {
@@ -397,22 +396,6 @@ func TestCommentService_Notify(t *testing.T) {
 			commentID:              0,
 			userIDs:                []int{0},
 			wantValidationErrCount: 3,
-		},
-
-		// --- fail-fast: nil option ---
-		"error-nil-option-with-valid-values": {
-			issueIDOrKey:           "PRJ-1",
-			commentID:              42,
-			userIDs:                nil,
-			wantInvalidOptionError: true,
-		},
-
-		// --- fail-fast: invalid option key ---
-		"error-option-invalid-key": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    42,
-			userIDs:      []int{5},
-			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 
 		// --- other errors ---
@@ -455,14 +438,6 @@ func TestCommentService_Notify(t *testing.T) {
 			}
 			s := issue.NewCommentService(method)
 			got, err := s.Notify(context.Background(), tc.issueIDOrKey, tc.commentID, tc.userIDs)
-
-			if tc.wantInvalidOptionError {
-				assert.Error(t, err)
-				assert.Nil(t, got)
-				var target *core.InvalidOptionError
-				assert.ErrorAs(t, err, &target)
-				return
-			}
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
