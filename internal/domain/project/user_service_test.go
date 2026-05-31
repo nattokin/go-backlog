@@ -55,6 +55,11 @@ func TestProjectUserService_List(t *testing.T) {
 			projectKey:             "0",
 			wantValidationErrCount: 1,
 		},
+		"error-validation-projectKey-empty-with-opt": {
+			projectKey:             "",
+			opts:                   []*core.APIParamOption{opt.WithExcludeGroupMembers(true)},
+			wantValidationErrCount: 1,
+		},
 
 		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
