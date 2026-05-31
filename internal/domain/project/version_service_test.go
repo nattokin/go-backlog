@@ -51,6 +51,16 @@ func TestVersionService_List(t *testing.T) {
 			projectIDOrKey:         "0",
 			wantValidationErrCount: 1,
 		},
+		"error-validation-opt": {
+			projectIDOrKey:         "TEST",
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamArchived)},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamArchived)},
+			wantValidationErrCount: 2,
+		},
 
 		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
