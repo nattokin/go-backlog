@@ -90,11 +90,19 @@ func TestCommentService_List(t *testing.T) {
 			prNumber:               0,
 			wantValidationErrCount: 1,
 		},
+		"error-validation-opt": {
+			projectIDOrKey:         "PRJ",
+			repoIDOrName:           "repo",
+			prNumber:               1,
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamCount)},
+			wantValidationErrCount: 1,
+		},
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
 			prNumber:               0,
-			wantValidationErrCount: 3,
+			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamCount)},
+			wantValidationErrCount: 4,
 		},
 
 		// --- fail-fast: nil option ---
