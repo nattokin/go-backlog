@@ -82,6 +82,19 @@ func TestInvalidOptionKeyError_AllowKeys(t *testing.T) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  InvalidOptionError
+// ──────────────────────────────────────────────────────────────
+
+func TestInvalidOptionError_Error(t *testing.T) {
+	err := callIssueCommentListWithNilOption(t)
+	require.Error(t, err)
+
+	var target *backlog.InvalidOptionError
+	require.True(t, errors.As(err, &target))
+	assert.NotEmpty(t, target.Error())
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ValidationError
 // ──────────────────────────────────────────────────────────────
 
@@ -141,6 +154,14 @@ func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
 	assert.True(t, errors.Is(err, sentinel))
 }
 
+func Test_convertError_InvalidOptionError(t *testing.T) {
+	err := callIssueCommentListWithNilOption(t)
+	require.Error(t, err)
+
+	var target *backlog.InvalidOptionError
+	assert.True(t, errors.As(err, &target))
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Test helpers
 // ──────────────────────────────────────────────────────────────
@@ -176,5 +197,14 @@ func callWikiAllWithInvalidOption(t *testing.T) error {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
 	_, err = c.Wiki.List(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
+	return err
+}
+
+// callIssueCommentListWithNilOption passes a nil RequestOption to trigger InvalidOptionError.
+func callIssueCommentListWithNilOption(t *testing.T) error {
+	t.Helper()
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	_, err = c.Issue.Comment.List(context.Background(), "PRJ-1", nil)
 	return err
 }
