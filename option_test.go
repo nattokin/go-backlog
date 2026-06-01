@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog"
+	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
@@ -115,5 +115,27 @@ func TestActivityOptionService(t *testing.T) {
 				assert.Equal(t, expected, values)
 			})
 		}
+	})
+}
+
+func TestRequestOption_Check(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	o := c.User.Activity.Option
+
+	t.Run("valid-returns-nil", func(t *testing.T) {
+		t.Parallel()
+		opt := o.WithCount(20)
+		assert.Nil(t, opt.Check())
+	})
+
+	t.Run("invalid-returns-ValidationError", func(t *testing.T) {
+		t.Parallel()
+		// count=0 is invalid; Check() should propagate the ValidationError
+		opt := o.WithCount(0)
+		ve := opt.Check()
+		require.NotNil(t, ve)
+		assert.NotEmpty(t, ve.Target())
+		assert.NotEmpty(t, ve.Message())
 	})
 }
