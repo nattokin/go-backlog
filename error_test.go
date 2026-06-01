@@ -110,6 +110,20 @@ func TestValidationError_Error(t *testing.T) {
 	assert.NotEmpty(t, target.Error())
 }
 
+func TestValidationErrors_Error(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	// issueIDOrKey="" and WithCount(0) each produce a ValidationError,
+	// so convertError receives a ValidationErrors (2 elements) and joins them.
+	_, err = c.Issue.Comment.List(context.Background(), "", c.Issue.Comment.Option.WithCount(0))
+	require.Error(t, err)
+
+	// errors.Join result: each element is reachable via errors.As
+	var ve *backlog.ValidationError
+	assert.True(t, errors.As(err, &ve))
+	assert.NotEmpty(t, err.Error())
+}
+
 // ──────────────────────────────────────────────────────────────
 //  InternalClientError
 // ──────────────────────────────────────────────────────────────
