@@ -77,9 +77,15 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 // ──────────────────────────────────────────────────────────────
 
 // toCoreOptions converts a slice of RequestOption to []*core.APIParamOption.
+// A nil RequestOption is passed through as a nil *core.APIParamOption so that
+// the internal layer can detect it and return InvalidOptionError.
 func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
 	coreOpts := make([]*core.APIParamOption, len(opts))
 	for i, o := range opts {
+		if o == nil {
+			coreOpts[i] = nil
+			continue
+		}
 		coreOpts[i] = toCoreOption(o)
 	}
 	return coreOpts
