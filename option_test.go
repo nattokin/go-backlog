@@ -155,7 +155,7 @@ func (o *failingCheckOption) Check() *backlog.ValidationError {
 }
 func (o *failingCheckOption) Set(url.Values) error { return nil }
 
-func TestToCoreOption_CheckFunc(t *testing.T) {
+func Test_toCoreOption_CheckFunc(t *testing.T) {
 	t.Parallel()
 
 	c, err := backlog.NewClient(
