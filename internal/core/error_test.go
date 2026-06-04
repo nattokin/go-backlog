@@ -81,6 +81,23 @@ func TestValidationError_Fields(t *testing.T) {
 	assert.False(t, e.Valid())
 }
 
+func TestValidationErrors_Error_single(t *testing.T) {
+	t.Parallel()
+	ves := core.ValidationErrors{
+		core.NewValidationError("count", "count must be greater than 0"),
+	}
+	assert.Equal(t, "count must be greater than 0", ves.Error())
+}
+
+func TestValidationErrors_Error_multiple(t *testing.T) {
+	t.Parallel()
+	ves := core.ValidationErrors{
+		core.NewValidationError("count", "count must be greater than 0"),
+		core.NewValidationError("order", "order must be asc or desc"),
+	}
+	assert.Equal(t, "count must be greater than 0\norder must be asc or desc", ves.Error())
+}
+
 // ──────────────────────────────────────────────────────────────
 //  errors.As assertion tests
 // ──────────────────────────────────────────────────────────────
