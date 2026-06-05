@@ -124,10 +124,6 @@ type APIParamOption struct {
 	SetFunc   func(url.Values) error  // applies the value to the request parameters
 }
 
-func (o *APIParamOption) key() string {
-	return o.Type.Value()
-}
-
 // Key returns the API parameter key. If KeyFunc is set it takes precedence over
 // the default derived from Type, allowing root-package RequestOption
 // implementations to be wrapped as *APIParamOption without losing their key.
@@ -135,7 +131,7 @@ func (o *APIParamOption) Key() string {
 	if o.KeyFunc != nil {
 		return o.KeyFunc()
 	}
-	return o.key()
+	return o.Type.Value()
 }
 
 // Check runs the option's validation and returns a *ValidationError if it

@@ -81,10 +81,10 @@ type ValidationError struct {
 	message string
 }
 
-func NewValidationError(target, msg string) *ValidationError {
+func NewValidationError(target, message string) *ValidationError {
 	return &ValidationError{
 		target:  target,
-		message: msg,
+		message: message,
 	}
 }
 
