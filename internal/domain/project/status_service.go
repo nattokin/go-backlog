@@ -92,18 +92,16 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 	options := append([]*core.APIParamOption{option}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if statusID < 1 {
 		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves

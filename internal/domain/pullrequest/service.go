@@ -56,18 +56,16 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	query := url.Values{}
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -125,18 +123,16 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 	}
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return 0, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		if !errors.As(err, &ves) {
+			return 0, err
+		}
 	}
 	if len(ves) > 0 {
 		return 0, ves
@@ -215,18 +211,16 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -262,13 +256,6 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	options := append([]*core.APIParamOption{option}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -277,6 +264,11 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	}
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves

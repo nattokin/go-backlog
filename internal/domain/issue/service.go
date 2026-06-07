@@ -208,15 +208,13 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 	)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -245,15 +243,13 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.
 	options := append([]*core.APIParamOption{option}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves

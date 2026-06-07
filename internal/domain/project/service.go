@@ -104,15 +104,13 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *cor
 	options := append([]*core.APIParamOption{option}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
