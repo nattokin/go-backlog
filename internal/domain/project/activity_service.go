@@ -12,8 +12,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// ActivityService handles project activity-related Backlog API calls.
-// It delegates HTTP operations to the shared activity.Service.
 type ActivityService struct {
 	base   *activity.Service
 	method *core.Method
@@ -30,9 +28,11 @@ func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts 
 		ves = append(ves, ve)
 	}
 	if err := s.base.ApplyOptions(query, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

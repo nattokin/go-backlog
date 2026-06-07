@@ -12,7 +12,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// CustomFieldService handles custom field-related Backlog API calls for a project.
 type CustomFieldService struct {
 	method *core.Method
 }
@@ -52,11 +51,8 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 	validTypes := []core.APIParamOptionType{
 		core.ParamTypeID, core.ParamName,
 		core.ParamDescription, core.ParamRequired, core.ParamApplicableIssueTypeIDs,
-		// Number type
 		core.ParamMin, core.ParamMax, core.ParamInitialValue, core.ParamUnit,
-		// Date type
 		core.ParamInitialValueType, core.ParamInitialDate, core.ParamInitialShift,
-		// List type
 		core.ParamItems, core.ParamAllowInput, core.ParamAllowAddItem,
 	}
 	options := append([]*core.APIParamOption{option.WithFieldType(fieldType), option.WithName(name)}, opts...)
@@ -66,9 +62,11 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -107,9 +105,11 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 		ves = append(ves, core.NewValidationError("customFieldId", "customFieldId must not be less than 1"))
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

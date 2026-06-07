@@ -8,18 +8,14 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
-	"github.com/nattokin/go-backlog/internal/model"
+	"github.com	/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// StatusService handles status-related Backlog API calls for a project.
 type StatusService struct {
 	method *core.Method
 }
 
-// List returns a list of statuses in a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
 func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*model.Status, error) {
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -43,9 +39,6 @@ func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*mod
 	return v, nil
 }
 
-// Create adds a new status to a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-status
 func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*model.Status, error) {
 	opt := &core.OptionService{}
 	nameOpt := opt.WithName(name)
@@ -83,9 +76,6 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 	return &v, nil
 }
 
-// Update updates a status in a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
 func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Status, error) {
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
@@ -99,9 +89,11 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -121,9 +113,6 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 	return &v, nil
 }
 
-// Delete deletes a status from a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
 func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*model.Status, error) {
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -156,9 +145,6 @@ func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statu
 	return &v, nil
 }
 
-// UpdateOrder updates the display order of statuses in a project.
-//
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-order-of-status
 func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, statusIDs []int) ([]*model.Status, error) {
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {

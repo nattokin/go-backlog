@@ -12,7 +12,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// IssueTypeService handles issue type-related Backlog API calls for a project.
 type IssueTypeService struct {
 	method *core.Method
 }
@@ -57,9 +56,11 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -95,9 +96,11 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
