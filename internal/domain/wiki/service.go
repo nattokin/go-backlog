@@ -25,15 +25,13 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core
 	validTypes := []core.APIParamOptionType{core.ParamKeyword}
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -118,15 +116,13 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	options := append([]*core.APIParamOption{option.WithName(name), option.WithContent(content)}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -156,15 +152,13 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 	options := append([]*core.APIParamOption{option}, opts...)
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	// Only check name/content presence when there are no option errors.
 	// If option errors exist, the caller already knows which options are invalid.
@@ -197,15 +191,13 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParam
 	validTypes := []core.APIParamOptionType{core.ParamMailNotify}
 
 	var ves core.ValidationErrors
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
+	}
+	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
+		if !errors.As(err, &ves) {
+			return nil, err
+		}
 	}
 	if len(ves) > 0 {
 		return nil, ves

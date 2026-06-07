@@ -32,11 +32,9 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 		ves = append(ves, ve)
 	}
 	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
+		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -57,11 +55,9 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 		ves = append(ves, ve)
 	}
 	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
+		if !errors.As(err, &ves) {
 			return nil, err
 		}
-		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
