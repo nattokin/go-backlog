@@ -15,8 +15,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// countValidTypes are the options accepted by Count (filter params only,
-// excluding sort and pagination).
 var countValidTypes = []core.APIParamOptionType{
 	core.ParamProjectIDs,
 	core.ParamIssueTypeIDs,
@@ -45,19 +43,16 @@ var countValidTypes = []core.APIParamOptionType{
 	core.ParamKeyword,
 }
 
-// filterValidTypes are the options accepted by All (countValidTypes plus sort and order).
 var filterValidTypes = append(countValidTypes,
 	core.ParamSort,
 	core.ParamOrder,
 )
 
-// listValidTypes are the options accepted by List (filterValidTypes plus pagination).
 var listValidTypes = append(filterValidTypes,
 	core.ParamOffset,
 	core.ParamCount,
 )
 
-// createValidTypes are the options accepted by Create.
 var createValidTypes = []core.APIParamOptionType{
 	core.ParamSummary,
 	core.ParamIssueTypeID,
@@ -77,26 +72,21 @@ var createValidTypes = []core.APIParamOptionType{
 	core.ParamCustomField,
 }
 
-// updateValidTypes are the options accepted by Update (createValidTypes plus
-// status, resolution, and comment).
 var updateValidTypes = append(createValidTypes,
 	core.ParamStatusID,
 	core.ParamResolutionID,
 	core.ParamComment,
 )
 
-// Service handles issue-related Backlog API calls.
 type Service struct {
 	method *core.Method
 }
 
-// list fetches a page of issues using the given pre-built query.
 func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, error) {
 	resp, err := s.method.Get(ctx, "issues", query)
 	if err != nil {
 		return nil, err
 	}
-
 	v := []*model.Issue{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
@@ -115,12 +105,7 @@ func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*mo
 	return s.list(ctx, query)
 }
 
-// All returns an iterator that lazily fetches all issues with automatic
-// pagination, along with any validation error encountered at call time.
-//
-// perPage controls how many issues are fetched per API call (1-100).
-// Iteration stops automatically when all issues have been returned.
-// Passing WithCount or WithOffset in opts returns an error immediately.
+// All returns an iterator that lazily fetches all issues with automatic pagination.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOption) (iter.Seq2[*model.Issue, error], error) {
@@ -212,9 +197,11 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -247,9 +234,11 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
