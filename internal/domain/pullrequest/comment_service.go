@@ -14,8 +14,6 @@ import (
 )
 
 // CommentService handles pull request comment-related Backlog API calls.
-// It delegates all HTTP operations to the shared comment.Service and is
-// responsible only for validation and spath construction.
 type CommentService struct {
 	base *comment.Service
 }
@@ -37,9 +35,11 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 		ves = append(ves, ve)
 	}
 	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -66,9 +66,11 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 		ves = append(ves, ve)
 	}
 	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

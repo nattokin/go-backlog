@@ -15,7 +15,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// filterValidTypes are the options accepted by both List and All (filter params only).
 var filterValidTypes = []core.APIParamOptionType{
 	core.ParamStatusIDs,
 	core.ParamAssigneeIDs,
@@ -23,7 +22,6 @@ var filterValidTypes = []core.APIParamOptionType{
 	core.ParamCreatedUserIDs,
 }
 
-// listValidTypes are the options accepted by List (filter params + pagination).
 var listValidTypes = append(filterValidTypes,
 	core.ParamOffset,
 	core.ParamCount,
@@ -34,14 +32,12 @@ type Service struct {
 	method *core.Method
 }
 
-// list fetches a page of pull requests using the given pre-built query.
 func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
-
 	v := []*model.PullRequest{}
 	if err := core.DecodeResponse(resp, &v); err != nil {
 		return nil, err
@@ -63,9 +59,11 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -74,8 +72,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
 }
 
-// All returns an iterator that lazily fetches all pull requests with automatic
-// pagination, along with any validation error encountered at call time.
+// All returns an iterator that lazily fetches all pull requests with automatic pagination.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
@@ -130,9 +127,11 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return 0, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return 0, ves
@@ -218,9 +217,11 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -266,9 +267,11 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

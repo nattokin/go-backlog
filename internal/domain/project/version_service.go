@@ -33,9 +33,11 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -74,9 +76,11 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -118,9 +122,11 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

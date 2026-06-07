@@ -12,57 +12,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// getUserList is a shared helper that fetches a list of users from the given spath.
-func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
-	resp, err := m.Get(ctx, spath, query)
-	if err != nil {
-		return nil, err
-	}
-
-	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return v, nil
-}
-
-// addUser is a shared helper that adds a user by ID via POST to the given spath.
-func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	resp, err := m.Post(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
-}
-
-// deleteUser is a shared helper that removes a user by ID via DELETE to the given spath.
-func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
-	form := url.Values{}
-	form.Set("userId", strconv.Itoa(userID))
-
-	resp, err := m.Delete(ctx, spath, form)
-	if err != nil {
-		return nil, err
-	}
-
-	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
-		return nil, err
-	}
-
-	return &v, nil
-}
-
 var validUserListOptions = []core.APIParamOptionType{
 	core.ParamExcludeGroupMembers,
 }
@@ -70,6 +19,46 @@ var validUserListOptions = []core.APIParamOptionType{
 // UserService handles project user-related Backlog API calls.
 type UserService struct {
 	method *core.Method
+}
+
+func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
+	resp, err := m.Get(ctx, spath, query)
+	if err != nil {
+		return nil, err
+	}
+	v := []*model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+	form := url.Values{}
+	form.Set("userId", strconv.Itoa(userID))
+	resp, err := m.Post(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+	form := url.Values{}
+	form.Set("userId", strconv.Itoa(userID))
+	resp, err := m.Delete(ctx, spath, form)
+	if err != nil {
+		return nil, err
+	}
+	v := model.User{}
+	if err := core.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+	return &v, nil
 }
 
 // List returns a list of users in the project.
@@ -83,9 +72,11 @@ func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(query, validUserListOptions, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -109,7 +100,6 @@ func (s *UserService) Add(ctx context.Context, projectIDOrKey string, userID int
 	if len(ves) > 0 {
 		return nil, ves
 	}
-
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return addUser(ctx, s.method, spath, userID)
 }
@@ -128,7 +118,6 @@ func (s *UserService) Delete(ctx context.Context, projectIDOrKey string, userID 
 	if len(ves) > 0 {
 		return nil, ves
 	}
-
 	spath := path.Join("projects", projectIDOrKey, "users")
 	return deleteUser(ctx, s.method, spath, userID)
 }
@@ -147,7 +136,6 @@ func (s *UserService) AddAdmin(ctx context.Context, projectIDOrKey string, userI
 	if len(ves) > 0 {
 		return nil, ves
 	}
-
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return addUser(ctx, s.method, spath, userID)
 }
@@ -163,7 +151,6 @@ func (s *UserService) AdminList(ctx context.Context, projectIDOrKey string) ([]*
 	if len(ves) > 0 {
 		return nil, ves
 	}
-
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return getUserList(ctx, s.method, spath, nil)
 }
@@ -182,7 +169,6 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 	if len(ves) > 0 {
 		return nil, ves
 	}
-
 	spath := path.Join("projects", projectIDOrKey, "administrators")
 	return deleteUser(ctx, s.method, spath, userID)
 }

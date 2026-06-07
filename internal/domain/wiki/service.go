@@ -29,9 +29,11 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -120,9 +122,11 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -156,12 +160,13 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	// Only check name/content presence when there are no option errors.
-	// If option errors exist, the caller already knows which options are invalid.
 	if len(ves) == 0 && !form.Has("name") && !form.Has("content") {
 		ves = append(ves, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)"))
 	}
@@ -195,9 +200,11 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParam
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		if !errors.As(err, &ves) {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
 			return nil, err
 		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
