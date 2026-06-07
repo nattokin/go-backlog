@@ -47,6 +47,16 @@ func TestWithCustomField(t *testing.T) {
 			key:       "customField_2",
 			wantValue: "1.5",
 		},
+		"float-negative-1": {
+			option:    issue.WithCustomField(3, -1.0),
+			key:       "customField_3",
+			wantValue: "-1",
+		},
+		"float-negative-1.5": {
+			option:    issue.WithCustomField(4, -1.5),
+			key:       "customField_4",
+			wantValue: "-1.5",
+		},
 		"float-invalid-id-zero": {
 			option:  issue.WithCustomField(0, 1.0),
 			wantErr: true,
