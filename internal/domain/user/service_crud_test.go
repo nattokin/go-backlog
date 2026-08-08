@@ -110,7 +110,7 @@ func TestUserService_Add(t *testing.T) {
 			name:                   "",
 			mailAddress:            "not-an-email",
 			roleType:               0,
-			wantValidationErrCount: 4,
+			wantValidationErrCount: 5,
 		},
 
 		// --- other errors ---

@@ -203,7 +203,11 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 		ves = append(ves, ve)
 	}
 	if err := core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs)); err != nil {
-		ves = append(ves, err.(core.ValidationErrors)...)
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves

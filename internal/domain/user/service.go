@@ -3,6 +3,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -84,16 +85,16 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 		option.WithMailAddress(mailAddress),
 		option.WithRoleType(roleType),
 	}
-	// ApplyOptions is checked first; if it returns errors, return them
-	// without merging userID so that option-only error counts are exact.
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
-	}
-
-	// Options passed — now validate the argument-only field.
 	var ves core.ValidationErrors
 	if userID == "" {
 		ves = append(ves, core.NewValidationError("userID", "userID must not be empty"))
+	}
+	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
 	}
 	if len(ves) > 0 {
 		return nil, ves
