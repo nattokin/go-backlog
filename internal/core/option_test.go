@@ -176,3 +176,80 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 	assert.Equal(t, "key", ves[0].Target())
 	assert.Equal(t, "name", ves[1].Target())
 }
+
+// TestMergeValidationErrors covers every branch of MergeValidationErrors
+// directly, independent of any ApplyOptions call site. Some call sites
+// (e.g. functions that build their options internally rather than
+// accepting them from the caller) can never actually produce a fail-fast
+// optErr in practice, so the fail-fast branch is only reachable through
+// this direct test.
+func TestMergeValidationErrors(t *testing.T) {
+	fixedVe := core.NewValidationError("fixed", "fixed arg is invalid")
+	optVe := core.NewValidationError("opt", "opt is invalid")
+	failFastErr := core.NewInvalidOptionError("nil option is not allowed")
+
+	cases := map[string]struct {
+		ves    core.ValidationErrors
+		optErr error
+
+		wantNil                bool
+		wantValidationErrCount int
+		wantFailFastErr        error
+	}{
+		"no ves and no optErr": {
+			ves:     nil,
+			optErr:  nil,
+			wantNil: true,
+		},
+		"ves only": {
+			ves:                    core.ValidationErrors{fixedVe},
+			optErr:                 nil,
+			wantValidationErrCount: 1,
+		},
+		"optErr ValidationErrors only": {
+			ves:                    nil,
+			optErr:                 core.ValidationErrors{optVe},
+			wantValidationErrCount: 1,
+		},
+		"ves and optErr ValidationErrors are merged": {
+			ves:                    core.ValidationErrors{fixedVe},
+			optErr:                 core.ValidationErrors{optVe},
+			wantValidationErrCount: 2,
+		},
+		"fail-fast optErr discards ves": {
+			ves:             core.ValidationErrors{fixedVe},
+			optErr:          failFastErr,
+			wantFailFastErr: failFastErr,
+		},
+		"fail-fast optErr with empty ves": {
+			ves:             nil,
+			optErr:          failFastErr,
+			wantFailFastErr: failFastErr,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			err := core.MergeValidationErrors(tc.ves, tc.optErr)
+
+			if tc.wantNil {
+				assert.NoError(t, err)
+				return
+			}
+
+			if tc.wantFailFastErr != nil {
+				assert.Equal(t, tc.wantFailFastErr, err)
+				var ves core.ValidationErrors
+				assert.False(t, errors.As(err, &ves))
+				return
+			}
+
+			require.Error(t, err)
+			var ves core.ValidationErrors
+			require.True(t, errors.As(err, &ves))
+			assert.Len(t, ves, tc.wantValidationErrCount)
+		})
+	}
+}

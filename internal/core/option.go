@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"net/url"
 )
 
@@ -185,6 +186,30 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIPar
 
 	if len(errs) > 0 {
 		return errs
+	}
+	return nil
+}
+
+// MergeValidationErrors merges the error returned by ApplyOptions (optErr)
+// into an already-collected ValidationErrors value (ves) and returns a
+// single error to propagate to the caller.
+//
+// If optErr is nil, MergeValidationErrors returns ves as an error only if it
+// is non-empty (nil otherwise). If optErr is itself a ValidationErrors
+// value, its elements are appended to ves before that same check. If optErr
+// is any other error (InvalidOptionError, InvalidOptionKeyError, or a
+// SetFunc failure), it is a fail-fast error: it is returned as-is and ves is
+// discarded, matching ApplyOptions' fail-fast semantics.
+func MergeValidationErrors(ves ValidationErrors, optErr error) error {
+	if optErr != nil {
+		var optVes ValidationErrors
+		if !errors.As(optErr, &optVes) {
+			return optErr
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return ves
 	}
 	return nil
 }
