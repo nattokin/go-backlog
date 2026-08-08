@@ -21,8 +21,12 @@ type SharedFileService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
 func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]*model.SharedFile, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "files")
@@ -44,11 +48,15 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
 func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateSharedFileID(sharedFileID); err != nil {
-		return nil, err
+	if ve := validate.ValidateSharedFileID(sharedFileID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))

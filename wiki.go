@@ -104,7 +104,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
-	v, err := s.base.Update(ctx, wikiID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, wikiID, toCoreOption(option), toCoreOptions(opts)...)
 	return wikiFromModel(v), convertError(err)
 }
 
@@ -252,22 +252,22 @@ type WikiOptionService struct {
 
 // WithKeyword filters wiki pages by keyword.
 func (s *WikiOptionService) WithKeyword(keyword string) RequestOption {
-	return s.base.WithKeyword(keyword)
+	return &requestOption{opt: s.base.WithKeyword(keyword)}
 }
 
 // WithContent sets the content of a wiki page.
 func (s *WikiOptionService) WithContent(content string) RequestOption {
-	return s.base.WithContent(content)
+	return &requestOption{opt: s.base.WithContent(content)}
 }
 
 // WithMailNotify sets whether to send a mail notification.
 func (s *WikiOptionService) WithMailNotify(enabled bool) RequestOption {
-	return s.base.WithMailNotify(enabled)
+	return &requestOption{opt: s.base.WithMailNotify(enabled)}
 }
 
 // WithName sets the name of a wiki page.
 func (s *WikiOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // ──────────────────────────────────────────────────────────────

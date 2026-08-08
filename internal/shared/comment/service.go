@@ -9,6 +9,21 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
+// ListValidTypes are the option types accepted by comment list endpoints.
+var ListValidTypes = []core.APIParamOptionType{
+	core.ParamMinID,
+	core.ParamMaxID,
+	core.ParamCount,
+	core.ParamOrder,
+}
+
+// AddValidTypes are the option types accepted by comment add endpoints.
+var AddValidTypes = []core.APIParamOptionType{
+	core.ParamContent,
+	core.ParamNotifiedUserIDs,
+	core.ParamAttachmentIDs,
+}
+
 // Service holds shared HTTP logic for comment-related Backlog API endpoints.
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
@@ -16,18 +31,13 @@ type Service struct {
 	method *core.Method
 }
 
-func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOption) ([]*model.Comment, error) {
-	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamMinID,
-		core.ParamMaxID,
-		core.ParamCount,
-		core.ParamOrder,
-	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return nil, err
-	}
+// ApplyListOptions validates and applies opts to query for List.
+func (s *Service) ApplyListOptions(query url.Values, opts ...*core.APIParamOption) error {
+	return core.ApplyOptions(query, ListValidTypes, opts...)
+}
 
+// FetchList executes the GET request for comment listing.
+func (s *Service) FetchList(ctx context.Context, spath string, query url.Values) ([]*model.Comment, error) {
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -41,22 +51,18 @@ func (s *Service) List(ctx context.Context, spath string, opts ...core.RequestOp
 	return v, nil
 }
 
-func (s *Service) Add(ctx context.Context, spath, content string, opts ...core.RequestOption) (*model.Comment, error) {
+// ApplyAddOptions validates and applies content + opts to form for Add.
+func (s *Service) ApplyAddOptions(form url.Values, content string, opts ...*core.APIParamOption) error {
 	option := &core.OptionService{}
-	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamContent,
-		core.ParamNotifiedUserIDs,
-		core.ParamAttachmentIDs,
-	}
 	options := append(
-		[]core.RequestOption{option.WithContent(content)},
+		[]*core.APIParamOption{option.WithContent(content)},
 		opts...,
 	)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
-	}
+	return core.ApplyOptions(form, AddValidTypes, options...)
+}
 
+// FetchAdd executes the POST request for adding a comment.
+func (s *Service) FetchAdd(ctx context.Context, spath string, form url.Values) (*model.Comment, error) {
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -98,14 +104,19 @@ func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error)
 	return &v, nil
 }
 
-func (s *Service) Update(ctx context.Context, spath, content string) (*model.Comment, error) {
+// ApplyUpdateOptions validates content and writes it into form.
+// Returns a *ValidationError if content is invalid, nil otherwise.
+func (s *Service) ApplyUpdateOptions(form url.Values, content string) *core.ValidationError {
 	option := (&core.OptionService{}).WithContent(content)
-	if err := option.Check(); err != nil {
-		return nil, err
+	if ve := option.Check(); ve != nil {
+		return ve
 	}
-	form := url.Values{}
 	option.Set(form)
+	return nil
+}
 
+// FetchUpdate executes the PATCH request for updating a comment.
+func (s *Service) FetchUpdate(ctx context.Context, spath string, form url.Values) (*model.Comment, error) {
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err

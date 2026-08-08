@@ -97,32 +97,32 @@ type IssueCommentOptionService struct {
 
 // WithCount sets the number of comments to retrieve (1-100).
 func (s *IssueCommentOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithMaxID filters comments with ID at or below the given value.
 func (s *IssueCommentOptionService) WithMaxID(id int) RequestOption {
-	return s.base.WithMaxID(id)
+	return &requestOption{opt: s.base.WithMaxID(id)}
 }
 
 // WithMinID filters comments with ID at or above the given value.
 func (s *IssueCommentOptionService) WithMinID(id int) RequestOption {
-	return s.base.WithMinID(id)
+	return &requestOption{opt: s.base.WithMinID(id)}
 }
 
 // WithOrder sets the sort order of results.
 func (s *IssueCommentOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(string(order))
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 // WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
 func (s *IssueCommentOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
-	return s.base.WithNotifiedUserIDs(ids)
+	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
 
 // WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
 func (s *IssueCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
-	return s.base.WithAttachmentIDs(ids)
+	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
 func newIssueCommentService(method *core.Method, option *core.OptionService) *IssueCommentService {

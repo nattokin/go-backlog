@@ -60,19 +60,49 @@ func (e *InvalidOptionKeyError) Error() string {
 	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
 }
 
-// ValidationError represents an argument validation error.
-type ValidationError struct {
+// InvalidOptionError represents an error for an invalid option, such as a nil
+// option or a Check() implementation that returned a nil ValidationResult.
+type InvalidOptionError struct {
 	message string
 }
 
-func NewValidationError(msg string) *ValidationError {
+func NewInvalidOptionError(msg string) *InvalidOptionError {
+	return &InvalidOptionError{message: msg}
+}
+
+func (e *InvalidOptionError) Error() string {
+	return e.message
+}
+
+// ValidationError represents an argument validation error.
+// It implements ValidationResult.
+type ValidationError struct {
+	target  string
+	message string
+}
+
+func NewValidationError(target, message string) *ValidationError {
 	return &ValidationError{
-		message: msg,
+		target:  target,
+		message: message,
 	}
 }
 
-func (e *ValidationError) Error() string {
-	return e.message
+func (e *ValidationError) Valid() bool     { return false }
+func (e *ValidationError) Target() string  { return e.target }
+func (e *ValidationError) Message() string { return e.message }
+func (e *ValidationError) Error() string   { return e.message }
+
+// ValidationErrors is a collection of ValidationError values returned when
+// multiple options fail validation simultaneously.
+type ValidationErrors []*ValidationError
+
+func (es ValidationErrors) Error() string {
+	msgs := make([]string, len(es))
+	for i, e := range es {
+		msgs[i] = e.Error()
+	}
+	return strings.Join(msgs, "\n")
 }
 
 // InternalClientError represents client-side configuration or usage errors.

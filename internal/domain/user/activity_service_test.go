@@ -17,67 +17,29 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestActivityService_List(t *testing.T) {
+func TestUserActivityService_List(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		userID    int
-		opts      []core.RequestOption
+		userID int
+		opts   []*core.APIParamOption
+
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success-no-option": {
 			userID: 1234,
-			opts:   []core.RequestOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1234/activities", spath)
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
-		"success-withActivityTypeIDs": {
-			userID: 1234,
-			opts:   []core.RequestOption{o.WithActivityTypeIDs([]int{1})},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-		},
-		"success-withMinID": {
-			userID: 1234,
-			opts:   []core.RequestOption{o.WithMinID(1)},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("minId"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-		},
-		"success-withMaxID": {
-			userID: 1234,
-			opts:   []core.RequestOption{o.WithMaxID(1)},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("maxId"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-		},
-		"success-withCount": {
-			userID: 1234,
-			opts:   []core.RequestOption{o.WithCount(1)},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "1", query.Get("count"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-		},
-		"success-withOrder": {
-			userID: 1234,
-			opts:   []core.RequestOption{o.WithOrder("asc")},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewResponse(fixture.Activity.ListJSON), nil
-			},
-		},
 		"success-multiple-options": {
 			userID: 1234,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -85,7 +47,6 @@ func TestActivityService_List(t *testing.T) {
 				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users/1234/activities", spath)
 				assert.Equal(t, []string{"1", "2"}, query["activityTypeId[]"])
 				assert.Equal(t, "1", query.Get("minId"))
 				assert.Equal(t, "26", query.Get("maxId"))
@@ -94,14 +55,60 @@ func TestActivityService_List(t *testing.T) {
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
+
+		// --- validation errors ---
 		"error-validation-userID-zero": {
+			userID:                 0,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-userID-negative": {
+			userID:                 -1,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-opt-single": {
+			userID:                 1234,
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			userID:                 0,
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			userID:                 1234,
+			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			userID:                 0,
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
+			userID:      1234,
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
+		},
+		"error-option-invalid-type-with-invalid-values": {
 			userID:      0,
-			wantErrType: &core.ValidationError{},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
+		"error-option-set-failed": {
+			userID:      1234,
+			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},
+			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
 			userID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "users/1234/activities", spath)
 				return nil, errors.New("network error")
 			},
 			wantErrType: errors.New(""),
@@ -112,21 +119,6 @@ func TestActivityService_List(t *testing.T) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
 			wantErrType: &json.SyntaxError{},
-		},
-		"error-option-invalid-value": {
-			userID:      1234,
-			opts:        []core.RequestOption{o.WithCount(0)},
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-type": {
-			userID:      1234,
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
-		},
-		"error-option-set-failed": {
-			userID:      1234,
-			opts:        []core.RequestOption{mock.NewFailingSetOption(core.ParamCount)},
-			wantErrType: errors.New(""),
 		},
 	}
 
@@ -139,13 +131,30 @@ func TestActivityService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := user.NewActivityService(method)
-
 			got, err := s.List(context.Background(), tc.userID, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

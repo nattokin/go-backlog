@@ -23,52 +23,50 @@ func TestCategoryService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantLen     int
-		wantErrType error
+		wantLen                int
+		wantErrType            error
+		wantValidationErrCount int
 	}{
-		"success-projectIDOrKey-key": {
+		"success-key": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.Category.ListJSON), nil
 			},
-
-			wantLen:     2,
-			wantErrType: nil,
+			wantLen: 2,
 		},
-		"success-projectIDOrKey-id": {
+		"success-id": {
 			projectIDOrKey: "6",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/6/categories", spath)
 				return mock.NewResponse(fixture.Category.ListJSON), nil
 			},
+			wantLen: 2,
+		},
 
-			wantLen:     2,
-			wantErrType: nil,
-		},
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
-
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -82,12 +80,21 @@ func TestCategoryService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := project.NewCategoryService(method)
-
 			categories, err := s.List(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, categories)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, categories)
 				return
 			}
@@ -106,48 +113,60 @@ func TestCategoryService_Create(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories", spath)
 				assert.Equal(t, "Bug", form.Get("name"))
 				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
+		},
 
-			wantErrType: nil,
-		},
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			name:           "Bug",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			name:                   "Bug",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			name:                   "Bug",
+			wantValidationErrCount: 1,
+		},
+
+		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			name:           "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			name:                   "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
-
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -161,12 +180,21 @@ func TestCategoryService_Create(t *testing.T) {
 				method.Post = tc.mockPostFn
 			}
 			s := project.NewCategoryService(method)
-
 			category, err := s.Create(context.Background(), tc.projectIDOrKey, tc.name)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, category)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, category)
 				return
 			}
@@ -187,59 +215,67 @@ func TestCategoryService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
 			name:           "Bug Fixed",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories/12", spath)
 				assert.Equal(t, "Bug Fixed", form.Get("name"))
 				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			categoryID:     12,
-			name:           "Bug Fixed",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			categoryID:             12,
+			name:                   "Bug Fixed",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-categoryID-zero": {
-			projectIDOrKey: "TEST",
-			categoryID:     0,
-			name:           "Bug Fixed",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			categoryID:             0,
+			name:                   "Bug Fixed",
+			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			categoryID:     12,
-			name:           "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			categoryID:             12,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			categoryID:             0,
+			name:                   "",
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
 			name:           "Bug Fixed",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
 			name:           "Bug Fixed",
-
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -253,12 +289,21 @@ func TestCategoryService_Update(t *testing.T) {
 				method.Patch = tc.mockPatchFn
 			}
 			s := project.NewCategoryService(method)
-
 			category, err := s.Update(context.Background(), tc.projectIDOrKey, tc.categoryID, tc.name)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, category)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, category)
 				return
 			}
@@ -277,48 +322,50 @@ func TestCategoryService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/categories/12", spath)
-				assert.NotNil(t, form)
 				return mock.NewResponse(fixture.Category.SingleJSON), nil
 			},
-
-			wantErrType: nil,
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			categoryID:     12,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			categoryID:             12,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-categoryID-zero": {
-			projectIDOrKey: "TEST",
-			categoryID:     0,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			categoryID:             0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			categoryID:             0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
-
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
-
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
-
 			wantErrType: &json.SyntaxError{},
 		},
 	}
@@ -332,12 +379,21 @@ func TestCategoryService_Delete(t *testing.T) {
 				method.Delete = tc.mockDeleteFn
 			}
 			s := project.NewCategoryService(method)
-
 			category, err := s.Delete(context.Background(), tc.projectIDOrKey, tc.categoryID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, category)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				assert.Nil(t, category)
 				return
 			}

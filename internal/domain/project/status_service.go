@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,8 +21,12 @@ type StatusService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project
 func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*model.Status, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "statuses")
@@ -42,18 +47,22 @@ func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*mod
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-status
 func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*model.Status, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
 	opt := &core.OptionService{}
 	nameOpt := opt.WithName(name)
-	if err := nameOpt.Check(); err != nil {
-		return nil, err
-	}
 	colorOpt := opt.WithColor(color)
-	if err := colorOpt.Check(); err != nil {
-		return nil, err
+
+	var ves core.ValidationErrors
+	if ve := nameOpt.Check(); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := colorOpt.Check(); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form := url.Values{}
@@ -77,19 +86,27 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 // Update updates a status in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option core.RequestOption, opts ...core.RequestOption) (*model.Status, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if statusID < 1 {
-		return nil, core.NewValidationError("statusId must not be less than 1")
-	}
-
+func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Status, error) {
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if statusID < 1 {
+		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))
@@ -107,18 +124,21 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 }
 
 // Delete deletes a status from a project.
-// substituteStatusID specifies the status to migrate existing issues to.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-status
 func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statusID, substituteStatusID int) (*model.Status, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if statusID < 1 {
-		return nil, core.NewValidationError("statusId must not be less than 1")
+		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
 	}
 	if substituteStatusID < 1 {
-		return nil, core.NewValidationError("substituteStatusId must not be less than 1")
+		ves = append(ves, core.NewValidationError("substituteStatusId", "substituteStatusId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form := url.Values{}
@@ -142,16 +162,21 @@ func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statu
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-order-of-status
 func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, statusIDs []int) ([]*model.Status, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if len(statusIDs) == 0 {
-		return nil, core.NewValidationError("statusIDs must not be empty")
+		ves = append(ves, core.NewValidationError("statusIDs", "statusIDs must not be empty"))
 	}
 	for _, id := range statusIDs {
 		if id < 1 {
-			return nil, core.NewValidationError("each statusId must not be less than 1")
+			ves = append(ves, core.NewValidationError("statusId", "each statusId must not be less than 1"))
+			break
 		}
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form := url.Values{}

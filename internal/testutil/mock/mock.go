@@ -69,8 +69,8 @@ func (mw *multipartWriter) Close() error                { return mw.wrapper.Clos
 func NewFailingCheckOption(t core.APIParamOptionType) *core.APIParamOption {
 	return &core.APIParamOption{
 		Type: t,
-		CheckFunc: func() error {
-			return errors.New("check error")
+		CheckFunc: func() *core.ValidationError {
+			return core.NewValidationError("test", "check error")
 		},
 		SetFunc: func(_ url.Values) error { return nil },
 	}
@@ -80,7 +80,7 @@ func NewFailingCheckOption(t core.APIParamOptionType) *core.APIParamOption {
 func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
 	return &core.APIParamOption{
 		Type:      t,
-		CheckFunc: func() error { return nil },
+		CheckFunc: func() *core.ValidationError { return nil },
 		SetFunc: func(_ url.Values) error {
 			return errors.New("set error")
 		},
@@ -91,7 +91,7 @@ func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
 func NewInvalidTypeOption() *core.APIParamOption {
 	return &core.APIParamOption{
 		Type:      "invalid",
-		CheckFunc: func() error { return nil },
+		CheckFunc: func() *core.ValidationError { return nil },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 }

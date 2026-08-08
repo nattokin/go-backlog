@@ -57,9 +57,7 @@ func TestSharedFileService_List(t *testing.T) {
 			issueIDOrKey: "TEST-1",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -155,9 +153,7 @@ func TestSharedFileService_Link(t *testing.T) {
 			fileIDs:      []int{454403},
 			expectError:  true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -249,9 +245,7 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {

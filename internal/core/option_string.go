@@ -6,45 +6,45 @@ import (
 	"net/url"
 )
 
-func (s *OptionService) WithBase(base string) RequestOption {
+func (s *OptionService) WithBase(base string) *APIParamOption {
 	return nonEmptyStringOption(ParamBase, base)
 }
 
-func (s *OptionService) WithBranch(branch string) RequestOption {
+func (s *OptionService) WithBranch(branch string) *APIParamOption {
 	return nonEmptyStringOption(ParamBranch, branch)
 }
 
-func (s *OptionService) WithColor(color string) RequestOption {
+func (s *OptionService) WithColor(color string) *APIParamOption {
 	return nonEmptyStringOption(ParamColor, color)
 }
 
-func (s *OptionService) WithComment(comment string) RequestOption {
+func (s *OptionService) WithComment(comment string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamComment,
 		SetFunc: setStringFunc(ParamComment, comment),
 	}
 }
 
-func (s *OptionService) WithContent(content string) RequestOption {
+func (s *OptionService) WithContent(content string) *APIParamOption {
 	return nonEmptyStringOption(ParamContent, content)
 }
 
-func (s *OptionService) WithDescription(description string) RequestOption {
+func (s *OptionService) WithDescription(description string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamDescription,
 		SetFunc: setStringFunc(ParamDescription, description),
 	}
 }
 
-func (s *OptionService) WithHookURL(hookURL string) RequestOption {
+func (s *OptionService) WithHookURL(hookURL string) *APIParamOption {
 	return nonEmptyStringOption(ParamHookURL, hookURL)
 }
 
-func (s *OptionService) WithKey(key string) RequestOption {
+func (s *OptionService) WithKey(key string) *APIParamOption {
 	return nonEmptyStringOption(ParamKey, key)
 }
 
-func (s *OptionService) WithKeyword(keyword string) RequestOption {
+func (s *OptionService) WithKeyword(keyword string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamKeyword,
 		SetFunc: setStringFunc(ParamKeyword, keyword),
@@ -58,28 +58,28 @@ var validIssueSorts = []string{
 	"estimatedHours", "actualHours", "childIssue",
 }
 
-func (s *OptionService) WithIssueSort(sort string) RequestOption {
+func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamSort,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			for _, v := range validIssueSorts {
 				if sort == v {
 					return nil
 				}
 			}
-			return NewValidationError(fmt.Sprintf("invalid sort value: %q", sort))
+			return NewValidationError(ParamSort.Value(), fmt.Sprintf("invalid sort value: %q", sort))
 		},
 		SetFunc: setStringFunc(ParamSort, sort),
 	}
 }
 
-func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
+func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			addr, err := mail.ParseAddress(mailAddress)
 			if err != nil || addr.Address != mailAddress {
-				return NewValidationError(fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
+				return NewValidationError(ParamMailAddress.Value(), fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
 			}
 			return nil
 		},
@@ -87,16 +87,16 @@ func (s *OptionService) WithMailAddress(mailAddress string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithName(name string) RequestOption {
+func (s *OptionService) WithName(name string) *APIParamOption {
 	return nonEmptyStringOption(ParamName, name)
 }
 
-func (s *OptionService) WithOrder(order string) RequestOption {
+func (s *OptionService) WithOrder(order string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOrder,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			if order != "asc" && order != "desc" {
-				return NewValidationError("order must be only 'asc' or 'desc'")
+				return NewValidationError(ParamOrder.Value(), "order must be only 'asc' or 'desc'")
 			}
 			return nil
 		},
@@ -104,12 +104,12 @@ func (s *OptionService) WithOrder(order string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithPassword(password string) RequestOption {
+func (s *OptionService) WithPassword(password string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamPassword,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			if len(password) < 8 {
-				return NewValidationError("password must be at least 8 characters long")
+				return NewValidationError(ParamPassword.Value(), "password must be at least 8 characters long")
 			}
 			return nil
 		},
@@ -117,18 +117,18 @@ func (s *OptionService) WithPassword(password string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithSummary(summary string) RequestOption {
+func (s *OptionService) WithSummary(summary string) *APIParamOption {
 	return nonEmptyStringOption(ParamSummary, summary)
 }
 
-func (s *OptionService) WithTemplateDescription(description string) RequestOption {
+func (s *OptionService) WithTemplateDescription(description string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamTemplateDescription,
 		SetFunc: setStringFunc(ParamTemplateDescription, description),
 	}
 }
 
-func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
+func (s *OptionService) WithTemplateSummary(summary string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamTemplateSummary,
 		SetFunc: setStringFunc(ParamTemplateSummary, summary),
@@ -137,35 +137,35 @@ func (s *OptionService) WithTemplateSummary(summary string) RequestOption {
 
 var validFormats = []string{"backlog", "markdown"}
 
-func (s *OptionService) WithTextFormattingRule(format string) RequestOption {
+func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			for _, v := range validFormats {
 				if format == v {
 					return nil
 				}
 			}
-			return NewValidationError("format must be only 'backlog' or 'markdown'")
+			return NewValidationError(ParamTextFormattingRule.Value(), "format must be only 'backlog' or 'markdown'")
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}
 }
 
-func (s *OptionService) WithUnit(unit string) RequestOption {
+func (s *OptionService) WithUnit(unit string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamUnit,
 		SetFunc: setStringFunc(ParamUnit, unit),
 	}
 }
 
-// nonEmptyStringOption builds a RequestOption that rejects empty strings.
-func nonEmptyStringOption(paramType APIParamOptionType, value string) RequestOption {
+// nonEmptyStringOption builds a *APIParamOption that rejects empty strings.
+func nonEmptyStringOption(paramType APIParamOptionType, value string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			if value == "" {
-				return NewValidationError(fmt.Sprintf("%s must not be empty", paramType.Value()))
+				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
 			}
 			return nil
 		},

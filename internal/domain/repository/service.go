@@ -20,8 +20,12 @@ type Service struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories
 func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Repository, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories")
@@ -42,11 +46,15 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Rep
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-git-repository
 func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName string) (*model.Repository, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateRepositoryIDOrName(repoIDOrName); err != nil {
-		return nil, err
+	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName)

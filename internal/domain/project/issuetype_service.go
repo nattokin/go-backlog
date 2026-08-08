@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -11,7 +12,6 @@ import (
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// IssueTypeService handles issue type-related Backlog API calls for a project.
 type IssueTypeService struct {
 	method *core.Method
 }
@@ -20,8 +20,12 @@ type IssueTypeService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list
 func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
@@ -41,17 +45,25 @@ func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*
 // Create adds a new issue type to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-type
-func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...core.RequestOption) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
+func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...*core.APIParamOption) (*model.IssueType, error) {
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
-	options := append([]core.RequestOption{option.WithName(name), option.WithColor(color)}, opts...)
+	options := append([]*core.APIParamOption{option.WithName(name), option.WithColor(color)}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
@@ -71,19 +83,27 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 // Update updates an issue type in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
-func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option core.RequestOption, opts ...core.RequestOption) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId must not be less than 1")
-	}
-
+func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.IssueType, error) {
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor, core.ParamTemplateSummary, core.ParamTemplateDescription}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if issueTypeID < 1 {
+		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
@@ -101,18 +121,21 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 }
 
 // Delete deletes an issue type from a project.
-// substituteIssueTypeID specifies the issue type to migrate existing issues to.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-type
 func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, issueTypeID, substituteIssueTypeID int) (*model.IssueType, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
 	if issueTypeID < 1 {
-		return nil, core.NewValidationError("issueTypeId must not be less than 1")
+		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
 	if substituteIssueTypeID < 1 {
-		return nil, core.NewValidationError("substituteIssueTypeId must not be less than 1")
+		ves = append(ves, core.NewValidationError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1"))
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	form := url.Values{}

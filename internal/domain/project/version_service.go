@@ -3,6 +3,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,18 +21,26 @@ type VersionService struct {
 // List returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...core.RequestOption) ([]*model.Version, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
+func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Version, error) {
 	query := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamArchived,
 		core.ParamAll,
 	}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions")
@@ -51,14 +60,7 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 // Add adds a version/milestone to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone
-func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...core.RequestOption) (*model.Version, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if name == "" {
-		return nil, core.NewValidationError("name is required")
-	}
-
+func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...*core.APIParamOption) (*model.Version, error) {
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
@@ -67,9 +69,21 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 		core.ParamStartDate,
 		core.ParamReleaseDueDate,
 	}
-	options := append([]core.RequestOption{option.WithName(name)}, opts...)
+	options := append([]*core.APIParamOption{option.WithName(name)}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions")
@@ -89,14 +103,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 // Update updates a version/milestone.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone
-func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option core.RequestOption, opts ...core.RequestOption) (*model.Version, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateVersionID(versionID); err != nil {
-		return nil, err
-	}
-
+func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Version, error) {
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
 		core.ParamName,
@@ -105,9 +112,24 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 		core.ParamReleaseDueDate,
 		core.ParamArchived,
 	}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateVersionID(versionID); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))
@@ -128,11 +150,15 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-version-milestone
 func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*model.Version, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateVersionID(versionID); err != nil {
-		return nil, err
+	if ve := validate.ValidateVersionID(versionID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))

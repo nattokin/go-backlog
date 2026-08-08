@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -20,8 +21,12 @@ type WebhookService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/
 func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*model.Webhook, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks")
@@ -41,11 +46,7 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 // Add adds a new webhook to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook/
-func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...core.RequestOption) (*model.Webhook, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-
+func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...*core.APIParamOption) (*model.Webhook, error) {
 	option := &core.OptionService{}
 	form := url.Values{}
 	validTypes := []core.APIParamOptionType{
@@ -56,23 +57,39 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		core.ParamActivityTypeIDs,
 	}
 	options := append(
-		[]core.RequestOption{
+		[]*core.APIParamOption{
 			option.WithName(name),
 			option.WithHookURL(hookURL),
 		},
 		opts...,
 	)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	allEvent := form.Get("allEvent")
 	activityIDs := form["activityTypeId[]"]
+	var postVes core.ValidationErrors
 	if allEvent == "false" && len(activityIDs) == 0 {
-		return nil, core.NewValidationError("activityTypeIds is required when allEvent is false")
+		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds is required when allEvent is false"))
 	}
 	if allEvent == "" && len(activityIDs) == 0 {
-		return nil, core.NewValidationError("requires WithAllEvent(true) or WithActivityTypeIDs")
+		postVes = append(postVes, core.NewValidationError("activityTypeIds", "requires WithAllEvent(true) or WithActivityTypeIDs"))
+	}
+	if len(postVes) > 0 {
+		return nil, postVes
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks")
@@ -93,11 +110,15 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-webhook/
 func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateWebhookID(webhookID); err != nil {
-		return nil, err
+	if ve := validate.ValidateWebhookID(webhookID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
@@ -117,16 +138,17 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 // Update updates a webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook/
-func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option core.RequestOption, opts ...core.RequestOption) (*model.Webhook, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
-	}
-	if err := validate.ValidateWebhookID(webhookID); err != nil {
-		return nil, err
-	}
-
+func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Webhook, error) {
 	form := url.Values{}
-	options := append([]core.RequestOption{option}, opts...)
+	options := append([]*core.APIParamOption{option}, opts...)
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if ve := validate.ValidateWebhookID(webhookID); ve != nil {
+		ves = append(ves, ve)
+	}
 	if err := core.ApplyOptions(form, []core.APIParamOptionType{
 		core.ParamName,
 		core.ParamDescription,
@@ -134,16 +156,27 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		core.ParamAllEvent,
 		core.ParamActivityTypeIDs,
 	}, options...); err != nil {
-		return nil, err
+		var optVes core.ValidationErrors
+		if !errors.As(err, &optVes) {
+			return nil, err
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	allEvent := form.Get("allEvent")
 	activityIDs := form["activityTypeId[]"]
+	var postVes core.ValidationErrors
 	if allEvent == "false" && len(activityIDs) == 0 {
-		return nil, core.NewValidationError("activityTypeIds is required when allEvent is false")
+		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds is required when allEvent is false"))
 	}
 	if allEvent == "true" && len(activityIDs) > 0 {
-		return nil, core.NewValidationError("activityTypeIds cannot be specified when allEvent is true")
+		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds cannot be specified when allEvent is true"))
+	}
+	if len(postVes) > 0 {
+		return nil, postVes
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
@@ -156,7 +189,6 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	if err := core.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
-
 	return v, nil
 }
 
@@ -164,11 +196,15 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-webhook/
 func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webhookID int) (*model.Webhook, error) {
-	if err := validate.ValidateProjectIDOrKey(projectIDOrKey); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateWebhookID(webhookID); err != nil {
-		return nil, err
+	if ve := validate.ValidateWebhookID(webhookID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))

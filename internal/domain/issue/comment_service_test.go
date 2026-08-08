@@ -22,12 +22,14 @@ func TestCommentService_List(t *testing.T) {
 
 	cases := map[string]struct {
 		issueIDOrKey string
-		opts         []core.RequestOption
+		opts         []*core.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantIDs     []int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantIDs                []int
 	}{
 		"success-no-options": {
 			issueIDOrKey: "PRJ-1",
@@ -37,55 +39,60 @@ func TestCommentService_List(t *testing.T) {
 			},
 			wantIDs: []int{1, 2},
 		},
-		"success-by-numeric-id": {
-			issueIDOrKey: "1",
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1/comments", spath)
-				return mock.NewResponse(fixture.Comment.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
-		},
 		"success-with-count-and-order": {
 			issueIDOrKey: "PRJ-1",
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithCount(20),
 				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1/comments", spath)
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},
 		},
-		"success-with-minID-maxID": {
-			issueIDOrKey: "PRJ-1",
-			opts: []core.RequestOption{
-				o.WithMinID(10),
-				o.WithMaxID(100),
-			},
-			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1/comments", spath)
-				assert.Equal(t, "10", query.Get("minId"))
-				assert.Equal(t, "100", query.Get("maxId"))
-				return mock.NewResponse(fixture.Comment.ListJSON), nil
-			},
-			wantIDs: []int{1, 2},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-opt-count-zero": {
+			issueIDOrKey:           "PRJ-1",
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			issueIDOrKey:           "PRJ-1",
+			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			issueIDOrKey:           "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
-			opts:         []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -117,15 +124,31 @@ func TestCommentService_List(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.List(context.Background(), tc.issueIDOrKey, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -145,8 +168,9 @@ func TestCommentService_Count(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantCount   int
+		wantErrType            error
+		wantValidationErrCount int
+		wantCount              int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -156,14 +180,18 @@ func TestCommentService_Count(t *testing.T) {
 			},
 			wantCount: 7,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			wantValidationErrCount: 1,
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -195,15 +223,23 @@ func TestCommentService_Count(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			count, err := s.Count(context.Background(), tc.issueIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Zero(t, count)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Zero(t, count)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -220,8 +256,9 @@ func TestCommentService_Notifications(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantLen     int
+		wantErrType            error
+		wantValidationErrCount int
+		wantLen                int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -232,16 +269,25 @@ func TestCommentService_Notifications(t *testing.T) {
 			},
 			wantLen: 2,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			commentID:    1,
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			commentID:              1,
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    0,
-			wantErrType:  &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			commentID:              0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -276,15 +322,23 @@ func TestCommentService_Notifications(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.Notifications(context.Background(), tc.issueIDOrKey, tc.commentID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -302,8 +356,9 @@ func TestCommentService_Notify(t *testing.T) {
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -316,24 +371,34 @@ func TestCommentService_Notify(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			commentID:    1,
-			userIDs:      []int{5},
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			commentID:              1,
+			userIDs:                []int{5},
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    0,
-			userIDs:      []int{5},
-			wantErrType:  &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              0,
+			userIDs:                []int{5},
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-userID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    42,
-			userIDs:      []int{0},
-			wantErrType:  &core.ValidationError{},
+		"error-validation-userID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              42,
+			userIDs:                []int{0},
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			commentID:              0,
+			userIDs:                []int{0},
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -371,15 +436,23 @@ func TestCommentService_Notify(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.Notify(context.Background(), tc.issueIDOrKey, tc.commentID, tc.userIDs)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

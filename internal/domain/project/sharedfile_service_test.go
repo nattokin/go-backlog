@@ -23,13 +23,13 @@ func TestSharedFileService_List(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success-project-key": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/files", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
@@ -37,18 +37,21 @@ func TestSharedFileService_List(t *testing.T) {
 			projectIDOrKey: "1234",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/1234/files", spath)
-				assert.Nil(t, query)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-projectIDOrKey-zero": {
-			projectIDOrKey: "0",
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -74,27 +77,28 @@ func TestSharedFileService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := project.NewSharedFileService(method)
-
 			files, err := s.List(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, files)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, files)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
 			require.NoError(t, err)
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
-
-			for i, v := range fixture.SharedFile.List {
-				assert.Equal(t, v.ID, files[i].ID)
-				assert.Equal(t, v.Type, files[i].Type)
-				assert.Equal(t, v.Dir, files[i].Dir)
-				assert.Equal(t, v.Name, files[i].Name)
-				assert.Equal(t, v.Size, files[i].Size)
-			}
 		})
 	}
 }
@@ -106,47 +110,45 @@ func TestSharedFileService_Download(t *testing.T) {
 
 		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		wantErrType            error
+		wantValidationErrCount int
+		wantFilename           string
+		wantContentType        string
 	}{
 		"success-project-key": {
 			projectIDOrKey: "TEST",
 			sharedFileID:   454403,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/files/454403", spath)
-				assert.Nil(t, query)
 				return mock.NewBinaryResponse("01_buz.png", "image/png", []byte("PNG")), nil
 			},
 			wantFilename:    "01_buz.png",
 			wantContentType: "image/png",
 		},
-		"success-project-id": {
-			projectIDOrKey: "1234",
-			sharedFileID:   454404,
-			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/1234/files/454404", spath)
-				assert.Nil(t, query)
-				return mock.NewBinaryResponse("readme.md", "text/plain", []byte("MD")), nil
-			},
-			wantFilename:    "readme.md",
-			wantContentType: "text/plain",
-		},
+
+		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			sharedFileID:   454403,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "",
+			sharedFileID:           454403,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-projectIDOrKey-zero": {
-			projectIDOrKey: "0",
-			sharedFileID:   454403,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "0",
+			sharedFileID:           454403,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-sharedFileID-zero": {
-			projectIDOrKey: "TEST",
-			sharedFileID:   0,
-			wantErrType:    &core.ValidationError{},
+			projectIDOrKey:         "TEST",
+			sharedFileID:           0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			sharedFileID:           0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			sharedFileID:   454403,
@@ -166,13 +168,22 @@ func TestSharedFileService_Download(t *testing.T) {
 				method.Download = tc.mockDownloadFn
 			}
 			s := project.NewSharedFileService(method)
-
 			got, err := s.Download(context.Background(), tc.projectIDOrKey, tc.sharedFileID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

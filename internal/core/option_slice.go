@@ -6,13 +6,13 @@ import (
 	"strconv"
 )
 
-func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
+func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamActivityTypeIDs,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			for _, id := range typeIDs {
-				if err := validateActivityTypeID(id, "activityTypeIds"); err != nil {
-					return err
+				if ve := validateActivityTypeID(id, "activityTypeIds"); ve != nil {
+					return ve
 				}
 			}
 			return nil
@@ -21,23 +21,22 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
 	}
 }
 
-func (s *OptionService) WithApplicableIssueTypeIDs(ids []int) RequestOption {
+func (s *OptionService) WithApplicableIssueTypeIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamApplicableIssueTypeIDs, "applicableIssueTypes", ids)
 }
 
-func (s *OptionService) WithAttachmentIDs(ids []int) RequestOption {
+func (s *OptionService) WithAttachmentIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamAttachmentIDs, "attachmentId", ids)
 }
 
 // WithItems sets `items[]` for List type custom fields.
-// Each string becomes a selectable list item and must not be empty.
-func (s *OptionService) WithItems(items []string) RequestOption {
+func (s *OptionService) WithItems(items []string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamItems,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			for i, item := range items {
 				if item == "" {
-					return NewValidationError(fmt.Sprintf("items[%d] must not be empty", i))
+					return NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
 				}
 			}
 			return nil
@@ -46,74 +45,72 @@ func (s *OptionService) WithItems(items []string) RequestOption {
 	}
 }
 
-func (s *OptionService) WithProjectIDs(ids []int) RequestOption {
+func (s *OptionService) WithProjectIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamProjectIDs, "projectId", ids)
 }
 
-func (s *OptionService) WithIssueTypeIDs(ids []int) RequestOption {
+func (s *OptionService) WithIssueTypeIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamIssueTypeIDs, "issueTypeId", ids)
 }
 
-func (s *OptionService) WithCategoryIDs(ids []int) RequestOption {
+func (s *OptionService) WithCategoryIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamCategoryIDs, "categoryId", ids)
 }
 
-func (s *OptionService) WithVersionIDs(ids []int) RequestOption {
+func (s *OptionService) WithVersionIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamVersionIDs, "versionId", ids)
 }
 
-func (s *OptionService) WithMilestoneIDs(ids []int) RequestOption {
+func (s *OptionService) WithMilestoneIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamMilestoneIDs, "milestoneId", ids)
 }
 
-func (s *OptionService) WithIssueIDs(ids []int) RequestOption {
+func (s *OptionService) WithIssueIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamIssueIDs, "issueId", ids)
 }
 
-func (s *OptionService) WithNotifiedUserIDs(ids []int) RequestOption {
+func (s *OptionService) WithNotifiedUserIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamNotifiedUserIDs, "notifiedUserId", ids)
 }
 
-func (s *OptionService) WithStatusIDs(ids []int) RequestOption {
+func (s *OptionService) WithStatusIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamStatusIDs, "statusId", ids)
 }
 
-func (s *OptionService) WithPriorityIDs(ids []int) RequestOption {
+func (s *OptionService) WithPriorityIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamPriorityIDs, "priorityId", ids)
 }
 
-func (s *OptionService) WithAssigneeIDs(ids []int) RequestOption {
+func (s *OptionService) WithAssigneeIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamAssigneeIDs, "assigneeId", ids)
 }
 
-func (s *OptionService) WithCreatedUserIDs(ids []int) RequestOption {
+func (s *OptionService) WithCreatedUserIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamCreatedUserIDs, "createdUserId", ids)
 }
 
-func (s *OptionService) WithResolutionIDs(ids []int) RequestOption {
+func (s *OptionService) WithResolutionIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamResolutionIDs, "resolutionId", ids)
 }
 
-func (s *OptionService) WithIDs(ids []int) RequestOption {
+func (s *OptionService) WithIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamIDs, "id", ids)
 }
 
-func (s *OptionService) WithParentIssueIDs(ids []int) RequestOption {
+func (s *OptionService) WithParentIssueIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamParentIssueIDs, "parentIssueId", ids)
 }
 
-// positiveIntSliceOption builds a RequestOption that validates and adds multiple ints as repeated query params.
-func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) RequestOption {
+func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() error {
+		CheckFunc: func() *ValidationError {
 			return validatePositiveInts(values, paramName)
 		},
 		SetFunc: addIntFunc(paramType, values),
 	}
 }
 
-// addIntFunc returns a SetFunc that calls v.Add for each int in the slice.
 func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
 	return func(v url.Values) error {
 		for _, val := range values {
@@ -123,7 +120,6 @@ func addIntFunc(key APIParamOptionType, values []int) func(url.Values) error {
 	}
 }
 
-// addStringFunc returns a SetFunc that calls v.Add for each string in the slice.
 func addStringFunc(key APIParamOptionType, values []string) func(url.Values) error {
 	return func(v url.Values) error {
 		for _, val := range values {
@@ -133,20 +129,17 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 	}
 }
 
-// validateActivityTypeID ensures the ID is within the valid range [1, 26].
-func validateActivityTypeID(id int, key string) error {
+func validateActivityTypeID(id int, key string) *ValidationError {
 	if id < 1 || id > MaxActivityTypeID {
-		return NewValidationError(fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
+		return NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
 	return nil
 }
 
-// validatePositiveInts checks that all values in the slice are >= 1.
-// paramName is used in the error message (e.g. "projectId").
-func validatePositiveInts(values []int, paramName string) error {
+func validatePositiveInts(values []int, paramName string) *ValidationError {
 	for _, v := range values {
 		if v < 1 {
-			return NewValidationError(fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
+			return NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
 		}
 	}
 	return nil

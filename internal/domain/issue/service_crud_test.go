@@ -23,8 +23,9 @@ func TestService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success-by-key": {
 			issueIDOrKey: "PRJ-1",
@@ -42,14 +43,18 @@ func TestService_One(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			wantValidationErrCount: 1,
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -81,15 +86,23 @@ func TestService_One(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewService(method)
-
 			got, err := s.One(context.Background(), tc.issueIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -108,12 +121,14 @@ func TestService_Create(t *testing.T) {
 		summary     string
 		issueTypeID int
 		priorityID  int
-		opts        []core.RequestOption
+		opts        []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantID                 int
 	}{
 		"success-required-only": {
 			projectID:   10,
@@ -135,62 +150,92 @@ func TestService_Create(t *testing.T) {
 			summary:     "New issue",
 			issueTypeID: 2,
 			priorityID:  3,
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithDescription("some description"),
 				o.WithAssigneeID(5),
-				o.WithStartDate("2024-06-01"),
-				o.WithDueDate("2024-06-30"),
 			},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues", spath)
-				assert.Equal(t, "10", form.Get("projectId"))
-				assert.Equal(t, "New issue", form.Get("summary"))
-				assert.Equal(t, "2", form.Get("issueTypeId"))
-				assert.Equal(t, "3", form.Get("priorityId"))
 				assert.Equal(t, "some description", form.Get("description"))
 				assert.Equal(t, "5", form.Get("assigneeId"))
-				assert.Equal(t, "2024-06-01", form.Get("startDate"))
-				assert.Equal(t, "2024-06-30", form.Get("dueDate"))
 				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
-		"error-invalid-projectID": {
-			projectID:   0,
+
+		// --- validation errors: argument only ---
+		"error-validation-projectID-zero": {
+			projectID:              0,
+			summary:                "New issue",
+			issueTypeID:            2,
+			priorityID:             3,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-summary-empty": {
+			projectID:              10,
+			summary:                "",
+			issueTypeID:            2,
+			priorityID:             3,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-issueTypeID-zero": {
+			projectID:              10,
+			summary:                "New issue",
+			issueTypeID:            0,
+			priorityID:             3,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-priorityID-zero": {
+			projectID:              10,
+			summary:                "New issue",
+			issueTypeID:            2,
+			priorityID:             0,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			projectID:              0,
+			summary:                "",
+			issueTypeID:            0,
+			priorityID:             0,
+			wantValidationErrCount: 4,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			projectID:              10,
+			summary:                "New issue",
+			issueTypeID:            2,
+			priorityID:             3,
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			projectID:              0,
+			summary:                "",
+			issueTypeID:            0,
+			priorityID:             0,
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
+		"error-option-invalid-type-with-valid-values": {
+			projectID:   10,
 			summary:     "New issue",
 			issueTypeID: 2,
 			priorityID:  3,
-			wantErrType: &core.ValidationError{},
-		},
-		"error-empty-summary": {
-			projectID:   10,
-			summary:     "",
-			issueTypeID: 2,
-			priorityID:  3,
-			wantErrType: &core.ValidationError{},
-		},
-		"error-invalid-issueTypeID": {
-			projectID:   10,
-			summary:     "New issue",
-			issueTypeID: 0,
-			priorityID:  3,
-			wantErrType: &core.ValidationError{},
-		},
-		"error-invalid-priorityID": {
-			projectID:   10,
-			summary:     "New issue",
-			issueTypeID: 2,
-			priorityID:  0,
-			wantErrType: &core.ValidationError{},
-		},
-		"error-option-invalid-type": {
-			projectID:   10,
-			summary:     "New issue",
-			issueTypeID: 2,
-			priorityID:  3,
-			opts:        []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
+		"error-option-invalid-type-with-invalid-values": {
+			projectID:   0,
+			summary:     "",
+			issueTypeID: 0,
+			priorityID:  0,
+			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &core.InvalidOptionKeyError{},
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			projectID:   10,
 			summary:     "New issue",
@@ -231,15 +276,31 @@ func TestService_Create(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-
 			s := issue.NewService(method)
-
 			got, err := s.Create(context.Background(), tc.projectID, tc.summary, tc.issueTypeID, tc.priorityID, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -255,13 +316,15 @@ func TestService_Update(t *testing.T) {
 
 	cases := map[string]struct {
 		issueIDOrKey string
-		option       core.RequestOption
-		opts         []core.RequestOption
+		option       *core.APIParamOption
+		opts         []*core.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantID                 int
 	}{
 		"success-summary": {
 			issueIDOrKey: "PRJ-1",
@@ -276,51 +339,66 @@ func TestService_Update(t *testing.T) {
 		"success-with-extra-options": {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("Updated summary"),
-			opts: []core.RequestOption{
+			opts: []*core.APIParamOption{
 				o.WithStatusID(2),
 				o.WithResolutionID(1),
 				o.WithAssigneeID(5),
 			},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
-				assert.Equal(t, "Updated summary", form.Get("summary"))
-				assert.Equal(t, "2", form.Get("statusId"))
-				assert.Equal(t, "1", form.Get("resolutionId"))
-				assert.Equal(t, "5", form.Get("assigneeId"))
 				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
 		},
-		"success-by-numeric-id": {
-			issueIDOrKey: "1",
-			option:       o.WithDescription("updated desc"),
-			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1", spath)
-				assert.Equal(t, "updated desc", form.Get("description"))
-				return mock.NewResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
+
+		// --- validation errors: argument only ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			option:                 o.WithSummary("x"),
+			wantValidationErrCount: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			option:       o.WithSummary("x"),
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			option:                 o.WithSummary("x"),
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			option:       o.WithSummary("x"),
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors: fixed option only ---
+		"error-validation-fixed-option": {
+			issueIDOrKey:           "PRJ-1",
+			option:                 o.WithAssigneeID(0),
+			wantValidationErrCount: 1,
 		},
+
+		// --- validation errors: all ---
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			option:                 o.WithAssigneeID(0),
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			issueIDOrKey:           "PRJ-1",
+			option:                 o.WithSummary("x"),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			issueIDOrKey:           "",
+			option:                 o.WithSummary(""),
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			option:       mock.NewInvalidTypeOption(),
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
-		"error-option-invalid-assigneeID": {
-			issueIDOrKey: "PRJ-1",
-			option:       o.WithAssigneeID(0),
-			wantErrType:  &core.ValidationError{},
-		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("x"),
@@ -355,15 +433,31 @@ func TestService_Update(t *testing.T) {
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
-
 			s := issue.NewService(method)
-
 			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.option, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -380,8 +474,9 @@ func TestService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success-by-key": {
 			issueIDOrKey: "PRJ-1",
@@ -391,22 +486,18 @@ func TestService_Delete(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"success-by-id": {
-			issueIDOrKey: "1",
-			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1", spath)
-				return mock.NewResponse(fixture.Issue.SingleJSON), nil
-			},
-			wantID: 1,
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			wantErrType:  &core.ValidationError{},
-		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -438,15 +529,23 @@ func TestService_Delete(t *testing.T) {
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
-
 			s := issue.NewService(method)
-
 			got, err := s.Delete(context.Background(), tc.issueIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

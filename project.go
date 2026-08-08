@@ -104,7 +104,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, option RequestOption, opts ...RequestOption) (*Project, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, toCoreOption(option), toCoreOptions(opts)...)
 	return projectFromModel(v), convertError(err)
 }
 
@@ -145,42 +145,42 @@ type ProjectOptionService struct {
 
 // WithAll sets whether to include all projects.
 func (s *ProjectOptionService) WithAll(enabled bool) RequestOption {
-	return s.base.WithAll(enabled)
+	return &requestOption{opt: s.base.WithAll(enabled)}
 }
 
 // WithArchived sets whether to include archived projects.
 func (s *ProjectOptionService) WithArchived(enabled bool) RequestOption {
-	return s.base.WithArchived(enabled)
+	return &requestOption{opt: s.base.WithArchived(enabled)}
 }
 
 // WithChartEnabled sets whether the project uses a chart.
 func (s *ProjectOptionService) WithChartEnabled(enabled bool) RequestOption {
-	return s.base.WithChartEnabled(enabled)
+	return &requestOption{opt: s.base.WithChartEnabled(enabled)}
 }
 
 // WithKey sets the project key.
 func (s *ProjectOptionService) WithKey(key string) RequestOption {
-	return s.base.WithKey(key)
+	return &requestOption{opt: s.base.WithKey(key)}
 }
 
 // WithName sets the project name.
 func (s *ProjectOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // WithProjectLeaderCanEditProjectLeader sets whether a project leader can edit other project leaders.
 func (s *ProjectOptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
-	return s.base.WithProjectLeaderCanEditProjectLeader(enabled)
+	return &requestOption{opt: s.base.WithProjectLeaderCanEditProjectLeader(enabled)}
 }
 
 // WithSubtaskingEnabled sets whether subtasking is enabled.
 func (s *ProjectOptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
-	return s.base.WithSubtaskingEnabled(enabled)
+	return &requestOption{opt: s.base.WithSubtaskingEnabled(enabled)}
 }
 
 // WithTextFormattingRule sets the text formatting rule.
 func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOption {
-	return s.base.WithTextFormattingRule(string(format))
+	return &requestOption{opt: s.base.WithTextFormattingRule(string(format))}
 }
 
 // ──────────────────────────────────────────────────────────────

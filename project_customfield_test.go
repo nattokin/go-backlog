@@ -18,10 +18,11 @@ import (
 
 func TestProjectCustomFieldService_List(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantLen        int
-		wantErrType    error
+		projectIDOrKey         string
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantLen                int
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -29,12 +30,11 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.ListJSON), nil
 			},
-			wantLen:     2,
-			wantErrType: nil,
+			wantLen: 2,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -61,6 +61,16 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 
 			fields, err := c.Project.CustomField.List(context.Background(), tc.projectIDOrKey)
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, fields)
+				var target *backlog.ValidationError
+				if assert.ErrorAs(t, err, &target) {
+					assert.Equal(t, tc.wantValidationErrCount, 1)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -77,12 +87,13 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 
 func TestProjectCustomFieldService_Create(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		fieldType      backlog.CustomFieldType
-		name           string
-		opts           []backlog.RequestOption
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		fieldType              backlog.CustomFieldType
+		name                   string
+		opts                   []backlog.RequestOption
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -93,25 +104,24 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 				assert.Equal(t, http.MethodPost, r.Method)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			fieldType:      backlog.CustomFieldTypeText,
-			name:           "Sprint",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			fieldType:              backlog.CustomFieldTypeText,
+			name:                   "Sprint",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-fieldType-zero": {
-			projectIDOrKey: "TEST",
-			fieldType:      0,
-			name:           "Sprint",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			fieldType:              0,
+			name:                   "Sprint",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			fieldType:      backlog.CustomFieldTypeText,
-			name:           "",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			fieldType:              backlog.CustomFieldTypeText,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -142,6 +152,14 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 
 			field, err := c.Project.CustomField.Create(context.Background(), tc.projectIDOrKey, tc.fieldType, tc.name, tc.opts...)
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -159,11 +177,12 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 
 func TestProjectCustomFieldService_Update(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		customFieldID  int
-		opt            func(c *backlog.Client) backlog.RequestOption
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		customFieldID          int
+		opt                    func(c *backlog.Client) backlog.RequestOption
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -175,19 +194,18 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			opt:                    func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			opt:            func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			opt:                    func(c *backlog.Client) backlog.RequestOption { return c.Project.CustomField.Option.WithName("x") },
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -218,6 +236,14 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 
 			field, err := c.Project.CustomField.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.opt(c))
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -234,10 +260,11 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 
 func TestProjectCustomFieldService_Delete(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		customFieldID  int
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		customFieldID          int
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -246,17 +273,16 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -285,6 +311,14 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 
 			field, err := c.Project.CustomField.Delete(context.Background(), tc.projectIDOrKey, tc.customFieldID)
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -302,11 +336,12 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 
 func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		customFieldID  int
-		name           string
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		customFieldID          int
+		name                   string
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -316,25 +351,24 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			name:           "Item1",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			name:                   "Item1",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			name:           "Item1",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			name:                   "Item1",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			name:           "",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -365,6 +399,14 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 
 			field, err := c.Project.CustomField.AddListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.name)
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -381,12 +423,13 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 
 func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		customFieldID  int
-		itemID         int
-		name           string
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		customFieldID          int
+		itemID                 int
+		name                   string
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -397,35 +440,34 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			itemID:         10,
-			name:           "Item1 Updated",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			itemID:                 10,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			itemID:         10,
-			name:           "Item1 Updated",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			itemID:                 10,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-itemID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         0,
-			name:           "Item1 Updated",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 0,
+			name:                   "Item1 Updated",
+			wantValidationErrCount: 1,
 		},
 		"error-validation-name-empty": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         10,
-			name:           "",
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 10,
+			name:                   "",
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -458,6 +500,14 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 
 			field, err := c.Project.CustomField.UpdateListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID, tc.name)
 
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
 			if tc.wantErrType != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.wantErrType, err)
@@ -474,11 +524,12 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 
 func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 	cases := map[string]struct {
-		projectIDOrKey string
-		customFieldID  int
-		itemID         int
-		doFunc         func(*http.Request) (*http.Response, error)
-		wantErrType    error
+		projectIDOrKey         string
+		customFieldID          int
+		itemID                 int
+		doFunc                 func(*http.Request) (*http.Response, error)
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -488,25 +539,24 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 				assert.Equal(t, "/api/v2/projects/TEST/customFields/1/items/10", r.URL.Path)
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
-			wantErrType: nil,
 		},
 		"error-validation-projectIDOrKey-empty": {
-			projectIDOrKey: "",
-			customFieldID:  1,
-			itemID:         10,
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "",
+			customFieldID:          1,
+			itemID:                 10,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-customFieldID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  0,
-			itemID:         10,
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          0,
+			itemID:                 10,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-itemID-zero": {
-			projectIDOrKey: "TEST",
-			customFieldID:  1,
-			itemID:         0,
-			wantErrType:    &backlog.ValidationError{},
+			projectIDOrKey:         "TEST",
+			customFieldID:          1,
+			itemID:                 0,
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			projectIDOrKey: "TEST",
@@ -536,6 +586,14 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.DeleteListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID)
+
+			if tc.wantValidationErrCount > 0 {
+				require.Error(t, err)
+				assert.Nil(t, field)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
 
 			if tc.wantErrType != nil {
 				require.Error(t, err)
