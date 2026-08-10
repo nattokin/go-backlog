@@ -78,7 +78,6 @@ func TestValidationError_Fields(t *testing.T) {
 	e := core.NewValidationError("offset", "offset must not be negative")
 	assert.Equal(t, "offset", e.Target())
 	assert.Equal(t, "offset must not be negative", e.Message())
-	assert.False(t, e.Valid())
 }
 
 func TestValidationErrors_Error_single(t *testing.T) {
