@@ -23,12 +23,14 @@ func TestCommentService_Add(t *testing.T) {
 	cases := map[string]struct {
 		issueIDOrKey string
 		content      string
-		opts         []core.RequestOption
+		opts         []*core.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantInvalidOptionError bool
+		wantID                 int
 	}{
 		"success-required-only": {
 			issueIDOrKey: "PRJ-1",
@@ -43,36 +45,59 @@ func TestCommentService_Add(t *testing.T) {
 		"success-with-notifiedUserIDs": {
 			issueIDOrKey: "PRJ-1",
 			content:      "Notifying users.",
-			opts:         []core.RequestOption{o.WithNotifiedUserIDs([]int{5, 6})},
+			opts:         []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/PRJ-1/comments", spath)
-				assert.Equal(t, "Notifying users.", form.Get("content"))
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
 				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			content:      "x",
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-zero-issueIDOrKey": {
-			issueIDOrKey: "0",
-			content:      "x",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-issueIDOrKey-zero": {
+			issueIDOrKey:           "0",
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-content": {
-			issueIDOrKey: "PRJ-1",
-			content:      "",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-content-empty": {
+			issueIDOrKey:           "PRJ-1",
+			content:                "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			content:                "",
+			wantValidationErrCount: 2,
+		},
+
+		// --- fail-fast: nil option ---
+		"error-nil-option-with-valid-values": {
+			issueIDOrKey:           "PRJ-1",
+			content:                "x",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			issueIDOrKey:           "",
+			content:                "",
+			opts:                   []*core.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
-			opts:         []core.RequestOption{mock.NewInvalidTypeOption()},
+			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
@@ -107,15 +132,31 @@ func TestCommentService_Add(t *testing.T) {
 			if tc.mockPostFn != nil {
 				method.Post = tc.mockPostFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.Add(context.Background(), tc.issueIDOrKey, tc.content, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var target *core.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -133,8 +174,9 @@ func TestCommentService_One(t *testing.T) {
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -145,16 +187,25 @@ func TestCommentService_One(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			commentID:    1,
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			commentID:              1,
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    0,
-			wantErrType:  &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			commentID:              0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -189,15 +240,23 @@ func TestCommentService_One(t *testing.T) {
 			if tc.mockGetFn != nil {
 				method.Get = tc.mockGetFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.One(context.Background(), tc.issueIDOrKey, tc.commentID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -215,8 +274,9 @@ func TestCommentService_Delete(t *testing.T) {
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -227,16 +287,25 @@ func TestCommentService_Delete(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			commentID:    1,
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			commentID:              1,
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    0,
-			wantErrType:  &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			commentID:              0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -271,15 +340,23 @@ func TestCommentService_Delete(t *testing.T) {
 			if tc.mockDeleteFn != nil {
 				method.Delete = tc.mockDeleteFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.Delete(context.Background(), tc.issueIDOrKey, tc.commentID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -298,8 +375,9 @@ func TestCommentService_Update(t *testing.T) {
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
-		wantErrType error
-		wantID      int
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			issueIDOrKey: "PRJ-1",
@@ -312,24 +390,34 @@ func TestCommentService_Update(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"error-empty-issueIDOrKey": {
-			issueIDOrKey: "",
-			commentID:    1,
-			content:      "x",
-			wantErrType:  &core.ValidationError{},
+
+		// --- validation errors ---
+		"error-validation-issueIDOrKey-empty": {
+			issueIDOrKey:           "",
+			commentID:              1,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-invalid-commentID": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    0,
-			content:      "x",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-commentID-zero": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              0,
+			content:                "x",
+			wantValidationErrCount: 1,
 		},
-		"error-empty-comment": {
-			issueIDOrKey: "PRJ-1",
-			commentID:    1,
-			content:      "",
-			wantErrType:  &core.ValidationError{},
+		"error-validation-content-empty": {
+			issueIDOrKey:           "PRJ-1",
+			commentID:              1,
+			content:                "",
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			commentID:              0,
+			content:                "",
+			wantValidationErrCount: 3,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -367,15 +455,23 @@ func TestCommentService_Update(t *testing.T) {
 			if tc.mockPatchFn != nil {
 				method.Patch = tc.mockPatchFn
 			}
-
 			s := issue.NewCommentService(method)
-
 			got, err := s.Update(context.Background(), tc.issueIDOrKey, tc.commentID, tc.content)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

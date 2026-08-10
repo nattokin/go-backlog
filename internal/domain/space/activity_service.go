@@ -2,6 +2,7 @@ package space
 
 import (
 	"context"
+	"net/url"
 	"path"
 	"strconv"
 
@@ -21,8 +22,12 @@ type ActivityService struct {
 // List returns a list of activities in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-activities
-func (s *ActivityService) List(ctx context.Context, opts ...core.RequestOption) ([]*model.Activity, error) {
-	return s.base.List(ctx, "space/activities", opts...)
+func (s *ActivityService) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Activity, error) {
+	query := url.Values{}
+	if err := s.base.ApplyOptions(query, opts...); err != nil {
+		return nil, err
+	}
+	return s.base.Fetch(ctx, "space/activities", query)
 }
 
 // One returns a single activity by its ID.

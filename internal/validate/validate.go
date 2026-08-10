@@ -3,116 +3,116 @@ package validate
 
 import "github.com/nattokin/go-backlog/internal/core"
 
-func ValidateActivityID(activityID int) error {
+func ValidateActivityID(activityID int) *core.ValidationError {
 	if activityID < 1 {
-		return core.NewValidationError("activityID must not be less than 1")
+		return core.NewValidationError("activityID", "activityID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateAttachmentID(attachmentID int) error {
+func ValidateAttachmentID(attachmentID int) *core.ValidationError {
 	if attachmentID < 1 {
-		return core.NewValidationError("attachmentID must not be less than 1")
+		return core.NewValidationError("attachmentID", "attachmentID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateCommentID(commentID int) error {
+func ValidateCommentID(commentID int) *core.ValidationError {
 	if commentID < 1 {
-		return core.NewValidationError("commentID must not be less than 1")
+		return core.NewValidationError("commentID", "commentID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateCustomFieldID(customFieldID int) error {
+func ValidateCustomFieldID(customFieldID int) *core.ValidationError {
 	if customFieldID < 1 {
-		return core.NewValidationError("customFieldID must not be less than 1")
+		return core.NewValidationError("customFieldID", "customFieldID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateIssueIDOrKey(issueIDOrKey string) error {
+func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
 	if issueIDOrKey == "" {
-		return core.NewValidationError("issueIDOrKey must not be empty")
+		return core.NewValidationError("issueIDOrKey", "issueIDOrKey must not be empty")
 	}
 	if issueIDOrKey == "0" {
-		return core.NewValidationError("issueIDOrKey must not be '0'")
+		return core.NewValidationError("issueIDOrKey", "issueIDOrKey must not be '0'")
 	}
 	return nil
 }
 
-func ValidateProjectID(projectID int) error {
+func ValidateProjectID(projectID int) *core.ValidationError {
 	if projectID < 1 {
-		return core.NewValidationError("projectID must not be less than 1")
+		return core.NewValidationError("projectID", "projectID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateProjectIDOrKey(projectIDOrKey string) error {
+func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
 	if projectIDOrKey == "" {
-		return core.NewValidationError("projectIDOrKey must not be empty")
+		return core.NewValidationError("projectIDOrKey", "projectIDOrKey must not be empty")
 	}
 	if projectIDOrKey == "0" {
-		return core.NewValidationError("projectIDOrKey must not be '0'")
+		return core.NewValidationError("projectIDOrKey", "projectIDOrKey must not be '0'")
 	}
 	return nil
 }
 
-func ValidatePRNumber(prNumber int) error {
+func ValidatePRNumber(prNumber int) *core.ValidationError {
 	if prNumber < 1 {
-		return core.NewValidationError("prNumber must not be less than 1")
+		return core.NewValidationError("prNumber", "prNumber must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateRepositoryIDOrName(repositoryIDOrName string) error {
+func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError {
 	if repositoryIDOrName == "" {
-		return core.NewValidationError("repositoryIDOrName must not be empty")
+		return core.NewValidationError("repositoryIDOrName", "repositoryIDOrName must not be empty")
 	}
 	if repositoryIDOrName == "0" {
-		return core.NewValidationError("repositoryIDOrName must not be '0'")
+		return core.NewValidationError("repositoryIDOrName", "repositoryIDOrName must not be '0'")
 	}
 	return nil
 }
 
-func ValidateSharedFileID(fileID int) error {
+func ValidateSharedFileID(fileID int) *core.ValidationError {
 	if fileID < 1 {
-		return core.NewValidationError("fileID must not be less than 1")
+		return core.NewValidationError("fileID", "fileID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateStarID(starID int) error {
+func ValidateStarID(starID int) *core.ValidationError {
 	if starID < 1 {
-		return core.NewValidationError("starID must not be less than 1")
+		return core.NewValidationError("starID", "starID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateUserID(userID int) error {
+func ValidateUserID(userID int) *core.ValidationError {
 	if userID < 1 {
-		return core.NewValidationError("userID must not be less than 1")
+		return core.NewValidationError("userID", "userID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateVersionID(versionID int) error {
+func ValidateVersionID(versionID int) *core.ValidationError {
 	if versionID < 1 {
-		return core.NewValidationError("versionID must not be less than 1")
+		return core.NewValidationError("versionID", "versionID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateWebhookID(webhookID int) error {
+func ValidateWebhookID(webhookID int) *core.ValidationError {
 	if webhookID < 1 {
-		return core.NewValidationError("webhookID must not be less than 1")
+		return core.NewValidationError("webhookID", "webhookID must not be less than 1")
 	}
 	return nil
 }
 
-func ValidateWikiID(wikiID int) error {
+func ValidateWikiID(wikiID int) *core.ValidationError {
 	if wikiID < 1 {
-		return core.NewValidationError("wikiID must not be less than 1")
+		return core.NewValidationError("wikiID", "wikiID must not be less than 1")
 	}
 	return nil
 }

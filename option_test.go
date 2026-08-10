@@ -1,6 +1,7 @@
 package backlog_test
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 	"testing"
@@ -8,8 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog"
+	backlog "github.com/nattokin/go-backlog"
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestActivityOptionService(t *testing.T) {
@@ -116,4 +118,58 @@ func TestActivityOptionService(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestRequestOption_Check(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	require.NoError(t, err)
+	o := c.User.Activity.Option
+
+	t.Run("valid-returns-nil", func(t *testing.T) {
+		t.Parallel()
+		opt := o.WithCount(20)
+		assert.Nil(t, opt.Check())
+	})
+
+	t.Run("invalid-returns-ValidationError", func(t *testing.T) {
+		t.Parallel()
+		// count=0 is invalid; Check() should propagate the ValidationError
+		opt := o.WithCount(0)
+		ve := opt.Check()
+		require.NotNil(t, ve)
+		assert.NotEmpty(t, ve.Target())
+		assert.NotEmpty(t, ve.Message())
+	})
+}
+
+// failingCheckOption is a custom RequestOption whose Check always returns a ValidationError.
+// It is used to verify that toCoreOption correctly wraps option.Check() in CheckFunc,
+// propagating the error through the internal pipeline back to the caller as a *ValidationError.
+type failingCheckOption struct {
+	key string
+}
+
+func (o *failingCheckOption) Key() string { return o.key }
+func (o *failingCheckOption) Check() *backlog.ValidationError {
+	return backlog.NewValidationError(o.key, "always fails")
+}
+func (o *failingCheckOption) Set(url.Values) error { return nil }
+
+func Test_toCoreOption_CheckFunc(t *testing.T) {
+	t.Parallel()
+
+	c, err := backlog.NewClient(
+		"https://example.backlog.com", "token",
+		backlog.WithDoer(&mock.Doer{DoFunc: mock.NewNotFoundDoFunc()}),
+	)
+	require.NoError(t, err)
+
+	opt := &failingCheckOption{key: core.ParamCount.Value()}
+	_, err = c.Issue.Comment.List(context.Background(), "PRJ-1", opt)
+
+	require.Error(t, err)
+	var ve *backlog.ValidationError
+	assert.ErrorAs(t, err, &ve)
+	assert.Equal(t, core.ParamCount.Value(), ve.Target())
+	assert.Equal(t, "always fails", ve.Message())
 }

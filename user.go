@@ -75,7 +75,7 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(ctx context.Context, id int, option RequestOption, opts ...RequestOption) (*User, error) {
-	v, err := s.base.Update(ctx, id, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, id, toCoreOption(option), toCoreOptions(opts)...)
 	return userFromModel(v), convertError(err)
 }
 
@@ -135,32 +135,32 @@ type UserOptionService struct {
 
 // WithMailAddress sets the mail address of a user.
 func (s *UserOptionService) WithMailAddress(mail string) RequestOption {
-	return s.base.WithMailAddress(mail)
+	return &requestOption{opt: s.base.WithMailAddress(mail)}
 }
 
 // WithName sets the name of a user.
 func (s *UserOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // WithPassword sets the password of a user.
 func (s *UserOptionService) WithPassword(password string) RequestOption {
-	return s.base.WithPassword(password)
+	return &requestOption{opt: s.base.WithPassword(password)}
 }
 
 // WithRoleType sets the role type of a user.
 func (s *UserOptionService) WithRoleType(role Role) RequestOption {
-	return s.base.WithRoleType(int(role))
+	return &requestOption{opt: s.base.WithRoleType(int(role))}
 }
 
 // WithSendMail sets whether to send a mail notification.
 func (s *UserOptionService) WithSendMail(enabled bool) RequestOption {
-	return s.base.WithSendMail(enabled)
+	return &requestOption{opt: s.base.WithSendMail(enabled)}
 }
 
 // WithUserID sets the user ID.
 func (s *UserOptionService) WithUserID(id int) RequestOption {
-	return s.base.WithUserID(id)
+	return &requestOption{opt: s.base.WithUserID(id)}
 }
 
 // ──────────────────────────────────────────────────────────────

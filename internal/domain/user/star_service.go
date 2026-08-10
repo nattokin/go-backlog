@@ -19,14 +19,15 @@ type StarService struct {
 // List returns a list of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
-func (s *StarService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Star, error) {
-	if err := validate.ValidateUserID(userID); err != nil {
-		return nil, err
-	}
-
+func (s *StarService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Star, error) {
 	query := url.Values{}
 	validOptionKeys := []core.APIParamOptionType{core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(userID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validOptionKeys, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -48,8 +49,12 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...core.Request
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars
 func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
-	if err := validate.ValidateUserID(userID); err != nil {
-		return 0, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(userID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return 0, ves
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "stars", "count")

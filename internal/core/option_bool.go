@@ -5,75 +5,67 @@ import (
 	"strconv"
 )
 
-func (s *OptionService) WithAll(enabled bool) RequestOption {
+func (s *OptionService) WithAll(enabled bool) *APIParamOption {
 	return boolOption(ParamAll, enabled)
 }
 
-func (s *OptionService) WithAllEvent(enabled bool) RequestOption {
+func (s *OptionService) WithAllEvent(enabled bool) *APIParamOption {
 	return boolOption(ParamAllEvent, enabled)
 }
 
-// WithAllowAddItem sets `allowAddItem` for List type custom fields.
-// When true, users can add new items to the list from the issue form.
-func (s *OptionService) WithAllowAddItem(allowAddItem bool) RequestOption {
+func (s *OptionService) WithAllowAddItem(allowAddItem bool) *APIParamOption {
 	return boolOption(ParamAllowAddItem, allowAddItem)
 }
 
-// WithAllowInput sets `allowInput` for List type custom fields.
-// When true, users can enter a free-text value in addition to selecting from the list.
-func (s *OptionService) WithAllowInput(allowInput bool) RequestOption {
+func (s *OptionService) WithAllowInput(allowInput bool) *APIParamOption {
 	return boolOption(ParamAllowInput, allowInput)
 }
 
-func (s *OptionService) WithArchived(enabled bool) RequestOption {
+func (s *OptionService) WithArchived(enabled bool) *APIParamOption {
 	return boolOption(ParamArchived, enabled)
 }
 
-func (s *OptionService) WithAttachment(enabled bool) RequestOption {
+func (s *OptionService) WithAttachment(enabled bool) *APIParamOption {
 	return boolOption(ParamAttachment, enabled)
 }
 
-func (s *OptionService) WithChartEnabled(enabled bool) RequestOption {
+func (s *OptionService) WithChartEnabled(enabled bool) *APIParamOption {
 	return boolOption(ParamChartEnabled, enabled)
 }
 
-// WithExcludeGroupMembers sets `excludeGroupMembers`.
-// When true, users who joined the project only via group membership are excluded from the result.
-func (s *OptionService) WithExcludeGroupMembers(enabled bool) RequestOption {
+func (s *OptionService) WithExcludeGroupMembers(enabled bool) *APIParamOption {
 	return boolOption(ParamExcludeGroupMembers, enabled)
 }
 
-// WithHasDueDate sets `hasDueDate`.
-// Note: Setting this to true is not supported by the Backlog API and will result in an error.
-func (s *OptionService) WithHasDueDate(enabled bool) RequestOption {
+func (s *OptionService) WithHasDueDate(enabled bool) *APIParamOption {
 	return boolOption(ParamHasDueDate, enabled)
 }
 
-func (s *OptionService) WithMailNotify(enabled bool) RequestOption {
+func (s *OptionService) WithMailNotify(enabled bool) *APIParamOption {
 	return boolOption(ParamMailNotify, enabled)
 }
 
-func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) RequestOption {
+func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *APIParamOption {
 	return boolOption(ParamProjectLeaderCanEditProjectLeader, enabled)
 }
 
-func (s *OptionService) WithRequired(required bool) RequestOption {
+func (s *OptionService) WithRequired(required bool) *APIParamOption {
 	return boolOption(ParamRequired, required)
 }
 
-func (s *OptionService) WithSendMail(enabled bool) RequestOption {
+func (s *OptionService) WithSendMail(enabled bool) *APIParamOption {
 	return boolOption(ParamSendMail, enabled)
 }
 
-func (s *OptionService) WithSharedFile(enabled bool) RequestOption {
+func (s *OptionService) WithSharedFile(enabled bool) *APIParamOption {
 	return boolOption(ParamSharedFile, enabled)
 }
 
-func (s *OptionService) WithSubtaskingEnabled(enabled bool) RequestOption {
+func (s *OptionService) WithSubtaskingEnabled(enabled bool) *APIParamOption {
 	return boolOption(ParamSubtaskingEnabled, enabled)
 }
 
-func boolOption(paramType APIParamOptionType, enabled bool) RequestOption {
+func boolOption(paramType APIParamOptionType, enabled bool) *APIParamOption {
 	return &APIParamOption{
 		Type:    paramType,
 		SetFunc: setBoolFunc(paramType, enabled),

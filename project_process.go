@@ -42,7 +42,7 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
 func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option RequestOption, opts ...RequestOption) (*Status, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, statusID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOption(option), toCoreOptions(opts)...)
 	return statusFromModel(v), convertError(err)
 }
 
@@ -110,7 +110,7 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
 func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option RequestOption, opts ...RequestOption) (*Version, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, versionID, option, toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toCoreOption(option), toCoreOptions(opts)...)
 	return versionFromModel(v), convertError(err)
 }
 
@@ -134,12 +134,12 @@ type ProjectStatusOptionService struct {
 
 // WithColor sets the status color.
 func (s *ProjectStatusOptionService) WithColor(color string) RequestOption {
-	return s.base.WithColor(color)
+	return &requestOption{opt: s.base.WithColor(color)}
 }
 
 // WithName sets the status name.
 func (s *ProjectStatusOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -154,29 +154,29 @@ type ProjectVersionOptionService struct {
 
 // WithArchived sets whether to include archived versions.
 func (s *ProjectVersionOptionService) WithArchived(enabled bool) RequestOption {
-	return s.base.WithArchived(enabled)
+	return &requestOption{opt: s.base.WithArchived(enabled)}
 }
 
 // WithDescription sets the version description.
 func (s *ProjectVersionOptionService) WithDescription(description string) RequestOption {
-	return s.base.WithDescription(description)
+	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
 // WithName sets the version name.
 func (s *ProjectVersionOptionService) WithName(name string) RequestOption {
-	return s.base.WithName(name)
+	return &requestOption{opt: s.base.WithName(name)}
 }
 
 // WithReleaseDueDate sets the release due date.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
 func (s *ProjectVersionOptionService) WithReleaseDueDate(date string) RequestOption {
-	return s.base.WithReleaseDueDate(date)
+	return &requestOption{opt: s.base.WithReleaseDueDate(date)}
 }
 
 // WithStartDate sets the version start date.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
 func (s *ProjectVersionOptionService) WithStartDate(date string) RequestOption {
-	return s.base.WithStartDate(date)
+	return &requestOption{opt: s.base.WithStartDate(date)}
 }
 
 // ──────────────────────────────────────────────────────────────

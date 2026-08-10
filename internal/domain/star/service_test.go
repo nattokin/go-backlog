@@ -26,7 +26,7 @@ func TestStarService_Add(t *testing.T) {
 	o := &core.OptionService{}
 
 	cases := map[string]struct {
-		option     core.RequestOption
+		option     *core.APIParamOption
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErr    bool
 	}{

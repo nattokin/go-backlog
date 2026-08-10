@@ -1,6 +1,9 @@
 package core
 
-import "net/url"
+import (
+	"errors"
+	"net/url"
+)
 
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
@@ -106,33 +109,35 @@ func (t APIParamOptionType) Value() string {
 	return string(t)
 }
 
-// RequestOption is implemented by all option types that can be applied to an API request.
-type RequestOption interface {
-	Key() string
-	Check() error
-	Set(url.Values) error
-}
-
-// OptionService provides builder methods for constructing RequestOption values.
+// OptionService provides builder methods for constructing *APIParamOption values.
 // Each XxxOptionService selectively exposes only the valid methods for its API endpoint.
 type OptionService struct{}
 
-// APIParamOption is the internal implementation of RequestOption.
+// APIParamOption is the option type used for all API request parameters.
 //
 // It pairs an API parameter key with optional validation (CheckFunc) and
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType     // canonical API parameter key
-	CheckFunc func() error           // optional validation executed before applying the option
-	SetFunc   func(url.Values) error // applies the value to the request parameters
+	Type      APIParamOptionType      // canonical API parameter key
+	KeyFunc   func() string           // optional; overrides key() when set
+	CheckFunc func() *ValidationError // optional validation; nil means no validation
+	SetFunc   func(url.Values) error  // applies the value to the request parameters
 }
 
+// Key returns the API parameter key. If KeyFunc is set it takes precedence over
+// the default derived from Type, allowing root-package RequestOption
+// implementations to be wrapped as *APIParamOption without losing their key.
 func (o *APIParamOption) Key() string {
+	if o.KeyFunc != nil {
+		return o.KeyFunc()
+	}
 	return o.Type.Value()
 }
 
-func (o *APIParamOption) Check() error {
+// Check runs the option's validation and returns a *ValidationError if it
+// fails, or nil if validation passes (including when CheckFunc is nil).
+func (o *APIParamOption) Check() *ValidationError {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
 	}
@@ -157,20 +162,54 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 }
 
 // ApplyOptions validates and applies request options to the given url.Values.
-func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...RequestOption) error {
+// Validation errors from Check() are collected into ValidationErrors and returned
+// together so callers can inspect all invalid inputs at once.
+// InvalidOptionKeyError and nil options are returned immediately.
+func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIParamOption) error {
+	var errs ValidationErrors
+
 	for _, opt := range opts {
 		if opt == nil {
-			return NewValidationError("nil option is not allowed")
+			return NewInvalidOptionError("nil option is not allowed")
 		}
 		if err := ValidateOption(opt.Key(), validTypes); err != nil {
 			return err
 		}
-		if err := opt.Check(); err != nil {
-			return err
+		if ve := opt.Check(); ve != nil {
+			errs = append(errs, ve)
+			continue
 		}
 		if err := opt.Set(v); err != nil {
 			return err
 		}
+	}
+
+	if len(errs) > 0 {
+		return errs
+	}
+	return nil
+}
+
+// MergeValidationErrors merges the error returned by ApplyOptions (optErr)
+// into an already-collected ValidationErrors value (ves) and returns a
+// single error to propagate to the caller.
+//
+// If optErr is nil, MergeValidationErrors returns ves as an error only if it
+// is non-empty (nil otherwise). If optErr is itself a ValidationErrors
+// value, its elements are appended to ves before that same check. If optErr
+// is any other error (InvalidOptionError, InvalidOptionKeyError, or a
+// SetFunc failure), it is a fail-fast error: it is returned as-is and ves is
+// discarded, matching ApplyOptions' fail-fast semantics.
+func MergeValidationErrors(ves ValidationErrors, optErr error) error {
+	if optErr != nil {
+		var optVes ValidationErrors
+		if !errors.As(optErr, &optVes) {
+			return optErr
+		}
+		ves = append(ves, optVes...)
+	}
+	if len(ves) > 0 {
+		return ves
 	}
 	return nil
 }

@@ -65,32 +65,32 @@ type PullRequestCommentOptionService struct {
 
 // WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
 func (s *PullRequestCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
-	return s.base.WithAttachmentIDs(ids)
+	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
 // WithCount sets the number of comments to retrieve (1-100).
 func (s *PullRequestCommentOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithMaxID filters comments with ID at or below the given value.
 func (s *PullRequestCommentOptionService) WithMaxID(id int) RequestOption {
-	return s.base.WithMaxID(id)
+	return &requestOption{opt: s.base.WithMaxID(id)}
 }
 
 // WithMinID filters comments with ID at or above the given value.
 func (s *PullRequestCommentOptionService) WithMinID(id int) RequestOption {
-	return s.base.WithMinID(id)
+	return &requestOption{opt: s.base.WithMinID(id)}
 }
 
 // WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
 func (s *PullRequestCommentOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
-	return s.base.WithNotifiedUserIDs(ids)
+	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
 
 // WithOrder sets the sort order of results.
 func (s *PullRequestCommentOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(string(order))
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 func newPullRequestCommentService(method *core.Method, option *core.OptionService) *PullRequestCommentService {

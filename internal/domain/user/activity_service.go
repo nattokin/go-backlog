@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"net/url"
 	"path"
 	"strconv"
 
@@ -12,7 +13,6 @@ import (
 )
 
 // ActivityService handles user activity-related Backlog API calls.
-// It delegates HTTP operations to the shared activity.Service.
 type ActivityService struct {
 	base   *activity.Service
 	method *core.Method
@@ -21,13 +21,19 @@ type ActivityService struct {
 // List returns a list of activities for the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *ActivityService) List(ctx context.Context, userID int, opts ...core.RequestOption) ([]*model.Activity, error) {
-	if err := validate.ValidateUserID(userID); err != nil {
+func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Activity, error) {
+	query := url.Values{}
+
+	var ves core.ValidationErrors
+	if ve := validate.ValidateUserID(userID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if err := core.MergeValidationErrors(ves, s.base.ApplyOptions(query, opts...)); err != nil {
 		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")
-	return s.base.List(ctx, spath, opts...)
+	return s.base.Fetch(ctx, spath, query)
 }
 
 func NewActivityService(method *core.Method) *ActivityService {

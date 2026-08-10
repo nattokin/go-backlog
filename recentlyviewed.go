@@ -89,17 +89,17 @@ type RecentlyViewedOptionService struct {
 
 // WithCount sets the number of results to return (1-100).
 func (s *RecentlyViewedOptionService) WithCount(count int) RequestOption {
-	return s.base.WithCount(count)
+	return &requestOption{opt: s.base.WithCount(count)}
 }
 
 // WithOffset sets the number of items to skip.
 func (s *RecentlyViewedOptionService) WithOffset(offset int) RequestOption {
-	return s.base.WithOffset(offset)
+	return &requestOption{opt: s.base.WithOffset(offset)}
 }
 
 // WithOrder sets the sort order of results.
 func (s *RecentlyViewedOptionService) WithOrder(order Order) RequestOption {
-	return s.base.WithOrder(string(order))
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 package backlog
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/nattokin/go-backlog/internal/core"
@@ -56,15 +57,41 @@ func (e *InvalidOptionKeyError) InvalidKey() string { return e.core.Invalid }
 // AllowKeys returns the list of allowed option keys.
 func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
 
-// ValidationError is returned when a required argument fails validation
-// (e.g. an empty string where a non-empty value is required).
-// Use [errors.As] to check whether a returned error is a *ValidationError.
-type ValidationError struct {
-	core *core.ValidationError
+// InvalidOptionError is returned when an option itself is invalid, such as a
+// nil option being passed.
+// Use [errors.As] to check whether a returned error is an *InvalidOptionError.
+type InvalidOptionError struct {
+	core *core.InvalidOptionError
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string { return e.core.Error() }
+func (e *InvalidOptionError) Error() string { return e.core.Error() }
+
+// ValidationError is returned when a required argument fails validation
+// (e.g. an empty string where a non-empty value is required).
+// Use [errors.As] to check whether a returned error is a *ValidationError.
+// When multiple options fail validation, the error is a joined set of
+// *ValidationError values accessible via [errors.As] or [errors.Join].
+type ValidationError struct {
+	target  string
+	message string
+}
+
+// NewValidationError creates a new ValidationError with the given target and message.
+// target identifies the parameter or argument that failed validation.
+// Use this when implementing a custom [RequestOption] to return validation failures.
+func NewValidationError(target, message string) *ValidationError {
+	return &ValidationError{target: target, message: message}
+}
+
+// Error implements the error interface.
+func (e *ValidationError) Error() string { return e.message }
+
+// Target returns the name of the parameter or argument that failed validation.
+func (e *ValidationError) Target() string { return e.target }
+
+// Message returns the validation error message.
+func (e *ValidationError) Message() string { return e.message }
 
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing token
@@ -80,9 +107,6 @@ func (e *InternalClientError) Error() string { return e.core.Error() }
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
 // leaking into the public API surface.
-//
-// Only error types that core returns directly (without wrapping) are converted
-// here; *Error is excluded because it is never returned standalone.
 func convertError(err error) error {
 	if err == nil {
 		return nil
@@ -93,8 +117,16 @@ func convertError(err error) error {
 		return &APIResponseError{core: e}
 	case *core.InvalidOptionKeyError:
 		return &InvalidOptionKeyError{core: e}
+	case *core.InvalidOptionError:
+		return &InvalidOptionError{core: e}
 	case *core.ValidationError:
-		return &ValidationError{core: e}
+		return &ValidationError{target: e.Target(), message: e.Message()}
+	case core.ValidationErrors:
+		converted := make([]error, len(e))
+		for i, ve := range e {
+			converted[i] = &ValidationError{target: ve.Target(), message: ve.Message()}
+		}
+		return errors.Join(converted...)
 	case *core.InternalClientError:
 		return &InternalClientError{core: e}
 	default:

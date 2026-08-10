@@ -149,7 +149,7 @@ type ProjectUserOptionService struct {
 
 // WithExcludeGroupMembers sets whether to exclude users who joined only via group membership.
 func (s *ProjectUserOptionService) WithExcludeGroupMembers(enabled bool) RequestOption {
-	return s.base.WithExcludeGroupMembers(enabled)
+	return &requestOption{opt: s.base.WithExcludeGroupMembers(enabled)}
 }
 
 // ──────────────────────────────────────────────────────────────

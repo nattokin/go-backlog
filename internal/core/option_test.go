@@ -13,13 +13,13 @@ import (
 
 func TestAPIParamOption(t *testing.T) {
 	cases := map[string]struct {
-		option      core.RequestOption
+		option      *core.APIParamOption
 		expectPanic bool
 	}{
 		"SetFunc-nil": {
 			option: &core.APIParamOption{
 				Type:      core.ParamKey,
-				CheckFunc: func() error { return nil },
+				CheckFunc: func() *core.ValidationError { return nil },
 				SetFunc:   nil,
 			},
 			expectPanic: true,
@@ -56,52 +56,69 @@ func TestAPIParamOption(t *testing.T) {
 }
 
 func TestApplyOptions(t *testing.T) {
-	validTypes := []core.APIParamOptionType{core.ParamKey}
+	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
 
 	cases := map[string]struct {
-		opts        []core.RequestOption
+		opts        []*core.APIParamOption
 		wantErr     bool
 		wantErrType any
 	}{
 		"nilOption": {
-			opts:        []core.RequestOption{nil},
+			opts:        []*core.APIParamOption{nil},
 			wantErr:     true,
-			wantErrType: &core.ValidationError{},
+			wantErrType: &core.InvalidOptionError{},
 		},
 		"nilOption-second": {
-			opts: []core.RequestOption{
-				&core.APIParamOption{
+			opts: []*core.APIParamOption{
+				{
 					Type:    core.ParamKey,
 					SetFunc: func(_ url.Values) error { return nil },
 				},
 				nil,
 			},
 			wantErr:     true,
-			wantErrType: &core.ValidationError{},
+			wantErrType: &core.InvalidOptionError{},
 		},
 		"invalidKey": {
-			opts: []core.RequestOption{
-				&core.APIParamOption{
-					Type:    core.ParamName,
+			opts: []*core.APIParamOption{
+				{
+					Type:    core.ParamOffset,
 					SetFunc: func(_ url.Values) error { return nil },
 				},
 			},
 			wantErr:     true,
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
-		"checkError": {
-			opts: []core.RequestOption{
-				&core.APIParamOption{
+		"checkError-single": {
+			opts: []*core.APIParamOption{
+				{
 					Type:      core.ParamKey,
-					CheckFunc: func() error { return errors.New("check failed") },
+					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "check failed") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
-			wantErr: true,
+			wantErr:     true,
+			wantErrType: core.ValidationErrors(nil),
+		},
+		"checkError-multiple": {
+			opts: []*core.APIParamOption{
+				{
+					Type:      core.ParamKey,
+					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
+					SetFunc:   func(_ url.Values) error { return nil },
+				},
+				{
+					Type:      core.ParamName,
+					CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
+					SetFunc:   func(_ url.Values) error { return nil },
+				},
+			},
+			wantErr:     true,
+			wantErrType: core.ValidationErrors(nil),
 		},
 		"success": {
-			opts: []core.RequestOption{
-				&core.APIParamOption{
+			opts: []*core.APIParamOption{
+				{
 					Type:    core.ParamKey,
 					SetFunc: func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
 				},
@@ -109,7 +126,7 @@ func TestApplyOptions(t *testing.T) {
 			wantErr: false,
 		},
 		"noOptions": {
-			opts:    []core.RequestOption{},
+			opts:    []*core.APIParamOption{},
 			wantErr: false,
 		},
 	}
@@ -129,6 +146,110 @@ func TestApplyOptions(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+		})
+	}
+}
+
+// TestApplyOptions_multipleValidationErrors verifies that when multiple options
+// fail Check(), all errors are collected and returned as ValidationErrors.
+func TestApplyOptions_multipleValidationErrors(t *testing.T) {
+	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
+
+	opt1 := &core.APIParamOption{
+		Type:      core.ParamKey,
+		CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
+		SetFunc:   func(_ url.Values) error { return nil },
+	}
+	opt2 := &core.APIParamOption{
+		Type:      core.ParamName,
+		CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
+		SetFunc:   func(_ url.Values) error { return nil },
+	}
+
+	v := url.Values{}
+	err := core.ApplyOptions(v, validTypes, opt1, opt2)
+	require.Error(t, err)
+
+	var ves core.ValidationErrors
+	require.True(t, errors.As(err, &ves))
+	require.Len(t, ves, 2)
+	assert.Equal(t, "key", ves[0].Target())
+	assert.Equal(t, "name", ves[1].Target())
+}
+
+// TestMergeValidationErrors covers every branch of MergeValidationErrors
+// directly, independent of any ApplyOptions call site. Some call sites
+// (e.g. functions that build their options internally rather than
+// accepting them from the caller) can never actually produce a fail-fast
+// optErr in practice, so the fail-fast branch is only reachable through
+// this direct test.
+func TestMergeValidationErrors(t *testing.T) {
+	fixedVe := core.NewValidationError("fixed", "fixed arg is invalid")
+	optVe := core.NewValidationError("opt", "opt is invalid")
+	failFastErr := core.NewInvalidOptionError("nil option is not allowed")
+
+	cases := map[string]struct {
+		ves    core.ValidationErrors
+		optErr error
+
+		wantNil                bool
+		wantValidationErrCount int
+		wantFailFastErr        error
+	}{
+		"no ves and no optErr": {
+			ves:     nil,
+			optErr:  nil,
+			wantNil: true,
+		},
+		"ves only": {
+			ves:                    core.ValidationErrors{fixedVe},
+			optErr:                 nil,
+			wantValidationErrCount: 1,
+		},
+		"optErr ValidationErrors only": {
+			ves:                    nil,
+			optErr:                 core.ValidationErrors{optVe},
+			wantValidationErrCount: 1,
+		},
+		"ves and optErr ValidationErrors are merged": {
+			ves:                    core.ValidationErrors{fixedVe},
+			optErr:                 core.ValidationErrors{optVe},
+			wantValidationErrCount: 2,
+		},
+		"fail-fast optErr discards ves": {
+			ves:             core.ValidationErrors{fixedVe},
+			optErr:          failFastErr,
+			wantFailFastErr: failFastErr,
+		},
+		"fail-fast optErr with empty ves": {
+			ves:             nil,
+			optErr:          failFastErr,
+			wantFailFastErr: failFastErr,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			err := core.MergeValidationErrors(tc.ves, tc.optErr)
+
+			if tc.wantNil {
+				assert.NoError(t, err)
+				return
+			}
+
+			if tc.wantFailFastErr != nil {
+				assert.Equal(t, tc.wantFailFastErr, err)
+				var ves core.ValidationErrors
+				assert.False(t, errors.As(err, &ves))
+				return
+			}
+
+			require.Error(t, err)
+			var ves core.ValidationErrors
+			require.True(t, errors.As(err, &ves))
+			assert.Len(t, ves, tc.wantValidationErrCount)
 		})
 	}
 }
