@@ -2,7 +2,6 @@ package project
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -68,15 +67,8 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	allEvent := form.Get("allEvent")
@@ -149,21 +141,14 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	if ve := validate.ValidateWebhookID(webhookID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, []core.APIParamOptionType{
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, []core.APIParamOptionType{
 		core.ParamName,
 		core.ParamDescription,
 		core.ParamHookURL,
 		core.ParamAllEvent,
 		core.ParamActivityTypeIDs,
-	}, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	}, options...)); err != nil {
+		return nil, err
 	}
 
 	allEvent := form.Get("allEvent")

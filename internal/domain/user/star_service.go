@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -28,15 +27,8 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*core.APIPar
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validOptionKeys, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "stars")

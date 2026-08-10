@@ -3,7 +3,6 @@ package pullrequest
 
 import (
 	"context"
-	"errors"
 	"iter"
 	"maps"
 	"net/url"
@@ -58,15 +57,8 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, listValidTypes, opts...)); err != nil {
+		return nil, err
 	}
 
 	return s.list(ctx, projectIDOrKey, repoIDOrName, query)
@@ -126,15 +118,8 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return 0, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return 0, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+		return 0, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", "count")
@@ -216,15 +201,8 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
@@ -266,15 +244,8 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))

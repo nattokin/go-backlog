@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -29,15 +28,8 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.AP
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := s.base.ApplyOptions(query, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, s.base.ApplyOptions(query, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("users", strconv.Itoa(userID), "activities")

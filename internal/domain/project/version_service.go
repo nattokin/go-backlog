@@ -3,7 +3,6 @@ package project
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -32,15 +31,8 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions")
@@ -75,15 +67,8 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions")
@@ -121,15 +106,8 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 	if ve := validate.ValidateVersionID(versionID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))

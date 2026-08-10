@@ -28,15 +28,8 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+		return nil, err
 	}
 
 	query.Set("projectIdOrKey", projectIDOrKey)
@@ -121,15 +114,8 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	form.Set("projectId", strconv.Itoa(projectID))
@@ -199,15 +185,8 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParam
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID))
