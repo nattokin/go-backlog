@@ -71,19 +71,6 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		return nil, err
 	}
 
-	allEvent := form.Get("allEvent")
-	activityIDs := form["activityTypeId[]"]
-	var postVes core.ValidationErrors
-	if allEvent == "false" && len(activityIDs) == 0 {
-		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds is required when allEvent is false"))
-	}
-	if allEvent == "" && len(activityIDs) == 0 {
-		postVes = append(postVes, core.NewValidationError("activityTypeIds", "requires WithAllEvent(true) or WithActivityTypeIDs"))
-	}
-	if len(postVes) > 0 {
-		return nil, postVes
-	}
-
 	spath := path.Join("projects", projectIDOrKey, "webhooks")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
@@ -149,19 +136,6 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		core.ParamActivityTypeIDs,
 	}, options...)); err != nil {
 		return nil, err
-	}
-
-	allEvent := form.Get("allEvent")
-	activityIDs := form["activityTypeId[]"]
-	var postVes core.ValidationErrors
-	if allEvent == "false" && len(activityIDs) == 0 {
-		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds is required when allEvent is false"))
-	}
-	if allEvent == "true" && len(activityIDs) > 0 {
-		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds cannot be specified when allEvent is true"))
-	}
-	if len(postVes) > 0 {
-		return nil, postVes
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
