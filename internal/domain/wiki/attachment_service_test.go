@@ -2,6 +2,7 @@ package wiki_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
@@ -21,10 +22,11 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 		wikiID        int
 		attachmentIDs []int
 
-		expectError bool
-		wantIDs     []int
-
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantIDs                []int
 	}{
 		"success-single": {
 			wikiID:        1234,
@@ -47,43 +49,44 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			},
 		},
 
-		"error-wikiID-invalid": {
-			wikiID:        0,
-			attachmentIDs: []int{1, 2},
-			expectError:   true,
-			mockPostFn:    mock.NewUnexpectedPostFn(t),
+		// --- validation errors ---
+		"error-validation-wikiID-invalid": {
+			wikiID:                 0,
+			attachmentIDs:          []int{1, 2},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-attachmentIDs-invalid": {
+			wikiID:                 1,
+			attachmentIDs:          []int{0, 1, 2},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-attachmentIDs-empty": {
+			wikiID:                 1,
+			attachmentIDs:          []int{},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			wikiID:                 0,
+			attachmentIDs:          []int{},
+			wantValidationErrCount: 2,
 		},
 
-		"error-attachmentIDs-invalid": {
-			wikiID:        1,
-			attachmentIDs: []int{0, 1, 2},
-			expectError:   true,
-			mockPostFn:    mock.NewUnexpectedPostFn(t),
-		},
-
-		"error-attachmentIDs-empty": {
-			wikiID:        1,
-			attachmentIDs: []int{},
-			expectError:   true,
-			mockPostFn:    mock.NewUnexpectedPostFn(t),
-		},
-
-		"error-client": {
+		// --- other errors ---
+		"error-client-network": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			expectError:   true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("error")
+				return nil, errors.New("network error")
 			},
+			wantErrType: errors.New(""),
 		},
-
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
-			expectError:   true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -92,14 +95,27 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Post = tc.mockPostFn
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
 			s := wiki.NewAttachmentService(method)
 
 			attachments, err := s.Attach(context.Background(), tc.wikiID, tc.attachmentIDs)
 
-			if tc.expectError {
+			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, attachments)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -119,10 +135,11 @@ func TestWikiAttachmentService_List(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		expectError bool
-		wantIDs     []int
-
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantIDs                []int
 	}{
 		"success": {
 			wikiID:  1234,
@@ -133,32 +150,30 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:      0,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
+		// --- validation errors ---
+		"error-validation-wikiID-zero": {
+			wikiID:                 0,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-wikiID-negative": {
+			wikiID:                 -1,
+			wantValidationErrCount: 1,
 		},
 
-		"error-wikiID-negative": {
-			wikiID:      -1,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
-		},
-
-		"error-client": {
-			wikiID:      1234,
-			expectError: true,
+		// --- other errors ---
+		"error-client-network": {
+			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("error")
+				return nil, errors.New("network error")
 			},
+			wantErrType: errors.New(""),
 		},
-
-		"error-invalid-json": {
-			wikiID:      1234,
-			expectError: true,
+		"error-response-invalid-json": {
+			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -167,14 +182,27 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := wiki.NewAttachmentService(method)
 
 			attachments, err := s.List(context.Background(), tc.wikiID)
 
-			if tc.expectError {
+			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, attachments)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
@@ -195,10 +223,11 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 		wikiID       int
 		attachmentID int
 
-		expectError bool
-		wantID      int
-
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantID                 int
 	}{
 		"success": {
 			wikiID:       1234,
@@ -210,50 +239,49 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:       0,
-			attachmentID: 8,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+		// --- validation errors ---
+		"error-validation-wikiID-zero": {
+			wikiID:                 0,
+			attachmentID:           8,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-wikiID-negative": {
+			wikiID:                 -1,
+			attachmentID:           8,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-attachmentID-zero": {
+			wikiID:                 1,
+			attachmentID:           0,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-attachmentID-negative": {
+			wikiID:                 1,
+			attachmentID:           -1,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			wikiID:                 0,
+			attachmentID:           0,
+			wantValidationErrCount: 2,
 		},
 
-		"error-wikiID-negative": {
-			wikiID:       -1,
-			attachmentID: 8,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
-		},
-
-		"error-attachmentID-zero": {
-			wikiID:       1,
-			attachmentID: 0,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
-		},
-
-		"error-attachmentID-negative": {
-			wikiID:       1,
-			attachmentID: -1,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
-		},
-
-		"error-client": {
+		// --- other errors ---
+		"error-client-network": {
 			wikiID:       1234,
 			attachmentID: 8,
-			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, errors.New("error")
+				return nil, errors.New("network error")
 			},
+			wantErrType: errors.New(""),
 		},
-
-		"error-invalid-json": {
+		"error-response-invalid-json": {
 			wikiID:       1234,
 			attachmentID: 8,
-			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -262,14 +290,27 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 			s := wiki.NewAttachmentService(method)
 
 			attachment, err := s.Remove(context.Background(), tc.wikiID, tc.attachmentID)
 
-			if tc.expectError {
+			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, attachment)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 
