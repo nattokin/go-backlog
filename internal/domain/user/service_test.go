@@ -64,7 +64,11 @@ func TestUserService_List(t *testing.T) {
 
 			require.NoError(t, err)
 			require.Len(t, users, tc.wantLen)
+			require.NotNil(t, users[0])
 			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, 1, users[0].RoleType)
 		})
 	}
 }
@@ -115,6 +119,9 @@ func TestUserService_Me(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, "admin", got.UserID)
+			assert.Equal(t, "admin", got.Name)
+			assert.Equal(t, "eguchi@nulab.example", got.MailAddress)
+			assert.Equal(t, 1, got.RoleType)
 		})
 	}
 }
@@ -134,6 +141,15 @@ func TestUserService_Icon(t *testing.T) {
 			id: 1,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1/icon", spath)
+				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "avatar.png",
+			wantContentType: "image/png",
+		},
+		"success-id-100": {
+			id: 100,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/100/icon", spath)
 				return mock.NewBinaryResponse("avatar.png", "image/png", []byte("PNG")), nil
 			},
 			wantFilename:    "avatar.png",

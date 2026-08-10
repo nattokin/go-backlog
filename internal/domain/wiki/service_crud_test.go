@@ -312,6 +312,19 @@ func TestService_Update(t *testing.T) {
 				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
 			},
 		},
+		"success-wikiID-mailNotify-name": {
+			wikiID: 34,
+			option: o.WithMailNotify(true),
+			opts: []*core.APIParamOption{
+				o.WithName("Full Options Name"),
+			},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/34", spath)
+				assert.Equal(t, "Full Options Name", form.Get("name"))
+				assert.Equal(t, "true", form.Get("mailNotify"))
+				return mock.NewResponse(fixture.Wiki.MaximumJSON), nil
+			},
+		},
 		"success-full-options": {
 			wikiID: 34,
 			option: o.WithName("Full Options Name"),

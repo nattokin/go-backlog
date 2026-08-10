@@ -39,6 +39,21 @@ func TestUserService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users", spath)
 				assert.Equal(t, "admin", form.Get("userId"))
+				assert.Equal(t, "password", form.Get("password"))
+				assert.Equal(t, "admin", form.Get("name"))
+				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
+				assert.Equal(t, "1", form.Get("roleType"))
+				return mock.NewResponse(fixture.User.SingleJSON), nil
+			},
+		},
+		"success-roleType-6": {
+			userID:      "admin",
+			password:    "password",
+			name:        "admin",
+			mailAddress: "eguchi@nulab.example",
+			roleType:    6,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "6", form.Get("roleType"))
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
@@ -189,6 +204,13 @@ func TestUserService_One(t *testing.T) {
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
+		"success-id-100": {
+			id: 100,
+			mockGetFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/100", spath)
+				return mock.NewResponse(fixture.User.SingleJSON), nil
+			},
+		},
 
 		// --- validation errors ---
 		"error-validation-id-zero": {
@@ -232,6 +254,9 @@ func TestUserService_One(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, "admin", got.UserID)
+			assert.Equal(t, "admin", got.Name)
+			assert.Equal(t, "eguchi@nulab.example", got.MailAddress)
+			assert.Equal(t, 1, got.RoleType)
 		})
 	}
 }
@@ -260,8 +285,70 @@ func TestUserService_Update(t *testing.T) {
 			},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "password", form.Get("password"))
+				assert.Equal(t, "admin", form.Get("name"))
+				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
+				assert.Equal(t, "1", form.Get("roleType"))
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
+		},
+		"success-option-withName": {
+			id:     1,
+			option: o.WithName("testname"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testname", form.Get("name"))
+				return nil, errors.New("error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"success-option-withPassword": {
+			id:     1,
+			option: o.WithPassword("testpassword"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testpassword", form.Get("password"))
+				return nil, errors.New("error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"success-option-withMailAddress": {
+			id:     1,
+			option: o.WithMailAddress("test@test.com"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "test@test.com", form.Get("mailAddress"))
+				return nil, errors.New("error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"success-option-withRoleType": {
+			id:     1,
+			option: o.WithRoleType(1),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "1", form.Get("roleType"))
+				return nil, errors.New("error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"success-option-multiple": {
+			id:     1,
+			option: o.WithPassword("testpassword1"),
+			opts: []*core.APIParamOption{
+				o.WithName("testname1"),
+				o.WithMailAddress("test1@test.com"),
+				o.WithRoleType(1),
+			},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1", spath)
+				assert.Equal(t, "testpassword1", form.Get("password"))
+				assert.Equal(t, "testname1", form.Get("name"))
+				assert.Equal(t, "test1@test.com", form.Get("mailAddress"))
+				assert.Equal(t, "1", form.Get("roleType"))
+				return nil, errors.New("error")
+			},
+			wantErrType: errors.New(""),
 		},
 
 		// --- validation errors: fixed option only ---
@@ -361,6 +448,9 @@ func TestUserService_Update(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, "admin", got.UserID)
+			assert.Equal(t, "admin", got.Name)
+			assert.Equal(t, "eguchi@nulab.example", got.MailAddress)
+			assert.Equal(t, 1, got.RoleType)
 		})
 	}
 }
@@ -378,6 +468,13 @@ func TestUserService_Delete(t *testing.T) {
 			id: 1,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1", spath)
+				return mock.NewResponse(fixture.User.SingleJSON), nil
+			},
+		},
+		"success-id-100": {
+			id: 100,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/100", spath)
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
