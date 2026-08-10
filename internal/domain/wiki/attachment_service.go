@@ -32,8 +32,8 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 		ves = append(ves, core.NewValidationError("attachmentIDs", "attachmentIDs must not be empty"))
 	} else {
 		for _, id := range attachmentIDs {
-			if id <= 0 {
-				ves = append(ves, core.NewValidationError("attachmentIDs", "attachmentID must be greater than 0"))
+			if ve := validate.ValidateAttachmentID(id); ve != nil {
+				ves = append(ves, ve)
 				break
 			}
 		}
