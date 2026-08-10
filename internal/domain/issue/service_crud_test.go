@@ -350,6 +350,16 @@ func TestService_Update(t *testing.T) {
 			},
 			wantID: 1,
 		},
+		"success-by-numeric-id": {
+			issueIDOrKey: "1",
+			option:       o.WithDescription("updated desc"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/1", spath)
+				assert.Equal(t, "updated desc", form.Get("description"))
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
+			},
+			wantID: 1,
+		},
 
 		// --- validation errors: argument only ---
 		"error-validation-issueIDOrKey-empty": {

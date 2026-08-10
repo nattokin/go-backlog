@@ -39,6 +39,14 @@ func TestCommentService_List(t *testing.T) {
 			},
 			wantIDs: []int{1, 2},
 		},
+		"success-by-numeric-id": {
+			issueIDOrKey: "1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/1/comments", spath)
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
+			},
+			wantIDs: []int{1, 2},
+		},
 		"success-with-count-and-order": {
 			issueIDOrKey: "PRJ-1",
 			opts: []*core.APIParamOption{
@@ -48,6 +56,19 @@ func TestCommentService_List(t *testing.T) {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "20", query.Get("count"))
 				assert.Equal(t, "asc", query.Get("order"))
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
+			},
+			wantIDs: []int{1, 2},
+		},
+		"success-with-minID-maxID": {
+			issueIDOrKey: "PRJ-1",
+			opts: []*core.APIParamOption{
+				o.WithMinID(10),
+				o.WithMaxID(100),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "10", query.Get("minId"))
+				assert.Equal(t, "100", query.Get("maxId"))
 				return mock.NewResponse(fixture.Comment.ListJSON), nil
 			},
 			wantIDs: []int{1, 2},

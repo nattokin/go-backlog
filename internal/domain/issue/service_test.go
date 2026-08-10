@@ -45,6 +45,14 @@ func TestService_Count(t *testing.T) {
 			},
 			wantCount: 5,
 		},
+		"success-with-keyword": {
+			opts: []*core.APIParamOption{o.WithKeyword("bug")},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "bug", query.Get("keyword"))
+				return mock.NewResponse(`{"count":3}`), nil
+			},
+			wantCount: 3,
+		},
 
 		// --- validation errors ---
 		"error-validation-opt-single": {
@@ -161,6 +169,14 @@ func TestService_Participants(t *testing.T) {
 				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 			wantIDs: []int{1, 2, 3, 4},
+		},
+		"success-empty-list": {
+			issueIDOrKey: "PRJ-1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/PRJ-1/participants", spath)
+				return mock.NewResponse(`[]`), nil
+			},
+			wantIDs: []int{},
 		},
 
 		// --- validation errors ---

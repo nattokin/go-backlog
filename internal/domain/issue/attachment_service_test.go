@@ -189,6 +189,16 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 			wantFilename:    "file.png",
 			wantContentType: "image/png",
 		},
+		"success-issue-id": {
+			issueIDOrKey: "123",
+			attachmentID: 5,
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/123/attachments/5", spath)
+				return mock.NewBinaryResponse("doc.pdf", "application/pdf", []byte("PDF")), nil
+			},
+			wantFilename:    "doc.pdf",
+			wantContentType: "application/pdf",
+		},
 
 		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
