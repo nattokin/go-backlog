@@ -74,7 +74,6 @@ func TestCommentService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			wantValidationErrCount: 1,
@@ -94,7 +93,6 @@ func TestCommentService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			issueIDOrKey:           "PRJ-1",
 			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
@@ -106,14 +104,12 @@ func TestCommentService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -202,7 +198,6 @@ func TestCommentService_Count(t *testing.T) {
 			wantCount: 7,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			wantValidationErrCount: 1,
@@ -212,7 +207,6 @@ func TestCommentService_Count(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -291,7 +285,6 @@ func TestCommentService_Notifications(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			commentID:              1,
@@ -308,7 +301,6 @@ func TestCommentService_Notifications(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -393,7 +385,6 @@ func TestCommentService_Notify(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			commentID:              1,
@@ -419,7 +410,6 @@ func TestCommentService_Notify(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
