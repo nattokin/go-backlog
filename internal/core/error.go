@@ -60,8 +60,8 @@ func (e *InvalidOptionKeyError) Error() string {
 	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
 }
 
-// InvalidOptionError represents an error for an invalid option, such as a nil
-// option or a Check() implementation that returned a nil ValidationResult.
+// InvalidOptionError represents an error for an invalid option, such as a
+// nil option passed to ApplyOptions.
 type InvalidOptionError struct {
 	message string
 }
@@ -75,7 +75,6 @@ func (e *InvalidOptionError) Error() string {
 }
 
 // ValidationError represents an argument validation error.
-// It implements ValidationResult.
 type ValidationError struct {
 	target  string
 	message string
@@ -88,7 +87,6 @@ func NewValidationError(target, message string) *ValidationError {
 	}
 }
 
-func (e *ValidationError) Valid() bool     { return false }
 func (e *ValidationError) Target() string  { return e.target }
 func (e *ValidationError) Message() string { return e.message }
 func (e *ValidationError) Error() string   { return e.message }
