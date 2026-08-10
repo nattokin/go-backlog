@@ -157,9 +157,6 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	if allEvent == "false" && len(activityIDs) == 0 {
 		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds is required when allEvent is false"))
 	}
-	if allEvent == "true" && len(activityIDs) > 0 {
-		postVes = append(postVes, core.NewValidationError("activityTypeIds", "activityTypeIds cannot be specified when allEvent is true"))
-	}
 	if len(postVes) > 0 {
 		return nil, postVes
 	}
