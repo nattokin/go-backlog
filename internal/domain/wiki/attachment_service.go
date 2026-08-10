@@ -87,11 +87,15 @@ func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment
 func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID int) (*model.FileData, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
