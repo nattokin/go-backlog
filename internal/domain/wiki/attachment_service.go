@@ -2,7 +2,6 @@ package wiki
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -25,20 +24,27 @@ type AttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
 func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
 	}
-
 	if len(attachmentIDs) == 0 {
-		return nil, errors.New("attachmentIDs must not be empty")
+		ves = append(ves, core.NewValidationError("attachmentIDs", "attachmentIDs must not be empty"))
+	} else {
+		for _, id := range attachmentIDs {
+			if id <= 0 {
+				ves = append(ves, core.NewValidationError("attachmentIDs", "attachmentID must be greater than 0"))
+				break
+			}
+		}
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
 	form := url.Values{}
 	for _, id := range attachmentIDs {
-		if id <= 0 {
-			return nil, errors.New("attachmentID must be greater than 0")
-		}
 		form.Add("attachmentId[]", strconv.Itoa(id))
 	}
 
@@ -59,8 +65,12 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
 func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
@@ -71,11 +81,15 @@ func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Atta
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
 func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateAttachmentID(attachmentID); err != nil {
-		return nil, err
+	if ve := validate.ValidateAttachmentID(attachmentID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
