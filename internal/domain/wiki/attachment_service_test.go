@@ -288,9 +288,10 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 
 		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
-		wantErrType     error
-		wantFilename    string
-		wantContentType string
+		wantErrType            error
+		wantValidationErrCount int
+		wantFilename           string
+		wantContentType        string
 	}{
 		"success": {
 			wikiID:       34,
@@ -303,16 +304,25 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 			wantFilename:    "doc.pdf",
 			wantContentType: "application/pdf",
 		},
+
+		// --- validation errors ---
 		"error-validation-wikiID-zero": {
-			wikiID:       0,
-			attachmentID: 20,
-			wantErrType:  &core.ValidationError{},
+			wikiID:                 0,
+			attachmentID:           20,
+			wantValidationErrCount: 1,
 		},
 		"error-validation-attachmentID-zero": {
-			wikiID:       34,
-			attachmentID: 0,
-			wantErrType:  &core.ValidationError{},
+			wikiID:                 34,
+			attachmentID:           0,
+			wantValidationErrCount: 1,
 		},
+		"error-validation-all": {
+			wikiID:                 0,
+			attachmentID:           0,
+			wantValidationErrCount: 2,
+		},
+
+		// --- other errors ---
 		"error-client-network": {
 			wikiID:       34,
 			attachmentID: 20,
@@ -335,10 +345,20 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 
 			got, err := s.Download(context.Background(), tc.wikiID, tc.attachmentID)
 
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.wantErrType != nil {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				assert.IsType(t, tc.wantErrType, err)
+				assert.ErrorAs(t, err, &tc.wantErrType)
 				return
 			}
 

@@ -20,8 +20,12 @@ type HistorySevice struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
 func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHistory, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves core.ValidationErrors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "history")
