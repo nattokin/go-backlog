@@ -145,6 +145,30 @@ func TestWebhookService_Add(t *testing.T) {
 				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
+		"success-all-event-false-without-activity-types": {
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []*core.APIParamOption{o.WithAllEvent(false)},
+			wantID:         fixture.Webhook.AllEvent.ID,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "false", form.Get("allEvent"))
+				assert.Empty(t, form["activityTypeId[]"])
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
+			},
+		},
+		"success-no-options": {
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []*core.APIParamOption{},
+			wantID:         fixture.Webhook.AllEvent.ID,
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Empty(t, form.Get("allEvent"))
+				assert.Empty(t, form["activityTypeId[]"])
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
+			},
+		},
 
 		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
@@ -185,22 +209,6 @@ func TestWebhookService_Add(t *testing.T) {
 			hookURL:                "",
 			opts:                   []*core.APIParamOption{o.WithAllEvent(true)},
 			wantValidationErrCount: 3,
-		},
-
-		// --- application-level validation errors ---
-		"error-all-event-false-without-activity-types": {
-			projectIDOrKey:         "TEST",
-			name:                   "webhook",
-			hookURL:                "https://example.com/webhook",
-			opts:                   []*core.APIParamOption{o.WithAllEvent(false)},
-			wantValidationErrCount: 1,
-		},
-		"error-no-options": {
-			projectIDOrKey:         "TEST",
-			name:                   "webhook",
-			hookURL:                "https://example.com/webhook",
-			opts:                   []*core.APIParamOption{},
-			wantValidationErrCount: 1,
 		},
 
 		// --- fail-fast: nil option ---
@@ -449,6 +457,17 @@ func TestWebhookService_Update(t *testing.T) {
 				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
+		"success-all-event-false-without-activity-types": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opt:            o.WithAllEvent(false),
+			wantID:         fixture.Webhook.AllEvent.ID,
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "false", form.Get("allEvent"))
+				assert.Empty(t, form["activityTypeId[]"])
+				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
+			},
+		},
 
 		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
@@ -493,14 +512,6 @@ func TestWebhookService_Update(t *testing.T) {
 			opt:                    o.WithName(""),
 			opts:                   []*core.APIParamOption{o.WithHookURL("")},
 			wantValidationErrCount: 4,
-		},
-
-		// --- application-level validation errors ---
-		"error-all-event-false-without-activity-types": {
-			projectIDOrKey:         "TEST",
-			webhookID:              1,
-			opt:                    o.WithAllEvent(false),
-			wantValidationErrCount: 1,
 		},
 
 		// --- fail-fast: nil option ---
