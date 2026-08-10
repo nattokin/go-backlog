@@ -2,7 +2,6 @@ package project
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -55,15 +54,8 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes")
@@ -95,15 +87,8 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 	if issueTypeID < 1 {
 		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))

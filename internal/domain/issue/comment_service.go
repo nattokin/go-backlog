@@ -2,7 +2,6 @@ package issue
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -28,15 +27,8 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := s.base.ApplyListOptions(query, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, s.base.ApplyListOptions(query, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments")
@@ -53,15 +45,8 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := s.base.ApplyAddOptions(form, content, opts...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "comments")

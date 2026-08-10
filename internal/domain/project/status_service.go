@@ -2,7 +2,6 @@ package project
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strconv"
@@ -98,15 +97,8 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 	if statusID < 1 {
 		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))

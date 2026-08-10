@@ -3,7 +3,6 @@ package issue
 
 import (
 	"context"
-	"errors"
 	"iter"
 	"maps"
 	"net/url"
@@ -196,15 +195,8 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, createValidTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, createValidTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	form.Set("projectId", strconv.Itoa(projectID))
@@ -233,15 +225,8 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, updateValidTypes, options...); err != nil {
-		var optVes core.ValidationErrors
-		if !errors.As(err, &optVes) {
-			return nil, err
-		}
-		ves = append(ves, optVes...)
-	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, updateValidTypes, options...)); err != nil {
+		return nil, err
 	}
 
 	spath := path.Join("issues", issueIDOrKey)
