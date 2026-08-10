@@ -200,7 +200,6 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 			wantContentType: "application/pdf",
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			attachmentID:           10,
@@ -217,7 +216,6 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "TEST-1",
 			attachmentID: 10,
