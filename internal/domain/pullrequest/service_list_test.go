@@ -76,6 +76,20 @@ func TestService_List(t *testing.T) {
 			},
 			wantNumbers: []int{1, 2},
 		},
+		"success-with-count-and-offset": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo1",
+			opts: []*core.APIParamOption{
+				o.WithCount(50),
+				o.WithOffset(10),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "50", query.Get("count"))
+				assert.Equal(t, "10", query.Get("offset"))
+				return mock.NewResponse(fixture.PullRequest.ListJSON), nil
+			},
+			wantNumbers: []int{1, 2},
+		},
 
 		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {

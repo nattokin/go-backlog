@@ -385,6 +385,17 @@ func TestService_Update(t *testing.T) {
 			},
 			wantNumber: 1,
 		},
+		"success-with-issueID": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo1",
+			prNumber:       1,
+			option:         o.WithIssueID(42),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "42", form.Get("issueId"))
+				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
+			},
+			wantNumber: 1,
+		},
 
 		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {

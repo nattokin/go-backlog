@@ -58,6 +58,21 @@ func TestCommentService_List(t *testing.T) {
 			},
 			wantIDs: []int{1, 2},
 		},
+		"success-with-minID-maxID": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo",
+			prNumber:       1,
+			opts: []*core.APIParamOption{
+				o.WithMinID(10),
+				o.WithMaxID(100),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "10", query.Get("minId"))
+				assert.Equal(t, "100", query.Get("maxId"))
+				return mock.NewResponse(fixture.Comment.ListJSON), nil
+			},
+			wantIDs: []int{1, 2},
+		},
 
 		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
@@ -234,6 +249,19 @@ func TestCommentService_Add(t *testing.T) {
 			opts:           []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
+			},
+			wantID: 1,
+		},
+		"success-with-attachmentIDs": {
+			projectIDOrKey: "PRJ",
+			repoIDOrName:   "repo",
+			prNumber:       1,
+			content:        "Attaching files.",
+			opts:           []*core.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "Attaching files.", form.Get("content"))
+				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
 				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
 			},
 			wantID: 1,
