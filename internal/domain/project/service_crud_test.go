@@ -130,6 +130,18 @@ func TestService_Create(t *testing.T) {
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 		},
+		"success-without-option": {
+			key:  "TEST",
+			name: "test",
+			opts: []*core.APIParamOption{},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "", form.Get("chartEnabled"))
+				assert.Equal(t, "", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "", form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, "", form.Get("textFormattingRule"))
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
+			},
+		},
 		"success-with-options": {
 			key:  "TEST",
 			name: "test",
@@ -141,6 +153,8 @@ func TestService_Create(t *testing.T) {
 			},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("chartEnabled"))
+				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
@@ -288,6 +302,14 @@ func TestService_Update(t *testing.T) {
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 		},
+		"success-id": {
+			projectIDOrKey: "1234",
+			option:         o.WithName("test"),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/1234", spath)
+				return mock.NewResponse(fixture.Project.SingleJSON), nil
+			},
+		},
 		"success-full-options": {
 			projectIDOrKey: "TEST",
 			option:         o.WithKey("TEST1"),
@@ -302,6 +324,11 @@ func TestService_Update(t *testing.T) {
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "TEST1", form.Get("key"))
 				assert.Equal(t, "test1", form.Get("name"))
+				assert.Equal(t, "true", form.Get("chartEnabled"))
+				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
+				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
+				assert.Equal(t, "true", form.Get("archived"))
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 		},

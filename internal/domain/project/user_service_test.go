@@ -45,6 +45,14 @@ func TestProjectUserService_List(t *testing.T) {
 				return mock.NewResponse(fixture.User.ListJSON), nil
 			},
 		},
+		"success-excludeGroupMembers-false": {
+			projectKey: "TEST3",
+			opts:       []*core.APIParamOption{opt.WithExcludeGroupMembers(false)},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
+				return mock.NewResponse(fixture.User.ListJSON), nil
+			},
+		},
 
 		// --- validation errors ---
 		"error-validation-projectKey-empty": {
@@ -135,6 +143,9 @@ func TestProjectUserService_List(t *testing.T) {
 			require.Len(t, users, 4)
 			require.NotNil(t, users[0])
 			assert.Equal(t, "admin", users[0].UserID)
+			assert.Equal(t, "admin", users[0].Name)
+			assert.Equal(t, "eguchi@nulab.example", users[0].MailAddress)
+			assert.Equal(t, 1, users[0].RoleType)
 		})
 	}
 }
@@ -218,6 +229,9 @@ func TestProjectUserService_Add(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, u)
 			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
@@ -237,6 +251,15 @@ func TestProjectUserService_Delete(t *testing.T) {
 			userID:     1,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/users", spath)
+				assert.Equal(t, "1", form.Get("userId"))
+				return mock.NewResponse(fixture.User.SingleJSON), nil
+			},
+		},
+		"success-projectIDOrKey-number": {
+			projectKey: "1234",
+			userID:     1,
+			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/1234/users", spath)
 				assert.Equal(t, "1", form.Get("userId"))
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
@@ -301,6 +324,9 @@ func TestProjectUserService_Delete(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, u)
 			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
@@ -384,6 +410,9 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			assert.NoError(t, err)
 			require.NotNil(t, u)
 			assert.Equal(t, "admin", u.UserID)
+			assert.Equal(t, "admin", u.Name)
+			assert.Equal(t, "eguchi@nulab.example", u.MailAddress)
+			assert.Equal(t, 1, u.RoleType)
 		})
 	}
 }
