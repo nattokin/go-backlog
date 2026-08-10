@@ -2,6 +2,7 @@ package wiki_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
@@ -20,9 +21,10 @@ func TestWikiHistoryService_List(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		expectError bool
-
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
 	}{
 		"success": {
 			wikiID: 1234,
@@ -32,42 +34,37 @@ func TestWikiHistoryService_List(t *testing.T) {
 			},
 		},
 
-		"error-wikiID-zero": {
-			wikiID:      0,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
+		// --- validation errors ---
+		"error-validation-wikiID-zero": {
+			wikiID:                 0,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-wikiID-negative": {
+			wikiID:                 -1,
+			wantValidationErrCount: 1,
 		},
 
-		"error-wikiID-negative": {
-			wikiID:      -1,
-			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
-		},
-
-		"error-client": {
-			wikiID:      1234,
-			expectError: true,
+		// --- other errors ---
+		"error-client-network": {
+			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, errors.New("error")
+				return nil, errors.New("network error")
 			},
+			wantErrType: errors.New(""),
 		},
-
 		"error-client-api-error": {
-			wikiID:      1234,
-			expectError: true,
+			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				apiErr := &core.APIResponseError{}
-				assert.IsType(t, &core.APIResponseError{}, apiErr)
-				return nil, apiErr
+				return nil, &core.APIResponseError{}
 			},
+			wantErrType: &core.APIResponseError{},
 		},
-
-		"error-invalid-json": {
-			wikiID:      1234,
-			expectError: true,
+		"error-response-invalid-json": {
+			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
+			wantErrType: &json.SyntaxError{},
 		},
 	}
 
@@ -76,18 +73,31 @@ func TestWikiHistoryService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := wiki.NewHistoryService(method)
 
 			entries, err := s.List(context.Background(), tc.wikiID)
 
-			if tc.expectError {
+			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, entries)
+				var ves core.ValidationErrors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
 				return
 			}
 
-			assert.NoError(t, err)
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, entries)
+				assert.ErrorAs(t, err, &tc.wantErrType)
+				return
+			}
+
+			require.NoError(t, err)
 			require.NotNil(t, entries)
 			assert.Len(t, entries, len(fixture.WikiHistory.List))
 
