@@ -38,6 +38,56 @@ func TestActivityService_List(t *testing.T) {
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
 			},
 		},
+		"success-withActivityTypeIDs": {
+			projectIDOrKey: "TEST",
+			opts: []*core.APIParamOption{
+				o.WithActivityTypeIDs([]int{1}),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
+			},
+		},
+		"success-withMinID": {
+			projectIDOrKey: "TEST",
+			opts: []*core.APIParamOption{
+				o.WithMinID(1),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "1", query.Get("minId"))
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
+			},
+		},
+		"success-withMaxID": {
+			projectIDOrKey: "TEST",
+			opts: []*core.APIParamOption{
+				o.WithMaxID(1),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "1", query.Get("maxId"))
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
+			},
+		},
+		"success-withCount": {
+			projectIDOrKey: "TEST",
+			opts: []*core.APIParamOption{
+				o.WithCount(1),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "1", query.Get("count"))
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
+			},
+		},
+		"success-withOrder": {
+			projectIDOrKey: "TEST",
+			opts: []*core.APIParamOption{
+				o.WithOrder("asc"),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "asc", query.Get("order"))
+				return mock.NewResponse(fixture.Activity.ListJSON), nil
+			},
+		},
 		"success-multiple-options": {
 			projectIDOrKey: "TEST",
 			opts: []*core.APIParamOption{
