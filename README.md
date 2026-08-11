@@ -1,7 +1,6 @@
 go-backlog
 ====
 [![Go Reference](https://pkg.go.dev/badge/github.com/nattokin/go-backlog.svg)](https://pkg.go.dev/github.com/nattokin/go-backlog)
-[![Go Report Card](https://goreportcard.com/badge/github.com/nattokin/go-backlog)](https://goreportcard.com/report/github.com/nattokin/go-backlog)
 [![Test](https://github.com/nattokin/go-backlog/workflows/Test/badge.svg)](https://github.com/nattokin/go-backlog/actions?query=workflow%3ATest+branch%3Amain)
 [![codecov](https://codecov.io/gh/nattokin/go-backlog/branch/main/graph/badge.svg)](https://codecov.io/gh/nattokin/go-backlog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
