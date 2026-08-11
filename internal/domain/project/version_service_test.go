@@ -42,7 +42,6 @@ func TestVersionService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -62,7 +61,6 @@ func TestVersionService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			opts:                   []*core.APIParamOption{o.WithArchived(true), nil},
@@ -74,7 +72,6 @@ func TestVersionService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
@@ -86,7 +83,6 @@ func TestVersionService_List(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			wantErrType:    errors.New(""),
@@ -172,28 +168,24 @@ func TestVersionService_Add(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			name:                   "v1",
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			name:                   "",
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			name:                   "",
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			name:                   "v1",
@@ -207,7 +199,6 @@ func TestVersionService_Add(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
@@ -221,7 +212,6 @@ func TestVersionService_Add(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			name:           "v1",
@@ -314,7 +304,6 @@ func TestVersionService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			versionID:              1,
@@ -334,7 +323,6 @@ func TestVersionService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			projectIDOrKey:         "TEST",
 			versionID:              1,
@@ -342,7 +330,6 @@ func TestVersionService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			versionID:              0,
@@ -350,7 +337,6 @@ func TestVersionService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			versionID:              1,
@@ -366,7 +352,6 @@ func TestVersionService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
@@ -380,7 +365,6 @@ func TestVersionService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			versionID:      1,
@@ -460,7 +444,6 @@ func TestVersionService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			versionID:              1,
@@ -482,7 +465,6 @@ func TestVersionService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			versionID:      1,

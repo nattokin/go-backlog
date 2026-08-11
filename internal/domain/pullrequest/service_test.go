@@ -52,7 +52,6 @@ func TestService_Count(t *testing.T) {
 			wantCount: 2,
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -64,7 +63,6 @@ func TestService_Count(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option only ---
 		"error-option-validation-with-valid-args": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
@@ -72,7 +70,6 @@ func TestService_Count(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option + arguments ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
@@ -80,7 +77,6 @@ func TestService_Count(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
@@ -94,7 +90,6 @@ func TestService_Count(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -102,7 +97,6 @@ func TestService_Count(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",

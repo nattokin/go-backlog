@@ -44,7 +44,6 @@ func TestCategoryService_List(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -54,7 +53,6 @@ func TestCategoryService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -126,7 +124,6 @@ func TestCategoryService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			name:                   "Bug",
@@ -138,21 +135,18 @@ func TestCategoryService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			name:                   "",
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			name:                   "",
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
@@ -229,7 +223,6 @@ func TestCategoryService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			categoryID:             12,
@@ -243,7 +236,6 @@ func TestCategoryService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			categoryID:             12,
@@ -251,7 +243,6 @@ func TestCategoryService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			categoryID:             0,
@@ -259,7 +250,6 @@ func TestCategoryService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,
@@ -334,7 +324,6 @@ func TestCategoryService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			categoryID:             12,
@@ -351,7 +340,6 @@ func TestCategoryService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			categoryID:     12,

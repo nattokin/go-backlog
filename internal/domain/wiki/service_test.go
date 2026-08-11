@@ -49,7 +49,6 @@ func TestService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -59,34 +58,29 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option only ---
 		"error-option-validation-with-valid-arg": {
 			projectIDOrKey:         "PRJ",
 			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option + argument ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option among valid values ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			opts:                   []*core.APIParamOption{o.WithKeyword("test"), nil},
 			wantInvalidOptionError: true,
 		},
-		// --- fail-fast: nil option among validation-erroring values ---
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			opts:                   []*core.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "PRJ",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
@@ -98,7 +92,6 @@ func TestService_List(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
 			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
@@ -195,7 +188,6 @@ func TestService_Count(t *testing.T) {
 			wantCount: 10,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -205,7 +197,6 @@ func TestService_Count(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

@@ -156,7 +156,6 @@ func TestUserService_Icon(t *testing.T) {
 			wantContentType: "image/png",
 		},
 
-		// --- validation errors ---
 		"error-validation-id-zero": {
 			id:                     0,
 			wantValidationErrCount: 1,
@@ -166,7 +165,6 @@ func TestUserService_Icon(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			id: 1,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

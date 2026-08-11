@@ -231,7 +231,6 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 			wantContentType: "text/plain",
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repositoryIDOrName:     "repo1",
@@ -268,7 +267,6 @@ func TestPullRequestAttachmentService_Download(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey:     "TEST",
 			repositoryIDOrName: "repo1",

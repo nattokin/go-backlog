@@ -40,7 +40,6 @@ func TestService_One(t *testing.T) {
 			wantNumber: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -66,7 +65,6 @@ func TestService_One(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -174,7 +172,6 @@ func TestService_Create(t *testing.T) {
 			wantNumber: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -240,7 +237,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 5,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
@@ -262,7 +258,6 @@ func TestService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -274,7 +269,6 @@ func TestService_Create(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -397,7 +391,6 @@ func TestService_Update(t *testing.T) {
 			wantNumber: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -434,7 +427,6 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
@@ -452,7 +444,6 @@ func TestService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -461,7 +452,6 @@ func TestService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",

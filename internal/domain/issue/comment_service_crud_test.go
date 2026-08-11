@@ -53,7 +53,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			content:                "x",
@@ -75,7 +74,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			issueIDOrKey:           "PRJ-1",
 			content:                "x",
@@ -89,7 +87,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
@@ -97,7 +94,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
@@ -188,7 +184,6 @@ func TestCommentService_One(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			commentID:              1,
@@ -205,7 +200,6 @@ func TestCommentService_One(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -288,7 +282,6 @@ func TestCommentService_Delete(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			commentID:              1,
@@ -305,7 +298,6 @@ func TestCommentService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
@@ -391,7 +383,6 @@ func TestCommentService_Update(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			commentID:              1,
@@ -417,7 +408,6 @@ func TestCommentService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,

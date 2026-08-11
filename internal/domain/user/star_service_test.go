@@ -48,7 +48,6 @@ func TestUserStarService_List(t *testing.T) {
 			wantLen: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-userID-zero": {
 			userID:                 0,
 			wantValidationErrCount: 1,
@@ -68,7 +67,6 @@ func TestUserStarService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			userID:                 1,
 			opts:                   []*core.APIParamOption{o.WithCount(5), nil},
@@ -80,14 +78,12 @@ func TestUserStarService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			userID:      1,
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -165,7 +161,6 @@ func TestUserStarService_Count(t *testing.T) {
 			wantCount: 42,
 		},
 
-		// --- validation errors ---
 		"error-validation-userID-zero": {
 			userID:                 0,
 			wantValidationErrCount: 1,
@@ -175,7 +170,6 @@ func TestUserStarService_Count(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

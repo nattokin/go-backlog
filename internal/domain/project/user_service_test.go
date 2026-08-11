@@ -54,7 +54,6 @@ func TestProjectUserService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectKey-empty": {
 			projectKey:             "",
 			wantValidationErrCount: 1,
@@ -74,7 +73,6 @@ func TestProjectUserService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectKey:             "TEST",
 			opts:                   []*core.APIParamOption{nil},
@@ -86,14 +84,12 @@ func TestProjectUserService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectKey:  "TEST",
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-response-invalid-json": {
 			projectKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -170,7 +166,6 @@ func TestProjectUserService_Add(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectKey-empty": {
 			projectKey:             "",
 			userID:                 1,
@@ -187,7 +182,6 @@ func TestProjectUserService_Add(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-response-invalid-json": {
 			projectKey: "TEST",
 			userID:     1,
@@ -265,7 +259,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectKey-empty": {
 			projectKey:             "",
 			userID:                 1,
@@ -282,7 +275,6 @@ func TestProjectUserService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-response-invalid-json": {
 			projectKey: "TEST",
 			userID:     1,
@@ -351,7 +343,6 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectKey-empty": {
 			projectKey:             "",
 			userID:                 1,
@@ -368,7 +359,6 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-response-invalid-json": {
 			projectKey: "TEST",
 			userID:     1,

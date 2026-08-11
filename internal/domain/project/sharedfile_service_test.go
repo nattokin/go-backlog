@@ -41,7 +41,6 @@ func TestSharedFileService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -51,7 +50,6 @@ func TestSharedFileService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -126,7 +124,6 @@ func TestSharedFileService_Download(t *testing.T) {
 			wantContentType: "image/png",
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			sharedFileID:           454403,
@@ -148,7 +145,6 @@ func TestSharedFileService_Download(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			sharedFileID:   454403,

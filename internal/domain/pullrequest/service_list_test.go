@@ -91,7 +91,6 @@ func TestService_List(t *testing.T) {
 			wantNumbers: []int{1, 2},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo1",
@@ -131,7 +130,6 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
@@ -145,7 +143,6 @@ func TestService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
@@ -153,7 +150,6 @@ func TestService_List(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",

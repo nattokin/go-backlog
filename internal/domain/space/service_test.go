@@ -205,13 +205,11 @@ func TestService_UpdateNotification(t *testing.T) {
 			wantContent: "Backlog is a project management tool.",
 		},
 
-		// --- validation errors ---
 		"error-validation-content-empty": {
 			content:                "",
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			content: "some content",
 			mockPutFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {

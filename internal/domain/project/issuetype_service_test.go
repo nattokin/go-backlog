@@ -44,7 +44,6 @@ func TestIssueTypeService_List(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -54,7 +53,6 @@ func TestIssueTypeService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -143,7 +141,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			name:                   "Bug",
@@ -151,7 +148,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed options only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			name:                   "",
@@ -171,7 +167,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			name:                   "",
@@ -179,7 +174,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			name:                   "Bug",
@@ -195,7 +189,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
@@ -211,7 +204,6 @@ func TestIssueTypeService_Create(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
@@ -305,7 +297,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			issueTypeID:            1,
@@ -319,7 +310,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			projectIDOrKey:         "TEST",
 			issueTypeID:            1,
@@ -327,7 +317,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: optional opts only ---
 		"error-validation-opt-single": {
 			projectIDOrKey:         "TEST",
 			issueTypeID:            1,
@@ -336,7 +325,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			issueTypeID:            0,
@@ -345,7 +333,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			issueTypeID:            1,
@@ -361,7 +348,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
@@ -375,7 +361,6 @@ func TestIssueTypeService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
@@ -461,7 +446,6 @@ func TestIssueTypeService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			issueTypeID:            1,
@@ -487,7 +471,6 @@ func TestIssueTypeService_Delete(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey:        "TEST",
 			issueTypeID:           1,

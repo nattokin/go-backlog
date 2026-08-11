@@ -42,7 +42,6 @@ func TestService_One(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -52,7 +51,6 @@ func TestService_One(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -160,7 +158,6 @@ func TestService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-key-empty": {
 			key:                    "",
 			name:                   "test",
@@ -172,7 +169,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: optional opts only ---
 		"error-validation-opt-single": {
 			key:                    "TEST",
 			name:                   "test",
@@ -180,7 +176,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			key:                    "",
 			name:                   "",
@@ -195,7 +190,6 @@ func TestService_Create(t *testing.T) {
 			opts:        []*core.APIParamOption{o.WithAll(true), nil},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
-		// --- fail-fast: nil option among invalid values ---
 		"error-nil-option-with-invalid-values": {
 			key:                    "",
 			name:                   "",
@@ -203,7 +197,6 @@ func TestService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			key:         "TEST",
 			name:        "test",
@@ -217,7 +210,6 @@ func TestService_Create(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			key:  "TEST",
 			name: "test",
@@ -333,7 +325,6 @@ func TestService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			option:                 o.WithName("test"),
@@ -345,14 +336,12 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			projectIDOrKey:         "TEST",
 			option:                 o.WithTextFormattingRule("invalid"),
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: optional opts only ---
 		"error-validation-opt-single": {
 			projectIDOrKey:         "TEST",
 			option:                 o.WithName("test"),
@@ -360,7 +349,6 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			option:                 o.WithTextFormattingRule("invalid"),
@@ -375,7 +363,6 @@ func TestService_Update(t *testing.T) {
 			opts:           []*core.APIParamOption{o.WithAll(true), nil},
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
-		// --- fail-fast: nil option among invalid values ---
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			option:                 o.WithTextFormattingRule("invalid"),
@@ -383,7 +370,6 @@ func TestService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			option:         o.WithName("test"),
@@ -397,7 +383,6 @@ func TestService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			option:         o.WithName("test"),
@@ -482,7 +467,6 @@ func TestService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -492,7 +476,6 @@ func TestService_Delete(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
