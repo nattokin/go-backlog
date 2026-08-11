@@ -38,6 +38,15 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithAssigneeID(0),
 			wantErr: true,
 		},
+		"WithCommentID-valid-1": {
+			option:    o.WithCommentID(1),
+			key:       core.ParamCommentID.Value(),
+			wantValue: 1,
+		},
+		"WithCommentID-invalid-0": {
+			option:  o.WithCommentID(0),
+			wantErr: true,
+		},
 		"WithCount-valid-1": {
 			option:    o.WithCount(1),
 			key:       core.ParamCount.Value(),
@@ -249,6 +258,24 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithPriorityID(0),
 			wantErr: true,
 		},
+		"WithPullRequestCommentID-valid-1": {
+			option:    o.WithPullRequestCommentID(1),
+			key:       core.ParamPullRequestCommentID.Value(),
+			wantValue: 1,
+		},
+		"WithPullRequestCommentID-invalid-0": {
+			option:  o.WithPullRequestCommentID(0),
+			wantErr: true,
+		},
+		"WithPullRequestID-valid-1": {
+			option:    o.WithPullRequestID(1),
+			key:       core.ParamPullRequestID.Value(),
+			wantValue: 1,
+		},
+		"WithPullRequestID-invalid-0": {
+			option:  o.WithPullRequestID(0),
+			wantErr: true,
+		},
 		"WithResolutionID-valid-1": {
 			option:    o.WithResolutionID(1),
 			key:       core.ParamResolutionID.Value(),
@@ -297,6 +324,15 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithUserID-invalid-0": {
 			option:  o.WithUserID(0),
+			wantErr: true,
+		},
+		"WithWikiID-valid-1": {
+			option:    o.WithWikiID(1),
+			key:       core.ParamWikiID.Value(),
+			wantValue: 1,
+		},
+		"WithWikiID-invalid-0": {
+			option:  o.WithWikiID(0),
 			wantErr: true,
 		},
 	}
