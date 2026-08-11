@@ -89,6 +89,16 @@ func TestOptionService_bool(t *testing.T) {
 			key:       core.ParamChartEnabled.Value(),
 			wantValue: true,
 		},
+		"WithExcludeGroupMembers-false": {
+			option:    o.WithExcludeGroupMembers(false),
+			key:       core.ParamExcludeGroupMembers.Value(),
+			wantValue: false,
+		},
+		"WithExcludeGroupMembers-true": {
+			option:    o.WithExcludeGroupMembers(true),
+			key:       core.ParamExcludeGroupMembers.Value(),
+			wantValue: true,
+		},
 		"WithHasDueDate-false": {
 			option:    o.WithHasDueDate(false),
 			key:       core.ParamHasDueDate.Value(),
