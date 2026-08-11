@@ -39,6 +39,16 @@ func TestOptionService_string(t *testing.T) {
 			key:       core.ParamBranch.Value(),
 			wantValue: "feature/foo",
 		},
+		"WithColor-empty": {
+			option:  o.WithColor(""),
+			key:     core.ParamColor.Value(),
+			wantErr: true,
+		},
+		"WithColor-valid": {
+			option:    o.WithColor("#e30000"),
+			key:       core.ParamColor.Value(),
+			wantValue: "#e30000",
+		},
 		"WithComment-empty": {
 			option:    o.WithComment(""),
 			key:       core.ParamComment.Value(),
