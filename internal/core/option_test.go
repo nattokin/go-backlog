@@ -11,6 +11,35 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
+func TestAPIParamOption_Key(t *testing.T) {
+	cases := map[string]struct {
+		option  *core.APIParamOption
+		wantKey string
+	}{
+		"Type-only": {
+			option: &core.APIParamOption{
+				Type: core.ParamKey,
+			},
+			wantKey: core.ParamKey.Value(),
+		},
+		"KeyFunc-overrides-Type": {
+			option: &core.APIParamOption{
+				Type:    core.ParamKey,
+				KeyFunc: func() string { return "customKey" },
+			},
+			wantKey: "customKey",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.wantKey, tc.option.Key())
+		})
+	}
+}
+
 func TestAPIParamOption(t *testing.T) {
 	cases := map[string]struct {
 		option      *core.APIParamOption
@@ -115,6 +144,15 @@ func TestApplyOptions(t *testing.T) {
 			},
 			wantErr:     true,
 			wantErrType: core.ValidationErrors(nil),
+		},
+		"setError": {
+			opts: []*core.APIParamOption{
+				{
+					Type:    core.ParamKey,
+					SetFunc: func(_ url.Values) error { return errors.New("set failed") },
+				},
+			},
+			wantErr: true,
 		},
 		"success": {
 			opts: []*core.APIParamOption{

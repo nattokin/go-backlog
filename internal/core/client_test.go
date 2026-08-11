@@ -362,6 +362,18 @@ func TestClient_method(t *testing.T) {
 			},
 		},
 
+		"DOWNLOAD": {
+			call: func(c *core.Client) (*http.Response, error) {
+				return c.Method.Download(context.Background(), "/path-download", nil)
+			},
+			check: func(t *testing.T, captured *mock.Capture) {
+				assert.Equal(t, "GET", captured.Method)
+				assert.Equal(t, "/api/v2/path-download", captured.URL.Path)
+				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Empty(t, captured.Body)
+			},
+		},
+
 		"POST": {
 			call: func(c *core.Client) (*http.Response, error) {
 				form := url.Values{}
@@ -712,5 +724,113 @@ func TestCheckResponse(t *testing.T) {
 			}
 		})
 
+	}
+}
+
+func TestDecodeResponse(t *testing.T) {
+	type target struct {
+		Name string `json:"name"`
+	}
+
+	cases := map[string]struct {
+		body     string
+		wantErr  bool
+		wantName string
+	}{
+		"success": {
+			body:     `{"name":"test"}`,
+			wantName: "test",
+		},
+		"invalid-json": {
+			body:    `{"name":`,
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			resp := &http.Response{
+				Body: io.NopCloser(strings.NewReader(tc.body)),
+			}
+
+			var v target
+			err := core.DecodeResponse(resp, &v)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantName, v.Name)
+		})
+	}
+}
+
+func TestDownloadResponse(t *testing.T) {
+	cases := map[string]struct {
+		header http.Header
+
+		wantFilename    string
+		wantContentType string
+	}{
+		"filename-and-content-type": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="file.png"`},
+				"Content-Type":        []string{"image/png"},
+			},
+			wantFilename:    "file.png",
+			wantContentType: "image/png",
+		},
+		"content-type-with-charset": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="doc.txt"`},
+				"Content-Type":        []string{"text/plain; charset=utf-8"},
+			},
+			wantFilename:    "doc.txt",
+			wantContentType: "text/plain",
+		},
+		"missing-headers": {
+			header: http.Header{},
+		},
+		"malformed-content-disposition": {
+			header: http.Header{
+				"Content-Disposition": []string{`not a valid header;;;`},
+				"Content-Type":        []string{"image/png"},
+			},
+			wantContentType: "image/png",
+		},
+		"malformed-content-type": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="file.png"`},
+				"Content-Type":        []string{`not a valid header;;;`},
+			},
+			wantFilename: "file.png",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			resp := &http.Response{
+				Header: tc.header,
+				Body:   io.NopCloser(bytes.NewReader([]byte("data"))),
+			}
+
+			got, err := core.DownloadResponse(resp)
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+			require.NotNil(t, got.Body)
+
+			data, err := io.ReadAll(got.Body)
+			require.NoError(t, err)
+			assert.Equal(t, "data", string(data))
+		})
 	}
 }
