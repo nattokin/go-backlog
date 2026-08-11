@@ -44,7 +44,6 @@ func TestService_One(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			wantValidationErrCount: 1,
@@ -54,7 +53,6 @@ func TestService_One(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -162,7 +160,6 @@ func TestService_Create(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectID-zero": {
 			projectID:              0,
 			summary:                "New issue",
@@ -199,7 +196,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectID:              10,
 			summary:                "New issue",
@@ -217,7 +213,6 @@ func TestService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectID:   10,
 			summary:     "New issue",
@@ -235,7 +230,6 @@ func TestService_Create(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectID:   10,
 			summary:     "New issue",
@@ -361,7 +355,6 @@ func TestService_Update(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			option:                 o.WithSummary("x"),
@@ -373,21 +366,18 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			issueIDOrKey:           "PRJ-1",
 			option:                 o.WithAssigneeID(0),
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			issueIDOrKey:           "",
 			option:                 o.WithAssigneeID(0),
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			issueIDOrKey:           "PRJ-1",
 			option:                 o.WithSummary("x"),
@@ -401,14 +391,12 @@ func TestService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			option:       mock.NewInvalidTypeOption(),
 			wantErrType:  &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			option:       o.WithSummary("x"),
@@ -497,7 +485,6 @@ func TestService_Delete(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			wantValidationErrCount: 1,
@@ -507,7 +494,6 @@ func TestService_Delete(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {

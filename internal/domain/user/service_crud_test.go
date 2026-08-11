@@ -58,7 +58,6 @@ func TestUserService_Add(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-userID-empty": {
 			userID:                 "",
 			password:               "password",
@@ -68,7 +67,6 @@ func TestUserService_Add(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed options only ---
 		"error-validation-password-too-short": {
 			userID:                 "admin",
 			password:               "short",
@@ -118,7 +116,6 @@ func TestUserService_Add(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			userID:                 "",
 			password:               "short",
@@ -128,7 +125,6 @@ func TestUserService_Add(t *testing.T) {
 			wantValidationErrCount: 5,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			userID:      "admin",
 			password:    "password",
@@ -212,7 +208,6 @@ func TestUserService_One(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-id-zero": {
 			id:                     0,
 			wantValidationErrCount: 1,
@@ -351,14 +346,12 @@ func TestUserService_Update(t *testing.T) {
 			wantErrType: errors.New(""),
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option-name-empty": {
 			id:                     1,
 			option:                 o.WithName(""),
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: optional opts only ---
 		"error-validation-opt-single": {
 			id:                     1,
 			option:                 o.WithName("admin"),
@@ -372,7 +365,6 @@ func TestUserService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			id:                     1,
 			option:                 o.WithName("admin"),
@@ -386,14 +378,12 @@ func TestUserService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			id:          1,
 			option:      mock.NewInvalidTypeOption(),
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			id:          1,
 			option:      mock.NewFailingSetOption(core.ParamName),
@@ -479,7 +469,6 @@ func TestUserService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-id-zero": {
 			id:                     0,
 			wantValidationErrCount: 1,
@@ -489,7 +478,6 @@ func TestUserService_Delete(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-response-invalid-json": {
 			id: 1,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {

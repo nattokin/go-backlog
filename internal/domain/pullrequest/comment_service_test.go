@@ -74,7 +74,6 @@ func TestCommentService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo",
@@ -120,7 +119,6 @@ func TestCommentService_List(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo",
@@ -136,7 +134,6 @@ func TestCommentService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -145,7 +142,6 @@ func TestCommentService_List(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -267,7 +263,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo",
@@ -304,7 +299,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo",
@@ -322,7 +316,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -332,7 +325,6 @@ func TestCommentService_Add(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -421,7 +413,6 @@ func TestCommentService_Count(t *testing.T) {
 			wantCount: 7,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo",
@@ -459,7 +450,6 @@ func TestCommentService_Count(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
@@ -542,7 +532,6 @@ func TestCommentService_Update(t *testing.T) {
 			wantID: 1,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "repo",
@@ -592,7 +581,6 @@ func TestCommentService_Update(t *testing.T) {
 			wantValidationErrCount: 5,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",

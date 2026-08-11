@@ -58,7 +58,6 @@ func TestService_List(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- fail-fast: nil option among valid values ---
 		"error-nil-option-with-valid-values": {
 			opts:                   []*core.APIParamOption{o.WithAll(true), nil},
 			wantInvalidOptionError: true,
@@ -70,7 +69,6 @@ func TestService_List(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
@@ -80,7 +78,6 @@ func TestService_List(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamAll)},
 			wantErrType: errors.New(""),
@@ -169,7 +166,6 @@ func TestService_DiskUsage(t *testing.T) {
 			wantIssue:     11931,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -179,7 +175,6 @@ func TestService_DiskUsage(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -262,7 +257,6 @@ func TestService_Icon(t *testing.T) {
 			wantContentType: "image/png",
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -272,7 +266,6 @@ func TestService_Icon(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

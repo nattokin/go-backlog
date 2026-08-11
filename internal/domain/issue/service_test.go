@@ -54,7 +54,6 @@ func TestService_Count(t *testing.T) {
 			wantCount: 3,
 		},
 
-		// --- validation errors ---
 		"error-validation-opt-single": {
 			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantValidationErrCount: 1,
@@ -65,7 +64,6 @@ func TestService_Count(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{1}), nil},
 			wantInvalidOptionError: true,
@@ -75,13 +73,11 @@ func TestService_Count(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
@@ -179,7 +175,6 @@ func TestService_Participants(t *testing.T) {
 			wantIDs: []int{},
 		},
 
-		// --- validation errors ---
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
 			wantValidationErrCount: 1,
@@ -189,7 +184,6 @@ func TestService_Participants(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

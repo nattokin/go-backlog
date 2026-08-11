@@ -49,7 +49,6 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-invalid": {
 			wikiID:                 0,
 			attachmentIDs:          []int{1, 2},
@@ -71,7 +70,6 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID:        1234,
 			attachmentIDs: []int{2},
@@ -150,7 +148,6 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			wantValidationErrCount: 1,
@@ -160,7 +157,6 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -239,7 +235,6 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			attachmentID:           8,
@@ -266,7 +261,6 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID:       1234,
 			attachmentID: 8,
@@ -346,7 +340,6 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 			wantContentType: "application/pdf",
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			attachmentID:           20,
@@ -363,7 +356,6 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID:       34,
 			attachmentID: 20,

@@ -174,7 +174,6 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 
-		// --- validation errors ---
 		"error-validation-opt-invalid-projectID": {
 			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantValidationErrCount: 1,
@@ -200,7 +199,6 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{1}), nil},
 			wantInvalidOptionError: true,
@@ -210,13 +208,11 @@ func TestService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type": {
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
 			wantErrType: errors.New(""),

@@ -34,7 +34,6 @@ func TestWikiHistoryService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			wantValidationErrCount: 1,
@@ -44,7 +43,6 @@ func TestWikiHistoryService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {

@@ -34,7 +34,6 @@ func TestService_One(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			wantValidationErrCount: 1,
@@ -44,7 +43,6 @@ func TestService_One(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			wikiID: 112,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -138,7 +136,6 @@ func TestService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-name-empty": {
 			projectID:              1,
 			name:                   "",
@@ -158,7 +155,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectID-zero": {
 			projectID:              0,
 			name:                   "Test",
@@ -166,7 +162,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all (argument + fixed options) ---
 		"error-validation-all": {
 			projectID:              0,
 			name:                   "",
@@ -174,7 +169,6 @@ func TestService_Create(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectID:              1,
 			name:                   "Test",
@@ -190,7 +184,6 @@ func TestService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectID:   1,
 			name:        "Test",
@@ -206,7 +199,6 @@ func TestService_Create(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectID:   1,
 			name:        "Test",
@@ -341,7 +333,6 @@ func TestService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			option:                 o.WithName("x"),
@@ -353,7 +344,6 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option-only (single invalid option) ---
 		"error-validation-opt-single": {
 			wikiID:                 34,
 			option:                 o.WithMailNotify(true),
@@ -366,7 +356,6 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option-only (multiple invalid options) ---
 		"error-validation-opt-multiple": {
 			wikiID:                 34,
 			option:                 o.WithMailNotify(true),
@@ -374,7 +363,6 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all (argument + options) ---
 		"error-validation-all": {
 			wikiID:                 0,
 			option:                 o.WithName(""),
@@ -382,14 +370,12 @@ func TestService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- validation errors: no name/content provided ---
 		"error-validation-no-name-or-content": {
 			wikiID:                 34,
 			option:                 o.WithMailNotify(true),
 			wantValidationErrCount: 1,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			wikiID:                 34,
 			option:                 o.WithName("x"),
@@ -403,7 +389,6 @@ func TestService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			wikiID:      34,
 			option:      o.WithName("x"),
@@ -417,7 +402,6 @@ func TestService_Update(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			wikiID:      34,
 			option:      o.WithName("x"),
@@ -517,7 +501,6 @@ func TestService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-wikiID-zero": {
 			wikiID:                 0,
 			wantValidationErrCount: 1,
@@ -527,34 +510,29 @@ func TestService_Delete(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option only ---
 		"error-option-validation-with-valid-arg": {
 			wikiID:                 1,
 			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamMailNotify)},
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: option + argument ---
 		"error-validation-all": {
 			wikiID:                 0,
 			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamMailNotify)},
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option among valid values ---
 		"error-nil-option-with-valid-values": {
 			wikiID:                 1,
 			opts:                   []*core.APIParamOption{o.WithMailNotify(true), nil},
 			wantInvalidOptionError: true,
 		},
-		// --- fail-fast: nil option among invalid values ---
 		"error-nil-option-with-invalid-values": {
 			wikiID:                 0,
 			opts:                   []*core.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			wikiID:      1,
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
@@ -566,7 +544,6 @@ func TestService_Delete(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			wikiID:      1,
 			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},

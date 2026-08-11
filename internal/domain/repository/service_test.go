@@ -41,7 +41,6 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{5, 6},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -51,7 +50,6 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: testProject,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -129,7 +127,6 @@ func TestService_One(t *testing.T) {
 			wantName: "foo",
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			repoIDOrName:           testRepo,
@@ -156,7 +153,6 @@ func TestService_One(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: testProject,
 			repoIDOrName:   testRepo,

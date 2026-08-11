@@ -107,7 +107,6 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -127,7 +126,6 @@ func TestActivityService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
@@ -139,7 +137,6 @@ func TestActivityService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
@@ -151,7 +148,6 @@ func TestActivityService_List(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},

@@ -34,7 +34,6 @@ func TestWebhookService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -44,7 +43,6 @@ func TestWebhookService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			wantErrType:    errors.New(""),
@@ -170,7 +168,6 @@ func TestWebhookService_Add(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			name:                   "webhook",
@@ -179,7 +176,6 @@ func TestWebhookService_Add(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed options only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			name:                   "",
@@ -202,7 +198,6 @@ func TestWebhookService_Add(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			name:                   "",
@@ -211,7 +206,6 @@ func TestWebhookService_Add(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			name:                   "webhook",
@@ -227,7 +221,6 @@ func TestWebhookService_Add(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			name:           "webhook",
@@ -243,7 +236,6 @@ func TestWebhookService_Add(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			name:           "webhook",
@@ -334,7 +326,6 @@ func TestWebhookService_One(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			webhookID:              1,
@@ -356,7 +347,6 @@ func TestWebhookService_One(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -469,7 +459,6 @@ func TestWebhookService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			webhookID:              1,
@@ -489,7 +478,6 @@ func TestWebhookService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option-hookURL-empty": {
 			projectIDOrKey:         "TEST",
 			webhookID:              1,
@@ -505,7 +493,6 @@ func TestWebhookService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			webhookID:              0,
@@ -514,7 +501,6 @@ func TestWebhookService_Update(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			webhookID:              1,
@@ -530,7 +516,6 @@ func TestWebhookService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -545,7 +530,6 @@ func TestWebhookService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
@@ -632,7 +616,6 @@ func TestWebhookService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			webhookID:              1,
@@ -654,7 +637,6 @@ func TestWebhookService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,

@@ -96,7 +96,6 @@ func TestUserActivityService_List(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-userID-zero": {
 			userID:                 0,
 			wantValidationErrCount: 1,
@@ -116,7 +115,6 @@ func TestUserActivityService_List(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			userID:                 1234,
 			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
@@ -128,7 +126,6 @@ func TestUserActivityService_List(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			userID:      1234,
 			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
@@ -140,7 +137,6 @@ func TestUserActivityService_List(t *testing.T) {
 			wantErrType: &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-option-set-failed": {
 			userID:      1234,
 			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},

@@ -44,7 +44,6 @@ func TestCustomFieldService_List(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -54,7 +53,6 @@ func TestCustomFieldService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -144,7 +142,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			fieldType:              1,
@@ -152,7 +149,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed options only ---
 		"error-validation-fieldType-zero": {
 			projectIDOrKey:         "TEST",
 			fieldType:              0,
@@ -172,7 +168,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			fieldType:              0,
@@ -180,7 +175,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			fieldType:              1,
@@ -196,7 +190,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
@@ -212,7 +205,6 @@ func TestCustomFieldService_Create(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
@@ -313,7 +305,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			customFieldID:          1,
@@ -327,7 +318,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			projectIDOrKey:         "TEST",
 			customFieldID:          1,
@@ -335,7 +325,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			customFieldID:          0,
@@ -343,7 +332,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			customFieldID:          1,
@@ -359,7 +347,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
@@ -373,7 +360,6 @@ func TestCustomFieldService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
@@ -456,7 +442,6 @@ func TestCustomFieldService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			customFieldID:          1,
@@ -473,7 +458,6 @@ func TestCustomFieldService_Delete(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,

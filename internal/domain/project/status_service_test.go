@@ -44,7 +44,6 @@ func TestStatusService_List(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			wantValidationErrCount: 1,
@@ -54,7 +53,6 @@ func TestStatusService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -129,7 +127,6 @@ func TestStatusService_Create(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			name:                   "Open",
@@ -143,7 +140,6 @@ func TestStatusService_Create(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed options only ---
 		"error-validation-name-empty": {
 			projectIDOrKey:         "TEST",
 			name:                   "",
@@ -163,7 +159,6 @@ func TestStatusService_Create(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			name:                   "",
@@ -171,7 +166,6 @@ func TestStatusService_Create(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			name:           "Open",
@@ -257,7 +251,6 @@ func TestStatusService_Update(t *testing.T) {
 			},
 		},
 
-		// --- validation errors: argument only ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			statusID:               1,
@@ -271,7 +264,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: fixed option only ---
 		"error-validation-fixed-option": {
 			projectIDOrKey:         "TEST",
 			statusID:               1,
@@ -279,7 +271,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: optional opts only ---
 		"error-validation-opt-single": {
 			projectIDOrKey:         "TEST",
 			statusID:               1,
@@ -288,7 +279,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 
-		// --- validation errors: all ---
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			statusID:               0,
@@ -297,7 +287,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- fail-fast: nil option ---
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
 			statusID:               1,
@@ -313,7 +302,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
-		// --- fail-fast: invalid option key ---
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
@@ -327,7 +315,6 @@ func TestStatusService_Update(t *testing.T) {
 			wantErrType:    &core.InvalidOptionKeyError{},
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			statusID:       1,
@@ -413,7 +400,6 @@ func TestStatusService_Delete(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			statusID:               1,
@@ -439,7 +425,6 @@ func TestStatusService_Delete(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey:     "TEST",
 			statusID:           1,
@@ -517,7 +502,6 @@ func TestStatusService_UpdateOrder(t *testing.T) {
 			wantLen: 2,
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			statusIDs:              []int{1, 2},
@@ -544,7 +528,6 @@ func TestStatusService_UpdateOrder(t *testing.T) {
 			wantValidationErrCount: 2,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			statusIDs:      []int{1, 2},

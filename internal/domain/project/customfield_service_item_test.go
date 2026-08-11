@@ -39,7 +39,6 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			customFieldID:          1,
@@ -65,7 +64,6 @@ func TestCustomFieldService_AddListItem(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
@@ -145,7 +143,6 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			customFieldID:          1,
@@ -182,7 +179,6 @@ func TestCustomFieldService_UpdateListItem(t *testing.T) {
 			wantValidationErrCount: 4,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
@@ -261,7 +257,6 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 			},
 		},
 
-		// --- validation errors ---
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
 			customFieldID:          1,
@@ -287,7 +282,6 @@ func TestCustomFieldService_DeleteListItem(t *testing.T) {
 			wantValidationErrCount: 3,
 		},
 
-		// --- other errors ---
 		"error-client-network": {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
