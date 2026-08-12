@@ -34,13 +34,11 @@ func TestSharedFileService_List(t *testing.T) {
 		"error-wikiID-zero": {
 			wikiID:      0,
 			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-wikiID-negative": {
 			wikiID:      -1,
 			expectError: true,
-			mockGetFn:   mock.NewUnexpectedGetFn(t),
 		},
 
 		"error-client": {
@@ -65,7 +63,9 @@ func TestSharedFileService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := wiki.NewSharedFileService(method)
 
 			files, err := s.List(context.Background(), tc.wikiID)
@@ -122,21 +122,18 @@ func TestSharedFileService_Link(t *testing.T) {
 			wikiID:      0,
 			fileIDs:     []int{1},
 			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-fileIDs-empty": {
 			wikiID:      1,
 			fileIDs:     []int{},
 			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-fileIDs-invalid": {
 			wikiID:      1,
 			fileIDs:     []int{0, 1},
 			expectError: true,
-			mockPostFn:  mock.NewUnexpectedPostFn(t),
 		},
 
 		"error-client": {
@@ -163,7 +160,9 @@ func TestSharedFileService_Link(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Post = tc.mockPostFn
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
 			s := wiki.NewSharedFileService(method)
 
 			files, err := s.Link(context.Background(), tc.wikiID, tc.fileIDs)
@@ -205,31 +204,27 @@ func TestSharedFileService_Unlink(t *testing.T) {
 		},
 
 		"error-wikiID-zero": {
-			wikiID:       0,
-			fileID:       454403,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+			wikiID:      0,
+			fileID:      454403,
+			expectError: true,
 		},
 
 		"error-wikiID-negative": {
-			wikiID:       -1,
-			fileID:       454403,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+			wikiID:      -1,
+			fileID:      454403,
+			expectError: true,
 		},
 
 		"error-fileID-zero": {
-			wikiID:       1,
-			fileID:       0,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+			wikiID:      1,
+			fileID:      0,
+			expectError: true,
 		},
 
 		"error-fileID-negative": {
-			wikiID:       1,
-			fileID:       -1,
-			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
+			wikiID:      1,
+			fileID:      -1,
+			expectError: true,
 		},
 
 		"error-client": {
@@ -256,7 +251,9 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 			s := wiki.NewSharedFileService(method)
 
 			file, err := s.Unlink(context.Background(), tc.wikiID, tc.fileID)
