@@ -834,3 +834,59 @@ func TestDownloadResponse(t *testing.T) {
 		})
 	}
 }
+
+func TestError_Error(t *testing.T) {
+	e := &core.Error{
+		Message:  "No project.",
+		Code:     6,
+		MoreInfo: "more info",
+	}
+	want := "Message:No project., Code:6, MoreInfo:more info"
+
+	assert.Equal(t, want, e.Error())
+}
+
+func TestAPIResponseError_Error(t *testing.T) {
+	e := &core.APIResponseError{
+		StatusCode: 404,
+		Errors: []*core.Error{
+			{
+				Message:  "1st error",
+				Code:     5,
+				MoreInfo: "more info 1",
+			},
+			{
+				Message:  "2nd error",
+				Code:     9,
+				MoreInfo: "more info 2",
+			},
+		},
+	}
+	want := "Status Code:404\nMessage:1st error, Code:5, MoreInfo:more info 1\nMessage:2nd error, Code:9, MoreInfo:more info 2"
+
+	assert.Equal(t, want, e.Error())
+}
+
+func TestAPIResponseError_errorsAs(t *testing.T) {
+	resp := &http.Response{
+		StatusCode: 404,
+		Body:       nil,
+	}
+	_, err := core.CheckResponse(resp)
+	require.Error(t, err)
+
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.APIResponseError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, 404, target.StatusCode)
+}
+
+func TestInternalClientError_errorsAs(t *testing.T) {
+	err := core.NewInternalClientError("missing token")
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.InternalClientError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, "missing token", target.Error())
+}
