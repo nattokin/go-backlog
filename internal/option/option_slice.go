@@ -14,7 +14,7 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
 		Type: ParamActivityTypeIDs,
 		CheckFunc: func() *core.ValidationError {
 			for _, id := range typeIDs {
-				if ve := validate.ValidateActivityTypeID("activityTypeIds", id, MaxActivityTypeID); ve != nil {
+				if ve := validate.ValidateIntRange("activityTypeIds", id, 1, MaxActivityTypeID); ve != nil {
 					return ve
 				}
 			}
