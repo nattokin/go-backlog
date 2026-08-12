@@ -39,12 +39,10 @@ func TestSharedFileService_List(t *testing.T) {
 		"error-issueIDOrKey-empty": {
 			issueIDOrKey: "",
 			expectError:  true,
-			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
 		"error-issueIDOrKey-zero": {
 			issueIDOrKey: "0",
 			expectError:  true,
-			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -74,7 +72,9 @@ func TestSharedFileService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := issue.NewSharedFileService(method)
 
 			files, err := s.List(context.Background(), tc.issueIDOrKey)
@@ -126,19 +126,16 @@ func TestSharedFileService_Link(t *testing.T) {
 			issueIDOrKey: "",
 			fileIDs:      []int{1},
 			expectError:  true,
-			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 		"error-fileIDs-empty": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{},
 			expectError:  true,
-			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 		"error-fileIDs-invalid": {
 			issueIDOrKey: "TEST-1",
 			fileIDs:      []int{0, 1},
 			expectError:  true,
-			mockPostFn:   mock.NewUnexpectedPostFn(t),
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -171,7 +168,9 @@ func TestSharedFileService_Link(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Post = tc.mockPostFn
+			if tc.mockPostFn != nil {
+				method.Post = tc.mockPostFn
+			}
 			s := issue.NewSharedFileService(method)
 
 			files, err := s.Link(context.Background(), tc.issueIDOrKey, tc.fileIDs)
@@ -212,25 +211,21 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			issueIDOrKey: "",
 			fileID:       454403,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-issueIDOrKey-zero": {
 			issueIDOrKey: "0",
 			fileID:       454403,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-fileID-zero": {
 			issueIDOrKey: "TEST-1",
 			fileID:       0,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-fileID-negative": {
 			issueIDOrKey: "TEST-1",
 			fileID:       -1,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -263,7 +258,9 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 			s := issue.NewSharedFileService(method)
 
 			file, err := s.Unlink(context.Background(), tc.issueIDOrKey, tc.fileID)
