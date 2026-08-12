@@ -31,13 +31,6 @@ type NotificationInfo struct {
 	Type string `json:"type,omitempty"`
 }
 
-// Category represents a project category.
-type Category struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
-
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
 	Field            string            `json:"field,omitempty"`
@@ -58,25 +51,6 @@ type Comment struct {
 	Updated       time.Time       `json:"updated,omitempty"`
 	Stars         []*Star         `json:"stars,omitempty"`
 	Notifications []*Notification `json:"notifications,omitempty"`
-}
-
-// CustomField represents a custom field defined in the project.
-type CustomField struct {
-	ID                     int                `json:"id,omitempty"`
-	TypeID                 int                `json:"typeId,omitempty"`
-	Name                   string             `json:"name,omitempty"`
-	Description            string             `json:"description,omitempty"`
-	Required               bool               `json:"required,omitempty"`
-	ApplicableIssueTypeIDs []int              `json:"applicableIssueTypes,omitempty"`
-	AllowAddItem           bool               `json:"allowAddItem,omitempty"`
-	Items                  []*CustomFieldItem `json:"items,omitempty"`
-}
-
-// CustomFieldItem represents one selectable item in a List type CustomField.
-type CustomFieldItem struct {
-	ID           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
 }
 
 // DiskUsageBase holds the common disk usage breakdown shared by space and project.
@@ -163,25 +137,6 @@ type SharedFile struct {
 	Updated     time.Time `json:"updated,omitempty"`
 }
 
-// Star represents a star attached to an issue, comment, or wiki page.
-type Star struct {
-	ID        int       `json:"id,omitempty"`
-	Comment   string    `json:"comment,omitempty"`
-	URL       string    `json:"url,omitempty"`
-	Title     string    `json:"title,omitempty"`
-	Presenter *User     `json:"presenter,omitempty"`
-	Created   time.Time `json:"created,omitempty"`
-}
-
-// Status represents a project status that can be assigned to issues.
-type Status struct {
-	ID           int    `json:"id,omitempty"`
-	ProjectID    int    `json:"projectId,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Color        string `json:"color,omitempty"`
-	DisplayOrder int    `json:"displayOrder,omitempty"`
-}
-
 // Tag represents a tag attached to a wiki page.
 type Tag struct {
 	ID   int    `json:"id,omitempty"`
@@ -198,18 +153,6 @@ type Team struct {
 	Created      time.Time `json:"created,omitempty"`
 	UpdatedUser  *User     `json:"updatedUser,omitempty"`
 	Updated      time.Time `json:"updated,omitempty"`
-}
-
-// Version represents a project version (milestone).
-type Version struct {
-	ID             int    `json:"id,omitempty"`
-	ProjectID      int    `json:"projectId,omitempty"`
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
-	StartDate      string `json:"startDate,omitempty"`
-	ReleaseDueDate string `json:"releaseDueDate,omitempty"`
-	Archived       bool   `json:"archived,omitempty"`
-	DisplayOrder   int    `json:"displayOrder,omitempty"`
 }
 
 // Watching represents an entry in a user's watching list.
