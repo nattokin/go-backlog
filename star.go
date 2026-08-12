@@ -5,7 +5,22 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/star"
+	"github.com/nattokin/go-backlog/internal/model"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  Star models
+// ──────────────────────────────────────────────────────────────
+
+// Star represents a star added to an issue, wiki page, or pull request.
+type Star struct {
+	ID        int
+	Comment   string
+	URL       string
+	Title     string
+	Presenter *User
+	Created   Timestamp
+}
 
 // ──────────────────────────────────────────────────────────────
 //  StarService
@@ -84,4 +99,33 @@ func newStarService(method *core.Method, option *core.OptionService) *StarServic
 		base:   star.NewService(method),
 		Option: &StarOptionService{base: option},
 	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func starFromModel(m *model.Star) *Star {
+	if m == nil {
+		return nil
+	}
+	return &Star{
+		ID:        m.ID,
+		Comment:   m.Comment,
+		URL:       m.URL,
+		Title:     m.Title,
+		Presenter: userFromModel(m.Presenter),
+		Created:   Timestamp{m.Created},
+	}
+}
+
+func starsFromModel(ms []*model.Star) []*Star {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Star, len(ms))
+	for i, v := range ms {
+		result[i] = starFromModel(v)
+	}
+	return result
 }

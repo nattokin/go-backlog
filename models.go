@@ -35,13 +35,6 @@ type ActivityContent struct {
 	Comment     *Comment
 }
 
-// Category represents a project category.
-type Category struct {
-	ID           int
-	Name         string
-	DisplayOrder int
-}
-
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
 	Field          string
@@ -70,25 +63,6 @@ type Comment struct {
 	Updated       Timestamp
 	Stars         []*Star
 	Notifications []*Notification
-}
-
-// CustomField represents a custom field defined in the project.
-type CustomField struct {
-	ID                     int
-	TypeID                 int
-	Name                   string
-	Description            string
-	Required               bool
-	ApplicableIssueTypeIDs []int
-	AllowAddItem           bool
-	Items                  []*CustomFieldItem
-}
-
-// CustomFieldItem represents one item in a list type [CustomField].
-type CustomFieldItem struct {
-	ID           int
-	Name         string
-	DisplayOrder int
 }
 
 // FileData represents a downloaded binary file with its metadata.
@@ -163,25 +137,6 @@ type SharedFile struct {
 	Created     Timestamp
 	UpdatedUser *User
 	Updated     Timestamp
-}
-
-// Star represents a star added to an issue, wiki page, or pull request.
-type Star struct {
-	ID        int
-	Comment   string
-	URL       string
-	Title     string
-	Presenter *User
-	Created   Timestamp
-}
-
-// Status represents a project status that can be assigned to issues.
-type Status struct {
-	ID           int
-	ProjectID    int
-	Name         string
-	Color        string
-	DisplayOrder int
 }
 
 // Tag represents a tag attached to a wiki page.
@@ -270,28 +225,6 @@ func activitiesFromModel(ms []*model.Activity) []*Activity {
 	return result
 }
 
-func categoryFromModel(m *model.Category) *Category {
-	if m == nil {
-		return nil
-	}
-	return &Category{
-		ID:           m.ID,
-		Name:         m.Name,
-		DisplayOrder: m.DisplayOrder,
-	}
-}
-
-func categoriesFromModel(ms []*model.Category) []*Category {
-	if ms == nil {
-		return nil
-	}
-	result := make([]*Category, len(ms))
-	for i, v := range ms {
-		result[i] = categoryFromModel(v)
-	}
-	return result
-}
-
 func changeLogFromModel(m *model.ChangeLog) *ChangeLog {
 	if m == nil {
 		return nil
@@ -329,31 +262,6 @@ func changeLogFromModel(m *model.ChangeLog) *ChangeLog {
 	return out
 }
 
-func starFromModel(m *model.Star) *Star {
-	if m == nil {
-		return nil
-	}
-	return &Star{
-		ID:        m.ID,
-		Comment:   m.Comment,
-		URL:       m.URL,
-		Title:     m.Title,
-		Presenter: userFromModel(m.Presenter),
-		Created:   Timestamp{m.Created},
-	}
-}
-
-func starsFromModel(ms []*model.Star) []*Star {
-	if ms == nil {
-		return nil
-	}
-	result := make([]*Star, len(ms))
-	for i, v := range ms {
-		result[i] = starFromModel(v)
-	}
-	return result
-}
-
 func attachmentFromModel(m *model.Attachment) *Attachment {
 	if m == nil {
 		return nil
@@ -374,48 +282,6 @@ func attachmentsFromModel(m []*model.Attachment) []*Attachment {
 	result := make([]*Attachment, len(m))
 	for i, v := range m {
 		result[i] = attachmentFromModel(v)
-	}
-	return result
-}
-
-func customFieldItemFromModel(m *model.CustomFieldItem) *CustomFieldItem {
-	if m == nil {
-		return nil
-	}
-	return &CustomFieldItem{
-		ID:           m.ID,
-		Name:         m.Name,
-		DisplayOrder: m.DisplayOrder,
-	}
-}
-
-func customFieldFromModel(m *model.CustomField) *CustomField {
-	if m == nil {
-		return nil
-	}
-	items := make([]*CustomFieldItem, len(m.Items))
-	for i, v := range m.Items {
-		items[i] = customFieldItemFromModel(v)
-	}
-	return &CustomField{
-		ID:                     m.ID,
-		TypeID:                 m.TypeID,
-		Name:                   m.Name,
-		Description:            m.Description,
-		Required:               m.Required,
-		ApplicableIssueTypeIDs: m.ApplicableIssueTypeIDs,
-		AllowAddItem:           m.AllowAddItem,
-		Items:                  items,
-	}
-}
-
-func customFieldsFromModel(m []*model.CustomField) []*CustomField {
-	if m == nil {
-		return nil
-	}
-	result := make([]*CustomField, len(m))
-	for i, v := range m {
-		result[i] = customFieldFromModel(v)
 	}
 	return result
 }
@@ -488,30 +354,6 @@ func sharedFilesFromModel(m []*model.SharedFile) []*SharedFile {
 	result := make([]*SharedFile, len(m))
 	for i, v := range m {
 		result[i] = sharedFileFromModel(v)
-	}
-	return result
-}
-
-func statusFromModel(m *model.Status) *Status {
-	if m == nil {
-		return nil
-	}
-	return &Status{
-		ID:           m.ID,
-		ProjectID:    m.ProjectID,
-		Name:         m.Name,
-		Color:        m.Color,
-		DisplayOrder: m.DisplayOrder,
-	}
-}
-
-func statusesFromModel(ms []*model.Status) []*Status {
-	if ms == nil {
-		return nil
-	}
-	result := make([]*Status, len(ms))
-	for i, v := range ms {
-		result[i] = statusFromModel(v)
 	}
 	return result
 }
