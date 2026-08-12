@@ -2,6 +2,7 @@ package core_test
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"testing"
 
@@ -290,4 +291,55 @@ func TestMergeValidationErrors(t *testing.T) {
 			assert.Len(t, ves, tc.wantValidationErrCount)
 		})
 	}
+}
+
+func TestInvalidOptionKeyError_Error_form(t *testing.T) {
+	e := &core.InvalidOptionKeyError{
+		Invalid: core.ParamKey.Value(),
+		ValidList: []string{
+			core.ParamName.Value(),
+			core.ParamKey.Value(),
+			core.ParamChartEnabled.Value(),
+		},
+	}
+	assert.EqualError(t, e, "invalid option key:key, allowed option keys:name,key,chartEnabled")
+}
+
+func TestInvalidOptionKeyError_Error_query(t *testing.T) {
+	e := &core.InvalidOptionKeyError{
+		Invalid: core.ParamActivityTypeIDs.Value(),
+		ValidList: []string{
+			core.ParamAll.Value(),
+			core.ParamArchived.Value(),
+			core.ParamOrder.Value(),
+		},
+	}
+	assert.EqualError(t, e, "invalid option key:activityTypeId[], allowed option keys:all,archived,order")
+}
+
+func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
+	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []core.APIParamOptionType{core.ParamAll, core.ParamArchived})
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.InvalidOptionKeyError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, core.ParamActivityTypeIDs.Value(), target.Invalid)
+}
+
+func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
+	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []core.APIParamOptionType{core.ParamName, core.ParamChartEnabled})
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.InvalidOptionKeyError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, core.ParamKey.Value(), target.Invalid)
+}
+
+func TestInvalidOptionError_errorsAs(t *testing.T) {
+	err := core.NewInvalidOptionError("nil option is not allowed")
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *core.InvalidOptionError
+	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, "nil option is not allowed", target.Error())
 }
