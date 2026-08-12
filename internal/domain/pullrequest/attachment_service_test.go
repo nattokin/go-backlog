@@ -42,21 +42,18 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			repositoryIDOrName: "1",
 			prNumber:           1,
 			expectError:        true,
-			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 		"error-invalid-repository": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "0",
 			prNumber:           1,
 			expectError:        true,
-			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
 			repositoryIDOrName: "1",
 			prNumber:           0,
 			expectError:        true,
-			mockGetFn:          mock.NewUnexpectedGetFn(t),
 		},
 		"error-client": {
 			projectIDOrKey:     "1234",
@@ -83,7 +80,9 @@ func TestPullRequestAttachmentService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := pullrequest.NewAttachmentService(method)
 
 			attachments, err := s.List(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber)
@@ -133,7 +132,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-invalid-repository": {
 			projectIDOrKey:     "1",
@@ -141,7 +139,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-invalid-prNumber": {
 			projectIDOrKey:     "1",
@@ -149,7 +146,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           0,
 			attachmentID:       8,
 			expectError:        true,
-			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-invalid-attachmentID": {
 			projectIDOrKey:     "1",
@@ -157,7 +153,6 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			prNumber:           1,
 			attachmentID:       0,
 			expectError:        true,
-			mockDeleteFn:       mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-client": {
 			projectIDOrKey:     "1234",
@@ -186,7 +181,9 @@ func TestPullRequestAttachmentService_Remove(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 			s := pullrequest.NewAttachmentService(method)
 
 			attachment, err := s.Remove(context.Background(), tc.projectIDOrKey, tc.repositoryIDOrName, tc.prNumber, tc.attachmentID)

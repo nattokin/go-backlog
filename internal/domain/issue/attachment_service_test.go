@@ -36,7 +36,6 @@ func TestIssueAttachmentService_List(t *testing.T) {
 		"error-invalid-issueIDOrKey": {
 			issueIDOrKey: "0",
 			expectError:  true,
-			mockGetFn:    mock.NewUnexpectedGetFn(t),
 		},
 		"error-client": {
 			issueIDOrKey: "1234",
@@ -66,7 +65,9 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Get = tc.mockGetFn
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
 			s := issue.NewAttachmentService(method)
 
 			attachments, err := s.List(context.Background(), tc.issueIDOrKey)
@@ -110,13 +111,11 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			issueIDOrKey: "",
 			attachmentID: 8,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-attachmentID-zero": {
 			issueIDOrKey: "test",
 			attachmentID: 0,
 			expectError:  true,
-			mockDeleteFn: mock.NewUnexpectedDeleteFn(t),
 		},
 		"error-client": {
 			issueIDOrKey: "1234",
@@ -149,7 +148,9 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			t.Parallel()
 
 			method := mock.NewMethod(t)
-			method.Delete = tc.mockDeleteFn
+			if tc.mockDeleteFn != nil {
+				method.Delete = tc.mockDeleteFn
+			}
 			s := issue.NewAttachmentService(method)
 
 			attachment, err := s.Remove(context.Background(), tc.issueIDOrKey, tc.attachmentID)
