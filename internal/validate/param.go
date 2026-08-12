@@ -41,15 +41,7 @@ func ValidatePositiveInts(field string, values []int) *core.ValidationError {
 // ValidateIntRange validates that value is within [min, max].
 func ValidateIntRange(field string, value, min, max int) *core.ValidationError {
 	if value < min || value > max {
-		return core.NewValidationError(field, fmt.Sprintf("%s must be between %d and %d", field, min, max))
-	}
-	return nil
-}
-
-// ValidateActivityTypeID validates that id is a valid Backlog activity type ID (1..max).
-func ValidateActivityTypeID(field string, id, max int) *core.ValidationError {
-	if id < 1 || id > max {
-		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be between 1 and %d", field, max))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be between %d and %d", field, min, max))
 	}
 	return nil
 }
