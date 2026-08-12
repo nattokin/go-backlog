@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -18,16 +19,16 @@ type Service struct {
 // Add adds a star to a resource (issue, comment, wiki page, pull request, or pull request comment).
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
-func (s *Service) Add(ctx context.Context, option *core.APIParamOption) error {
+func (s *Service) Add(ctx context.Context, opt *option.APIParamOption) error {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamIssueID,
-		core.ParamCommentID,
-		core.ParamWikiID,
-		core.ParamPullRequestID,
-		core.ParamPullRequestCommentID,
+	validTypes := []option.APIParamOptionType{
+		option.ParamIssueID,
+		option.ParamCommentID,
+		option.ParamWikiID,
+		option.ParamPullRequestID,
+		option.ParamPullRequestCommentID,
 	}
-	if err := core.ApplyOptions(form, validTypes, option); err != nil {
+	if err := option.ApplyOptions(form, validTypes, opt); err != nil {
 		return err
 	}
 

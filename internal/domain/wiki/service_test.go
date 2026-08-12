@@ -13,16 +13,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -40,7 +41,7 @@ func TestService_List(t *testing.T) {
 		},
 		"success-with-option": {
 			projectIDOrKey: "PRJ_KEY",
-			opts:           []*core.APIParamOption{o.WithKeyword("test")},
+			opts:           []*option.APIParamOption{o.WithKeyword("test")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
@@ -60,41 +61,41 @@ func TestService_List(t *testing.T) {
 
 		"error-option-validation-with-valid-arg": {
 			projectIDOrKey:         "PRJ",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamKeyword)},
 			wantValidationErrCount: 1,
 		},
 
 		"error-validation-all": {
 			projectIDOrKey:         "",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamKeyword)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamKeyword)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
-			opts:                   []*core.APIParamOption{o.WithKeyword("test"), nil},
+			opts:                   []*option.APIParamOption{o.WithKeyword("test"), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "PRJ",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectIDOrKey: "PRJ",
-			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
+			opts:           []*option.APIParamOption{mock.NewFailingSetOption(option.ParamKeyword)},
 			wantErrType:    errors.New(""),
 		},
 		"error-client-network": {
@@ -128,7 +129,7 @@ func TestService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, wikis)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

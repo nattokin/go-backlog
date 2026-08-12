@@ -10,6 +10,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -20,15 +21,15 @@ type Service struct {
 // List returns a list of wiki pages in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
-func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.Wiki, error) {
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamKeyword}
+	validTypes := []option.APIParamOptionType{option.ParamKeyword}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validTypes, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -104,17 +105,17 @@ func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 // Create creates a new wiki page in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/create-wiki-page
-func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...*core.APIParamOption) (*model.Wiki, error) {
-	option := &core.OptionService{}
+func (s *Service) Create(ctx context.Context, projectID int, name, content string, opts ...*option.APIParamOption) (*model.Wiki, error) {
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]*core.APIParamOption{option.WithName(name), option.WithContent(content)}, opts...)
+	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamContent, option.ParamMailNotify}
+	options := append([]*option.APIParamOption{optSvc.WithName(name), optSvc.WithContent(content)}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -136,25 +137,25 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 // Update updates an existing wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
-func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Wiki, error) {
+func (s *Service) Update(ctx context.Context, wikiID int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Wiki, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamContent, core.ParamMailNotify}
-	options := append([]*core.APIParamOption{option}, opts...)
+	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamContent, option.ParamMailNotify}
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
 		var optVes core.ValidationErrors
 		if !errors.As(err, &optVes) {
 			return nil, err
 		}
 		ves = append(ves, optVes...)
 	}
-	// Only check name/content presence when there are no option errors.
+	// Only check name/content presence when there are no opt errors.
 	if len(ves) == 0 && !form.Has("name") && !form.Has("content") {
-		ves = append(ves, core.NewValidationError("", "requires an option to modify wiki content or name (WithName or WithContent)"))
+		ves = append(ves, core.NewValidationError("", "requires an opt to modify wiki content or name (WithName or WithContent)"))
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -177,15 +178,15 @@ func (s *Service) Update(ctx context.Context, wikiID int, option *core.APIParamO
 // Delete deletes a wiki page by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
-func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*core.APIParamOption) (*model.Wiki, error) {
+func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*option.APIParamOption) (*model.Wiki, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamMailNotify}
+	validTypes := []option.APIParamOptionType{option.ParamMailNotify}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, opts...)); err != nil {
 		return nil, err
 	}
 

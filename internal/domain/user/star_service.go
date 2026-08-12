@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -19,15 +20,15 @@ type StarService struct {
 // List returns a list of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
-func (s *StarService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Star, error) {
+func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIParamOption) ([]*model.Star, error) {
 	query := url.Values{}
-	validOptionKeys := []core.APIParamOptionType{core.ParamMinID, core.ParamMaxID, core.ParamCount, core.ParamOrder}
+	validOptionKeys := []option.APIParamOptionType{option.ParamMinID, option.ParamMaxID, option.ParamCount, option.ParamOrder}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validOptionKeys, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validOptionKeys, opts...)); err != nil {
 		return nil, err
 	}
 

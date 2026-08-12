@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -224,13 +225,13 @@ func TestStatusService_Create(t *testing.T) {
 }
 
 func TestStatusService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		statusID       int
-		option         *core.APIParamOption
-		opts           []*core.APIParamOption
+		option         *option.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -242,7 +243,7 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			statusID:       1,
 			option:         o.WithName("Open Updated"),
-			opts:           []*core.APIParamOption{o.WithColor("#f5ab35")},
+			opts:           []*option.APIParamOption{o.WithColor("#f5ab35")},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/statuses/1", spath)
 				assert.Equal(t, "Open Updated", form.Get("name"))
@@ -275,7 +276,7 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			statusID:               1,
 			option:                 o.WithName("Open"),
-			opts:                   []*core.APIParamOption{o.WithColor("")},
+			opts:                   []*option.APIParamOption{o.WithColor("")},
 			wantValidationErrCount: 1,
 		},
 
@@ -283,7 +284,7 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey:         "",
 			statusID:               0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{o.WithColor("")},
+			opts:                   []*option.APIParamOption{o.WithColor("")},
 			wantValidationErrCount: 4,
 		},
 
@@ -291,14 +292,14 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			statusID:               1,
 			option:                 o.WithName("Open"),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			statusID:               0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -306,13 +307,13 @@ func TestStatusService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			statusID:       1,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			statusID:       0,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -349,7 +350,7 @@ func TestStatusService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, status)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

@@ -16,15 +16,16 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts []*core.APIParamOption
+		opts []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -41,7 +42,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-all-options": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithProjectIDs([]int{1}),
 				o.WithIssueTypeIDs([]int{2}),
 				o.WithCategoryIDs([]int{3}),
@@ -108,7 +109,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-projectIDs": {
-			opts: []*core.APIParamOption{o.WithProjectIDs([]int{10, 20})},
+			opts: []*option.APIParamOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
@@ -117,7 +118,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-keyword": {
-			opts: []*core.APIParamOption{o.WithKeyword("bug")},
+			opts: []*option.APIParamOption{o.WithKeyword("bug")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, "bug", query.Get("keyword"))
@@ -126,7 +127,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-sort-and-order": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithIssueSort("created"),
 				o.WithOrder("asc"),
 			},
@@ -139,7 +140,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-count-and-offset": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(50),
 				o.WithOffset(100),
 			},
@@ -152,7 +153,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-date-filters": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCreatedSince("2024-01-01"),
 				o.WithCreatedUntil("2024-12-31"),
 			},
@@ -165,7 +166,7 @@ func TestService_List(t *testing.T) {
 			wantIDs: []int{1, 2},
 		},
 		"success-with-parentChild": {
-			opts: []*core.APIParamOption{o.WithParentChild(1)},
+			opts: []*option.APIParamOption{o.WithParentChild(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues", spath)
 				assert.Equal(t, "1", query.Get("parentChild"))
@@ -175,46 +176,46 @@ func TestService_List(t *testing.T) {
 		},
 
 		"error-validation-opt-invalid-projectID": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-sort": {
-			opts:                   []*core.APIParamOption{o.WithIssueSort("invalid")},
+			opts:                   []*option.APIParamOption{o.WithIssueSort("invalid")},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-parentChild": {
-			opts:                   []*core.APIParamOption{o.WithParentChild(5)},
+			opts:                   []*option.APIParamOption{o.WithParentChild(5)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-count": {
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-offset": {
-			opts:                   []*core.APIParamOption{o.WithOffset(-1)},
+			opts:                   []*option.APIParamOption{o.WithOffset(-1)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-multiple": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{1}), nil},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{1}), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), nil},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{0}), nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamKeyword)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamKeyword)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -251,7 +252,7 @@ func TestService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, issues)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -329,7 +330,7 @@ func TestService_All(t *testing.T) {
 	t.Run("success-with-all-options", func(t *testing.T) {
 		t.Parallel()
 
-		o := &core.OptionService{}
+		o := &option.OptionService{}
 		method := mock.NewMethod(t)
 		method.Get = func(_ context.Context, _ string, query url.Values) (*http.Response, error) {
 			assert.Equal(t, []string{"1"}, query["projectId[]"])
@@ -487,29 +488,29 @@ func TestService_All(t *testing.T) {
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, mock.NewInvalidTypeOption())
 		require.Error(t, err)
-		var target *core.InvalidOptionKeyError
+		var target *option.InvalidOptionKeyError
 		assert.ErrorAs(t, err, &target)
 	})
 
 	t.Run("error-offset-passed-to-all", func(t *testing.T) {
 		t.Parallel()
 
-		o := &core.OptionService{}
+		o := &option.OptionService{}
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, o.WithOffset(5))
 		require.Error(t, err)
-		var target *core.InvalidOptionKeyError
+		var target *option.InvalidOptionKeyError
 		assert.ErrorAs(t, err, &target)
 	})
 
 	t.Run("error-count-passed-to-all", func(t *testing.T) {
 		t.Parallel()
 
-		o := &core.OptionService{}
+		o := &option.OptionService{}
 		s := issue.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, o.WithCount(50))
 		require.Error(t, err)
-		var target *core.InvalidOptionKeyError
+		var target *option.InvalidOptionKeyError
 		assert.ErrorAs(t, err, &target)
 	})
 }

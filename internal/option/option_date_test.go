@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"net/url"
@@ -7,21 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestOptionService_date(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *option.APIParamOption
 		key       string
 		wantValue string
 		wantErr   bool
 	}{
 		"WithCreatedSince-valid": {
 			option:    o.WithCreatedSince("2024-03-15"),
-			key:       core.ParamCreatedSince.Value(),
+			key:       option.ParamCreatedSince.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithCreatedSince-invalid-empty": {
@@ -34,7 +34,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithCreatedUntil-valid": {
 			option:    o.WithCreatedUntil("2024-03-15"),
-			key:       core.ParamCreatedUntil.Value(),
+			key:       option.ParamCreatedUntil.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithCreatedUntil-invalid-empty": {
@@ -47,7 +47,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithDueDate-valid": {
 			option:    o.WithDueDate("2024-03-15"),
-			key:       core.ParamDueDate.Value(),
+			key:       option.ParamDueDate.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithDueDate-invalid-empty": {
@@ -60,7 +60,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithDueDateSince-valid": {
 			option:    o.WithDueDateSince("2024-03-15"),
-			key:       core.ParamDueDateSince.Value(),
+			key:       option.ParamDueDateSince.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithDueDateSince-invalid-empty": {
@@ -73,7 +73,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithDueDateUntil-valid": {
 			option:    o.WithDueDateUntil("2024-03-15"),
-			key:       core.ParamDueDateUntil.Value(),
+			key:       option.ParamDueDateUntil.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithDueDateUntil-invalid-empty": {
@@ -86,7 +86,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithReleaseDueDate-valid": {
 			option:    o.WithReleaseDueDate("2024-03-15"),
-			key:       core.ParamReleaseDueDate.Value(),
+			key:       option.ParamReleaseDueDate.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithReleaseDueDate-invalid-empty": {
@@ -99,7 +99,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithStartDate-valid": {
 			option:    o.WithStartDate("2024-03-15"),
-			key:       core.ParamStartDate.Value(),
+			key:       option.ParamStartDate.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithStartDate-invalid-empty": {
@@ -112,7 +112,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithStartDateSince-valid": {
 			option:    o.WithStartDateSince("2024-03-15"),
-			key:       core.ParamStartDateSince.Value(),
+			key:       option.ParamStartDateSince.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithStartDateSince-invalid-empty": {
@@ -125,7 +125,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithStartDateUntil-valid": {
 			option:    o.WithStartDateUntil("2024-03-15"),
-			key:       core.ParamStartDateUntil.Value(),
+			key:       option.ParamStartDateUntil.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithStartDateUntil-invalid-empty": {
@@ -138,7 +138,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithUpdatedSince-valid": {
 			option:    o.WithUpdatedSince("2024-03-15"),
-			key:       core.ParamUpdatedSince.Value(),
+			key:       option.ParamUpdatedSince.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithUpdatedSince-invalid-empty": {
@@ -151,7 +151,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithUpdatedUntil-valid": {
 			option:    o.WithUpdatedUntil("2024-03-15"),
-			key:       core.ParamUpdatedUntil.Value(),
+			key:       option.ParamUpdatedUntil.Value(),
 			wantValue: "2024-03-15",
 		},
 		"WithUpdatedUntil-invalid-empty": {
@@ -164,7 +164,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithInitialDate-valid": {
 			option:    o.WithInitialDate("2024-01-15"),
-			key:       core.ParamInitialDate.Value(),
+			key:       option.ParamInitialDate.Value(),
 			wantValue: "2024-01-15",
 		},
 		"WithInitialDate-invalid-empty": {
@@ -177,7 +177,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithInitialDateMax-valid": {
 			option:    o.WithInitialDateMax("2024-12-31"),
-			key:       core.ParamMax.Value(),
+			key:       option.ParamMax.Value(),
 			wantValue: "2024-12-31",
 		},
 		"WithInitialDateMax-invalid-empty": {
@@ -190,7 +190,7 @@ func TestOptionService_date(t *testing.T) {
 		},
 		"WithInitialDateMin-valid": {
 			option:    o.WithInitialDateMin("2024-01-01"),
-			key:       core.ParamMin.Value(),
+			key:       option.ParamMin.Value(),
 			wantValue: "2024-01-01",
 		},
 		"WithInitialDateMin-invalid-empty": {

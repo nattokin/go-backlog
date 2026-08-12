@@ -13,17 +13,18 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_Count(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -44,7 +45,7 @@ func TestService_Count(t *testing.T) {
 		"success-with-assigneeIDs": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []*core.APIParamOption{o.WithAssigneeIDs([]int{10, 20})},
+			opts:           []*option.APIParamOption{o.WithAssigneeIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"10", "20"}, query["assigneeId[]"])
 				return mock.NewResponse(`{"count":2}`), nil
@@ -66,35 +67,35 @@ func TestService_Count(t *testing.T) {
 		"error-option-validation-with-valid-args": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamStatusIDs)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamStatusIDs)},
 			wantValidationErrCount: 1,
 		},
 
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamStatusIDs)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamStatusIDs)},
 			wantValidationErrCount: 3,
 		},
 
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo1",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo1",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -129,7 +130,7 @@ func TestService_Count(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Zero(t, count)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

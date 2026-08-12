@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -105,13 +106,13 @@ func TestIssueTypeService_List(t *testing.T) {
 }
 
 func TestIssueTypeService_Create(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		name           string
 		color          string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -134,7 +135,7 @@ func TestIssueTypeService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
 			color:          "#e30000",
-			opts:           []*core.APIParamOption{o.WithTemplateSummary("summary")},
+			opts:           []*option.APIParamOption{o.WithTemplateSummary("summary")},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "summary", form.Get("templateSummary"))
 				return mock.NewResponse(fixture.IssueType.SingleJSON), nil
@@ -178,14 +179,14 @@ func TestIssueTypeService_Create(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			name:                   "Bug",
 			color:                  "#e30000",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			name:                   "",
 			color:                  "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -193,15 +194,15 @@ func TestIssueTypeService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			name:           "Bug",
 			color:          "#e30000",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			name:           "",
 			color:          "",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -238,7 +239,7 @@ func TestIssueTypeService_Create(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, issueType)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -270,13 +271,13 @@ func TestIssueTypeService_Create(t *testing.T) {
 }
 
 func TestIssueTypeService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		issueTypeID    int
-		option         *core.APIParamOption
-		opts           []*core.APIParamOption
+		option         *option.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -288,7 +289,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
 			option:         o.WithName("Bug Updated"),
-			opts:           []*core.APIParamOption{o.WithColor("#990000")},
+			opts:           []*option.APIParamOption{o.WithColor("#990000")},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/issueTypes/1", spath)
 				assert.Equal(t, "Bug Updated", form.Get("name"))
@@ -321,7 +322,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			issueTypeID:            1,
 			option:                 o.WithName("Bug"),
-			opts:                   []*core.APIParamOption{o.WithColor("")},
+			opts:                   []*option.APIParamOption{o.WithColor("")},
 			wantValidationErrCount: 1,
 		},
 
@@ -329,7 +330,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey:         "",
 			issueTypeID:            0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{o.WithColor("")},
+			opts:                   []*option.APIParamOption{o.WithColor("")},
 			wantValidationErrCount: 4,
 		},
 
@@ -337,14 +338,14 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			issueTypeID:            1,
 			option:                 o.WithName("Bug"),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			issueTypeID:            0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -352,13 +353,13 @@ func TestIssueTypeService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			issueTypeID:    1,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			issueTypeID:    0,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -395,7 +396,7 @@ func TestIssueTypeService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, issueType)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

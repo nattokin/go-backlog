@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -45,20 +46,20 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 // Add adds a new webhook to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook/
-func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...*core.APIParamOption) (*model.Webhook, error) {
-	option := &core.OptionService{}
+func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...*option.APIParamOption) (*model.Webhook, error) {
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamHookURL,
-		core.ParamAllEvent,
-		core.ParamActivityTypeIDs,
+	validTypes := []option.APIParamOptionType{
+		option.ParamName,
+		option.ParamDescription,
+		option.ParamHookURL,
+		option.ParamAllEvent,
+		option.ParamActivityTypeIDs,
 	}
 	options := append(
-		[]*core.APIParamOption{
-			option.WithName(name),
-			option.WithHookURL(hookURL),
+		[]*option.APIParamOption{
+			optSvc.WithName(name),
+			optSvc.WithHookURL(hookURL),
 		},
 		opts...,
 	)
@@ -67,7 +68,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -117,9 +118,9 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 // Update updates a webhook.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook/
-func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Webhook, error) {
+func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Webhook, error) {
 	form := url.Values{}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -128,12 +129,12 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	if ve := validate.ValidateWebhookID(webhookID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamHookURL,
-		core.ParamAllEvent,
-		core.ParamActivityTypeIDs,
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, []option.APIParamOptionType{
+		option.ParamName,
+		option.ParamDescription,
+		option.ParamHookURL,
+		option.ParamAllEvent,
+		option.ParamActivityTypeIDs,
 	}, options...)); err != nil {
 		return nil, err
 	}

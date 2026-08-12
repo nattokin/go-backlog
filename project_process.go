@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -143,7 +144,7 @@ func (s *ProjectVersionService) Delete(ctx context.Context, projectIDOrKey strin
 // ProjectStatusOptionService provides a domain-specific set of option builders
 // for operations within the ProjectStatusService.
 type ProjectStatusOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithColor sets the status color.
@@ -163,7 +164,7 @@ func (s *ProjectStatusOptionService) WithName(name string) RequestOption {
 // ProjectVersionOptionService provides a domain-specific set of option builders
 // for operations within the ProjectVersionService.
 type ProjectVersionOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithArchived sets whether to include archived versions.
@@ -197,25 +198,25 @@ func (s *ProjectVersionOptionService) WithStartDate(date string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectStatusService(method *core.Method, option *core.OptionService) *ProjectStatusService {
+func newProjectStatusService(method *core.Method, option *option.OptionService) *ProjectStatusService {
 	return &ProjectStatusService{
 		base:   project.NewStatusService(method),
 		Option: newProjectStatusOptionService(option),
 	}
 }
 
-func newProjectVersionService(method *core.Method, option *core.OptionService) *ProjectVersionService {
+func newProjectVersionService(method *core.Method, option *option.OptionService) *ProjectVersionService {
 	return &ProjectVersionService{
 		base:   project.NewVersionService(method),
 		Option: newVersionOptionService(option),
 	}
 }
 
-func newProjectStatusOptionService(option *core.OptionService) *ProjectStatusOptionService {
+func newProjectStatusOptionService(option *option.OptionService) *ProjectStatusOptionService {
 	return &ProjectStatusOptionService{base: option}
 }
 
-func newVersionOptionService(option *core.OptionService) *ProjectVersionOptionService {
+func newVersionOptionService(option *option.OptionService) *ProjectVersionOptionService {
 	return &ProjectVersionOptionService{base: option}
 }
 

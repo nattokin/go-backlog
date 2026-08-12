@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/activity"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
@@ -21,14 +22,14 @@ type ActivityService struct {
 // List returns a list of activities for the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
-func (s *ActivityService) List(ctx context.Context, userID int, opts ...*core.APIParamOption) ([]*model.Activity, error) {
+func (s *ActivityService) List(ctx context.Context, userID int, opts ...*option.APIParamOption) ([]*model.Activity, error) {
 	query := url.Values{}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, s.base.ApplyOptions(query, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyOptions(query, opts...)); err != nil {
 		return nil, err
 	}
 

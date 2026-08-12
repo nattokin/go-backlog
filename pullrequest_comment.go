@@ -5,6 +5,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // PullRequestCommentService handles communication with the pull request comment-related methods of the Backlog API.
@@ -60,7 +61,7 @@ func (s *PullRequestCommentService) Update(ctx context.Context, projectIDOrKey s
 // PullRequestCommentOptionService provides a domain-specific set of option builders
 // for operations within the PullRequestCommentService.
 type PullRequestCommentOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
@@ -93,7 +94,7 @@ func (s *PullRequestCommentOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-func newPullRequestCommentService(method *core.Method, option *core.OptionService) *PullRequestCommentService {
+func newPullRequestCommentService(method *core.Method, option *option.OptionService) *PullRequestCommentService {
 	return &PullRequestCommentService{
 		base:   pullrequest.NewCommentService(method),
 		Option: &PullRequestCommentOptionService{base: option},

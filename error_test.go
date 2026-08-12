@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -68,7 +68,7 @@ func TestInvalidOptionKeyError_InvalidKey(t *testing.T) {
 
 	var target *backlog.InvalidOptionKeyError
 	require.True(t, errors.As(err, &target))
-	assert.Equal(t, core.ParamContent.Value(), target.InvalidKey())
+	assert.Equal(t, option.ParamContent.Value(), target.InvalidKey())
 }
 
 func TestInvalidOptionKeyError_AllowKeys(t *testing.T) {
@@ -78,7 +78,7 @@ func TestInvalidOptionKeyError_AllowKeys(t *testing.T) {
 	var target *backlog.InvalidOptionKeyError
 	require.True(t, errors.As(err, &target))
 	assert.NotEmpty(t, target.AllowKeys())
-	assert.Contains(t, target.AllowKeys(), core.ParamKeyword.Value())
+	assert.Contains(t, target.AllowKeys(), option.ParamKeyword.Value())
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -97,13 +98,13 @@ func TestService_One(t *testing.T) {
 }
 
 func TestService_Create(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectID int
 		name      string
 		content   string
-		opts      []*core.APIParamOption
+		opts      []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -128,7 +129,7 @@ func TestService_Create(t *testing.T) {
 			projectID: 1,
 			name:      "Wiki with options",
 			content:   "content",
-			opts:      []*core.APIParamOption{o.WithMailNotify(true)},
+			opts:      []*option.APIParamOption{o.WithMailNotify(true)},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
@@ -173,14 +174,14 @@ func TestService_Create(t *testing.T) {
 			projectID:              1,
 			name:                   "Test",
 			content:                "content",
-			opts:                   []*core.APIParamOption{o.WithMailNotify(true), nil},
+			opts:                   []*option.APIParamOption{o.WithMailNotify(true), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectID:              0,
 			name:                   "",
 			content:                "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -188,22 +189,22 @@ func TestService_Create(t *testing.T) {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectID:   0,
 			name:        "",
 			content:     "",
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectID:   1,
 			name:        "Test",
 			content:     "content",
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -241,7 +242,7 @@ func TestService_Create(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, w)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -273,12 +274,12 @@ func TestService_Create(t *testing.T) {
 }
 
 func TestService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		wikiID int
-		option *core.APIParamOption
-		opts   []*core.APIParamOption
+		option *option.APIParamOption
+		opts   []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -307,7 +308,7 @@ func TestService_Update(t *testing.T) {
 		"success-wikiID-mailNotify-name": {
 			wikiID: 34,
 			option: o.WithMailNotify(true),
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithName("Full Options Name"),
 			},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -320,7 +321,7 @@ func TestService_Update(t *testing.T) {
 		"success-full-options": {
 			wikiID: 34,
 			option: o.WithName("Full Options Name"),
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithContent("Full Options Content"),
 				o.WithMailNotify(true),
 			},
@@ -347,7 +348,7 @@ func TestService_Update(t *testing.T) {
 		"error-validation-opt-single": {
 			wikiID:                 34,
 			option:                 o.WithMailNotify(true),
-			opts:                   []*core.APIParamOption{o.WithContent("")},
+			opts:                   []*option.APIParamOption{o.WithContent("")},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-fixed-option-empty-name": {
@@ -359,14 +360,14 @@ func TestService_Update(t *testing.T) {
 		"error-validation-opt-multiple": {
 			wikiID:                 34,
 			option:                 o.WithMailNotify(true),
-			opts:                   []*core.APIParamOption{o.WithName(""), o.WithContent("")},
+			opts:                   []*option.APIParamOption{o.WithName(""), o.WithContent("")},
 			wantValidationErrCount: 2,
 		},
 
 		"error-validation-all": {
 			wikiID:                 0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{o.WithContent("")},
+			opts:                   []*option.APIParamOption{o.WithContent("")},
 			wantValidationErrCount: 3,
 		},
 
@@ -379,33 +380,33 @@ func TestService_Update(t *testing.T) {
 		"error-nil-option-with-valid-values": {
 			wikiID:                 34,
 			option:                 o.WithName("x"),
-			opts:                   []*core.APIParamOption{o.WithMailNotify(true), nil},
+			opts:                   []*option.APIParamOption{o.WithMailNotify(true), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			wikiID:                 0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type-with-valid-values": {
 			wikiID:      34,
 			option:      o.WithName("x"),
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			wikiID:      0,
 			option:      o.WithName(""),
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			wikiID:      34,
 			option:      o.WithName("x"),
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -441,7 +442,7 @@ func TestService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, w)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -472,11 +473,11 @@ func TestService_Update(t *testing.T) {
 }
 
 func TestService_Delete(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		wikiID int
-		opts   []*core.APIParamOption
+		opts   []*option.APIParamOption
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -493,7 +494,7 @@ func TestService_Delete(t *testing.T) {
 		},
 		"success-with-option": {
 			wikiID: 34,
-			opts:   []*core.APIParamOption{o.WithMailNotify(true)},
+			opts:   []*option.APIParamOption{o.WithMailNotify(true)},
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/34", spath)
 				assert.Equal(t, "true", form.Get("mailNotify"))
@@ -512,41 +513,41 @@ func TestService_Delete(t *testing.T) {
 
 		"error-option-validation-with-valid-arg": {
 			wikiID:                 1,
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamMailNotify)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamMailNotify)},
 			wantValidationErrCount: 1,
 		},
 
 		"error-validation-all": {
 			wikiID:                 0,
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamMailNotify)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamMailNotify)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			wikiID:                 1,
-			opts:                   []*core.APIParamOption{o.WithMailNotify(true), nil},
+			opts:                   []*option.APIParamOption{o.WithMailNotify(true), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			wikiID:                 0,
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type-with-valid-values": {
 			wikiID:      1,
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			wikiID:      0,
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			wikiID:      1,
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamMailNotify)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamMailNotify)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -580,7 +581,7 @@ func TestService_Delete(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, w)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

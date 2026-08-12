@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -259,7 +259,7 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-send-mail": {
 				option:    o.WithSendMail(true),
-				key:       core.ParamSendMail.Value(),
+				key:       option.ParamSendMail.Value(),
 				wantValue: true,
 			},
 		}
@@ -285,7 +285,7 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-user-id": {
 				option:    o.WithUserID(1),
-				key:       core.ParamUserID.Value(),
+				key:       option.ParamUserID.Value(),
 				wantValue: 1,
 			},
 		}
@@ -311,7 +311,7 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-role-type": {
 				option:    o.WithRoleType(backlog.RoleNormalUser),
-				key:       core.ParamRoleType.Value(),
+				key:       option.ParamRoleType.Value(),
 				wantValue: backlog.RoleNormalUser,
 			},
 		}
@@ -337,17 +337,17 @@ func TestUserOptionService(t *testing.T) {
 		}{
 			"with-form-name": {
 				option:    o.WithName("example-user"),
-				key:       core.ParamName.Value(),
+				key:       option.ParamName.Value(),
 				wantValue: "example-user",
 			},
 			"with-form-mail-address": {
 				option:    o.WithMailAddress("user@example.com"),
-				key:       core.ParamMailAddress.Value(),
+				key:       option.ParamMailAddress.Value(),
 				wantValue: "user@example.com",
 			},
 			"with-form-password": {
 				option:    o.WithPassword("securepass"),
-				key:       core.ParamPassword.Value(),
+				key:       option.ParamPassword.Value(),
 				wantValue: "securepass",
 			},
 		}

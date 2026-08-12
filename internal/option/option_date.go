@@ -1,8 +1,10 @@
-package core
+package option
 
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 var datePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
@@ -66,9 +68,9 @@ func (s *OptionService) WithUpdatedUntil(date string) *APIParamOption {
 func dateFormatStringOption(paramType APIParamOptionType, date string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if !datePattern.MatchString(date) {
-				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
+				return core.NewValidationError(paramType.Value(), fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", paramType.Value(), date))
 			}
 			return nil
 		},

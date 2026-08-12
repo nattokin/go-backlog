@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/star"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -62,7 +63,7 @@ func (s *StarService) Remove(ctx context.Context, id int) error {
 // StarOptionService provides a domain-specific set of option builders
 // for operations within the StarService.
 type StarOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithCommentID sets the comment ID to add a star to.
@@ -94,7 +95,7 @@ func (s *StarOptionService) WithWikiID(id int) RequestOption {
 //  Constructor
 // ──────────────────────────────────────────────────────────────
 
-func newStarService(method *core.Method, option *core.OptionService) *StarService {
+func newStarService(method *core.Method, option *option.OptionService) *StarService {
 	return &StarService{
 		base:   star.NewService(method),
 		Option: &StarOptionService{base: option},

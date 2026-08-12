@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // Webhook represents webhook of Backlog.
@@ -120,7 +121,7 @@ func (s *ProjectWebhookService) Delete(ctx context.Context, projectIDOrKey strin
 // ProjectWebhookOptionService provides a domain-specific set of option builders
 // for operations within the ProjectWebhookService.
 type ProjectWebhookOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithActivityTypeIDs sets activity type IDs for webhook events.
@@ -152,21 +153,21 @@ func (s *ProjectWebhookOptionService) WithName(name string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectActivityService(method *core.Method, option *core.OptionService) *ProjectActivityService {
+func newProjectActivityService(method *core.Method, option *option.OptionService) *ProjectActivityService {
 	return &ProjectActivityService{
 		base:   project.NewActivityService(method),
 		Option: newActivityOptionService(option),
 	}
 }
 
-func newProjectWebhookService(method *core.Method, option *core.OptionService) *ProjectWebhookService {
+func newProjectWebhookService(method *core.Method, option *option.OptionService) *ProjectWebhookService {
 	return &ProjectWebhookService{
 		base:   project.NewWebhookService(method),
 		Option: newWebhookOptionService(option),
 	}
 }
 
-func newWebhookOptionService(option *core.OptionService) *ProjectWebhookOptionService {
+func newWebhookOptionService(option *option.OptionService) *ProjectWebhookOptionService {
 	return &ProjectWebhookOptionService{base: option}
 }
 

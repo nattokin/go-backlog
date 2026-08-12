@@ -13,16 +13,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestActivityService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -32,7 +33,7 @@ func TestActivityService_List(t *testing.T) {
 	}{
 		"success-no-option": {
 			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{},
+			opts:           []*option.APIParamOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/activities", spath)
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -40,7 +41,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withActivityTypeIDs": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -50,7 +51,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withMinID": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMinID(1),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -60,7 +61,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withMaxID": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMaxID(1),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -70,7 +71,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withCount": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(1),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -80,7 +81,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-withOrder": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithOrder("asc"),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -90,7 +91,7 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"success-multiple-options": {
 			projectIDOrKey: "TEST",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -117,40 +118,40 @@ func TestActivityService_List(t *testing.T) {
 		},
 		"error-validation-opt-single": {
 			projectIDOrKey:         "TEST",
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			projectIDOrKey:         "",
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
-			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			opts:                   []*option.APIParamOption{o.WithCount(10), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type-with-valid-values": {
 			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			projectIDOrKey: "TEST",
-			opts:           []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},
+			opts:           []*option.APIParamOption{mock.NewFailingSetOption(option.ParamCount)},
 			wantErrType:    errors.New(""),
 		},
 		"error-client-network": {
@@ -183,7 +184,7 @@ func TestActivityService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

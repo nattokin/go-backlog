@@ -12,15 +12,16 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/recentlyviewed"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_ListIssues(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts      []*core.APIParamOption
+		opts      []*option.APIParamOption
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
@@ -33,7 +34,7 @@ func TestService_ListIssues(t *testing.T) {
 			wantLen: 2,
 		},
 		"success-with-count": {
-			opts: []*core.APIParamOption{o.WithCount(5)},
+			opts: []*option.APIParamOption{o.WithCount(5)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
 				assert.Equal(t, "5", query.Get("count"))
@@ -42,7 +43,7 @@ func TestService_ListIssues(t *testing.T) {
 			wantLen: 1,
 		},
 		"success-with-offset": {
-			opts: []*core.APIParamOption{o.WithOffset(10)},
+			opts: []*option.APIParamOption{o.WithOffset(10)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "10", query.Get("offset"))
 				return mock.NewResponse(`[]`), nil
@@ -50,7 +51,7 @@ func TestService_ListIssues(t *testing.T) {
 			wantLen: 0,
 		},
 		"error-invalid-option": {
-			opts:    []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			opts:    []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErr: true,
 		},
 		"error-client-network": {
@@ -149,10 +150,10 @@ func TestService_AddIssue(t *testing.T) {
 }
 
 func TestService_ListProjects(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts      []*core.APIParamOption
+		opts      []*option.APIParamOption
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
@@ -165,7 +166,7 @@ func TestService_ListProjects(t *testing.T) {
 			wantLen: 2,
 		},
 		"success-with-count": {
-			opts: []*core.APIParamOption{o.WithCount(3)},
+			opts: []*option.APIParamOption{o.WithCount(3)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "3", query.Get("count"))
 				return mock.NewResponse(`[{"id":1}]`), nil
@@ -173,7 +174,7 @@ func TestService_ListProjects(t *testing.T) {
 			wantLen: 1,
 		},
 		"error-invalid-option": {
-			opts:    []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			opts:    []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErr: true,
 		},
 		"error-client-network": {
@@ -214,10 +215,10 @@ func TestService_ListProjects(t *testing.T) {
 }
 
 func TestService_ListWikis(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts      []*core.APIParamOption
+		opts      []*option.APIParamOption
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
@@ -230,7 +231,7 @@ func TestService_ListWikis(t *testing.T) {
 			wantLen: 2,
 		},
 		"success-with-order": {
-			opts: []*core.APIParamOption{o.WithOrder("asc")},
+			opts: []*option.APIParamOption{o.WithOrder("asc")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(`[{"id":1}]`), nil
@@ -238,7 +239,7 @@ func TestService_ListWikis(t *testing.T) {
 			wantLen: 1,
 		},
 		"error-invalid-option": {
-			opts:    []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			opts:    []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErr: true,
 		},
 		"error-client-network": {

@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -140,7 +141,7 @@ func (s *ProjectService) Icon(ctx context.Context, projectIDOrKey string) (*File
 // ProjectOptionService provides a domain-specific set of option builders
 // for operations within the ProjectService.
 type ProjectOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithAll sets whether to include all projects.
@@ -187,7 +188,7 @@ func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOpti
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectService(method *core.Method, option *core.OptionService) *ProjectService {
+func newProjectService(method *core.Method, option *option.OptionService) *ProjectService {
 	return &ProjectService{
 		base:        project.NewService(method),
 		Activity:    newProjectActivityService(method, option),
@@ -203,7 +204,7 @@ func newProjectService(method *core.Method, option *core.OptionService) *Project
 	}
 }
 
-func newProjectOptionService(option *core.OptionService) *ProjectOptionService {
+func newProjectOptionService(option *option.OptionService) *ProjectOptionService {
 	return &ProjectOptionService{
 		base: option,
 	}

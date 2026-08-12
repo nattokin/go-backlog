@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/comment"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
@@ -20,14 +21,14 @@ type CommentService struct {
 // List returns a list of comments on an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
-func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*option.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, s.base.ApplyListOptions(query, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyListOptions(query, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -38,14 +39,14 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 // Add adds a comment to an issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
-func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*option.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -174,10 +175,10 @@ func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment-notification
 func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commentID int, userIDs []int) (*model.Comment, error) {
-	option := &core.OptionService{}
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamNotifiedUserIDs,
+	validTypes := []option.APIParamOptionType{
+		option.ParamNotifiedUserIDs,
 	}
 
 	var ves core.ValidationErrors
@@ -187,7 +188,7 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 	if ve := validate.ValidateCommentID(commentID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, option.WithNotifiedUserIDs(userIDs))); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, optSvc.WithNotifiedUserIDs(userIDs))); err != nil {
 		return nil, err
 	}
 

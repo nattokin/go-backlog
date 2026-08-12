@@ -13,17 +13,18 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestCommentService_Add(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		issueIDOrKey string
 		content      string
-		opts         []*core.APIParamOption
+		opts         []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -45,7 +46,7 @@ func TestCommentService_Add(t *testing.T) {
 		"success-with-notifiedUserIDs": {
 			issueIDOrKey: "PRJ-1",
 			content:      "Notifying users.",
-			opts:         []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
+			opts:         []*option.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
 				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
@@ -77,21 +78,21 @@ func TestCommentService_Add(t *testing.T) {
 		"error-nil-option-with-valid-values": {
 			issueIDOrKey:           "PRJ-1",
 			content:                "x",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			issueIDOrKey:           "",
 			content:                "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
-			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:  &core.InvalidOptionKeyError{},
+			opts:         []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:  &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -134,7 +135,7 @@ func TestCommentService_Add(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

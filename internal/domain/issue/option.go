@@ -7,20 +7,21 @@ import (
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-// WithCustomField returns a *core.APIParamOption that sets a custom field value for
+// WithCustomField returns a *option.APIParamOption that sets a custom field value for
 // non-list types (Text, Sentence, Number, Date).
-func WithCustomField[T string | float64 | time.Time](id int, value T) *core.APIParamOption {
-	return &core.APIParamOption{
-		Type: core.ParamCustomField,
+func WithCustomField[T string | float64 | time.Time](id int, value T) *option.APIParamOption {
+	return &option.APIParamOption{
+		Type: option.ParamCustomField,
 		CheckFunc: func() *core.ValidationError {
 			if ve := validate.ValidateCustomFieldID(id); ve != nil {
 				return ve
 			}
 
-			name := core.ParamCustomField.Value()
+			name := option.ParamCustomField.Value()
 			switch v := any(value).(type) {
 			case string:
 				if v == "" {
@@ -50,11 +51,11 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) *core.APIP
 	}
 }
 
-// WithCustomFieldItems returns a *core.APIParamOption that sets predefined item selections
+// WithCustomFieldItems returns a *option.APIParamOption that sets predefined item selections
 // for list-type custom fields.
-func WithCustomFieldItems(id int, itemIDs []int) *core.APIParamOption {
-	return &core.APIParamOption{
-		Type: core.ParamCustomField,
+func WithCustomFieldItems(id int, itemIDs []int) *option.APIParamOption {
+	return &option.APIParamOption{
+		Type: option.ParamCustomField,
 		CheckFunc: func() *core.ValidationError {
 			if ve := validate.ValidateCustomFieldID(id); ve != nil {
 				return ve
@@ -71,11 +72,11 @@ func WithCustomFieldItems(id int, itemIDs []int) *core.APIParamOption {
 	}
 }
 
-// WithCustomFieldOther returns a *core.APIParamOption that sets the free-text "Other"
+// WithCustomFieldOther returns a *option.APIParamOption that sets the free-text "Other"
 // value for list-type custom fields where allowInput is enabled.
-func WithCustomFieldOther(id int, value string) *core.APIParamOption {
-	return &core.APIParamOption{
-		Type: core.ParamCustomField,
+func WithCustomFieldOther(id int, value string) *option.APIParamOption {
+	return &option.APIParamOption{
+		Type: option.ParamCustomField,
 		CheckFunc: func() *core.ValidationError {
 			return validate.ValidateCustomFieldID(id)
 		},

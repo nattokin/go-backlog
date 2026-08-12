@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -228,23 +228,23 @@ func TestProjectWebhookOptionService(t *testing.T) {
 	}{
 		"WithAllEvent": {
 			option:  s.WithAllEvent(true),
-			wantKey: core.ParamAllEvent.Value(),
+			wantKey: option.ParamAllEvent.Value(),
 		},
 		"WithActivityTypeIDs": {
 			option:  s.WithActivityTypeIDs([]int{1, 2}),
-			wantKey: core.ParamActivityTypeIDs.Value(),
+			wantKey: option.ParamActivityTypeIDs.Value(),
 		},
 		"WithHookURL": {
 			option:  s.WithHookURL("https://example.com/webhook"),
-			wantKey: core.ParamHookURL.Value(),
+			wantKey: option.ParamHookURL.Value(),
 		},
 		"WithName": {
 			option:  s.WithName("notify"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 		"WithDescription": {
 			option:  s.WithDescription("desc"),
-			wantKey: core.ParamDescription.Value(),
+			wantKey: option.ParamDescription.Value(),
 		},
 	}
 

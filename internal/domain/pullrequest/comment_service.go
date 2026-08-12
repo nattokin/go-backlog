@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/comment"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
@@ -20,7 +21,7 @@ type CommentService struct {
 // List returns a list of comments on a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
-func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*core.APIParamOption) ([]*model.Comment, error) {
+func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opts ...*option.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
 
 	var ves core.ValidationErrors
@@ -33,7 +34,7 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, s.base.ApplyListOptions(query, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyListOptions(query, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -44,7 +45,7 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 // Add adds a comment to a pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
-func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*core.APIParamOption) (*model.Comment, error) {
+func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, content string, opts ...*option.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
 
 	var ves core.ValidationErrors
@@ -57,7 +58,7 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
 		return nil, err
 	}
 

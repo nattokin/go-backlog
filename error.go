@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // Error represents one of the individual error entries in a Backlog API response.
@@ -45,27 +46,27 @@ func (e *APIResponseError) Errors() []*Error {
 // that is not valid for the target service method.
 // Use [errors.As] to check whether a returned error is an *InvalidOptionKeyError.
 type InvalidOptionKeyError struct {
-	core *core.InvalidOptionKeyError
+	opt *option.InvalidOptionKeyError
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionKeyError) Error() string { return e.core.Error() }
+func (e *InvalidOptionKeyError) Error() string { return e.opt.Error() }
 
 // InvalidKey returns the invalid option key that was provided.
-func (e *InvalidOptionKeyError) InvalidKey() string { return e.core.Invalid }
+func (e *InvalidOptionKeyError) InvalidKey() string { return e.opt.Invalid }
 
 // AllowKeys returns the list of allowed option keys.
-func (e *InvalidOptionKeyError) AllowKeys() []string { return e.core.ValidList }
+func (e *InvalidOptionKeyError) AllowKeys() []string { return e.opt.ValidList }
 
 // InvalidOptionError is returned when an option itself is invalid, such as a
 // nil option being passed.
 // Use [errors.As] to check whether a returned error is an *InvalidOptionError.
 type InvalidOptionError struct {
-	core *core.InvalidOptionError
+	opt *option.InvalidOptionError
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionError) Error() string { return e.core.Error() }
+func (e *InvalidOptionError) Error() string { return e.opt.Error() }
 
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
@@ -115,10 +116,10 @@ func convertError(err error) error {
 	switch e := err.(type) {
 	case *core.APIResponseError:
 		return &APIResponseError{core: e}
-	case *core.InvalidOptionKeyError:
-		return &InvalidOptionKeyError{core: e}
-	case *core.InvalidOptionError:
-		return &InvalidOptionError{core: e}
+	case *option.InvalidOptionKeyError:
+		return &InvalidOptionKeyError{opt: e}
+	case *option.InvalidOptionError:
+		return &InvalidOptionError{opt: e}
 	case *core.ValidationError:
 		return &ValidationError{target: e.Target(), message: e.Message()}
 	case core.ValidationErrors:

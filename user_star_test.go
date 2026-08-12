@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -117,17 +117,17 @@ func TestUserStarOptionService(t *testing.T) {
 		}{
 			"with-count": {
 				option:    o.WithCount(20),
-				key:       core.ParamCount.Value(),
+				key:       option.ParamCount.Value(),
 				wantValue: 20,
 			},
 			"with-min-id": {
 				option:    o.WithMinID(10),
-				key:       core.ParamMinID.Value(),
+				key:       option.ParamMinID.Value(),
 				wantValue: 10,
 			},
 			"with-max-id": {
 				option:    o.WithMaxID(99),
-				key:       core.ParamMaxID.Value(),
+				key:       option.ParamMaxID.Value(),
 				wantValue: 99,
 			},
 		}
@@ -153,12 +153,12 @@ func TestUserStarOptionService(t *testing.T) {
 		}{
 			"with-order-asc": {
 				option:    o.WithOrder(backlog.OrderAsc),
-				key:       core.ParamOrder.Value(),
+				key:       option.ParamOrder.Value(),
 				wantValue: "asc",
 			},
 			"with-order-desc": {
 				option:    o.WithOrder(backlog.OrderDesc),
-				key:       core.ParamOrder.Value(),
+				key:       option.ParamOrder.Value(),
 				wantValue: "desc",
 			},
 		}

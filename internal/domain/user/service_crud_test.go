@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -257,12 +258,12 @@ func TestUserService_One(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		id     int
-		option *core.APIParamOption
-		opts   []*core.APIParamOption
+		option *option.APIParamOption
+		opts   []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -273,7 +274,7 @@ func TestUserService_Update(t *testing.T) {
 		"success": {
 			id:     1,
 			option: o.WithPassword("password"),
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithName("admin"),
 				o.WithMailAddress("eguchi@nulab.example"),
 				o.WithRoleType(1),
@@ -330,7 +331,7 @@ func TestUserService_Update(t *testing.T) {
 		"success-option-multiple": {
 			id:     1,
 			option: o.WithPassword("testpassword1"),
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithName("testname1"),
 				o.WithMailAddress("test1@test.com"),
 				o.WithRoleType(1),
@@ -355,38 +356,38 @@ func TestUserService_Update(t *testing.T) {
 		"error-validation-opt-single": {
 			id:                     1,
 			option:                 o.WithName("admin"),
-			opts:                   []*core.APIParamOption{o.WithPassword("short")},
+			opts:                   []*option.APIParamOption{o.WithPassword("short")},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-multiple": {
 			id:                     1,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{o.WithPassword("short"), o.WithRoleType(0)},
+			opts:                   []*option.APIParamOption{o.WithPassword("short"), o.WithRoleType(0)},
 			wantValidationErrCount: 3,
 		},
 
 		"error-nil-option-with-valid-values": {
 			id:                     1,
 			option:                 o.WithName("admin"),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			id:                     1,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			id:          1,
 			option:      mock.NewInvalidTypeOption(),
-			wantErrType: &core.InvalidOptionKeyError{},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			id:          1,
-			option:      mock.NewFailingSetOption(core.ParamName),
+			option:      mock.NewFailingSetOption(option.ParamName),
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
@@ -413,7 +414,7 @@ func TestUserService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/recentlyviewed"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -84,7 +85,7 @@ func (s *RecentlyViewedService) AddWiki(ctx context.Context, wikiID int) (*Wiki,
 // RecentlyViewedOptionService provides a domain-specific set of option builders
 // for operations within the UserRecentlyViewedService.
 type RecentlyViewedOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithCount sets the number of results to return (1-100).
@@ -106,14 +107,14 @@ func (s *RecentlyViewedOptionService) WithOrder(order Order) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newRecentlyViewedService(method *core.Method, option *core.OptionService) *RecentlyViewedService {
+func newRecentlyViewedService(method *core.Method, option *option.OptionService) *RecentlyViewedService {
 	return &RecentlyViewedService{
 		base:   recentlyviewed.NewService(method),
 		Option: newRecentlyViewedOptionService(option),
 	}
 }
 
-func newRecentlyViewedOptionService(option *core.OptionService) *RecentlyViewedOptionService {
+func newRecentlyViewedOptionService(option *option.OptionService) *RecentlyViewedOptionService {
 	return &RecentlyViewedOptionService{
 		base: option,
 	}

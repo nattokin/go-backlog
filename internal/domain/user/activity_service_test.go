@@ -13,16 +13,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestUserActivityService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		userID int
-		opts   []*core.APIParamOption
+		opts   []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -39,7 +40,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-withActivityTypeIDs": {
 			userID: 1234,
-			opts:   []*core.APIParamOption{o.WithActivityTypeIDs([]int{1})},
+			opts:   []*option.APIParamOption{o.WithActivityTypeIDs([]int{1})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1"}, query["activityTypeId[]"])
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -47,7 +48,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-withMinID": {
 			userID: 1234,
-			opts:   []*core.APIParamOption{o.WithMinID(1)},
+			opts:   []*option.APIParamOption{o.WithMinID(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("minId"))
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -55,7 +56,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-withMaxID": {
 			userID: 1234,
-			opts:   []*core.APIParamOption{o.WithMaxID(1)},
+			opts:   []*option.APIParamOption{o.WithMaxID(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("maxId"))
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -63,7 +64,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-withCount": {
 			userID: 1234,
-			opts:   []*core.APIParamOption{o.WithCount(1)},
+			opts:   []*option.APIParamOption{o.WithCount(1)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "1", query.Get("count"))
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -71,7 +72,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-withOrder": {
 			userID: 1234,
-			opts:   []*core.APIParamOption{o.WithOrder("asc")},
+			opts:   []*option.APIParamOption{o.WithOrder("asc")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(fixture.Activity.ListJSON), nil
@@ -79,7 +80,7 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"success-multiple-options": {
 			userID: 1234,
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -106,40 +107,40 @@ func TestUserActivityService_List(t *testing.T) {
 		},
 		"error-validation-opt-single": {
 			userID:                 1234,
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			userID:                 0,
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			userID:                 1234,
-			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			opts:                   []*option.APIParamOption{o.WithCount(10), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			userID:                 0,
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type-with-valid-values": {
 			userID:      1234,
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			userID:      0,
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
 			userID:      1234,
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamCount)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamCount)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
@@ -172,7 +173,7 @@ func TestUserActivityService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -531,19 +531,19 @@ func TestWikiOptionService(t *testing.T) {
 	}{
 		"WithKeyword": {
 			option:  s.WithKeyword("backlog"),
-			wantKey: core.ParamKeyword.Value(),
+			wantKey: option.ParamKeyword.Value(),
 		},
 		"WithContent": {
 			option:  s.WithContent("Wiki page content"),
-			wantKey: core.ParamContent.Value(),
+			wantKey: option.ParamContent.Value(),
 		},
 		"WithName": {
 			option:  s.WithName("How to Use Backlog"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 		"WithMailNotify": {
 			option:  s.WithMailNotify(true),
-			wantKey: core.ParamMailNotify.Value(),
+			wantKey: option.ParamMailNotify.Value(),
 		},
 	}
 

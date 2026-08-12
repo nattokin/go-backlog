@@ -3,14 +3,14 @@ package backlog
 import (
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // IssueOptionService provides a domain-specific set of option builders
 // for operations within the IssueService.
 type IssueOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithActualHours returns an option to set the `actualHours` parameter.
@@ -297,6 +297,6 @@ func (s *IssueOptionService) WithVersionIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithVersionIDs(ids)}
 }
 
-func newIssueOptionService(option *core.OptionService) *IssueOptionService {
+func newIssueOptionService(option *option.OptionService) *IssueOptionService {
 	return &IssueOptionService{base: option}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/space"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -155,7 +156,7 @@ func (s *SpaceAttachmentService) Upload(ctx context.Context, fileName string, r 
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newSpaceService(method *core.Method, option *core.OptionService) *SpaceService {
+func newSpaceService(method *core.Method, option *option.OptionService) *SpaceService {
 	return &SpaceService{
 		base:       space.NewService(method),
 		Activity:   newSpaceActivityService(method, option),
@@ -163,7 +164,7 @@ func newSpaceService(method *core.Method, option *core.OptionService) *SpaceServ
 	}
 }
 
-func newSpaceActivityService(method *core.Method, option *core.OptionService) *SpaceActivityService {
+func newSpaceActivityService(method *core.Method, option *option.OptionService) *SpaceActivityService {
 	return &SpaceActivityService{
 		base:   space.NewActivityService(method),
 		Option: newActivityOptionService(option),

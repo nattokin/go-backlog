@@ -12,16 +12,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestUserStarService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		userID int
-		opts   []*core.APIParamOption
+		opts   []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -40,7 +41,7 @@ func TestUserStarService_List(t *testing.T) {
 		},
 		"success-with-count": {
 			userID: 2,
-			opts:   []*core.APIParamOption{o.WithCount(5)},
+			opts:   []*option.APIParamOption{o.WithCount(5)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "5", query.Get("count"))
 				return mock.NewResponse(`[{"id":1}]`), nil
@@ -58,30 +59,30 @@ func TestUserStarService_List(t *testing.T) {
 		},
 		"error-validation-opt-single": {
 			userID:                 1,
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			userID:                 0,
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			userID:                 1,
-			opts:                   []*core.APIParamOption{o.WithCount(5), nil},
+			opts:                   []*option.APIParamOption{o.WithCount(5), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			userID:                 0,
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			userID:      1,
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -114,7 +115,7 @@ func TestUserStarService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

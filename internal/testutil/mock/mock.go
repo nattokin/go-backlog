@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -66,8 +67,8 @@ func (mw *multipartWriter) Close() error                { return mw.wrapper.Clos
 // ──────────────────────────────────────────────────────────────
 
 // NewFailingCheckOption returns a RequestOption whose check function always fails.
-func NewFailingCheckOption(t core.APIParamOptionType) *core.APIParamOption {
-	return &core.APIParamOption{
+func NewFailingCheckOption(t option.APIParamOptionType) *option.APIParamOption {
+	return &option.APIParamOption{
 		Type: t,
 		CheckFunc: func() *core.ValidationError {
 			return core.NewValidationError("test", "check error")
@@ -77,8 +78,8 @@ func NewFailingCheckOption(t core.APIParamOptionType) *core.APIParamOption {
 }
 
 // NewFailingSetOption returns a RequestOption whose set function always fails.
-func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
-	return &core.APIParamOption{
+func NewFailingSetOption(t option.APIParamOptionType) *option.APIParamOption {
+	return &option.APIParamOption{
 		Type:      t,
 		CheckFunc: func() *core.ValidationError { return nil },
 		SetFunc: func(_ url.Values) error {
@@ -88,8 +89,8 @@ func NewFailingSetOption(t core.APIParamOptionType) *core.APIParamOption {
 }
 
 // NewInvalidTypeOption returns a RequestOption with an invalid type.
-func NewInvalidTypeOption() *core.APIParamOption {
-	return &core.APIParamOption{
+func NewInvalidTypeOption() *option.APIParamOption {
+	return &option.APIParamOption{
 		Type:      "invalid",
 		CheckFunc: func() *core.ValidationError { return nil },
 		SetFunc:   func(_ url.Values) error { return nil },

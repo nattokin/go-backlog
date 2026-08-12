@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"net/url"
@@ -7,21 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestOptionService_slice(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option   *core.APIParamOption
+		option   *option.APIParamOption
 		key      string
 		wantVals []string
 		wantErr  bool
 	}{
 		"WithActivityTypeIDs-valid": {
 			option:   o.WithActivityTypeIDs([]int{1, 2, 26}),
-			key:      core.ParamActivityTypeIDs.Value(),
+			key:      option.ParamActivityTypeIDs.Value(),
 			wantVals: []string{"1", "2", "26"},
 		},
 		"WithActivityTypeIDs-invalid-0": {
@@ -34,7 +34,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithApplicableIssueTypeIDs-valid": {
 			option:   o.WithApplicableIssueTypeIDs([]int{1, 2, 3}),
-			key:      core.ParamApplicableIssueTypeIDs.Value(),
+			key:      option.ParamApplicableIssueTypeIDs.Value(),
 			wantVals: []string{"1", "2", "3"},
 		},
 		"WithApplicableIssueTypeIDs-invalid-0": {
@@ -43,7 +43,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithAttachmentIDs-valid": {
 			option:   o.WithAttachmentIDs([]int{10, 20}),
-			key:      core.ParamAttachmentIDs.Value(),
+			key:      option.ParamAttachmentIDs.Value(),
 			wantVals: []string{"10", "20"},
 		},
 		"WithAttachmentIDs-invalid-0": {
@@ -52,7 +52,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithItems-valid": {
 			option:   o.WithItems([]string{"High", "Medium", "Low"}),
-			key:      core.ParamItems.Value(),
+			key:      option.ParamItems.Value(),
 			wantVals: []string{"High", "Medium", "Low"},
 		},
 		"WithItems-invalid-empty-element": {
@@ -65,7 +65,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithProjectIDs-valid": {
 			option:   o.WithProjectIDs([]int{1, 2}),
-			key:      core.ParamProjectIDs.Value(),
+			key:      option.ParamProjectIDs.Value(),
 			wantVals: []string{"1", "2"},
 		},
 		"WithProjectIDs-invalid-0": {
@@ -74,7 +74,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithIssueTypeIDs-valid": {
 			option:   o.WithIssueTypeIDs([]int{1}),
-			key:      core.ParamIssueTypeIDs.Value(),
+			key:      option.ParamIssueTypeIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithIssueTypeIDs-invalid-0": {
@@ -83,7 +83,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithCategoryIDs-valid": {
 			option:   o.WithCategoryIDs([]int{1, 2}),
-			key:      core.ParamCategoryIDs.Value(),
+			key:      option.ParamCategoryIDs.Value(),
 			wantVals: []string{"1", "2"},
 		},
 		"WithCategoryIDs-invalid-0": {
@@ -92,7 +92,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithVersionIDs-valid": {
 			option:   o.WithVersionIDs([]int{1}),
-			key:      core.ParamVersionIDs.Value(),
+			key:      option.ParamVersionIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithVersionIDs-invalid-0": {
@@ -101,7 +101,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithMilestoneIDs-valid": {
 			option:   o.WithMilestoneIDs([]int{1}),
-			key:      core.ParamMilestoneIDs.Value(),
+			key:      option.ParamMilestoneIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithMilestoneIDs-invalid-0": {
@@ -110,7 +110,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithIssueIDs-valid": {
 			option:   o.WithIssueIDs([]int{1, 2}),
-			key:      core.ParamIssueIDs.Value(),
+			key:      option.ParamIssueIDs.Value(),
 			wantVals: []string{"1", "2"},
 		},
 		"WithIssueIDs-invalid-0": {
@@ -119,7 +119,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithNotifiedUserIDs-valid": {
 			option:   o.WithNotifiedUserIDs([]int{1}),
-			key:      core.ParamNotifiedUserIDs.Value(),
+			key:      option.ParamNotifiedUserIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithNotifiedUserIDs-invalid-0": {
@@ -128,7 +128,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithStatusIDs-valid": {
 			option:   o.WithStatusIDs([]int{1, 2}),
-			key:      core.ParamStatusIDs.Value(),
+			key:      option.ParamStatusIDs.Value(),
 			wantVals: []string{"1", "2"},
 		},
 		"WithStatusIDs-invalid-0": {
@@ -137,7 +137,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithPriorityIDs-valid": {
 			option:   o.WithPriorityIDs([]int{2}),
-			key:      core.ParamPriorityIDs.Value(),
+			key:      option.ParamPriorityIDs.Value(),
 			wantVals: []string{"2"},
 		},
 		"WithPriorityIDs-invalid-0": {
@@ -146,7 +146,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithAssigneeIDs-valid": {
 			option:   o.WithAssigneeIDs([]int{1}),
-			key:      core.ParamAssigneeIDs.Value(),
+			key:      option.ParamAssigneeIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithAssigneeIDs-invalid-0": {
@@ -155,7 +155,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithCreatedUserIDs-valid": {
 			option:   o.WithCreatedUserIDs([]int{1}),
-			key:      core.ParamCreatedUserIDs.Value(),
+			key:      option.ParamCreatedUserIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithCreatedUserIDs-invalid-0": {
@@ -164,7 +164,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithResolutionIDs-valid": {
 			option:   o.WithResolutionIDs([]int{1}),
-			key:      core.ParamResolutionIDs.Value(),
+			key:      option.ParamResolutionIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithResolutionIDs-invalid-0": {
@@ -173,7 +173,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithIDs-valid": {
 			option:   o.WithIDs([]int{1, 2, 3}),
-			key:      core.ParamIDs.Value(),
+			key:      option.ParamIDs.Value(),
 			wantVals: []string{"1", "2", "3"},
 		},
 		"WithIDs-invalid-0": {
@@ -182,7 +182,7 @@ func TestOptionService_slice(t *testing.T) {
 		},
 		"WithParentIssueIDs-valid": {
 			option:   o.WithParentIssueIDs([]int{1}),
-			key:      core.ParamParentIssueIDs.Value(),
+			key:      option.ParamParentIssueIDs.Value(),
 			wantVals: []string{"1"},
 		},
 		"WithParentIssueIDs-invalid-0": {

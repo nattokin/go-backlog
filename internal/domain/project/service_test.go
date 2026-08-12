@@ -13,15 +13,16 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts []*core.APIParamOption
+		opts []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -32,7 +33,7 @@ func TestService_List(t *testing.T) {
 		wantInvalidOptionError bool
 	}{
 		"success-without-option": {
-			opts: []*core.APIParamOption{},
+			opts: []*option.APIParamOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects", spath)
 				return mock.NewResponse(fixture.Project.ListJSON), nil
@@ -41,7 +42,7 @@ func TestService_List(t *testing.T) {
 			wantNames: []string{"test", "test2", "test3"},
 		},
 		"success-with-option": {
-			opts: []*core.APIParamOption{o.WithAll(false), o.WithArchived(true)},
+			opts: []*option.APIParamOption{o.WithAll(false), o.WithArchived(true)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "false", query.Get("all"))
 				assert.Equal(t, "true", query.Get("archived"))
@@ -54,43 +55,43 @@ func TestService_List(t *testing.T) {
 		// WithTextFormattingRule is not in List's valid types (all, archived only)
 		// → InvalidOptionKeyError, not ValidationErrors
 		"error-validation-opt-single": {
-			opts:        []*core.APIParamOption{o.WithTextFormattingRule("invalid")},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{o.WithTextFormattingRule("invalid")},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-nil-option-with-valid-values": {
-			opts:                   []*core.APIParamOption{o.WithAll(true), nil},
+			opts:                   []*option.APIParamOption{o.WithAll(true), nil},
 			wantInvalidOptionError: true,
 		},
 		// WithTextFormattingRule hits invalid key before nil is checked
 		// → InvalidOptionKeyError
 		"error-nil-option-with-invalid-values": {
-			opts:        []*core.APIParamOption{o.WithTextFormattingRule("invalid"), nil},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{o.WithTextFormattingRule("invalid"), nil},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-invalid-type-with-valid-values": {
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
-			opts:        []*core.APIParamOption{o.WithTextFormattingRule("invalid"), mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{o.WithTextFormattingRule("invalid"), mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-option-set-failed": {
-			opts:        []*core.APIParamOption{mock.NewFailingSetOption(core.ParamAll)},
+			opts:        []*option.APIParamOption{mock.NewFailingSetOption(option.ParamAll)},
 			wantErrType: errors.New(""),
 		},
 		"error-client-network": {
-			opts: []*core.APIParamOption{},
+			opts: []*option.APIParamOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
 		},
 		"error-response-invalid-json": {
-			opts: []*core.APIParamOption{},
+			opts: []*option.APIParamOption{},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
@@ -112,7 +113,7 @@ func TestService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, projects)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

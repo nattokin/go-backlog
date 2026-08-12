@@ -12,6 +12,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/star"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -23,10 +24,10 @@ func newNoContentResponse() *http.Response {
 }
 
 func TestStarService_Add(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option     *core.APIParamOption
+		option     *option.APIParamOption
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 		wantErr    bool
 	}{
@@ -178,7 +179,7 @@ func TestService_contextPropagation(t *testing.T) {
 	}{
 		{"Add", func(t *testing.T, m *core.Method) {
 			m.Post = makeMockFn(t)
-			o := &core.OptionService{}
+			o := &option.OptionService{}
 			s := star.NewService(m)
 			s.Add(ctx, o.WithIssueID(1)) //nolint:errcheck
 		}},

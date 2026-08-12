@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -131,7 +132,7 @@ func (s *ProjectCustomFieldService) DeleteListItem(ctx context.Context, projectI
 // ProjectCustomFieldOptionService provides a domain-specific set of option builders
 // for operations within the ProjectCustomFieldService.
 type ProjectCustomFieldOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithName sets the custom field name.
@@ -211,14 +212,14 @@ func (s *ProjectCustomFieldOptionService) WithAllowAddItem(enabled bool) Request
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectCustomFieldService(method *core.Method, option *core.OptionService) *ProjectCustomFieldService {
+func newProjectCustomFieldService(method *core.Method, option *option.OptionService) *ProjectCustomFieldService {
 	return &ProjectCustomFieldService{
 		base:   project.NewCustomFieldService(method),
 		Option: newProjectCustomFieldOptionService(option),
 	}
 }
 
-func newProjectCustomFieldOptionService(option *core.OptionService) *ProjectCustomFieldOptionService {
+func newProjectCustomFieldOptionService(option *option.OptionService) *ProjectCustomFieldOptionService {
 	return &ProjectCustomFieldOptionService{base: option}
 }
 

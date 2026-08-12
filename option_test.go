@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
@@ -28,17 +28,17 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-min-id": {
 				option:    o.WithMinID(5),
-				key:       core.ParamMinID.Value(),
+				key:       option.ParamMinID.Value(),
 				wantValue: 5,
 			},
 			"with-query-max-id": {
 				option:    o.WithMaxID(10),
-				key:       core.ParamMaxID.Value(),
+				key:       option.ParamMaxID.Value(),
 				wantValue: 10,
 			},
 			"with-query-count": {
 				option:    o.WithCount(25),
-				key:       core.ParamCount.Value(),
+				key:       option.ParamCount.Value(),
 				wantValue: 25,
 			},
 		}
@@ -64,12 +64,12 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-order-asc": {
 				option:    o.WithOrder(backlog.OrderAsc),
-				key:       core.ParamOrder.Value(),
+				key:       option.ParamOrder.Value(),
 				wantValue: string(backlog.OrderAsc),
 			},
 			"with-query-order-desc": {
 				option:    o.WithOrder(backlog.OrderDesc),
-				key:       core.ParamOrder.Value(),
+				key:       option.ParamOrder.Value(),
 				wantValue: string(backlog.OrderDesc),
 			},
 		}
@@ -95,7 +95,7 @@ func TestActivityOptionService(t *testing.T) {
 		}{
 			"with-query-activity-type-ids": {
 				option:    o.WithActivityTypeIDs([]int{1, 2, 3}),
-				key:       core.ParamActivityTypeIDs.Value(),
+				key:       option.ParamActivityTypeIDs.Value(),
 				wantValue: []int{1, 2, 3},
 			},
 		}
@@ -164,12 +164,12 @@ func Test_toCoreOption_CheckFunc(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	opt := &failingCheckOption{key: core.ParamCount.Value()}
+	opt := &failingCheckOption{key: option.ParamCount.Value()}
 	_, err = c.Issue.Comment.List(context.Background(), "PRJ-1", opt)
 
 	require.Error(t, err)
 	var ve *backlog.ValidationError
 	assert.ErrorAs(t, err, &ve)
-	assert.Equal(t, core.ParamCount.Value(), ve.Target())
+	assert.Equal(t, option.ParamCount.Value(), ve.Target())
 	assert.Equal(t, "always fails", ve.Message())
 }
