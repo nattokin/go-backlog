@@ -2,7 +2,9 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -149,6 +151,42 @@ func (o *APIParamOption) Set(v url.Values) error {
 		panic("option has no setter")
 	}
 	return o.SetFunc(v)
+}
+
+// InvalidOptionKeyError represents an error for an invalid option key.
+type InvalidOptionKeyError struct {
+	Invalid   string
+	ValidList []string
+}
+
+func NewInvalidOptionKeyError(invalid string, validList []APIParamOptionType) *InvalidOptionKeyError {
+	validKeys := []string{}
+	for _, v := range validList {
+		validKeys = append(validKeys, v.Value())
+	}
+
+	return &InvalidOptionKeyError{
+		Invalid:   invalid,
+		ValidList: validKeys,
+	}
+}
+
+func (e *InvalidOptionKeyError) Error() string {
+	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
+}
+
+// InvalidOptionError represents an error for an invalid option, such as a
+// nil option passed to ApplyOptions.
+type InvalidOptionError struct {
+	message string
+}
+
+func NewInvalidOptionError(msg string) *InvalidOptionError {
+	return &InvalidOptionError{message: msg}
+}
+
+func (e *InvalidOptionError) Error() string {
+	return e.message
 }
 
 // ValidateOption checks whether the given option key is permitted for the current API operation.
