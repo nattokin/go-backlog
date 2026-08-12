@@ -234,6 +234,18 @@ func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) 
 	}
 }
 
+// NewUnexpectedDoFunc returns a doFunc for mock.Doer that fails the test if called.
+// It mirrors NewUnexpectedGetFn and friends, but for the lower-level Doer used by
+// root-package tests (which is not verb-specific, unlike core.Method).
+func NewUnexpectedDoFunc(t *testing.T) func(*http.Request) (*http.Response, error) {
+	t.Helper()
+	return func(*http.Request) (*http.Response, error) {
+		t.Helper()
+		t.Error("Do must not be called")
+		return nil, errors.New("unexpected call")
+	}
+}
+
 // ──────────────────────────────────────────────────────────────
 //  Client helpers
 // ──────────────────────────────────────────────────────────────

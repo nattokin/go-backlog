@@ -269,9 +269,7 @@ func TestSpaceActivityService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			doFunc := func(req *http.Request) (*http.Response, error) {
-				return nil, errors.New("should not be called")
-			}
+			doFunc := mock.NewUnexpectedDoFunc(t)
 			if tc.doFunc != nil {
 				doFunc = tc.doFunc
 			}
