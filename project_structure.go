@@ -5,7 +5,19 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/model"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  Category models
+// ──────────────────────────────────────────────────────────────
+
+// Category represents a project category.
+type Category struct {
+	ID           int
+	Name         string
+	DisplayOrder int
+}
 
 // ──────────────────────────────────────────────────────────────
 //  ProjectCategoryService
@@ -179,4 +191,30 @@ func newProjectUserOptionService(option *core.OptionService) *ProjectUserOptionS
 	return &ProjectUserOptionService{
 		base: option,
 	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func categoryFromModel(m *model.Category) *Category {
+	if m == nil {
+		return nil
+	}
+	return &Category{
+		ID:           m.ID,
+		Name:         m.Name,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func categoriesFromModel(ms []*model.Category) []*Category {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Category, len(ms))
+	for i, v := range ms {
+		result[i] = categoryFromModel(v)
+	}
+	return result
 }

@@ -5,7 +5,21 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/model"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  Status models
+// ──────────────────────────────────────────────────────────────
+
+// Status represents a project status that can be assigned to issues.
+type Status struct {
+	ID           int
+	ProjectID    int
+	Name         string
+	Color        string
+	DisplayOrder int
+}
 
 // ──────────────────────────────────────────────────────────────
 //  ProjectStatusService
@@ -203,4 +217,32 @@ func newProjectStatusOptionService(option *core.OptionService) *ProjectStatusOpt
 
 func newVersionOptionService(option *core.OptionService) *ProjectVersionOptionService {
 	return &ProjectVersionOptionService{base: option}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func statusFromModel(m *model.Status) *Status {
+	if m == nil {
+		return nil
+	}
+	return &Status{
+		ID:           m.ID,
+		ProjectID:    m.ProjectID,
+		Name:         m.Name,
+		Color:        m.Color,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func statusesFromModel(ms []*model.Status) []*Status {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Status, len(ms))
+	for i, v := range ms {
+		result[i] = statusFromModel(v)
+	}
+	return result
 }

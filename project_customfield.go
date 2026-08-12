@@ -5,7 +5,31 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/model"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  CustomField models
+// ──────────────────────────────────────────────────────────────
+
+// CustomField represents a custom field defined in the project.
+type CustomField struct {
+	ID                     int
+	TypeID                 int
+	Name                   string
+	Description            string
+	Required               bool
+	ApplicableIssueTypeIDs []int
+	AllowAddItem           bool
+	Items                  []*CustomFieldItem
+}
+
+// CustomFieldItem represents one item in a list type [CustomField].
+type CustomFieldItem struct {
+	ID           int
+	Name         string
+	DisplayOrder int
+}
 
 // ──────────────────────────────────────────────────────────────
 //  ProjectCustomFieldService
@@ -196,4 +220,50 @@ func newProjectCustomFieldService(method *core.Method, option *core.OptionServic
 
 func newProjectCustomFieldOptionService(option *core.OptionService) *ProjectCustomFieldOptionService {
 	return &ProjectCustomFieldOptionService{base: option}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func customFieldItemFromModel(m *model.CustomFieldItem) *CustomFieldItem {
+	if m == nil {
+		return nil
+	}
+	return &CustomFieldItem{
+		ID:           m.ID,
+		Name:         m.Name,
+		DisplayOrder: m.DisplayOrder,
+	}
+}
+
+func customFieldFromModel(m *model.CustomField) *CustomField {
+	if m == nil {
+		return nil
+	}
+	items := make([]*CustomFieldItem, len(m.Items))
+	for i, v := range m.Items {
+		items[i] = customFieldItemFromModel(v)
+	}
+	return &CustomField{
+		ID:                     m.ID,
+		TypeID:                 m.TypeID,
+		Name:                   m.Name,
+		Description:            m.Description,
+		Required:               m.Required,
+		ApplicableIssueTypeIDs: m.ApplicableIssueTypeIDs,
+		AllowAddItem:           m.AllowAddItem,
+		Items:                  items,
+	}
+}
+
+func customFieldsFromModel(m []*model.CustomField) []*CustomField {
+	if m == nil {
+		return nil
+	}
+	result := make([]*CustomField, len(m))
+	for i, v := range m {
+		result[i] = customFieldFromModel(v)
+	}
+	return result
 }
