@@ -1,11 +1,11 @@
 package option
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 func (s *OptionService) WithAssigneeID(id int) *APIParamOption {
@@ -126,10 +126,7 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParam
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *core.ValidationError {
-			if value < min || value > max {
-				return core.NewValidationError(paramType.Value(), fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
-			}
-			return nil
+			return validate.ValidateIntRange(paramType.Value(), value, min, max)
 		},
 		SetFunc: setIntFunc(paramType, value),
 	}
@@ -140,10 +137,7 @@ func positiveIntOption(paramType APIParamOptionType, value int) *APIParamOption 
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *core.ValidationError {
-			if value < 1 {
-				return core.NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
-			}
-			return nil
+			return validate.ValidatePositiveInt(paramType.Value(), value)
 		},
 		SetFunc: setIntFunc(paramType, value),
 	}
