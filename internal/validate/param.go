@@ -57,7 +57,7 @@ func ValidatePositiveFloat64(field string, value float64) *core.ValidationError 
 // ValidateDateFormat validates that date is formatted as yyyy-MM-dd.
 func ValidateDateFormat(field, date string) *core.ValidationError {
 	if !datePattern.MatchString(date) {
-		return core.NewValidationError(field, fmt.Sprintf("%s must be formatted as yyyy-MM-dd, got %q", field, date))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be formatted as yyyy-MM-dd, got %q", field, date))
 	}
 	return nil
 }
@@ -65,7 +65,7 @@ func ValidateDateFormat(field, date string) *core.ValidationError {
 // ValidateNonEmptyString validates that value is not empty or whitespace-only.
 func ValidateNonEmptyString(field, value string) *core.ValidationError {
 	if strings.TrimSpace(value) == "" {
-		return core.NewValidationError(field, fmt.Sprintf("%s must not be empty", field))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be empty", field))
 	}
 	return nil
 }
@@ -74,7 +74,7 @@ func ValidateNonEmptyString(field, value string) *core.ValidationError {
 func ValidateEmail(field, value string) *core.ValidationError {
 	addr, err := mail.ParseAddress(value)
 	if err != nil || addr.Address != value {
-		return core.NewValidationError(field, fmt.Sprintf("%s %q is not a valid email address", field, value))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: not a valid email address", field))
 	}
 	return nil
 }
@@ -82,7 +82,7 @@ func ValidateEmail(field, value string) *core.ValidationError {
 // ValidateOrder validates that order is "asc" or "desc".
 func ValidateOrder(field, order string) *core.ValidationError {
 	if order != "asc" && order != "desc" {
-		return core.NewValidationError(field, fmt.Sprintf("%s must be only 'asc' or 'desc'", field))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be only 'asc' or 'desc'", field))
 	}
 	return nil
 }
@@ -90,7 +90,7 @@ func ValidateOrder(field, order string) *core.ValidationError {
 // ValidatePassword validates that password is at least 8 characters long.
 func ValidatePassword(field, password string) *core.ValidationError {
 	if len(password) < 8 {
-		return core.NewValidationError(field, fmt.Sprintf("%s must be at least 8 characters long", field))
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be at least 8 characters long", field))
 	}
 	return nil
 }
@@ -102,7 +102,7 @@ func ValidateIssueSort(field, sort string) *core.ValidationError {
 			return nil
 		}
 	}
-	return core.NewValidationError(field, fmt.Sprintf("invalid sort value: %q", sort))
+	return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be a valid sort value", field))
 }
 
 // ValidateTextFormattingRule validates that format is "backlog" or "markdown".
@@ -112,5 +112,5 @@ func ValidateTextFormattingRule(field, format string) *core.ValidationError {
 			return nil
 		}
 	}
-	return core.NewValidationError(field, "format must be only 'backlog' or 'markdown'")
+	return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be only 'backlog' or 'markdown'", field))
 }
