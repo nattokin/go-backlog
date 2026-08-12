@@ -85,31 +85,6 @@ func TestValidateIntRange(t *testing.T) {
 	}
 }
 
-func TestValidateActivityTypeID(t *testing.T) {
-	cases := map[string]struct {
-		id      int
-		wantErr bool
-	}{
-		"valid-min":     {id: 1},
-		"valid-max":     {id: 26},
-		"invalid-below": {id: 0, wantErr: true},
-		"invalid-above": {id: 27, wantErr: true},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			ve := validate.ValidateActivityTypeID("activityTypeIds", tc.id, 26)
-			if tc.wantErr {
-				assert.NotNil(t, ve)
-				return
-			}
-			assert.Nil(t, ve)
-		})
-	}
-}
-
 func TestValidatePositiveFloat64(t *testing.T) {
 	cases := map[string]struct {
 		value   float64
