@@ -102,9 +102,7 @@ func TestStarService_Add(t *testing.T) {
 			if tc.doFunc != nil {
 				doer = &mock.Doer{DoFunc: tc.doFunc}
 			} else {
-				doer = &mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
-					return nil, errors.New("should not be called")
-				}}
+				doer = &mock.Doer{DoFunc: mock.NewUnexpectedDoFunc(t)}
 			}
 
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doer))
@@ -154,9 +152,7 @@ func TestStarService_Remove(t *testing.T) {
 			if tc.doFunc != nil {
 				doer = &mock.Doer{DoFunc: tc.doFunc}
 			} else {
-				doer = &mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
-					return nil, errors.New("should not be called")
-				}}
+				doer = &mock.Doer{DoFunc: mock.NewUnexpectedDoFunc(t)}
 			}
 
 			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doer))
