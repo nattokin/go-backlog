@@ -9,6 +9,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -75,20 +76,20 @@ func (s *Service) Me(ctx context.Context) (*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType int) (*model.User, error) {
-	option := &core.OptionService{}
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamPassword, core.ParamName, core.ParamMailAddress, core.ParamRoleType}
-	options := []*core.APIParamOption{
-		option.WithPassword(password),
-		option.WithName(name),
-		option.WithMailAddress(mailAddress),
-		option.WithRoleType(roleType),
+	validTypes := []option.APIParamOptionType{option.ParamPassword, option.ParamName, option.ParamMailAddress, option.ParamRoleType}
+	options := []*option.APIParamOption{
+		optSvc.WithPassword(password),
+		optSvc.WithName(name),
+		optSvc.WithMailAddress(mailAddress),
+		optSvc.WithRoleType(roleType),
 	}
 	var ves core.ValidationErrors
 	if userID == "" {
 		ves = append(ves, core.NewValidationError("userID", "userID must not be empty"))
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -110,12 +111,12 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 // Update updates an existing user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
-func (s *Service) Update(ctx context.Context, id int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.User, error) {
-	baseOpt := &core.OptionService{}
+func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.User, error) {
+	baseOpt := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamUserID, core.ParamName, core.ParamPassword, core.ParamMailAddress, core.ParamRoleType}
-	options := append([]*core.APIParamOption{baseOpt.WithUserID(id), option}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	validTypes := []option.APIParamOptionType{option.ParamUserID, option.ParamName, option.ParamPassword, option.ParamMailAddress, option.ParamRoleType}
+	options := append([]*option.APIParamOption{baseOpt.WithUserID(id), opt}, opts...)
+	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 

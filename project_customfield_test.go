@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -621,59 +621,59 @@ func TestProjectCustomFieldOptionService(t *testing.T) {
 	}{
 		"WithName": {
 			option:  s.WithName("Sprint"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 		"WithDescription": {
 			option:  s.WithDescription("sprint number"),
-			wantKey: core.ParamDescription.Value(),
+			wantKey: option.ParamDescription.Value(),
 		},
 		"WithRequired": {
 			option:  s.WithRequired(true),
-			wantKey: core.ParamRequired.Value(),
+			wantKey: option.ParamRequired.Value(),
 		},
 		"WithApplicableIssueTypeIDs": {
 			option:  s.WithApplicableIssueTypeIDs([]int{1, 2}),
-			wantKey: core.ParamApplicableIssueTypeIDs.Value(),
+			wantKey: option.ParamApplicableIssueTypeIDs.Value(),
 		},
 		"WithMin": {
 			option:  s.WithMin(0.5),
-			wantKey: core.ParamMin.Value(),
+			wantKey: option.ParamMin.Value(),
 		},
 		"WithMax": {
 			option:  s.WithMax(100.0),
-			wantKey: core.ParamMax.Value(),
+			wantKey: option.ParamMax.Value(),
 		},
 		"WithInitialValue": {
 			option:  s.WithInitialValue(1.0),
-			wantKey: core.ParamInitialValue.Value(),
+			wantKey: option.ParamInitialValue.Value(),
 		},
 		"WithUnit": {
 			option:  s.WithUnit("pt"),
-			wantKey: core.ParamUnit.Value(),
+			wantKey: option.ParamUnit.Value(),
 		},
 		"WithInitialValueType": {
 			option:  s.WithInitialValueType(1),
-			wantKey: core.ParamInitialValueType.Value(),
+			wantKey: option.ParamInitialValueType.Value(),
 		},
 		"WithInitialDate": {
 			option:  s.WithInitialDate("2024-03-15"),
-			wantKey: core.ParamInitialDate.Value(),
+			wantKey: option.ParamInitialDate.Value(),
 		},
 		"WithInitialShift": {
 			option:  s.WithInitialShift(7),
-			wantKey: core.ParamInitialShift.Value(),
+			wantKey: option.ParamInitialShift.Value(),
 		},
 		"WithItems": {
 			option:  s.WithItems([]string{"High", "Low"}),
-			wantKey: core.ParamItems.Value(),
+			wantKey: option.ParamItems.Value(),
 		},
 		"WithAllowInput": {
 			option:  s.WithAllowInput(true),
-			wantKey: core.ParamAllowInput.Value(),
+			wantKey: option.ParamAllowInput.Value(),
 		},
 		"WithAllowAddItem": {
 			option:  s.WithAllowAddItem(true),
-			wantKey: core.ParamAllowAddItem.Value(),
+			wantKey: option.ParamAllowAddItem.Value(),
 		},
 	}
 

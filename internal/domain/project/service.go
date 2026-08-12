@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -18,10 +19,10 @@ type Service struct {
 // List returns a list of projects in the space.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
-func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Project, error) {
+func (s *Service) List(ctx context.Context, opts ...*option.APIParamOption) ([]*model.Project, error) {
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamAll, core.ParamArchived}
-	if err := core.ApplyOptions(query, validTypes, opts...); err != nil {
+	validTypes := []option.APIParamOptionType{option.ParamAll, option.ParamArchived}
+	if err := option.ApplyOptions(query, validTypes, opts...); err != nil {
 		return nil, err
 	}
 
@@ -67,13 +68,13 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 // Create creates a new project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
-func (s *Service) Create(ctx context.Context, key, name string, opts ...*core.APIParamOption) (*model.Project, error) {
-	option := &core.OptionService{}
+func (s *Service) Create(ctx context.Context, key, name string, opts ...*option.APIParamOption) (*model.Project, error) {
+	optSvc := &option.OptionService{}
 
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled, core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule}
-	options := append([]*core.APIParamOption{option.WithKey(key), option.WithName(name)}, opts...)
-	if err := core.ApplyOptions(form, validTypes, options...); err != nil {
+	validTypes := []option.APIParamOptionType{option.ParamKey, option.ParamName, option.ParamChartEnabled, option.ParamSubtaskingEnabled, option.ParamProjectLeaderCanEditProjectLeader, option.ParamTextFormattingRule}
+	options := append([]*option.APIParamOption{optSvc.WithKey(key), optSvc.WithName(name)}, opts...)
+	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
 	}
 
@@ -93,19 +94,19 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...*core.AP
 // Update updates a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Project, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Project, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamKey, core.ParamName, core.ParamChartEnabled, core.ParamSubtaskingEnabled,
-		core.ParamProjectLeaderCanEditProjectLeader, core.ParamTextFormattingRule, core.ParamArchived,
+	validTypes := []option.APIParamOptionType{
+		option.ParamKey, option.ParamName, option.ParamChartEnabled, option.ParamSubtaskingEnabled,
+		option.ParamProjectLeaderCanEditProjectLeader, option.ParamTextFormattingRule, option.ParamArchived,
 	}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 

@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"net/url"
@@ -7,286 +7,286 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestOptionService_string(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *option.APIParamOption
 		key       string
 		wantValue string
 		wantErr   bool
 	}{
 		"WithBase-empty": {
 			option:  o.WithBase(""),
-			key:     core.ParamBase.Value(),
+			key:     option.ParamBase.Value(),
 			wantErr: true,
 		},
 		"WithBase-whitespace": {
 			option:  o.WithBase("   "),
-			key:     core.ParamBase.Value(),
+			key:     option.ParamBase.Value(),
 			wantErr: true,
 		},
 		"WithBase-valid": {
 			option:    o.WithBase("main"),
-			key:       core.ParamBase.Value(),
+			key:       option.ParamBase.Value(),
 			wantValue: "main",
 		},
 		"WithBranch-empty": {
 			option:  o.WithBranch(""),
-			key:     core.ParamBranch.Value(),
+			key:     option.ParamBranch.Value(),
 			wantErr: true,
 		},
 		"WithBranch-whitespace": {
 			option:  o.WithBranch("   "),
-			key:     core.ParamBranch.Value(),
+			key:     option.ParamBranch.Value(),
 			wantErr: true,
 		},
 		"WithBranch-valid": {
 			option:    o.WithBranch("feature/foo"),
-			key:       core.ParamBranch.Value(),
+			key:       option.ParamBranch.Value(),
 			wantValue: "feature/foo",
 		},
 		"WithColor-empty": {
 			option:  o.WithColor(""),
-			key:     core.ParamColor.Value(),
+			key:     option.ParamColor.Value(),
 			wantErr: true,
 		},
 		"WithColor-whitespace": {
 			option:  o.WithColor("   "),
-			key:     core.ParamColor.Value(),
+			key:     option.ParamColor.Value(),
 			wantErr: true,
 		},
 		"WithColor-valid": {
 			option:    o.WithColor("#e30000"),
-			key:       core.ParamColor.Value(),
+			key:       option.ParamColor.Value(),
 			wantValue: "#e30000",
 		},
 		"WithComment-empty": {
 			option:    o.WithComment(""),
-			key:       core.ParamComment.Value(),
+			key:       option.ParamComment.Value(),
 			wantValue: "",
 		},
 		"WithComment-valid": {
 			option:    o.WithComment("looks good"),
-			key:       core.ParamComment.Value(),
+			key:       option.ParamComment.Value(),
 			wantValue: "looks good",
 		},
 		"WithContent-empty": {
 			option:  o.WithContent(""),
-			key:     core.ParamContent.Value(),
+			key:     option.ParamContent.Value(),
 			wantErr: true,
 		},
 		"WithContent-whitespace": {
 			option:  o.WithContent("   "),
-			key:     core.ParamContent.Value(),
+			key:     option.ParamContent.Value(),
 			wantErr: true,
 		},
 		"WithContent-valid": {
 			option:    o.WithContent("Hello"),
-			key:       core.ParamContent.Value(),
+			key:       option.ParamContent.Value(),
 			wantValue: "Hello",
 		},
 		"WithDescription-empty": {
 			option:    o.WithDescription(""),
-			key:       core.ParamDescription.Value(),
+			key:       option.ParamDescription.Value(),
 			wantValue: "",
 		},
 		"WithDescription-non-empty": {
 			option:    o.WithDescription("desc"),
-			key:       core.ParamDescription.Value(),
+			key:       option.ParamDescription.Value(),
 			wantValue: "desc",
 		},
 		"WithHookURL-empty": {
 			option:  o.WithHookURL(""),
-			key:     core.ParamHookURL.Value(),
+			key:     option.ParamHookURL.Value(),
 			wantErr: true,
 		},
 		"WithHookURL-whitespace": {
 			option:  o.WithHookURL("   "),
-			key:     core.ParamHookURL.Value(),
+			key:     option.ParamHookURL.Value(),
 			wantErr: true,
 		},
 		"WithHookURL-valid": {
 			option:    o.WithHookURL("https://example.com/webhook"),
-			key:       core.ParamHookURL.Value(),
+			key:       option.ParamHookURL.Value(),
 			wantValue: "https://example.com/webhook",
 		},
 		"WithKey-empty": {
 			option:  o.WithKey(""),
-			key:     core.ParamKey.Value(),
+			key:     option.ParamKey.Value(),
 			wantErr: true,
 		},
 		"WithKey-whitespace": {
 			option:  o.WithKey("   "),
-			key:     core.ParamKey.Value(),
+			key:     option.ParamKey.Value(),
 			wantErr: true,
 		},
 		"WithKey-valid": {
 			option:    o.WithKey("ABC"),
-			key:       core.ParamKey.Value(),
+			key:       option.ParamKey.Value(),
 			wantValue: "ABC",
 		},
 		"WithKeyword-empty": {
 			option:    o.WithKeyword(""),
-			key:       core.ParamKeyword.Value(),
+			key:       option.ParamKeyword.Value(),
 			wantValue: "",
 		},
 		"WithKeyword-non-empty": {
 			option:    o.WithKeyword("backlog"),
-			key:       core.ParamKeyword.Value(),
+			key:       option.ParamKeyword.Value(),
 			wantValue: "backlog",
 		},
 		"WithMailAddress-empty": {
 			option:  o.WithMailAddress(""),
-			key:     core.ParamMailAddress.Value(),
+			key:     option.ParamMailAddress.Value(),
 			wantErr: true,
 		},
 		"WithMailAddress-valid": {
 			option:    o.WithMailAddress("test@example.com"),
-			key:       core.ParamMailAddress.Value(),
+			key:       option.ParamMailAddress.Value(),
 			wantValue: "test@example.com",
 		},
 		"WithMailAddress-valid-plus": {
 			option:    o.WithMailAddress("user+tag@example.co.jp"),
-			key:       core.ParamMailAddress.Value(),
+			key:       option.ParamMailAddress.Value(),
 			wantValue: "user+tag@example.co.jp",
 		},
 		"WithMailAddress-invalid-no-at": {
 			option:  o.WithMailAddress("notanemail"),
-			key:     core.ParamMailAddress.Value(),
+			key:     option.ParamMailAddress.Value(),
 			wantErr: true,
 		},
 		"WithMailAddress-invalid-display-name": {
 			option:  o.WithMailAddress("John Doe <john@example.com>"),
-			key:     core.ParamMailAddress.Value(),
+			key:     option.ParamMailAddress.Value(),
 			wantErr: true,
 		},
 		"WithMailAddress-invalid-angle-bracket": {
 			option:  o.WithMailAddress("<john@example.com>"),
-			key:     core.ParamMailAddress.Value(),
+			key:     option.ParamMailAddress.Value(),
 			wantErr: true,
 		},
 		"WithName-empty": {
 			option:  o.WithName(""),
-			key:     core.ParamName.Value(),
+			key:     option.ParamName.Value(),
 			wantErr: true,
 		},
 		"WithName-whitespace": {
 			option:  o.WithName("   "),
-			key:     core.ParamName.Value(),
+			key:     option.ParamName.Value(),
 			wantErr: true,
 		},
 		"WithName-valid": {
 			option:    o.WithName("testname"),
-			key:       core.ParamName.Value(),
+			key:       option.ParamName.Value(),
 			wantValue: "testname",
 		},
 		"WithSummary-empty": {
 			option:  o.WithSummary(""),
-			key:     core.ParamSummary.Value(),
+			key:     option.ParamSummary.Value(),
 			wantErr: true,
 		},
 		"WithSummary-whitespace": {
 			option:  o.WithSummary("   "),
-			key:     core.ParamSummary.Value(),
+			key:     option.ParamSummary.Value(),
 			wantErr: true,
 		},
 		"WithSummary-valid": {
 			option:    o.WithSummary("summary"),
-			key:       core.ParamSummary.Value(),
+			key:       option.ParamSummary.Value(),
 			wantValue: "summary",
 		},
 		"WithTemplateDescription-empty": {
 			option:    o.WithTemplateDescription(""),
-			key:       core.ParamTemplateDescription.Value(),
+			key:       option.ParamTemplateDescription.Value(),
 			wantValue: "",
 		},
 		"WithTemplateDescription-non-empty": {
 			option:    o.WithTemplateDescription("default description"),
-			key:       core.ParamTemplateDescription.Value(),
+			key:       option.ParamTemplateDescription.Value(),
 			wantValue: "default description",
 		},
 		"WithTemplateSummary-empty": {
 			option:    o.WithTemplateSummary(""),
-			key:       core.ParamTemplateSummary.Value(),
+			key:       option.ParamTemplateSummary.Value(),
 			wantValue: "",
 		},
 		"WithTemplateSummary-non-empty": {
 			option:    o.WithTemplateSummary("default summary"),
-			key:       core.ParamTemplateSummary.Value(),
+			key:       option.ParamTemplateSummary.Value(),
 			wantValue: "default summary",
 		},
 		"WithUnit-empty": {
 			option:    o.WithUnit(""),
-			key:       core.ParamUnit.Value(),
+			key:       option.ParamUnit.Value(),
 			wantValue: "",
 		},
 		"WithUnit-valid": {
 			option:    o.WithUnit("kg"),
-			key:       core.ParamUnit.Value(),
+			key:       option.ParamUnit.Value(),
 			wantValue: "kg",
 		},
 		"WithOrder-asc": {
 			option:    o.WithOrder("asc"),
-			key:       core.ParamOrder.Value(),
+			key:       option.ParamOrder.Value(),
 			wantValue: "asc",
 		},
 		"WithOrder-desc": {
 			option:    o.WithOrder("desc"),
-			key:       core.ParamOrder.Value(),
+			key:       option.ParamOrder.Value(),
 			wantValue: "desc",
 		},
 		"WithOrder-empty": {
 			option:  o.WithOrder(""),
-			key:     core.ParamOrder.Value(),
+			key:     option.ParamOrder.Value(),
 			wantErr: true,
 		},
 		"WithOrder-invalid": {
 			option:  o.WithOrder("invalid"),
-			key:     core.ParamOrder.Value(),
+			key:     option.ParamOrder.Value(),
 			wantErr: true,
 		},
 		"WithPassword-invalid-empty": {
 			option:  o.WithPassword(""),
-			key:     core.ParamPassword.Value(),
+			key:     option.ParamPassword.Value(),
 			wantErr: true,
 		},
 		"WithPassword-valid-7chars": {
 			option:  o.WithPassword("abcdefg"),
-			key:     core.ParamPassword.Value(),
+			key:     option.ParamPassword.Value(),
 			wantErr: true,
 		},
 		"WithPassword-valid-8chars": {
 			option:    o.WithPassword("abcdefgh"),
-			key:       core.ParamPassword.Value(),
+			key:       option.ParamPassword.Value(),
 			wantValue: "abcdefgh",
 		},
 		"WithPassword-valid-9chars": {
 			option:    o.WithPassword("abcdefghi"),
-			key:       core.ParamPassword.Value(),
+			key:       option.ParamPassword.Value(),
 			wantValue: "abcdefghi",
 		},
 		"WithTextFormattingRule-invalid": {
 			option:  o.WithTextFormattingRule("invalid"),
-			key:     core.ParamTextFormattingRule.Value(),
+			key:     option.ParamTextFormattingRule.Value(),
 			wantErr: true,
 		},
 		"WithTextFormattingRule-invalid-empty": {
 			option:  o.WithTextFormattingRule(""),
-			key:     core.ParamTextFormattingRule.Value(),
+			key:     option.ParamTextFormattingRule.Value(),
 			wantErr: true,
 		},
 		"WithTextFormattingRule-valid-backlog": {
 			option:    o.WithTextFormattingRule("backlog"),
-			key:       core.ParamTextFormattingRule.Value(),
+			key:       option.ParamTextFormattingRule.Value(),
 			wantValue: "backlog",
 		},
 		"WithTextFormattingRule-valid-markdown": {
 			option:    o.WithTextFormattingRule("markdown"),
-			key:       core.ParamTextFormattingRule.Value(),
+			key:       option.ParamTextFormattingRule.Value(),
 			wantValue: "markdown",
 		},
 	}
@@ -350,7 +350,7 @@ func TestOptionService_string(t *testing.T) {
 				}
 				require.Nil(t, ve)
 				_ = opt.Set(q)
-				assert.Equal(t, tc.sort, q.Get(core.ParamSort.Value()))
+				assert.Equal(t, tc.sort, q.Get(option.ParamSort.Value()))
 			})
 		}
 	})

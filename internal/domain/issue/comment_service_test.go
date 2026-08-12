@@ -13,16 +13,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestCommentService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		issueIDOrKey string
-		opts         []*core.APIParamOption
+		opts         []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -49,7 +50,7 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"success-with-count-and-order": {
 			issueIDOrKey: "PRJ-1",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(20),
 				o.WithOrder("asc"),
 			},
@@ -62,7 +63,7 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"success-with-minID-maxID": {
 			issueIDOrKey: "PRJ-1",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMinID(10),
 				o.WithMaxID(100),
 			},
@@ -84,30 +85,30 @@ func TestCommentService_List(t *testing.T) {
 		},
 		"error-validation-opt-count-zero": {
 			issueIDOrKey:           "PRJ-1",
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			issueIDOrKey:           "",
-			opts:                   []*core.APIParamOption{o.WithCount(0)},
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			issueIDOrKey:           "PRJ-1",
-			opts:                   []*core.APIParamOption{o.WithCount(10), nil},
+			opts:                   []*option.APIParamOption{o.WithCount(10), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			issueIDOrKey:           "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			issueIDOrKey: "PRJ-1",
-			opts:         []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:  &core.InvalidOptionKeyError{},
+			opts:         []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:  &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -147,7 +148,7 @@ func TestCommentService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

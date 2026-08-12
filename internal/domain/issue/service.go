@@ -11,70 +11,71 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-var countValidTypes = []core.APIParamOptionType{
-	core.ParamProjectIDs,
-	core.ParamIssueTypeIDs,
-	core.ParamCategoryIDs,
-	core.ParamVersionIDs,
-	core.ParamMilestoneIDs,
-	core.ParamStatusIDs,
-	core.ParamPriorityIDs,
-	core.ParamAssigneeIDs,
-	core.ParamCreatedUserIDs,
-	core.ParamResolutionIDs,
-	core.ParamParentChild,
-	core.ParamAttachment,
-	core.ParamSharedFile,
-	core.ParamCreatedSince,
-	core.ParamCreatedUntil,
-	core.ParamUpdatedSince,
-	core.ParamUpdatedUntil,
-	core.ParamStartDateSince,
-	core.ParamStartDateUntil,
-	core.ParamDueDateSince,
-	core.ParamDueDateUntil,
-	core.ParamHasDueDate,
-	core.ParamIDs,
-	core.ParamParentIssueIDs,
-	core.ParamKeyword,
+var countValidTypes = []option.APIParamOptionType{
+	option.ParamProjectIDs,
+	option.ParamIssueTypeIDs,
+	option.ParamCategoryIDs,
+	option.ParamVersionIDs,
+	option.ParamMilestoneIDs,
+	option.ParamStatusIDs,
+	option.ParamPriorityIDs,
+	option.ParamAssigneeIDs,
+	option.ParamCreatedUserIDs,
+	option.ParamResolutionIDs,
+	option.ParamParentChild,
+	option.ParamAttachment,
+	option.ParamSharedFile,
+	option.ParamCreatedSince,
+	option.ParamCreatedUntil,
+	option.ParamUpdatedSince,
+	option.ParamUpdatedUntil,
+	option.ParamStartDateSince,
+	option.ParamStartDateUntil,
+	option.ParamDueDateSince,
+	option.ParamDueDateUntil,
+	option.ParamHasDueDate,
+	option.ParamIDs,
+	option.ParamParentIssueIDs,
+	option.ParamKeyword,
 }
 
 var filterValidTypes = append(countValidTypes,
-	core.ParamSort,
-	core.ParamOrder,
+	option.ParamSort,
+	option.ParamOrder,
 )
 
 var listValidTypes = append(filterValidTypes,
-	core.ParamOffset,
-	core.ParamCount,
+	option.ParamOffset,
+	option.ParamCount,
 )
 
-var createValidTypes = []core.APIParamOptionType{
-	core.ParamSummary,
-	core.ParamIssueTypeID,
-	core.ParamPriorityID,
-	core.ParamDescription,
-	core.ParamStartDate,
-	core.ParamDueDate,
-	core.ParamEstimatedHours,
-	core.ParamActualHours,
-	core.ParamCategoryIDs,
-	core.ParamVersionIDs,
-	core.ParamMilestoneIDs,
-	core.ParamAssigneeID,
-	core.ParamParentIssueID,
-	core.ParamNotifiedUserIDs,
-	core.ParamAttachmentIDs,
-	core.ParamCustomField,
+var createValidTypes = []option.APIParamOptionType{
+	option.ParamSummary,
+	option.ParamIssueTypeID,
+	option.ParamPriorityID,
+	option.ParamDescription,
+	option.ParamStartDate,
+	option.ParamDueDate,
+	option.ParamEstimatedHours,
+	option.ParamActualHours,
+	option.ParamCategoryIDs,
+	option.ParamVersionIDs,
+	option.ParamMilestoneIDs,
+	option.ParamAssigneeID,
+	option.ParamParentIssueID,
+	option.ParamNotifiedUserIDs,
+	option.ParamAttachmentIDs,
+	option.ParamCustomField,
 }
 
 var updateValidTypes = append(createValidTypes,
-	core.ParamStatusID,
-	core.ParamResolutionID,
-	core.ParamComment,
+	option.ParamStatusID,
+	option.ParamResolutionID,
+	option.ParamComment,
 )
 
 type Service struct {
@@ -96,9 +97,9 @@ func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, e
 // List returns a list of issues.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Issue, error) {
+func (s *Service) List(ctx context.Context, opts ...*option.APIParamOption) ([]*model.Issue, error) {
 	query := url.Values{}
-	if err := core.ApplyOptions(query, listValidTypes, opts...); err != nil {
+	if err := option.ApplyOptions(query, listValidTypes, opts...); err != nil {
 		return nil, err
 	}
 	return s.list(ctx, query)
@@ -107,8 +108,8 @@ func (s *Service) List(ctx context.Context, opts ...*core.APIParamOption) ([]*mo
 // All returns an iterator that lazily fetches all issues with automatic pagination.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
-func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOption) (iter.Seq2[*model.Issue, error], error) {
-	o := &core.OptionService{}
+func (s *Service) All(ctx context.Context, perPage int, opts ...*option.APIParamOption) (iter.Seq2[*model.Issue, error], error) {
+	o := &option.OptionService{}
 
 	countOpt := o.WithCount(perPage)
 	if ve := countOpt.Check(); ve != nil {
@@ -117,13 +118,13 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOp
 
 	baseQuery := url.Values{}
 	countOpt.Set(baseQuery)
-	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+	if err := option.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
 		return nil, err
 	}
 
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.Issue, error) {
 		q := maps.Clone(baseQuery)
-		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
+		q.Set(option.ParamOffset.Value(), strconv.Itoa(offset))
 		return s.list(ctx, q)
 	}), nil
 }
@@ -131,9 +132,9 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*core.APIParamOp
 // Count returns the total count of issues matching the given filters.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
-func (s *Service) Count(ctx context.Context, opts ...*core.APIParamOption) (int, error) {
+func (s *Service) Count(ctx context.Context, opts ...*option.APIParamOption) (int, error) {
 	query := url.Values{}
-	if err := core.ApplyOptions(query, countValidTypes, opts...); err != nil {
+	if err := option.ApplyOptions(query, countValidTypes, opts...); err != nil {
 		return 0, err
 	}
 
@@ -179,11 +180,11 @@ func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, e
 // Create creates a new issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
-func (s *Service) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...*core.APIParamOption) (*model.Issue, error) {
-	o := &core.OptionService{}
+func (s *Service) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...*option.APIParamOption) (*model.Issue, error) {
+	o := &option.OptionService{}
 	form := url.Values{}
 	options := append(
-		[]*core.APIParamOption{
+		[]*option.APIParamOption{
 			o.WithSummary(summary),
 			o.WithIssueTypeID(issueTypeID),
 			o.WithPriorityID(priorityID),
@@ -195,7 +196,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, createValidTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, createValidTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -217,15 +218,15 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 // Update updates an existing issue.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
-func (s *Service) Update(ctx context.Context, issueIDOrKey string, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Issue, error) {
+func (s *Service) Update(ctx context.Context, issueIDOrKey string, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Issue, error) {
 	form := url.Values{}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, updateValidTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, updateValidTypes, options...)); err != nil {
 		return nil, err
 	}
 

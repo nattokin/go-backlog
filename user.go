@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // User represents user.
@@ -130,7 +131,7 @@ func (s *UserActivityService) List(ctx context.Context, userID int, opts ...Requ
 // UserOptionService provides a domain-specific set of option builders
 // for operations within the UserService.
 type UserOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithMailAddress sets the mail address of a user.
@@ -167,7 +168,7 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newUserService(method *core.Method, option *core.OptionService) *UserService {
+func newUserService(method *core.Method, option *option.OptionService) *UserService {
 	return &UserService{
 		base: user.NewService(method),
 
@@ -178,14 +179,14 @@ func newUserService(method *core.Method, option *core.OptionService) *UserServic
 	}
 }
 
-func newUserActivityService(method *core.Method, option *core.OptionService) *UserActivityService {
+func newUserActivityService(method *core.Method, option *option.OptionService) *UserActivityService {
 	return &UserActivityService{
 		base:   user.NewActivityService(method),
 		Option: newActivityOptionService(option),
 	}
 }
 
-func newUserOptionService(option *core.OptionService) *UserOptionService {
+func newUserOptionService(option *option.OptionService) *UserOptionService {
 	return &UserOptionService{
 		base: option,
 	}

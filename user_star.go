@@ -5,6 +5,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/user"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // UserStarService handles communication with the user star-related methods of the Backlog API.
@@ -40,7 +41,7 @@ func (s *UserStarService) Count(ctx context.Context, userID int) (int, error) {
 // UserStarOptionService provides a domain-specific set of option builders
 // for operations within the UserStarService.
 type UserStarOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithCount sets the number of results to return.
@@ -63,14 +64,14 @@ func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-func newUserStarService(method *core.Method, option *core.OptionService) *UserStarService {
+func newUserStarService(method *core.Method, option *option.OptionService) *UserStarService {
 	return &UserStarService{
 		base:   user.NewStarService(method),
 		Option: newUserStarOptionService(option),
 	}
 }
 
-func newUserStarOptionService(option *core.OptionService) *UserStarOptionService {
+func newUserStarOptionService(option *option.OptionService) *UserStarOptionService {
 	return &UserStarOptionService{
 		base: option,
 	}

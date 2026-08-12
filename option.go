@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // RequestOption defines a common interface for all option types.
@@ -16,9 +17,9 @@ type RequestOption interface {
 }
 
 // requestOption is the internal implementation of RequestOption that wraps
-// a *core.APIParamOption, converting *core.ValidationError to *ValidationError.
+// a *option.APIParamOption, converting *core.ValidationError to *ValidationError.
 type requestOption struct {
-	opt *core.APIParamOption
+	opt *option.APIParamOption
 }
 
 func (o *requestOption) Key() string { return o.opt.Key() }
@@ -36,7 +37,7 @@ func (o *requestOption) Set(v url.Values) error { return o.opt.Set(v) }
 
 // ActivityOptionService provides option builders for activity list operations.
 type ActivityOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithActivityTypeIDs filters activities by type IDs.
@@ -68,7 +69,7 @@ func (s *ActivityOptionService) WithOrder(order Order) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newActivityOptionService(option *core.OptionService) *ActivityOptionService {
+func newActivityOptionService(option *option.OptionService) *ActivityOptionService {
 	return &ActivityOptionService{base: option}
 }
 
@@ -76,11 +77,11 @@ func newActivityOptionService(option *core.OptionService) *ActivityOptionService
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-// toCoreOptions converts a slice of RequestOption to []*core.APIParamOption.
-// A nil RequestOption is passed through as a nil *core.APIParamOption so that
+// toCoreOptions converts a slice of RequestOption to []*option.APIParamOption.
+// A nil RequestOption is passed through as a nil *option.APIParamOption so that
 // the internal layer can detect it and return InvalidOptionError.
-func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
-	coreOpts := make([]*core.APIParamOption, len(opts))
+func toCoreOptions(opts []RequestOption) []*option.APIParamOption {
+	coreOpts := make([]*option.APIParamOption, len(opts))
 	for i, o := range opts {
 		if o == nil {
 			coreOpts[i] = nil
@@ -91,17 +92,17 @@ func toCoreOptions(opts []RequestOption) []*core.APIParamOption {
 	return coreOpts
 }
 
-// toCoreOption converts a backlog.RequestOption to *core.APIParamOption so it
+// toCoreOption converts a backlog.RequestOption to *option.APIParamOption so it
 // can be passed to internal domain service endpoints.
-func toCoreOption(option RequestOption) *core.APIParamOption {
-	return &core.APIParamOption{
-		KeyFunc: option.Key,
+func toCoreOption(opt RequestOption) *option.APIParamOption {
+	return &option.APIParamOption{
+		KeyFunc: opt.Key,
 		CheckFunc: func() *core.ValidationError {
-			if ve := option.Check(); ve != nil {
+			if ve := opt.Check(); ve != nil {
 				return core.NewValidationError(ve.Target(), ve.Message())
 			}
 			return nil
 		},
-		SetFunc: option.Set,
+		SetFunc: opt.Set,
 	}
 }

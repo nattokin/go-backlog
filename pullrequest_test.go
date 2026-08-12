@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -440,19 +440,19 @@ func TestPullRequestOptionService(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"WithAssigneeID":      {option: s.WithAssigneeID(1), wantKey: core.ParamAssigneeID.Value()},
-		"WithAssigneeIDs":     {option: s.WithAssigneeIDs([]int{1}), wantKey: core.ParamAssigneeIDs.Value()},
-		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: core.ParamAttachmentIDs.Value()},
-		"WithComment":         {option: s.WithComment("note"), wantKey: core.ParamComment.Value()},
-		"WithCount":           {option: s.WithCount(20), wantKey: core.ParamCount.Value()},
-		"WithCreatedUserIDs":  {option: s.WithCreatedUserIDs([]int{1}), wantKey: core.ParamCreatedUserIDs.Value()},
-		"WithDescription":     {option: s.WithDescription("desc"), wantKey: core.ParamDescription.Value()},
-		"WithIssueID":         {option: s.WithIssueID(1), wantKey: core.ParamIssueID.Value()},
-		"WithIssueIDs":        {option: s.WithIssueIDs([]int{1}), wantKey: core.ParamIssueIDs.Value()},
-		"WithNotifiedUserIDs": {option: s.WithNotifiedUserIDs([]int{1}), wantKey: core.ParamNotifiedUserIDs.Value()},
-		"WithOffset":          {option: s.WithOffset(0), wantKey: core.ParamOffset.Value()},
-		"WithStatusIDs":       {option: s.WithStatusIDs([]int{backlog.PullRequestStatusOpen}), wantKey: core.ParamStatusIDs.Value()},
-		"WithSummary":         {option: s.WithSummary("summary"), wantKey: core.ParamSummary.Value()},
+		"WithAssigneeID":      {option: s.WithAssigneeID(1), wantKey: option.ParamAssigneeID.Value()},
+		"WithAssigneeIDs":     {option: s.WithAssigneeIDs([]int{1}), wantKey: option.ParamAssigneeIDs.Value()},
+		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: option.ParamAttachmentIDs.Value()},
+		"WithComment":         {option: s.WithComment("note"), wantKey: option.ParamComment.Value()},
+		"WithCount":           {option: s.WithCount(20), wantKey: option.ParamCount.Value()},
+		"WithCreatedUserIDs":  {option: s.WithCreatedUserIDs([]int{1}), wantKey: option.ParamCreatedUserIDs.Value()},
+		"WithDescription":     {option: s.WithDescription("desc"), wantKey: option.ParamDescription.Value()},
+		"WithIssueID":         {option: s.WithIssueID(1), wantKey: option.ParamIssueID.Value()},
+		"WithIssueIDs":        {option: s.WithIssueIDs([]int{1}), wantKey: option.ParamIssueIDs.Value()},
+		"WithNotifiedUserIDs": {option: s.WithNotifiedUserIDs([]int{1}), wantKey: option.ParamNotifiedUserIDs.Value()},
+		"WithOffset":          {option: s.WithOffset(0), wantKey: option.ParamOffset.Value()},
+		"WithStatusIDs":       {option: s.WithStatusIDs([]int{backlog.PullRequestStatusOpen}), wantKey: option.ParamStatusIDs.Value()},
+		"WithSummary":         {option: s.WithSummary("summary"), wantKey: option.ParamSummary.Value()},
 	}
 
 	for name, tc := range cases {

@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"net/url"
@@ -8,21 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestOptionService_int(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *option.APIParamOption
 		key       string
 		wantValue int
 		wantErr   bool
 	}{
 		"WithActualHours-valid-1": {
 			option:    o.WithActualHours(1),
-			key:       core.ParamActualHours.Value(),
+			key:       option.ParamActualHours.Value(),
 			wantValue: 1,
 		},
 		"WithActualHours-invalid-0": {
@@ -31,7 +31,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithAssigneeID-valid-1": {
 			option:    o.WithAssigneeID(1),
-			key:       core.ParamAssigneeID.Value(),
+			key:       option.ParamAssigneeID.Value(),
 			wantValue: 1,
 		},
 		"WithAssigneeID-invalid-0": {
@@ -40,7 +40,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithCommentID-valid-1": {
 			option:    o.WithCommentID(1),
-			key:       core.ParamCommentID.Value(),
+			key:       option.ParamCommentID.Value(),
 			wantValue: 1,
 		},
 		"WithCommentID-invalid-0": {
@@ -49,12 +49,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithCount-valid-1": {
 			option:    o.WithCount(1),
-			key:       core.ParamCount.Value(),
+			key:       option.ParamCount.Value(),
 			wantValue: 1,
 		},
 		"WithCount-valid-100": {
 			option:    o.WithCount(100),
-			key:       core.ParamCount.Value(),
+			key:       option.ParamCount.Value(),
 			wantValue: 100,
 		},
 		"WithCount-invalid-0": {
@@ -67,7 +67,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithEstimatedHours-valid-1": {
 			option:    o.WithEstimatedHours(1),
-			key:       core.ParamEstimatedHours.Value(),
+			key:       option.ParamEstimatedHours.Value(),
 			wantValue: 1,
 		},
 		"WithEstimatedHours-invalid-0": {
@@ -76,12 +76,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithFieldType-valid-1": {
 			option:    o.WithFieldType(1),
-			key:       core.ParamTypeID.Value(),
+			key:       option.ParamTypeID.Value(),
 			wantValue: 1,
 		},
 		"WithFieldType-valid-8": {
 			option:    o.WithFieldType(8),
-			key:       core.ParamTypeID.Value(),
+			key:       option.ParamTypeID.Value(),
 			wantValue: 8,
 		},
 		"WithFieldType-invalid-0": {
@@ -90,32 +90,32 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithInitialShift-zero": {
 			option:    o.WithInitialShift(0),
-			key:       core.ParamInitialShift.Value(),
+			key:       option.ParamInitialShift.Value(),
 			wantValue: 0,
 		},
 		"WithInitialShift-positive": {
 			option:    o.WithInitialShift(7),
-			key:       core.ParamInitialShift.Value(),
+			key:       option.ParamInitialShift.Value(),
 			wantValue: 7,
 		},
 		"WithInitialShift-negative": {
 			option:    o.WithInitialShift(-3),
-			key:       core.ParamInitialShift.Value(),
+			key:       option.ParamInitialShift.Value(),
 			wantValue: -3,
 		},
 		"WithInitialValueType-valid-1": {
 			option:    o.WithInitialValueType(1),
-			key:       core.ParamInitialValueType.Value(),
+			key:       option.ParamInitialValueType.Value(),
 			wantValue: 1,
 		},
 		"WithInitialValueType-valid-2": {
 			option:    o.WithInitialValueType(2),
-			key:       core.ParamInitialValueType.Value(),
+			key:       option.ParamInitialValueType.Value(),
 			wantValue: 2,
 		},
 		"WithInitialValueType-valid-3": {
 			option:    o.WithInitialValueType(3),
-			key:       core.ParamInitialValueType.Value(),
+			key:       option.ParamInitialValueType.Value(),
 			wantValue: 3,
 		},
 		"WithInitialValueType-invalid-0": {
@@ -128,7 +128,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithIssueID-valid-1": {
 			option:    o.WithIssueID(1),
-			key:       core.ParamIssueID.Value(),
+			key:       option.ParamIssueID.Value(),
 			wantValue: 1,
 		},
 		"WithIssueID-invalid-0": {
@@ -137,7 +137,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithIssueTypeID-valid-1": {
 			option:    o.WithIssueTypeID(1),
-			key:       core.ParamIssueTypeID.Value(),
+			key:       option.ParamIssueTypeID.Value(),
 			wantValue: 1,
 		},
 		"WithIssueTypeID-invalid-0": {
@@ -146,12 +146,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithMaxActivityTypeID-valid-1": {
 			option:    o.WithMaxActivityTypeID(1),
-			key:       core.ParamMaxID.Value(),
+			key:       option.ParamMaxID.Value(),
 			wantValue: 1,
 		},
 		"WithMaxActivityTypeID-valid-26": {
 			option:    o.WithMaxActivityTypeID(26),
-			key:       core.ParamMaxID.Value(),
+			key:       option.ParamMaxID.Value(),
 			wantValue: 26,
 		},
 		"WithMaxActivityTypeID-invalid-0": {
@@ -164,12 +164,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithMinActivityTypeID-valid-1": {
 			option:    o.WithMinActivityTypeID(1),
-			key:       core.ParamMinID.Value(),
+			key:       option.ParamMinID.Value(),
 			wantValue: 1,
 		},
 		"WithMinActivityTypeID-valid-26": {
 			option:    o.WithMinActivityTypeID(26),
-			key:       core.ParamMinID.Value(),
+			key:       option.ParamMinID.Value(),
 			wantValue: 26,
 		},
 		"WithMinActivityTypeID-invalid-0": {
@@ -182,12 +182,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithMaxID-valid-1": {
 			option:    o.WithMaxID(1),
-			key:       core.ParamMaxID.Value(),
+			key:       option.ParamMaxID.Value(),
 			wantValue: 1,
 		},
 		"WithMaxID-valid-9999": {
 			option:    o.WithMaxID(9999),
-			key:       core.ParamMaxID.Value(),
+			key:       option.ParamMaxID.Value(),
 			wantValue: 9999,
 		},
 		"WithMaxID-invalid-0": {
@@ -196,12 +196,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithMinID-valid-1": {
 			option:    o.WithMinID(1),
-			key:       core.ParamMinID.Value(),
+			key:       option.ParamMinID.Value(),
 			wantValue: 1,
 		},
 		"WithMinID-valid-9999": {
 			option:    o.WithMinID(9999),
-			key:       core.ParamMinID.Value(),
+			key:       option.ParamMinID.Value(),
 			wantValue: 9999,
 		},
 		"WithMinID-invalid-0": {
@@ -210,12 +210,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithOffset-valid-0": {
 			option:    o.WithOffset(0),
-			key:       core.ParamOffset.Value(),
+			key:       option.ParamOffset.Value(),
 			wantValue: 0,
 		},
 		"WithOffset-valid-100": {
 			option:    o.WithOffset(100),
-			key:       core.ParamOffset.Value(),
+			key:       option.ParamOffset.Value(),
 			wantValue: 100,
 		},
 		"WithOffset-invalid-negative": {
@@ -224,12 +224,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithParentChild-valid-0": {
 			option:    o.WithParentChild(0),
-			key:       core.ParamParentChild.Value(),
+			key:       option.ParamParentChild.Value(),
 			wantValue: 0,
 		},
 		"WithParentChild-valid-4": {
 			option:    o.WithParentChild(4),
-			key:       core.ParamParentChild.Value(),
+			key:       option.ParamParentChild.Value(),
 			wantValue: 4,
 		},
 		"WithParentChild-invalid-5": {
@@ -242,7 +242,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithParentIssueID-valid-1": {
 			option:    o.WithParentIssueID(1),
-			key:       core.ParamParentIssueID.Value(),
+			key:       option.ParamParentIssueID.Value(),
 			wantValue: 1,
 		},
 		"WithParentIssueID-invalid-0": {
@@ -251,7 +251,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithPriorityID-valid-1": {
 			option:    o.WithPriorityID(1),
-			key:       core.ParamPriorityID.Value(),
+			key:       option.ParamPriorityID.Value(),
 			wantValue: 1,
 		},
 		"WithPriorityID-invalid-0": {
@@ -260,7 +260,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithPullRequestCommentID-valid-1": {
 			option:    o.WithPullRequestCommentID(1),
-			key:       core.ParamPullRequestCommentID.Value(),
+			key:       option.ParamPullRequestCommentID.Value(),
 			wantValue: 1,
 		},
 		"WithPullRequestCommentID-invalid-0": {
@@ -269,7 +269,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithPullRequestID-valid-1": {
 			option:    o.WithPullRequestID(1),
-			key:       core.ParamPullRequestID.Value(),
+			key:       option.ParamPullRequestID.Value(),
 			wantValue: 1,
 		},
 		"WithPullRequestID-invalid-0": {
@@ -278,7 +278,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithResolutionID-valid-1": {
 			option:    o.WithResolutionID(1),
-			key:       core.ParamResolutionID.Value(),
+			key:       option.ParamResolutionID.Value(),
 			wantValue: 1,
 		},
 		"WithResolutionID-invalid-0": {
@@ -287,12 +287,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithRoleType-valid-1": {
 			option:    o.WithRoleType(1),
-			key:       core.ParamRoleType.Value(),
+			key:       option.ParamRoleType.Value(),
 			wantValue: 1,
 		},
 		"WithRoleType-valid-6": {
 			option:    o.WithRoleType(6),
-			key:       core.ParamRoleType.Value(),
+			key:       option.ParamRoleType.Value(),
 			wantValue: 6,
 		},
 		"WithRoleType-invalid-0": {
@@ -305,7 +305,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithStatusID-valid-1": {
 			option:    o.WithStatusID(1),
-			key:       core.ParamStatusID.Value(),
+			key:       option.ParamStatusID.Value(),
 			wantValue: 1,
 		},
 		"WithStatusID-invalid-0": {
@@ -314,12 +314,12 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithUserID-valid-1": {
 			option:    o.WithUserID(1),
-			key:       core.ParamUserID.Value(),
+			key:       option.ParamUserID.Value(),
 			wantValue: 1,
 		},
 		"WithUserID-valid-2": {
 			option:    o.WithUserID(2),
-			key:       core.ParamUserID.Value(),
+			key:       option.ParamUserID.Value(),
 			wantValue: 2,
 		},
 		"WithUserID-invalid-0": {
@@ -328,7 +328,7 @@ func TestOptionService_int(t *testing.T) {
 		},
 		"WithWikiID-valid-1": {
 			option:    o.WithWikiID(1),
-			key:       core.ParamWikiID.Value(),
+			key:       option.ParamWikiID.Value(),
 			wantValue: 1,
 		},
 		"WithWikiID-invalid-0": {

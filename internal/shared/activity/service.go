@@ -7,15 +7,16 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ValidOptionTypes are the option types accepted by activity list endpoints.
-var ValidOptionTypes = []core.APIParamOptionType{
-	core.ParamActivityTypeIDs,
-	core.ParamMinID,
-	core.ParamMaxID,
-	core.ParamCount,
-	core.ParamOrder,
+var ValidOptionTypes = []option.APIParamOptionType{
+	option.ParamActivityTypeIDs,
+	option.ParamMinID,
+	option.ParamMaxID,
+	option.ParamCount,
+	option.ParamOrder,
 }
 
 // Service holds shared HTTP logic for activity-related Backlog API endpoints.
@@ -27,8 +28,8 @@ type Service struct {
 
 // ApplyOptions validates and applies opts to query.
 // Callers should call this before Fetch to separate option validation from HTTP.
-func (s *Service) ApplyOptions(query url.Values, opts ...*core.APIParamOption) error {
-	return core.ApplyOptions(query, ValidOptionTypes, opts...)
+func (s *Service) ApplyOptions(query url.Values, opts ...*option.APIParamOption) error {
+	return option.ApplyOptions(query, ValidOptionTypes, opts...)
 }
 
 // Fetch executes the GET request with pre-built query values.

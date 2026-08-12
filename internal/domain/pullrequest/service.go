@@ -11,19 +11,20 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-var filterValidTypes = []core.APIParamOptionType{
-	core.ParamStatusIDs,
-	core.ParamAssigneeIDs,
-	core.ParamIssueIDs,
-	core.ParamCreatedUserIDs,
+var filterValidTypes = []option.APIParamOptionType{
+	option.ParamStatusIDs,
+	option.ParamAssigneeIDs,
+	option.ParamIssueIDs,
+	option.ParamCreatedUserIDs,
 }
 
 var listValidTypes = append(filterValidTypes,
-	core.ParamOffset,
-	core.ParamCount,
+	option.ParamOffset,
+	option.ParamCount,
 )
 
 // Service handles pull request-related Backlog API calls.
@@ -47,7 +48,7 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // List returns a list of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) ([]*model.PullRequest, error) {
+func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*option.APIParamOption) ([]*model.PullRequest, error) {
 	query := url.Values{}
 
 	var ves core.ValidationErrors
@@ -57,7 +58,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, listValidTypes, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, listValidTypes, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -67,8 +68,8 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 // All returns an iterator that lazily fetches all pull requests with automatic pagination.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
-func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
-	o := &core.OptionService{}
+func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*option.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
+	o := &option.OptionService{}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -88,13 +89,13 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 
 	baseQuery := url.Values{}
 	countOpt.Set(baseQuery)
-	if err := core.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+	if err := option.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
 		return nil, err
 	}
 
 	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.PullRequest, error) {
 		q := maps.Clone(baseQuery)
-		q.Set(core.ParamOffset.Value(), strconv.Itoa(offset))
+		q.Set(option.ParamOffset.Value(), strconv.Itoa(offset))
 		return s.list(ctx, projectIDOrKey, repoIDOrName, q)
 	}), nil
 }
@@ -102,13 +103,13 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 // Count returns the number of pull requests.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
-func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*core.APIParamOption) (int, error) {
+func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*option.APIParamOption) (int, error) {
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamStatusIDs,
-		core.ParamAssigneeIDs,
-		core.ParamIssueIDs,
-		core.ParamCreatedUserIDs,
+	validTypes := []option.APIParamOptionType{
+		option.ParamStatusIDs,
+		option.ParamAssigneeIDs,
+		option.ParamIssueIDs,
+		option.ParamCreatedUserIDs,
 	}
 
 	var ves core.ValidationErrors
@@ -118,7 +119,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validTypes, opts...)); err != nil {
 		return 0, err
 	}
 
@@ -171,25 +172,25 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 // Create creates a new pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request
-func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrName string, summary string, description string, base string, branch string, opts ...*core.APIParamOption) (*model.PullRequest, error) {
-	option := &core.OptionService{}
+func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrName string, summary string, description string, base string, branch string, opts ...*option.APIParamOption) (*model.PullRequest, error) {
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamSummary,
-		core.ParamDescription,
-		core.ParamBase,
-		core.ParamBranch,
-		core.ParamIssueID,
-		core.ParamAssigneeID,
-		core.ParamNotifiedUserIDs,
-		core.ParamAttachmentIDs,
+	validTypes := []option.APIParamOptionType{
+		option.ParamSummary,
+		option.ParamDescription,
+		option.ParamBase,
+		option.ParamBranch,
+		option.ParamIssueID,
+		option.ParamAssigneeID,
+		option.ParamNotifiedUserIDs,
+		option.ParamAttachmentIDs,
 	}
 	options := append(
-		[]*core.APIParamOption{
-			option.WithSummary(summary),
-			option.WithDescription(description),
-			option.WithBase(base),
-			option.WithBranch(branch),
+		[]*option.APIParamOption{
+			optSvc.WithSummary(summary),
+			optSvc.WithDescription(description),
+			optSvc.WithBase(base),
+			optSvc.WithBranch(branch),
 		},
 		opts...,
 	)
@@ -201,7 +202,7 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -222,17 +223,17 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 // Update updates an existing pull request.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
-func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.PullRequest, error) {
+func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.PullRequest, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamSummary,
-		core.ParamDescription,
-		core.ParamIssueID,
-		core.ParamAssigneeID,
-		core.ParamNotifiedUserIDs,
-		core.ParamComment,
+	validTypes := []option.APIParamOptionType{
+		option.ParamSummary,
+		option.ParamDescription,
+		option.ParamIssueID,
+		option.ParamAssigneeID,
+		option.ParamNotifiedUserIDs,
+		option.ParamComment,
 	}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -244,7 +245,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 

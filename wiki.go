@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -247,7 +248,7 @@ func (s *WikiStarService) Remove(ctx context.Context, starID int) error {
 // WikiOptionService provides a domain-specific set of option builders
 // for operations within the WikiService.
 type WikiOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithKeyword filters wiki pages by keyword.
@@ -274,7 +275,7 @@ func (s *WikiOptionService) WithName(name string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newWikiService(method *core.Method, option *core.OptionService) *WikiService {
+func newWikiService(method *core.Method, option *option.OptionService) *WikiService {
 	return &WikiService{
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
@@ -303,14 +304,14 @@ func newWikiSharedFileService(method *core.Method) *WikiSharedFileService {
 	}
 }
 
-func newWikiStarService(method *core.Method, option *core.OptionService) *WikiStarService {
+func newWikiStarService(method *core.Method, option *option.OptionService) *WikiStarService {
 	return &WikiStarService{
 		base: wiki.NewStarService(method),
 		star: newStarService(method, option),
 	}
 }
 
-func newWikiOptionService(option *core.OptionService) *WikiOptionService {
+func newWikiOptionService(option *option.OptionService) *WikiOptionService {
 	return &WikiOptionService{
 		base: option,
 	}

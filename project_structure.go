@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -156,7 +157,7 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 // ProjectUserOptionService provides a domain-specific set of option builders
 // for operations within the ProjectUserService.
 type ProjectUserOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithExcludeGroupMembers sets whether to exclude users who joined only via group membership.
@@ -180,14 +181,14 @@ func newProjectSharedFileService(method *core.Method) *ProjectSharedFileService 
 	}
 }
 
-func newProjectUserService(method *core.Method, option *core.OptionService) *ProjectUserService {
+func newProjectUserService(method *core.Method, option *option.OptionService) *ProjectUserService {
 	return &ProjectUserService{
 		base:   project.NewUserService(method),
 		Option: newProjectUserOptionService(option),
 	}
 }
 
-func newProjectUserOptionService(option *core.OptionService) *ProjectUserOptionService {
+func newProjectUserOptionService(option *option.OptionService) *ProjectUserOptionService {
 	return &ProjectUserOptionService{
 		base: option,
 	}

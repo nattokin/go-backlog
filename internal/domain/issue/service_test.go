@@ -13,15 +13,16 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestService_Count(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		opts []*core.APIParamOption
+		opts []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -38,7 +39,7 @@ func TestService_Count(t *testing.T) {
 			wantCount: 42,
 		},
 		"success-with-projectIDs": {
-			opts: []*core.APIParamOption{o.WithProjectIDs([]int{10, 20})},
+			opts: []*option.APIParamOption{o.WithProjectIDs([]int{10, 20})},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"10", "20"}, query["projectId[]"])
 				return mock.NewResponse(`{"count":5}`), nil
@@ -46,7 +47,7 @@ func TestService_Count(t *testing.T) {
 			wantCount: 5,
 		},
 		"success-with-keyword": {
-			opts: []*core.APIParamOption{o.WithKeyword("bug")},
+			opts: []*option.APIParamOption{o.WithKeyword("bug")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "bug", query.Get("keyword"))
 				return mock.NewResponse(`{"count":3}`), nil
@@ -55,27 +56,27 @@ func TestService_Count(t *testing.T) {
 		},
 
 		"error-validation-opt-single": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0})},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{0})},
 			wantValidationErrCount: 1,
 		},
 		// WithCount is not in the valid types for Count — results in InvalidOptionKeyError
 		"error-validation-opt-multiple": {
-			opts:        []*core.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{o.WithProjectIDs([]int{0}), o.WithCount(0)},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-nil-option-with-valid-values": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{1}), nil},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{1}), nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
-			opts:                   []*core.APIParamOption{o.WithProjectIDs([]int{0}), nil},
+			opts:                   []*option.APIParamOption{o.WithProjectIDs([]int{0}), nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -112,7 +113,7 @@ func TestService_Count(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Zero(t, count)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

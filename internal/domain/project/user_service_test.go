@@ -13,16 +13,17 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestProjectUserService_List(t *testing.T) {
-	opt := &core.OptionService{}
+	opt := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectKey string
-		opts       []*core.APIParamOption
+		opts       []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -39,7 +40,7 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"success-excludeGroupMembers-true": {
 			projectKey: "TEST2",
-			opts:       []*core.APIParamOption{opt.WithExcludeGroupMembers(true)},
+			opts:       []*option.APIParamOption{opt.WithExcludeGroupMembers(true)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", query.Get("excludeGroupMembers"))
 				return mock.NewResponse(fixture.User.ListJSON), nil
@@ -47,7 +48,7 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"success-excludeGroupMembers-false": {
 			projectKey: "TEST3",
-			opts:       []*core.APIParamOption{opt.WithExcludeGroupMembers(false)},
+			opts:       []*option.APIParamOption{opt.WithExcludeGroupMembers(false)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "false", query.Get("excludeGroupMembers"))
 				return mock.NewResponse(fixture.User.ListJSON), nil
@@ -64,30 +65,30 @@ func TestProjectUserService_List(t *testing.T) {
 		},
 		"error-validation-opt": {
 			projectKey:             "TEST",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamExcludeGroupMembers)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamExcludeGroupMembers)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			projectKey:             "",
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamExcludeGroupMembers)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamExcludeGroupMembers)},
 			wantValidationErrCount: 2,
 		},
 
 		"error-nil-option-with-valid-values": {
 			projectKey:             "TEST",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectKey:             "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
 		"error-option-invalid-type": {
 			projectKey:  "TEST",
-			opts:        []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType: &core.InvalidOptionKeyError{},
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-response-invalid-json": {
@@ -113,7 +114,7 @@ func TestProjectUserService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, users)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

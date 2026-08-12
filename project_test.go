@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -208,35 +208,35 @@ func TestProjectOptionService(t *testing.T) {
 	}{
 		"WithAll": {
 			option:  s.WithAll(true),
-			wantKey: core.ParamAll.Value(),
+			wantKey: option.ParamAll.Value(),
 		},
 		"WithArchived": {
 			option:  s.WithArchived(true),
-			wantKey: core.ParamArchived.Value(),
+			wantKey: option.ParamArchived.Value(),
 		},
 		"WithChartEnabled": {
 			option:  s.WithChartEnabled(true),
-			wantKey: core.ParamChartEnabled.Value(),
+			wantKey: option.ParamChartEnabled.Value(),
 		},
 		"WithKey": {
 			option:  s.WithKey("TEST"),
-			wantKey: core.ParamKey.Value(),
+			wantKey: option.ParamKey.Value(),
 		},
 		"WithName": {
 			option:  s.WithName("test"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 		"WithProjectLeaderCanEditProjectLeader": {
 			option:  s.WithProjectLeaderCanEditProjectLeader(true),
-			wantKey: core.ParamProjectLeaderCanEditProjectLeader.Value(),
+			wantKey: option.ParamProjectLeaderCanEditProjectLeader.Value(),
 		},
 		"WithSubtaskingEnabled": {
 			option:  s.WithSubtaskingEnabled(true),
-			wantKey: core.ParamSubtaskingEnabled.Value(),
+			wantKey: option.ParamSubtaskingEnabled.Value(),
 		},
 		"WithTextFormattingRule": {
 			option:  s.WithTextFormattingRule(backlog.FormatBacklog),
-			wantKey: core.ParamTextFormattingRule.Value(),
+			wantKey: option.ParamTextFormattingRule.Value(),
 		},
 	}
 

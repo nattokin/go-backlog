@@ -9,6 +9,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -20,18 +21,18 @@ type VersionService struct {
 // List returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.Version, error) {
+func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.Version, error) {
 	query := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamArchived,
-		core.ParamAll,
+	validTypes := []option.APIParamOptionType{
+		option.ParamArchived,
+		option.ParamAll,
 	}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validTypes, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validTypes, opts...)); err != nil {
 		return nil, err
 	}
 
@@ -52,22 +53,22 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 // Add adds a version/milestone to a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone
-func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...*core.APIParamOption) (*model.Version, error) {
-	option := &core.OptionService{}
+func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, opts ...*option.APIParamOption) (*model.Version, error) {
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamStartDate,
-		core.ParamReleaseDueDate,
+	validTypes := []option.APIParamOptionType{
+		option.ParamName,
+		option.ParamDescription,
+		option.ParamStartDate,
+		option.ParamReleaseDueDate,
 	}
-	options := append([]*core.APIParamOption{option.WithName(name)}, opts...)
+	options := append([]*option.APIParamOption{optSvc.WithName(name)}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 
@@ -88,16 +89,16 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 // Update updates a version/milestone.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone
-func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Version, error) {
+func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Version, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{
-		core.ParamName,
-		core.ParamDescription,
-		core.ParamStartDate,
-		core.ParamReleaseDueDate,
-		core.ParamArchived,
+	validTypes := []option.APIParamOptionType{
+		option.ParamName,
+		option.ParamDescription,
+		option.ParamStartDate,
+		option.ParamReleaseDueDate,
+		option.ParamArchived,
 	}
-	options := append([]*core.APIParamOption{option}, opts...)
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -106,7 +107,7 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 	if ve := validate.ValidateVersionID(versionID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 

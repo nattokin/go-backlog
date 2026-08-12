@@ -1,10 +1,12 @@
-package core
+package option
 
 import (
 	"fmt"
 	"net/mail"
 	"net/url"
 	"strings"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func (s *OptionService) WithBase(base string) *APIParamOption {
@@ -62,13 +64,13 @@ var validIssueSorts = []string{
 func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamSort,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			for _, v := range validIssueSorts {
 				if sort == v {
 					return nil
 				}
 			}
-			return NewValidationError(ParamSort.Value(), fmt.Sprintf("invalid sort value: %q", sort))
+			return core.NewValidationError(ParamSort.Value(), fmt.Sprintf("invalid sort value: %q", sort))
 		},
 		SetFunc: setStringFunc(ParamSort, sort),
 	}
@@ -77,10 +79,10 @@ func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			addr, err := mail.ParseAddress(mailAddress)
 			if err != nil || addr.Address != mailAddress {
-				return NewValidationError(ParamMailAddress.Value(), fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
+				return core.NewValidationError(ParamMailAddress.Value(), fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
 			}
 			return nil
 		},
@@ -95,9 +97,9 @@ func (s *OptionService) WithName(name string) *APIParamOption {
 func (s *OptionService) WithOrder(order string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOrder,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if order != "asc" && order != "desc" {
-				return NewValidationError(ParamOrder.Value(), "order must be only 'asc' or 'desc'")
+				return core.NewValidationError(ParamOrder.Value(), "order must be only 'asc' or 'desc'")
 			}
 			return nil
 		},
@@ -108,9 +110,9 @@ func (s *OptionService) WithOrder(order string) *APIParamOption {
 func (s *OptionService) WithPassword(password string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamPassword,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if len(password) < 8 {
-				return NewValidationError(ParamPassword.Value(), "password must be at least 8 characters long")
+				return core.NewValidationError(ParamPassword.Value(), "password must be at least 8 characters long")
 			}
 			return nil
 		},
@@ -141,13 +143,13 @@ var validFormats = []string{"backlog", "markdown"}
 func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			for _, v := range validFormats {
 				if format == v {
 					return nil
 				}
 			}
-			return NewValidationError(ParamTextFormattingRule.Value(), "format must be only 'backlog' or 'markdown'")
+			return core.NewValidationError(ParamTextFormattingRule.Value(), "format must be only 'backlog' or 'markdown'")
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}
@@ -164,9 +166,9 @@ func (s *OptionService) WithUnit(unit string) *APIParamOption {
 func nonEmptyStringOption(paramType APIParamOptionType, value string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if strings.TrimSpace(value) == "" {
-				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
+				return core.NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
 			}
 			return nil
 		},

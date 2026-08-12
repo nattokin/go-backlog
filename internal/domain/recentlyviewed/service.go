@@ -9,6 +9,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -21,10 +22,10 @@ type Service struct {
 // ListIssues returns a list of issues recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
-func (s *Service) ListIssues(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Issue, error) {
+func (s *Service) ListIssues(ctx context.Context, opts ...*option.APIParamOption) ([]*model.Issue, error) {
 	query := url.Values{}
-	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
+	validOptionKeys := []option.APIParamOptionType{option.ParamCount, option.ParamOffset, option.ParamOrder}
+	if err := option.ApplyOptions(query, validOptionKeys, opts...); err != nil {
 		return nil, err
 	}
 
@@ -66,10 +67,10 @@ func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, erro
 // ListProjects returns a list of projects recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
-func (s *Service) ListProjects(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Project, error) {
+func (s *Service) ListProjects(ctx context.Context, opts ...*option.APIParamOption) ([]*model.Project, error) {
 	query := url.Values{}
-	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
+	validOptionKeys := []option.APIParamOptionType{option.ParamCount, option.ParamOffset, option.ParamOrder}
+	if err := option.ApplyOptions(query, validOptionKeys, opts...); err != nil {
 		return nil, err
 	}
 
@@ -89,10 +90,10 @@ func (s *Service) ListProjects(ctx context.Context, opts ...*core.APIParamOption
 // ListWikis returns a list of Wiki pages recently viewed by the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
-func (s *Service) ListWikis(ctx context.Context, opts ...*core.APIParamOption) ([]*model.Wiki, error) {
+func (s *Service) ListWikis(ctx context.Context, opts ...*option.APIParamOption) ([]*model.Wiki, error) {
 	query := url.Values{}
-	validOptionKeys := []core.APIParamOptionType{core.ParamCount, core.ParamOffset, core.ParamOrder}
-	if err := core.ApplyOptions(query, validOptionKeys, opts...); err != nil {
+	validOptionKeys := []option.APIParamOptionType{option.ParamCount, option.ParamOffset, option.ParamOrder}
+	if err := option.ApplyOptions(query, validOptionKeys, opts...); err != nil {
 		return nil, err
 	}
 

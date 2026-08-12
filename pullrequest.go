@@ -7,6 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -220,7 +221,7 @@ func (s *PullRequestStarService) Remove(ctx context.Context, starID int) error {
 // PullRequestOptionService provides a domain-specific set of option builders
 // for operations within the PullRequestService.
 type PullRequestOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithAssigneeID returns an option to set the `assigneeId` parameter.
@@ -292,7 +293,7 @@ func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newPullRequestService(method *core.Method, option *core.OptionService) *PullRequestService {
+func newPullRequestService(method *core.Method, option *option.OptionService) *PullRequestService {
 	return &PullRequestService{
 		base: pullrequest.NewService(method),
 
@@ -310,11 +311,11 @@ func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachment
 	}
 }
 
-func newPullRequestStarService(method *core.Method, option *core.OptionService) *PullRequestStarService {
+func newPullRequestStarService(method *core.Method, option *option.OptionService) *PullRequestStarService {
 	return &PullRequestStarService{star: newStarService(method, option)}
 }
 
-func newPullRequestOptionService(option *core.OptionService) *PullRequestOptionService {
+func newPullRequestOptionService(option *option.OptionService) *PullRequestOptionService {
 	return &PullRequestOptionService{
 		base: option,
 	}

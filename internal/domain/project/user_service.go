@@ -8,11 +8,12 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
-var validUserListOptions = []core.APIParamOptionType{
-	core.ParamExcludeGroupMembers,
+var validUserListOptions = []option.APIParamOptionType{
+	option.ParamExcludeGroupMembers,
 }
 
 // UserService handles project user-related Backlog API calls.
@@ -63,14 +64,14 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (
 // List returns a list of users in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
-func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*core.APIParamOption) ([]*model.User, error) {
+func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.User, error) {
 	query := url.Values{}
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(query, validUserListOptions, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validUserListOptions, opts...)); err != nil {
 		return nil, err
 	}
 

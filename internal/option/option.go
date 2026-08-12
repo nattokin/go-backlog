@@ -1,10 +1,14 @@
-package core
+// Package option provides the request-option builder mechanism (APIParamOption,
+// OptionService, ApplyOptions) shared across domain services.
+package option
 
 import (
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 const (
@@ -121,10 +125,10 @@ type OptionService struct{}
 // the logic to write the value into url.Values (SetFunc).
 // OptionService builder methods return instances of this struct.
 type APIParamOption struct {
-	Type      APIParamOptionType      // canonical API parameter key
-	KeyFunc   func() string           // optional; overrides key() when set
-	CheckFunc func() *ValidationError // optional validation; nil means no validation
-	SetFunc   func(url.Values) error  // applies the value to the request parameters
+	Type      APIParamOptionType           // canonical API parameter key
+	KeyFunc   func() string                // optional; overrides key() when set
+	CheckFunc func() *core.ValidationError // optional validation; nil means no validation
+	SetFunc   func(url.Values) error       // applies the value to the request parameters
 }
 
 // Key returns the API parameter key. If KeyFunc is set it takes precedence over
@@ -137,9 +141,9 @@ func (o *APIParamOption) Key() string {
 	return o.Type.Value()
 }
 
-// Check runs the option's validation and returns a *ValidationError if it
+// Check runs the option's validation and returns a *core.ValidationError if it
 // fails, or nil if validation passes (including when CheckFunc is nil).
-func (o *APIParamOption) Check() *ValidationError {
+func (o *APIParamOption) Check() *core.ValidationError {
 	if o.CheckFunc != nil {
 		return o.CheckFunc()
 	}
@@ -200,11 +204,11 @@ func ValidateOption(optionKey string, validOptions []APIParamOptionType) error {
 }
 
 // ApplyOptions validates and applies request options to the given url.Values.
-// Validation errors from Check() are collected into ValidationErrors and returned
+// Validation errors from Check() are collected into core.ValidationErrors and returned
 // together so callers can inspect all invalid inputs at once.
 // InvalidOptionKeyError and nil options are returned immediately.
 func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIParamOption) error {
-	var errs ValidationErrors
+	var errs core.ValidationErrors
 
 	for _, opt := range opts {
 		if opt == nil {
@@ -229,18 +233,18 @@ func ApplyOptions(v url.Values, validTypes []APIParamOptionType, opts ...*APIPar
 }
 
 // MergeValidationErrors merges the error returned by ApplyOptions (optErr)
-// into an already-collected ValidationErrors value (ves) and returns a
+// into an already-collected core.ValidationErrors value (ves) and returns a
 // single error to propagate to the caller.
 //
 // If optErr is nil, MergeValidationErrors returns ves as an error only if it
-// is non-empty (nil otherwise). If optErr is itself a ValidationErrors
+// is non-empty (nil otherwise). If optErr is itself a core.ValidationErrors
 // value, its elements are appended to ves before that same check. If optErr
 // is any other error (InvalidOptionError, InvalidOptionKeyError, or a
 // SetFunc failure), it is a fail-fast error: it is returned as-is and ves is
 // discarded, matching ApplyOptions' fail-fast semantics.
-func MergeValidationErrors(ves ValidationErrors, optErr error) error {
+func MergeValidationErrors(ves core.ValidationErrors, optErr error) error {
 	if optErr != nil {
-		var optVes ValidationErrors
+		var optVes core.ValidationErrors
 		if !errors.As(optErr, &optVes) {
 			return optErr
 		}

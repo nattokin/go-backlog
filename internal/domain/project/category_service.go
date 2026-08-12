@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -46,8 +47,8 @@ func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*m
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-category
 func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, name string) (*model.Category, error) {
-	option := (&core.OptionService{}).WithName(name)
-	if ve := option.Check(); ve != nil {
+	opt := (&option.OptionService{}).WithName(name)
+	if ve := opt.Check(); ve != nil {
 		var ves core.ValidationErrors
 		ves = append(ves, ve)
 		if ve2 := validate.ValidateProjectIDOrKey(projectIDOrKey); ve2 != nil {
@@ -65,7 +66,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 	}
 
 	form := url.Values{}
-	option.Set(form)
+	opt.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories")
 	resp, err := s.method.Post(ctx, spath, form)
@@ -85,9 +86,9 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-category
 func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, categoryID int, name string) (*model.Category, error) {
-	option := (&core.OptionService{}).WithName(name)
+	opt := (&option.OptionService{}).WithName(name)
 	var ves core.ValidationErrors
-	if ve := option.Check(); ve != nil {
+	if ve := opt.Check(); ve != nil {
 		ves = append(ves, ve)
 	}
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -101,7 +102,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 	}
 
 	form := url.Values{}
-	option.Set(form)
+	opt.Set(form)
 
 	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
 	resp, err := s.method.Patch(ctx, spath, form)

@@ -11,6 +11,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func Test_contextPropagation(t *testing.T) {
@@ -25,7 +26,7 @@ func Test_contextPropagation(t *testing.T) {
 		}
 	}
 
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := []struct {
 		name string

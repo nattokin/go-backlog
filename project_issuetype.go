@@ -6,6 +6,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ func (s *ProjectIssueTypeService) Delete(ctx context.Context, projectIDOrKey str
 // ProjectIssueTypeOptionService provides a domain-specific set of option builders
 // for operations within the ProjectIssueTypeService.
 type ProjectIssueTypeOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithColor sets the issue type color.
@@ -96,7 +97,7 @@ func (s *ProjectIssueTypeOptionService) WithTemplateSummary(summary string) Requ
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectIssueTypeService(method *core.Method, option *core.OptionService) *ProjectIssueTypeService {
+func newProjectIssueTypeService(method *core.Method, option *option.OptionService) *ProjectIssueTypeService {
 	return &ProjectIssueTypeService{
 		base:   project.NewIssueTypeService(method),
 		Option: &ProjectIssueTypeOptionService{base: option},

@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -105,13 +106,13 @@ func TestCustomFieldService_List(t *testing.T) {
 }
 
 func TestCustomFieldService_Create(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		fieldType      int
 		name           string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -134,7 +135,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-			opts:           []*core.APIParamOption{o.WithDescription("sprint number"), o.WithRequired(true)},
+			opts:           []*option.APIParamOption{o.WithDescription("sprint number"), o.WithRequired(true)},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "sprint number", form.Get("description"))
 				assert.Equal(t, "true", form.Get("required"))
@@ -179,14 +180,14 @@ func TestCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			fieldType:              1,
 			name:                   "Sprint",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			fieldType:              0,
 			name:                   "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -194,15 +195,15 @@ func TestCustomFieldService_Create(t *testing.T) {
 			projectIDOrKey: "TEST",
 			fieldType:      1,
 			name:           "Sprint",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			fieldType:      0,
 			name:           "",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -239,7 +240,7 @@ func TestCustomFieldService_Create(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, field)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -270,13 +271,13 @@ func TestCustomFieldService_Create(t *testing.T) {
 }
 
 func TestCustomFieldService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		customFieldID  int
-		option         *core.APIParamOption
-		opts           []*core.APIParamOption
+		option         *option.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -298,7 +299,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         o.WithName("Sprint Updated"),
-			opts:           []*core.APIParamOption{o.WithRequired(true)},
+			opts:           []*option.APIParamOption{o.WithRequired(true)},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("required"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
@@ -336,14 +337,14 @@ func TestCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey:         "TEST",
 			customFieldID:          1,
 			option:                 o.WithName("Sprint"),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			customFieldID:          0,
 			option:                 o.WithName(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -351,13 +352,13 @@ func TestCustomFieldService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			customFieldID:  1,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			customFieldID:  0,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -394,7 +395,7 @@ func TestCustomFieldService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, field)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

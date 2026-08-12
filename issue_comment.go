@@ -5,6 +5,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // IssueCommentService handles communication with the issue comment-related methods of the Backlog API.
@@ -92,7 +93,7 @@ func (s *IssueCommentService) Notify(ctx context.Context, issueIDOrKey string, c
 // IssueCommentOptionService provides a domain-specific set of option builders
 // for operations within the IssueCommentService.
 type IssueCommentOptionService struct {
-	base *core.OptionService
+	base *option.OptionService
 }
 
 // WithCount sets the number of comments to retrieve (1-100).
@@ -125,7 +126,7 @@ func (s *IssueCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
-func newIssueCommentService(method *core.Method, option *core.OptionService) *IssueCommentService {
+func newIssueCommentService(method *core.Method, option *option.OptionService) *IssueCommentService {
 	return &IssueCommentService{
 		base:   issue.NewCommentService(method),
 		Option: &IssueCommentOptionService{base: option},

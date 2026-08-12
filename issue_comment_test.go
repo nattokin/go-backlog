@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -258,12 +258,12 @@ func TestIssueCommentOptionService(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"WithCount":           {option: s.WithCount(20), wantKey: core.ParamCount.Value()},
-		"WithMaxID":           {option: s.WithMaxID(100), wantKey: core.ParamMaxID.Value()},
-		"WithMinID":           {option: s.WithMinID(10), wantKey: core.ParamMinID.Value()},
-		"WithOrder":           {option: s.WithOrder(backlog.OrderAsc), wantKey: core.ParamOrder.Value()},
-		"WithNotifiedUserIDs": {option: s.WithNotifiedUserIDs([]int{1}), wantKey: core.ParamNotifiedUserIDs.Value()},
-		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: core.ParamAttachmentIDs.Value()},
+		"WithCount":           {option: s.WithCount(20), wantKey: option.ParamCount.Value()},
+		"WithMaxID":           {option: s.WithMaxID(100), wantKey: option.ParamMaxID.Value()},
+		"WithMinID":           {option: s.WithMinID(10), wantKey: option.ParamMinID.Value()},
+		"WithOrder":           {option: s.WithOrder(backlog.OrderAsc), wantKey: option.ParamOrder.Value()},
+		"WithNotifiedUserIDs": {option: s.WithNotifiedUserIDs([]int{1}), wantKey: option.ParamNotifiedUserIDs.Value()},
+		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: option.ParamAttachmentIDs.Value()},
 	}
 
 	for name, tc := range cases {

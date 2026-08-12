@@ -13,18 +13,19 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestCommentService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
 		prNumber       int
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -47,7 +48,7 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(20),
 				o.WithOrder("asc"),
 			},
@@ -62,7 +63,7 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMinID(10),
 				o.WithMaxID(100),
 			},
@@ -108,14 +109,14 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo",
 			prNumber:               1,
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamCount)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamCount)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
 			prNumber:               0,
-			opts:                   []*core.APIParamOption{mock.NewFailingCheckOption(core.ParamCount)},
+			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamCount)},
 			wantValidationErrCount: 4,
 		},
 
@@ -123,14 +124,14 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey:         "PRJ",
 			repoIDOrName:           "repo",
 			prNumber:               1,
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
 			projectIDOrKey:         "",
 			repoIDOrName:           "",
 			prNumber:               0,
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -138,8 +139,8 @@ func TestCommentService_List(t *testing.T) {
 			projectIDOrKey: "PRJ",
 			repoIDOrName:   "repo",
 			prNumber:       1,
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -176,7 +177,7 @@ func TestCommentService_List(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -209,14 +210,14 @@ func TestCommentService_List(t *testing.T) {
 }
 
 func TestCommentService_Add(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
 		prNumber       int
 		content        string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -242,7 +243,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "Notifying users.",
-			opts:           []*core.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
+			opts:           []*option.APIParamOption{o.WithNotifiedUserIDs([]int{5, 6})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"5", "6"}, form["notifiedUserId[]"])
 				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
@@ -254,7 +255,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "Attaching files.",
-			opts:           []*core.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
+			opts:           []*option.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "Attaching files.", form.Get("content"))
 				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
@@ -304,7 +305,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:           "repo",
 			prNumber:               1,
 			content:                "x",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
@@ -312,7 +313,7 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:           "",
 			prNumber:               0,
 			content:                "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -321,8 +322,8 @@ func TestCommentService_Add(t *testing.T) {
 			repoIDOrName:   "repo",
 			prNumber:       1,
 			content:        "x",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -361,7 +362,7 @@ func TestCommentService_Add(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

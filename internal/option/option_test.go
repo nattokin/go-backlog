@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"errors"
@@ -10,22 +10,23 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestAPIParamOption_Key(t *testing.T) {
 	cases := map[string]struct {
-		option  *core.APIParamOption
+		option  *option.APIParamOption
 		wantKey string
 	}{
 		"Type-only": {
-			option: &core.APIParamOption{
-				Type: core.ParamKey,
+			option: &option.APIParamOption{
+				Type: option.ParamKey,
 			},
-			wantKey: core.ParamKey.Value(),
+			wantKey: option.ParamKey.Value(),
 		},
 		"KeyFunc-overrides-Type": {
-			option: &core.APIParamOption{
-				Type:    core.ParamKey,
+			option: &option.APIParamOption{
+				Type:    option.ParamKey,
 				KeyFunc: func() string { return "customKey" },
 			},
 			wantKey: "customKey",
@@ -43,20 +44,20 @@ func TestAPIParamOption_Key(t *testing.T) {
 
 func TestAPIParamOption(t *testing.T) {
 	cases := map[string]struct {
-		option      *core.APIParamOption
+		option      *option.APIParamOption
 		expectPanic bool
 	}{
 		"SetFunc-nil": {
-			option: &core.APIParamOption{
-				Type:      core.ParamKey,
+			option: &option.APIParamOption{
+				Type:      option.ParamKey,
 				CheckFunc: func() *core.ValidationError { return nil },
 				SetFunc:   nil,
 			},
 			expectPanic: true,
 		},
 		"CheckFunc-nil": {
-			option: &core.APIParamOption{
-				Type:      core.ParamKey,
+			option: &option.APIParamOption{
+				Type:      option.ParamKey,
 				CheckFunc: nil,
 				SetFunc:   func(_ url.Values) error { return nil },
 			},
@@ -80,49 +81,49 @@ func TestAPIParamOption(t *testing.T) {
 			}()
 
 			v := url.Values{}
-			core.ApplyOptions(v, []core.APIParamOptionType{core.ParamKey}, tc.option)
+			option.ApplyOptions(v, []option.APIParamOptionType{option.ParamKey}, tc.option)
 		})
 	}
 }
 
 func TestApplyOptions(t *testing.T) {
-	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
+	validTypes := []option.APIParamOptionType{option.ParamKey, option.ParamName}
 
 	cases := map[string]struct {
-		opts        []*core.APIParamOption
+		opts        []*option.APIParamOption
 		wantErr     bool
 		wantErrType any
 	}{
 		"nilOption": {
-			opts:        []*core.APIParamOption{nil},
+			opts:        []*option.APIParamOption{nil},
 			wantErr:     true,
-			wantErrType: &core.InvalidOptionError{},
+			wantErrType: &option.InvalidOptionError{},
 		},
 		"nilOption-second": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:    core.ParamKey,
+					Type:    option.ParamKey,
 					SetFunc: func(_ url.Values) error { return nil },
 				},
 				nil,
 			},
 			wantErr:     true,
-			wantErrType: &core.InvalidOptionError{},
+			wantErrType: &option.InvalidOptionError{},
 		},
 		"invalidKey": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:    core.ParamOffset,
+					Type:    option.ParamOffset,
 					SetFunc: func(_ url.Values) error { return nil },
 				},
 			},
 			wantErr:     true,
-			wantErrType: &core.InvalidOptionKeyError{},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 		"checkError-single": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:      core.ParamKey,
+					Type:      option.ParamKey,
 					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "check failed") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
@@ -131,14 +132,14 @@ func TestApplyOptions(t *testing.T) {
 			wantErrType: core.ValidationErrors(nil),
 		},
 		"checkError-multiple": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:      core.ParamKey,
+					Type:      option.ParamKey,
 					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 				{
-					Type:      core.ParamName,
+					Type:      option.ParamName,
 					CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
@@ -147,25 +148,25 @@ func TestApplyOptions(t *testing.T) {
 			wantErrType: core.ValidationErrors(nil),
 		},
 		"setError": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:    core.ParamKey,
+					Type:    option.ParamKey,
 					SetFunc: func(_ url.Values) error { return errors.New("set failed") },
 				},
 			},
 			wantErr: true,
 		},
 		"success": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				{
-					Type:    core.ParamKey,
-					SetFunc: func(v url.Values) error { v.Set(core.ParamKey.Value(), "val"); return nil },
+					Type:    option.ParamKey,
+					SetFunc: func(v url.Values) error { v.Set(option.ParamKey.Value(), "val"); return nil },
 				},
 			},
 			wantErr: false,
 		},
 		"noOptions": {
-			opts:    []*core.APIParamOption{},
+			opts:    []*option.APIParamOption{},
 			wantErr: false,
 		},
 	}
@@ -175,7 +176,7 @@ func TestApplyOptions(t *testing.T) {
 			t.Parallel()
 
 			v := url.Values{}
-			err := core.ApplyOptions(v, validTypes, tc.opts...)
+			err := option.ApplyOptions(v, validTypes, tc.opts...)
 
 			if tc.wantErr {
 				require.Error(t, err)
@@ -192,21 +193,21 @@ func TestApplyOptions(t *testing.T) {
 // TestApplyOptions_multipleValidationErrors verifies that when multiple options
 // fail Check(), all errors are collected and returned as ValidationErrors.
 func TestApplyOptions_multipleValidationErrors(t *testing.T) {
-	validTypes := []core.APIParamOptionType{core.ParamKey, core.ParamName}
+	validTypes := []option.APIParamOptionType{option.ParamKey, option.ParamName}
 
-	opt1 := &core.APIParamOption{
-		Type:      core.ParamKey,
+	opt1 := &option.APIParamOption{
+		Type:      option.ParamKey,
 		CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
-	opt2 := &core.APIParamOption{
-		Type:      core.ParamName,
+	opt2 := &option.APIParamOption{
+		Type:      option.ParamName,
 		CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 
 	v := url.Values{}
-	err := core.ApplyOptions(v, validTypes, opt1, opt2)
+	err := option.ApplyOptions(v, validTypes, opt1, opt2)
 	require.Error(t, err)
 
 	var ves core.ValidationErrors
@@ -225,7 +226,7 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 func TestMergeValidationErrors(t *testing.T) {
 	fixedVe := core.NewValidationError("fixed", "fixed arg is invalid")
 	optVe := core.NewValidationError("opt", "opt is invalid")
-	failFastErr := core.NewInvalidOptionError("nil option is not allowed")
+	failFastErr := option.NewInvalidOptionError("nil option is not allowed")
 
 	cases := map[string]struct {
 		ves    core.ValidationErrors
@@ -271,7 +272,7 @@ func TestMergeValidationErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := core.MergeValidationErrors(tc.ves, tc.optErr)
+			err := option.MergeValidationErrors(tc.ves, tc.optErr)
 
 			if tc.wantNil {
 				assert.NoError(t, err)
@@ -294,52 +295,52 @@ func TestMergeValidationErrors(t *testing.T) {
 }
 
 func TestInvalidOptionKeyError_Error_form(t *testing.T) {
-	e := &core.InvalidOptionKeyError{
-		Invalid: core.ParamKey.Value(),
+	e := &option.InvalidOptionKeyError{
+		Invalid: option.ParamKey.Value(),
 		ValidList: []string{
-			core.ParamName.Value(),
-			core.ParamKey.Value(),
-			core.ParamChartEnabled.Value(),
+			option.ParamName.Value(),
+			option.ParamKey.Value(),
+			option.ParamChartEnabled.Value(),
 		},
 	}
 	assert.EqualError(t, e, "invalid option key:key, allowed option keys:name,key,chartEnabled")
 }
 
 func TestInvalidOptionKeyError_Error_query(t *testing.T) {
-	e := &core.InvalidOptionKeyError{
-		Invalid: core.ParamActivityTypeIDs.Value(),
+	e := &option.InvalidOptionKeyError{
+		Invalid: option.ParamActivityTypeIDs.Value(),
 		ValidList: []string{
-			core.ParamAll.Value(),
-			core.ParamArchived.Value(),
-			core.ParamOrder.Value(),
+			option.ParamAll.Value(),
+			option.ParamArchived.Value(),
+			option.ParamOrder.Value(),
 		},
 	}
 	assert.EqualError(t, e, "invalid option key:activityTypeId[], allowed option keys:all,archived,order")
 }
 
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
-	err := core.NewInvalidOptionKeyError(core.ParamActivityTypeIDs.Value(), []core.APIParamOptionType{core.ParamAll, core.ParamArchived})
+	err := option.NewInvalidOptionKeyError(option.ParamActivityTypeIDs.Value(), []option.APIParamOptionType{option.ParamAll, option.ParamArchived})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.InvalidOptionKeyError
+	var target *option.InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, core.ParamActivityTypeIDs.Value(), target.Invalid)
+	assert.Equal(t, option.ParamActivityTypeIDs.Value(), target.Invalid)
 }
 
 func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
-	err := core.NewInvalidOptionKeyError(core.ParamKey.Value(), []core.APIParamOptionType{core.ParamName, core.ParamChartEnabled})
+	err := option.NewInvalidOptionKeyError(option.ParamKey.Value(), []option.APIParamOptionType{option.ParamName, option.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.InvalidOptionKeyError
+	var target *option.InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, core.ParamKey.Value(), target.Invalid)
+	assert.Equal(t, option.ParamKey.Value(), target.Invalid)
 }
 
 func TestInvalidOptionError_errorsAs(t *testing.T) {
-	err := core.NewInvalidOptionError("nil option is not allowed")
+	err := option.NewInvalidOptionError("nil option is not allowed")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.InvalidOptionError
+	var target *option.InvalidOptionError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "nil option is not allowed", target.Error())
 }

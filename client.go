@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -81,7 +82,7 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 // ──────────────────────────────────────────────────────────────
 
 func initServices(c *Client) {
-	baseOptionService := &core.OptionService{}
+	baseOptionService := &option.OptionService{}
 
 	c.Issue = newIssueService(c.core.Method, baseOptionService)
 

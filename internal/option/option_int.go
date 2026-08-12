@@ -1,9 +1,11 @@
-package core
+package option
 
 import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func (s *OptionService) WithAssigneeID(id int) *APIParamOption {
@@ -66,9 +68,9 @@ func (s *OptionService) WithMinID(id int) *APIParamOption {
 func (s *OptionService) WithOffset(offset int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOffset,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if offset < 0 {
-				return NewValidationError(ParamOffset.Value(), "offset must not be negative")
+				return core.NewValidationError(ParamOffset.Value(), "offset must not be negative")
 			}
 			return nil
 		},
@@ -123,9 +125,9 @@ func (s *OptionService) WithWikiID(id int) *APIParamOption {
 func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if value < min || value > max {
-				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
+				return core.NewValidationError(paramType.Value(), fmt.Sprintf("%s must be between %d and %d", paramType.Value(), min, max))
 			}
 			return nil
 		},
@@ -137,9 +139,9 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParam
 func positiveIntOption(paramType APIParamOptionType, value int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if value < 1 {
-				return NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
+				return core.NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must not be less than 1", paramType.Value()))
 			}
 			return nil
 		},

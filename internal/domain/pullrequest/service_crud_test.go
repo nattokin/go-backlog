@@ -13,6 +13,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -121,7 +122,7 @@ func TestService_One(t *testing.T) {
 }
 
 func TestService_Create(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
@@ -130,7 +131,7 @@ func TestService_Create(t *testing.T) {
 		description    string
 		base           string
 		branch         string
-		opts           []*core.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -160,7 +161,7 @@ func TestService_Create(t *testing.T) {
 			description:    "desc",
 			base:           "main",
 			branch:         "feature/foo",
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithAssigneeID(5),
 				o.WithIssueID(10),
 			},
@@ -224,7 +225,7 @@ func TestService_Create(t *testing.T) {
 			description:            "desc",
 			base:                   "main",
 			branch:                 "feature/foo",
-			opts:                   []*core.APIParamOption{o.WithAssigneeID(0)},
+			opts:                   []*option.APIParamOption{o.WithAssigneeID(0)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-all": {
@@ -244,7 +245,7 @@ func TestService_Create(t *testing.T) {
 			description:            "desc",
 			base:                   "main",
 			branch:                 "feature/foo",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
@@ -254,7 +255,7 @@ func TestService_Create(t *testing.T) {
 			description:            "",
 			base:                   "",
 			branch:                 "",
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -265,8 +266,8 @@ func TestService_Create(t *testing.T) {
 			description:    "desc",
 			base:           "main",
 			branch:         "feature/foo",
-			opts:           []*core.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &core.InvalidOptionKeyError{},
+			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -309,7 +310,7 @@ func TestService_Create(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}
@@ -339,14 +340,14 @@ func TestService_Create(t *testing.T) {
 }
 
 func TestService_Update(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
 		projectIDOrKey string
 		repoIDOrName   string
 		prNumber       int
-		option         *core.APIParamOption
-		opts           []*core.APIParamOption
+		option         *option.APIParamOption
+		opts           []*option.APIParamOption
 
 		mockPatchFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 
@@ -372,7 +373,7 @@ func TestService_Update(t *testing.T) {
 			repoIDOrName:   "repo1",
 			prNumber:       1,
 			option:         o.WithSummary("Updated PR"),
-			opts:           []*core.APIParamOption{o.WithComment("looks good")},
+			opts:           []*option.APIParamOption{o.WithComment("looks good")},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "looks good", form.Get("comment"))
 				return mock.NewResponse(fixture.PullRequest.SingleJSON), nil
@@ -432,7 +433,7 @@ func TestService_Update(t *testing.T) {
 			repoIDOrName:           "repo1",
 			prNumber:               1,
 			option:                 o.WithSummary("x"),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
@@ -440,7 +441,7 @@ func TestService_Update(t *testing.T) {
 			repoIDOrName:           "",
 			prNumber:               0,
 			option:                 o.WithSummary(""),
-			opts:                   []*core.APIParamOption{nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 
@@ -449,7 +450,7 @@ func TestService_Update(t *testing.T) {
 			repoIDOrName:   "repo1",
 			prNumber:       1,
 			option:         mock.NewInvalidTypeOption(),
-			wantErrType:    &core.InvalidOptionKeyError{},
+			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -488,7 +489,7 @@ func TestService_Update(t *testing.T) {
 			if tc.wantInvalidOptionError {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var target *core.InvalidOptionError
+				var target *option.InvalidOptionError
 				assert.ErrorAs(t, err, &target)
 				return
 			}

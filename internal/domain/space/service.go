@@ -7,6 +7,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // Service handles space-related Backlog API calls.
@@ -71,10 +72,10 @@ func (s *Service) Notification(ctx context.Context) (*model.SpaceNotification, e
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-space-notification
 func (s *Service) UpdateNotification(ctx context.Context, content string) (*model.SpaceNotification, error) {
-	option := &core.OptionService{}
+	optSvc := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamContent}
-	if err := core.ApplyOptions(form, validTypes, option.WithContent(content)); err != nil {
+	validTypes := []option.APIParamOptionType{option.ParamContent}
+	if err := option.ApplyOptions(form, validTypes, optSvc.WithContent(content)); err != nil {
 		return nil, err
 	}
 

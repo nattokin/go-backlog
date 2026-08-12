@@ -1,9 +1,11 @@
-package core
+package option
 
 import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 // WithActualHours returns an option to set the `actualHours` parameter.
@@ -43,9 +45,9 @@ func (s *OptionService) WithMin(min float64) *APIParamOption {
 func positiveFloat64Option(paramType APIParamOptionType, value float64) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			if value <= 0 {
-				return NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must be greater than 0", paramType.Value()))
+				return core.NewValidationError(paramType.Value(), fmt.Sprintf("invalid %s: must be greater than 0", paramType.Value()))
 			}
 			return nil
 		},

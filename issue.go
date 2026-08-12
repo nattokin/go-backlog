@@ -7,6 +7,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // ──────────────────────────────────────────────────────────────
@@ -294,7 +295,7 @@ func (s *IssueStarService) Remove(ctx context.Context, starID int) error {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newIssueService(method *core.Method, option *core.OptionService) *IssueService {
+func newIssueService(method *core.Method, option *option.OptionService) *IssueService {
 	return &IssueService{
 		base: issue.NewService(method),
 
@@ -307,7 +308,7 @@ func newIssueService(method *core.Method, option *core.OptionService) *IssueServ
 	}
 }
 
-func newIssueStarService(method *core.Method, option *core.OptionService) *IssueStarService {
+func newIssueStarService(method *core.Method, option *option.OptionService) *IssueStarService {
 	return &IssueStarService{star: newStarService(method, option)}
 }
 

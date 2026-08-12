@@ -1,15 +1,17 @@
-package core
+package option
 
 import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/nattokin/go-backlog/internal/core"
 )
 
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamActivityTypeIDs,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			for _, id := range typeIDs {
 				if ve := validateActivityTypeID(id, "activityTypeIds"); ve != nil {
 					return ve
@@ -33,10 +35,10 @@ func (s *OptionService) WithAttachmentIDs(ids []int) *APIParamOption {
 func (s *OptionService) WithItems(items []string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamItems,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			for i, item := range items {
 				if item == "" {
-					return NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
+					return core.NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
 				}
 			}
 			return nil
@@ -104,7 +106,7 @@ func (s *OptionService) WithParentIssueIDs(ids []int) *APIParamOption {
 func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *ValidationError {
+		CheckFunc: func() *core.ValidationError {
 			return validatePositiveInts(values, paramName)
 		},
 		SetFunc: addIntFunc(paramType, values),
@@ -129,17 +131,17 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 	}
 }
 
-func validateActivityTypeID(id int, key string) *ValidationError {
+func validateActivityTypeID(id int, key string) *core.ValidationError {
 	if id < 1 || id > MaxActivityTypeID {
-		return NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
+		return core.NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
 	}
 	return nil
 }
 
-func validatePositiveInts(values []int, paramName string) *ValidationError {
+func validatePositiveInts(values []int, paramName string) *core.ValidationError {
 	for _, v := range values {
 		if v < 1 {
-			return NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
+			return core.NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
 		}
 	}
 	return nil

@@ -1,4 +1,4 @@
-package core_test
+package option_test
 
 import (
 	"net/url"
@@ -8,60 +8,60 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestOptionService_float(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *option.APIParamOption
 		key       string
 		wantValue float64
 	}{
 		"WithMin-positive": {
 			option:    o.WithMin(1.5),
-			key:       core.ParamMin.Value(),
+			key:       option.ParamMin.Value(),
 			wantValue: 1.5,
 		},
 		"WithMin-zero": {
 			option:    o.WithMin(0),
-			key:       core.ParamMin.Value(),
+			key:       option.ParamMin.Value(),
 			wantValue: 0,
 		},
 		"WithMin-negative": {
 			option:    o.WithMin(-10),
-			key:       core.ParamMin.Value(),
+			key:       option.ParamMin.Value(),
 			wantValue: -10,
 		},
 		"WithMax-positive": {
 			option:    o.WithMax(100.5),
-			key:       core.ParamMax.Value(),
+			key:       option.ParamMax.Value(),
 			wantValue: 100.5,
 		},
 		"WithMax-zero": {
 			option:    o.WithMax(0),
-			key:       core.ParamMax.Value(),
+			key:       option.ParamMax.Value(),
 			wantValue: 0,
 		},
 		"WithMax-negative": {
 			option:    o.WithMax(-1),
-			key:       core.ParamMax.Value(),
+			key:       option.ParamMax.Value(),
 			wantValue: -1,
 		},
 		"WithInitialValue-positive": {
 			option:    o.WithInitialValue(3.14),
-			key:       core.ParamInitialValue.Value(),
+			key:       option.ParamInitialValue.Value(),
 			wantValue: 3.14,
 		},
 		"WithInitialValue-zero": {
 			option:    o.WithInitialValue(0),
-			key:       core.ParamInitialValue.Value(),
+			key:       option.ParamInitialValue.Value(),
 			wantValue: 0,
 		},
 		"WithInitialValue-negative": {
 			option:    o.WithInitialValue(-5.5),
-			key:       core.ParamInitialValue.Value(),
+			key:       option.ParamInitialValue.Value(),
 			wantValue: -5.5,
 		},
 	}

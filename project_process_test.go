@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	backlog "github.com/nattokin/go-backlog"
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -313,11 +313,11 @@ func TestProjectStatusOptionService(t *testing.T) {
 	}{
 		"WithColor": {
 			option:  s.WithColor("#ed8077"),
-			wantKey: core.ParamColor.Value(),
+			wantKey: option.ParamColor.Value(),
 		},
 		"WithName": {
 			option:  s.WithName("Open"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 	}
 
@@ -341,23 +341,23 @@ func TestProjectVersionOptionService(t *testing.T) {
 	}{
 		"WithArchived": {
 			option:  s.WithArchived(true),
-			wantKey: core.ParamArchived.Value(),
+			wantKey: option.ParamArchived.Value(),
 		},
 		"WithDescription": {
 			option:  s.WithDescription("desc"),
-			wantKey: core.ParamDescription.Value(),
+			wantKey: option.ParamDescription.Value(),
 		},
 		"WithName": {
 			option:  s.WithName("v1.0.0"),
-			wantKey: core.ParamName.Value(),
+			wantKey: option.ParamName.Value(),
 		},
 		"WithReleaseDueDate": {
 			option:  s.WithReleaseDueDate("2024-03-15"),
-			wantKey: core.ParamReleaseDueDate.Value(),
+			wantKey: option.ParamReleaseDueDate.Value(),
 		},
 		"WithStartDate": {
 			option:  s.WithStartDate("2024-03-15"),
-			wantKey: core.ParamStartDate.Value(),
+			wantKey: option.ParamStartDate.Value(),
 		},
 	}
 

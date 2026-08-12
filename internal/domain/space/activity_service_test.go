@@ -10,14 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/space"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
 func TestActivityService_List(t *testing.T) {
-	o := &core.OptionService{}
+	o := &option.OptionService{}
 
 	type want struct {
 		spath          string
@@ -29,12 +29,12 @@ func TestActivityService_List(t *testing.T) {
 	}
 
 	cases := map[string]struct {
-		opts      []*core.APIParamOption
+		opts      []*option.APIParamOption
 		wantError bool
 		want      want
 	}{
 		"success-no-option": {
-			opts:      []*core.APIParamOption{},
+			opts:      []*option.APIParamOption{},
 			wantError: false,
 			want: want{
 				spath:          "space/activities",
@@ -46,7 +46,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-withActivityTypeIDs": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithActivityTypeIDs([]int{1}),
 			},
 			wantError: false,
@@ -60,7 +60,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-withMinID": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMinID(1),
 			},
 			wantError: false,
@@ -74,7 +74,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-withMaxID": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithMaxID(1),
 			},
 			wantError: false,
@@ -88,7 +88,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-withCount": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(1),
 			},
 			wantError: false,
@@ -102,7 +102,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-withOrder": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithOrder("asc"),
 			},
 			wantError: false,
@@ -116,7 +116,7 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"success-multiple-options": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithActivityTypeIDs([]int{1, 2}),
 				o.WithMinID(1),
 				o.WithMaxID(26),
@@ -134,27 +134,27 @@ func TestActivityService_List(t *testing.T) {
 			},
 		},
 		"error-request": {
-			opts:      []*core.APIParamOption{},
+			opts:      []*option.APIParamOption{},
 			wantError: true,
 			want: want{
 				spath: "space/activities",
 			},
 		},
 		"error-option-invalid-value": {
-			opts: []*core.APIParamOption{
+			opts: []*option.APIParamOption{
 				o.WithCount(0),
 			},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-invalid-type": {
-			opts:      []*core.APIParamOption{mock.NewInvalidTypeOption()},
+			opts:      []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantError: true,
 			want:      want{},
 		},
 		"error-option-set-failed": {
-			opts: []*core.APIParamOption{
-				mock.NewFailingSetOption(core.ParamCount),
+			opts: []*option.APIParamOption{
+				mock.NewFailingSetOption(option.ParamCount),
 			},
 			wantError: true,
 		},

@@ -8,6 +8,7 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -46,7 +47,7 @@ func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*mod
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-status
 func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color string) (*model.Status, error) {
-	opt := &core.OptionService{}
+	opt := &option.OptionService{}
 	nameOpt := opt.WithName(name)
 	colorOpt := opt.WithColor(color)
 
@@ -85,10 +86,10 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 // Update updates a status in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
-func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option *core.APIParamOption, opts ...*core.APIParamOption) (*model.Status, error) {
+func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.Status, error) {
 	form := url.Values{}
-	validTypes := []core.APIParamOptionType{core.ParamName, core.ParamColor}
-	options := append([]*core.APIParamOption{option}, opts...)
+	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamColor}
+	options := append([]*option.APIParamOption{opt}, opts...)
 
 	var ves core.ValidationErrors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
@@ -97,7 +98,7 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 	if statusID < 1 {
 		ves = append(ves, core.NewValidationError("statusId", "statusId must not be less than 1"))
 	}
-	if err := core.MergeValidationErrors(ves, core.ApplyOptions(form, validTypes, options...)); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 

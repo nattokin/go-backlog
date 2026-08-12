@@ -11,11 +11,12 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
+	"github.com/nattokin/go-backlog/internal/option"
 )
 
 func TestWithCustomField(t *testing.T) {
 	cases := map[string]struct {
-		option    *core.APIParamOption
+		option    *option.APIParamOption
 		key       string
 		wantValue string
 		wantErr   bool
