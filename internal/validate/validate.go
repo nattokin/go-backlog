@@ -8,31 +8,19 @@ import (
 )
 
 func ValidateActivityID(activityID int) *core.ValidationError {
-	if activityID < 1 {
-		return core.NewValidationError("activityID", "activityID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("activityID", activityID)
 }
 
 func ValidateAttachmentID(attachmentID int) *core.ValidationError {
-	if attachmentID < 1 {
-		return core.NewValidationError("attachmentID", "attachmentID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("attachmentID", attachmentID)
 }
 
 func ValidateCommentID(commentID int) *core.ValidationError {
-	if commentID < 1 {
-		return core.NewValidationError("commentID", "commentID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("commentID", commentID)
 }
 
 func ValidateCustomFieldID(customFieldID int) *core.ValidationError {
-	if customFieldID < 1 {
-		return core.NewValidationError("customFieldID", "customFieldID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("customFieldID", customFieldID)
 }
 
 func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
@@ -46,10 +34,7 @@ func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
 }
 
 func ValidateProjectID(projectID int) *core.ValidationError {
-	if projectID < 1 {
-		return core.NewValidationError("projectID", "projectID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("projectID", projectID)
 }
 
 func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
@@ -63,10 +48,7 @@ func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
 }
 
 func ValidatePRNumber(prNumber int) *core.ValidationError {
-	if prNumber < 1 {
-		return core.NewValidationError("prNumber", "prNumber must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("prNumber", prNumber)
 }
 
 func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError {
@@ -80,43 +62,25 @@ func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError
 }
 
 func ValidateSharedFileID(fileID int) *core.ValidationError {
-	if fileID < 1 {
-		return core.NewValidationError("fileID", "fileID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("fileID", fileID)
 }
 
 func ValidateStarID(starID int) *core.ValidationError {
-	if starID < 1 {
-		return core.NewValidationError("starID", "starID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("starID", starID)
 }
 
 func ValidateUserID(userID int) *core.ValidationError {
-	if userID < 1 {
-		return core.NewValidationError("userID", "userID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("userID", userID)
 }
 
 func ValidateVersionID(versionID int) *core.ValidationError {
-	if versionID < 1 {
-		return core.NewValidationError("versionID", "versionID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("versionID", versionID)
 }
 
 func ValidateWebhookID(webhookID int) *core.ValidationError {
-	if webhookID < 1 {
-		return core.NewValidationError("webhookID", "webhookID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("webhookID", webhookID)
 }
 
 func ValidateWikiID(wikiID int) *core.ValidationError {
-	if wikiID < 1 {
-		return core.NewValidationError("wikiID", "wikiID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("wikiID", wikiID)
 }
