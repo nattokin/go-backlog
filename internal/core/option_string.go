@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/url"
+	"strings"
 )
 
 func (s *OptionService) WithBase(base string) *APIParamOption {
@@ -159,12 +160,12 @@ func (s *OptionService) WithUnit(unit string) *APIParamOption {
 	}
 }
 
-// nonEmptyStringOption builds a *APIParamOption that rejects empty strings.
+// nonEmptyStringOption builds a *APIParamOption that rejects empty or whitespace-only strings.
 func nonEmptyStringOption(paramType APIParamOptionType, value string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *ValidationError {
-			if value == "" {
+			if strings.TrimSpace(value) == "" {
 				return NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
 			}
 			return nil
