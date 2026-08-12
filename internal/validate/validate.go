@@ -1,7 +1,11 @@
 // Package validate provides input validation helpers shared across service packages.
 package validate
 
-import "github.com/nattokin/go-backlog/internal/core"
+import (
+	"strings"
+
+	"github.com/nattokin/go-backlog/internal/core"
+)
 
 func ValidateActivityID(activityID int) *core.ValidationError {
 	if activityID < 1 {
@@ -32,7 +36,7 @@ func ValidateCustomFieldID(customFieldID int) *core.ValidationError {
 }
 
 func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
-	if issueIDOrKey == "" {
+	if strings.TrimSpace(issueIDOrKey) == "" {
 		return core.NewValidationError("issueIDOrKey", "issueIDOrKey must not be empty")
 	}
 	if issueIDOrKey == "0" {
@@ -49,7 +53,7 @@ func ValidateProjectID(projectID int) *core.ValidationError {
 }
 
 func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
-	if projectIDOrKey == "" {
+	if strings.TrimSpace(projectIDOrKey) == "" {
 		return core.NewValidationError("projectIDOrKey", "projectIDOrKey must not be empty")
 	}
 	if projectIDOrKey == "0" {
@@ -66,7 +70,7 @@ func ValidatePRNumber(prNumber int) *core.ValidationError {
 }
 
 func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError {
-	if repositoryIDOrName == "" {
+	if strings.TrimSpace(repositoryIDOrName) == "" {
 		return core.NewValidationError("repositoryIDOrName", "repositoryIDOrName must not be empty")
 	}
 	if repositoryIDOrName == "0" {

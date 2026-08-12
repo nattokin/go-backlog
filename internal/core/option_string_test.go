@@ -24,6 +24,11 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamBase.Value(),
 			wantErr: true,
 		},
+		"WithBase-whitespace": {
+			option:  o.WithBase("   "),
+			key:     core.ParamBase.Value(),
+			wantErr: true,
+		},
 		"WithBase-valid": {
 			option:    o.WithBase("main"),
 			key:       core.ParamBase.Value(),
@@ -34,6 +39,11 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamBranch.Value(),
 			wantErr: true,
 		},
+		"WithBranch-whitespace": {
+			option:  o.WithBranch("   "),
+			key:     core.ParamBranch.Value(),
+			wantErr: true,
+		},
 		"WithBranch-valid": {
 			option:    o.WithBranch("feature/foo"),
 			key:       core.ParamBranch.Value(),
@@ -41,6 +51,11 @@ func TestOptionService_string(t *testing.T) {
 		},
 		"WithColor-empty": {
 			option:  o.WithColor(""),
+			key:     core.ParamColor.Value(),
+			wantErr: true,
+		},
+		"WithColor-whitespace": {
+			option:  o.WithColor("   "),
 			key:     core.ParamColor.Value(),
 			wantErr: true,
 		},
@@ -64,6 +79,11 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamContent.Value(),
 			wantErr: true,
 		},
+		"WithContent-whitespace": {
+			option:  o.WithContent("   "),
+			key:     core.ParamContent.Value(),
+			wantErr: true,
+		},
 		"WithContent-valid": {
 			option:    o.WithContent("Hello"),
 			key:       core.ParamContent.Value(),
@@ -84,6 +104,11 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamHookURL.Value(),
 			wantErr: true,
 		},
+		"WithHookURL-whitespace": {
+			option:  o.WithHookURL("   "),
+			key:     core.ParamHookURL.Value(),
+			wantErr: true,
+		},
 		"WithHookURL-valid": {
 			option:    o.WithHookURL("https://example.com/webhook"),
 			key:       core.ParamHookURL.Value(),
@@ -91,6 +116,11 @@ func TestOptionService_string(t *testing.T) {
 		},
 		"WithKey-empty": {
 			option:  o.WithKey(""),
+			key:     core.ParamKey.Value(),
+			wantErr: true,
+		},
+		"WithKey-whitespace": {
+			option:  o.WithKey("   "),
 			key:     core.ParamKey.Value(),
 			wantErr: true,
 		},
@@ -144,6 +174,11 @@ func TestOptionService_string(t *testing.T) {
 			key:     core.ParamName.Value(),
 			wantErr: true,
 		},
+		"WithName-whitespace": {
+			option:  o.WithName("   "),
+			key:     core.ParamName.Value(),
+			wantErr: true,
+		},
 		"WithName-valid": {
 			option:    o.WithName("testname"),
 			key:       core.ParamName.Value(),
@@ -151,6 +186,11 @@ func TestOptionService_string(t *testing.T) {
 		},
 		"WithSummary-empty": {
 			option:  o.WithSummary(""),
+			key:     core.ParamSummary.Value(),
+			wantErr: true,
+		},
+		"WithSummary-whitespace": {
+			option:  o.WithSummary("   "),
 			key:     core.ParamSummary.Value(),
 			wantErr: true,
 		},
