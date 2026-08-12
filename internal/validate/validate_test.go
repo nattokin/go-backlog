@@ -13,9 +13,9 @@ func TestValidateIssueIDOrKey(t *testing.T) {
 		issueIDOrKey string
 		wantErr      bool
 	}{
-		"valid-key":              {issueIDOrKey: "PRJ-1"},
-		"valid-id":               {issueIDOrKey: "1"},
-		"error-validation-empty": {issueIDOrKey: "", wantErr: true},
+		"valid-key":                         {issueIDOrKey: "PRJ-1"},
+		"valid-id":                          {issueIDOrKey: "1"},
+		"error-validation-empty":            {issueIDOrKey: "", wantErr: true},
 		"error-validation-whitespace-space": {issueIDOrKey: " ", wantErr: true},
 		"error-validation-whitespace-tab":   {issueIDOrKey: "\t", wantErr: true},
 		"error-validation-whitespace-mixed": {issueIDOrKey: " \t\n ", wantErr: true},
@@ -41,9 +41,9 @@ func TestValidateProjectIDOrKey(t *testing.T) {
 		projectIDOrKey string
 		wantErr        bool
 	}{
-		"valid-key":              {projectIDOrKey: "PRJ"},
-		"valid-id":               {projectIDOrKey: "1"},
-		"error-validation-empty": {projectIDOrKey: "", wantErr: true},
+		"valid-key":                         {projectIDOrKey: "PRJ"},
+		"valid-id":                          {projectIDOrKey: "1"},
+		"error-validation-empty":            {projectIDOrKey: "", wantErr: true},
 		"error-validation-whitespace-space": {projectIDOrKey: " ", wantErr: true},
 		"error-validation-whitespace-tab":   {projectIDOrKey: "\t", wantErr: true},
 		"error-validation-whitespace-mixed": {projectIDOrKey: " \t\n ", wantErr: true},
@@ -69,9 +69,9 @@ func TestValidateRepositoryIDOrName(t *testing.T) {
 		repositoryIDOrName string
 		wantErr            bool
 	}{
-		"valid-name":             {repositoryIDOrName: "my-repo"},
-		"valid-id":               {repositoryIDOrName: "1"},
-		"error-validation-empty": {repositoryIDOrName: "", wantErr: true},
+		"valid-name":                        {repositoryIDOrName: "my-repo"},
+		"valid-id":                          {repositoryIDOrName: "1"},
+		"error-validation-empty":            {repositoryIDOrName: "", wantErr: true},
 		"error-validation-whitespace-space": {repositoryIDOrName: " ", wantErr: true},
 		"error-validation-whitespace-tab":   {repositoryIDOrName: "\t", wantErr: true},
 		"error-validation-whitespace-mixed": {repositoryIDOrName: " \t\n ", wantErr: true},
