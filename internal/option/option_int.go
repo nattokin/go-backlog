@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func (s *OptionService) WithAssigneeID(id int) *APIParamOption {
@@ -68,9 +68,9 @@ func (s *OptionService) WithMinID(id int) *APIParamOption {
 func (s *OptionService) WithOffset(offset int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOffset,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			if offset < 0 {
-				return core.NewValidationError(ParamOffset.Value(), "offset must not be negative")
+				return validation.NewError(ParamOffset.Value(), "offset must not be negative")
 			}
 			return nil
 		},
@@ -125,7 +125,7 @@ func (s *OptionService) WithWikiID(id int) *APIParamOption {
 func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateIntRange(paramType.Value(), value, min, max)
 		},
 		SetFunc: setIntFunc(paramType, value),
@@ -136,7 +136,7 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParam
 func positiveIntOption(paramType APIParamOptionType, value int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidatePositiveInt(paramType.Value(), value)
 		},
 		SetFunc: setIntFunc(paramType, value),

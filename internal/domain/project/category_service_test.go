@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestCategoryService_List(t *testing.T) {
@@ -83,7 +83,7 @@ func TestCategoryService_List(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, categories)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -179,7 +179,7 @@ func TestCategoryService_Create(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, category)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -284,7 +284,7 @@ func TestCategoryService_Update(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, category)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -372,7 +372,7 @@ func TestCategoryService_Delete(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, category)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}

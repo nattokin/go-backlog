@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // Error represents one of the individual error entries in a Backlog API response.
@@ -121,9 +121,9 @@ func convertError(err error) error {
 		return &InvalidOptionKeyError{opt: e}
 	case *option.InvalidOptionError:
 		return &InvalidOptionError{opt: e}
-	case *core.ValidationError:
+	case *validation.Error:
 		return &ValidationError{target: e.Target(), message: e.Message()}
-	case core.ValidationErrors:
+	case validation.Errors:
 		converted := make([]error, len(e))
 		for i, ve := range e {
 			converted[i] = &ValidationError{target: ve.Target(), message: ve.Message()}

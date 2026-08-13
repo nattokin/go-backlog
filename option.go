@@ -3,8 +3,8 @@ package backlog
 import (
 	"net/url"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // RequestOption defines a common interface for all option types.
@@ -97,9 +97,9 @@ func toCoreOptions(opts []RequestOption) []*option.APIParamOption {
 func toCoreOption(opt RequestOption) *option.APIParamOption {
 	return &option.APIParamOption{
 		KeyFunc: opt.Key,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			if ve := opt.Check(); ve != nil {
-				return core.NewValidationError(ve.Target(), ve.Message())
+				return validation.NewError(ve.Target(), ve.Message())
 			}
 			return nil
 		},

@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestWithCustomField(t *testing.T) {
@@ -93,7 +93,7 @@ func TestWithCustomField(t *testing.T) {
 			ve := tc.option.Check()
 			if tc.wantErr {
 				assert.NotNil(t, ve)
-				var errType *core.ValidationError
+				var errType *validation.Error
 				assert.ErrorAs(t, ve, &errType)
 				return
 			}
@@ -161,7 +161,7 @@ func TestWithCustomFieldItems(t *testing.T) {
 			ve := opt.Check()
 			if tc.wantErr {
 				assert.NotNil(t, ve)
-				var errType *core.ValidationError
+				var errType *validation.Error
 				assert.ErrorAs(t, ve, &errType)
 				return
 			}

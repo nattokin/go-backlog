@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestAPIParamOption_Key(t *testing.T) {
@@ -50,7 +50,7 @@ func TestAPIParamOption(t *testing.T) {
 		"SetFunc-nil": {
 			option: &option.APIParamOption{
 				Type:      option.ParamKey,
-				CheckFunc: func() *core.ValidationError { return nil },
+				CheckFunc: func() *validation.Error { return nil },
 				SetFunc:   nil,
 			},
 			expectPanic: true,
@@ -124,28 +124,28 @@ func TestApplyOptions(t *testing.T) {
 			opts: []*option.APIParamOption{
 				{
 					Type:      option.ParamKey,
-					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "check failed") },
+					CheckFunc: func() *validation.Error { return validation.NewError("key", "check failed") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
 			wantErr:     true,
-			wantErrType: core.ValidationErrors(nil),
+			wantErrType: validation.Errors(nil),
 		},
 		"checkError-multiple": {
 			opts: []*option.APIParamOption{
 				{
 					Type:      option.ParamKey,
-					CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
+					CheckFunc: func() *validation.Error { return validation.NewError("key", "key is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 				{
 					Type:      option.ParamName,
-					CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
+					CheckFunc: func() *validation.Error { return validation.NewError("name", "name is empty") },
 					SetFunc:   func(_ url.Values) error { return nil },
 				},
 			},
 			wantErr:     true,
-			wantErrType: core.ValidationErrors(nil),
+			wantErrType: validation.Errors(nil),
 		},
 		"setError": {
 			opts: []*option.APIParamOption{
@@ -197,12 +197,12 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 
 	opt1 := &option.APIParamOption{
 		Type:      option.ParamKey,
-		CheckFunc: func() *core.ValidationError { return core.NewValidationError("key", "key is empty") },
+		CheckFunc: func() *validation.Error { return validation.NewError("key", "key is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 	opt2 := &option.APIParamOption{
 		Type:      option.ParamName,
-		CheckFunc: func() *core.ValidationError { return core.NewValidationError("name", "name is empty") },
+		CheckFunc: func() *validation.Error { return validation.NewError("name", "name is empty") },
 		SetFunc:   func(_ url.Values) error { return nil },
 	}
 
@@ -210,7 +210,7 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 	err := option.ApplyOptions(v, validTypes, opt1, opt2)
 	require.Error(t, err)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	require.True(t, errors.As(err, &ves))
 	require.Len(t, ves, 2)
 	assert.Equal(t, "key", ves[0].Target())
@@ -224,12 +224,12 @@ func TestApplyOptions_multipleValidationErrors(t *testing.T) {
 // optErr in practice, so the fail-fast branch is only reachable through
 // this direct test.
 func TestMergeValidationErrors(t *testing.T) {
-	fixedVe := core.NewValidationError("fixed", "fixed arg is invalid")
-	optVe := core.NewValidationError("opt", "opt is invalid")
+	fixedVe := validation.NewError("fixed", "fixed arg is invalid")
+	optVe := validation.NewError("opt", "opt is invalid")
 	failFastErr := option.NewInvalidOptionError("nil option is not allowed")
 
 	cases := map[string]struct {
-		ves    core.ValidationErrors
+		ves    validation.Errors
 		optErr error
 
 		wantNil                bool
@@ -242,22 +242,22 @@ func TestMergeValidationErrors(t *testing.T) {
 			wantNil: true,
 		},
 		"ves only": {
-			ves:                    core.ValidationErrors{fixedVe},
+			ves:                    validation.Errors{fixedVe},
 			optErr:                 nil,
 			wantValidationErrCount: 1,
 		},
 		"optErr ValidationErrors only": {
 			ves:                    nil,
-			optErr:                 core.ValidationErrors{optVe},
+			optErr:                 validation.Errors{optVe},
 			wantValidationErrCount: 1,
 		},
 		"ves and optErr ValidationErrors are merged": {
-			ves:                    core.ValidationErrors{fixedVe},
-			optErr:                 core.ValidationErrors{optVe},
+			ves:                    validation.Errors{fixedVe},
+			optErr:                 validation.Errors{optVe},
 			wantValidationErrCount: 2,
 		},
 		"fail-fast optErr discards ves": {
-			ves:             core.ValidationErrors{fixedVe},
+			ves:             validation.Errors{fixedVe},
 			optErr:          failFastErr,
 			wantFailFastErr: failFastErr,
 		},
@@ -281,13 +281,13 @@ func TestMergeValidationErrors(t *testing.T) {
 
 			if tc.wantFailFastErr != nil {
 				assert.Equal(t, tc.wantFailFastErr, err)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				assert.False(t, errors.As(err, &ves))
 				return
 			}
 
 			require.Error(t, err)
-			var ves core.ValidationErrors
+			var ves validation.Errors
 			require.True(t, errors.As(err, &ves))
 			assert.Len(t, ves, tc.wantValidationErrCount)
 		})

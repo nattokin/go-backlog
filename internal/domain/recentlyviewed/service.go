@@ -8,10 +8,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // Service handles recently-viewed Backlog API calls.
@@ -48,7 +48,7 @@ func (s *Service) ListIssues(ctx context.Context, opts ...*option.APIParamOption
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue
 func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, error) {
 	if issueID < 1 {
-		return nil, core.NewValidationError("issueID", "issueID must not be less than 1")
+		return nil, validation.NewError("issueID", "issueID must not be less than 1")
 	}
 
 	spath := path.Join("issues", strconv.Itoa(issueID), "recentlyViewedIssues")

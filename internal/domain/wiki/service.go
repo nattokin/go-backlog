@@ -9,10 +9,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 type Service struct {
@@ -26,7 +26,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*opti
 	query := url.Values{}
 	validTypes := []option.APIParamOptionType{option.ParamKeyword}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -53,7 +53,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*opti
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-wiki-page
 func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -81,7 +81,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page
 func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -112,7 +112,7 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamContent, option.ParamMailNotify}
 	options := append([]*option.APIParamOption{optSvc.WithName(name), optSvc.WithContent(content)}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -143,12 +143,12 @@ func (s *Service) Update(ctx context.Context, wikiID int, opt *option.APIParamOp
 	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamContent, option.ParamMailNotify}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
 	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
-		var optVes core.ValidationErrors
+		var optVes validation.Errors
 		if !errors.As(err, &optVes) {
 			return nil, err
 		}
@@ -156,7 +156,7 @@ func (s *Service) Update(ctx context.Context, wikiID int, opt *option.APIParamOp
 	}
 	// Only check name/content presence when there are no opt errors.
 	if len(ves) == 0 && !form.Has("name") && !form.Has("content") {
-		ves = append(ves, core.NewValidationError("", "requires an opt to modify wiki content or name (WithName or WithContent)"))
+		ves = append(ves, validation.NewError("", "requires an opt to modify wiki content or name (WithName or WithContent)"))
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -183,7 +183,7 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*option.APIPar
 	form := url.Values{}
 	validTypes := []option.APIParamOptionType{option.ParamMailNotify}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}

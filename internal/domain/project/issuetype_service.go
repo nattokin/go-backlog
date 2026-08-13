@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 type IssueTypeService struct {
@@ -21,7 +21,7 @@ type IssueTypeService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-type-list
 func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*model.IssueType, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -52,7 +52,7 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamColor, option.ParamTemplateSummary, option.ParamTemplateDescription}
 	options := append([]*option.APIParamOption{optSvc.WithName(name), optSvc.WithColor(color)}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -82,12 +82,12 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamColor, option.ParamTemplateSummary, option.ParamTemplateDescription}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if issueTypeID < 1 {
-		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
+		ves = append(ves, validation.NewError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
 	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
@@ -111,15 +111,15 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue-type
 func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, issueTypeID, substituteIssueTypeID int) (*model.IssueType, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if issueTypeID < 1 {
-		ves = append(ves, core.NewValidationError("issueTypeId", "issueTypeId must not be less than 1"))
+		ves = append(ves, validation.NewError("issueTypeId", "issueTypeId must not be less than 1"))
 	}
 	if substituteIssueTypeID < 1 {
-		ves = append(ves, core.NewValidationError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1"))
+		ves = append(ves, validation.NewError("substituteIssueTypeId", "substituteIssueTypeId must not be less than 1"))
 	}
 	if len(ves) > 0 {
 		return nil, ves

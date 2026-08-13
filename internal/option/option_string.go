@@ -3,8 +3,8 @@ package option
 import (
 	"net/url"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func (s *OptionService) WithBase(base string) *APIParamOption {
@@ -55,7 +55,7 @@ func (s *OptionService) WithKeyword(keyword string) *APIParamOption {
 func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamSort,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateIssueSort(ParamSort.Value(), sort)
 		},
 		SetFunc: setStringFunc(ParamSort, sort),
@@ -65,7 +65,7 @@ func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateEmail(ParamMailAddress.Value(), mailAddress)
 		},
 		SetFunc: setStringFunc(ParamMailAddress, mailAddress),
@@ -79,7 +79,7 @@ func (s *OptionService) WithName(name string) *APIParamOption {
 func (s *OptionService) WithOrder(order string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOrder,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateOrder(ParamOrder.Value(), order)
 		},
 		SetFunc: setStringFunc(ParamOrder, order),
@@ -89,7 +89,7 @@ func (s *OptionService) WithOrder(order string) *APIParamOption {
 func (s *OptionService) WithPassword(password string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamPassword,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidatePassword(ParamPassword.Value(), password)
 		},
 		SetFunc: setStringFunc(ParamPassword, password),
@@ -117,7 +117,7 @@ func (s *OptionService) WithTemplateSummary(summary string) *APIParamOption {
 func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateTextFormattingRule(ParamTextFormattingRule.Value(), format)
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, format),
@@ -135,7 +135,7 @@ func (s *OptionService) WithUnit(unit string) *APIParamOption {
 func nonEmptyStringOption(paramType APIParamOptionType, value string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateNonEmptyString(paramType.Value(), value)
 		},
 		SetFunc: setStringFunc(paramType, value),

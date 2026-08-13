@@ -7,10 +7,10 @@ import (
 	"path"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 type Service struct {
@@ -44,7 +44,7 @@ func (s *Service) List(ctx context.Context, opts ...*option.APIParamOption) ([]*
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project
 func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -103,7 +103,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option
 	}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -129,7 +129,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project
 func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Project, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -155,7 +155,7 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage
 func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.DiskUsageProject, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -182,7 +182,7 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-icon
 func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileData, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

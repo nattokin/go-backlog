@@ -6,9 +6,9 @@ import (
 	"net/url"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // ListValidTypes are the option types accepted by comment list endpoints.
@@ -108,7 +108,7 @@ func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error)
 
 // ApplyUpdateOptions validates content and writes it into form.
 // Returns a *ValidationError if content is invalid, nil otherwise.
-func (s *Service) ApplyUpdateOptions(form url.Values, content string) *core.ValidationError {
+func (s *Service) ApplyUpdateOptions(form url.Values, content string) *validation.Error {
 	opt := (&option.OptionService{}).WithContent(content)
 	if ve := opt.Check(); ve != nil {
 		return ve

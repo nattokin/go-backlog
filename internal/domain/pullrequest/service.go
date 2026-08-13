@@ -10,11 +10,11 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/pagination"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 var filterValidTypes = []option.APIParamOptionType{
@@ -53,7 +53,7 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName string, opts ...*option.APIParamOption) ([]*model.PullRequest, error) {
 	query := url.Values{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -73,7 +73,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, repoIDOrName 
 func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, repoIDOrName string, opts ...*option.APIParamOption) (iter.Seq2[*model.PullRequest, error], error) {
 	o := &option.OptionService{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -86,7 +86,7 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 
 	countOpt := o.WithCount(perPage)
 	if ve := countOpt.Check(); ve != nil {
-		return nil, core.ValidationErrors{ve}
+		return nil, validation.Errors{ve}
 	}
 
 	baseQuery := url.Values{}
@@ -114,7 +114,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 		option.ParamCreatedUserIDs,
 	}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -143,7 +143,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request
 func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName string, prNumber int) (*model.PullRequest, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -197,7 +197,7 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		opts...,
 	)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -237,7 +237,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

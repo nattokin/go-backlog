@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // SharedFileService handles project shared-file-related Backlog API calls.
@@ -22,7 +22,7 @@ type SharedFileService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
 func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]*model.SharedFile, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -49,7 +49,7 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
 func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*model.FileData, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
