@@ -159,6 +159,32 @@ func TestValidateNonEmptyString(t *testing.T) {
 	}
 }
 
+func TestValidateIDOrKey(t *testing.T) {
+	cases := map[string]struct {
+		value   string
+		wantErr bool
+	}{
+		"valid-key":          {value: "PRJ-1"},
+		"valid-id":           {value: "1"},
+		"invalid-empty":      {value: "", wantErr: true},
+		"invalid-whitespace": {value: " \t\n ", wantErr: true},
+		"invalid-zero":       {value: "0", wantErr: true},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateIDOrKey("issueIDOrKey", tc.value)
+			if tc.wantErr {
+				assert.NotNil(t, ve)
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidateEmail(t *testing.T) {
 	cases := map[string]struct {
 		value   string
