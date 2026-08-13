@@ -1,8 +1,8 @@
 package option
 
 import (
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func (s *OptionService) WithCreatedSince(date string) *APIParamOption {
@@ -64,7 +64,7 @@ func (s *OptionService) WithUpdatedUntil(date string) *APIParamOption {
 func dateFormatStringOption(paramType APIParamOptionType, date string) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateDateFormat(paramType.Value(), date)
 		},
 		SetFunc: setStringFunc(paramType, date),

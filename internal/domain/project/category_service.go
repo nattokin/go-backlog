@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // CategoryService handles category-related Backlog API calls for a project.
@@ -22,7 +22,7 @@ type CategoryService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-category-list
 func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*model.Category, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -50,7 +50,7 @@ func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*m
 func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, name string) (*model.Category, error) {
 	opt := (&option.OptionService{}).WithName(name)
 	if ve := opt.Check(); ve != nil {
-		var ves core.ValidationErrors
+		var ves validation.Errors
 		ves = append(ves, ve)
 		if ve2 := validate.ValidateProjectIDOrKey(projectIDOrKey); ve2 != nil {
 			ves = append(ves, ve2)
@@ -58,7 +58,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 		return nil, ves
 	}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -88,7 +88,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-category
 func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, categoryID int, name string) (*model.Category, error) {
 	opt := (&option.OptionService{}).WithName(name)
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := opt.Check(); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -96,7 +96,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 		ves = append(ves, ve)
 	}
 	if categoryID < 1 {
-		ves = append(ves, core.NewValidationError("categoryId", "categoryId must not be less than 1"))
+		ves = append(ves, validation.NewError("categoryId", "categoryId must not be less than 1"))
 	}
 	if len(ves) > 0 {
 		return nil, ves
@@ -123,12 +123,12 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-category
 func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, categoryID int) (*model.Category, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
 	if categoryID < 1 {
-		ves = append(ves, core.NewValidationError("categoryId", "categoryId must not be less than 1"))
+		ves = append(ves, validation.NewError("categoryId", "categoryId must not be less than 1"))
 	}
 	if len(ves) > 0 {
 		return nil, ves

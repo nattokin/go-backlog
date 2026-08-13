@@ -12,11 +12,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestCommentService_Add(t *testing.T) {
@@ -144,7 +144,7 @@ func TestCommentService_Add(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -242,7 +242,7 @@ func TestCommentService_One(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -340,7 +340,7 @@ func TestCommentService_Delete(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -453,7 +453,7 @@ func TestCommentService_Update(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}

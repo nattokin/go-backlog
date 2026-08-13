@@ -7,9 +7,9 @@ import (
 	"path"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // Service handles git repository-related Backlog API calls.
@@ -21,7 +21,7 @@ type Service struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories
 func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Repository, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -47,7 +47,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Rep
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-git-repository
 func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName string) (*model.Repository, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

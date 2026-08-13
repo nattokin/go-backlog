@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 var validUserListOptions = []option.APIParamOptionType{
@@ -68,7 +68,7 @@ func deleteUser(ctx context.Context, m *client.Method, spath string, userID int)
 func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.User, error) {
 	query := url.Values{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -84,7 +84,7 @@ func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-user
 func (s *UserService) Add(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -102,7 +102,7 @@ func (s *UserService) Add(ctx context.Context, projectIDOrKey string, userID int
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-user
 func (s *UserService) Delete(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -120,7 +120,7 @@ func (s *UserService) Delete(ctx context.Context, projectIDOrKey string, userID 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *UserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -138,7 +138,7 @@ func (s *UserService) AddAdmin(ctx context.Context, projectIDOrKey string, userI
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators
 func (s *UserService) AdminList(ctx context.Context, projectIDOrKey string) ([]*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -153,7 +153,7 @@ func (s *UserService) AdminList(ctx context.Context, projectIDOrKey string) ([]*
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-project-administrator
 func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, userID int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

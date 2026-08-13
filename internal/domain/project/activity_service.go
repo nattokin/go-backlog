@@ -6,11 +6,11 @@ import (
 	"path"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/activity"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 type ActivityService struct {
@@ -24,7 +24,7 @@ type ActivityService struct {
 func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.Activity, error) {
 	query := url.Values{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

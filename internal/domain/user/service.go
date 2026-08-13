@@ -8,10 +8,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // getUser is a shared helper that fetches a single user from the given spath.
@@ -54,7 +54,7 @@ func (s *Service) List(ctx context.Context) ([]*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user
 func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateUserID(id); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -86,9 +86,9 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 		optSvc.WithMailAddress(mailAddress),
 		optSvc.WithRoleType(roleType),
 	}
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if userID == "" {
-		ves = append(ves, core.NewValidationError("userID", "userID must not be empty"))
+		ves = append(ves, validation.NewError("userID", "userID must not be empty"))
 	}
 	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
 func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateUserID(id); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -167,7 +167,7 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
 func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateUserID(id); ve != nil {
 		ves = append(ves, ve)
 	}

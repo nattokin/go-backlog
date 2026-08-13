@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestWikiAttachmentService_Attach(t *testing.T) {
@@ -103,7 +103,7 @@ func TestWikiAttachmentService_Attach(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -188,7 +188,7 @@ func TestWikiAttachmentService_List(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachments)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -294,7 +294,7 @@ func TestWikiAttachmentService_Remove(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, attachment)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -381,7 +381,7 @@ func TestWikiAttachmentService_Download(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, got)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}

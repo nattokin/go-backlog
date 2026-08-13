@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestProjectUserService_List(t *testing.T) {
@@ -122,7 +122,7 @@ func TestProjectUserService_List(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, users)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -207,7 +207,7 @@ func TestProjectUserService_Add(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, u)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -300,7 +300,7 @@ func TestProjectUserService_Delete(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, u)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -384,7 +384,7 @@ func TestProjectUserService_AddAdmin(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, u)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -449,7 +449,7 @@ func TestProjectUserService_AdminList(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, users)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -513,7 +513,7 @@ func TestProjectUserService_DeleteAdmin(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, u)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}

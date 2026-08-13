@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // HistorySevice handles wiki history-related Backlog API calls.
@@ -21,7 +21,7 @@ type HistorySevice struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
 func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHistory, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}

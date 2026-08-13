@@ -7,11 +7,11 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/comment"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 type CommentService struct {
@@ -25,7 +25,7 @@ type CommentService struct {
 func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...*option.APIParamOption) ([]*model.Comment, error) {
 	query := url.Values{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -43,7 +43,7 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...*option.APIParamOption) (*model.Comment, error) {
 	form := url.Values{}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -59,7 +59,7 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-comment
 func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -75,7 +75,7 @@ func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, e
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment
 func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID int) (*model.Comment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -94,7 +94,7 @@ func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-comment
 func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commentID int) (*model.Comment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -123,7 +123,7 @@ func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commen
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-comment
 func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commentID int, content string) (*model.Comment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -147,7 +147,7 @@ func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commen
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-comment-notifications
 func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string, commentID int) ([]*model.Notification, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -182,7 +182,7 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 		option.ParamNotifiedUserIDs,
 	}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

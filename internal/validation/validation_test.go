@@ -1,4 +1,4 @@
-package core_test
+package validation_test
 
 import (
 	"errors"
@@ -7,43 +7,43 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestValidationError_Error(t *testing.T) {
 	msg := "validation error"
-	e := core.NewValidationError("someTarget", msg)
+	e := validation.NewError("someTarget", msg)
 	assert.EqualError(t, e, msg)
 }
 
 func TestValidationError_Fields(t *testing.T) {
-	e := core.NewValidationError("offset", "offset must not be negative")
+	e := validation.NewError("offset", "offset must not be negative")
 	assert.Equal(t, "offset", e.Target())
 	assert.Equal(t, "offset must not be negative", e.Message())
 }
 
 func TestValidationErrors_Error_single(t *testing.T) {
 	t.Parallel()
-	ves := core.ValidationErrors{
-		core.NewValidationError("count", "count must be greater than 0"),
+	ves := validation.Errors{
+		validation.NewError("count", "count must be greater than 0"),
 	}
 	assert.Equal(t, "count must be greater than 0", ves.Error())
 }
 
 func TestValidationErrors_Error_multiple(t *testing.T) {
 	t.Parallel()
-	ves := core.ValidationErrors{
-		core.NewValidationError("count", "count must be greater than 0"),
-		core.NewValidationError("order", "order must be asc or desc"),
+	ves := validation.Errors{
+		validation.NewError("count", "count must be greater than 0"),
+		validation.NewError("order", "order must be asc or desc"),
 	}
 	assert.Equal(t, "count must be greater than 0\norder must be asc or desc", ves.Error())
 }
 
 func TestValidationError_errorsAs(t *testing.T) {
-	err := core.NewValidationError("key", "invalid argument")
+	err := validation.NewError("key", "invalid argument")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.ValidationError
+	var target *validation.Error
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "invalid argument", target.Error())
 	assert.Equal(t, "key", target.Target())

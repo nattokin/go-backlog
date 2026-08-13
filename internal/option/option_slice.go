@@ -5,14 +5,14 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamActivityTypeIDs,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			for _, id := range typeIDs {
 				if ve := validate.ValidateIntRange("activityTypeIds", id, 1, MaxActivityTypeID); ve != nil {
 					return ve
@@ -36,10 +36,10 @@ func (s *OptionService) WithAttachmentIDs(ids []int) *APIParamOption {
 func (s *OptionService) WithItems(items []string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamItems,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			for i, item := range items {
 				if item == "" {
-					return core.NewValidationError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
+					return validation.NewError(ParamItems.Value(), fmt.Sprintf("items[%d] must not be empty", i))
 				}
 			}
 			return nil
@@ -107,7 +107,7 @@ func (s *OptionService) WithParentIssueIDs(ids []int) *APIParamOption {
 func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidatePositiveInts(paramName, values)
 		},
 		SetFunc: addIntFunc(paramType, values),

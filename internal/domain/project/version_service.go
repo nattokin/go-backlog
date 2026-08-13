@@ -8,10 +8,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // VersionService provides Version/Milestone API operations.
@@ -29,7 +29,7 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 		option.ParamAll,
 	}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -65,7 +65,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 	}
 	options := append([]*option.APIParamOption{optSvc.WithName(name)}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -101,7 +101,7 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 	}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -130,7 +130,7 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-version-milestone
 func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, versionID int) (*model.Version, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // WithCustomField returns a *option.APIParamOption that sets a custom field value for
@@ -16,7 +16,7 @@ import (
 func WithCustomField[T string | float64 | time.Time](id int, value T) *option.APIParamOption {
 	return &option.APIParamOption{
 		Type: option.ParamCustomField,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			if ve := validate.ValidateCustomFieldID(id); ve != nil {
 				return ve
 			}
@@ -25,11 +25,11 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) *option.AP
 			switch v := any(value).(type) {
 			case string:
 				if v == "" {
-					return core.NewValidationError(name, fmt.Sprintf("%s value must not be empty", name))
+					return validation.NewError(name, fmt.Sprintf("%s value must not be empty", name))
 				}
 			case time.Time:
 				if v.IsZero() {
-					return core.NewValidationError(name, fmt.Sprintf("%s date must not be zero value", name))
+					return validation.NewError(name, fmt.Sprintf("%s date must not be zero value", name))
 				}
 			}
 			return nil
@@ -56,7 +56,7 @@ func WithCustomField[T string | float64 | time.Time](id int, value T) *option.AP
 func WithCustomFieldItems(id int, itemIDs []int) *option.APIParamOption {
 	return &option.APIParamOption{
 		Type: option.ParamCustomField,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			if ve := validate.ValidateCustomFieldID(id); ve != nil {
 				return ve
 			}
@@ -77,7 +77,7 @@ func WithCustomFieldItems(id int, itemIDs []int) *option.APIParamOption {
 func WithCustomFieldOther(id int, value string) *option.APIParamOption {
 	return &option.APIParamOption{
 		Type: option.ParamCustomField,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidateCustomFieldID(id)
 		},
 		SetFunc: func(vals url.Values) error {
@@ -88,10 +88,10 @@ func WithCustomFieldOther(id int, value string) *option.APIParamOption {
 	}
 }
 
-func validateItemIDs(ids []int) *core.ValidationError {
+func validateItemIDs(ids []int) *validation.Error {
 	for _, id := range ids {
 		if id < 1 {
-			return core.NewValidationError("customField_itemID", fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
+			return validation.NewError("customField_itemID", fmt.Sprintf("customField itemID must not be less than 1, got %d", id))
 		}
 	}
 	return nil

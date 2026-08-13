@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // WithActualHours returns an option to set the `actualHours` parameter.
@@ -45,7 +45,7 @@ func (s *OptionService) WithMin(min float64) *APIParamOption {
 func positiveFloat64Option(paramType APIParamOptionType, value float64) *APIParamOption {
 	return &APIParamOption{
 		Type: paramType,
-		CheckFunc: func() *core.ValidationError {
+		CheckFunc: func() *validation.Error {
 			return validate.ValidatePositiveFloat64(paramType.Value(), value)
 		},
 		SetFunc: setFloat64Func(paramType, value),

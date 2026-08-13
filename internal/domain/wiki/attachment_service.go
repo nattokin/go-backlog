@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/shared/attachment"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // AttachmentService handles attachment-related Backlog API calls for wiki pages.
@@ -25,12 +25,12 @@ type AttachmentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki
 func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentIDs []int) ([]*model.Attachment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
 	if len(attachmentIDs) == 0 {
-		ves = append(ves, core.NewValidationError("attachmentIDs", "attachmentIDs must not be empty"))
+		ves = append(ves, validation.NewError("attachmentIDs", "attachmentIDs must not be empty"))
 	} else {
 		for _, id := range attachmentIDs {
 			if ve := validate.ValidateAttachmentID(id); ve != nil {
@@ -66,7 +66,7 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments
 func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Attachment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -82,7 +82,7 @@ func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Atta
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment
 func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int) (*model.Attachment, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -102,7 +102,7 @@ func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment
 func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID int) (*model.FileData, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateWikiID(wikiID); ve != nil {
 		ves = append(ves, ve)
 	}

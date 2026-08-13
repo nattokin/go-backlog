@@ -10,11 +10,11 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/pagination"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 var countValidTypes = []option.APIParamOptionType{
@@ -115,7 +115,7 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*option.APIParam
 
 	countOpt := o.WithCount(perPage)
 	if ve := countOpt.Check(); ve != nil {
-		return nil, core.ValidationErrors{ve}
+		return nil, validation.Errors{ve}
 	}
 
 	baseQuery := url.Values{}
@@ -157,7 +157,7 @@ func (s *Service) Count(ctx context.Context, opts ...*option.APIParamOption) (in
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue
 func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -194,7 +194,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 		opts...,
 	)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateProjectID(projectID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -224,7 +224,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, opt *option.A
 	form := url.Values{}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -250,7 +250,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, opt *option.A
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-issue
 func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -276,7 +276,7 @@ func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-participant-list
 func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*model.User, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}

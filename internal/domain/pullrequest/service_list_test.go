@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestService_List(t *testing.T) {
@@ -197,7 +197,7 @@ func TestService_List(t *testing.T) {
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
 				assert.Nil(t, prs)
-				var ves core.ValidationErrors
+				var ves validation.Errors
 				if assert.ErrorAs(t, err, &ves) {
 					assert.Len(t, ves, tc.wantValidationErrCount)
 				}
@@ -318,7 +318,7 @@ func TestService_All(t *testing.T) {
 		s := pullrequest.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, "", "repo1")
 		require.Error(t, err)
-		var ves core.ValidationErrors
+		var ves validation.Errors
 		assert.ErrorAs(t, err, &ves)
 	})
 
@@ -328,7 +328,7 @@ func TestService_All(t *testing.T) {
 		s := pullrequest.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 10, "PRJ", "")
 		require.Error(t, err)
-		var ves core.ValidationErrors
+		var ves validation.Errors
 		assert.ErrorAs(t, err, &ves)
 	})
 
@@ -338,7 +338,7 @@ func TestService_All(t *testing.T) {
 		s := pullrequest.NewService(mock.NewMethod(t))
 		_, err := s.All(ctx, 0, "PRJ", "repo1")
 		require.Error(t, err)
-		var ves core.ValidationErrors
+		var ves validation.Errors
 		assert.ErrorAs(t, err, &ves)
 	})
 

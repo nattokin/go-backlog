@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
-	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // StarService handles user star-related Backlog API calls.
@@ -25,7 +25,7 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 	query := url.Values{}
 	validOptionKeys := []option.APIParamOptionType{option.ParamMinID, option.ParamMaxID, option.ParamCount, option.ParamOrder}
 
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
@@ -51,7 +51,7 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars
 func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
-	var ves core.ValidationErrors
+	var ves validation.Errors
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
