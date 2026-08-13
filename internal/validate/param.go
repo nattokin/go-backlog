@@ -70,6 +70,17 @@ func ValidateNonEmptyString(field, value string) *core.ValidationError {
 	return nil
 }
 
+// ValidateIDOrKey validates that value is not empty/whitespace-only and not the literal "0".
+func ValidateIDOrKey(field, value string) *core.ValidationError {
+	if strings.TrimSpace(value) == "" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be empty", field))
+	}
+	if value == "0" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be '0'", field))
+	}
+	return nil
+}
+
 // ValidateEmail validates that value is a single, well-formed email address.
 func ValidateEmail(field, value string) *core.ValidationError {
 	addr, err := mail.ParseAddress(value)
