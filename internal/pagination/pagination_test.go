@@ -1,4 +1,4 @@
-package core_test
+package pagination_test
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/pagination"
 )
 
-func TestAllSeq(t *testing.T) {
+func TestAll(t *testing.T) {
 	t.Run("single-short-page", func(t *testing.T) {
 		t.Parallel()
 
@@ -24,7 +24,7 @@ func TestAllSeq(t *testing.T) {
 		}
 
 		var got []int
-		for v, err := range core.AllSeq(context.Background(), 10, fetch) {
+		for v, err := range pagination.All(context.Background(), 10, fetch) {
 			require.NoError(t, err)
 			got = append(got, *v)
 		}
@@ -53,7 +53,7 @@ func TestAllSeq(t *testing.T) {
 		}
 
 		var got []int
-		for v, err := range core.AllSeq(context.Background(), perPage, fetch) {
+		for v, err := range pagination.All(context.Background(), perPage, fetch) {
 			require.NoError(t, err)
 			got = append(got, *v)
 		}
@@ -74,7 +74,7 @@ func TestAllSeq(t *testing.T) {
 
 		var gotErr error
 		var got []int
-		for v, err := range core.AllSeq(context.Background(), 10, fetch) {
+		for v, err := range pagination.All(context.Background(), 10, fetch) {
 			if err != nil {
 				gotErr = err
 				continue
@@ -107,7 +107,7 @@ func TestAllSeq(t *testing.T) {
 		}
 
 		var got []int
-		for v, err := range core.AllSeq(context.Background(), perPage, fetch) {
+		for v, err := range pagination.All(context.Background(), perPage, fetch) {
 			require.NoError(t, err)
 			got = append(got, *v)
 			if len(got) == 1 {

@@ -1,14 +1,14 @@
-package core
+package pagination
 
 import (
 	"context"
 	"iter"
 )
 
-// AllSeq returns an iter.Seq2 that drives offset-based pagination over any list endpoint.
+// All returns an iter.Seq2 that drives offset-based pagination over any list endpoint.
 // fetch must accept (ctx, offset) and return a page of results.
 // Iteration stops when the returned page is shorter than perPage, signalling the last page.
-func AllSeq[T any](
+func All[T any](
 	ctx context.Context,
 	perPage int,
 	fetch func(ctx context.Context, offset int) ([]*T, error),

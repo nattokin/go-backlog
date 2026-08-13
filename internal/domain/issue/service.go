@@ -13,6 +13,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
+	"github.com/nattokin/go-backlog/internal/pagination"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
@@ -123,7 +124,7 @@ func (s *Service) All(ctx context.Context, perPage int, opts ...*option.APIParam
 		return nil, err
 	}
 
-	return core.AllSeq(ctx, perPage, func(ctx context.Context, offset int) ([]*model.Issue, error) {
+	return pagination.All(ctx, perPage, func(ctx context.Context, offset int) ([]*model.Issue, error) {
 		q := maps.Clone(baseQuery)
 		q.Set(option.ParamOffset.Value(), strconv.Itoa(offset))
 		return s.list(ctx, q)
