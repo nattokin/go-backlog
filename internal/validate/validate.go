@@ -2,8 +2,6 @@
 package validate
 
 import (
-	"strings"
-
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
@@ -24,13 +22,7 @@ func ValidateCustomFieldID(customFieldID int) *core.ValidationError {
 }
 
 func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
-	if strings.TrimSpace(issueIDOrKey) == "" {
-		return core.NewValidationError("issueIDOrKey", "invalid issueIDOrKey: must not be empty")
-	}
-	if issueIDOrKey == "0" {
-		return core.NewValidationError("issueIDOrKey", "invalid issueIDOrKey: must not be '0'")
-	}
-	return nil
+	return ValidateIDOrKey("issueIDOrKey", issueIDOrKey)
 }
 
 func ValidateProjectID(projectID int) *core.ValidationError {
@@ -38,13 +30,7 @@ func ValidateProjectID(projectID int) *core.ValidationError {
 }
 
 func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
-	if strings.TrimSpace(projectIDOrKey) == "" {
-		return core.NewValidationError("projectIDOrKey", "invalid projectIDOrKey: must not be empty")
-	}
-	if projectIDOrKey == "0" {
-		return core.NewValidationError("projectIDOrKey", "invalid projectIDOrKey: must not be '0'")
-	}
-	return nil
+	return ValidateIDOrKey("projectIDOrKey", projectIDOrKey)
 }
 
 func ValidatePRNumber(prNumber int) *core.ValidationError {
@@ -52,13 +38,7 @@ func ValidatePRNumber(prNumber int) *core.ValidationError {
 }
 
 func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError {
-	if strings.TrimSpace(repositoryIDOrName) == "" {
-		return core.NewValidationError("repositoryIDOrName", "invalid repositoryIDOrName: must not be empty")
-	}
-	if repositoryIDOrName == "0" {
-		return core.NewValidationError("repositoryIDOrName", "invalid repositoryIDOrName: must not be '0'")
-	}
-	return nil
+	return ValidateIDOrKey("repositoryIDOrName", repositoryIDOrName)
 }
 
 func ValidateSharedFileID(fileID int) *core.ValidationError {
