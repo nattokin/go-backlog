@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -30,184 +30,184 @@ func Test_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"Service.List", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"Service.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.One(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Service.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewService(m)
 			s.Create(ctx, "KEY", "name", o.WithChartEnabled(true)) //nolint:errcheck
 		}},
-		{"Service.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewService(m)
 			s.Update(ctx, "TEST", o.WithName("test")) //nolint:errcheck
 		}},
-		{"Service.Delete", func(t *testing.T, m *core.Method) {
+		{"Service.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewService(m)
 			s.Delete(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Service.DiskUsage", func(t *testing.T, m *core.Method) {
+		{"Service.DiskUsage", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewService(m)
 			s.DiskUsage(ctx, "TEST") //nolint:errcheck
 		}},
-		{"Service.Icon", func(t *testing.T, m *core.Method) {
+		{"Service.Icon", func(t *testing.T, m *client.Method) {
 			m.Download = makeMockFn(t)
 			s := project.NewService(m)
 			s.Icon(ctx, "TEST") //nolint:errcheck
 		}},
-		{"ActivityService.List", func(t *testing.T, m *core.Method) {
+		{"ActivityService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewActivityService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"CategoryService.List", func(t *testing.T, m *core.Method) {
+		{"CategoryService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewCategoryService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"CategoryService.Create", func(t *testing.T, m *core.Method) {
+		{"CategoryService.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewCategoryService(m)
 			s.Create(ctx, "TEST", "Bug") //nolint:errcheck
 		}},
-		{"CategoryService.Update", func(t *testing.T, m *core.Method) {
+		{"CategoryService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewCategoryService(m)
 			s.Update(ctx, "TEST", 12, "Bug Fixed") //nolint:errcheck
 		}},
-		{"CategoryService.Delete", func(t *testing.T, m *core.Method) {
+		{"CategoryService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewCategoryService(m)
 			s.Delete(ctx, "TEST", 12) //nolint:errcheck
 		}},
-		{"CustomFieldService.List", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"CustomFieldService.Create", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.Create(ctx, "TEST", 1, "Sprint") //nolint:errcheck
 		}},
-		{"CustomFieldService.Update", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.Update(ctx, "TEST", 1, o.WithName("Sprint Updated")) //nolint:errcheck
 		}},
-		{"CustomFieldService.Delete", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.Delete(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"CustomFieldService.AddListItem", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.AddListItem", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.AddListItem(ctx, "TEST", 1, "Item1") //nolint:errcheck
 		}},
-		{"CustomFieldService.UpdateListItem", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.UpdateListItem", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.UpdateListItem(ctx, "TEST", 1, 10, "Item1 Updated") //nolint:errcheck
 		}},
-		{"CustomFieldService.DeleteListItem", func(t *testing.T, m *core.Method) {
+		{"CustomFieldService.DeleteListItem", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewCustomFieldService(m)
 			s.DeleteListItem(ctx, "TEST", 1, 10) //nolint:errcheck
 		}},
-		{"IssueTypeService.List", func(t *testing.T, m *core.Method) {
+		{"IssueTypeService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"IssueTypeService.Create", func(t *testing.T, m *core.Method) {
+		{"IssueTypeService.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
 			s.Create(ctx, "TEST", "Bug", "#e30000") //nolint:errcheck
 		}},
-		{"IssueTypeService.Update", func(t *testing.T, m *core.Method) {
+		{"IssueTypeService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
 			s.Update(ctx, "TEST", 1, o.WithName("Bug Updated")) //nolint:errcheck
 		}},
-		{"IssueTypeService.Delete", func(t *testing.T, m *core.Method) {
+		{"IssueTypeService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewIssueTypeService(m)
 			s.Delete(ctx, "TEST", 1, 2) //nolint:errcheck
 		}},
-		{"StatusService.List", func(t *testing.T, m *core.Method) {
+		{"StatusService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"StatusService.Create", func(t *testing.T, m *core.Method) {
+		{"StatusService.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.Create(ctx, "TEST", "Open", "#ed8077") //nolint:errcheck
 		}},
-		{"StatusService.Update", func(t *testing.T, m *core.Method) {
+		{"StatusService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.Update(ctx, "TEST", 1, o.WithName("Open")) //nolint:errcheck
 		}},
-		{"StatusService.Delete", func(t *testing.T, m *core.Method) {
+		{"StatusService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.Delete(ctx, "TEST", 1, 2) //nolint:errcheck
 		}},
-		{"StatusService.UpdateOrder", func(t *testing.T, m *core.Method) {
+		{"StatusService.UpdateOrder", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := project.NewStatusService(m)
 			s.UpdateOrder(ctx, "TEST", []int{1, 2}) //nolint:errcheck
 		}},
-		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
+		{"SharedFileService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewSharedFileService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"SharedFileService.Download", func(t *testing.T, m *core.Method) {
+		{"SharedFileService.Download", func(t *testing.T, m *client.Method) {
 			m.Download = makeMockFn(t)
 			s := project.NewSharedFileService(m)
 			s.Download(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.List", func(t *testing.T, m *core.Method) {
+		{"UserService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.List(ctx, "TEST") //nolint:errcheck
 		}},
-		{"UserService.Add", func(t *testing.T, m *core.Method) {
+		{"UserService.Add", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.Add(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.Delete", func(t *testing.T, m *core.Method) {
+		{"UserService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.Delete(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.AddAdmin", func(t *testing.T, m *core.Method) {
+		{"UserService.AddAdmin", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.AddAdmin(ctx, "TEST", 1) //nolint:errcheck
 		}},
-		{"UserService.AdminList", func(t *testing.T, m *core.Method) {
+		{"UserService.AdminList", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.AdminList(ctx, "TEST") //nolint:errcheck
 		}},
-		{"UserService.DeleteAdmin", func(t *testing.T, m *core.Method) {
+		{"UserService.DeleteAdmin", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := project.NewUserService(m)
 			s.DeleteAdmin(ctx, "TEST", 1) //nolint:errcheck
@@ -217,7 +217,7 @@ func Test_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

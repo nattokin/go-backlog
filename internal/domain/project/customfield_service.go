@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -13,7 +14,7 @@ import (
 )
 
 type CustomFieldService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of custom fields in a project.
@@ -35,7 +36,7 @@ func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([
 	}
 
 	v := []*model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +73,7 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -108,7 +109,7 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -137,7 +138,7 @@ func (s *CustomFieldService) Delete(ctx context.Context, projectIDOrKey string, 
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -173,7 +174,7 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -212,7 +213,7 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -244,13 +245,13 @@ func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey 
 	}
 
 	v := model.CustomField{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewCustomFieldService(method *core.Method) *CustomFieldService {
+func NewCustomFieldService(method *client.Method) *CustomFieldService {
 	return &CustomFieldService{method: method}
 }

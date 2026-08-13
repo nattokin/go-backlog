@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,7 +15,7 @@ import (
 
 type ActivityService struct {
 	base   *activity.Service
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of activities in the project.
@@ -35,7 +36,7 @@ func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts 
 	return s.base.Fetch(ctx, spath, query)
 }
 
-func NewActivityService(method *core.Method) *ActivityService {
+func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),
 		method: method,

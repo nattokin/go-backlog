@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,7 +15,7 @@ import (
 
 // CategoryService handles category-related Backlog API calls for a project.
 type CategoryService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of categories in a project.
@@ -36,7 +37,7 @@ func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*m
 	}
 
 	v := []*model.Category{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +76,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 	}
 
 	v := model.Category{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -111,7 +112,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 	}
 
 	v := model.Category{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -140,13 +141,13 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 	}
 
 	v := model.Category{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewCategoryService(method *core.Method) *CategoryService {
+func NewCategoryService(method *client.Method) *CategoryService {
 	return &CategoryService{method: method}
 }

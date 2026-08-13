@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -55,7 +55,7 @@ func TestSharedFileService_List(t *testing.T) {
 			issueIDOrKey: "TEST-1",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -150,7 +150,7 @@ func TestSharedFileService_Link(t *testing.T) {
 			fileIDs:      []int{454403},
 			expectError:  true,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -240,7 +240,7 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			fileID:       454403,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
