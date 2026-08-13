@@ -48,7 +48,7 @@ func TestNewClient(t *testing.T) {
 		assert.Same(t, c.core.Doer, mockDoer)
 	})
 
-	t.Run("error-core.NewClient", func(t *testing.T) {
+	t.Run("error-client.NewClient", func(t *testing.T) {
 		c, err := NewClient("", "")
 		require.Error(t, err)
 		assert.IsType(t, &InternalClientError{}, err)
