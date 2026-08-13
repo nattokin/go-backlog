@@ -3,7 +3,7 @@ package backlog
 import (
 	"net/http"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/option"
 )
 
@@ -25,7 +25,7 @@ type Doer interface {
 // Client represents a Backlog API client.
 // It wraps an underlying HTTP Doer and provides typed services for API access.
 type Client struct {
-	core *core.Client
+	core *client.Client
 
 	// Issue provides access to issue-related API endpoints.
 	Issue *IssueService
@@ -59,11 +59,11 @@ type Client struct {
 // Supported options:
 //   - [WithDoer]
 func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
-	coreOpts := make([]*core.ClientOption, len(opts))
+	coreOpts := make([]*client.ClientOption, len(opts))
 	for i, o := range opts {
 		coreOpts[i] = o.core
 	}
-	c, err := core.NewClient(baseURL, token, coreOpts...)
+	c, err := client.NewClient(baseURL, token, coreOpts...)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -110,7 +110,7 @@ func initServices(c *Client) {
 // ClientOption defines a functional option for configuring a Client.
 // It is used to change the default behavior of the Client.
 type ClientOption struct {
-	core *core.ClientOption
+	core *client.ClientOption
 }
 
 // WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
@@ -118,5 +118,5 @@ type ClientOption struct {
 //
 // If this option is not provided, http.DefaultClient is used by default.
 func WithDoer(doer Doer) *ClientOption {
-	return &ClientOption{core: core.WithDoer(doer)}
+	return &ClientOption{core: client.WithDoer(doer)}
 }

@@ -1,3 +1,5 @@
+// Package core provides the ValidationError/ValidationErrors vocabulary used
+// across the domain layer, and offset-based pagination helpers.
 package core
 
 import "strings"

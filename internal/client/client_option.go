@@ -1,0 +1,57 @@
+package client
+
+import (
+	"io"
+	"net/http"
+	"net/url"
+)
+
+type ClientOption struct {
+	set func(config *clientConfig)
+}
+
+type clientConfig struct {
+	Doer Doer
+}
+
+func WithDoer(doer Doer) *ClientOption {
+	return &ClientOption{
+		set: func(config *clientConfig) {
+			config.Doer = doer
+		},
+	}
+}
+
+type HttpRequestOption struct {
+	set func(config *httpRequestConfig)
+}
+
+type httpRequestConfig struct {
+	Header http.Header
+	Body   io.Reader
+	Query  url.Values
+}
+
+func WithHeader(header http.Header) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Header = header
+		},
+	}
+}
+
+func WithBody(body io.Reader) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Body = body
+		},
+	}
+}
+
+func WithQuery(query url.Values) *HttpRequestOption {
+	return &HttpRequestOption{
+		set: func(config *httpRequestConfig) {
+			config.Query = query
+		},
+	}
+}
