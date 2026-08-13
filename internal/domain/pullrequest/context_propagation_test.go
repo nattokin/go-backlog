@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -31,14 +31,14 @@ func Test_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"Service.List", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.List(ctx, "PRJ", "repo1") //nolint:errcheck
 		}},
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			seq, err := s.All(ctx, 10, "PRJ", "repo1")
@@ -47,57 +47,57 @@ func Test_contextPropagation(t *testing.T) {
 				break
 			}
 		}},
-		{"Service.Count", func(t *testing.T, m *core.Method) {
+		{"Service.Count", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Count(ctx, "PRJ", "repo1") //nolint:errcheck
 		}},
-		{"Service.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.One(ctx, "PRJ", "repo1", 1) //nolint:errcheck
 		}},
-		{"Service.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Create(ctx, "PRJ", "repo1", "summary", "desc", "main", "feature/foo") //nolint:errcheck
 		}},
-		{"Service.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewService(m)
 			s.Update(ctx, "PRJ", "repo1", 1, o.WithSummary("x")) //nolint:errcheck
 		}},
-		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewAttachmentService(m)
 			s.List(ctx, "TEST", "repo", 1) //nolint:errcheck
 		}},
-		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.Remove", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := pullrequest.NewAttachmentService(m)
 			s.Remove(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
-		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.Download", func(t *testing.T, m *client.Method) {
 			m.Download = makeMockFn(t)
 			s := pullrequest.NewAttachmentService(m)
 			s.Download(ctx, "TEST", "repo", 1, 1) //nolint:errcheck
 		}},
-		{"CommentService.List", func(t *testing.T, m *core.Method) {
+		{"CommentService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
 			s.List(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.Add", func(t *testing.T, m *core.Method) {
+		{"CommentService.Add", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
 			s.Add(ctx, "PRJ-1", "REPO-1", 1, "comment") //nolint:errcheck
 		}},
-		{"CommentService.Count", func(t *testing.T, m *core.Method) {
+		{"CommentService.Count", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
 			s.Count(ctx, "PRJ-1", "REPO-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.Update", func(t *testing.T, m *core.Method) {
+		{"CommentService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := pullrequest.NewCommentService(m)
 			s.Update(ctx, "PRJ-1", "REPO-1", 1, 1, "content") //nolint:errcheck
@@ -107,7 +107,7 @@ func Test_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

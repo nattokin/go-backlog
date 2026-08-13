@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 )
 
@@ -36,7 +36,7 @@ func (s *IssueSharedFileService) Unlink(ctx context.Context, issueIDOrKey string
 	return sharedFileFromModel(v), convertError(err)
 }
 
-func newIssueSharedFileService(method *core.Method) *IssueSharedFileService {
+func newIssueSharedFileService(method *client.Method) *IssueSharedFileService {
 	return &IssueSharedFileService{
 		base: issue.NewSharedFileService(method),
 	}

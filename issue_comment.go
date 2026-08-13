@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -126,7 +126,7 @@ func (s *IssueCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
-func newIssueCommentService(method *core.Method, option *option.OptionService) *IssueCommentService {
+func newIssueCommentService(method *client.Method, option *option.OptionService) *IssueCommentService {
 	return &IssueCommentService{
 		base:   issue.NewCommentService(method),
 		Option: &IssueCommentOptionService{base: option},

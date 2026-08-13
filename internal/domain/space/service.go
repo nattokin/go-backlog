@@ -5,14 +5,14 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 )
 
 // Service handles space-related Backlog API calls.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // Info returns information about your space.
@@ -25,7 +25,7 @@ func (s *Service) Info(ctx context.Context) (*model.Space, error) {
 	}
 
 	v := model.Space{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (s *Service) DiskUsage(ctx context.Context) (*model.DiskUsageSpace, error) 
 	}
 
 	v := model.DiskUsageSpace{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (s *Service) Notification(ctx context.Context) (*model.SpaceNotification, e
 	}
 
 	v := model.SpaceNotification{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -85,14 +85,14 @@ func (s *Service) UpdateNotification(ctx context.Context, content string) (*mode
 	}
 
 	v := model.SpaceNotification{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

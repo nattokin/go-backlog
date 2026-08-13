@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -13,7 +14,7 @@ import (
 )
 
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of projects in the space.
@@ -32,7 +33,7 @@ func (s *Service) List(ctx context.Context, opts ...*option.APIParamOption) ([]*
 	}
 
 	v := []*model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +59,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 	}
 
 	v := model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +85,7 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...*option.
 	}
 
 	v := model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -117,7 +118,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option
 	}
 
 	v := model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -143,7 +144,7 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 	}
 
 	v := model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -169,7 +170,7 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 	}
 
 	v := model.DiskUsageProject{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -195,10 +196,10 @@ func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileD
 		return nil, err
 	}
 
-	return core.DownloadResponse(resp)
+	return client.DownloadResponse(resp)
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

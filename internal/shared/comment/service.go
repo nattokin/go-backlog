@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -29,7 +30,7 @@ var AddValidTypes = []option.APIParamOptionType{
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // ApplyListOptions validates and applies opts to query for List.
@@ -45,7 +46,7 @@ func (s *Service) FetchList(ctx context.Context, spath string, query url.Values)
 	}
 
 	v := []*model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +71,7 @@ func (s *Service) FetchAdd(ctx context.Context, spath string, form url.Values) (
 	}
 
 	v := model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +85,7 @@ func (s *Service) Count(ctx context.Context, spath string) (int, error) {
 	}
 
 	v := map[string]int{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -98,7 +99,7 @@ func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error)
 	}
 
 	v := model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -124,13 +125,13 @@ func (s *Service) FetchUpdate(ctx context.Context, spath string, form url.Values
 	}
 
 	v := model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

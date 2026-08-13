@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -275,7 +275,7 @@ func (s *WikiOptionService) WithName(name string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newWikiService(method *core.Method, option *option.OptionService) *WikiService {
+func newWikiService(method *client.Method, option *option.OptionService) *WikiService {
 	return &WikiService{
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
@@ -286,25 +286,25 @@ func newWikiService(method *core.Method, option *option.OptionService) *WikiServ
 	}
 }
 
-func newWikiAttachmentService(method *core.Method) *WikiAttachmentService {
+func newWikiAttachmentService(method *client.Method) *WikiAttachmentService {
 	return &WikiAttachmentService{
 		base: wiki.NewAttachmentService(method),
 	}
 }
 
-func newWikiHistoryService(method *core.Method) *WikiHistoryService {
+func newWikiHistoryService(method *client.Method) *WikiHistoryService {
 	return &WikiHistoryService{
 		base: wiki.NewHistoryService(method),
 	}
 }
 
-func newWikiSharedFileService(method *core.Method) *WikiSharedFileService {
+func newWikiSharedFileService(method *client.Method) *WikiSharedFileService {
 	return &WikiSharedFileService{
 		base: wiki.NewSharedFileService(method),
 	}
 }
 
-func newWikiStarService(method *core.Method, option *option.OptionService) *WikiStarService {
+func newWikiStarService(method *client.Method, option *option.OptionService) *WikiStarService {
 	return &WikiStarService{
 		base: wiki.NewStarService(method),
 		star: newStarService(method, option),

@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/space"
 )
 
@@ -35,39 +35,39 @@ func Test_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"Service.Info", func(t *testing.T, m *core.Method) {
+		{"Service.Info", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.Info(ctx) //nolint:errcheck
 		}},
-		{"Service.DiskUsage", func(t *testing.T, m *core.Method) {
+		{"Service.DiskUsage", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.DiskUsage(ctx) //nolint:errcheck
 		}},
-		{"Service.Notification", func(t *testing.T, m *core.Method) {
+		{"Service.Notification", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewService(m)
 			s.Notification(ctx) //nolint:errcheck
 		}},
-		{"Service.UpdateNotification", func(t *testing.T, m *core.Method) {
+		{"Service.UpdateNotification", func(t *testing.T, m *client.Method) {
 			m.Put = makeMockFn(t)
 			s := space.NewService(m)
 			s.UpdateNotification(ctx, "content") //nolint:errcheck
 		}},
-		{"ActivityService.List", func(t *testing.T, m *core.Method) {
+		{"ActivityService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewActivityService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"ActivityService.One", func(t *testing.T, m *core.Method) {
+		{"ActivityService.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewActivityService(m)
 			s.One(ctx, 1) //nolint:errcheck
 		}},
-		{"AttachmentService.Upload", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.Upload", func(t *testing.T, m *client.Method) {
 			m.Upload = makeMockUploadFn(t)
 			s := space.NewAttachmentService(m)
 			s.Upload(ctx, "file.txt", nil) //nolint:errcheck
@@ -77,7 +77,7 @@ func Test_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

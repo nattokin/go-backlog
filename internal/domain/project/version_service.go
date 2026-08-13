@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -15,7 +16,7 @@ import (
 
 // VersionService provides Version/Milestone API operations.
 type VersionService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns versions/milestones in a project.
@@ -43,7 +44,7 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 	}
 
 	v := []*model.Version{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -79,7 +80,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 	}
 
 	v := model.Version{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -118,7 +119,7 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 	}
 
 	v := model.Version{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -147,13 +148,13 @@ func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, vers
 	}
 
 	v := model.Version{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewVersionService(method *core.Method) *VersionService {
+func NewVersionService(method *client.Method) *VersionService {
 	return &VersionService{method: method}
 }

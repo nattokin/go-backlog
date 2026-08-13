@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -169,19 +169,19 @@ func (s *ProjectUserOptionService) WithExcludeGroupMembers(enabled bool) Request
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectCategoryService(method *core.Method) *ProjectCategoryService {
+func newProjectCategoryService(method *client.Method) *ProjectCategoryService {
 	return &ProjectCategoryService{
 		base: project.NewCategoryService(method),
 	}
 }
 
-func newProjectSharedFileService(method *core.Method) *ProjectSharedFileService {
+func newProjectSharedFileService(method *client.Method) *ProjectSharedFileService {
 	return &ProjectSharedFileService{
 		base: project.NewSharedFileService(method),
 	}
 }
 
-func newProjectUserService(method *core.Method, option *option.OptionService) *ProjectUserService {
+func newProjectUserService(method *client.Method, option *option.OptionService) *ProjectUserService {
 	return &ProjectUserService{
 		base:   project.NewUserService(method),
 		Option: newProjectUserOptionService(option),

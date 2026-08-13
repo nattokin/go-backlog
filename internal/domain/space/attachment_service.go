@@ -4,13 +4,13 @@ import (
 	"context"
 	"io"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
 // AttachmentService handles attachment-related Backlog API calls for a space.
 type AttachmentService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // Upload uploads a file to the space.
@@ -25,13 +25,13 @@ func (s *AttachmentService) Upload(ctx context.Context, fileName string, r io.Re
 	}
 
 	v := model.Attachment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewAttachmentService(method *core.Method) *AttachmentService {
+func NewAttachmentService(method *client.Method) *AttachmentService {
 	return &AttachmentService{method: method}
 }

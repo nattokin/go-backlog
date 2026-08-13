@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -16,7 +17,7 @@ import (
 // Service handles recently-viewed Backlog API calls.
 // All endpoints are scoped to the authenticated user (myself).
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // ListIssues returns a list of issues recently viewed by the authenticated user.
@@ -35,7 +36,7 @@ func (s *Service) ListIssues(ctx context.Context, opts ...*option.APIParamOption
 	}
 
 	v := []*model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -57,7 +58,7 @@ func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, erro
 	}
 
 	v := &model.Issue{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
@@ -80,7 +81,7 @@ func (s *Service) ListProjects(ctx context.Context, opts ...*option.APIParamOpti
 	}
 
 	v := []*model.Project{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -103,7 +104,7 @@ func (s *Service) ListWikis(ctx context.Context, opts ...*option.APIParamOption)
 	}
 
 	v := []*model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -125,13 +126,13 @@ func (s *Service) AddWiki(ctx context.Context, wikiID int) (*model.Wiki, error) 
 	}
 
 	v := &model.Wiki{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -15,7 +16,7 @@ import (
 )
 
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of wiki pages in the project.
@@ -41,7 +42,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string, opts ...*opti
 	}
 
 	v := []*model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -69,7 +70,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error)
 	}
 
 	v := map[string]int{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -95,7 +96,7 @@ func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 	}
 
 	v := model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -127,7 +128,7 @@ func (s *Service) Create(ctx context.Context, projectID int, name, content strin
 	}
 
 	v := model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -168,7 +169,7 @@ func (s *Service) Update(ctx context.Context, wikiID int, opt *option.APIParamOp
 	}
 
 	v := model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -197,14 +198,14 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*option.APIPar
 	}
 
 	v := model.Wiki{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

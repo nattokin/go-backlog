@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/shared/attachment"
@@ -17,7 +18,7 @@ import (
 // responsible only for validation and spath construction.
 type AttachmentService struct {
 	base   *attachment.Service
-	method *core.Method
+	method *client.Method
 }
 
 // Attach attaches files uploaded to the space to the specified wiki.
@@ -54,7 +55,7 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 	}
 
 	v := []*model.Attachment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +117,7 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 	return s.base.Download(ctx, spath)
 }
 
-func NewAttachmentService(method *core.Method) *AttachmentService {
+func NewAttachmentService(method *client.Method) *AttachmentService {
 	return &AttachmentService{
 		base:   attachment.NewService(method),
 		method: method,

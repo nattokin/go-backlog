@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/recentlyviewed"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -358,29 +358,29 @@ func TestService_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"ListIssues", func(t *testing.T, m *core.Method) {
+		{"ListIssues", func(t *testing.T, m *client.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListIssues(ctx) //nolint:errcheck
 		}},
-		{"AddIssue", func(t *testing.T, m *core.Method) {
+		{"AddIssue", func(t *testing.T, m *client.Method) {
 			m.Post = makePostFn(t)
 			s := recentlyviewed.NewService(m)
 			s.AddIssue(ctx, 1) //nolint:errcheck
 		}},
-		{"ListProjects", func(t *testing.T, m *core.Method) {
+		{"ListProjects", func(t *testing.T, m *client.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListProjects(ctx) //nolint:errcheck
 		}},
-		{"ListWikis", func(t *testing.T, m *core.Method) {
+		{"ListWikis", func(t *testing.T, m *client.Method) {
 			m.Get = makeGetFn(t)
 			s := recentlyviewed.NewService(m)
 			s.ListWikis(ctx) //nolint:errcheck
 		}},
-		{"AddWiki", func(t *testing.T, m *core.Method) {
+		{"AddWiki", func(t *testing.T, m *client.Method) {
 			m.Post = makePostFn(t)
 			s := recentlyviewed.NewService(m)
 			s.AddWiki(ctx, 1) //nolint:errcheck
@@ -390,7 +390,7 @@ func TestService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

@@ -4,7 +4,7 @@ package attachment
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
@@ -12,7 +12,7 @@ import (
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, error) {
@@ -22,7 +22,7 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, 
 	}
 
 	v := []*model.Attachment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -36,7 +36,7 @@ func (s *Service) Remove(ctx context.Context, spath string) (*model.Attachment, 
 	}
 
 	v := &model.Attachment{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
@@ -51,9 +51,9 @@ func (s *Service) Download(ctx context.Context, spath string) (*model.FileData, 
 		return nil, err
 	}
 
-	return core.DownloadResponse(resp)
+	return client.DownloadResponse(resp)
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

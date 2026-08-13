@@ -5,14 +5,14 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // StarService handles wiki star-related Backlog API calls.
 type StarService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of stars on the wiki page.
@@ -30,13 +30,13 @@ func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, erro
 	}
 
 	v := []*model.Star{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewStarService(method *core.Method) *StarService {
+func NewStarService(method *client.Method) *StarService {
 	return &StarService{method: method}
 }

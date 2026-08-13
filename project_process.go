@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -198,14 +198,14 @@ func (s *ProjectVersionOptionService) WithStartDate(date string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectStatusService(method *core.Method, option *option.OptionService) *ProjectStatusService {
+func newProjectStatusService(method *client.Method, option *option.OptionService) *ProjectStatusService {
 	return &ProjectStatusService{
 		base:   project.NewStatusService(method),
 		Option: newProjectStatusOptionService(option),
 	}
 }
 
-func newProjectVersionService(method *core.Method, option *option.OptionService) *ProjectVersionService {
+func newProjectVersionService(method *client.Method, option *option.OptionService) *ProjectVersionService {
 	return &ProjectVersionService{
 		base:   project.NewVersionService(method),
 		Option: newVersionOptionService(option),

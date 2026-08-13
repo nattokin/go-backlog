@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -18,22 +19,22 @@ var validUserListOptions = []option.APIParamOptionType{
 
 // UserService handles project user-related Backlog API calls.
 type UserService struct {
-	method *core.Method
+	method *client.Method
 }
 
-func getUserList(ctx context.Context, m *core.Method, spath string, query url.Values) ([]*model.User, error) {
+func getUserList(ctx context.Context, m *client.Method, spath string, query url.Values) ([]*model.User, error) {
 	resp, err := m.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
 	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+func addUser(ctx context.Context, m *client.Method, spath string, userID int) (*model.User, error) {
 	form := url.Values{}
 	form.Set("userId", strconv.Itoa(userID))
 	resp, err := m.Post(ctx, spath, form)
@@ -41,13 +42,13 @@ func addUser(ctx context.Context, m *core.Method, spath string, userID int) (*mo
 		return nil, err
 	}
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 	return &v, nil
 }
 
-func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (*model.User, error) {
+func deleteUser(ctx context.Context, m *client.Method, spath string, userID int) (*model.User, error) {
 	form := url.Values{}
 	form.Set("userId", strconv.Itoa(userID))
 	resp, err := m.Delete(ctx, spath, form)
@@ -55,7 +56,7 @@ func deleteUser(ctx context.Context, m *core.Method, spath string, userID int) (
 		return nil, err
 	}
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 	return &v, nil
@@ -166,6 +167,6 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 	return deleteUser(ctx, s.method, spath, userID)
 }
 
-func NewUserService(method *core.Method) *UserService {
+func NewUserService(method *client.Method) *UserService {
 	return &UserService{method: method}
 }

@@ -6,14 +6,14 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // Service handles star-related Backlog API calls.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // Add adds a star to a resource (issue, comment, wiki page, pull request, or pull request comment).
@@ -57,6 +57,6 @@ func (s *Service) Remove(ctx context.Context, id int) error {
 	return nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

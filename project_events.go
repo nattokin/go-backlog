@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -153,14 +153,14 @@ func (s *ProjectWebhookOptionService) WithName(name string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectActivityService(method *core.Method, option *option.OptionService) *ProjectActivityService {
+func newProjectActivityService(method *client.Method, option *option.OptionService) *ProjectActivityService {
 	return &ProjectActivityService{
 		base:   project.NewActivityService(method),
 		Option: newActivityOptionService(option),
 	}
 }
 
-func newProjectWebhookService(method *core.Method, option *option.OptionService) *ProjectWebhookService {
+func newProjectWebhookService(method *client.Method, option *option.OptionService) *ProjectWebhookService {
 	return &ProjectWebhookService{
 		base:   project.NewWebhookService(method),
 		Option: newWebhookOptionService(option),

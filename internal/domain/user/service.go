@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,14 +15,14 @@ import (
 )
 
 // getUser is a shared helper that fetches a single user from the given spath.
-func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, error) {
+func getUser(ctx context.Context, m *client.Method, spath string) (*model.User, error) {
 	resp, err := m.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -29,7 +30,7 @@ func getUser(ctx context.Context, m *core.Method, spath string) (*model.User, er
 }
 
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of all users in the space.
@@ -42,7 +43,7 @@ func (s *Service) List(ctx context.Context) ([]*model.User, error) {
 	}
 
 	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -101,7 +102,7 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 	}
 
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -128,7 +129,7 @@ func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption
 	}
 
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -154,7 +155,7 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	}
 
 	v := model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -180,10 +181,10 @@ func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
 		return nil, err
 	}
 
-	return core.DownloadResponse(resp)
+	return client.DownloadResponse(resp)
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -118,7 +119,7 @@ func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repo
 	return s.base.FetchUpdate(ctx, spath, form)
 }
 
-func NewCommentService(method *core.Method) *CommentService {
+func NewCommentService(method *client.Method) *CommentService {
 	return &CommentService{
 		base: comment.NewService(method),
 	}

@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/user"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -64,7 +64,7 @@ func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-func newUserStarService(method *core.Method, option *option.OptionService) *UserStarService {
+func newUserStarService(method *client.Method, option *option.OptionService) *UserStarService {
 	return &UserStarService{
 		base:   user.NewStarService(method),
 		Option: newUserStarOptionService(option),

@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -94,7 +94,7 @@ func (s *PullRequestCommentOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-func newPullRequestCommentService(method *core.Method, option *option.OptionService) *PullRequestCommentService {
+func newPullRequestCommentService(method *client.Method, option *option.OptionService) *PullRequestCommentService {
 	return &PullRequestCommentService{
 		base:   pullrequest.NewCommentService(method),
 		Option: &PullRequestCommentOptionService{base: option},

@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
 )
@@ -16,7 +16,7 @@ import (
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, error) {
@@ -26,7 +26,7 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, 
 	}
 
 	v := []*model.SharedFile{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*mod
 	}
 
 	v := []*model.SharedFile{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -66,13 +66,13 @@ func (s *Service) Unlink(ctx context.Context, spath string) (*model.SharedFile, 
 	}
 
 	v := &model.SharedFile{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

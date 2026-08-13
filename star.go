@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/star"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -95,7 +95,7 @@ func (s *StarOptionService) WithWikiID(id int) RequestOption {
 //  Constructor
 // ──────────────────────────────────────────────────────────────
 
-func newStarService(method *core.Method, option *option.OptionService) *StarService {
+func newStarService(method *client.Method, option *option.OptionService) *StarService {
 	return &StarService{
 		base:   star.NewService(method),
 		Option: &StarOptionService{base: option},
