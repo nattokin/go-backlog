@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -46,7 +46,7 @@ func TestWikiStarService_List(t *testing.T) {
 		"error-client-api-error": {
 			wikiID: 34,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 			wantErr: true,
 		},

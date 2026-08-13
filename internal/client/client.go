@@ -1,6 +1,6 @@
-// Package core provides the HTTP client, request/response primitives,
+// Package client provides the HTTP client, request/response primitives,
 // and option infrastructure used by all service packages.
-package core
+package client
 
 import (
 	"bytes"

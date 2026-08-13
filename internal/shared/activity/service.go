@@ -5,7 +5,7 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -23,7 +23,7 @@ var ValidOptionTypes = []option.APIParamOptionType{
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // ApplyOptions validates and applies opts to query.
@@ -40,14 +40,14 @@ func (s *Service) Fetch(ctx context.Context, spath string, query url.Values) ([]
 	}
 
 	v := []*model.Activity{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -212,7 +212,7 @@ func (s *ProjectCustomFieldOptionService) WithAllowAddItem(enabled bool) Request
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectCustomFieldService(method *core.Method, option *option.OptionService) *ProjectCustomFieldService {
+func newProjectCustomFieldService(method *client.Method, option *option.OptionService) *ProjectCustomFieldService {
 	return &ProjectCustomFieldService{
 		base:   project.NewCustomFieldService(method),
 		Option: newProjectCustomFieldOptionService(option),

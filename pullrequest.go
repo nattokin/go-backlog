@@ -4,7 +4,7 @@ import (
 	"context"
 	"iter"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/pullrequest"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -293,7 +293,7 @@ func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newPullRequestService(method *core.Method, option *option.OptionService) *PullRequestService {
+func newPullRequestService(method *client.Method, option *option.OptionService) *PullRequestService {
 	return &PullRequestService{
 		base: pullrequest.NewService(method),
 
@@ -305,13 +305,13 @@ func newPullRequestService(method *core.Method, option *option.OptionService) *P
 	}
 }
 
-func newPullRequestAttachmentService(method *core.Method) *PullRequestAttachmentService {
+func newPullRequestAttachmentService(method *client.Method) *PullRequestAttachmentService {
 	return &PullRequestAttachmentService{
 		base: pullrequest.NewAttachmentService(method),
 	}
 }
 
-func newPullRequestStarService(method *core.Method, option *option.OptionService) *PullRequestStarService {
+func newPullRequestStarService(method *client.Method, option *option.OptionService) *PullRequestStarService {
 	return &PullRequestStarService{star: newStarService(method, option)}
 }
 

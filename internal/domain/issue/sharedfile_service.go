@@ -5,7 +5,7 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/shared/sharedfile"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -57,6 +57,6 @@ func (s *SharedFileService) Unlink(ctx context.Context, issueIDOrKey string, fil
 	return s.base.Unlink(ctx, spath)
 }
 
-func NewSharedFileService(method *core.Method) *SharedFileService {
+func NewSharedFileService(method *client.Method) *SharedFileService {
 	return &SharedFileService{base: sharedfile.NewService(method)}
 }

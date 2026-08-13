@@ -6,7 +6,7 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/shared/activity"
@@ -17,7 +17,7 @@ import (
 // It delegates list operations to the shared activity.Service.
 type ActivityService struct {
 	base   *activity.Service
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of activities in the space.
@@ -46,14 +46,14 @@ func (s *ActivityService) One(ctx context.Context, activityID int) (*model.Activ
 	}
 
 	v := model.Activity{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewActivityService(method *core.Method) *ActivityService {
+func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),
 		method: method,

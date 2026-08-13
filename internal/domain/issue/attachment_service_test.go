@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -48,7 +49,7 @@ func TestIssueAttachmentService_List(t *testing.T) {
 			issueIDOrKey: "1234",
 			expectError:  true,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -130,7 +131,7 @@ func TestIssueAttachmentService_Remove(t *testing.T) {
 			attachmentID: 8,
 			expectError:  true,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
 		},
 		"error-invalid-json": {
@@ -229,9 +230,9 @@ func TestIssueAttachmentService_Download(t *testing.T) {
 			issueIDOrKey: "TEST-1",
 			attachmentID: 10,
 			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -53,9 +54,9 @@ func TestWikiHistoryService_List(t *testing.T) {
 		"error-client-api-error": {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			wikiID: 1234,

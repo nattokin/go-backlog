@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -13,7 +14,7 @@ import (
 
 // Service handles git repository-related Backlog API calls.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of Git repositories in a project.
@@ -35,7 +36,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Rep
 	}
 
 	v := []*model.Repository{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -64,14 +65,14 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 	}
 
 	v := model.Repository{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

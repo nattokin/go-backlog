@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/recentlyviewed"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -107,7 +107,7 @@ func (s *RecentlyViewedOptionService) WithOrder(order Order) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newRecentlyViewedService(method *core.Method, option *option.OptionService) *RecentlyViewedService {
+func newRecentlyViewedService(method *client.Method, option *option.OptionService) *RecentlyViewedService {
 	return &RecentlyViewedService{
 		base:   recentlyviewed.NewService(method),
 		Option: newRecentlyViewedOptionService(option),

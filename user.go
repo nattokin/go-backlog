@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/user"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -168,7 +168,7 @@ func (s *UserOptionService) WithUserID(id int) RequestOption {
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newUserService(method *core.Method, option *option.OptionService) *UserService {
+func newUserService(method *client.Method, option *option.OptionService) *UserService {
 	return &UserService{
 		base: user.NewService(method),
 
@@ -179,7 +179,7 @@ func newUserService(method *core.Method, option *option.OptionService) *UserServ
 	}
 }
 
-func newUserActivityService(method *core.Method, option *option.OptionService) *UserActivityService {
+func newUserActivityService(method *client.Method, option *option.OptionService) *UserActivityService {
 	return &UserActivityService{
 		base:   user.NewActivityService(method),
 		Option: newActivityOptionService(option),

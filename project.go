@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/project"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -188,7 +188,7 @@ func (s *ProjectOptionService) WithTextFormattingRule(format Format) RequestOpti
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newProjectService(method *core.Method, option *option.OptionService) *ProjectService {
+func newProjectService(method *client.Method, option *option.OptionService) *ProjectService {
 	return &ProjectService{
 		base:        project.NewService(method),
 		Activity:    newProjectActivityService(method, option),

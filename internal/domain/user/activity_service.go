@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -16,7 +17,7 @@ import (
 // ActivityService handles user activity-related Backlog API calls.
 type ActivityService struct {
 	base   *activity.Service
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of activities for the user.
@@ -37,7 +38,7 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*option.
 	return s.base.Fetch(ctx, spath, query)
 }
 
-func NewActivityService(method *core.Method) *ActivityService {
+func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),
 		method: method,

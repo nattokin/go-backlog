@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,7 +15,7 @@ import (
 
 // StarService handles user star-related Backlog API calls.
 type StarService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of stars received by the user.
@@ -39,7 +40,7 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 	}
 
 	v := []*model.Star{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -67,13 +68,13 @@ func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
 	var v struct {
 		Count int `json:"count"`
 	}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
 	return v.Count, nil
 }
 
-func NewStarService(method *core.Method) *StarService {
+func NewStarService(method *client.Method) *StarService {
 	return &StarService{method: method}
 }

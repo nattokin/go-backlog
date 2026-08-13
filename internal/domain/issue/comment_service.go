@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -15,7 +16,7 @@ import (
 
 type CommentService struct {
 	base   *comment.Service
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of comments on an issue.
@@ -111,7 +112,7 @@ func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commen
 	}
 
 	v := model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -164,7 +165,7 @@ func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string,
 	}
 
 	v := []*model.Notification{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -199,14 +200,14 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 	}
 
 	v := model.Comment{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewCommentService(method *core.Method) *CommentService {
+func NewCommentService(method *client.Method) *CommentService {
 	return &CommentService{
 		base:   comment.NewService(method),
 		method: method,

@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -13,7 +14,7 @@ import (
 
 // HistorySevice handles wiki history-related Backlog API calls.
 type HistorySevice struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns the version history of a wiki page.
@@ -35,13 +36,13 @@ func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHist
 	}
 
 	v := []*model.WikiHistory{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewHistoryService(method *core.Method) *HistorySevice {
+func NewHistoryService(method *client.Method) *HistorySevice {
 	return &HistorySevice{method: method}
 }

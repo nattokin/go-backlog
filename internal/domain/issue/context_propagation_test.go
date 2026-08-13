@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -31,14 +31,14 @@ func Test_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"Service.List", func(t *testing.T, m *core.Method) {
+		{"Service.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.List(ctx) //nolint:errcheck
 		}},
-		{"Service.All", func(t *testing.T, m *core.Method) {
+		{"Service.All", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			seq, err := s.All(ctx, 10)
@@ -47,102 +47,102 @@ func Test_contextPropagation(t *testing.T) {
 				break
 			}
 		}},
-		{"Service.Count", func(t *testing.T, m *core.Method) {
+		{"Service.Count", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Count(ctx) //nolint:errcheck
 		}},
-		{"Service.One", func(t *testing.T, m *core.Method) {
+		{"Service.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.One(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"Service.Create", func(t *testing.T, m *core.Method) {
+		{"Service.Create", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Create(ctx, 10, "summary", 2, 3) //nolint:errcheck
 		}},
-		{"Service.Update", func(t *testing.T, m *core.Method) {
+		{"Service.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Update(ctx, "PRJ-1", o.WithSummary("x")) //nolint:errcheck
 		}},
-		{"Service.Delete", func(t *testing.T, m *core.Method) {
+		{"Service.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Delete(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"Service.Participants", func(t *testing.T, m *core.Method) {
+		{"Service.Participants", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewService(m)
 			s.Participants(ctx, "PRJ-1") //nolint:errcheck
 		}},
-		{"AttachmentService.List", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewAttachmentService(m)
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
-		{"AttachmentService.Remove", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.Remove", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewAttachmentService(m)
 			s.Remove(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
-		{"AttachmentService.Download", func(t *testing.T, m *core.Method) {
+		{"AttachmentService.Download", func(t *testing.T, m *client.Method) {
 			m.Download = makeMockFn(t)
 			s := issue.NewAttachmentService(m)
 			s.Download(ctx, "TEST-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.List", func(t *testing.T, m *core.Method) {
+		{"CommentService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.List(ctx, "ISSUE-1") //nolint:errcheck
 		}},
-		{"CommentService.Add", func(t *testing.T, m *core.Method) {
+		{"CommentService.Add", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Add(ctx, "ISSUE-1", "comment") //nolint:errcheck
 		}},
-		{"CommentService.Count", func(t *testing.T, m *core.Method) {
+		{"CommentService.Count", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Count(ctx, "ISSUE-1") //nolint:errcheck
 		}},
-		{"CommentService.One", func(t *testing.T, m *core.Method) {
+		{"CommentService.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.One(ctx, "ISSUE-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.Delete", func(t *testing.T, m *core.Method) {
+		{"CommentService.Delete", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Delete(ctx, "ISSUE-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.Update", func(t *testing.T, m *core.Method) {
+		{"CommentService.Update", func(t *testing.T, m *client.Method) {
 			m.Patch = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Update(ctx, "ISSUE-1", 1, "content") //nolint:errcheck
 		}},
-		{"CommentService.Notifications", func(t *testing.T, m *core.Method) {
+		{"CommentService.Notifications", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Notifications(ctx, "ISSUE-1", 1) //nolint:errcheck
 		}},
-		{"CommentService.Notify", func(t *testing.T, m *core.Method) {
+		{"CommentService.Notify", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewCommentService(m)
 			s.Notify(ctx, "ISSUE-1", 1, []int{1, 2}) //nolint:errcheck
 		}},
-		{"SharedFileService.List", func(t *testing.T, m *core.Method) {
+		{"SharedFileService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := issue.NewSharedFileService(m)
 			s.List(ctx, "TEST-1") //nolint:errcheck
 		}},
-		{"SharedFileService.Link", func(t *testing.T, m *core.Method) {
+		{"SharedFileService.Link", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			s := issue.NewSharedFileService(m)
 			s.Link(ctx, "TEST-1", []int{1}) //nolint:errcheck
 		}},
-		{"SharedFileService.Unlink", func(t *testing.T, m *core.Method) {
+		{"SharedFileService.Unlink", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := issue.NewSharedFileService(m)
 			s.Unlink(ctx, "TEST-1", 1) //nolint:errcheck
@@ -152,7 +152,7 @@ func Test_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

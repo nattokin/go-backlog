@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/repository"
 	"github.com/nattokin/go-backlog/internal/model"
 )
@@ -54,7 +54,7 @@ func (s *RepositoryService) One(ctx context.Context, projectIDOrKey string, repo
 //  Constructors
 // ──────────────────────────────────────────────────────────────
 
-func newRepositoryService(method *core.Method) *RepositoryService {
+func newRepositoryService(method *client.Method) *RepositoryService {
 	return &RepositoryService{
 		base: repository.NewService(method),
 	}

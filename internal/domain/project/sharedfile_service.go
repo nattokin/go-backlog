@@ -5,6 +5,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -14,7 +15,7 @@ import (
 // Kept separate from internal/sharedfile because Download is project-specific
 // and does not fit the spath-agnostic pattern used by that package.
 type SharedFileService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of shared files in the project.
@@ -36,7 +37,7 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]
 	}
 
 	v := []*model.SharedFile{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -65,9 +66,9 @@ func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string,
 		return nil, err
 	}
 
-	return core.DownloadResponse(resp)
+	return client.DownloadResponse(resp)
 }
 
-func NewSharedFileService(method *core.Method) *SharedFileService {
+func NewSharedFileService(method *client.Method) *SharedFileService {
 	return &SharedFileService{method: method}
 }

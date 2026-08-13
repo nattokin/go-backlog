@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/star"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
@@ -175,15 +175,15 @@ func TestService_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"Add", func(t *testing.T, m *core.Method) {
+		{"Add", func(t *testing.T, m *client.Method) {
 			m.Post = makeMockFn(t)
 			o := &option.OptionService{}
 			s := star.NewService(m)
 			s.Add(ctx, o.WithIssueID(1)) //nolint:errcheck
 		}},
-		{"Remove", func(t *testing.T, m *core.Method) {
+		{"Remove", func(t *testing.T, m *client.Method) {
 			m.Delete = makeMockFn(t)
 			s := star.NewService(m)
 			s.Remove(ctx, 1) //nolint:errcheck
@@ -193,7 +193,7 @@ func TestService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

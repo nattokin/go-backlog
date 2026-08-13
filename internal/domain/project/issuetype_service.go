@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -13,7 +14,7 @@ import (
 )
 
 type IssueTypeService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of issue types in a project.
@@ -35,7 +36,7 @@ func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*
 	}
 
 	v := []*model.IssueType{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +67,7 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 	}
 
 	v := model.IssueType{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -99,7 +100,7 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 	}
 
 	v := model.IssueType{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -134,13 +135,13 @@ func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, is
 	}
 
 	v := model.IssueType{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewIssueTypeService(method *core.Method) *IssueTypeService {
+func NewIssueTypeService(method *client.Method) *IssueTypeService {
 	return &IssueTypeService{method: method}
 }

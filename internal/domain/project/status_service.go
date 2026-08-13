@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,7 +15,7 @@ import (
 
 // StatusService handles status-related Backlog API calls for a project.
 type StatusService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of statuses in a project.
@@ -36,7 +37,7 @@ func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*mod
 	}
 
 	v := []*model.Status{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +77,7 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 	}
 
 	v := model.Status{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -109,7 +110,7 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 	}
 
 	v := model.Status{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -144,7 +145,7 @@ func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statu
 	}
 
 	v := model.Status{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -184,13 +185,13 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 	}
 
 	v := []*model.Status{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewStatusService(method *core.Method) *StatusService {
+func NewStatusService(method *client.Method) *StatusService {
 	return &StatusService{method: method}
 }

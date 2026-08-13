@@ -1,4 +1,4 @@
-package core_test
+package client_test
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -56,7 +56,7 @@ func TestNewClient_validation(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			c, err := core.NewClient(tc.baseURL, tc.token)
+			c, err := client.NewClient(tc.baseURL, tc.token)
 
 			if tc.wantError {
 				assert.Error(t, err)
@@ -85,7 +85,7 @@ func TestNewClient_initialization(t *testing.T) {
 		mockDoer := &mock.Doer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
-		c, err := core.NewClient(baseURL, token, core.WithDoer(mockDoer))
+		c, err := client.NewClient(baseURL, token, client.WithDoer(mockDoer))
 		require.NoError(t, err)
 
 		{
@@ -101,15 +101,15 @@ func TestNewClient_initialization(t *testing.T) {
 	t.Run("without-Doer", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := core.NewClient(baseURL, token)
+		c, err := client.NewClient(baseURL, token)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
 		assert.Equal(t, baseURL, c.BaseURL.String())
 		assert.Equal(t, token, c.Token)
 		assert.Equal(t, http.DefaultClient, c.Doer)
-		assert.IsType(t, &core.DefaultWrapper{}, c.Wrapper)
-		assert.IsType(t, &core.Method{}, c.Method)
+		assert.IsType(t, &client.DefaultWrapper{}, c.Wrapper)
+		assert.IsType(t, &client.Method{}, c.Method)
 	})
 }
 
@@ -141,8 +141,8 @@ func TestClient_Do(t *testing.T) {
 
 	wikiJSON, _ := json.Marshal(wantWiki)
 
-	apiErrors := &core.APIResponseError{
-		Errors: []*core.Error{
+	apiErrors := &client.APIResponseError{
+		Errors: []*client.Error{
 			{
 				Message: "No project.",
 				Code:    6,
@@ -324,9 +324,9 @@ func TestClient_NewRequest(t *testing.T) {
 				context.Background(),
 				tc.method,
 				tc.spath,
-				core.WithHeader(tc.header),
-				core.WithBody(tc.body),
-				core.WithQuery(tc.query),
+				client.WithHeader(tc.header),
+				client.WithBody(tc.body),
+				client.WithQuery(tc.query),
 			)
 
 			if tc.wantError {
@@ -344,12 +344,12 @@ func TestClient_NewRequest(t *testing.T) {
 
 func TestClient_method(t *testing.T) {
 	cases := map[string]struct {
-		call    func(c *core.Client) (*http.Response, error)
+		call    func(c *client.Client) (*http.Response, error)
 		check   func(t *testing.T, captured *mock.Capture)
 		wantErr bool
 	}{
 		"GET": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Get(context.Background(), "/path1", nil)
 			},
 			check: func(t *testing.T, captured *mock.Capture) {
@@ -363,7 +363,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"DOWNLOAD": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Download(context.Background(), "/path-download", nil)
 			},
 			check: func(t *testing.T, captured *mock.Capture) {
@@ -375,7 +375,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"POST": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("k", "v")
 				return c.Method.Post(context.Background(), "/path2", form)
@@ -391,7 +391,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"PATCH": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "123")
 				return c.Method.Patch(context.Background(), "/path3", form)
@@ -406,7 +406,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"PUT": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("content", "hello")
 				return c.Method.Put(context.Background(), "/path4", form)
@@ -422,7 +422,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"DELETE": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				form := url.Values{}
 				form.Add("id", "321")
 				return c.Method.Delete(context.Background(), "/path5", form)
@@ -437,7 +437,7 @@ func TestClient_method(t *testing.T) {
 		},
 
 		"UPLOAD": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				buf := bytes.NewBufferString("dummyfiledata")
 				return c.Method.Upload(context.Background(), "/upload-path", "file.txt", buf)
 			},
@@ -472,53 +472,53 @@ func TestClient_method(t *testing.T) {
 
 		// エラーケース
 		"GET newRequest error": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Get(context.Background(), "", url.Values{})
 			},
 			wantErr: true,
 		},
 
 		"POST newRequest error": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Post(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"PATCH empty params": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Patch(context.Background(), "spath", nil)
 			},
 		},
 
 		"PATCH newRequest error": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Patch(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"PUT empty params": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Put(context.Background(), "spath", nil)
 			},
 		},
 
 		"PUT newRequest error": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Put(context.Background(), "", nil)
 			},
 			wantErr: true,
 		},
 
 		"DELETE empty params": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Delete(context.Background(), "spath", nil)
 			},
 		},
 
 		"DELETE newRequest error": {
-			call: func(c *core.Client) (*http.Response, error) {
+			call: func(c *client.Client) (*http.Response, error) {
 				return c.Method.Delete(context.Background(), "", nil)
 			},
 			wantErr: true,
@@ -553,7 +553,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 		spath    string
 		fileName string
 		fileData string
-		setup    func(c *core.Client)
+		setup    func(c *client.Client)
 	}
 
 	cases := map[string]testCase{
@@ -573,7 +573,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			spath:    "spath",
 			fileName: "filename",
 			fileData: "dummy",
-			setup: func(c *core.Client) {
+			setup: func(c *client.Client) {
 				c.Wrapper = mock.Wrapper{CreateErr: errors.New("mock createFormFile error")}
 			},
 		},
@@ -582,7 +582,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			spath:    "spath",
 			fileName: "filename",
 			fileData: "dummy",
-			setup: func(c *core.Client) {
+			setup: func(c *client.Client) {
 				c.Wrapper = mock.Wrapper{CloseErr: errors.New("mock close error")}
 			},
 		},
@@ -591,7 +591,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 			spath:    "spath",
 			fileName: "filename",
 			fileData: "dummy",
-			setup: func(c *core.Client) {
+			setup: func(c *client.Client) {
 				c.Wrapper = mock.Wrapper{CopyErr: errors.New("mock copy error")}
 			},
 		},
@@ -695,7 +695,7 @@ func TestCheckResponse(t *testing.T) {
 			}
 
 			// Use the exported function from backlog package
-			r, err := core.CheckResponse(resp)
+			r, err := client.CheckResponse(resp)
 
 			// 1. Validate response pointer
 			if tc.wantNilResponse {
@@ -708,7 +708,7 @@ func TestCheckResponse(t *testing.T) {
 			if tc.wantError {
 				assert.Error(t, err)
 
-				apiErr, ok := err.(*core.APIResponseError)
+				apiErr, ok := err.(*client.APIResponseError)
 				if assert.True(t, ok, "Error should be *APIResponseError") {
 					// Validate StatusCode
 					assert.Equal(t, tc.wantErrStatusCode, apiErr.StatusCode, "StatusCode mismatch")
@@ -756,7 +756,7 @@ func TestDecodeResponse(t *testing.T) {
 			}
 
 			var v target
-			err := core.DecodeResponse(resp, &v)
+			err := client.DecodeResponse(resp, &v)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -820,7 +820,7 @@ func TestDownloadResponse(t *testing.T) {
 				Body:   io.NopCloser(bytes.NewReader([]byte("data"))),
 			}
 
-			got, err := core.DownloadResponse(resp)
+			got, err := client.DownloadResponse(resp)
 
 			require.NoError(t, err)
 			require.NotNil(t, got)
@@ -836,7 +836,7 @@ func TestDownloadResponse(t *testing.T) {
 }
 
 func TestError_Error(t *testing.T) {
-	e := &core.Error{
+	e := &client.Error{
 		Message:  "No project.",
 		Code:     6,
 		MoreInfo: "more info",
@@ -847,9 +847,9 @@ func TestError_Error(t *testing.T) {
 }
 
 func TestAPIResponseError_Error(t *testing.T) {
-	e := &core.APIResponseError{
+	e := &client.APIResponseError{
 		StatusCode: 404,
-		Errors: []*core.Error{
+		Errors: []*client.Error{
 			{
 				Message:  "1st error",
 				Code:     5,
@@ -872,21 +872,21 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 		StatusCode: 404,
 		Body:       nil,
 	}
-	_, err := core.CheckResponse(resp)
+	_, err := client.CheckResponse(resp)
 	require.Error(t, err)
 
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.APIResponseError
+	var target *client.APIResponseError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, 404, target.StatusCode)
 }
 
 func TestInternalClientError_errorsAs(t *testing.T) {
-	err := core.NewInternalClientError("missing token")
+	err := client.NewInternalClientError("missing token")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
-	var target *core.InternalClientError
+	var target *client.InternalClientError
 	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, "missing token", target.Error())
 }

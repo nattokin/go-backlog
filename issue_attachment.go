@@ -3,7 +3,7 @@ package backlog
 import (
 	"context"
 
-	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 )
 
@@ -37,7 +37,7 @@ func (s *IssueAttachmentService) Download(ctx context.Context, issueIDOrKey stri
 	return fileDataFromModel(v), convertError(err)
 }
 
-func newIssueAttachmentService(method *core.Method) *IssueAttachmentService {
+func newIssueAttachmentService(method *client.Method) *IssueAttachmentService {
 	return &IssueAttachmentService{
 		base: issue.NewAttachmentService(method),
 	}

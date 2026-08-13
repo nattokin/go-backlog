@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -41,7 +42,7 @@ type Wrapper struct {
 	CloseErr  error
 }
 
-func (w Wrapper) NewMultipartWriter(_ io.Writer) core.MultipartWriter {
+func (w Wrapper) NewMultipartWriter(_ io.Writer) client.MultipartWriter {
 	return &multipartWriter{wrapper: w}
 }
 
@@ -237,7 +238,7 @@ func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) 
 
 // NewUnexpectedDoFunc returns a doFunc for mock.Doer that fails the test if called.
 // It mirrors NewUnexpectedGetFn and friends, but for the lower-level Doer used by
-// root-package tests (which is not verb-specific, unlike core.Method).
+// root-package tests (which is not verb-specific, unlike client.Method).
 func NewUnexpectedDoFunc(t *testing.T) func(*http.Request) (*http.Response, error) {
 	t.Helper()
 	return func(*http.Request) (*http.Response, error) {
@@ -261,7 +262,7 @@ const (
 // baseURL and token are fixed to well-known test values.
 // T is not set on the underlying Doer; use NewCaptureClient or construct Doer directly when
 // assertion on the request is needed.
-func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *core.Client {
+func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *client.Client {
 	t.Helper()
 
 	if doFunc == nil {
@@ -274,7 +275,7 @@ func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error))
 		}
 	}
 
-	c, err := core.NewClient(testBaseURL, testToken, core.WithDoer(&Doer{T: t, DoFunc: doFunc}))
+	c, err := client.NewClient(testBaseURL, testToken, client.WithDoer(&Doer{T: t, DoFunc: doFunc}))
 	require.NoError(t, err)
 
 	return c
@@ -310,7 +311,7 @@ type Capture struct {
 //	_, _ = client.Method.Get(ctx, "/wikis", nil)
 //	assert.Equal(t, "GET", capture.Method)
 //	assert.Equal(t, "/api/v2/wikis", capture.URL.Path)
-func NewCaptureClient(t *testing.T, responseJSON string) (*core.Client, *Capture) {
+func NewCaptureClient(t *testing.T, responseJSON string) (*client.Client, *Capture) {
 	t.Helper()
 
 	captured := &Capture{}
@@ -336,13 +337,13 @@ func NewCaptureClient(t *testing.T, responseJSON string) (*core.Client, *Capture
 //  Method mock helpers
 // ──────────────────────────────────────────────────────────────
 
-// NewMethod returns a *core.Method with all fields initialized to their
+// NewMethod returns a *client.Method with all fields initialized to their
 // corresponding NewUnexpected*Fn(t) functions. Tests should replace only the
 // fields they intend to exercise, so that any accidental call to an unintended
 // HTTP method causes an immediate test failure instead of a nil-pointer panic.
-func NewMethod(t *testing.T) *core.Method {
+func NewMethod(t *testing.T) *client.Method {
 	t.Helper()
-	return &core.Method{
+	return &client.Method{
 		Get:      NewUnexpectedGetFn(t),
 		Post:     NewUnexpectedPostFn(t),
 		Patch:    NewUnexpectedPatchFn(t),

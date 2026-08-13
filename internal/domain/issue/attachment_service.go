@@ -5,6 +5,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/shared/attachment"
@@ -73,6 +74,6 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 	return s.base.Download(ctx, spath)
 }
 
-func NewAttachmentService(method *core.Method) *AttachmentService {
+func NewAttachmentService(method *client.Method) *AttachmentService {
 	return &AttachmentService{base: attachment.NewService(method)}
 }

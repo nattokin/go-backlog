@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/option"
 )
@@ -20,7 +21,7 @@ type Error struct {
 // APIResponseError represents an error response from the Backlog API.
 // Use [errors.As] to check whether a returned error is an *APIResponseError.
 type APIResponseError struct {
-	core *core.APIResponseError
+	core *client.APIResponseError
 }
 
 // Error implements the error interface.
@@ -99,7 +100,7 @@ func (e *ValidationError) Message() string { return e.message }
 // or a malformed base URL.
 // Use [errors.As] to check whether a returned error is an *InternalClientError.
 type InternalClientError struct {
-	core *core.InternalClientError
+	core *client.InternalClientError
 }
 
 // Error implements the error interface.
@@ -114,7 +115,7 @@ func convertError(err error) error {
 	}
 
 	switch e := err.(type) {
-	case *core.APIResponseError:
+	case *client.APIResponseError:
 		return &APIResponseError{core: e}
 	case *option.InvalidOptionKeyError:
 		return &InvalidOptionKeyError{opt: e}
@@ -128,7 +129,7 @@ func convertError(err error) error {
 			converted[i] = &ValidationError{target: ve.Target(), message: ve.Message()}
 		}
 		return errors.Join(converted...)
-	case *core.InternalClientError:
+	case *client.InternalClientError:
 		return &InternalClientError{core: e}
 	default:
 		return err

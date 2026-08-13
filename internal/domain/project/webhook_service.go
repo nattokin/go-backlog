@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -14,7 +15,7 @@ import (
 
 // WebhookService handles webhook-related Backlog API calls for a project.
 type WebhookService struct {
-	method *core.Method
+	method *client.Method
 }
 
 // List returns a list of webhooks in a project.
@@ -36,7 +37,7 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 	}
 
 	v := []*model.Webhook{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -79,7 +80,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 	}
 
 	v := &model.Webhook{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
@@ -108,7 +109,7 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 	}
 
 	v := &model.Webhook{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 
@@ -146,7 +147,7 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 	}
 
 	v := &model.Webhook{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 	return v, nil
@@ -174,12 +175,12 @@ func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webh
 	}
 
 	v := &model.Webhook{}
-	if err := core.DecodeResponse(resp, v); err != nil {
+	if err := client.DecodeResponse(resp, v); err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func NewWebhookService(method *core.Method) *WebhookService {
+func NewWebhookService(method *client.Method) *WebhookService {
 	return &WebhookService{method: method}
 }

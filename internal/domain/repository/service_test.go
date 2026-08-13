@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/repository"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
@@ -221,14 +222,14 @@ func TestService_contextPropagation(t *testing.T) {
 
 	cases := []struct {
 		name string
-		call func(t *testing.T, m *core.Method)
+		call func(t *testing.T, m *client.Method)
 	}{
-		{"List", func(t *testing.T, m *core.Method) {
+		{"List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := repository.NewService(m)
 			s.List(ctx, testProject) //nolint:errcheck
 		}},
-		{"One", func(t *testing.T, m *core.Method) {
+		{"One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := repository.NewService(m)
 			s.One(ctx, testProject, testRepo) //nolint:errcheck
@@ -238,7 +239,7 @@ func TestService_contextPropagation(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			tc.call(t, &core.Method{})
+			tc.call(t, &client.Method{})
 		})
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -29,7 +30,7 @@ var listValidTypes = append(filterValidTypes,
 
 // Service handles pull request-related Backlog API calls.
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
@@ -39,7 +40,7 @@ func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName 
 		return nil, err
 	}
 	v := []*model.PullRequest{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 	return v, nil
@@ -130,7 +131,7 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 	}
 
 	v := map[string]int{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -162,7 +163,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 	}
 
 	v := model.PullRequest{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -213,7 +214,7 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	}
 
 	v := model.PullRequest{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -256,14 +257,14 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	}
 
 	v := model.PullRequest{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return &v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}
