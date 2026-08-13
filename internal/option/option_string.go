@@ -1,12 +1,10 @@
 package option
 
 import (
-	"fmt"
-	"net/mail"
 	"net/url"
-	"strings"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 func (s *OptionService) WithBase(base string) *APIParamOption {
@@ -54,23 +52,11 @@ func (s *OptionService) WithKeyword(keyword string) *APIParamOption {
 	}
 }
 
-var validIssueSorts = []string{
-	"issueType", "category", "version", "milestone", "summary", "status",
-	"priority", "attachment", "sharedFile", "created", "createdUser",
-	"updated", "updatedUser", "assignee", "startDate", "dueDate",
-	"estimatedHours", "actualHours", "childIssue",
-}
-
 func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamSort,
 		CheckFunc: func() *core.ValidationError {
-			for _, v := range validIssueSorts {
-				if sort == v {
-					return nil
-				}
-			}
-			return core.NewValidationError(ParamSort.Value(), fmt.Sprintf("invalid sort value: %q", sort))
+			return validate.ValidateIssueSort(ParamSort.Value(), sort)
 		},
 		SetFunc: setStringFunc(ParamSort, sort),
 	}
@@ -80,11 +66,7 @@ func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
 		CheckFunc: func() *core.ValidationError {
-			addr, err := mail.ParseAddress(mailAddress)
-			if err != nil || addr.Address != mailAddress {
-				return core.NewValidationError(ParamMailAddress.Value(), fmt.Sprintf("mailAddress %q is not a valid email address", mailAddress))
-			}
-			return nil
+			return validate.ValidateEmail(ParamMailAddress.Value(), mailAddress)
 		},
 		SetFunc: setStringFunc(ParamMailAddress, mailAddress),
 	}
@@ -98,10 +80,7 @@ func (s *OptionService) WithOrder(order string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOrder,
 		CheckFunc: func() *core.ValidationError {
-			if order != "asc" && order != "desc" {
-				return core.NewValidationError(ParamOrder.Value(), "order must be only 'asc' or 'desc'")
-			}
-			return nil
+			return validate.ValidateOrder(ParamOrder.Value(), order)
 		},
 		SetFunc: setStringFunc(ParamOrder, order),
 	}
@@ -111,10 +90,7 @@ func (s *OptionService) WithPassword(password string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamPassword,
 		CheckFunc: func() *core.ValidationError {
-			if len(password) < 8 {
-				return core.NewValidationError(ParamPassword.Value(), "password must be at least 8 characters long")
-			}
-			return nil
+			return validate.ValidatePassword(ParamPassword.Value(), password)
 		},
 		SetFunc: setStringFunc(ParamPassword, password),
 	}
@@ -138,18 +114,11 @@ func (s *OptionService) WithTemplateSummary(summary string) *APIParamOption {
 	}
 }
 
-var validFormats = []string{"backlog", "markdown"}
-
 func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
 		CheckFunc: func() *core.ValidationError {
-			for _, v := range validFormats {
-				if format == v {
-					return nil
-				}
-			}
-			return core.NewValidationError(ParamTextFormattingRule.Value(), "format must be only 'backlog' or 'markdown'")
+			return validate.ValidateTextFormattingRule(ParamTextFormattingRule.Value(), format)
 		},
 		SetFunc: setStringFunc(ParamTextFormattingRule, format),
 	}
@@ -167,10 +136,7 @@ func nonEmptyStringOption(paramType APIParamOptionType, value string) *APIParamO
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *core.ValidationError {
-			if strings.TrimSpace(value) == "" {
-				return core.NewValidationError(paramType.Value(), fmt.Sprintf("%s must not be empty", paramType.Value()))
-			}
-			return nil
+			return validate.ValidateNonEmptyString(paramType.Value(), value)
 		},
 		SetFunc: setStringFunc(paramType, value),
 	}

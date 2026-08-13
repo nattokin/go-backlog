@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/core"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
@@ -13,7 +14,7 @@ func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
 		Type: ParamActivityTypeIDs,
 		CheckFunc: func() *core.ValidationError {
 			for _, id := range typeIDs {
-				if ve := validateActivityTypeID(id, "activityTypeIds"); ve != nil {
+				if ve := validate.ValidateIntRange("activityTypeIds", id, 1, MaxActivityTypeID); ve != nil {
 					return ve
 				}
 			}
@@ -107,7 +108,7 @@ func positiveIntSliceOption(paramType APIParamOptionType, paramName string, valu
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *core.ValidationError {
-			return validatePositiveInts(values, paramName)
+			return validate.ValidatePositiveInts(paramName, values)
 		},
 		SetFunc: addIntFunc(paramType, values),
 	}
@@ -129,20 +130,4 @@ func addStringFunc(key APIParamOptionType, values []string) func(url.Values) err
 		}
 		return nil
 	}
-}
-
-func validateActivityTypeID(id int, key string) *core.ValidationError {
-	if id < 1 || id > MaxActivityTypeID {
-		return core.NewValidationError(key, fmt.Sprintf("invalid %s: must be between 1 and %d", key, MaxActivityTypeID))
-	}
-	return nil
-}
-
-func validatePositiveInts(values []int, paramName string) *core.ValidationError {
-	for _, v := range values {
-		if v < 1 {
-			return core.NewValidationError(paramName, fmt.Sprintf("invalid %s: %d must not be less than 1", paramName, v))
-		}
-	}
-	return nil
 }

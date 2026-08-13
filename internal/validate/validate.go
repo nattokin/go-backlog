@@ -2,121 +2,187 @@
 package validate
 
 import (
+	"fmt"
+	"net/mail"
+	"regexp"
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/core"
 )
 
-func ValidateActivityID(activityID int) *core.ValidationError {
-	if activityID < 1 {
-		return core.NewValidationError("activityID", "activityID must not be less than 1")
+var datePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+
+var validIssueSorts = []string{
+	"issueType", "category", "version", "milestone", "summary", "status",
+	"priority", "attachment", "sharedFile", "created", "createdUser",
+	"updated", "updatedUser", "assignee", "startDate", "dueDate",
+	"estimatedHours", "actualHours", "childIssue",
+}
+
+var validTextFormattingRules = []string{"backlog", "markdown"}
+
+// ValidateDateFormat validates that date is formatted as yyyy-MM-dd.
+func ValidateDateFormat(field, date string) *core.ValidationError {
+	if !datePattern.MatchString(date) {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be formatted as yyyy-MM-dd, got %q", field, date))
 	}
 	return nil
+}
+
+// ValidateEmail validates that value is a single, well-formed email address.
+func ValidateEmail(field, value string) *core.ValidationError {
+	addr, err := mail.ParseAddress(value)
+	if err != nil || addr.Address != value {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: not a valid email address", field))
+	}
+	return nil
+}
+
+// ValidateIDOrKey validates that value is not empty/whitespace-only and not the literal "0".
+func ValidateIDOrKey(field, value string) *core.ValidationError {
+	if strings.TrimSpace(value) == "" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be empty", field))
+	}
+	if value == "0" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be '0'", field))
+	}
+	return nil
+}
+
+// ValidateIntRange validates that value is within [min, max].
+func ValidateIntRange(field string, value, min, max int) *core.ValidationError {
+	if value < min || value > max {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be between %d and %d", field, min, max))
+	}
+	return nil
+}
+
+// ValidateIssueSort validates that sort is one of the Backlog issue-list sort keys.
+func ValidateIssueSort(field, sort string) *core.ValidationError {
+	for _, v := range validIssueSorts {
+		if sort == v {
+			return nil
+		}
+	}
+	return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be a valid sort value", field))
+}
+
+// ValidateNonEmptyString validates that value is not empty or whitespace-only.
+func ValidateNonEmptyString(field, value string) *core.ValidationError {
+	if strings.TrimSpace(value) == "" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be empty", field))
+	}
+	return nil
+}
+
+// ValidateOrder validates that order is "asc" or "desc".
+func ValidateOrder(field, order string) *core.ValidationError {
+	if order != "asc" && order != "desc" {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be only 'asc' or 'desc'", field))
+	}
+	return nil
+}
+
+// ValidatePassword validates that password is at least 8 characters long.
+func ValidatePassword(field, password string) *core.ValidationError {
+	if len(password) < 8 {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be at least 8 characters long", field))
+	}
+	return nil
+}
+
+// ValidatePositiveFloat64 validates that value is greater than 0.
+func ValidatePositiveFloat64(field string, value float64) *core.ValidationError {
+	if value <= 0 {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be greater than 0", field))
+	}
+	return nil
+}
+
+// ValidatePositiveInt validates that value is not less than 1.
+func ValidatePositiveInt(field string, value int) *core.ValidationError {
+	if value < 1 {
+		return core.NewValidationError(field, fmt.Sprintf("invalid %s: must not be less than 1", field))
+	}
+	return nil
+}
+
+// ValidatePositiveInts validates that every element of values is not less than 1.
+func ValidatePositiveInts(field string, values []int) *core.ValidationError {
+	for _, v := range values {
+		if v < 1 {
+			return core.NewValidationError(field, fmt.Sprintf("invalid %s: %d must not be less than 1", field, v))
+		}
+	}
+	return nil
+}
+
+// ValidateTextFormattingRule validates that format is "backlog" or "markdown".
+func ValidateTextFormattingRule(field, format string) *core.ValidationError {
+	for _, v := range validTextFormattingRules {
+		if format == v {
+			return nil
+		}
+	}
+	return core.NewValidationError(field, fmt.Sprintf("invalid %s: must be only 'backlog' or 'markdown'", field))
+}
+
+func ValidateActivityID(activityID int) *core.ValidationError {
+	return ValidatePositiveInt("activityID", activityID)
 }
 
 func ValidateAttachmentID(attachmentID int) *core.ValidationError {
-	if attachmentID < 1 {
-		return core.NewValidationError("attachmentID", "attachmentID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("attachmentID", attachmentID)
 }
 
 func ValidateCommentID(commentID int) *core.ValidationError {
-	if commentID < 1 {
-		return core.NewValidationError("commentID", "commentID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("commentID", commentID)
 }
 
 func ValidateCustomFieldID(customFieldID int) *core.ValidationError {
-	if customFieldID < 1 {
-		return core.NewValidationError("customFieldID", "customFieldID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("customFieldID", customFieldID)
 }
 
 func ValidateIssueIDOrKey(issueIDOrKey string) *core.ValidationError {
-	if strings.TrimSpace(issueIDOrKey) == "" {
-		return core.NewValidationError("issueIDOrKey", "issueIDOrKey must not be empty")
-	}
-	if issueIDOrKey == "0" {
-		return core.NewValidationError("issueIDOrKey", "issueIDOrKey must not be '0'")
-	}
-	return nil
-}
-
-func ValidateProjectID(projectID int) *core.ValidationError {
-	if projectID < 1 {
-		return core.NewValidationError("projectID", "projectID must not be less than 1")
-	}
-	return nil
-}
-
-func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
-	if strings.TrimSpace(projectIDOrKey) == "" {
-		return core.NewValidationError("projectIDOrKey", "projectIDOrKey must not be empty")
-	}
-	if projectIDOrKey == "0" {
-		return core.NewValidationError("projectIDOrKey", "projectIDOrKey must not be '0'")
-	}
-	return nil
+	return ValidateIDOrKey("issueIDOrKey", issueIDOrKey)
 }
 
 func ValidatePRNumber(prNumber int) *core.ValidationError {
-	if prNumber < 1 {
-		return core.NewValidationError("prNumber", "prNumber must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("prNumber", prNumber)
+}
+
+func ValidateProjectID(projectID int) *core.ValidationError {
+	return ValidatePositiveInt("projectID", projectID)
+}
+
+func ValidateProjectIDOrKey(projectIDOrKey string) *core.ValidationError {
+	return ValidateIDOrKey("projectIDOrKey", projectIDOrKey)
 }
 
 func ValidateRepositoryIDOrName(repositoryIDOrName string) *core.ValidationError {
-	if strings.TrimSpace(repositoryIDOrName) == "" {
-		return core.NewValidationError("repositoryIDOrName", "repositoryIDOrName must not be empty")
-	}
-	if repositoryIDOrName == "0" {
-		return core.NewValidationError("repositoryIDOrName", "repositoryIDOrName must not be '0'")
-	}
-	return nil
+	return ValidateIDOrKey("repositoryIDOrName", repositoryIDOrName)
 }
 
 func ValidateSharedFileID(fileID int) *core.ValidationError {
-	if fileID < 1 {
-		return core.NewValidationError("fileID", "fileID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("fileID", fileID)
 }
 
 func ValidateStarID(starID int) *core.ValidationError {
-	if starID < 1 {
-		return core.NewValidationError("starID", "starID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("starID", starID)
 }
 
 func ValidateUserID(userID int) *core.ValidationError {
-	if userID < 1 {
-		return core.NewValidationError("userID", "userID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("userID", userID)
 }
 
 func ValidateVersionID(versionID int) *core.ValidationError {
-	if versionID < 1 {
-		return core.NewValidationError("versionID", "versionID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("versionID", versionID)
 }
 
 func ValidateWebhookID(webhookID int) *core.ValidationError {
-	if webhookID < 1 {
-		return core.NewValidationError("webhookID", "webhookID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("webhookID", webhookID)
 }
 
 func ValidateWikiID(wikiID int) *core.ValidationError {
-	if wikiID < 1 {
-		return core.NewValidationError("wikiID", "wikiID must not be less than 1")
-	}
-	return nil
+	return ValidatePositiveInt("wikiID", wikiID)
 }
