@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -79,7 +80,7 @@ var updateValidTypes = append(createValidTypes,
 )
 
 type Service struct {
-	method *core.Method
+	method *client.Method
 }
 
 func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, error) {
@@ -88,7 +89,7 @@ func (s *Service) list(ctx context.Context, query url.Values) ([]*model.Issue, e
 		return nil, err
 	}
 	v := []*model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 	return v, nil
@@ -144,7 +145,7 @@ func (s *Service) Count(ctx context.Context, opts ...*option.APIParamOption) (in
 	}
 
 	v := map[string]int{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return 0, err
 	}
 
@@ -170,7 +171,7 @@ func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, e
 	}
 
 	v := model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -208,7 +209,7 @@ func (s *Service) Create(ctx context.Context, projectID int, summary string, iss
 	}
 
 	v := model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -237,7 +238,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, opt *option.A
 	}
 
 	v := model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -263,7 +264,7 @@ func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue
 	}
 
 	v := model.Issue{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
@@ -289,14 +290,14 @@ func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*mod
 	}
 
 	v := []*model.User{}
-	if err := core.DecodeResponse(resp, &v); err != nil {
+	if err := client.DecodeResponse(resp, &v); err != nil {
 		return nil, err
 	}
 
 	return v, nil
 }
 
-func NewService(method *core.Method) *Service {
+func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
 	}

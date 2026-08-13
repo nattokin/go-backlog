@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -226,9 +227,9 @@ func TestService_List(t *testing.T) {
 		},
 		"error-client-api-error": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
@@ -457,7 +458,7 @@ func TestService_All(t *testing.T) {
 
 		method := mock.NewMethod(t)
 		method.Get = func(_ context.Context, _ string, _ url.Values) (*http.Response, error) {
-			return nil, &core.APIResponseError{}
+			return nil, &client.APIResponseError{}
 		}
 
 		s := issue.NewService(method)
@@ -466,7 +467,7 @@ func TestService_All(t *testing.T) {
 		for iss, err := range seq {
 			assert.Nil(t, iss)
 			require.Error(t, err)
-			var target *core.APIResponseError
+			var target *client.APIResponseError
 			assert.ErrorAs(t, err, &target)
 			break
 		}

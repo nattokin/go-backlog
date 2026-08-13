@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/core"
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -107,9 +108,9 @@ func TestCommentService_Add(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			content:      "x",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
@@ -213,9 +214,9 @@ func TestCommentService_One(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
@@ -311,9 +312,9 @@ func TestCommentService_Delete(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			commentID:    42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
@@ -423,9 +424,9 @@ func TestCommentService_Update(t *testing.T) {
 			commentID:    42,
 			content:      "x",
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				return nil, &core.APIResponseError{}
+				return nil, &client.APIResponseError{}
 			},
-			wantErrType: &core.APIResponseError{},
+			wantErrType: &client.APIResponseError{},
 		},
 		"error-response-invalid-json": {
 			issueIDOrKey: "PRJ-1",
