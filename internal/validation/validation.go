@@ -1,5 +1,5 @@
-// Package core provides the Error/Errors vocabulary used
-// across the domain layer, and offset-based pagination helpers.
+// Package validation provides the Error/Errors vocabulary used
+// across the domain layer.
 package validation
 
 import "strings"
