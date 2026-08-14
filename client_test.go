@@ -22,8 +22,8 @@ func TestNewClient(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
-		assert.NotNil(t, c.core)
-		assert.Equal(t, token, c.core.Token)
+		assert.NotNil(t, c.httpClient)
+		assert.Equal(t, token, c.httpClient.Token)
 
 		// Reflection-based safety check
 		clientType := reflect.TypeOf(*c)
@@ -45,7 +45,7 @@ func TestNewClient(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
-		assert.Same(t, c.core.Doer, mockDoer)
+		assert.Same(t, c.httpClient.Doer, mockDoer)
 	})
 
 	t.Run("error-client.NewClient", func(t *testing.T) {

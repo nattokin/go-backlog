@@ -1,5 +1,5 @@
-// Package client provides the HTTP client, request/response primitives,
-// and option infrastructure used by all service packages.
+// Package client provides the HTTP client and request/response primitives
+// used by all service packages.
 package client
 
 import (

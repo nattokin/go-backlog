@@ -1,3 +1,5 @@
+// Package pagination provides a generic helper for iterating over
+// offset-based paginated Backlog API list endpoints.
 package pagination
 
 import (

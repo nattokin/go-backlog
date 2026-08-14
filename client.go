@@ -25,7 +25,7 @@ type Doer interface {
 // Client represents a Backlog API client.
 // It wraps an underlying HTTP Doer and provides typed services for API access.
 type Client struct {
-	core *client.Client
+	httpClient *client.Client
 
 	// Issue provides access to issue-related API endpoints.
 	Issue *IssueService
@@ -68,13 +68,13 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 		return nil, convertError(err)
 	}
 
-	client := &Client{
-		core: c,
+	bc := &Client{
+		httpClient: c,
 	}
 
-	initServices(client)
+	initServices(bc)
 
-	return client, nil
+	return bc, nil
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -84,23 +84,23 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 func initServices(c *Client) {
 	baseOptionService := &option.OptionService{}
 
-	c.Issue = newIssueService(c.core.Method, baseOptionService)
+	c.Issue = newIssueService(c.httpClient.Method, baseOptionService)
 
-	c.Project = newProjectService(c.core.Method, baseOptionService)
+	c.Project = newProjectService(c.httpClient.Method, baseOptionService)
 
-	c.PullRequest = newPullRequestService(c.core.Method, baseOptionService)
+	c.PullRequest = newPullRequestService(c.httpClient.Method, baseOptionService)
 
-	c.RecentlyViewed = newRecentlyViewedService(c.core.Method, baseOptionService)
+	c.RecentlyViewed = newRecentlyViewedService(c.httpClient.Method, baseOptionService)
 
-	c.Repository = newRepositoryService(c.core.Method)
+	c.Repository = newRepositoryService(c.httpClient.Method)
 
-	c.Space = newSpaceService(c.core.Method, baseOptionService)
+	c.Space = newSpaceService(c.httpClient.Method, baseOptionService)
 
-	c.Star = newStarService(c.core.Method, baseOptionService)
+	c.Star = newStarService(c.httpClient.Method, baseOptionService)
 
-	c.User = newUserService(c.core.Method, baseOptionService)
+	c.User = newUserService(c.httpClient.Method, baseOptionService)
 
-	c.Wiki = newWikiService(c.core.Method, baseOptionService)
+	c.Wiki = newWikiService(c.httpClient.Method, baseOptionService)
 }
 
 // ──────────────────────────────────────────────────────────────
