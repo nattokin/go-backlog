@@ -106,7 +106,7 @@ type ProjectUserService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*User, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toInterOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, toInnerOptions(opts)...)
 	return usersFromModel(v), convertError(err)
 }
 

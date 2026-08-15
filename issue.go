@@ -118,7 +118,7 @@ type IssueService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
-	v, err := s.base.List(ctx, toInterOptions(opts)...)
+	v, err := s.base.List(ctx, toInnerOptions(opts)...)
 	return issuesFromModel(v), convertError(err)
 }
 
@@ -162,7 +162,7 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOption) (iter.Seq2[*Issue, error], error) {
-	seq, err := s.base.All(ctx, perPage, toInterOptions(opts)...)
+	seq, err := s.base.All(ctx, perPage, toInnerOptions(opts)...)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -182,7 +182,7 @@ func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOpti
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
 func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, error) {
-	count, err := s.base.Count(ctx, toInterOptions(opts)...)
+	count, err := s.base.Count(ctx, toInnerOptions(opts)...)
 	return count, convertError(err)
 }
 
@@ -216,7 +216,7 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
 func (s *IssueService) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...RequestOption) (*Issue, error) {
-	v, err := s.base.Create(ctx, projectID, summary, issueTypeID, priorityID, toInterOptions(opts)...)
+	v, err := s.base.Create(ctx, projectID, summary, issueTypeID, priorityID, toInnerOptions(opts)...)
 	return issueFromModel(v), convertError(err)
 }
 
@@ -248,7 +248,7 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {
-	v, err := s.base.Update(ctx, issueIDOrKey, toCoreOption(option), toInterOptions(opts)...)
+	v, err := s.base.Update(ctx, issueIDOrKey, toInnerOption(option), toInnerOptions(opts)...)
 	return issueFromModel(v), convertError(err)
 }
 

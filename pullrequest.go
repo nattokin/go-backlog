@@ -68,7 +68,7 @@ type PullRequestService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) ([]*PullRequest, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, toInterOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, toInnerOptions(opts)...)
 	return pullRequestsFromModel(v), convertError(err)
 }
 
@@ -89,7 +89,7 @@ func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, re
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) (iter.Seq2[*PullRequest, error], error) {
-	seq, err := s.base.All(ctx, perPage, projectIDOrKey, repositoryIDOrName, toInterOptions(opts)...)
+	seq, err := s.base.All(ctx, perPage, projectIDOrKey, repositoryIDOrName, toInnerOptions(opts)...)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -113,7 +113,7 @@ func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKe
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
 func (s *PullRequestService) Count(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) (int, error) {
-	count, err := s.base.Count(ctx, projectIDOrKey, repositoryIDOrName, toInterOptions(opts)...)
+	count, err := s.base.Count(ctx, projectIDOrKey, repositoryIDOrName, toInnerOptions(opts)...)
 	return count, convertError(err)
 }
 
@@ -136,7 +136,7 @@ func (s *PullRequestService) One(ctx context.Context, projectIDOrKey string, rep
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request
 func (s *PullRequestService) Create(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, summary string, description string, base string, branch string, opts ...RequestOption) (*PullRequest, error) {
-	v, err := s.base.Create(ctx, projectIDOrKey, repositoryIDOrName, summary, description, base, branch, toInterOptions(opts)...)
+	v, err := s.base.Create(ctx, projectIDOrKey, repositoryIDOrName, summary, description, base, branch, toInnerOptions(opts)...)
 	return pullRequestFromModel(v), convertError(err)
 }
 
@@ -153,7 +153,7 @@ func (s *PullRequestService) Create(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
 func (s *PullRequestService) Update(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, option RequestOption, opts ...RequestOption) (*PullRequest, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toCoreOption(option), toInterOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toInnerOption(option), toInnerOptions(opts)...)
 	return pullRequestFromModel(v), convertError(err)
 }
 

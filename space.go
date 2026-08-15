@@ -125,7 +125,7 @@ type SpaceActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*Activity, error) {
-	v, err := s.base.List(ctx, toInterOptions(opts)...)
+	v, err := s.base.List(ctx, toInnerOptions(opts)...)
 	return activitiesFromModel(v), convertError(err)
 }
 

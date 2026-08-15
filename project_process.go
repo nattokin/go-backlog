@@ -57,7 +57,7 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
 func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option RequestOption, opts ...RequestOption) (*Status, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toCoreOption(option), toInterOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, statusID, toInnerOption(option), toInnerOptions(opts)...)
 	return statusFromModel(v), convertError(err)
 }
 
@@ -95,7 +95,7 @@ type ProjectVersionService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/
 func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toInterOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, toInnerOptions(opts)...)
 	return versionsFromModel(v), convertError(err)
 }
 
@@ -109,7 +109,7 @@ func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string,
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/
 func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name string, opts ...RequestOption) (*Version, error) {
-	v, err := s.base.Add(ctx, projectIDOrKey, name, toInterOptions(opts)...)
+	v, err := s.base.Add(ctx, projectIDOrKey, name, toInnerOptions(opts)...)
 	return versionFromModel(v), convertError(err)
 }
 
@@ -125,7 +125,7 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
 func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option RequestOption, opts ...RequestOption) (*Version, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toCoreOption(option), toInterOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, versionID, toInnerOption(option), toInnerOptions(opts)...)
 	return versionFromModel(v), convertError(err)
 }
 

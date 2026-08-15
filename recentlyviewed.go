@@ -30,7 +30,7 @@ type RecentlyViewedService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
 func (s *RecentlyViewedService) ListIssues(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
-	v, err := s.base.ListIssues(ctx, toInterOptions(opts)...)
+	v, err := s.base.ListIssues(ctx, toInnerOptions(opts)...)
 	return issuesFromModel(v), convertError(err)
 }
 
@@ -52,7 +52,7 @@ func (s *RecentlyViewedService) AddIssue(ctx context.Context, issueID int) (*Iss
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
 func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
-	v, err := s.base.ListProjects(ctx, toInterOptions(opts)...)
+	v, err := s.base.ListProjects(ctx, toInnerOptions(opts)...)
 	return projectsFromModel(v), convertError(err)
 }
 
@@ -66,7 +66,7 @@ func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...Reques
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
 func (s *RecentlyViewedService) ListWikis(ctx context.Context, opts ...RequestOption) ([]*Wiki, error) {
-	v, err := s.base.ListWikis(ctx, toInterOptions(opts)...)
+	v, err := s.base.ListWikis(ctx, toInnerOptions(opts)...)
 	return wikisFromModel(v), convertError(err)
 }
 
