@@ -59,11 +59,11 @@ type Client struct {
 // Supported options:
 //   - [WithDoer]
 func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
-	coreOpts := make([]*client.ClientOption, len(opts))
+	clientOpts := make([]*client.ClientOption, len(opts))
 	for i, o := range opts {
-		coreOpts[i] = o.core
+		clientOpts[i] = o.inner
 	}
-	c, err := client.NewClient(baseURL, token, coreOpts...)
+	c, err := client.NewClient(baseURL, token, clientOpts...)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -110,7 +110,7 @@ func initServices(c *Client) {
 // ClientOption defines a functional option for configuring a Client.
 // It is used to change the default behavior of the Client.
 type ClientOption struct {
-	core *client.ClientOption
+	inner *client.ClientOption
 }
 
 // WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
@@ -118,5 +118,5 @@ type ClientOption struct {
 //
 // If this option is not provided, http.DefaultClient is used by default.
 func WithDoer(doer Doer) *ClientOption {
-	return &ClientOption{core: client.WithDoer(doer)}
+	return &ClientOption{inner: client.WithDoer(doer)}
 }
