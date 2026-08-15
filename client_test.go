@@ -22,19 +22,19 @@ func TestNewClient(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
-		assert.NotNil(t, c.httpClient)
-		assert.Equal(t, token, c.httpClient.Token)
-
 		// Reflection-based safety check
 		clientType := reflect.TypeOf(*c)
 		clientValue := reflect.ValueOf(*c)
 		for i := 0; i < clientType.NumField(); i++ {
 			field := clientType.Field(i)
 			value := clientValue.Field(i)
-			if field.Type.Kind() == reflect.Ptr && field.Name != "httpClient" {
+			if field.Type.Kind() == reflect.Ptr {
 				assert.Falsef(t, value.IsNil(), "%s should not be nil", field.Name)
 			}
 		}
+
+		assert.NotNil(t, c.httpClient)
+		assert.Equal(t, token, c.httpClient.Token)
 	})
 
 	t.Run("with-doer", func(t *testing.T) {
