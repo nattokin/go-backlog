@@ -25,7 +25,7 @@ type PullRequestCommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *PullRequestCommentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, opts ...RequestOption) ([]*Comment, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, repositoryIDOrName, prNumber, toInterOptions(opts)...)
 	return commentsFromModel(v), convertError(err)
 }
 
@@ -38,7 +38,7 @@ func (s *PullRequestCommentService) List(ctx context.Context, projectIDOrKey str
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *PullRequestCommentService) Add(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, content string, opts ...RequestOption) (*Comment, error) {
-	v, err := s.base.Add(ctx, projectIDOrKey, repositoryIDOrName, prNumber, content, toCoreOptions(opts)...)
+	v, err := s.base.Add(ctx, projectIDOrKey, repositoryIDOrName, prNumber, content, toInterOptions(opts)...)
 	return commentFromModel(v), convertError(err)
 }
 

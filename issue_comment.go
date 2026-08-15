@@ -25,7 +25,7 @@ type IssueCommentService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *IssueCommentService) List(ctx context.Context, issueIDOrKey string, opts ...RequestOption) ([]*Comment, error) {
-	v, err := s.base.List(ctx, issueIDOrKey, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, issueIDOrKey, toInterOptions(opts)...)
 	return commentsFromModel(v), convertError(err)
 }
 
@@ -38,7 +38,7 @@ func (s *IssueCommentService) List(ctx context.Context, issueIDOrKey string, opt
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *IssueCommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...RequestOption) (*Comment, error) {
-	v, err := s.base.Add(ctx, issueIDOrKey, content, toCoreOptions(opts)...)
+	v, err := s.base.Add(ctx, issueIDOrKey, content, toInterOptions(opts)...)
 	return commentFromModel(v), convertError(err)
 }
 

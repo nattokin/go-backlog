@@ -46,7 +46,7 @@ type ProjectActivityService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, toInterOptions(opts)...)
 	return activitiesFromModel(v), convertError(err)
 }
 
@@ -78,7 +78,7 @@ func (s *ProjectWebhookService) List(ctx context.Context, projectIDOrKey string)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook
 func (s *ProjectWebhookService) Create(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...RequestOption) (*Webhook, error) {
-	v, err := s.base.Add(ctx, projectIDOrKey, name, hookURL, toCoreOptions(opts)...)
+	v, err := s.base.Add(ctx, projectIDOrKey, name, hookURL, toInterOptions(opts)...)
 	return webhookFromModel(v), convertError(err)
 }
 
@@ -102,7 +102,7 @@ func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, 
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook
 func (s *ProjectWebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option RequestOption, opts ...RequestOption) (*Webhook, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, toCoreOption(option), toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, webhookID, toCoreOption(option), toInterOptions(opts)...)
 	return webhookFromModel(v), convertError(err)
 }
 

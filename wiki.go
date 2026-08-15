@@ -63,7 +63,7 @@ type WikiService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, projectIDOrKey, toInterOptions(opts)...)
 	return wikisFromModel(v), convertError(err)
 }
 
@@ -91,7 +91,7 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
-	v, err := s.base.Create(ctx, projectID, name, content, toCoreOptions(opts)...)
+	v, err := s.base.Create(ctx, projectID, name, content, toInterOptions(opts)...)
 	return wikiFromModel(v), convertError(err)
 }
 
@@ -105,7 +105,7 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
-	v, err := s.base.Update(ctx, wikiID, toCoreOption(option), toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, wikiID, toCoreOption(option), toInterOptions(opts)...)
 	return wikiFromModel(v), convertError(err)
 }
 
@@ -113,7 +113,7 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOption) (*Wiki, error) {
-	v, err := s.base.Delete(ctx, wikiID, toCoreOptions(opts)...)
+	v, err := s.base.Delete(ctx, wikiID, toInterOptions(opts)...)
 	return wikiFromModel(v), convertError(err)
 }
 

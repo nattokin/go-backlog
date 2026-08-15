@@ -77,19 +77,19 @@ func newActivityOptionService(option *option.OptionService) *ActivityOptionServi
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-// toCoreOptions converts a slice of RequestOption to []*option.APIParamOption.
+// toInterOptions converts a slice of RequestOption to []*option.APIParamOption.
 // A nil RequestOption is passed through as a nil *option.APIParamOption so that
 // the internal layer can detect it and return InvalidOptionError.
-func toCoreOptions(opts []RequestOption) []*option.APIParamOption {
-	coreOpts := make([]*option.APIParamOption, len(opts))
+func toInterOptions(opts []RequestOption) []*option.APIParamOption {
+	interOpts := make([]*option.APIParamOption, len(opts))
 	for i, o := range opts {
 		if o == nil {
-			coreOpts[i] = nil
+			interOpts[i] = nil
 			continue
 		}
-		coreOpts[i] = toCoreOption(o)
+		interOpts[i] = toCoreOption(o)
 	}
-	return coreOpts
+	return interOpts
 }
 
 // toCoreOption converts a backlog.RequestOption to *option.APIParamOption so it
