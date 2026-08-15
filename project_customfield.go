@@ -74,7 +74,7 @@ func (s *ProjectCustomFieldService) List(ctx context.Context, projectIDOrKey str
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType CustomFieldType, name string, opts ...RequestOption) (*CustomField, error) {
-	v, err := s.base.Create(ctx, projectIDOrKey, int(fieldType), name, toCoreOptions(opts)...)
+	v, err := s.base.Create(ctx, projectIDOrKey, int(fieldType), name, toInnerOptions(opts)...)
 	return customFieldFromModel(v), convertError(err)
 }
 
@@ -89,7 +89,7 @@ func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *ProjectCustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option RequestOption, opts ...RequestOption) (*CustomField, error) {
-	v, err := s.base.Update(ctx, projectIDOrKey, customFieldID, toCoreOption(option), toCoreOptions(opts)...)
+	v, err := s.base.Update(ctx, projectIDOrKey, customFieldID, toInnerOption(option), toInnerOptions(opts)...)
 	return customFieldFromModel(v), convertError(err)
 }
 

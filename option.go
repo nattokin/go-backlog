@@ -17,7 +17,7 @@ type RequestOption interface {
 }
 
 // requestOption is the internal implementation of RequestOption that wraps
-// a *option.APIParamOption, converting *core.ValidationError to *ValidationError.
+// a *option.APIParamOption, converting *validation.Error to *ValidationError.
 type requestOption struct {
 	opt *option.APIParamOption
 }
@@ -77,24 +77,24 @@ func newActivityOptionService(option *option.OptionService) *ActivityOptionServi
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-// toCoreOptions converts a slice of RequestOption to []*option.APIParamOption.
+// toInnerOptions converts a slice of RequestOption to []*option.APIParamOption.
 // A nil RequestOption is passed through as a nil *option.APIParamOption so that
 // the internal layer can detect it and return InvalidOptionError.
-func toCoreOptions(opts []RequestOption) []*option.APIParamOption {
-	coreOpts := make([]*option.APIParamOption, len(opts))
+func toInnerOptions(opts []RequestOption) []*option.APIParamOption {
+	innerOpts := make([]*option.APIParamOption, len(opts))
 	for i, o := range opts {
 		if o == nil {
-			coreOpts[i] = nil
+			innerOpts[i] = nil
 			continue
 		}
-		coreOpts[i] = toCoreOption(o)
+		innerOpts[i] = toInnerOption(o)
 	}
-	return coreOpts
+	return innerOpts
 }
 
-// toCoreOption converts a backlog.RequestOption to *option.APIParamOption so it
+// toInnerOption converts a backlog.RequestOption to *option.APIParamOption so it
 // can be passed to internal domain service endpoints.
-func toCoreOption(opt RequestOption) *option.APIParamOption {
+func toInnerOption(opt RequestOption) *option.APIParamOption {
 	return &option.APIParamOption{
 		KeyFunc: opt.Key,
 		CheckFunc: func() *validation.Error {

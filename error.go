@@ -21,19 +21,19 @@ type Error struct {
 // APIResponseError represents an error response from the Backlog API.
 // Use [errors.As] to check whether a returned error is an *APIResponseError.
 type APIResponseError struct {
-	core *client.APIResponseError
+	inner *client.APIResponseError
 }
 
 // Error implements the error interface.
-func (e *APIResponseError) Error() string { return e.core.Error() }
+func (e *APIResponseError) Error() string { return e.inner.Error() }
 
 // StatusCode returns the HTTP status code of the error response.
-func (e *APIResponseError) StatusCode() int { return e.core.StatusCode }
+func (e *APIResponseError) StatusCode() int { return e.inner.StatusCode }
 
 // Errors returns the individual error entries in the response.
 func (e *APIResponseError) Errors() []*Error {
-	out := make([]*Error, len(e.core.Errors))
-	for i, ce := range e.core.Errors {
+	out := make([]*Error, len(e.inner.Errors))
+	for i, ce := range e.inner.Errors {
 		out[i] = &Error{
 			Message:  ce.Message,
 			Code:     ce.Code,
@@ -100,11 +100,11 @@ func (e *ValidationError) Message() string { return e.message }
 // or a malformed base URL.
 // Use [errors.As] to check whether a returned error is an *InternalClientError.
 type InternalClientError struct {
-	core *client.InternalClientError
+	inner *client.InternalClientError
 }
 
 // Error implements the error interface.
-func (e *InternalClientError) Error() string { return e.core.Error() }
+func (e *InternalClientError) Error() string { return e.inner.Error() }
 
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
@@ -116,7 +116,7 @@ func convertError(err error) error {
 
 	switch e := err.(type) {
 	case *client.APIResponseError:
-		return &APIResponseError{core: e}
+		return &APIResponseError{inner: e}
 	case *option.InvalidOptionKeyError:
 		return &InvalidOptionKeyError{opt: e}
 	case *option.InvalidOptionError:
@@ -130,7 +130,7 @@ func convertError(err error) error {
 		}
 		return errors.Join(converted...)
 	case *client.InternalClientError:
-		return &InternalClientError{core: e}
+		return &InternalClientError{inner: e}
 	default:
 		return err
 	}

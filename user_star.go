@@ -26,7 +26,7 @@ type UserStarService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
 func (s *UserStarService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*Star, error) {
-	v, err := s.base.List(ctx, userID, toCoreOptions(opts)...)
+	v, err := s.base.List(ctx, userID, toInnerOptions(opts)...)
 	return starsFromModel(v), convertError(err)
 }
 

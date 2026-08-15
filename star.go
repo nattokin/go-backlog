@@ -46,7 +46,7 @@ type StarService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *StarService) Add(ctx context.Context, option RequestOption) error {
-	return convertError(s.base.Add(ctx, toCoreOption(option)))
+	return convertError(s.base.Add(ctx, toInnerOption(option)))
 }
 
 // Remove removes a star by its ID.
