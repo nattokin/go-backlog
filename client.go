@@ -59,11 +59,11 @@ type Client struct {
 // Supported options:
 //   - [WithDoer]
 func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
-	clientOpts := make([]*client.ClientOption, len(opts))
+	innerOpts := make([]*client.ClientOption, len(opts))
 	for i, o := range opts {
-		clientOpts[i] = o.inner
+		innerOpts[i] = o.inner
 	}
-	c, err := client.NewClient(baseURL, token, clientOpts...)
+	c, err := client.NewClient(baseURL, token, innerOpts...)
 	if err != nil {
 		return nil, convertError(err)
 	}
