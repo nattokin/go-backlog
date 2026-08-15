@@ -63,18 +63,18 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 	for i, o := range opts {
 		innerOpts[i] = o.inner
 	}
-	c, err := client.NewClient(baseURL, token, innerOpts...)
+	httpClient, err := client.NewClient(baseURL, token, innerOpts...)
 	if err != nil {
 		return nil, convertError(err)
 	}
 
-	bc := &Client{
-		httpClient: c,
+	c := &Client{
+		httpClient: httpClient,
 	}
 
-	initServices(bc)
+	initServices(c)
 
-	return bc, nil
+	return c, nil
 }
 
 // ──────────────────────────────────────────────────────────────
