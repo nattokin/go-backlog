@@ -143,7 +143,7 @@ func TestRequestOption_Check(t *testing.T) {
 }
 
 // failingCheckOption is a custom RequestOption whose Check always returns a ValidationError.
-// It is used to verify that toCoreOption correctly wraps option.Check() in CheckFunc,
+// It is used to verify that toInnerOption correctly wraps option.Check() in CheckFunc,
 // propagating the error through the internal pipeline back to the caller as a *ValidationError.
 type failingCheckOption struct {
 	key string
@@ -155,7 +155,7 @@ func (o *failingCheckOption) Check() *backlog.ValidationError {
 }
 func (o *failingCheckOption) Set(url.Values) error { return nil }
 
-func Test_toCoreOption_CheckFunc(t *testing.T) {
+func Test_toInnerOption_CheckFunc(t *testing.T) {
 	t.Parallel()
 
 	c, err := backlog.NewClient(
