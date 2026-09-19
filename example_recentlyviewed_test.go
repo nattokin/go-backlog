@@ -27,7 +27,7 @@ func ExampleRecentlyViewedService_AddIssue() {
 		backlog.WithDoer(doerRecentlyViewedIssueSingle),
 	)
 
-	issue, _ := c.RecentlyViewed.AddIssue(context.Background(), 1)
+	issue, _ := c.RecentlyViewed.AddIssue(context.Background(), "TEST-1")
 	fmt.Printf("IssueKey: %s\n", issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1

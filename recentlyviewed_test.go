@@ -68,11 +68,14 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddIssue": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
-				assert.Equal(t, "/api/v2/issues/1/recentlyViewedIssues", req.URL.Path)
+				assert.Equal(t, "/api/v2/users/myself/recentlyViewedIssues", req.URL.Path)
+				assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, url.Values{"issueIdOrKey": {"1"}}, req.PostForm)
 				return mock.NewResponse(fixture.RecentlyViewed.IssueSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.RecentlyViewed.AddIssue(ctx, 1)
+				got, err := c.RecentlyViewed.AddIssue(ctx, "1")
 				require.NoError(t, err)
 				assert.Equal(t, "TEST-1", got.IssueKey)
 			},
@@ -80,7 +83,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddIssue/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.RecentlyViewed.AddIssue(ctx, 1)
+				_, err := c.RecentlyViewed.AddIssue(ctx, "1")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -133,7 +136,10 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddWiki": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
-				assert.Equal(t, "/api/v2/wikis/10/recentlyViewedWikis", req.URL.Path)
+				assert.Equal(t, "/api/v2/users/myself/recentlyViewedWikis", req.URL.Path)
+				assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, url.Values{"wikiId": {"10"}}, req.PostForm)
 				return mock.NewResponse(fixture.RecentlyViewed.WikiSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -230,4 +236,69 @@ func TestUserRecentlyViewedOptionService(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestRecentlyViewedAddIssueIdentifiers(t *testing.T) {
+	for _, issueIDOrKey := range []string{"42", "TEST-42"} {
+		t.Run(issueIDOrKey, func(t *testing.T) {
+			t.Parallel()
+			calls := 0
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					calls++
+					assert.Equal(t, http.MethodPost, req.Method)
+					assert.Equal(t, "/api/v2/users/myself/recentlyViewedIssues", req.URL.Path)
+					assert.Empty(t, req.URL.RawQuery)
+					assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+					require.NoError(t, req.ParseForm())
+					assert.Equal(t, url.Values{"issueIdOrKey": {issueIDOrKey}}, req.PostForm)
+					return mock.NewResponse(`{"id":42,"issueKey":"TEST-42"}`), nil
+				},
+			}))
+			require.NoError(t, err)
+			got, err := c.RecentlyViewed.AddIssue(context.Background(), issueIDOrKey)
+			require.NoError(t, err)
+			assert.Equal(t, 42, got.ID)
+			assert.Equal(t, "TEST-42", got.IssueKey)
+			assert.Equal(t, 1, calls)
+		})
+	}
+}
+
+func TestRecentlyViewedInvalidIdentifiers(t *testing.T) {
+	cases := map[string]func(*backlog.Client) error{
+		"empty-issue": func(c *backlog.Client) error {
+			_, err := c.RecentlyViewed.AddIssue(context.Background(), "")
+			return err
+		},
+		"blank-issue": func(c *backlog.Client) error {
+			_, err := c.RecentlyViewed.AddIssue(context.Background(), " \t")
+			return err
+		},
+		"zero-issue": func(c *backlog.Client) error {
+			_, err := c.RecentlyViewed.AddIssue(context.Background(), "0")
+			return err
+		},
+		"zero-wiki": func(c *backlog.Client) error { _, err := c.RecentlyViewed.AddWiki(context.Background(), 0); return err },
+		"negative-wiki": func(c *backlog.Client) error {
+			_, err := c.RecentlyViewed.AddWiki(context.Background(), -1)
+			return err
+		},
+	}
+	for name, call := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					t.Error("invalid identifier reached the HTTP transport")
+					return nil, errors.New("unexpected request")
+				},
+			}))
+			require.NoError(t, err)
+			err = call(c)
+			require.Error(t, err)
+			var target *backlog.ValidationError
+			assert.ErrorAs(t, err, &target)
+		})
+	}
 }

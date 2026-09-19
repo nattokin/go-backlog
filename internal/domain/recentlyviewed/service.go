@@ -4,14 +4,12 @@ package recentlyviewed
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
-	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // Service handles recently-viewed Backlog API calls.
@@ -46,13 +44,14 @@ func (s *Service) ListIssues(ctx context.Context, opts ...*option.APIParamOption
 // AddIssue adds an issue to the recently viewed list of the authenticated user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue
-func (s *Service) AddIssue(ctx context.Context, issueID int) (*model.Issue, error) {
-	if issueID < 1 {
-		return nil, validation.NewError("issueID", "issueID must not be less than 1")
+func (s *Service) AddIssue(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
+	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
+		return nil, err
 	}
 
-	spath := path.Join("issues", strconv.Itoa(issueID), "recentlyViewedIssues")
-	resp, err := s.method.Post(ctx, spath, nil)
+	form := url.Values{}
+	form.Set("issueIdOrKey", issueIDOrKey)
+	resp, err := s.method.Post(ctx, "users/myself/recentlyViewedIssues", form)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +118,9 @@ func (s *Service) AddWiki(ctx context.Context, wikiID int) (*model.Wiki, error) 
 		return nil, err
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "recentlyViewedWikis")
-	resp, err := s.method.Post(ctx, spath, nil)
+	form := url.Values{}
+	form.Set("wikiId", strconv.Itoa(wikiID))
+	resp, err := s.method.Post(ctx, "users/myself/recentlyViewedWikis", form)
 	if err != nil {
 		return nil, err
 	}

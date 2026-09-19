@@ -35,10 +35,11 @@ func (s *RecentlyViewedService) ListIssues(ctx context.Context, opts ...RequestO
 }
 
 // AddIssue adds an issue to the recently viewed list of the authenticated user.
+// issueIDOrKey can be an issue ID or an issue key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-recently-viewed-issue
-func (s *RecentlyViewedService) AddIssue(ctx context.Context, issueID int) (*Issue, error) {
-	v, err := s.base.AddIssue(ctx, issueID)
+func (s *RecentlyViewedService) AddIssue(ctx context.Context, issueIDOrKey string) (*Issue, error) {
+	v, err := s.base.AddIssue(ctx, issueIDOrKey)
 	return issueFromModel(v), convertError(err)
 }
 
