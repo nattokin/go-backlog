@@ -134,11 +134,11 @@ func TestProjectSharedFileService(t *testing.T) {
 		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
-				assert.Equal(t, "/api/v2/projects/TEST/files", req.URL.Path)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design", req.URL.Path)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.Project.SharedFile.List(ctx, "TEST")
+				got, err := c.Project.SharedFile.List(ctx, "TEST", "/design/")
 				require.NoError(t, err)
 				assert.Len(t, got, 2)
 				assert.Equal(t, 454403, got[0].ID)
@@ -147,10 +147,29 @@ func TestProjectSharedFileService(t *testing.T) {
 				assert.Equal(t, "readme.md", got[1].Name)
 			},
 		},
+		"List/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design", req.URL.Path)
+				assert.Equal(t, "asc", req.URL.Query().Get("order"))
+				assert.Equal(t, "10", req.URL.Query().Get("offset"))
+				assert.Equal(t, "1000", req.URL.Query().Get("count"))
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.SharedFile.List(ctx, "TEST", "/design/",
+					c.Project.SharedFile.Option.WithOrder(backlog.OrderAsc),
+					c.Project.SharedFile.Option.WithOffset(10),
+					c.Project.SharedFile.Option.WithCount(1000),
+				)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
 		"List/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.Project.SharedFile.List(ctx, "TEST")
+				_, err := c.Project.SharedFile.List(ctx, "TEST", "/design/")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))

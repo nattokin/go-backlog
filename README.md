@@ -126,7 +126,7 @@ More examples can be found in the [examples/](examples/) directory and on [pkg.g
 
 ### Client.Project.[SharedFile](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectSharedFileService)
 
-- [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a project.
+- [Get List of Shared Files](https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/) - Returns a list of shared files in a directory of a project.
 - [Get File](https://developer.nulab.com/docs/backlog/api/2/get-file/) - Downloads a shared file.
 
 ### Client.Project.[User](https://pkg.go.dev/github.com/nattokin/go-backlog#ProjectUserService)
