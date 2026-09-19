@@ -2,11 +2,13 @@ package project
 
 import (
 	"context"
+	"net/url"
 	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
 	"github.com/nattokin/go-backlog/internal/validation"
 )
@@ -18,20 +20,34 @@ type SharedFileService struct {
 	method *client.Method
 }
 
-// List returns a list of shared files in the project.
+var sharedFileListValidTypes = []option.APIParamOptionType{
+	option.ParamOrder,
+	option.ParamOffset,
+	option.ParamCount,
+}
+
+// List returns a list of shared files in the directory of the project.
+//
+// dirPath is the directory path shown in the project's file tree, e.g. "/design/".
+// Use "/" to list the project root.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
-func (s *SharedFileService) List(ctx context.Context, projectIDOrKey string) ([]*model.SharedFile, error) {
+func (s *SharedFileService) List(ctx context.Context, projectIDOrKey, dirPath string, opts ...*option.APIParamOption) ([]*model.SharedFile, error) {
 	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if len(ves) > 0 {
-		return nil, ves
+	if ve := validate.ValidateDirPath(dirPath); ve != nil {
+		ves = append(ves, ve)
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "files")
-	resp, err := s.method.Get(ctx, spath, nil)
+	query := url.Values{}
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, sharedFileListValidTypes, opts...)); err != nil {
+		return nil, err
+	}
+
+	spath := path.Join("projects", projectIDOrKey, "files", "metadata", dirPath)
+	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}

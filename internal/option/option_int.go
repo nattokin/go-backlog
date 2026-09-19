@@ -21,6 +21,11 @@ func (s *OptionService) WithCount(count int) *APIParamOption {
 	return intRangeOption(ParamCount, count, 1, 100)
 }
 
+// WithSharedFileCount sets `count` for shared file list endpoints. Valid range: 1–1000.
+func (s *OptionService) WithSharedFileCount(count int) *APIParamOption {
+	return intRangeOption(ParamCount, count, 1, 1000)
+}
+
 func (s *OptionService) WithFieldType(fieldType int) *APIParamOption {
 	return positiveIntOption(ParamTypeID, int(fieldType))
 }
