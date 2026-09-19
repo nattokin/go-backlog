@@ -93,32 +93,42 @@ func TestService_ListIssues(t *testing.T) {
 
 func TestService_AddIssue(t *testing.T) {
 	cases := map[string]struct {
-		issueID    int
-		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-		wantErr    bool
-		wantID     int
+		issueIDOrKey string
+		mockPostFn   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr      bool
+		wantID       int
 	}{
 		"success": {
-			issueID: 1,
+			issueIDOrKey: "1",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "issues/1/recentlyViewedIssues", spath)
+				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
+				assert.Equal(t, url.Values{"issueIdOrKey": {"1"}}, form)
 				return mock.NewResponse(`{"id":1,"summary":"test issue"}`), nil
 			},
 			wantID: 1,
 		},
-		"error-invalid-issueID": {
-			issueID: 0,
-			wantErr: true,
+		"success-key": {
+			issueIDOrKey: "TEST-1",
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
+				assert.Equal(t, url.Values{"issueIdOrKey": {"TEST-1"}}, form)
+				return mock.NewResponse(`{"id":1,"summary":"test issue"}`), nil
+			},
+			wantID: 1,
+		},
+		"error-invalid-issueIDOrKey": {
+			issueIDOrKey: "",
+			wantErr:      true,
 		},
 		"error-client-network": {
-			issueID: 1,
+			issueIDOrKey: "1",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
 			wantErr: true,
 		},
 		"error-json-decode": {
-			issueID: 1,
+			issueIDOrKey: "1",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
@@ -136,7 +146,7 @@ func TestService_AddIssue(t *testing.T) {
 			}
 
 			s := recentlyviewed.NewService(method)
-			got, err := s.AddIssue(context.Background(), tc.issueID)
+			got, err := s.AddIssue(context.Background(), tc.issueIDOrKey)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -289,7 +299,8 @@ func TestService_AddWiki(t *testing.T) {
 		"success": {
 			wikiID: 10,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "wikis/10/recentlyViewedWikis", spath)
+				assert.Equal(t, "users/myself/recentlyViewedWikis", spath)
+				assert.Equal(t, url.Values{"wikiId": {"10"}}, form)
 				return mock.NewResponse(`{"id":10,"name":"TestWiki"}`), nil
 			},
 			wantID: 10,
@@ -368,7 +379,7 @@ func TestService_contextPropagation(t *testing.T) {
 		{"AddIssue", func(t *testing.T, m *client.Method) {
 			m.Post = makePostFn(t)
 			s := recentlyviewed.NewService(m)
-			s.AddIssue(ctx, 1) //nolint:errcheck
+			s.AddIssue(ctx, "1") //nolint:errcheck
 		}},
 		{"ListProjects", func(t *testing.T, m *client.Method) {
 			m.Get = makeGetFn(t)
