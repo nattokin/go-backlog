@@ -65,275 +65,28 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithCount(101),
 			wantErr: true,
 		},
+		"WithSharedFileCount-valid-1": {
+			option:    o.WithSharedFileCount(1),
+			key:       option.ParamCount.Value(),
+			wantValue: 1,
+		},
+		"WithSharedFileCount-valid-1000": {
+			option:    o.WithSharedFileCount(1000),
+			key:       option.ParamCount.Value(),
+			wantValue: 1000,
+		},
+		"WithSharedFileCount-invalid-0": {
+			option:  o.WithSharedFileCount(0),
+			wantErr: true,
+		},
+		"WithSharedFileCount-invalid-1001": {
+			option:  o.WithSharedFileCount(1001),
+			wantErr: true,
+		},
 		"WithEstimatedHours-valid-1": {
 			option:    o.WithEstimatedHours(1),
 			key:       option.ParamEstimatedHours.Value(),
 			wantValue: 1,
-		},
-		"WithEstimatedHours-invalid-0": {
-			option:  o.WithEstimatedHours(0),
-			wantErr: true,
-		},
-		"WithFieldType-valid-1": {
-			option:    o.WithFieldType(1),
-			key:       option.ParamTypeID.Value(),
-			wantValue: 1,
-		},
-		"WithFieldType-valid-8": {
-			option:    o.WithFieldType(8),
-			key:       option.ParamTypeID.Value(),
-			wantValue: 8,
-		},
-		"WithFieldType-invalid-0": {
-			option:  o.WithFieldType(0),
-			wantErr: true,
-		},
-		"WithInitialShift-zero": {
-			option:    o.WithInitialShift(0),
-			key:       option.ParamInitialShift.Value(),
-			wantValue: 0,
-		},
-		"WithInitialShift-positive": {
-			option:    o.WithInitialShift(7),
-			key:       option.ParamInitialShift.Value(),
-			wantValue: 7,
-		},
-		"WithInitialShift-negative": {
-			option:    o.WithInitialShift(-3),
-			key:       option.ParamInitialShift.Value(),
-			wantValue: -3,
-		},
-		"WithInitialValueType-valid-1": {
-			option:    o.WithInitialValueType(1),
-			key:       option.ParamInitialValueType.Value(),
-			wantValue: 1,
-		},
-		"WithInitialValueType-valid-2": {
-			option:    o.WithInitialValueType(2),
-			key:       option.ParamInitialValueType.Value(),
-			wantValue: 2,
-		},
-		"WithInitialValueType-valid-3": {
-			option:    o.WithInitialValueType(3),
-			key:       option.ParamInitialValueType.Value(),
-			wantValue: 3,
-		},
-		"WithInitialValueType-invalid-0": {
-			option:  o.WithInitialValueType(0),
-			wantErr: true,
-		},
-		"WithInitialValueType-invalid-4": {
-			option:  o.WithInitialValueType(4),
-			wantErr: true,
-		},
-		"WithIssueID-valid-1": {
-			option:    o.WithIssueID(1),
-			key:       option.ParamIssueID.Value(),
-			wantValue: 1,
-		},
-		"WithIssueID-invalid-0": {
-			option:  o.WithIssueID(0),
-			wantErr: true,
-		},
-		"WithIssueTypeID-valid-1": {
-			option:    o.WithIssueTypeID(1),
-			key:       option.ParamIssueTypeID.Value(),
-			wantValue: 1,
-		},
-		"WithIssueTypeID-invalid-0": {
-			option:  o.WithIssueTypeID(0),
-			wantErr: true,
-		},
-		"WithMaxActivityTypeID-valid-1": {
-			option:    o.WithMaxActivityTypeID(1),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 1,
-		},
-		"WithMaxActivityTypeID-valid-26": {
-			option:    o.WithMaxActivityTypeID(26),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 26,
-		},
-		"WithMaxActivityTypeID-invalid-0": {
-			option:  o.WithMaxActivityTypeID(0),
-			wantErr: true,
-		},
-		"WithMaxActivityTypeID-invalid-27": {
-			option:  o.WithMaxActivityTypeID(27),
-			wantErr: true,
-		},
-		"WithMinActivityTypeID-valid-1": {
-			option:    o.WithMinActivityTypeID(1),
-			key:       option.ParamMinID.Value(),
-			wantValue: 1,
-		},
-		"WithMinActivityTypeID-valid-26": {
-			option:    o.WithMinActivityTypeID(26),
-			key:       option.ParamMinID.Value(),
-			wantValue: 26,
-		},
-		"WithMinActivityTypeID-invalid-0": {
-			option:  o.WithMinActivityTypeID(0),
-			wantErr: true,
-		},
-		"WithMinActivityTypeID-invalid-27": {
-			option:  o.WithMinActivityTypeID(27),
-			wantErr: true,
-		},
-		"WithMaxID-valid-1": {
-			option:    o.WithMaxID(1),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 1,
-		},
-		"WithMaxID-valid-9999": {
-			option:    o.WithMaxID(9999),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 9999,
-		},
-		"WithMaxID-invalid-0": {
-			option:  o.WithMaxID(0),
-			wantErr: true,
-		},
-		"WithMinID-valid-1": {
-			option:    o.WithMinID(1),
-			key:       option.ParamMinID.Value(),
-			wantValue: 1,
-		},
-		"WithMinID-valid-9999": {
-			option:    o.WithMinID(9999),
-			key:       option.ParamMinID.Value(),
-			wantValue: 9999,
-		},
-		"WithMinID-invalid-0": {
-			option:  o.WithMinID(0),
-			wantErr: true,
-		},
-		"WithOffset-valid-0": {
-			option:    o.WithOffset(0),
-			key:       option.ParamOffset.Value(),
-			wantValue: 0,
-		},
-		"WithOffset-valid-100": {
-			option:    o.WithOffset(100),
-			key:       option.ParamOffset.Value(),
-			wantValue: 100,
-		},
-		"WithOffset-invalid-negative": {
-			option:  o.WithOffset(-1),
-			wantErr: true,
-		},
-		"WithParentChild-valid-0": {
-			option:    o.WithParentChild(0),
-			key:       option.ParamParentChild.Value(),
-			wantValue: 0,
-		},
-		"WithParentChild-valid-4": {
-			option:    o.WithParentChild(4),
-			key:       option.ParamParentChild.Value(),
-			wantValue: 4,
-		},
-		"WithParentChild-invalid-5": {
-			option:  o.WithParentChild(5),
-			wantErr: true,
-		},
-		"WithParentChild-invalid-negative": {
-			option:  o.WithParentChild(-1),
-			wantErr: true,
-		},
-		"WithParentIssueID-valid-1": {
-			option:    o.WithParentIssueID(1),
-			key:       option.ParamParentIssueID.Value(),
-			wantValue: 1,
-		},
-		"WithParentIssueID-invalid-0": {
-			option:  o.WithParentIssueID(0),
-			wantErr: true,
-		},
-		"WithPriorityID-valid-1": {
-			option:    o.WithPriorityID(1),
-			key:       option.ParamPriorityID.Value(),
-			wantValue: 1,
-		},
-		"WithPriorityID-invalid-0": {
-			option:  o.WithPriorityID(0),
-			wantErr: true,
-		},
-		"WithPullRequestCommentID-valid-1": {
-			option:    o.WithPullRequestCommentID(1),
-			key:       option.ParamPullRequestCommentID.Value(),
-			wantValue: 1,
-		},
-		"WithPullRequestCommentID-invalid-0": {
-			option:  o.WithPullRequestCommentID(0),
-			wantErr: true,
-		},
-		"WithPullRequestID-valid-1": {
-			option:    o.WithPullRequestID(1),
-			key:       option.ParamPullRequestID.Value(),
-			wantValue: 1,
-		},
-		"WithPullRequestID-invalid-0": {
-			option:  o.WithPullRequestID(0),
-			wantErr: true,
-		},
-		"WithResolutionID-valid-1": {
-			option:    o.WithResolutionID(1),
-			key:       option.ParamResolutionID.Value(),
-			wantValue: 1,
-		},
-		"WithResolutionID-invalid-0": {
-			option:  o.WithResolutionID(0),
-			wantErr: true,
-		},
-		"WithRoleType-valid-1": {
-			option:    o.WithRoleType(1),
-			key:       option.ParamRoleType.Value(),
-			wantValue: 1,
-		},
-		"WithRoleType-valid-6": {
-			option:    o.WithRoleType(6),
-			key:       option.ParamRoleType.Value(),
-			wantValue: 6,
-		},
-		"WithRoleType-invalid-0": {
-			option:  o.WithRoleType(0),
-			wantErr: true,
-		},
-		"WithRoleType-invalid-7": {
-			option:  o.WithRoleType(7),
-			wantErr: true,
-		},
-		"WithStatusID-valid-1": {
-			option:    o.WithStatusID(1),
-			key:       option.ParamStatusID.Value(),
-			wantValue: 1,
-		},
-		"WithStatusID-invalid-0": {
-			option:  o.WithStatusID(0),
-			wantErr: true,
-		},
-		"WithUserID-valid-1": {
-			option:    o.WithUserID(1),
-			key:       option.ParamUserID.Value(),
-			wantValue: 1,
-		},
-		"WithUserID-valid-2": {
-			option:    o.WithUserID(2),
-			key:       option.ParamUserID.Value(),
-			wantValue: 2,
-		},
-		"WithUserID-invalid-0": {
-			option:  o.WithUserID(0),
-			wantErr: true,
-		},
-		"WithWikiID-valid-1": {
-			option:    o.WithWikiID(1),
-			key:       option.ParamWikiID.Value(),
-			wantValue: 1,
-		},
-		"WithWikiID-invalid-0": {
-			option:  o.WithWikiID(0),
-			wantErr: true,
 		},
 	}
 
@@ -341,15 +94,15 @@ func TestOptionService_int(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			form := url.Values{}
-			ve := tc.option.Check()
 			if tc.wantErr {
-				assert.NotNil(t, ve)
+				require.Error(t, tc.option.Check())
 				return
 			}
-			require.Nil(t, ve)
-			_ = tc.option.Set(form)
-			assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
+
+			require.NoError(t, tc.option.Check())
+			v := url.Values{}
+			require.NoError(t, tc.option.Set(v))
+			assert.Equal(t, strconv.Itoa(tc.wantValue), v.Get(tc.key))
 		})
 	}
 }

@@ -322,7 +322,7 @@ func ExampleProjectSharedFileService_List() {
 		backlog.WithDoer(doerSharedFileList),
 	)
 
-	files, _ := c.Project.SharedFile.List(context.Background(), "TEST")
+	files, _ := c.Project.SharedFile.List(context.Background(), "TEST", "/design/")
 	fmt.Printf("ID: %d, Name: %s\n", files[0].ID, files[0].Name)
 	// Output:
 	// ID: 454403, Name: 01_buz.png
