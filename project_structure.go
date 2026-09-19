@@ -68,13 +68,24 @@ func (s *ProjectCategoryService) Delete(ctx context.Context, projectIDOrKey stri
 // ProjectSharedFileService handles communication with the project shared-file-related methods of the Backlog API.
 type ProjectSharedFileService struct {
 	base *project.SharedFileService
+
+	Option *ProjectSharedFileOptionService
 }
 
-// List returns a list of shared files in the project.
+// List returns a list of shared files in the directory of the project.
+//
+// dirPath is the directory path shown in the project's file tree, e.g. "/design/".
+// Use "/" to list the project root.
+//
+// This method supports options returned by methods in "*Client.Project.SharedFile.Option",
+// such as:
+//   - WithCount
+//   - WithOffset
+//   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
-func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey string) ([]*SharedFile, error) {
-	v, err := s.base.List(ctx, projectIDOrKey)
+func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey, dirPath string, opts ...RequestOption) ([]*SharedFile, error) {
+	v, err := s.base.List(ctx, projectIDOrKey, dirPath, toInnerOptions(opts)...)
 	return sharedFilesFromModel(v), convertError(err)
 }
 
@@ -151,6 +162,31 @@ func (s *ProjectUserService) DeleteAdmin(ctx context.Context, projectIDOrKey str
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ProjectSharedFileOptionService
+// ──────────────────────────────────────────────────────────────
+
+// ProjectSharedFileOptionService provides a domain-specific set of option builders
+// for operations within the ProjectSharedFileService.
+type ProjectSharedFileOptionService struct {
+	base *option.OptionService
+}
+
+// WithCount sets the number of shared files to retrieve (1-1000).
+func (s *ProjectSharedFileOptionService) WithCount(count int) RequestOption {
+	return &requestOption{opt: s.base.WithSharedFileCount(count)}
+}
+
+// WithOffset sets the number of shared files to skip.
+func (s *ProjectSharedFileOptionService) WithOffset(offset int) RequestOption {
+	return &requestOption{opt: s.base.WithOffset(offset)}
+}
+
+// WithOrder sets the sort order of results.
+func (s *ProjectSharedFileOptionService) WithOrder(order Order) RequestOption {
+	return &requestOption{opt: s.base.WithOrder(string(order))}
+}
+
+// ──────────────────────────────────────────────────────────────
 //  ProjectUserOptionService
 // ──────────────────────────────────────────────────────────────
 
@@ -175,9 +211,10 @@ func newProjectCategoryService(method *client.Method) *ProjectCategoryService {
 	}
 }
 
-func newProjectSharedFileService(method *client.Method) *ProjectSharedFileService {
+func newProjectSharedFileService(method *client.Method, option *option.OptionService) *ProjectSharedFileService {
 	return &ProjectSharedFileService{
-		base: project.NewSharedFileService(method),
+		base:   project.NewSharedFileService(method),
+		Option: newProjectSharedFileOptionService(option),
 	}
 }
 
@@ -185,6 +222,12 @@ func newProjectUserService(method *client.Method, option *option.OptionService) 
 	return &ProjectUserService{
 		base:   project.NewUserService(method),
 		Option: newProjectUserOptionService(option),
+	}
+}
+
+func newProjectSharedFileOptionService(option *option.OptionService) *ProjectSharedFileOptionService {
+	return &ProjectSharedFileOptionService{
+		base: option,
 	}
 }
 
