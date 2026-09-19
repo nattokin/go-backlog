@@ -175,7 +175,7 @@ func Test_contextPropagation(t *testing.T) {
 		{"SharedFileService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := project.NewSharedFileService(m)
-			s.List(ctx, "TEST") //nolint:errcheck
+			s.List(ctx, "TEST", "/design/") //nolint:errcheck
 		}},
 		{"SharedFileService.Download", func(t *testing.T, m *client.Method) {
 			m.Download = makeMockFn(t)
