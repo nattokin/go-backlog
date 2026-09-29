@@ -68,19 +68,52 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddIssue": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
-				assert.Equal(t, "/api/v2/issues/1/recentlyViewedIssues", req.URL.Path)
+				assert.Equal(t, "/api/v2/users/myself/recentlyViewedIssues", req.URL.Path)
+				assert.Empty(t, req.URL.RawQuery)
+				assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, url.Values{"issueIdOrKey": {"1"}}, req.PostForm)
 				return mock.NewResponse(fixture.RecentlyViewed.IssueSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
-				got, err := c.RecentlyViewed.AddIssue(ctx, 1)
+				got, err := c.RecentlyViewed.AddIssue(ctx, "1")
 				require.NoError(t, err)
 				assert.Equal(t, "TEST-1", got.IssueKey)
+			},
+		},
+		"AddIssue/key": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				assert.Equal(t, "/api/v2/users/myself/recentlyViewedIssues", req.URL.Path)
+				assert.Empty(t, req.URL.RawQuery)
+				assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, url.Values{"issueIdOrKey": {"TEST-42"}}, req.PostForm)
+				return mock.NewResponse(`{"id":42,"issueKey":"TEST-42"}`), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.RecentlyViewed.AddIssue(ctx, "TEST-42")
+				require.NoError(t, err)
+				assert.Equal(t, 42, got.ID)
+				assert.Equal(t, "TEST-42", got.IssueKey)
+			},
+		},
+		"AddIssue/invalid": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				t.Error("invalid identifier reached the HTTP transport")
+				return nil, errors.New("unexpected request")
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.RecentlyViewed.AddIssue(ctx, "")
+				require.Error(t, err)
+				var target *backlog.ValidationError
+				assert.ErrorAs(t, err, &target)
 			},
 		},
 		"AddIssue/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
-				_, err := c.RecentlyViewed.AddIssue(ctx, 1)
+				_, err := c.RecentlyViewed.AddIssue(ctx, "1")
 				require.Error(t, err)
 				var target *backlog.APIResponseError
 				assert.True(t, errors.As(err, &target))
@@ -133,7 +166,10 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		"AddWiki": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
-				assert.Equal(t, "/api/v2/wikis/10/recentlyViewedWikis", req.URL.Path)
+				assert.Equal(t, "/api/v2/users/myself/recentlyViewedWikis", req.URL.Path)
+				assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, url.Values{"wikiId": {"10"}}, req.PostForm)
 				return mock.NewResponse(fixture.RecentlyViewed.WikiSingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
