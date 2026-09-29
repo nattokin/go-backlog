@@ -143,6 +143,10 @@ func ValidateCustomFieldID(customFieldID int) *validation.Error {
 	return ValidatePositiveInt("customFieldID", customFieldID)
 }
 
+func ValidateDirPath(dirPath string) *validation.Error {
+	return ValidateNonEmptyString("dirPath", dirPath)
+}
+
 func ValidateIssueIDOrKey(issueIDOrKey string) *validation.Error {
 	return ValidateIDOrKey("issueIDOrKey", issueIDOrKey)
 }

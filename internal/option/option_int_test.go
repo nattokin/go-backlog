@@ -65,6 +65,24 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithCount(101),
 			wantErr: true,
 		},
+		"WithSharedFileCount-valid-1": {
+			option:    o.WithSharedFileCount(1),
+			key:       option.ParamCount.Value(),
+			wantValue: 1,
+		},
+		"WithSharedFileCount-valid-1000": {
+			option:    o.WithSharedFileCount(1000),
+			key:       option.ParamCount.Value(),
+			wantValue: 1000,
+		},
+		"WithSharedFileCount-invalid-0": {
+			option:  o.WithSharedFileCount(0),
+			wantErr: true,
+		},
+		"WithSharedFileCount-invalid-1001": {
+			option:  o.WithSharedFileCount(1001),
+			wantErr: true,
+		},
 		"WithEstimatedHours-valid-1": {
 			option:    o.WithEstimatedHours(1),
 			key:       option.ParamEstimatedHours.Value(),
