@@ -12,14 +12,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/nattokin/go-backlog/internal/domain/project"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestSharedFileService_List(t *testing.T) {
+	o := &option.OptionService{}
+
 	cases := map[string]struct {
 		projectIDOrKey string
+		dirPath        string
+		options        []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -28,30 +33,90 @@ func TestSharedFileService_List(t *testing.T) {
 	}{
 		"success-project-key": {
 			projectIDOrKey: "TEST",
+			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/files", spath)
+				assert.Equal(t, "projects/TEST/files/metadata/design", spath)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 		"success-project-id": {
 			projectIDOrKey: "1234",
+			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/1234/files", spath)
+				assert.Equal(t, "projects/1234/files/metadata/design", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
+		"success-nested-dirPath": {
+			projectIDOrKey: "TEST",
+			dirPath:        "/PressRelease/20091130/",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata/PressRelease/20091130", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
+		"success-root-dirPath": {
+			projectIDOrKey: "TEST",
+			dirPath:        "/",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
+		"success-with-options": {
+			projectIDOrKey: "TEST",
+			dirPath:        "/design/",
+			options: []*option.APIParamOption{
+				o.WithOrder("asc"),
+				o.WithOffset(10),
+				o.WithSharedFileCount(1000),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata/design", spath)
+				assert.Equal(t, "asc", query.Get("order"))
+				assert.Equal(t, "10", query.Get("offset"))
+				assert.Equal(t, "1000", query.Get("count"))
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
 
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
+			dirPath:                "/design/",
 			wantValidationErrCount: 1,
 		},
 		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey:         "0",
+			dirPath:                "/design/",
 			wantValidationErrCount: 1,
+		},
+		"error-validation-dirPath-empty": {
+			projectIDOrKey:         "TEST",
+			dirPath:                "",
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			projectIDOrKey:         "",
+			dirPath:                "",
+			wantValidationErrCount: 2,
+		},
+		"error-validation-option": {
+			projectIDOrKey:         "TEST",
+			dirPath:                "/design/",
+			options:                []*option.APIParamOption{o.WithSharedFileCount(1001)},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-invalid-option-type": {
+			projectIDOrKey:         "TEST",
+			dirPath:                "/design/",
+			options:                []*option.APIParamOption{o.WithKeyword("foo")},
+			wantErrType:            &option.InvalidOptionError{},
+			wantValidationErrCount: 0,
 		},
 
 		"error-client-network": {
 			projectIDOrKey: "TEST",
+			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return nil, errors.New("network error")
 			},
@@ -59,6 +124,7 @@ func TestSharedFileService_List(t *testing.T) {
 		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
+			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				return mock.NewResponse(fixture.InvalidJSON), nil
 			},
@@ -75,7 +141,7 @@ func TestSharedFileService_List(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := project.NewSharedFileService(method)
-			files, err := s.List(context.Background(), tc.projectIDOrKey)
+			files, err := s.List(context.Background(), tc.projectIDOrKey, tc.dirPath, tc.options...)
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)

@@ -197,7 +197,7 @@ func newProjectService(method *client.Method, option *option.OptionService) *Pro
 		IssueType:   newProjectIssueTypeService(method, option),
 		Status:      newProjectStatusService(method, option),
 		User:        newProjectUserService(method, option),
-		SharedFile:  newProjectSharedFileService(method),
+		SharedFile:  newProjectSharedFileService(method, option),
 		Webhook:     newProjectWebhookService(method, option),
 		Version:     newProjectVersionService(method, option),
 		Option:      newProjectOptionService(option),
