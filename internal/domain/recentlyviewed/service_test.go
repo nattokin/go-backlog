@@ -120,6 +120,14 @@ func TestService_AddIssue(t *testing.T) {
 			issueIDOrKey: "",
 			wantErr:      true,
 		},
+		"error-blank-issueIDOrKey": {
+			issueIDOrKey: " \t",
+			wantErr:      true,
+		},
+		"error-zero-issueIDOrKey": {
+			issueIDOrKey: "0",
+			wantErr:      true,
+		},
 		"error-client-network": {
 			issueIDOrKey: "1",
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
@@ -307,6 +315,10 @@ func TestService_AddWiki(t *testing.T) {
 		},
 		"error-invalid-wikiID": {
 			wikiID:  0,
+			wantErr: true,
+		},
+		"error-negative-wikiID": {
+			wikiID:  -1,
 			wantErr: true,
 		},
 		"error-client-network": {
