@@ -120,8 +120,8 @@ func TestStarService_Remove(t *testing.T) {
 		"success-valid-id": {
 			id: 42,
 			mockDeleteFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "stars", spath)
-				assert.Equal(t, "42", form.Get("id"))
+				assert.Equal(t, "stars/42", spath)
+				assert.Empty(t, form)
 				return newNoContentResponse(), nil
 			},
 		},

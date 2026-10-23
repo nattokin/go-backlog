@@ -4,6 +4,7 @@ package star
 import (
 	"context"
 	"net/url"
+	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -47,10 +48,8 @@ func (s *Service) Remove(ctx context.Context, id int) error {
 		return err
 	}
 
-	form := url.Values{}
-	form.Set("id", strconv.Itoa(id))
-
-	if _, err := s.method.Delete(ctx, "stars", form); err != nil {
+	spath := path.Join("stars", strconv.Itoa(id))
+	if _, err := s.method.Delete(ctx, spath, nil); err != nil {
 		return err
 	}
 
