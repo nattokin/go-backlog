@@ -124,12 +124,12 @@ func TestStarService_Remove(t *testing.T) {
 			starID: 42,
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodDelete, req.Method)
-				assert.Equal(t, "/api/v2/stars", req.URL.Path)
+				assert.Equal(t, "/api/v2/stars/42", req.URL.Path)
 				body, err := io.ReadAll(req.Body)
 				require.NoError(t, err)
 				form, err := url.ParseQuery(string(body))
 				require.NoError(t, err)
-				assert.Equal(t, "42", form.Get("id"))
+				assert.Empty(t, form)
 				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
 			},
 		},
