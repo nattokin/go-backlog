@@ -161,6 +161,30 @@ func TestService_Create(t *testing.T) {
 			},
 			wantID: 1,
 		},
+		"success-with-schedule-and-attachments": {
+			projectID:   10,
+			summary:     "New issue",
+			issueTypeID: 2,
+			priorityID:  3,
+			opts: []*option.APIParamOption{
+				o.WithStartDate("2025-01-01"),
+				o.WithDueDate("2025-01-31"),
+				o.WithEstimatedHours(1.5),
+				o.WithActualHours(2),
+				o.WithParentIssueID(7),
+				o.WithAttachmentIDs([]int{3, 4}),
+			},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "2025-01-01", form.Get("startDate"))
+				assert.Equal(t, "2025-01-31", form.Get("dueDate"))
+				assert.Equal(t, "1.5", form.Get("estimatedHours"))
+				assert.Equal(t, "2", form.Get("actualHours"))
+				assert.Equal(t, "7", form.Get("parentIssueId"))
+				assert.Equal(t, []string{"3", "4"}, form["attachmentId[]"])
+				return mock.NewCreatedResponse(fixture.Issue.SingleJSON), nil
+			},
+			wantID: 1,
+		},
 
 		"error-validation-projectID-zero": {
 			projectID:              0,
@@ -342,6 +366,22 @@ func TestService_Update(t *testing.T) {
 			},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
+				assert.Equal(t, "2", form.Get("statusId"))
+				assert.Equal(t, "1", form.Get("resolutionId"))
+				assert.Equal(t, "5", form.Get("assigneeId"))
+				assert.Empty(t, form["statusId[]"])
+				assert.Empty(t, form["resolutionId[]"])
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
+			},
+			wantID: 1,
+		},
+		"success-with-comment-and-attachments": {
+			issueIDOrKey: "PRJ-1",
+			option:       o.WithComment("fixed"),
+			opts:         []*option.APIParamOption{o.WithAttachmentIDs([]int{3, 4})},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "fixed", form.Get("comment"))
+				assert.Equal(t, []string{"3", "4"}, form["attachmentId[]"])
 				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,

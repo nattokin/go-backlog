@@ -142,6 +142,58 @@ func TestCustomFieldService_Create(t *testing.T) {
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 		},
+		"success-numeric-opts": {
+			projectIDOrKey: "TEST",
+			fieldType:      3,
+			name:           "Points",
+			opts: []*option.APIParamOption{
+				o.WithApplicableIssueTypeIDs([]int{1, 2}),
+				o.WithMin(1),
+				o.WithMax(10),
+				o.WithInitialValue(5),
+				o.WithUnit("pt"),
+			},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"1", "2"}, form["applicableIssueTypes[]"])
+				assert.Equal(t, "1", form.Get("min"))
+				assert.Equal(t, "10", form.Get("max"))
+				assert.Equal(t, "5", form.Get("initialValue"))
+				assert.Equal(t, "pt", form.Get("unit"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-date-opts": {
+			projectIDOrKey: "TEST",
+			fieldType:      4,
+			name:           "Deadline",
+			opts: []*option.APIParamOption{
+				o.WithInitialValueType(3),
+				o.WithInitialDate("2025-01-01"),
+				o.WithInitialShift(7),
+			},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "3", form.Get("initialValueType"))
+				assert.Equal(t, "2025-01-01", form.Get("initialDate"))
+				assert.Equal(t, "7", form.Get("initialShift"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-list-opts": {
+			projectIDOrKey: "TEST",
+			fieldType:      5,
+			name:           "Priority",
+			opts: []*option.APIParamOption{
+				o.WithItems([]string{"High", "Low"}),
+				o.WithAllowInput(true),
+				o.WithAllowAddItem(false),
+			},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"High", "Low"}, form["items[]"])
+				assert.Equal(t, "true", form.Get("allowInput"))
+				assert.Equal(t, "false", form.Get("allowAddItem"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
 
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",
@@ -302,6 +354,15 @@ func TestCustomFieldService_Update(t *testing.T) {
 			opts:           []*option.APIParamOption{o.WithRequired(true)},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("required"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-applicable-issue-types": {
+			projectIDOrKey: "TEST",
+			customFieldID:  1,
+			option:         o.WithApplicableIssueTypeIDs([]int{1, 2}),
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"1", "2"}, form["applicableIssueTypes[]"])
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 		},

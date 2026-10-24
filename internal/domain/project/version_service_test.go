@@ -165,6 +165,9 @@ func TestVersionService_Add(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
 				assert.Equal(t, "v1", form.Get("name"))
+				assert.Equal(t, "desc", form.Get("description"))
+				assert.Equal(t, date, form.Get("startDate"))
+				assert.Equal(t, date, form.Get("releaseDueDate"))
 				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
@@ -301,6 +304,8 @@ func TestVersionService_Update(t *testing.T) {
 			wantID:         fixture.Version.Single.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions/1", spath)
+				assert.Equal(t, "name", form.Get("name"))
+				assert.Equal(t, date, form.Get("releaseDueDate"))
 				return mock.NewResponse(fixture.Version.SingleJSON), nil
 			},
 		},
