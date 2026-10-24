@@ -54,6 +54,16 @@ func TestCommentService_Add(t *testing.T) {
 			},
 			wantID: 1,
 		},
+		"success-with-attachmentIDs": {
+			issueIDOrKey: "PRJ-1",
+			content:      "With attachments.",
+			opts:         []*option.APIParamOption{o.WithAttachmentIDs([]int{7, 8})},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"7", "8"}, form["attachmentId[]"])
+				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
+			},
+			wantID: 1,
+		},
 
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
