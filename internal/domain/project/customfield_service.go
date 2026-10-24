@@ -88,6 +88,9 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 	validTypes := []option.APIParamOptionType{
 		option.ParamName, option.ParamDescription,
 		option.ParamRequired, option.ParamApplicableIssueTypeIDs,
+		option.ParamMin, option.ParamMax, option.ParamInitialValue, option.ParamUnit,
+		option.ParamInitialValueType, option.ParamInitialDate, option.ParamInitialShift,
+		option.ParamItems, option.ParamAllowInput, option.ParamAllowAddItem,
 	}
 	options := append([]*option.APIParamOption{opt}, opts...)
 

@@ -29,11 +29,11 @@ func (s *OptionService) WithInitialDate(date string) *APIParamOption {
 	return dateFormatStringOption(ParamInitialDate, date)
 }
 
-func (s *OptionService) WithInitialDateMax(date string) *APIParamOption {
+func (s *OptionService) WithMaxDate(date string) *APIParamOption {
 	return dateFormatStringOption(ParamMax, date)
 }
 
-func (s *OptionService) WithInitialDateMin(date string) *APIParamOption {
+func (s *OptionService) WithMinDate(date string) *APIParamOption {
 	return dateFormatStringOption(ParamMin, date)
 }
 

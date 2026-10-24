@@ -175,30 +175,30 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithInitialDate("2024/01/15"),
 			wantErr: true,
 		},
-		"WithInitialDateMax-valid": {
-			option:    o.WithInitialDateMax("2024-12-31"),
+		"WithMaxDate-valid": {
+			option:    o.WithMaxDate("2024-12-31"),
 			key:       option.ParamMax.Value(),
 			wantValue: "2024-12-31",
 		},
-		"WithInitialDateMax-invalid-empty": {
-			option:  o.WithInitialDateMax(""),
+		"WithMaxDate-invalid-empty": {
+			option:  o.WithMaxDate(""),
 			wantErr: true,
 		},
-		"WithInitialDateMax-invalid-format": {
-			option:  o.WithInitialDateMax("20241231"),
+		"WithMaxDate-invalid-format": {
+			option:  o.WithMaxDate("20241231"),
 			wantErr: true,
 		},
-		"WithInitialDateMin-valid": {
-			option:    o.WithInitialDateMin("2024-01-01"),
+		"WithMinDate-valid": {
+			option:    o.WithMinDate("2024-01-01"),
 			key:       option.ParamMin.Value(),
 			wantValue: "2024-01-01",
 		},
-		"WithInitialDateMin-invalid-empty": {
-			option:  o.WithInitialDateMin(""),
+		"WithMinDate-invalid-empty": {
+			option:  o.WithMinDate(""),
 			wantErr: true,
 		},
-		"WithInitialDateMin-invalid-format": {
-			option:  o.WithInitialDateMin("Jan 1 2024"),
+		"WithMinDate-invalid-format": {
+			option:  o.WithMinDate("Jan 1 2024"),
 			wantErr: true,
 		},
 	}
