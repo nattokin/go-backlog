@@ -108,6 +108,25 @@ func TestProjectWebhookService(t *testing.T) {
 				assert.Equal(t, 1, got.ID)
 			},
 		},
+		"Create/activity-type-ids": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPost, req.Method)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, []string{"1", "2"}, req.PostForm["activityTypeIds[]"])
+				assert.Empty(t, req.PostForm["activityTypeId[]"])
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Webhook.Create(
+					ctx,
+					"TEST",
+					"notify",
+					"https://example.com/webhook",
+					c.Project.Webhook.Option.WithActivityTypeIDs([]int{1, 2}),
+				)
+				require.NoError(t, err)
+			},
+		},
 		"Create/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
@@ -161,6 +180,24 @@ func TestProjectWebhookService(t *testing.T) {
 				)
 				require.NoError(t, err)
 				assert.Equal(t, 1, got.ID)
+			},
+		},
+		"Update/activity-type-ids": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, []string{"1", "2"}, req.PostForm["activityTypeIds[]"])
+				assert.Empty(t, req.PostForm["activityTypeId[]"])
+				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.Project.Webhook.Update(
+					ctx,
+					"TEST",
+					1,
+					c.Project.Webhook.Option.WithActivityTypeIDs([]int{1, 2}),
+				)
+				require.NoError(t, err)
 			},
 		},
 		"Update/error": {
@@ -232,7 +269,7 @@ func TestProjectWebhookOptionService(t *testing.T) {
 		},
 		"WithActivityTypeIDs": {
 			option:  s.WithActivityTypeIDs([]int{1, 2}),
-			wantKey: option.ParamActivityTypeIDs.Value(),
+			wantKey: "activityTypeIds[]",
 		},
 		"WithHookURL": {
 			option:  s.WithHookURL("https://example.com/webhook"),
