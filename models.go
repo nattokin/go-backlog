@@ -158,13 +158,17 @@ type Team struct {
 }
 
 // Version represents a version or milestone in a project.
+//
+// StartDate and ReleaseDueDate hold midnight of the date in the space's time zone, expressed in UTC
+// (e.g. 2014-06-30T15:00:00Z is 2014-07-01 in Asia/Tokyo).
+// Use t.In(loc).Format(time.DateOnly) to get the date, where loc is the space's time zone.
 type Version struct {
 	ID             int
 	ProjectID      int
 	Name           string
 	Description    string
-	StartDate      Date
-	ReleaseDueDate Date
+	StartDate      Timestamp
+	ReleaseDueDate Timestamp
 	Archived       bool
 	DisplayOrder   int
 }

@@ -15,18 +15,20 @@ var Version = versionFixtures{
 		"projectId": 100,
 		"name": "Version 1.0",
 		"description": "Initial release milestone",
-		"startDate": null,
-		"releaseDueDate": null,
+		"startDate": "2024-01-14T15:00:00Z",
+		"releaseDueDate": "2024-03-30T15:00:00Z",
 		"archived": false,
 		"displayOrder": 1
 	}`,
 	Single: &backlog.Version{
-		ID:           1,
-		ProjectID:    100,
-		Name:         "Version 1.0",
-		Description:  "Initial release milestone",
-		Archived:     false,
-		DisplayOrder: 1,
+		ID:             1,
+		ProjectID:      100,
+		Name:           "Version 1.0",
+		Description:    "Initial release milestone",
+		StartDate:      mustTimestamp("2024-01-14T15:00:00Z"),
+		ReleaseDueDate: mustTimestamp("2024-03-30T15:00:00Z"),
+		Archived:       false,
+		DisplayOrder:   1,
 	},
 	ListJSON: `[
 		{
