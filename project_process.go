@@ -184,12 +184,18 @@ func (s *ProjectVersionOptionService) WithName(name string) RequestOption {
 
 // WithReleaseDueDate sets the release due date.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+//
+// On update, passing an empty string clears the release due date. On create, an
+// empty string is equivalent to leaving the release due date unset.
 func (s *ProjectVersionOptionService) WithReleaseDueDate(date string) RequestOption {
 	return &requestOption{opt: s.base.WithReleaseDueDate(date)}
 }
 
 // WithStartDate sets the version start date.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+//
+// On update, passing an empty string clears the start date. On create, an empty
+// string is equivalent to leaving the start date unset.
 func (s *ProjectVersionOptionService) WithStartDate(date string) RequestOption {
 	return &requestOption{opt: s.base.WithStartDate(date)}
 }
