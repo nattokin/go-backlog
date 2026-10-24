@@ -64,6 +64,8 @@ func TestProjectVersionService(t *testing.T) {
 				)
 				require.NoError(t, err)
 				assert.Equal(t, fixture.Version.Single.ID, got.ID)
+				assert.Equal(t, fixture.Version.Single.StartDate, got.StartDate)
+				assert.Equal(t, fixture.Version.Single.ReleaseDueDate, got.ReleaseDueDate)
 			},
 		},
 		"Create/error": {

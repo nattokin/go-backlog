@@ -66,14 +66,14 @@ type Status struct {
 
 // Version represents a project version (milestone).
 type Version struct {
-	ID             int    `json:"id,omitempty"`
-	ProjectID      int    `json:"projectId,omitempty"`
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
-	StartDate      string `json:"startDate,omitempty"`
-	ReleaseDueDate string `json:"releaseDueDate,omitempty"`
-	Archived       bool   `json:"archived,omitempty"`
-	DisplayOrder   int    `json:"displayOrder,omitempty"`
+	ID             int       `json:"id,omitempty"`
+	ProjectID      int       `json:"projectId,omitempty"`
+	Name           string    `json:"name,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	StartDate      time.Time `json:"startDate,omitempty"`
+	ReleaseDueDate time.Time `json:"releaseDueDate,omitempty"`
+	Archived       bool      `json:"archived,omitempty"`
+	DisplayOrder   int       `json:"displayOrder,omitempty"`
 }
 
 // Webhook represents a Backlog webhook.

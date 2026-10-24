@@ -18,8 +18,8 @@ type Issue struct {
 	Category       []*Category    `json:"category,omitempty"`
 	Versions       []*Version     `json:"versions,omitempty"`
 	Milestone      []*Version     `json:"milestone,omitempty"`
-	StartDate      string         `json:"startDate,omitempty"`
-	DueDate        string         `json:"dueDate,omitempty"`
+	StartDate      time.Time      `json:"startDate,omitempty"`
+	DueDate        time.Time      `json:"dueDate,omitempty"`
 	EstimatedHours float64        `json:"estimatedHours,omitempty"`
 	ActualHours    float64        `json:"actualHours,omitempty"`
 	ParentIssueID  int            `json:"parentIssueId,omitempty"`

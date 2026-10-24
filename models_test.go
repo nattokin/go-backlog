@@ -259,6 +259,8 @@ func Test_diskUsageSpaceFromModel(t *testing.T) {
 func Test_issueFromModel(t *testing.T) {
 	created := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	updated := time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)
+	startDate := time.Date(2023, 12, 31, 15, 0, 0, 0, time.UTC)
+	dueDate := time.Date(2024, 5, 31, 15, 0, 0, 0, time.UTC)
 
 	user := &model.User{ID: 1, UserID: "admin", Name: "admin", RoleType: 1, Lang: "ja", MailAddress: "admin@example.com"}
 	wantUser := &User{ID: 1, UserID: "admin", Name: "admin", RoleType: RoleAdministrator, Lang: "ja", MailAddress: "admin@example.com"}
@@ -292,8 +294,8 @@ func Test_issueFromModel(t *testing.T) {
 				Milestone: []*model.Version{
 					{ID: 31, Name: "v1.1"},
 				},
-				StartDate:      "2024-01-01",
-				DueDate:        "2024-06-01",
+				StartDate:      startDate,
+				DueDate:        dueDate,
 				EstimatedHours: 8,
 				ActualHours:    4,
 				ParentIssueID:  0,
@@ -340,8 +342,8 @@ func Test_issueFromModel(t *testing.T) {
 				Milestone: []*Version{
 					{ID: 31, Name: "v1.1"},
 				},
-				StartDate:      Date{value: "2024-01-01"},
-				DueDate:        Date{value: "2024-06-01"},
+				StartDate:      Timestamp{startDate},
+				DueDate:        Timestamp{dueDate},
 				EstimatedHours: 8,
 				ActualHours:    4,
 				ParentIssueID:  0,
@@ -553,13 +555,16 @@ func Test_statusFromModel(t *testing.T) {
 func Test_versionFromModel(t *testing.T) {
 	t.Parallel()
 
+	startDate := time.Date(2023, 12, 31, 15, 0, 0, 0, time.UTC)
+	releaseDueDate := time.Date(2024, 3, 30, 15, 0, 0, 0, time.UTC)
+
 	input := &model.Version{
 		ID:             30,
 		ProjectID:      1,
 		Name:           "v1.0",
 		Description:    "first release",
-		StartDate:      "2024-01-01",
-		ReleaseDueDate: "2024-03-31",
+		StartDate:      startDate,
+		ReleaseDueDate: releaseDueDate,
 		Archived:       false,
 		DisplayOrder:   0,
 	}
@@ -568,8 +573,8 @@ func Test_versionFromModel(t *testing.T) {
 		ProjectID:      1,
 		Name:           "v1.0",
 		Description:    "first release",
-		StartDate:      Date{value: "2024-01-01"},
-		ReleaseDueDate: Date{value: "2024-03-31"},
+		StartDate:      Timestamp{startDate},
+		ReleaseDueDate: Timestamp{releaseDueDate},
 		Archived:       false,
 		DisplayOrder:   0,
 	}

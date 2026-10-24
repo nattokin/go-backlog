@@ -15,6 +15,10 @@ import (
 // ──────────────────────────────────────────────────────────────
 
 // Issue represents a issue of Backlog.
+//
+// StartDate and DueDate hold midnight of the date in the space's time zone, expressed in UTC
+// (e.g. 2024-01-14T15:00:00Z is 2024-01-15 in Asia/Tokyo).
+// Use t.In(loc).Format(time.DateOnly) to get the date, where loc is the space's time zone.
 type Issue struct {
 	ID             int
 	ProjectID      int
@@ -30,8 +34,8 @@ type Issue struct {
 	Category       []*Category
 	Versions       []*Version
 	Milestone      []*Version
-	StartDate      Date
-	DueDate        Date
+	StartDate      Timestamp
+	DueDate        Timestamp
 	EstimatedHours float64
 	ActualHours    float64
 	ParentIssueID  int
@@ -340,8 +344,8 @@ func versionFromModel(m *model.Version) *Version {
 		ProjectID:      m.ProjectID,
 		Name:           m.Name,
 		Description:    m.Description,
-		StartDate:      Date{value: m.StartDate},
-		ReleaseDueDate: Date{value: m.ReleaseDueDate},
+		StartDate:      Timestamp{m.StartDate},
+		ReleaseDueDate: Timestamp{m.ReleaseDueDate},
 		Archived:       m.Archived,
 		DisplayOrder:   m.DisplayOrder,
 	}
@@ -403,8 +407,8 @@ func issueFromModel(m *model.Issue) *Issue {
 		Category:       categoriesFromModel(m.Category),
 		Versions:       versionsFromModel(m.Versions),
 		Milestone:      versionsFromModel(m.Milestone),
-		StartDate:      Date{value: m.StartDate},
-		DueDate:        Date{value: m.DueDate},
+		StartDate:      Timestamp{m.StartDate},
+		DueDate:        Timestamp{m.DueDate},
 		EstimatedHours: m.EstimatedHours,
 		ActualHours:    m.ActualHours,
 		ParentIssueID:  m.ParentIssueID,

@@ -164,6 +164,8 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, 1, got.ID)
 				assert.Equal(t, "PRJ-1", got.IssueKey)
 				assert.Equal(t, "First issue", got.Summary)
+				assert.Equal(t, fixture.Issue.Single.StartDate, got.StartDate)
+				assert.Equal(t, fixture.Issue.Single.DueDate, got.DueDate)
 			},
 		},
 		"One/error": {
