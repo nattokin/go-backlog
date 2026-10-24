@@ -129,6 +129,9 @@ func (s *IssueOptionService) WithDescription(description string) RequestOption {
 
 // WithDueDate returns an option to set the `dueDate` parameter.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+//
+// On update, passing an empty string clears the due date. On create, an empty
+// string is equivalent to leaving the due date unset.
 func (s *IssueOptionService) WithDueDate(date string) RequestOption {
 	return &requestOption{opt: s.base.WithDueDate(date)}
 }
@@ -249,6 +252,9 @@ func (s *IssueOptionService) WithSharedFile(enabled bool) RequestOption {
 
 // WithStartDate returns an option to set the `startDate` parameter.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
+//
+// On update, passing an empty string clears the start date. On create, an empty
+// string is equivalent to leaving the start date unset.
 func (s *IssueOptionService) WithStartDate(date string) RequestOption {
 	return &requestOption{opt: s.base.WithStartDate(date)}
 }

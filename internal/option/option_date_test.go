@@ -50,9 +50,10 @@ func TestOptionService_date(t *testing.T) {
 			key:       option.ParamDueDate.Value(),
 			wantValue: "2024-03-15",
 		},
-		"WithDueDate-invalid-empty": {
-			option:  o.WithDueDate(""),
-			wantErr: true,
+		"WithDueDate-valid-empty": {
+			option:    o.WithDueDate(""),
+			key:       option.ParamDueDate.Value(),
+			wantValue: "",
 		},
 		"WithDueDate-invalid-format": {
 			option:  o.WithDueDate("20240315"),
@@ -89,9 +90,10 @@ func TestOptionService_date(t *testing.T) {
 			key:       option.ParamReleaseDueDate.Value(),
 			wantValue: "2024-03-15",
 		},
-		"WithReleaseDueDate-invalid-empty": {
-			option:  o.WithReleaseDueDate(""),
-			wantErr: true,
+		"WithReleaseDueDate-valid-empty": {
+			option:    o.WithReleaseDueDate(""),
+			key:       option.ParamReleaseDueDate.Value(),
+			wantValue: "",
 		},
 		"WithReleaseDueDate-invalid-format": {
 			option:  o.WithReleaseDueDate("2024/03/15"),
@@ -102,9 +104,10 @@ func TestOptionService_date(t *testing.T) {
 			key:       option.ParamStartDate.Value(),
 			wantValue: "2024-03-15",
 		},
-		"WithStartDate-invalid-empty": {
-			option:  o.WithStartDate(""),
-			wantErr: true,
+		"WithStartDate-valid-empty": {
+			option:    o.WithStartDate(""),
+			key:       option.ParamStartDate.Value(),
+			wantValue: "",
 		},
 		"WithStartDate-invalid-format": {
 			option:  o.WithStartDate("20240315"),
@@ -215,6 +218,7 @@ func TestOptionService_date(t *testing.T) {
 			}
 			require.Nil(t, ve)
 			_ = tc.option.Set(form)
+			require.True(t, form.Has(tc.key))
 			assert.Equal(t, tc.wantValue, form.Get(tc.key))
 		})
 	}

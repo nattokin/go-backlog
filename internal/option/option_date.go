@@ -14,7 +14,7 @@ func (s *OptionService) WithCreatedUntil(date string) *APIParamOption {
 }
 
 func (s *OptionService) WithDueDate(date string) *APIParamOption {
-	return dateFormatStringOption(ParamDueDate, date)
+	return clearableDateFormatStringOption(ParamDueDate, date)
 }
 
 func (s *OptionService) WithDueDateSince(date string) *APIParamOption {
@@ -38,11 +38,11 @@ func (s *OptionService) WithMinDate(date string) *APIParamOption {
 }
 
 func (s *OptionService) WithReleaseDueDate(date string) *APIParamOption {
-	return dateFormatStringOption(ParamReleaseDueDate, date)
+	return clearableDateFormatStringOption(ParamReleaseDueDate, date)
 }
 
 func (s *OptionService) WithStartDate(date string) *APIParamOption {
-	return dateFormatStringOption(ParamStartDate, date)
+	return clearableDateFormatStringOption(ParamStartDate, date)
 }
 
 func (s *OptionService) WithStartDateSince(date string) *APIParamOption {
@@ -65,6 +65,21 @@ func dateFormatStringOption(paramType APIParamOptionType, date string) *APIParam
 	return &APIParamOption{
 		Type: paramType,
 		CheckFunc: func() *validation.Error {
+			return validate.ValidateDateFormat(paramType.Value(), date)
+		},
+		SetFunc: setStringFunc(paramType, date),
+	}
+}
+
+// clearableDateFormatStringOption is like dateFormatStringOption but also
+// accepts an empty string, which the Backlog API interprets as clearing the date.
+func clearableDateFormatStringOption(paramType APIParamOptionType, date string) *APIParamOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() *validation.Error {
+			if date == "" {
+				return nil
+			}
 			return validate.ValidateDateFormat(paramType.Value(), date)
 		},
 		SetFunc: setStringFunc(paramType, date),
