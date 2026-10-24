@@ -9,3 +9,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+retract v0.25.6 // Contains breaking changes; use v0.26.0 instead.
