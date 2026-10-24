@@ -250,32 +250,6 @@ func TestUserOptionService(t *testing.T) {
 	require.NoError(t, err)
 	o := c.User.Option
 
-	// --- Boolean options ------------------------------------------------------------
-	t.Run("boolean-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    backlog.RequestOption
-			key       string
-			wantValue bool
-		}{
-			"with-form-send-mail": {
-				option:    o.WithSendMail(true),
-				key:       option.ParamSendMail.Value(),
-				wantValue: true,
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, strconv.FormatBool(tc.wantValue), form.Get(tc.key))
-			})
-		}
-	})
-
 	// --- Integer options ------------------------------------------------------------
 	t.Run("integer-options", func(t *testing.T) {
 		cases := map[string]struct {

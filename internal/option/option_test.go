@@ -93,7 +93,6 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 		option.ParamResolutionID:                      "resolutionId",
 		option.ParamResolutionIDs:                     "resolutionId[]",
 		option.ParamRoleType:                          "roleType",
-		option.ParamSendMail:                          "sendMail",
 		option.ParamSharedFile:                        "sharedFile",
 		option.ParamSort:                              "sort",
 		option.ParamStartDate:                         "startDate",

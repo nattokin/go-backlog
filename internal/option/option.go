@@ -83,7 +83,6 @@ const (
 	ParamResolutionID                      APIParamOptionType = "resolutionId"
 	ParamResolutionIDs                     APIParamOptionType = "resolutionId[]"
 	ParamRoleType                          APIParamOptionType = "roleType"
-	ParamSendMail                          APIParamOptionType = "sendMail"
 	ParamSharedFile                        APIParamOptionType = "sharedFile"
 	ParamSort                              APIParamOptionType = "sort"
 	ParamStartDate                         APIParamOptionType = "startDate"
