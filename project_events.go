@@ -126,7 +126,7 @@ type ProjectWebhookOptionService struct {
 
 // WithActivityTypeIDs sets activity type IDs for webhook events.
 func (s *ProjectWebhookOptionService) WithActivityTypeIDs(typeIDs []int) RequestOption {
-	return &requestOption{opt: s.base.WithActivityTypeIDs(typeIDs)}
+	return &requestOption{opt: s.base.WithWebhookActivityTypeIDs(typeIDs)}
 }
 
 // WithAllEvent sets whether the webhook receives all events.

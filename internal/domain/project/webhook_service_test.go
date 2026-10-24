@@ -114,11 +114,11 @@ func TestWebhookService_Add(t *testing.T) {
 			projectIDOrKey: "TEST",
 			name:           "webhook",
 			hookURL:        "https://example.com/webhook",
-			opts:           []*option.APIParamOption{o.WithAllEvent(false), o.WithActivityTypeIDs([]int{1, 2})},
+			opts:           []*option.APIParamOption{o.WithAllEvent(false), o.WithWebhookActivityTypeIDs([]int{1, 2})},
 			wantID:         fixture.Webhook.ActivityTypes.ID,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "false", form.Get("allEvent"))
-				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
+				assert.Equal(t, []string{"1", "2"}, form["activityTypeIds[]"])
 				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
@@ -137,10 +137,11 @@ func TestWebhookService_Add(t *testing.T) {
 			projectIDOrKey: "TEST",
 			name:           "webhook",
 			hookURL:        "https://example.com/webhook",
-			opts:           []*option.APIParamOption{o.WithActivityTypeIDs([]int{1, 2})},
+			opts:           []*option.APIParamOption{o.WithWebhookActivityTypeIDs([]int{1, 2})},
 			wantID:         fixture.Webhook.ActivityTypes.ID,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
+				assert.Equal(t, []string{"1", "2"}, form["activityTypeIds[]"])
+				assert.Empty(t, form["activityTypeId[]"])
 				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
@@ -152,7 +153,7 @@ func TestWebhookService_Add(t *testing.T) {
 			wantID:         fixture.Webhook.AllEvent.ID,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "false", form.Get("allEvent"))
-				assert.Empty(t, form["activityTypeId[]"])
+				assert.Empty(t, form["activityTypeIds[]"])
 				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
@@ -164,7 +165,7 @@ func TestWebhookService_Add(t *testing.T) {
 			wantID:         fixture.Webhook.AllEvent.ID,
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Empty(t, form.Get("allEvent"))
-				assert.Empty(t, form["activityTypeId[]"])
+				assert.Empty(t, form["activityTypeIds[]"])
 				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
@@ -227,6 +228,13 @@ func TestWebhookService_Add(t *testing.T) {
 			name:           "webhook",
 			hookURL:        "https://example.com/webhook",
 			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
+		},
+		"error-option-activity-list-key-rejected": {
+			projectIDOrKey: "TEST",
+			name:           "webhook",
+			hookURL:        "https://example.com/webhook",
+			opts:           []*option.APIParamOption{o.WithActivityTypeIDs([]int{1, 2})},
 			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
@@ -419,10 +427,12 @@ func TestWebhookService_Update(t *testing.T) {
 		"success-activity-types-only": {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
-			opt:            o.WithActivityTypeIDs([]int{1, 2}),
+			opt:            o.WithWebhookActivityTypeIDs([]int{1, 2}),
 			wantID:         fixture.Webhook.ActivityTypes.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/webhooks/1", spath)
+				assert.Equal(t, []string{"1", "2"}, form["activityTypeIds[]"])
+				assert.Empty(t, form["activityTypeId[]"])
 				return mock.NewResponse(fixture.Webhook.ActivityTypesJSON), nil
 			},
 		},
@@ -440,11 +450,11 @@ func TestWebhookService_Update(t *testing.T) {
 			projectIDOrKey: "TEST",
 			webhookID:      1,
 			opt:            o.WithAllEvent(true),
-			opts:           []*option.APIParamOption{o.WithActivityTypeIDs([]int{1, 2})},
+			opts:           []*option.APIParamOption{o.WithWebhookActivityTypeIDs([]int{1, 2})},
 			wantID:         fixture.Webhook.AllEvent.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("allEvent"))
-				assert.Equal(t, []string{"1", "2"}, form["activityTypeId[]"])
+				assert.Equal(t, []string{"1", "2"}, form["activityTypeIds[]"])
 				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
@@ -455,7 +465,7 @@ func TestWebhookService_Update(t *testing.T) {
 			wantID:         fixture.Webhook.AllEvent.ID,
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "false", form.Get("allEvent"))
-				assert.Empty(t, form["activityTypeId[]"])
+				assert.Empty(t, form["activityTypeIds[]"])
 				return mock.NewResponse(fixture.Webhook.AllEventJSON), nil
 			},
 		},
@@ -522,6 +532,12 @@ func TestWebhookService_Update(t *testing.T) {
 			webhookID:      1,
 			opt:            o.WithAllEvent(true),
 			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
+		},
+		"error-option-activity-list-key-rejected": {
+			projectIDOrKey: "TEST",
+			webhookID:      1,
+			opt:            o.WithActivityTypeIDs([]int{1, 2}),
 			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 		"error-option-invalid-type-with-invalid-values": {
