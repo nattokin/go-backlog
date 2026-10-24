@@ -53,10 +53,6 @@ func (s *OptionService) WithRequired(required bool) *APIParamOption {
 	return boolOption(ParamRequired, required)
 }
 
-func (s *OptionService) WithSendMail(enabled bool) *APIParamOption {
-	return boolOption(ParamSendMail, enabled)
-}
-
 func (s *OptionService) WithSharedFile(enabled bool) *APIParamOption {
 	return boolOption(ParamSharedFile, enabled)
 }

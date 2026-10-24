@@ -139,16 +139,6 @@ func TestOptionService_bool(t *testing.T) {
 			key:       option.ParamRequired.Value(),
 			wantValue: true,
 		},
-		"WithSendMail-false": {
-			option:    o.WithSendMail(false),
-			key:       option.ParamSendMail.Value(),
-			wantValue: false,
-		},
-		"WithSendMail-true": {
-			option:    o.WithSendMail(true),
-			key:       option.ParamSendMail.Value(),
-			wantValue: true,
-		},
 		"WithSharedFile-false": {
 			option:    o.WithSharedFile(false),
 			key:       option.ParamSharedFile.Value(),
