@@ -102,6 +102,7 @@ const (
 	ParamUpdatedUntil                      APIParamOptionType = "updatedUntil"
 	ParamUserID                            APIParamOptionType = "userId"
 	ParamVersionIDs                        APIParamOptionType = "versionId[]"
+	ParamWebhookActivityTypeIDs            APIParamOptionType = "activityTypeIds[]"
 	ParamWikiID                            APIParamOptionType = "wikiId"
 )
 

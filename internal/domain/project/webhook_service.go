@@ -55,7 +55,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		option.ParamDescription,
 		option.ParamHookURL,
 		option.ParamAllEvent,
-		option.ParamActivityTypeIDs,
+		option.ParamWebhookActivityTypeIDs,
 	}
 	options := append(
 		[]*option.APIParamOption{
@@ -135,7 +135,7 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		option.ParamDescription,
 		option.ParamHookURL,
 		option.ParamAllEvent,
-		option.ParamActivityTypeIDs,
+		option.ParamWebhookActivityTypeIDs,
 	}, options...)); err != nil {
 		return nil, err
 	}
