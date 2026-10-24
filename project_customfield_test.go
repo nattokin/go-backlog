@@ -663,6 +663,14 @@ func TestProjectCustomFieldOptionService(t *testing.T) {
 			option:  s.WithInitialShift(7),
 			wantKey: option.ParamInitialShift.Value(),
 		},
+		"WithMinDate": {
+			option:  s.WithMinDate("2024-01-01"),
+			wantKey: option.ParamMin.Value(),
+		},
+		"WithMaxDate": {
+			option:  s.WithMaxDate("2024-12-31"),
+			wantKey: option.ParamMax.Value(),
+		},
 		"WithItems": {
 			option:  s.WithItems([]string{"High", "Low"}),
 			wantKey: option.ParamItems.Value(),

@@ -178,6 +178,20 @@ func TestCustomFieldService_Create(t *testing.T) {
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 		},
+		"success-date-range-opts": {
+			projectIDOrKey: "TEST",
+			fieldType:      4,
+			name:           "Deadline",
+			opts: []*option.APIParamOption{
+				o.WithMinDate("2025-01-01"),
+				o.WithMaxDate("2025-12-31"),
+			},
+			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "2025-01-01", form.Get("min"))
+				assert.Equal(t, "2025-12-31", form.Get("max"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
 		"success-list-opts": {
 			projectIDOrKey: "TEST",
 			fieldType:      5,
@@ -363,6 +377,64 @@ func TestCustomFieldService_Update(t *testing.T) {
 			option:         o.WithApplicableIssueTypeIDs([]int{1, 2}),
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, []string{"1", "2"}, form["applicableIssueTypes[]"])
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-numeric-opts": {
+			projectIDOrKey: "TEST",
+			customFieldID:  1,
+			option:         o.WithMin(1),
+			opts: []*option.APIParamOption{
+				o.WithMax(10),
+				o.WithInitialValue(5),
+				o.WithUnit("pt"),
+			},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "1", form.Get("min"))
+				assert.Equal(t, "10", form.Get("max"))
+				assert.Equal(t, "5", form.Get("initialValue"))
+				assert.Equal(t, "pt", form.Get("unit"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-date-opts": {
+			projectIDOrKey: "TEST",
+			customFieldID:  1,
+			option:         o.WithInitialValueType(3),
+			opts: []*option.APIParamOption{
+				o.WithInitialDate("2025-01-01"),
+				o.WithInitialShift(7),
+			},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "3", form.Get("initialValueType"))
+				assert.Equal(t, "2025-01-01", form.Get("initialDate"))
+				assert.Equal(t, "7", form.Get("initialShift"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-date-range-opts": {
+			projectIDOrKey: "TEST",
+			customFieldID:  1,
+			option:         o.WithMinDate("2025-01-01"),
+			opts:           []*option.APIParamOption{o.WithMaxDate("2025-12-31")},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, "2025-01-01", form.Get("min"))
+				assert.Equal(t, "2025-12-31", form.Get("max"))
+				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
+			},
+		},
+		"success-list-opts": {
+			projectIDOrKey: "TEST",
+			customFieldID:  1,
+			option:         o.WithItems([]string{"High", "Low"}),
+			opts: []*option.APIParamOption{
+				o.WithAllowInput(true),
+				o.WithAllowAddItem(false),
+			},
+			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+				assert.Equal(t, []string{"High", "Low"}, form["items[]"])
+				assert.Equal(t, "true", form.Get("allowInput"))
+				assert.Equal(t, "false", form.Get("allowAddItem"))
 				return mock.NewResponse(fixture.CustomField.SingleJSON), nil
 			},
 		},

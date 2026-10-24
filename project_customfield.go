@@ -69,7 +69,7 @@ func (s *ProjectCustomFieldService) List(ctx context.Context, projectIDOrKey str
 //   - WithRequired
 //   - WithApplicableIssueTypeIDs
 //   - WithMin, WithMax, WithInitialValue, WithUnit (Number type)
-//   - WithInitialValueType, WithInitialDate, WithInitialShift (Date type)
+//   - WithInitialValueType, WithInitialDate, WithInitialShift, WithMinDate, WithMaxDate (Date type)
 //   - WithItems, WithAllowInput, WithAllowAddItem (List types)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
@@ -86,6 +86,9 @@ func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey s
 //   - WithDescription
 //   - WithRequired
 //   - WithApplicableIssueTypeIDs
+//   - WithMin, WithMax, WithInitialValue, WithUnit (Number type)
+//   - WithInitialValueType, WithInitialDate, WithInitialShift, WithMinDate, WithMaxDate (Date type)
+//   - WithItems, WithAllowInput, WithAllowAddItem (List types)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *ProjectCustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option RequestOption, opts ...RequestOption) (*CustomField, error) {
@@ -191,6 +194,18 @@ func (s *ProjectCustomFieldOptionService) WithInitialDate(date string) RequestOp
 // when InitialValueType is 2.
 func (s *ProjectCustomFieldOptionService) WithInitialShift(days int) RequestOption {
 	return &requestOption{opt: s.base.WithInitialShift(days)}
+}
+
+// WithMinDate sets the minimum date ("yyyy-MM-dd") for a date type custom field.
+// Use WithMin for a number type custom field.
+func (s *ProjectCustomFieldOptionService) WithMinDate(date string) RequestOption {
+	return &requestOption{opt: s.base.WithMinDate(date)}
+}
+
+// WithMaxDate sets the maximum date ("yyyy-MM-dd") for a date type custom field.
+// Use WithMax for a number type custom field.
+func (s *ProjectCustomFieldOptionService) WithMaxDate(date string) RequestOption {
+	return &requestOption{opt: s.base.WithMaxDate(date)}
 }
 
 // WithItems sets the list items for a list type custom field.
