@@ -3,6 +3,9 @@ package option_test
 import (
 	"errors"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"net/url"
 	"testing"
 
@@ -12,6 +15,153 @@ import (
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validation"
 )
+
+// TestAPIParamOptionType_Value pins every Param* constant to the literal
+// parameter name documented in the Backlog API. Other tests usually compare
+// against option.ParamXxx.Value(), which cannot catch a constant whose value
+// is wrong; this table is the single place where the literal values are checked.
+func TestAPIParamOptionType_Value(t *testing.T) {
+	want := map[option.APIParamOptionType]string{
+		option.ParamActivityTypeIDs:                   "activityTypeId[]",
+		option.ParamActualHours:                       "actualHours",
+		option.ParamAll:                               "all",
+		option.ParamAllEvent:                          "allEvent",
+		option.ParamAllowAddItem:                      "allowAddItem",
+		option.ParamAllowInput:                        "allowInput",
+		option.ParamApplicableIssueTypeIDs:            "applicableIssueTypes[]",
+		option.ParamArchived:                          "archived",
+		option.ParamAssigneeID:                        "assigneeId",
+		option.ParamAssigneeIDs:                       "assigneeId[]",
+		option.ParamAttachment:                        "attachment",
+		option.ParamAttachmentIDs:                     "attachmentId[]",
+		option.ParamBase:                              "base",
+		option.ParamBranch:                            "branch",
+		option.ParamCategoryIDs:                       "categoryId[]",
+		option.ParamChartEnabled:                      "chartEnabled",
+		option.ParamColor:                             "color",
+		option.ParamComment:                           "comment",
+		option.ParamCommentID:                         "commentId",
+		option.ParamContent:                           "content",
+		option.ParamCount:                             "count",
+		option.ParamCreatedSince:                      "createdSince",
+		option.ParamCreatedUntil:                      "createdUntil",
+		option.ParamCreatedUserIDs:                    "createdUserId[]",
+		option.ParamCustomField:                       "customField",
+		option.ParamDescription:                       "description",
+		option.ParamDueDate:                           "dueDate",
+		option.ParamDueDateSince:                      "dueDateSince",
+		option.ParamDueDateUntil:                      "dueDateUntil",
+		option.ParamEstimatedHours:                    "estimatedHours",
+		option.ParamExcludeGroupMembers:               "excludeGroupMembers",
+		option.ParamHasDueDate:                        "hasDueDate",
+		option.ParamHookURL:                           "hookUrl",
+		option.ParamIDs:                               "id[]",
+		option.ParamInitialDate:                       "initialDate",
+		option.ParamInitialShift:                      "initialShift",
+		option.ParamInitialValue:                      "initialValue",
+		option.ParamInitialValueType:                  "initialValueType",
+		option.ParamIssueID:                           "issueId",
+		option.ParamIssueIDs:                          "issueId[]",
+		option.ParamIssueTypeID:                       "issueTypeId",
+		option.ParamIssueTypeIDs:                      "issueTypeId[]",
+		option.ParamItems:                             "items[]",
+		option.ParamKey:                               "key",
+		option.ParamKeyword:                           "keyword",
+		option.ParamMailAddress:                       "mailAddress",
+		option.ParamMailNotify:                        "mailNotify",
+		option.ParamMax:                               "max",
+		option.ParamMaxID:                             "maxId",
+		option.ParamMilestoneIDs:                      "milestoneId[]",
+		option.ParamMin:                               "min",
+		option.ParamMinID:                             "minId",
+		option.ParamName:                              "name",
+		option.ParamNotifiedUserIDs:                   "notifiedUserId[]",
+		option.ParamOffset:                            "offset",
+		option.ParamOrder:                             "order",
+		option.ParamParentChild:                       "parentChild",
+		option.ParamParentIssueID:                     "parentIssueId",
+		option.ParamParentIssueIDs:                    "parentIssueId[]",
+		option.ParamPassword:                          "password",
+		option.ParamPriorityID:                        "priorityId",
+		option.ParamPriorityIDs:                       "priorityId[]",
+		option.ParamProjectIDs:                        "projectId[]",
+		option.ParamProjectLeaderCanEditProjectLeader: "projectLeaderCanEditProjectLeader",
+		option.ParamPullRequestCommentID:              "pullRequestCommentId",
+		option.ParamPullRequestID:                     "pullRequestId",
+		option.ParamReleaseDueDate:                    "releaseDueDate",
+		option.ParamRequired:                          "required",
+		option.ParamResolutionID:                      "resolutionId",
+		option.ParamResolutionIDs:                     "resolutionId[]",
+		option.ParamRoleType:                          "roleType",
+		option.ParamSendMail:                          "sendMail",
+		option.ParamSharedFile:                        "sharedFile",
+		option.ParamSort:                              "sort",
+		option.ParamStartDate:                         "startDate",
+		option.ParamStartDateSince:                    "startDateSince",
+		option.ParamStartDateUntil:                    "startDateUntil",
+		option.ParamStatusID:                          "statusId",
+		option.ParamStatusIDs:                         "statusId[]",
+		option.ParamSubtaskingEnabled:                 "subtaskingEnabled",
+		option.ParamSummary:                           "summary",
+		option.ParamTemplateDescription:               "templateDescription",
+		option.ParamTemplateSummary:                   "templateSummary",
+		option.ParamTextFormattingRule:                "textFormattingRule",
+		option.ParamTypeID:                            "typeId",
+		option.ParamUnit:                              "unit",
+		option.ParamUpdatedSince:                      "updatedSince",
+		option.ParamUpdatedUntil:                      "updatedUntil",
+		option.ParamUserID:                            "userId",
+		option.ParamVersionIDs:                        "versionId[]",
+		option.ParamWebhookActivityTypeIDs:            "activityTypeIds[]",
+		option.ParamWikiID:                            "wikiId",
+	}
+
+	for typ, value := range want {
+		t.Run(value, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, value, typ.Value())
+		})
+	}
+
+	t.Run("covers-all-constants", func(t *testing.T) {
+		t.Parallel()
+
+		got := declaredParamConstants(t)
+		assert.Len(t, want, len(got), "every Param* constant in option.go must be listed in this table")
+	})
+}
+
+// declaredParamConstants returns the names of all APIParamOptionType constants
+// declared in option.go, so that adding a constant without pinning it fails.
+func declaredParamConstants(t *testing.T) []string {
+	t.Helper()
+
+	f, err := parser.ParseFile(token.NewFileSet(), "option.go", nil, 0)
+	require.NoError(t, err)
+
+	var names []string
+	for _, decl := range f.Decls {
+		gen, ok := decl.(*ast.GenDecl)
+		if !ok || gen.Tok != token.CONST {
+			continue
+		}
+		for _, spec := range gen.Specs {
+			vs, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			ident, ok := vs.Type.(*ast.Ident)
+			if !ok || ident.Name != "APIParamOptionType" {
+				continue
+			}
+			for _, n := range vs.Names {
+				names = append(names, n.Name)
+			}
+		}
+	}
+	return names
+}
 
 func TestAPIParamOption_Key(t *testing.T) {
 	cases := map[string]struct {
