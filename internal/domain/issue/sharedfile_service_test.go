@@ -14,13 +14,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/domain/issue"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
-		issueIDOrKey string
-		expectError  bool
-		mockGetFn    func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+		issueIDOrKey           string
+		expectError            bool
+		wantValidationErrCount int
+		mockGetFn              func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "TEST-1",
@@ -37,12 +39,12 @@ func TestSharedFileService_List(t *testing.T) {
 			},
 		},
 		"error-issueIDOrKey-empty": {
-			issueIDOrKey: "",
-			expectError:  true,
+			issueIDOrKey:           "",
+			wantValidationErrCount: 1,
 		},
 		"error-issueIDOrKey-zero": {
-			issueIDOrKey: "0",
-			expectError:  true,
+			issueIDOrKey:           "0",
+			wantValidationErrCount: 1,
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -79,6 +81,15 @@ func TestSharedFileService_List(t *testing.T) {
 
 			files, err := s.List(context.Background(), tc.issueIDOrKey)
 
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, files)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, files)
@@ -101,10 +112,11 @@ func TestSharedFileService_List(t *testing.T) {
 
 func TestSharedFileService_Link(t *testing.T) {
 	cases := map[string]struct {
-		issueIDOrKey string
-		fileIDs      []int
-		expectError  bool
-		mockPostFn   func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		issueIDOrKey           string
+		fileIDs                []int
+		expectError            bool
+		wantValidationErrCount int
+		mockPostFn             func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success-single": {
 			issueIDOrKey: "TEST-1",
@@ -123,19 +135,24 @@ func TestSharedFileService_Link(t *testing.T) {
 			},
 		},
 		"error-issueIDOrKey-empty": {
-			issueIDOrKey: "",
-			fileIDs:      []int{1},
-			expectError:  true,
+			issueIDOrKey:           "",
+			fileIDs:                []int{1},
+			wantValidationErrCount: 1,
 		},
 		"error-fileIDs-empty": {
-			issueIDOrKey: "TEST-1",
-			fileIDs:      []int{},
-			expectError:  true,
+			issueIDOrKey:           "TEST-1",
+			fileIDs:                []int{},
+			wantValidationErrCount: 1,
 		},
 		"error-fileIDs-invalid": {
-			issueIDOrKey: "TEST-1",
-			fileIDs:      []int{0, 1},
-			expectError:  true,
+			issueIDOrKey:           "TEST-1",
+			fileIDs:                []int{0, 1},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			fileIDs:                []int{},
+			wantValidationErrCount: 2,
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -175,6 +192,15 @@ func TestSharedFileService_Link(t *testing.T) {
 
 			files, err := s.Link(context.Background(), tc.issueIDOrKey, tc.fileIDs)
 
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, files)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, files)
@@ -194,10 +220,11 @@ func TestSharedFileService_Link(t *testing.T) {
 
 func TestSharedFileService_Unlink(t *testing.T) {
 	cases := map[string]struct {
-		issueIDOrKey string
-		fileID       int
-		expectError  bool
-		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		issueIDOrKey           string
+		fileID                 int
+		expectError            bool
+		wantValidationErrCount int
+		mockDeleteFn           func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
 		"success": {
 			issueIDOrKey: "TEST-1",
@@ -208,24 +235,29 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			},
 		},
 		"error-issueIDOrKey-empty": {
-			issueIDOrKey: "",
-			fileID:       454403,
-			expectError:  true,
+			issueIDOrKey:           "",
+			fileID:                 454403,
+			wantValidationErrCount: 1,
 		},
 		"error-issueIDOrKey-zero": {
-			issueIDOrKey: "0",
-			fileID:       454403,
-			expectError:  true,
+			issueIDOrKey:           "0",
+			fileID:                 454403,
+			wantValidationErrCount: 1,
 		},
 		"error-fileID-zero": {
-			issueIDOrKey: "TEST-1",
-			fileID:       0,
-			expectError:  true,
+			issueIDOrKey:           "TEST-1",
+			fileID:                 0,
+			wantValidationErrCount: 1,
 		},
 		"error-fileID-negative": {
-			issueIDOrKey: "TEST-1",
-			fileID:       -1,
-			expectError:  true,
+			issueIDOrKey:           "TEST-1",
+			fileID:                 -1,
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			issueIDOrKey:           "",
+			fileID:                 0,
+			wantValidationErrCount: 2,
 		},
 		"error-client": {
 			issueIDOrKey: "TEST-1",
@@ -264,6 +296,15 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			s := issue.NewSharedFileService(method)
 
 			file, err := s.Unlink(context.Background(), tc.issueIDOrKey, tc.fileID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, file)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.expectError {
 				assert.Error(t, err)

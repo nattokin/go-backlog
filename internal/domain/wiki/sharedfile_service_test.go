@@ -13,13 +13,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestSharedFileService_List(t *testing.T) {
 	cases := map[string]struct {
 		wikiID int
 
-		expectError bool
+		expectError            bool
+		wantValidationErrCount int
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 	}{
@@ -32,13 +34,13 @@ func TestSharedFileService_List(t *testing.T) {
 		},
 
 		"error-wikiID-zero": {
-			wikiID:      0,
-			expectError: true,
+			wikiID:                 0,
+			wantValidationErrCount: 1,
 		},
 
 		"error-wikiID-negative": {
-			wikiID:      -1,
-			expectError: true,
+			wikiID:                 -1,
+			wantValidationErrCount: 1,
 		},
 
 		"error-client": {
@@ -70,6 +72,15 @@ func TestSharedFileService_List(t *testing.T) {
 
 			files, err := s.List(context.Background(), tc.wikiID)
 
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, files)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, files)
@@ -96,7 +107,8 @@ func TestSharedFileService_Link(t *testing.T) {
 		wikiID  int
 		fileIDs []int
 
-		expectError bool
+		expectError            bool
+		wantValidationErrCount int
 
 		mockPostFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -119,21 +131,27 @@ func TestSharedFileService_Link(t *testing.T) {
 		},
 
 		"error-wikiID-zero": {
-			wikiID:      0,
-			fileIDs:     []int{1},
-			expectError: true,
+			wikiID:                 0,
+			fileIDs:                []int{1},
+			wantValidationErrCount: 1,
 		},
 
 		"error-fileIDs-empty": {
-			wikiID:      1,
-			fileIDs:     []int{},
-			expectError: true,
+			wikiID:                 1,
+			fileIDs:                []int{},
+			wantValidationErrCount: 1,
 		},
 
 		"error-fileIDs-invalid": {
-			wikiID:      1,
-			fileIDs:     []int{0, 1},
-			expectError: true,
+			wikiID:                 1,
+			fileIDs:                []int{0, 1},
+			wantValidationErrCount: 1,
+		},
+
+		"error-validation-all": {
+			wikiID:                 0,
+			fileIDs:                []int{},
+			wantValidationErrCount: 2,
 		},
 
 		"error-client": {
@@ -167,6 +185,15 @@ func TestSharedFileService_Link(t *testing.T) {
 
 			files, err := s.Link(context.Background(), tc.wikiID, tc.fileIDs)
 
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, files)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
 			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, files)
@@ -190,7 +217,8 @@ func TestSharedFileService_Unlink(t *testing.T) {
 		wikiID int
 		fileID int
 
-		expectError bool
+		expectError            bool
+		wantValidationErrCount int
 
 		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
 	}{
@@ -204,27 +232,33 @@ func TestSharedFileService_Unlink(t *testing.T) {
 		},
 
 		"error-wikiID-zero": {
-			wikiID:      0,
-			fileID:      454403,
-			expectError: true,
+			wikiID:                 0,
+			fileID:                 454403,
+			wantValidationErrCount: 1,
 		},
 
 		"error-wikiID-negative": {
-			wikiID:      -1,
-			fileID:      454403,
-			expectError: true,
+			wikiID:                 -1,
+			fileID:                 454403,
+			wantValidationErrCount: 1,
 		},
 
 		"error-fileID-zero": {
-			wikiID:      1,
-			fileID:      0,
-			expectError: true,
+			wikiID:                 1,
+			fileID:                 0,
+			wantValidationErrCount: 1,
 		},
 
 		"error-fileID-negative": {
-			wikiID:      1,
-			fileID:      -1,
-			expectError: true,
+			wikiID:                 1,
+			fileID:                 -1,
+			wantValidationErrCount: 1,
+		},
+
+		"error-validation-all": {
+			wikiID:                 0,
+			fileID:                 0,
+			wantValidationErrCount: 2,
 		},
 
 		"error-client": {
@@ -257,6 +291,15 @@ func TestSharedFileService_Unlink(t *testing.T) {
 			s := wiki.NewSharedFileService(method)
 
 			file, err := s.Unlink(context.Background(), tc.wikiID, tc.fileID)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Nil(t, file)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.expectError {
 				assert.Error(t, err)

@@ -9,6 +9,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/shared/sharedfile"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // SharedFileService handles shared-file-related Backlog API calls for issues.
@@ -22,8 +23,12 @@ type SharedFileService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-linked-shared-files
 func (s *SharedFileService) List(ctx context.Context, issueIDOrKey string) ([]*model.SharedFile, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves validation.Errors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "sharedFiles")
@@ -34,8 +39,22 @@ func (s *SharedFileService) List(ctx context.Context, issueIDOrKey string) ([]*m
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue
 func (s *SharedFileService) Link(ctx context.Context, issueIDOrKey string, fileIDs []int) ([]*model.SharedFile, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves validation.Errors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(fileIDs) == 0 {
+		ves = append(ves, validation.NewError("fileIDs", "fileIDs must not be empty"))
+	} else {
+		for _, id := range fileIDs {
+			if ve := validate.ValidateSharedFileID(id); ve != nil {
+				ves = append(ves, ve)
+				break
+			}
+		}
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "sharedFiles")
@@ -46,11 +65,15 @@ func (s *SharedFileService) Link(ctx context.Context, issueIDOrKey string, fileI
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue
 func (s *SharedFileService) Unlink(ctx context.Context, issueIDOrKey string, fileID int) (*model.SharedFile, error) {
-	if err := validate.ValidateIssueIDOrKey(issueIDOrKey); err != nil {
-		return nil, err
+	var ves validation.Errors
+	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
+		ves = append(ves, ve)
 	}
-	if err := validate.ValidateSharedFileID(fileID); err != nil {
-		return nil, err
+	if ve := validate.ValidateSharedFileID(fileID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("issues", issueIDOrKey, "sharedFiles", strconv.Itoa(fileID))

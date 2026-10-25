@@ -14,6 +14,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/domain/star"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func newNoContentResponse() *http.Response {
@@ -113,9 +114,10 @@ func TestStarService_Add(t *testing.T) {
 
 func TestStarService_Remove(t *testing.T) {
 	cases := map[string]struct {
-		id           int
-		mockDeleteFn func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
-		wantErr      bool
+		id                     int
+		mockDeleteFn           func(ctx context.Context, spath string, form url.Values) (*http.Response, error)
+		wantErr                bool
+		wantValidationErrCount int
 	}{
 		"success-valid-id": {
 			id: 42,
@@ -126,8 +128,8 @@ func TestStarService_Remove(t *testing.T) {
 			},
 		},
 		"error-invalid-id": {
-			id:      0,
-			wantErr: true,
+			id:                     0,
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			id: 1,
@@ -150,6 +152,14 @@ func TestStarService_Remove(t *testing.T) {
 			s := star.NewService(method)
 
 			err := s.Remove(context.Background(), tc.id)
+
+			if tc.wantValidationErrCount > 0 {
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErr {
 				assert.Error(t, err)
