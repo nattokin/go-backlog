@@ -11,12 +11,12 @@ import (
 
 // WithActivityTypeIDs sets `activityTypeId[]` for activity list endpoints.
 func (s *OptionService) WithActivityTypeIDs(typeIDs []int) *APIParamOption {
-	return activityTypeIDsOption(ParamActivityTypeIDs, typeIDs)
+	return positiveIntSliceOption(ParamActivityTypeIDs, "activityTypeIds", typeIDs)
 }
 
 // WithWebhookActivityTypeIDs sets `activityTypeIds[]` for the Add/Update Webhook endpoints.
 func (s *OptionService) WithWebhookActivityTypeIDs(typeIDs []int) *APIParamOption {
-	return activityTypeIDsOption(ParamWebhookActivityTypeIDs, typeIDs)
+	return positiveIntSliceOption(ParamWebhookActivityTypeIDs, "activityTypeIds", typeIDs)
 }
 
 func (s *OptionService) WithApplicableIssueTypeIDs(ids []int) *APIParamOption {
@@ -106,21 +106,6 @@ func positiveIntSliceOption(paramType APIParamOptionType, paramName string, valu
 			return validate.ValidatePositiveInts(paramName, values)
 		},
 		SetFunc: addIntFunc(paramType, values),
-	}
-}
-
-func activityTypeIDsOption(paramType APIParamOptionType, typeIDs []int) *APIParamOption {
-	return &APIParamOption{
-		Type: paramType,
-		CheckFunc: func() *validation.Error {
-			for _, id := range typeIDs {
-				if ve := validate.ValidateIntRange("activityTypeIds", id, 1, MaxActivityTypeID); ve != nil {
-					return ve
-				}
-			}
-			return nil
-		},
-		SetFunc: addIntFunc(paramType, typeIDs),
 	}
 }
 
