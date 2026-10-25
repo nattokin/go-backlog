@@ -8,6 +8,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // StarService handles wiki star-related Backlog API calls.
@@ -19,8 +20,12 @@ type StarService struct {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star
 func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, error) {
-	if err := validate.ValidateWikiID(wikiID); err != nil {
-		return nil, err
+	var ves validation.Errors
+	if ve := validate.ValidateWikiID(wikiID); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := path.Join("wikis", strconv.Itoa(wikiID), "stars")

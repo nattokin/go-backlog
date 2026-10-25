@@ -3,13 +3,11 @@ package sharedfile
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
-	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 // Service holds shared HTTP logic for shared-file-related Backlog API endpoints.
@@ -34,15 +32,8 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, 
 }
 
 func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*model.SharedFile, error) {
-	if len(fileIDs) == 0 {
-		return nil, errors.New("fileIDs must not be empty")
-	}
-
 	form := url.Values{}
 	for _, id := range fileIDs {
-		if err := validate.ValidateSharedFileID(id); err != nil {
-			return nil, err
-		}
 		form.Add("fileId[]", strconv.Itoa(id))
 	}
 

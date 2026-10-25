@@ -10,6 +10,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 // Service handles star-related Backlog API calls.
@@ -44,8 +45,12 @@ func (s *Service) Add(ctx context.Context, opt *option.APIParamOption) error {
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/remove-star
 func (s *Service) Remove(ctx context.Context, id int) error {
-	if err := validate.ValidateStarID(id); err != nil {
-		return err
+	var ves validation.Errors
+	if ve := validate.ValidateStarID(id); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return ves
 	}
 
 	spath := path.Join("stars", strconv.Itoa(id))
