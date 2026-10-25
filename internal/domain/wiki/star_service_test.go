@@ -14,14 +14,16 @@ import (
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestWikiStarService_List(t *testing.T) {
 	cases := map[string]struct {
-		wikiID    int
-		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
-		wantErr   bool
-		wantLen   int
+		wikiID                 int
+		mockGetFn              func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+		wantErr                bool
+		wantValidationErrCount int
+		wantLen                int
 	}{
 		"success": {
 			wikiID: 34,
@@ -33,8 +35,8 @@ func TestWikiStarService_List(t *testing.T) {
 			wantLen: 2,
 		},
 		"error-invalid-wikiID": {
-			wikiID:  0,
-			wantErr: true,
+			wikiID:                 0,
+			wantValidationErrCount: 1,
 		},
 		"error-client-network": {
 			wikiID: 34,
@@ -70,6 +72,14 @@ func TestWikiStarService_List(t *testing.T) {
 
 			s := wiki.NewStarService(method)
 			got, err := s.List(context.Background(), tc.wikiID)
+
+			if tc.wantValidationErrCount > 0 {
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
 
 			if tc.wantErr {
 				assert.Error(t, err)
