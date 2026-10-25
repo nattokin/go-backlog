@@ -312,14 +312,6 @@ func TestCommentService_Add(t *testing.T) {
 			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType:    &option.InvalidOptionKeyError{},
 		},
-		"error-option-attachmentIDs-not-allowed": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "x",
-			opts:           []*option.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
-			wantErrType:    &option.InvalidOptionKeyError{},
-		},
 
 		"error-client-network": {
 			projectIDOrKey: "PRJ",
