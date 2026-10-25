@@ -94,6 +94,19 @@ func TestPullRequestCommentService(t *testing.T) {
 				assert.Equal(t, 1, got.ID)
 			},
 		},
+		"Add/error-attachmentIDs-not-allowed": {
+			doFunc: mock.NewUnexpectedDoFunc(t),
+			call: func(t *testing.T, c *backlog.Client) {
+				_, err := c.PullRequest.Comment.Add(ctx, "TEST", "repo", 1, "x",
+					c.Issue.Comment.Option.WithAttachmentIDs([]int{10}),
+				)
+				require.Error(t, err)
+				var target *backlog.InvalidOptionKeyError
+				if assert.ErrorAs(t, err, &target) {
+					assert.Equal(t, option.ParamAttachmentIDs.Value(), target.InvalidKey())
+				}
+			},
+		},
 		"Add/error": {
 			doFunc: mock.NewUnauthorizedDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
@@ -169,7 +182,6 @@ func TestPullRequestCommentOptionService(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: option.ParamAttachmentIDs.Value()},
 		"WithCount":           {option: s.WithCount(20), wantKey: option.ParamCount.Value()},
 		"WithMaxID":           {option: s.WithMaxID(100), wantKey: option.ParamMaxID.Value()},
 		"WithMinID":           {option: s.WithMinID(1), wantKey: option.ParamMinID.Value()},
