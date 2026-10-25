@@ -18,7 +18,7 @@ const issueLastPageJSON = `
         },
         "summary": "last issue",
         "description": "",
-        "resolutions": null,
+        "resolution": null,
         "priority": {
             "id": 3,
             "name": "Normal"

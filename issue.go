@@ -27,7 +27,7 @@ type Issue struct {
 	IssueType      *IssueType
 	Summary        string
 	Description    string
-	Resolutions    []*Resolution
+	Resolution     *Resolution
 	Priority       *Priority
 	Status         *Status
 	Assignee       *User
@@ -320,19 +320,11 @@ func newIssueStarService(method *client.Method, option *option.OptionService) *I
 //  Helpers
 // ──────────────────────────────────────────────────────────────
 
-func resolutionsFromModel(m []*model.Resolution) []*Resolution {
+func resolutionFromModel(m *model.Resolution) *Resolution {
 	if m == nil {
 		return nil
 	}
-	result := make([]*Resolution, len(m))
-	for i, v := range m {
-		if v == nil {
-			result[i] = nil
-		} else {
-			result[i] = &Resolution{ID: v.ID, Name: v.Name}
-		}
-	}
-	return result
+	return &Resolution{ID: m.ID, Name: m.Name}
 }
 
 func versionFromModel(m *model.Version) *Version {
@@ -400,7 +392,7 @@ func issueFromModel(m *model.Issue) *Issue {
 		IssueType:      issueTypeFromModel(m.IssueType),
 		Summary:        m.Summary,
 		Description:    m.Description,
-		Resolutions:    resolutionsFromModel(m.Resolutions),
+		Resolution:     resolutionFromModel(m.Resolution),
 		Priority:       priority,
 		Status:         statusFromModel(m.Status),
 		Assignee:       userFromModel(m.Assignee),
