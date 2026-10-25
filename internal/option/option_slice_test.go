@@ -28,9 +28,10 @@ func TestOptionService_slice(t *testing.T) {
 			option:  o.WithActivityTypeIDs([]int{0}),
 			wantErr: true,
 		},
-		"WithActivityTypeIDs-invalid-27": {
-			option:  o.WithActivityTypeIDs([]int{27}),
-			wantErr: true,
+		"WithActivityTypeIDs-valid-above-26": {
+			option:   o.WithActivityTypeIDs([]int{27, 35, 48}),
+			key:      option.ParamActivityTypeIDs.Value(),
+			wantVals: []string{"27", "35", "48"},
 		},
 		"WithWebhookActivityTypeIDs-valid": {
 			option:   o.WithWebhookActivityTypeIDs([]int{1, 2, 26}),
@@ -41,9 +42,10 @@ func TestOptionService_slice(t *testing.T) {
 			option:  o.WithWebhookActivityTypeIDs([]int{0}),
 			wantErr: true,
 		},
-		"WithWebhookActivityTypeIDs-invalid-27": {
-			option:  o.WithWebhookActivityTypeIDs([]int{27}),
-			wantErr: true,
+		"WithWebhookActivityTypeIDs-valid-above-26": {
+			option:   o.WithWebhookActivityTypeIDs([]int{27, 35, 48}),
+			key:      "activityTypeIds[]",
+			wantVals: []string{"27", "35", "48"},
 		},
 		"WithApplicableIssueTypeIDs-valid": {
 			option:   o.WithApplicableIssueTypeIDs([]int{1, 2, 3}),
