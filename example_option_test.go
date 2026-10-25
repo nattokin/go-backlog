@@ -150,7 +150,7 @@ func ExampleRecentlyViewedOptionService() {
 		c.RecentlyViewed.Option.WithCount(20),
 		c.RecentlyViewed.Option.WithOrder(backlog.OrderDesc),
 	)
-	fmt.Printf("IssueKey: %s\n", issues[0].IssueKey)
+	fmt.Printf("IssueKey: %s\n", issues[0].Issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1
 }

@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,8 +34,14 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.RecentlyViewed.ListIssues(ctx)
 				require.NoError(t, err)
-				assert.Len(t, got, 2)
-				assert.Equal(t, "TEST-1", got[0].IssueKey)
+				require.Len(t, got, 2)
+				require.NotNil(t, got[0].Issue)
+				assert.Equal(t, 1, got[0].Issue.ID)
+				assert.Equal(t, "TEST-1", got[0].Issue.IssueKey)
+				assert.Equal(t, "first issue", got[0].Issue.Summary)
+				assert.Equal(t, time.Date(2014, 7, 11, 6, 21, 7, 0, time.UTC), got[0].Updated.Time)
+				require.NotNil(t, got[1].Issue)
+				assert.Equal(t, "TEST-2", got[1].Issue.IssueKey)
 			},
 		},
 		"ListIssues/with-options": {
@@ -128,8 +135,14 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.RecentlyViewed.ListProjects(ctx)
 				require.NoError(t, err)
-				assert.Len(t, got, 2)
-				assert.Equal(t, "TEST", got[0].ProjectKey)
+				require.Len(t, got, 2)
+				require.NotNil(t, got[0].Project)
+				assert.Equal(t, 1, got[0].Project.ID)
+				assert.Equal(t, "TEST", got[0].Project.ProjectKey)
+				assert.Equal(t, "Test Project", got[0].Project.Name)
+				assert.Equal(t, time.Date(2014, 7, 11, 6, 21, 7, 0, time.UTC), got[0].Updated.Time)
+				require.NotNil(t, got[1].Project)
+				assert.Equal(t, "DEMO", got[1].Project.ProjectKey)
 			},
 		},
 		"ListProjects/error": {
@@ -150,8 +163,13 @@ func TestUserRecentlyViewedService(t *testing.T) {
 			call: func(t *testing.T, c *backlog.Client) {
 				got, err := c.RecentlyViewed.ListWikis(ctx)
 				require.NoError(t, err)
-				assert.Len(t, got, 2)
-				assert.Equal(t, "Home", got[0].Name)
+				require.Len(t, got, 2)
+				require.NotNil(t, got[0].Page)
+				assert.Equal(t, 10, got[0].Page.ID)
+				assert.Equal(t, "Home", got[0].Page.Name)
+				assert.Equal(t, time.Date(2014, 7, 11, 6, 21, 7, 0, time.UTC), got[0].Updated.Time)
+				require.NotNil(t, got[1].Page)
+				assert.Equal(t, "Guide", got[1].Page.Name)
 			},
 		},
 		"ListWikis/error": {
