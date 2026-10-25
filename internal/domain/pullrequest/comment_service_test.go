@@ -250,19 +250,6 @@ func TestCommentService_Add(t *testing.T) {
 			},
 			wantID: 1,
 		},
-		"success-with-attachmentIDs": {
-			projectIDOrKey: "PRJ",
-			repoIDOrName:   "repo",
-			prNumber:       1,
-			content:        "Attaching files.",
-			opts:           []*option.APIParamOption{o.WithAttachmentIDs([]int{10, 11})},
-			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
-				assert.Equal(t, "Attaching files.", form.Get("content"))
-				assert.Equal(t, []string{"10", "11"}, form["attachmentId[]"])
-				return mock.NewCreatedResponse(fixture.Comment.SingleJSON), nil
-			},
-			wantID: 1,
-		},
 
 		"error-validation-projectIDOrKey-empty": {
 			projectIDOrKey:         "",

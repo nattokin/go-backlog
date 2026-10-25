@@ -19,13 +19,6 @@ var ListValidTypes = []option.APIParamOptionType{
 	option.ParamOrder,
 }
 
-// AddValidTypes are the option types accepted by comment add endpoints.
-var AddValidTypes = []option.APIParamOptionType{
-	option.ParamContent,
-	option.ParamNotifiedUserIDs,
-	option.ParamAttachmentIDs,
-}
-
 // Service holds shared HTTP logic for comment-related Backlog API endpoints.
 // It is spath-agnostic: callers supply the full sub-path and are responsible
 // for validation and path construction.
@@ -53,14 +46,15 @@ func (s *Service) FetchList(ctx context.Context, spath string, query url.Values)
 	return v, nil
 }
 
-// ApplyAddOptions validates and applies content + opts to form for Add.
-func (s *Service) ApplyAddOptions(form url.Values, content string, opts ...*option.APIParamOption) error {
+// ApplyAddOptions validates content + opts against validTypes and applies them to form for Add.
+// Callers supply validTypes because the accepted parameters differ per comment endpoint.
+func (s *Service) ApplyAddOptions(form url.Values, validTypes []option.APIParamOptionType, content string, opts ...*option.APIParamOption) error {
 	optSvc := &option.OptionService{}
 	options := append(
 		[]*option.APIParamOption{optSvc.WithContent(content)},
 		opts...,
 	)
-	return option.ApplyOptions(form, AddValidTypes, options...)
+	return option.ApplyOptions(form, validTypes, options...)
 }
 
 // FetchAdd executes the POST request for adding a comment.

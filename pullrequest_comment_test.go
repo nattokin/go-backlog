@@ -169,7 +169,6 @@ func TestPullRequestCommentOptionService(t *testing.T) {
 		option  backlog.RequestOption
 		wantKey string
 	}{
-		"WithAttachmentIDs":   {option: s.WithAttachmentIDs([]int{1}), wantKey: option.ParamAttachmentIDs.Value()},
 		"WithCount":           {option: s.WithCount(20), wantKey: option.ParamCount.Value()},
 		"WithMaxID":           {option: s.WithMaxID(100), wantKey: option.ParamMaxID.Value()},
 		"WithMinID":           {option: s.WithMinID(1), wantKey: option.ParamMinID.Value()},
