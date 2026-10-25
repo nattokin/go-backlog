@@ -109,7 +109,6 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 		option.ParamUnit:                              "unit",
 		option.ParamUpdatedSince:                      "updatedSince",
 		option.ParamUpdatedUntil:                      "updatedUntil",
-		option.ParamUserID:                            "userId",
 		option.ParamVersionIDs:                        "versionId[]",
 		option.ParamWebhookActivityTypeIDs:            "activityTypeIds[]",
 		option.ParamWikiID:                            "wikiId",
