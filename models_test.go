@@ -639,6 +639,13 @@ func Test_fromModel_nil(t *testing.T) {
 		"versions":           {call: func() any { return versionsFromModel(nil) }},
 		"wiki":               {call: func() any { return wikiFromModel(nil) }},
 		"wiki_history":       {call: func() any { return wikiHistoryFromModel(nil) }},
+
+		"recently_viewed_issue":    {call: func() any { return recentlyViewedIssueFromModel(nil) }},
+		"recently_viewed_issues":   {call: func() any { return recentlyViewedIssuesFromModel(nil) }},
+		"recently_viewed_project":  {call: func() any { return recentlyViewedProjectFromModel(nil) }},
+		"recently_viewed_projects": {call: func() any { return recentlyViewedProjectsFromModel(nil) }},
+		"recently_viewed_wiki":     {call: func() any { return recentlyViewedWikiFromModel(nil) }},
+		"recently_viewed_wikis":    {call: func() any { return recentlyViewedWikisFromModel(nil) }},
 	}
 
 	for name, tc := range cases {
