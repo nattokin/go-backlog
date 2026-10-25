@@ -162,42 +162,6 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithIssueTypeID(0),
 			wantErr: true,
 		},
-		"WithMaxActivityTypeID-valid-1": {
-			option:    o.WithMaxActivityTypeID(1),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 1,
-		},
-		"WithMaxActivityTypeID-valid-26": {
-			option:    o.WithMaxActivityTypeID(26),
-			key:       option.ParamMaxID.Value(),
-			wantValue: 26,
-		},
-		"WithMaxActivityTypeID-invalid-0": {
-			option:  o.WithMaxActivityTypeID(0),
-			wantErr: true,
-		},
-		"WithMaxActivityTypeID-invalid-27": {
-			option:  o.WithMaxActivityTypeID(27),
-			wantErr: true,
-		},
-		"WithMinActivityTypeID-valid-1": {
-			option:    o.WithMinActivityTypeID(1),
-			key:       option.ParamMinID.Value(),
-			wantValue: 1,
-		},
-		"WithMinActivityTypeID-valid-26": {
-			option:    o.WithMinActivityTypeID(26),
-			key:       option.ParamMinID.Value(),
-			wantValue: 26,
-		},
-		"WithMinActivityTypeID-invalid-0": {
-			option:  o.WithMinActivityTypeID(0),
-			wantErr: true,
-		},
-		"WithMinActivityTypeID-invalid-27": {
-			option:  o.WithMinActivityTypeID(27),
-			wantErr: true,
-		},
 		"WithMaxID-valid-1": {
 			option:    o.WithMaxID(1),
 			key:       option.ParamMaxID.Value(),
