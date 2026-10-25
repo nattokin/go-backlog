@@ -14,6 +14,11 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+var commentAddValidTypes = []option.APIParamOptionType{
+	option.ParamContent,
+	option.ParamNotifiedUserIDs,
+}
+
 // CommentService handles pull request comment-related Backlog API calls.
 type CommentService struct {
 	base *comment.Service
@@ -59,7 +64,7 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 	if ve := validate.ValidatePRNumber(prNumber); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := option.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, content, opts...)); err != nil {
+	if err := option.MergeValidationErrors(ves, s.base.ApplyAddOptions(form, commentAddValidTypes, content, opts...)); err != nil {
 		return nil, err
 	}
 
