@@ -26,7 +26,10 @@ var Issue = issueFixtures{
     },
     "summary": "First issue",
     "description": "Description of first issue",
-    "resolutions": null,
+    "resolution": {
+        "id": 0,
+        "name": "Fixed"
+    },
     "priority": {
         "id": 3,
         "name": "Normal"
@@ -85,6 +88,7 @@ var Issue = issueFixtures{
 		},
 		Summary:     "First issue",
 		Description: "Description of first issue",
+		Resolution:  &backlog.Resolution{ID: 0, Name: "Fixed"},
 		Priority:    &backlog.Priority{ID: 3, Name: "Normal"},
 		Status: &backlog.Status{
 			ID:   1,
@@ -127,7 +131,7 @@ var Issue = issueFixtures{
         },
         "summary": "First issue",
         "description": "Description of first issue",
-        "resolutions": null,
+        "resolution": null,
         "priority": {
             "id": 3,
             "name": "Normal"
@@ -185,7 +189,7 @@ var Issue = issueFixtures{
         },
         "summary": "Second issue",
         "description": "",
-        "resolutions": null,
+        "resolution": null,
         "priority": {
             "id": 2,
             "name": "High"

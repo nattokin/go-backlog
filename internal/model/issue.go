@@ -11,7 +11,7 @@ type Issue struct {
 	IssueType      *IssueType     `json:"issueType,omitempty"`
 	Summary        string         `json:"summary,omitempty"`
 	Description    string         `json:"description,omitempty"`
-	Resolutions    []*Resolution  `json:"resolutions,omitempty"`
+	Resolution     *Resolution    `json:"resolution,omitempty"`
 	Priority       *Priority      `json:"priority,omitempty"`
 	Status         *Status        `json:"status,omitempty"`
 	Assignee       *User          `json:"assignee,omitempty"`

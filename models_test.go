@@ -278,13 +278,10 @@ func Test_issueFromModel(t *testing.T) {
 				IssueType:   &model.IssueType{ID: 2, ProjectID: 10, Name: "Task", Color: "#7ea800", DisplayOrder: 0},
 				Summary:     "test issue",
 				Description: "desc",
-				Resolutions: []*model.Resolution{
-					{ID: 0, Name: "Fixed"},
-					{ID: 1, Name: "Won't Fix"},
-				},
-				Priority: &model.Priority{ID: 3, Name: "Normal"},
-				Status:   &model.Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
-				Assignee: user,
+				Resolution:  &model.Resolution{ID: 0, Name: "Fixed"},
+				Priority:    &model.Priority{ID: 3, Name: "Normal"},
+				Status:      &model.Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
+				Assignee:    user,
 				Category: []*model.Category{
 					{ID: 5, Name: "Frontend", DisplayOrder: 0},
 				},
@@ -326,13 +323,10 @@ func Test_issueFromModel(t *testing.T) {
 				IssueType:   &IssueType{ID: 2, ProjectID: 10, Name: "Task", Color: "#7ea800", DisplayOrder: 0},
 				Summary:     "test issue",
 				Description: "desc",
-				Resolutions: []*Resolution{
-					{ID: 0, Name: "Fixed"},
-					{ID: 1, Name: "Won't Fix"},
-				},
-				Priority: &Priority{ID: 3, Name: "Normal"},
-				Status:   &Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
-				Assignee: wantUser,
+				Resolution:  &Resolution{ID: 0, Name: "Fixed"},
+				Priority:    &Priority{ID: 3, Name: "Normal"},
+				Status:      &Status{ID: 1, ProjectID: 10, Name: "Open", Color: "#ed8077", DisplayOrder: 1000},
+				Assignee:    wantUser,
 				Category: []*Category{
 					{ID: 5, Name: "Frontend", DisplayOrder: 0},
 				},
@@ -369,7 +363,6 @@ func Test_issueFromModel(t *testing.T) {
 		},
 		"nil_elements": {
 			input: &model.Issue{
-				Resolutions:  []*model.Resolution{nil},
 				Category:     []*model.Category{nil},
 				Versions:     []*model.Version{nil},
 				Milestone:    []*model.Version{nil},
@@ -379,7 +372,6 @@ func Test_issueFromModel(t *testing.T) {
 				Stars:        []*model.Star{nil},
 			},
 			want: &Issue{
-				Resolutions:  []*Resolution{nil},
 				Category:     []*Category{nil},
 				Versions:     []*Version{nil},
 				Milestone:    []*Version{nil},
@@ -633,6 +625,7 @@ func Test_fromModel_nil(t *testing.T) {
 		"recently_viewed_projects": {call: func() any { return recentlyViewedProjectsFromModel(nil) }},
 		"recently_viewed_wiki":     {call: func() any { return recentlyViewedWikiFromModel(nil) }},
 		"recently_viewed_wikis":    {call: func() any { return recentlyViewedWikisFromModel(nil) }},
+		"resolution":               {call: func() any { return resolutionFromModel(nil) }},
 		"shared_file":              {call: func() any { return sharedFileFromModel(nil) }},
 		"space":                    {call: func() any { return spaceFromModel(nil) }},
 		"space_notification":       {call: func() any { return spaceNotificationFromModel(nil) }},
