@@ -204,8 +204,10 @@ func (s *IssueOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-// WithParentChild filters issues by subtask relationship.
-// 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
+// WithParentChild filters issues by parent/child (subtask) relationship.
+// 0: All, 1: Not child, 2: Child or grandchild, 3: Standalone, 4: Has children,
+// 5: Grandchild only, 6: Child only, 7: Top level only, 8: Exclude grandchild,
+// 9: Exclude top level, 10: Leaf only.
 func (s *IssueOptionService) WithParentChild(parentChild int) RequestOption {
 	return &requestOption{opt: s.base.WithParentChild(parentChild)}
 }
