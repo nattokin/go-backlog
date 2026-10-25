@@ -287,7 +287,12 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 }
 
 // DecodeResponse decodes the JSON body of resp into v and closes the body.
+// A nil resp (as returned by CheckResponse for 204 No Content) or a nil body
+// has nothing to decode, so v is left untouched and nil is returned.
 func DecodeResponse(resp *http.Response, v any) error {
+	if resp == nil || resp.Body == nil {
+		return nil
+	}
 	defer resp.Body.Close()
 
 	return json.NewDecoder(resp.Body).Decode(v)

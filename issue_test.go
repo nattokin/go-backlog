@@ -282,6 +282,17 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, "PRJ-1", got.IssueKey)
 			},
 		},
+		"Delete/no-content": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Delete(ctx, "PRJ-1")
+				require.NoError(t, err)
+				require.NotNil(t, got)
+				assert.Zero(t, got.ID)
+			},
+		},
 		"Delete/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {

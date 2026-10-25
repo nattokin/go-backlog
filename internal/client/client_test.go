@@ -769,6 +769,45 @@ func TestDecodeResponse(t *testing.T) {
 	}
 }
 
+func TestDecodeResponse_noContent(t *testing.T) {
+	type target struct {
+		Name string `json:"name"`
+	}
+
+	cases := map[string]struct {
+		resp *http.Response
+	}{
+		"nil-response": {
+			resp: nil,
+		},
+		"nil-body": {
+			resp: &http.Response{StatusCode: http.StatusOK, Body: nil},
+		},
+		"from-CheckResponse-204": {
+			resp: func() *http.Response {
+				r, err := client.CheckResponse(&http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody})
+				if err != nil {
+					panic(err)
+				}
+				return r
+			}(),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			v := target{Name: "untouched"}
+			require.NotPanics(t, func() {
+				err := client.DecodeResponse(tc.resp, &v)
+				assert.NoError(t, err)
+			})
+			assert.Equal(t, "untouched", v.Name)
+		})
+	}
+}
+
 func TestDownloadResponse(t *testing.T) {
 	cases := map[string]struct {
 		header http.Header
