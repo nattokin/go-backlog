@@ -110,10 +110,6 @@ func (s *OptionService) WithStatusID(id int) *APIParamOption {
 	return positiveIntOption(ParamStatusID, id)
 }
 
-func (s *OptionService) WithUserID(id int) *APIParamOption {
-	return positiveIntOption(ParamUserID, id)
-}
-
 func (s *OptionService) WithWikiID(id int) *APIParamOption {
 	return positiveIntOption(ParamWikiID, id)
 }

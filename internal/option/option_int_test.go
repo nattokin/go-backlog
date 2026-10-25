@@ -304,20 +304,6 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithStatusID(0),
 			wantErr: true,
 		},
-		"WithUserID-valid-1": {
-			option:    o.WithUserID(1),
-			key:       option.ParamUserID.Value(),
-			wantValue: 1,
-		},
-		"WithUserID-valid-2": {
-			option:    o.WithUserID(2),
-			key:       option.ParamUserID.Value(),
-			wantValue: 2,
-		},
-		"WithUserID-invalid-0": {
-			option:  o.WithUserID(0),
-			wantErr: true,
-		},
 		"WithWikiID-valid-1": {
 			option:    o.WithWikiID(1),
 			key:       option.ParamWikiID.Value(),

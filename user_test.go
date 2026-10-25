@@ -120,6 +120,7 @@ func TestUserService(t *testing.T) {
 				assert.Equal(t, "/api/v2/users/1", req.URL.Path)
 				require.NoError(t, req.ParseForm())
 				assert.Equal(t, "updated-user", req.PostForm.Get("name"))
+				assert.False(t, req.PostForm.Has("userId"))
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -249,32 +250,6 @@ func TestUserOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "token")
 	require.NoError(t, err)
 	o := c.User.Option
-
-	// --- Integer options ------------------------------------------------------------
-	t.Run("integer-options", func(t *testing.T) {
-		cases := map[string]struct {
-			option    backlog.RequestOption
-			key       string
-			wantValue int
-		}{
-			"with-form-user-id": {
-				option:    o.WithUserID(1),
-				key:       option.ParamUserID.Value(),
-				wantValue: 1,
-			},
-		}
-
-		for name, tc := range cases {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-
-				form := url.Values{}
-				err := tc.option.Set(form)
-				require.NoError(t, err)
-				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
-			})
-		}
-	})
 
 	// --- Enum options ---------------------------------------------------------------
 	t.Run("enum-options", func(t *testing.T) {
