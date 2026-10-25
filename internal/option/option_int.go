@@ -52,16 +52,6 @@ func (s *OptionService) WithIssueTypeID(id int) *APIParamOption {
 	return positiveIntOption(ParamIssueTypeID, id)
 }
 
-// WithMaxActivityTypeID sets `maxId` for activity type filtering. Valid range: 1–26.
-func (s *OptionService) WithMaxActivityTypeID(id int) *APIParamOption {
-	return intRangeOption(ParamMaxID, id, 1, MaxActivityTypeID)
-}
-
-// WithMinActivityTypeID sets `minId` for activity type filtering. Valid range: 1–26.
-func (s *OptionService) WithMinActivityTypeID(id int) *APIParamOption {
-	return intRangeOption(ParamMinID, id, 1, MaxActivityTypeID)
-}
-
 func (s *OptionService) WithMaxID(id int) *APIParamOption {
 	return positiveIntOption(ParamMaxID, id)
 }

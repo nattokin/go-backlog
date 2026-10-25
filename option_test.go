@@ -36,6 +36,16 @@ func TestActivityOptionService(t *testing.T) {
 				key:       option.ParamMaxID.Value(),
 				wantValue: 10,
 			},
+			"with-query-min-id-real-activity-id": {
+				option:    o.WithMinID(123456789),
+				key:       option.ParamMinID.Value(),
+				wantValue: 123456789,
+			},
+			"with-query-max-id-real-activity-id": {
+				option:    o.WithMaxID(123456789),
+				key:       option.ParamMaxID.Value(),
+				wantValue: 123456789,
+			},
 			"with-query-count": {
 				option:    o.WithCount(25),
 				key:       option.ParamCount.Value(),
@@ -46,6 +56,8 @@ func TestActivityOptionService(t *testing.T) {
 		for name, tc := range cases {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
+
+				require.Nil(t, tc.option.Check())
 
 				query := url.Values{}
 				err := tc.option.Set(query)
