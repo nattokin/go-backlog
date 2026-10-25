@@ -185,7 +185,7 @@ func TestService_List(t *testing.T) {
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-parentChild": {
-			opts:                   []*option.APIParamOption{o.WithParentChild(5)},
+			opts:                   []*option.APIParamOption{o.WithParentChild(11)},
 			wantValidationErrCount: 1,
 		},
 		"error-validation-opt-invalid-count": {

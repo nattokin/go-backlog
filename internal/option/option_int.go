@@ -73,10 +73,12 @@ func (s *OptionService) WithOffset(offset int) *APIParamOption {
 	}
 }
 
-// WithParentChild sets `parentChild`.
-// 0: All, 1: Exclude Child Issue, 2: Child Issue, 3: Neither Parent nor Child, 4: Parent Issue.
+// WithParentChild sets `parentChild`. Valid range: 0–10.
+// 0: All, 1: Not child, 2: Child or grandchild, 3: Standalone, 4: Has children,
+// 5: Grandchild only, 6: Child only, 7: Top level only, 8: Exclude grandchild,
+// 9: Exclude top level, 10: Leaf only.
 func (s *OptionService) WithParentChild(parentChild int) *APIParamOption {
-	return intRangeOption(ParamParentChild, parentChild, 0, 4)
+	return intRangeOption(ParamParentChild, parentChild, 0, 10)
 }
 
 func (s *OptionService) WithParentIssueID(id int) *APIParamOption {
