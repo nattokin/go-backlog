@@ -285,6 +285,7 @@ func TestUserService_Update(t *testing.T) {
 				assert.Equal(t, "admin", form.Get("name"))
 				assert.Equal(t, "eguchi@nulab.example", form.Get("mailAddress"))
 				assert.Equal(t, "1", form.Get("roleType"))
+				assert.False(t, form.Has("userId"))
 				return mock.NewResponse(fixture.User.SingleJSON), nil
 			},
 		},
@@ -345,6 +346,23 @@ func TestUserService_Update(t *testing.T) {
 				return nil, errors.New("error")
 			},
 			wantErrType: errors.New(""),
+		},
+
+		"error-validation-id-zero": {
+			id:                     0,
+			option:                 o.WithName("admin"),
+			wantValidationErrCount: 1,
+		},
+		"error-validation-id-negative": {
+			id:                     -1,
+			option:                 o.WithName("admin"),
+			wantValidationErrCount: 1,
+		},
+		"error-validation-id-and-option": {
+			id:                     0,
+			option:                 o.WithName(""),
+			opts:                   []*option.APIParamOption{o.WithPassword("short")},
+			wantValidationErrCount: 3,
 		},
 
 		"error-validation-fixed-option-name-empty": {

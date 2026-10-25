@@ -113,11 +113,14 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.User, error) {
-	baseOpt := &option.OptionService{}
 	form := url.Values{}
-	validTypes := []option.APIParamOptionType{option.ParamUserID, option.ParamName, option.ParamPassword, option.ParamMailAddress, option.ParamRoleType}
-	options := append([]*option.APIParamOption{baseOpt.WithUserID(id), opt}, opts...)
-	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
+	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamPassword, option.ParamMailAddress, option.ParamRoleType}
+	options := append([]*option.APIParamOption{opt}, opts...)
+	var ves validation.Errors
+	if ve := validate.ValidateUserID(id); ve != nil {
+		ves = append(ves, ve)
+	}
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(form, validTypes, options...)); err != nil {
 		return nil, err
 	}
 

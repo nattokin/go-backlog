@@ -154,11 +154,6 @@ func (s *UserOptionService) WithRoleType(role Role) RequestOption {
 	return &requestOption{opt: s.base.WithRoleType(int(role))}
 }
 
-// WithUserID sets the user ID.
-func (s *UserOptionService) WithUserID(id int) RequestOption {
-	return &requestOption{opt: s.base.WithUserID(id)}
-}
-
 // ──────────────────────────────────────────────────────────────
 //  Constructors
 // ──────────────────────────────────────────────────────────────
