@@ -214,8 +214,18 @@ func TestOptionService_int(t *testing.T) {
 			key:       option.ParamParentChild.Value(),
 			wantValue: 4,
 		},
-		"WithParentChild-invalid-5": {
-			option:  o.WithParentChild(5),
+		"WithParentChild-valid-5": {
+			option:    o.WithParentChild(5),
+			key:       option.ParamParentChild.Value(),
+			wantValue: 5,
+		},
+		"WithParentChild-valid-10": {
+			option:    o.WithParentChild(10),
+			key:       option.ParamParentChild.Value(),
+			wantValue: 10,
+		},
+		"WithParentChild-invalid-11": {
+			option:  o.WithParentChild(11),
 			wantErr: true,
 		},
 		"WithParentChild-invalid-negative": {
