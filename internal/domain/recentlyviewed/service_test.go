@@ -25,22 +25,25 @@ func TestService_ListIssues(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
+		wantIDs   []int
 	}{
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
-				return mock.NewResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewResponse(`[{"issue":{"id":1},"updated":"2014-07-11T06:21:07Z"},{"issue":{"id":2},"updated":"2014-07-10T03:15:42Z"}]`), nil
 			},
 			wantLen: 2,
+			wantIDs: []int{1, 2},
 		},
 		"success-with-count": {
 			opts: []*option.APIParamOption{o.WithCount(5)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedIssues", spath)
 				assert.Equal(t, "5", query.Get("count"))
-				return mock.NewResponse(`[{"id":1}]`), nil
+				return mock.NewResponse(`[{"issue":{"id":1},"updated":"2014-07-11T06:21:07Z"}]`), nil
 			},
 			wantLen: 1,
+			wantIDs: []int{1},
 		},
 		"success-with-offset": {
 			opts: []*option.APIParamOption{o.WithOffset(10)},
@@ -86,7 +89,12 @@ func TestService_ListIssues(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Len(t, got, tc.wantLen)
+			require.Len(t, got, tc.wantLen)
+			for i, wantID := range tc.wantIDs {
+				require.NotNil(t, got[i].Issue)
+				assert.Equal(t, wantID, got[i].Issue.ID)
+				assert.False(t, got[i].Updated.IsZero())
+			}
 		})
 	}
 }
@@ -175,21 +183,24 @@ func TestService_ListProjects(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
+		wantIDs   []int
 	}{
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedProjects", spath)
-				return mock.NewResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewResponse(`[{"project":{"id":1},"updated":"2014-07-11T06:21:07Z"},{"project":{"id":2},"updated":"2014-07-10T03:15:42Z"}]`), nil
 			},
 			wantLen: 2,
+			wantIDs: []int{1, 2},
 		},
 		"success-with-count": {
 			opts: []*option.APIParamOption{o.WithCount(3)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "3", query.Get("count"))
-				return mock.NewResponse(`[{"id":1}]`), nil
+				return mock.NewResponse(`[{"project":{"id":1},"updated":"2014-07-11T06:21:07Z"}]`), nil
 			},
 			wantLen: 1,
+			wantIDs: []int{1},
 		},
 		"error-invalid-option": {
 			opts:    []*option.APIParamOption{mock.NewInvalidTypeOption()},
@@ -227,7 +238,12 @@ func TestService_ListProjects(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Len(t, got, tc.wantLen)
+			require.Len(t, got, tc.wantLen)
+			for i, wantID := range tc.wantIDs {
+				require.NotNil(t, got[i].Project)
+				assert.Equal(t, wantID, got[i].Project.ID)
+				assert.False(t, got[i].Updated.IsZero())
+			}
 		})
 	}
 }
@@ -240,21 +256,24 @@ func TestService_ListWikis(t *testing.T) {
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 		wantErr   bool
 		wantLen   int
+		wantIDs   []int
 	}{
 		"success-no-options": {
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/myself/recentlyViewedWikis", spath)
-				return mock.NewResponse(`[{"id":1},{"id":2}]`), nil
+				return mock.NewResponse(`[{"page":{"id":1},"updated":"2014-07-11T06:21:07Z"},{"page":{"id":2},"updated":"2014-07-10T03:15:42Z"}]`), nil
 			},
 			wantLen: 2,
+			wantIDs: []int{1, 2},
 		},
 		"success-with-order": {
 			opts: []*option.APIParamOption{o.WithOrder("asc")},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "asc", query.Get("order"))
-				return mock.NewResponse(`[{"id":1}]`), nil
+				return mock.NewResponse(`[{"page":{"id":1},"updated":"2014-07-11T06:21:07Z"}]`), nil
 			},
 			wantLen: 1,
+			wantIDs: []int{1},
 		},
 		"error-invalid-option": {
 			opts:    []*option.APIParamOption{mock.NewInvalidTypeOption()},
@@ -292,7 +311,12 @@ func TestService_ListWikis(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Len(t, got, tc.wantLen)
+			require.Len(t, got, tc.wantLen)
+			for i, wantID := range tc.wantIDs {
+				require.NotNil(t, got[i].Page)
+				assert.Equal(t, wantID, got[i].Page.ID)
+				assert.False(t, got[i].Updated.IsZero())
+			}
 		})
 	}
 }

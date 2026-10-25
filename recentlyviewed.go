@@ -5,8 +5,34 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/recentlyviewed"
+	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/option"
 )
+
+// ──────────────────────────────────────────────────────────────
+//  RecentlyViewed models
+// ──────────────────────────────────────────────────────────────
+
+// RecentlyViewedIssue represents an entry in the recently viewed issues list.
+// Updated is the time the issue was last viewed.
+type RecentlyViewedIssue struct {
+	Issue   *Issue
+	Updated Timestamp
+}
+
+// RecentlyViewedProject represents an entry in the recently viewed projects list.
+// Updated is the time the project was last viewed.
+type RecentlyViewedProject struct {
+	Project *Project
+	Updated Timestamp
+}
+
+// RecentlyViewedWiki represents an entry in the recently viewed wikis list.
+// Updated is the time the Wiki page was last viewed.
+type RecentlyViewedWiki struct {
+	Page    *Wiki
+	Updated Timestamp
+}
 
 // ──────────────────────────────────────────────────────────────
 //  UserRecentlyViewedService
@@ -29,9 +55,9 @@ type RecentlyViewedService struct {
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
-func (s *RecentlyViewedService) ListIssues(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
+func (s *RecentlyViewedService) ListIssues(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedIssue, error) {
 	v, err := s.base.ListIssues(ctx, toInnerOptions(opts)...)
-	return issuesFromModel(v), convertError(err)
+	return recentlyViewedIssuesFromModel(v), convertError(err)
 }
 
 // AddIssue adds an issue to the recently viewed list of the authenticated user.
@@ -52,9 +78,9 @@ func (s *RecentlyViewedService) AddIssue(ctx context.Context, issueIDOrKey strin
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
-func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
+func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedProject, error) {
 	v, err := s.base.ListProjects(ctx, toInnerOptions(opts)...)
-	return projectsFromModel(v), convertError(err)
+	return recentlyViewedProjectsFromModel(v), convertError(err)
 }
 
 // ListWikis returns a list of Wiki pages recently viewed by the authenticated user.
@@ -66,9 +92,9 @@ func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...Reques
 //   - WithOrder
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
-func (s *RecentlyViewedService) ListWikis(ctx context.Context, opts ...RequestOption) ([]*Wiki, error) {
+func (s *RecentlyViewedService) ListWikis(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedWiki, error) {
 	v, err := s.base.ListWikis(ctx, toInnerOptions(opts)...)
-	return wikisFromModel(v), convertError(err)
+	return recentlyViewedWikisFromModel(v), convertError(err)
 }
 
 // AddWiki adds a Wiki page to the recently viewed list of the authenticated user.
@@ -119,4 +145,71 @@ func newRecentlyViewedOptionService(option *option.OptionService) *RecentlyViewe
 	return &RecentlyViewedOptionService{
 		base: option,
 	}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+
+func recentlyViewedIssueFromModel(m *model.RecentlyViewedIssue) *RecentlyViewedIssue {
+	if m == nil {
+		return nil
+	}
+	return &RecentlyViewedIssue{
+		Issue:   issueFromModel(m.Issue),
+		Updated: Timestamp{m.Updated},
+	}
+}
+
+func recentlyViewedIssuesFromModel(ms []*model.RecentlyViewedIssue) []*RecentlyViewedIssue {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*RecentlyViewedIssue, len(ms))
+	for i, v := range ms {
+		result[i] = recentlyViewedIssueFromModel(v)
+	}
+	return result
+}
+
+func recentlyViewedProjectFromModel(m *model.RecentlyViewedProject) *RecentlyViewedProject {
+	if m == nil {
+		return nil
+	}
+	return &RecentlyViewedProject{
+		Project: projectFromModel(m.Project),
+		Updated: Timestamp{m.Updated},
+	}
+}
+
+func recentlyViewedProjectsFromModel(ms []*model.RecentlyViewedProject) []*RecentlyViewedProject {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*RecentlyViewedProject, len(ms))
+	for i, v := range ms {
+		result[i] = recentlyViewedProjectFromModel(v)
+	}
+	return result
+}
+
+func recentlyViewedWikiFromModel(m *model.RecentlyViewedWiki) *RecentlyViewedWiki {
+	if m == nil {
+		return nil
+	}
+	return &RecentlyViewedWiki{
+		Page:    wikiFromModel(m.Page),
+		Updated: Timestamp{m.Updated},
+	}
+}
+
+func recentlyViewedWikisFromModel(ms []*model.RecentlyViewedWiki) []*RecentlyViewedWiki {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*RecentlyViewedWiki, len(ms))
+	for i, v := range ms {
+		result[i] = recentlyViewedWikiFromModel(v)
+	}
+	return result
 }
