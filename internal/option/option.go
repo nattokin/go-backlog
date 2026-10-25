@@ -105,9 +105,6 @@ const (
 	ParamWikiID                            APIParamOptionType = "wikiId"
 )
 
-// MaxActivityTypeID is the upper bound of valid activity type IDs in the Backlog API.
-const MaxActivityTypeID = 26
-
 // APIParamOptionType represents a distinct parameter key for Backlog API requests.
 type APIParamOptionType string
 
