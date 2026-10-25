@@ -15,7 +15,7 @@ func ExampleRecentlyViewedService_ListIssues() {
 	)
 
 	issues, _ := c.RecentlyViewed.ListIssues(context.Background())
-	fmt.Printf("IssueKey: %s\n", issues[0].IssueKey)
+	fmt.Printf("IssueKey: %s\n", issues[0].Issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1
 }
@@ -41,7 +41,7 @@ func ExampleRecentlyViewedService_ListProjects() {
 	)
 
 	projects, _ := c.RecentlyViewed.ListProjects(context.Background())
-	fmt.Printf("ProjectKey: %s\n", projects[0].ProjectKey)
+	fmt.Printf("ProjectKey: %s\n", projects[0].Project.ProjectKey)
 	// Output:
 	// ProjectKey: TEST
 }
@@ -54,7 +54,7 @@ func ExampleRecentlyViewedService_ListWikis() {
 	)
 
 	wikis, _ := c.RecentlyViewed.ListWikis(context.Background())
-	fmt.Printf("Name: %s\n", wikis[0].Name)
+	fmt.Printf("Name: %s\n", wikis[0].Page.Name)
 	// Output:
 	// Name: Home
 }
