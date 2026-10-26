@@ -343,18 +343,11 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 		_ = json.NewDecoder(r.Body).Decode(e)
 	}
 
-	return nil, wrapOAuthError(r.Header, e)
-}
-
-// wrapOAuthError returns e wrapped in an *OAuthError when header carries a
-// Bearer challenge with an error attribute, and e as is otherwise.
-func wrapOAuthError(header http.Header, e *APIResponseError) error {
-	code, description, ok := parseBearerError(header)
-	if !ok {
-		return e
+	if code, description, ok := parseBearerError(r.Header); ok {
+		return nil, &OAuthError{Code: code, Description: description, Response: e}
 	}
 
-	return &OAuthError{Code: code, Description: description, Response: e}
+	return nil, e
 }
 
 var (
