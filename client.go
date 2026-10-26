@@ -60,12 +60,12 @@ type Client struct {
 //
 // Supported options:
 //   - [WithDoer]
-func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
+func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	innerOpts := make([]*client.ClientOption, len(opts))
 	for i, o := range opts {
 		innerOpts[i] = o.inner
 	}
-	httpClient, err := client.NewClient(baseURL, token, innerOpts...)
+	httpClient, err := client.NewClient(baseURL, apiKey, innerOpts...)
 	if err != nil {
 		return nil, convertError(err)
 	}

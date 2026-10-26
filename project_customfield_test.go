@@ -56,7 +56,7 @@ func TestProjectCustomFieldService_List(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			fields, err := c.Project.CustomField.List(context.Background(), tc.projectIDOrKey)
@@ -147,7 +147,7 @@ func TestProjectCustomFieldService_Create(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Create(context.Background(), tc.projectIDOrKey, tc.fieldType, tc.name, tc.opts...)
@@ -231,7 +231,7 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Update(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.opt(c))
@@ -306,7 +306,7 @@ func TestProjectCustomFieldService_Delete(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.Delete(context.Background(), tc.projectIDOrKey, tc.customFieldID)
@@ -394,7 +394,7 @@ func TestProjectCustomFieldService_AddListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.AddListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.name)
@@ -495,7 +495,7 @@ func TestProjectCustomFieldService_UpdateListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.UpdateListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID, tc.name)
@@ -582,7 +582,7 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 
 			field, err := c.Project.CustomField.DeleteListItem(context.Background(), tc.projectIDOrKey, tc.customFieldID, tc.itemID)
@@ -610,7 +610,7 @@ func TestProjectCustomFieldService_DeleteListItem(t *testing.T) {
 }
 
 func TestProjectCustomFieldOptionService(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 
 	s := c.Project.CustomField.Option

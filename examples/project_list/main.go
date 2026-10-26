@@ -15,12 +15,12 @@ func main() {
 	if baseURL == "" {
 		log.Fatalln("You need Backlog base url.")
 	}
-	token := os.Getenv("BACKLOG_TOKEN")
-	if token == "" {
+	apiKey := os.Getenv("BACKLOG_TOKEN")
+	if apiKey == "" {
 		log.Fatalln("You need Backlog access token.")
 	}
 
-	c, err := backlog.NewClient(baseURL, token)
+	c, err := backlog.NewClient(baseURL, apiKey)
 	if err != nil {
 		log.Fatalln(err)
 	}

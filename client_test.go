@@ -13,12 +13,12 @@ import (
 
 func TestNewClient(t *testing.T) {
 	baseURL := "https://example.com"
-	token := "token123"
+	apiKey := "apiKey"
 
 	t.Run("initialization", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := NewClient(baseURL, token)
+		c, err := NewClient(baseURL, apiKey)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
@@ -34,14 +34,14 @@ func TestNewClient(t *testing.T) {
 		}
 
 		assert.NotNil(t, c.httpClient)
-		assert.Equal(t, token, c.httpClient.Token)
+		assert.Equal(t, apiKey, c.httpClient.Token)
 	})
 
 	t.Run("with-doer", func(t *testing.T) {
 		mockDoer := &mock.Doer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, nil },
 		}
-		c, err := NewClient(baseURL, token, WithDoer(mockDoer))
+		c, err := NewClient(baseURL, apiKey, WithDoer(mockDoer))
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 

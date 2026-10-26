@@ -10,7 +10,7 @@ import (
 func ExamplePullRequestService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestList),
 	)
 
@@ -23,7 +23,7 @@ func ExamplePullRequestService_List() {
 func ExamplePullRequestService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestList),
 	)
 
@@ -47,7 +47,7 @@ func ExamplePullRequestService_All() {
 func ExamplePullRequestService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestCount),
 	)
 
@@ -60,7 +60,7 @@ func ExamplePullRequestService_Count() {
 func ExamplePullRequestService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestSingle),
 	)
 
@@ -73,7 +73,7 @@ func ExamplePullRequestService_One() {
 func ExamplePullRequestService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestSingle),
 	)
 
@@ -86,7 +86,7 @@ func ExamplePullRequestService_Create() {
 func ExamplePullRequestService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestSingle),
 	)
 
@@ -99,7 +99,7 @@ func ExamplePullRequestService_Update() {
 func ExamplePullRequestAttachmentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentList),
 	)
 
@@ -112,7 +112,7 @@ func ExamplePullRequestAttachmentService_List() {
 func ExamplePullRequestAttachmentService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentDownload),
 	)
 
@@ -125,7 +125,7 @@ func ExamplePullRequestAttachmentService_Download() {
 func ExamplePullRequestAttachmentService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentSingle),
 	)
 
@@ -138,7 +138,7 @@ func ExamplePullRequestAttachmentService_Remove() {
 func ExamplePullRequestCommentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentList),
 	)
 
@@ -151,7 +151,7 @@ func ExamplePullRequestCommentService_List() {
 func ExamplePullRequestCommentService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -164,7 +164,7 @@ func ExamplePullRequestCommentService_Add() {
 func ExamplePullRequestCommentService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestCommentCount),
 	)
 
@@ -177,7 +177,7 @@ func ExamplePullRequestCommentService_Count() {
 func ExamplePullRequestCommentService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -190,7 +190,7 @@ func ExamplePullRequestCommentService_Update() {
 func ExamplePullRequestStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 
@@ -207,7 +207,7 @@ func ExamplePullRequestStarService_Add() {
 func ExamplePullRequestStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 

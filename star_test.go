@@ -105,7 +105,7 @@ func TestStarService_Add(t *testing.T) {
 				doer = &mock.Doer{DoFunc: mock.NewUnexpectedDoFunc(t)}
 			}
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doer))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(doer))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -155,7 +155,7 @@ func TestStarService_Remove(t *testing.T) {
 				doer = &mock.Doer{DoFunc: mock.NewUnexpectedDoFunc(t)}
 			}
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(doer))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(doer))
 			require.NoError(t, err)
 
 			err = c.Star.Remove(ctx, tc.starID)

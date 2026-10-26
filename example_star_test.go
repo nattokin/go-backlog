@@ -10,7 +10,7 @@ import (
 func ExampleStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 
@@ -27,7 +27,7 @@ func ExampleStarService_Add() {
 func ExampleStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 

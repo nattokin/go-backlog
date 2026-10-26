@@ -10,7 +10,7 @@ import (
 func ExampleUserService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleUserService_List() {
 func ExampleUserService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -36,7 +36,7 @@ func ExampleUserService_One() {
 func ExampleUserService_Me() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -49,7 +49,7 @@ func ExampleUserService_Me() {
 func ExampleUserService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -69,7 +69,7 @@ func ExampleUserService_Add() {
 func ExampleUserService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -86,7 +86,7 @@ func ExampleUserService_Update() {
 func ExampleUserService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -99,7 +99,7 @@ func ExampleUserService_Delete() {
 func ExampleUserService_Icon() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserIcon),
 	)
 
@@ -112,7 +112,7 @@ func ExampleUserService_Icon() {
 func ExampleUserActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -125,7 +125,7 @@ func ExampleUserActivityService_List() {
 func ExampleUserStarService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStarCount),
 	)
 
@@ -138,7 +138,7 @@ func ExampleUserStarService_Count() {
 func ExampleUserStarService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStarList),
 	)
 

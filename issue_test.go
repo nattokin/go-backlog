@@ -332,7 +332,7 @@ func TestIssueService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -399,7 +399,7 @@ func TestIssueStarService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

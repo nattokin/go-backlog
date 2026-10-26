@@ -254,7 +254,7 @@ func NewUnexpectedDoFunc(t *testing.T) func(*http.Request) (*http.Response, erro
 
 const (
 	testBaseURL = "https://example.com"
-	testToken   = "token"
+	testToken   = "apiKey"
 )
 
 // NewClient creates a test Client with the given doFunc as its Doer.

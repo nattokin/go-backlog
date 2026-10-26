@@ -11,7 +11,7 @@ import (
 func ExampleSpaceService_Info() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSpaceSpace),
 	)
 
@@ -24,7 +24,7 @@ func ExampleSpaceService_Info() {
 func ExampleSpaceService_DiskUsage() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSpaceDiskUsage),
 	)
 
@@ -37,7 +37,7 @@ func ExampleSpaceService_DiskUsage() {
 func ExampleSpaceService_Notification() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSpaceNotification),
 	)
 
@@ -50,7 +50,7 @@ func ExampleSpaceService_Notification() {
 func ExampleSpaceService_UpdateNotification() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSpaceNotification),
 	)
 
@@ -63,7 +63,7 @@ func ExampleSpaceService_UpdateNotification() {
 func ExampleSpaceActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -76,7 +76,7 @@ func ExampleSpaceActivityService_List() {
 func ExampleSpaceActivityService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivitySingle),
 	)
 
@@ -89,7 +89,7 @@ func ExampleSpaceActivityService_One() {
 func ExampleSpaceAttachmentService_Upload() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentUpload),
 	)
 

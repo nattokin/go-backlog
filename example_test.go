@@ -12,7 +12,7 @@ import (
 func Example() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiList),
 	)
 
@@ -26,7 +26,7 @@ func Example() {
 func Example_withOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiList),
 	)
 
@@ -44,7 +44,7 @@ func Example_withOptions() {
 func ExampleNewClient() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 	)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -61,7 +61,7 @@ func ExampleNewClient() {
 func ExampleNewClient_withDoer() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(http.DefaultClient),
 	)
 	if err != nil {

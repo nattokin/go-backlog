@@ -25,38 +25,38 @@ import (
 func TestNewClient_validation(t *testing.T) {
 	cases := map[string]struct {
 		baseURL   string
-		token     string
+		apiKey    string
 		wantError bool
 		errMsg    string
 	}{
 		"missing-token": {
 			baseURL:   "https://example.com",
-			token:     "",
+			apiKey:    "",
 			wantError: true,
 			errMsg:    "missing token",
 		},
 		"missing-baseURL": {
 			baseURL:   "",
-			token:     "token",
+			apiKey:    "apiKey",
 			wantError: true,
 			errMsg:    "missing baseURL",
 		},
 
 		"invalid-baseURL": {
 			baseURL:   "://invalid-url",
-			token:     "token",
+			apiKey:    "apiKey",
 			wantError: true,
 		},
 		"valid-input": {
 			baseURL:   "https://example.com",
-			token:     "token",
+			apiKey:    "apiKey",
 			wantError: false,
 		},
 	}
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			c, err := client.NewClient(tc.baseURL, tc.token)
+			c, err := client.NewClient(tc.baseURL, tc.apiKey)
 
 			if tc.wantError {
 				assert.Error(t, err)
@@ -70,14 +70,14 @@ func TestNewClient_validation(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, c)
 			assert.Equal(t, tc.baseURL, c.BaseURL.String())
-			assert.Equal(t, tc.token, c.Token)
+			assert.Equal(t, tc.apiKey, c.Token)
 		})
 	}
 }
 
 func TestNewClient_initialization(t *testing.T) {
 	baseURL := "https://example.com"
-	token := "token"
+	apiKey := "apiKey"
 
 	t.Run("with-Doer", func(t *testing.T) {
 		t.Parallel()
@@ -85,7 +85,7 @@ func TestNewClient_initialization(t *testing.T) {
 		mockDoer := &mock.Doer{T: t,
 			DoFunc: func(_ *http.Request) (*http.Response, error) { return nil, errors.New("mockDoer error") },
 		}
-		c, err := client.NewClient(baseURL, token, client.WithDoer(mockDoer))
+		c, err := client.NewClient(baseURL, apiKey, client.WithDoer(mockDoer))
 		require.NoError(t, err)
 
 		{
@@ -101,12 +101,12 @@ func TestNewClient_initialization(t *testing.T) {
 	t.Run("without-Doer", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := client.NewClient(baseURL, token)
+		c, err := client.NewClient(baseURL, apiKey)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
 
 		assert.Equal(t, baseURL, c.BaseURL.String())
-		assert.Equal(t, token, c.Token)
+		assert.Equal(t, apiKey, c.Token)
 		assert.Equal(t, http.DefaultClient, c.Doer)
 		assert.IsType(t, &client.DefaultWrapper{}, c.Wrapper)
 		assert.IsType(t, &client.Method{}, c.Method)
@@ -355,7 +355,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Empty(t, captured.Body)
@@ -370,7 +370,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path-download", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.Body)
 			},
@@ -385,7 +385,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
@@ -402,7 +402,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PATCH", captured.Method)
 				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=123")
@@ -418,7 +418,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PUT", captured.Method)
 				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
@@ -435,7 +435,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "DELETE", captured.Method)
 				assert.Equal(t, "/api/v2/path5", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=321")
@@ -450,7 +450,7 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
-				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Equal(t, "apiKey", captured.Header.Get("Backlog-API-Key"))
 				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 

@@ -117,7 +117,7 @@ func TestProjectCategoryService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -210,7 +210,7 @@ func TestProjectSharedFileService(t *testing.T) {
 
 			c, err := backlog.NewClient(
 				"https://example.backlog.com",
-				"token",
+				"apiKey",
 				backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}),
 			)
 			require.NoError(t, err)
@@ -386,7 +386,7 @@ func TestProjectUserService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})

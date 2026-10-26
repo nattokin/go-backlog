@@ -99,7 +99,7 @@ func TestInvalidOptionError_Error(t *testing.T) {
 // ──────────────────────────────────────────────────────────────
 
 func TestValidationError_Error(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	// wikiID=0 is invalid and triggers a ValidationError in the internal layer.
 	_, err = c.Wiki.One(context.Background(), 0)
@@ -111,7 +111,7 @@ func TestValidationError_Error(t *testing.T) {
 }
 
 func TestValidationErrors_Error(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	// issueIDOrKey="" and WithCount(0) each produce a ValidationError,
 	// so convertError receives a ValidationErrors (2 elements) and joins them.
@@ -130,7 +130,7 @@ func TestValidationErrors_Error(t *testing.T) {
 
 func TestInternalClientError_Error(t *testing.T) {
 	// An empty baseURL triggers InternalClientError from NewClient.
-	_, err := backlog.NewClient("", "token")
+	_, err := backlog.NewClient("", "apiKey")
 	require.Error(t, err)
 
 	var target *backlog.InternalClientError
@@ -146,7 +146,7 @@ func Test_convertError_default_passthroughsUnknownError(t *testing.T) {
 	sentinel := errors.New("network error")
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			return nil, sentinel
 		}}),
@@ -179,7 +179,7 @@ func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 	body := `{"errors":[{"message":"not found","code":6,"moreInfo":""}]}`
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: statusCode,
@@ -196,7 +196,7 @@ func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 // WithContent is not valid for Wiki.All, triggering InvalidOptionKeyError.
 func callWikiAllWithInvalidOption(t *testing.T) error {
 	t.Helper()
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	_, err = c.Wiki.List(context.Background(), "PROJECT", c.Wiki.Option.WithContent("x"))
 	return err
@@ -205,7 +205,7 @@ func callWikiAllWithInvalidOption(t *testing.T) error {
 // callIssueCommentListWithNilOption passes a nil RequestOption to trigger InvalidOptionError.
 func callIssueCommentListWithNilOption(t *testing.T) error {
 	t.Helper()
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	_, err = c.Issue.Comment.List(context.Background(), "PRJ-1", nil)
 	return err

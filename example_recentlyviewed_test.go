@@ -10,7 +10,7 @@ import (
 func ExampleRecentlyViewedService_ListIssues() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleRecentlyViewedService_ListIssues() {
 func ExampleRecentlyViewedService_AddIssue() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedIssueSingle),
 	)
 
@@ -36,7 +36,7 @@ func ExampleRecentlyViewedService_AddIssue() {
 func ExampleRecentlyViewedService_ListProjects() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedProjectList),
 	)
 
@@ -49,7 +49,7 @@ func ExampleRecentlyViewedService_ListProjects() {
 func ExampleRecentlyViewedService_ListWikis() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedWikiList),
 	)
 
@@ -62,7 +62,7 @@ func ExampleRecentlyViewedService_ListWikis() {
 func ExampleRecentlyViewedService_AddWiki() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedWikiSingle),
 	)
 
