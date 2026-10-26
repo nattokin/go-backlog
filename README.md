@@ -31,7 +31,7 @@ The client authenticates with a Backlog [API key](https://developer.nulab.com/do
 ```go
 c, err := backlog.NewClient(
     os.Getenv("BACKLOG_BASE_URL"),
-    os.Getenv("BACKLOG_TOKEN"),
+    os.Getenv("BACKLOG_API_KEY"),
 )
 
 // Get all Wiki pages in a project.

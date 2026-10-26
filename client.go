@@ -56,7 +56,7 @@ type Client struct {
 // The API key is sent in the "Backlog-API-Key" request header.
 // OAuth 2.0 access tokens are not supported.
 //
-// It returns an [*InternalClientError] if the base URL or token is invalid.
+// It returns an [*InternalClientError] if the base URL or API key is invalid.
 //
 // Supported options:
 //   - [WithDoer]

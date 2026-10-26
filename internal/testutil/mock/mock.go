@@ -254,12 +254,12 @@ func NewUnexpectedDoFunc(t *testing.T) func(*http.Request) (*http.Response, erro
 
 const (
 	testBaseURL = "https://example.com"
-	testToken   = "apiKey"
+	testAPIKey  = "apiKey"
 )
 
 // NewClient creates a test Client with the given doFunc as its Doer.
 // If doFunc is nil, the client responds to every request with HTTP 200 and an empty JSON object.
-// baseURL and token are fixed to well-known test values.
+// baseURL and API key are fixed to well-known test values.
 // T is not set on the underlying Doer; use NewCaptureClient or construct Doer directly when
 // assertion on the request is needed.
 func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error)) *client.Client {
@@ -275,7 +275,7 @@ func NewClient(t *testing.T, doFunc func(*http.Request) (*http.Response, error))
 		}
 	}
 
-	c, err := client.NewClient(testBaseURL, testToken, client.WithDoer(&Doer{T: t, DoFunc: doFunc}))
+	c, err := client.NewClient(testBaseURL, testAPIKey, client.WithDoer(&Doer{T: t, DoFunc: doFunc}))
 	require.NoError(t, err)
 
 	return c
