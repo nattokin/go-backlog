@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/model"
@@ -338,9 +339,8 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 	e := &APIResponseError{StatusCode: sc}
 
 	if r.Body != nil {
-		if err := json.NewDecoder(r.Body).Decode(e); err == nil {
-			return nil, wrapOAuthError(r.Header, e)
-		}
+		// A body that is not a JSON error response leaves Errors empty.
+		_ = json.NewDecoder(r.Body).Decode(e)
 	}
 
 	return nil, wrapOAuthError(r.Header, e)
@@ -357,87 +357,38 @@ func wrapOAuthError(header http.Header, e *APIResponseError) error {
 	return &OAuthError{Code: code, Description: description, Response: e}
 }
 
+var (
+	// bearerChallenge matches a WWW-Authenticate value using the Bearer scheme,
+	// allowing a stray leading quote.
+	bearerChallenge = regexp.MustCompile(`(?i)^"?bearer\s`)
+	// bearerParam matches an error or error_description attribute. The value is
+	// captured as a quoted-string body (group 2) or a token (group 3).
+	bearerParam = regexp.MustCompile(`(?i)[\s,](error|error_description)\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^\s,"]+))`)
+	// quotedPair matches a backslash escape in a quoted-string.
+	quotedPair = regexp.MustCompile(`\\(.)`)
+)
+
 // parseBearerError extracts the error and error_description attributes of a
 // Bearer challenge in the WWW-Authenticate header (RFC 6750 Section 3).
-// It is lenient about letter case, surrounding whitespace and a stray leading
-// quote. ok is false when no Bearer challenge with an error attribute is found.
+// ok is false when no Bearer challenge with an error attribute is found.
 func parseBearerError(header http.Header) (code, description string, ok bool) {
 	for _, v := range header.Values("WWW-Authenticate") {
-		v = strings.TrimPrefix(strings.TrimSpace(v), `"`)
-
-		scheme, rest, found := strings.Cut(v, " ")
-		if !found || !strings.EqualFold(scheme, "Bearer") {
+		v = strings.TrimSpace(v)
+		if !bearerChallenge.MatchString(v) {
 			continue
 		}
 
-		params := parseAuthParams(rest)
-		if params["error"] == "" {
-			continue
+		params := map[string]string{}
+		for _, m := range bearerParam.FindAllStringSubmatch(v, -1) {
+			params[strings.ToLower(m[1])] = quotedPair.ReplaceAllString(m[2], "$1") + m[3]
 		}
 
-		return params["error"], params["error_description"], true
+		if params["error"] != "" {
+			return params["error"], params["error_description"], true
+		}
 	}
 
 	return "", "", false
-}
-
-// parseAuthParams parses a comma-separated list of auth-params
-// (key=token or key="quoted-string") into a map with lower-cased keys.
-// Items without a value are skipped.
-func parseAuthParams(s string) map[string]string {
-	params := map[string]string{}
-
-	for {
-		s = strings.TrimLeft(s, " \t,")
-		if s == "" {
-			return params
-		}
-
-		i := strings.IndexAny(s, "=,")
-		if i < 0 {
-			return params
-		}
-		if s[i] == ',' {
-			s = s[i+1:]
-			continue
-		}
-
-		key := strings.ToLower(strings.TrimSpace(s[:i]))
-		rest := strings.TrimLeft(s[i+1:], " \t")
-
-		var value string
-		if strings.HasPrefix(rest, `"`) {
-			value, rest = readQuotedString(rest[1:])
-		} else {
-			value, rest, _ = strings.Cut(rest, ",")
-			value = strings.TrimSpace(value)
-		}
-
-		params[key] = value
-		s = rest
-	}
-}
-
-// readQuotedString reads the body of a quoted-string up to its closing quote,
-// resolving backslash escapes. It returns the value and the remaining input.
-func readQuotedString(s string) (value, rest string) {
-	var b strings.Builder
-
-	for i := 0; i < len(s); i++ {
-		switch s[i] {
-		case '\\':
-			if i+1 < len(s) {
-				i++
-				b.WriteByte(s[i])
-			}
-		case '"':
-			return b.String(), s[i+1:]
-		default:
-			b.WriteByte(s[i])
-		}
-	}
-
-	return b.String(), ""
 }
 
 // DecodeResponse decodes the JSON body of resp into v and closes the body.
