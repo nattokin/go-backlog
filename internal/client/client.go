@@ -165,7 +165,7 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	if config.Header != nil {
 		req.Header = config.Header.Clone()
 	}
-	req.Header.Set("Authorization", "Bearer "+c.Token)
+	req.Header.Set("Backlog-API-Key", c.Token)
 
 	return req, nil
 }

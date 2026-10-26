@@ -52,7 +52,9 @@ type Client struct {
 // ──────────────────────────────────────────────────────────────
 
 // NewClient creates and initializes a Backlog API Client.
-// It requires a baseURL (e.g. "https://example.backlog.com") and an API token.
+// It requires a baseURL (e.g. "https://example.backlog.com") and an API key.
+// The API key is sent in the "Backlog-API-Key" request header.
+// OAuth 2.0 access tokens are not supported.
 //
 // It returns an [*InternalClientError] if the base URL or token is invalid.
 //
