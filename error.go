@@ -19,6 +19,8 @@ type Error struct {
 
 // APIResponseError represents an error response from the Backlog API.
 // Use [errors.As] to check whether a returned error is an *APIResponseError.
+// When an OAuth 2.0 access token is rejected, the returned error is an
+// [*OAuthError], which wraps *APIResponseError.
 type APIResponseError struct {
 	inner *client.APIResponseError
 }
@@ -41,6 +43,38 @@ func (e *APIResponseError) Errors() []*Error {
 	}
 	return out
 }
+
+// OAuthError is returned when the Backlog API rejects an OAuth 2.0 access token
+// sent by a Client created with [NewOAuthClient]. It carries the error details
+// from the WWW-Authenticate response header (RFC 6750).
+//
+// To check whether authentication failed, use the status code (401).
+// OAuthError wraps *APIResponseError, so [errors.As] works with either type.
+// Authentication errors for an API key are returned as *APIResponseError;
+// see [APIResponseError.Errors] for their details.
+//
+// Description is informational text from the API. Expired and invalid tokens
+// share the same Code ("invalid_token"), so do not rely on Description to
+// tell them apart.
+type OAuthError struct {
+	inner *client.OAuthError
+	resp  *APIResponseError
+}
+
+// Error implements the error interface.
+func (e *OAuthError) Error() string { return e.inner.Error() }
+
+// Code returns the error code from the WWW-Authenticate header, such as "invalid_token".
+func (e *OAuthError) Code() string { return e.inner.Code }
+
+// Description returns the error description from the WWW-Authenticate header.
+func (e *OAuthError) Description() string { return e.inner.Description }
+
+// StatusCode returns the HTTP status code of the error response.
+func (e *OAuthError) StatusCode() int { return e.inner.Response.StatusCode }
+
+// Unwrap returns the underlying *APIResponseError.
+func (e *OAuthError) Unwrap() error { return e.resp }
 
 // InvalidOptionKeyError is returned when an option method is called with a key
 // that is not valid for the target service method.
@@ -114,6 +148,8 @@ func convertError(err error) error {
 	}
 
 	switch e := err.(type) {
+	case *client.OAuthError:
+		return &OAuthError{inner: e, resp: &APIResponseError{inner: e.Response}}
 	case *client.APIResponseError:
 		return &APIResponseError{inner: e}
 	case *option.InvalidOptionKeyError:

@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/model"
@@ -53,6 +54,30 @@ func (e *APIResponseError) Error() string {
 	}
 
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
+}
+
+// OAuthError represents an OAuth 2.0 error reported in the WWW-Authenticate
+// response header (RFC 6750), such as an invalid or expired access token.
+// Response holds the underlying API error response.
+type OAuthError struct {
+	Code        string
+	Description string
+	Response    *APIResponseError
+}
+
+func (e *OAuthError) Error() string {
+	msg := fmt.Sprintf("Status Code:%d\nOAuth Error:%s", e.Response.StatusCode, e.Code)
+
+	if e.Description == "" {
+		return msg
+	}
+
+	return msg + ", Description:" + e.Description
+}
+
+// Unwrap returns the underlying *APIResponseError.
+func (e *OAuthError) Unwrap() error {
+	return e.Response
 }
 
 // InternalClientError represents client-side configuration or usage errors.
@@ -289,6 +314,8 @@ func (c *Client) Download(ctx context.Context, spath string, query url.Values) (
 }
 
 // CheckResponse validates an HTTP response and decodes API errors if present.
+// When the WWW-Authenticate header carries a Bearer error (RFC 6750), the
+// returned error is an *OAuthError wrapping the *APIResponseError.
 // It closes the response body in error cases to avoid leaks.
 func CheckResponse(r *http.Response) (*http.Response, error) {
 	sc := r.StatusCode
@@ -312,12 +339,49 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 	e := &APIResponseError{StatusCode: sc}
 
 	if r.Body != nil {
-		if err := json.NewDecoder(r.Body).Decode(e); err == nil {
-			return nil, e
-		}
+		// A body that is not a JSON error response leaves Errors empty.
+		_ = json.NewDecoder(r.Body).Decode(e)
+	}
+
+	if code, description, ok := parseBearerError(r.Header); ok {
+		return nil, &OAuthError{Code: code, Description: description, Response: e}
 	}
 
 	return nil, e
+}
+
+var (
+	// bearerChallenge matches a WWW-Authenticate value using the Bearer scheme,
+	// allowing a stray leading quote.
+	bearerChallenge = regexp.MustCompile(`(?i)^"?bearer\s`)
+	// bearerParam matches an error or error_description attribute. The value is
+	// captured as a quoted-string body (group 2) or a token (group 3).
+	bearerParam = regexp.MustCompile(`(?i)[\s,](error|error_description)\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^\s,"]+))`)
+	// quotedPair matches a backslash escape in a quoted-string.
+	quotedPair = regexp.MustCompile(`\\(.)`)
+)
+
+// parseBearerError extracts the error and error_description attributes of a
+// Bearer challenge in the WWW-Authenticate header (RFC 6750 Section 3).
+// ok is false when no Bearer challenge with an error attribute is found.
+func parseBearerError(header http.Header) (code, description string, ok bool) {
+	for _, v := range header.Values("WWW-Authenticate") {
+		v = strings.TrimSpace(v)
+		if !bearerChallenge.MatchString(v) {
+			continue
+		}
+
+		params := map[string]string{}
+		for _, m := range bearerParam.FindAllStringSubmatch(v, -1) {
+			params[strings.ToLower(m[1])] = quotedPair.ReplaceAllString(m[2], "$1") + m[3]
+		}
+
+		if params["error"] != "" {
+			return params["error"], params["error_description"], true
+		}
+	}
+
+	return "", "", false
 }
 
 // DecodeResponse decodes the JSON body of resp into v and closes the body.

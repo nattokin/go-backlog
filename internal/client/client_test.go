@@ -819,6 +819,170 @@ func TestCheckResponse(t *testing.T) {
 	}
 }
 
+func TestCheckResponse_oauthError(t *testing.T) {
+	const expired = `Bearer error="invalid_token", error_description="The access token expired"`
+
+	cases := map[string]struct {
+		statusCode      int
+		header          []string
+		body            string
+		wantOAuth       bool
+		wantCode        string
+		wantDescription string
+		wantErrorsLen   int
+	}{
+		"documented-expired": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{expired},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token expired",
+		},
+		"documented-invalid": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{`Bearer error="invalid_token", error_description="The access token is invalid"`},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token is invalid",
+		},
+		"stray-leading-quote": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{`"` + expired},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token expired",
+		},
+		"case-and-whitespace": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{`  bearer   ERROR = "invalid_token" ,  Error_Description="The access token expired"  `},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token expired",
+		},
+		"token-value-and-realm": {
+			statusCode: http.StatusUnauthorized,
+			header:     []string{`Bearer realm="backlog", error=invalid_token`},
+			wantOAuth:  true,
+			wantCode:   "invalid_token",
+		},
+		"escaped-quote": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{`Bearer error="invalid_token", error_description="say \"hi\""`},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: `say "hi"`,
+		},
+		"param-without-value": {
+			statusCode: http.StatusUnauthorized,
+			header:     []string{`Bearer realm, error="invalid_token"`},
+			wantOAuth:  true,
+			wantCode:   "invalid_token",
+		},
+		"insufficient-scope-403": {
+			statusCode: http.StatusForbidden,
+			header:     []string{`Bearer error="insufficient_scope"`},
+			wantOAuth:  true,
+			wantCode:   "insufficient_scope",
+		},
+		"second-header-value": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{`Basic realm="backlog"`, expired},
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token expired",
+		},
+		"with-json-body": {
+			statusCode:      http.StatusUnauthorized,
+			header:          []string{expired},
+			body:            `{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`,
+			wantOAuth:       true,
+			wantCode:        "invalid_token",
+			wantDescription: "The access token expired",
+			wantErrorsLen:   1,
+		},
+		"bearer-without-error": {
+			statusCode: http.StatusUnauthorized,
+			header:     []string{`Bearer realm="backlog"`},
+		},
+		"non-bearer-scheme": {
+			statusCode: http.StatusUnauthorized,
+			header:     []string{`Basic realm="backlog"`},
+		},
+		"no-header-api-key-failure": {
+			statusCode:    http.StatusUnauthorized,
+			body:          `{"errors":[{"message":"Authentication failure.","code":11,"moreInfo":""}]}`,
+			wantErrorsLen: 1,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			header := http.Header{}
+			for _, v := range tc.header {
+				header.Add("WWW-Authenticate", v)
+			}
+			resp := &http.Response{
+				StatusCode: tc.statusCode,
+				Header:     header,
+				Body:       io.NopCloser(strings.NewReader(tc.body)),
+			}
+
+			r, err := client.CheckResponse(resp)
+			assert.Nil(t, r)
+			require.Error(t, err)
+
+			var apiErr *client.APIResponseError
+			require.True(t, errors.As(err, &apiErr), "errors.As must find *APIResponseError")
+			assert.Equal(t, tc.statusCode, apiErr.StatusCode)
+			assert.Len(t, apiErr.Errors, tc.wantErrorsLen)
+
+			var oauthErr *client.OAuthError
+			if !tc.wantOAuth {
+				assert.False(t, errors.As(err, &oauthErr))
+				return
+			}
+
+			require.True(t, errors.As(err, &oauthErr))
+			assert.Equal(t, tc.wantCode, oauthErr.Code)
+			assert.Equal(t, tc.wantDescription, oauthErr.Description)
+			assert.Same(t, apiErr, oauthErr.Response)
+		})
+	}
+}
+
+func TestOAuthError_Error(t *testing.T) {
+	cases := map[string]struct {
+		err  *client.OAuthError
+		want string
+	}{
+		"with-description": {
+			err: &client.OAuthError{
+				Code:        "invalid_token",
+				Description: "The access token expired",
+				Response:    &client.APIResponseError{StatusCode: 401},
+			},
+			want: "Status Code:401\nOAuth Error:invalid_token, Description:The access token expired",
+		},
+		"without-description": {
+			err: &client.OAuthError{
+				Code:     "insufficient_scope",
+				Response: &client.APIResponseError{StatusCode: 403},
+			},
+			want: "Status Code:403\nOAuth Error:insufficient_scope",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.err.Error())
+		})
+	}
+}
+
 func TestDecodeResponse(t *testing.T) {
 	type target struct {
 		Name string `json:"name"`

@@ -74,6 +74,7 @@ func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 // The Client does not obtain, refresh or track the expiry of access tokens.
 // Access tokens expire after one hour; when a token expires, obtain a new one
 // and create a new Client with NewOAuthClient.
+// When the API rejects the access token, the returned error is an [*OAuthError].
 //
 // It returns an [*InternalClientError] if the base URL or access token is invalid.
 //
