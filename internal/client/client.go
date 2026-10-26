@@ -55,6 +55,30 @@ func (e *APIResponseError) Error() string {
 	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
 }
 
+// OAuthError represents an OAuth 2.0 error reported in the WWW-Authenticate
+// response header (RFC 6750), such as an invalid or expired access token.
+// Response holds the underlying API error response.
+type OAuthError struct {
+	Code        string
+	Description string
+	Response    *APIResponseError
+}
+
+func (e *OAuthError) Error() string {
+	msg := fmt.Sprintf("Status Code:%d\nOAuth Error:%s", e.Response.StatusCode, e.Code)
+
+	if e.Description == "" {
+		return msg
+	}
+
+	return msg + ", Description:" + e.Description
+}
+
+// Unwrap returns the underlying *APIResponseError.
+func (e *OAuthError) Unwrap() error {
+	return e.Response
+}
+
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing
 // credential or a malformed base URL.
@@ -289,6 +313,8 @@ func (c *Client) Download(ctx context.Context, spath string, query url.Values) (
 }
 
 // CheckResponse validates an HTTP response and decodes API errors if present.
+// When the WWW-Authenticate header carries a Bearer error (RFC 6750), the
+// returned error is an *OAuthError wrapping the *APIResponseError.
 // It closes the response body in error cases to avoid leaks.
 func CheckResponse(r *http.Response) (*http.Response, error) {
 	sc := r.StatusCode
@@ -313,11 +339,105 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 
 	if r.Body != nil {
 		if err := json.NewDecoder(r.Body).Decode(e); err == nil {
-			return nil, e
+			return nil, wrapOAuthError(r.Header, e)
 		}
 	}
 
-	return nil, e
+	return nil, wrapOAuthError(r.Header, e)
+}
+
+// wrapOAuthError returns e wrapped in an *OAuthError when header carries a
+// Bearer challenge with an error attribute, and e as is otherwise.
+func wrapOAuthError(header http.Header, e *APIResponseError) error {
+	code, description, ok := parseBearerError(header)
+	if !ok {
+		return e
+	}
+
+	return &OAuthError{Code: code, Description: description, Response: e}
+}
+
+// parseBearerError extracts the error and error_description attributes of a
+// Bearer challenge in the WWW-Authenticate header (RFC 6750 Section 3).
+// It is lenient about letter case, surrounding whitespace and a stray leading
+// quote. ok is false when no Bearer challenge with an error attribute is found.
+func parseBearerError(header http.Header) (code, description string, ok bool) {
+	for _, v := range header.Values("WWW-Authenticate") {
+		v = strings.TrimPrefix(strings.TrimSpace(v), `"`)
+
+		scheme, rest, found := strings.Cut(v, " ")
+		if !found || !strings.EqualFold(scheme, "Bearer") {
+			continue
+		}
+
+		params := parseAuthParams(rest)
+		if params["error"] == "" {
+			continue
+		}
+
+		return params["error"], params["error_description"], true
+	}
+
+	return "", "", false
+}
+
+// parseAuthParams parses a comma-separated list of auth-params
+// (key=token or key="quoted-string") into a map with lower-cased keys.
+// Items without a value are skipped.
+func parseAuthParams(s string) map[string]string {
+	params := map[string]string{}
+
+	for {
+		s = strings.TrimLeft(s, " \t,")
+		if s == "" {
+			return params
+		}
+
+		i := strings.IndexAny(s, "=,")
+		if i < 0 {
+			return params
+		}
+		if s[i] == ',' {
+			s = s[i+1:]
+			continue
+		}
+
+		key := strings.ToLower(strings.TrimSpace(s[:i]))
+		rest := strings.TrimLeft(s[i+1:], " \t")
+
+		var value string
+		if strings.HasPrefix(rest, `"`) {
+			value, rest = readQuotedString(rest[1:])
+		} else {
+			value, rest, _ = strings.Cut(rest, ",")
+			value = strings.TrimSpace(value)
+		}
+
+		params[key] = value
+		s = rest
+	}
+}
+
+// readQuotedString reads the body of a quoted-string up to its closing quote,
+// resolving backslash escapes. It returns the value and the remaining input.
+func readQuotedString(s string) (value, rest string) {
+	var b strings.Builder
+
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '\\':
+			if i+1 < len(s) {
+				i++
+				b.WriteByte(s[i])
+			}
+		case '"':
+			return b.String(), s[i+1:]
+		default:
+			b.WriteByte(s[i])
+		}
+	}
+
+	return b.String(), ""
 }
 
 // DecodeResponse decodes the JSON body of resp into v and closes the body.

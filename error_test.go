@@ -50,6 +50,46 @@ func TestAPIResponseError_Errors(t *testing.T) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  OAuthError
+// ──────────────────────────────────────────────────────────────
+
+func TestOAuthError(t *testing.T) {
+	const expired = `Bearer error="invalid_token", error_description="The access token expired"`
+
+	err := callWikiListWithOAuthError(t, http.StatusUnauthorized, expired)
+	require.Error(t, err)
+
+	var target *backlog.OAuthError
+	require.True(t, errors.As(err, &target))
+	assert.Equal(t, "invalid_token", target.Code())
+	assert.Equal(t, "The access token expired", target.Description())
+	assert.Equal(t, http.StatusUnauthorized, target.StatusCode())
+	assert.Equal(t, "Status Code:401\nOAuth Error:invalid_token, Description:The access token expired", target.Error())
+}
+
+func TestOAuthError_unwrapsAPIResponseError(t *testing.T) {
+	err := callWikiListWithOAuthError(t, http.StatusUnauthorized, `Bearer error="invalid_token"`)
+	require.Error(t, err)
+
+	var apiErr *backlog.APIResponseError
+	require.True(t, errors.As(err, &apiErr))
+	assert.Equal(t, http.StatusUnauthorized, apiErr.StatusCode())
+	assert.Empty(t, apiErr.Errors())
+}
+
+func TestOAuthError_notReturnedWithoutBearerError(t *testing.T) {
+	// API key authentication failures carry the details in the JSON body.
+	err := callWikiAllWithStatus(t, http.StatusUnauthorized)
+	require.Error(t, err)
+
+	var target *backlog.OAuthError
+	assert.False(t, errors.As(err, &target))
+
+	var apiErr *backlog.APIResponseError
+	assert.True(t, errors.As(err, &apiErr))
+}
+
+// ──────────────────────────────────────────────────────────────
 //  InvalidOptionKeyError
 // ──────────────────────────────────────────────────────────────
 
@@ -184,6 +224,29 @@ func callWikiAllWithStatus(t *testing.T, statusCode int) error {
 			return &http.Response{
 				StatusCode: statusCode,
 				Body:       io.NopCloser(strings.NewReader(body)),
+			}, nil
+		}}),
+	)
+	require.NoError(t, err)
+	_, err = c.Wiki.List(context.Background(), "PROJECT")
+	return err
+}
+
+// callWikiListWithOAuthError runs Wiki.List with a client created by
+// NewOAuthClient and a doer that returns the given status code with the
+// given WWW-Authenticate header and no body, then returns the error.
+func callWikiListWithOAuthError(t *testing.T, statusCode int, wwwAuthenticate string) error {
+	t.Helper()
+	c, err := backlog.NewOAuthClient(
+		"https://example.backlog.com",
+		"accessToken",
+		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
+			header := http.Header{}
+			header.Set("WWW-Authenticate", wwwAuthenticate)
+			return &http.Response{
+				StatusCode: statusCode,
+				Header:     header,
+				Body:       http.NoBody,
 			}, nil
 		}}),
 	)
