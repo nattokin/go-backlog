@@ -43,7 +43,7 @@ wikis, err = c.Wiki.List(context.Background(), "MYPROJECT",
 )
 ```
 
-To authenticate with an [OAuth 2.0](https://developer.nulab.com/docs/backlog/auth/) access token, use `NewOAuthClient`. The access token is sent as `Authorization: Bearer <token>`. Obtaining, refreshing and tracking the expiry of access tokens is up to the caller; access tokens expire after one hour, so create a new client with a fresh token when it expires.
+To authenticate with an [OAuth 2.0](https://developer.nulab.com/docs/backlog/auth/) access token, use `NewOAuthClient`. The access token is sent as `Authorization: Bearer <token>`. Obtaining, refreshing and tracking the expiry of access tokens is up to the caller; access tokens expire after one hour, so create a new client with a fresh token when it expires. When the API rejects the access token, the returned error is an `*OAuthError`, which carries the error code and description from the `WWW-Authenticate` header.
 
 ```go
 c, err := backlog.NewOAuthClient(
