@@ -23,9 +23,9 @@ func main() {
 	if baseURL == "" {
 		log.Fatalln("You need Backlog base url.")
 	}
-	apiKey := os.Getenv("BACKLOG_TOKEN")
+	apiKey := os.Getenv("BACKLOG_API_KEY")
 	if apiKey == "" {
-		log.Fatalln("You need Backlog access token.")
+		log.Fatalln("You need Backlog API key.")
 	}
 
 	statusFlag := flag.String("status", "", "filter by status: open, closed, merged, draft")
