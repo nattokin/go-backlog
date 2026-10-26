@@ -51,21 +51,48 @@ type Client struct {
 //  Client constructor
 // ──────────────────────────────────────────────────────────────
 
-// NewClient creates and initializes a Backlog API Client.
+// NewClient creates and initializes a Backlog API Client that authenticates
+// with an API key.
 // It requires a baseURL (e.g. "https://example.backlog.com") and an API key.
 // The API key is sent in the "Backlog-API-Key" request header.
-// OAuth 2.0 access tokens are not supported.
+// To authenticate with an OAuth 2.0 access token, use [NewOAuthClient].
 //
 // It returns an [*InternalClientError] if the base URL or API key is invalid.
 //
 // Supported options:
 //   - [WithDoer]
 func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
+	httpClient, err := client.NewClient(baseURL, apiKey, innerClientOptions(opts)...)
+	return newClient(httpClient, err)
+}
+
+// NewOAuthClient creates and initializes a Backlog API Client that authenticates
+// with an OAuth 2.0 access token.
+// It requires a baseURL (e.g. "https://example.backlog.com") and an access token.
+// The access token is sent as "Authorization: Bearer <accessToken>".
+//
+// The Client does not obtain, refresh or track the expiry of access tokens.
+// Access tokens expire after one hour; when a token expires, obtain a new one
+// and create a new Client with NewOAuthClient.
+//
+// It returns an [*InternalClientError] if the base URL or access token is invalid.
+//
+// Supported options:
+//   - [WithDoer]
+func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client, error) {
+	httpClient, err := client.NewOAuthClient(baseURL, accessToken, innerClientOptions(opts)...)
+	return newClient(httpClient, err)
+}
+
+func innerClientOptions(opts []*ClientOption) []*client.ClientOption {
 	innerOpts := make([]*client.ClientOption, len(opts))
 	for i, o := range opts {
 		innerOpts[i] = o.inner
 	}
-	httpClient, err := client.NewClient(baseURL, apiKey, innerOpts...)
+	return innerOpts
+}
+
+func newClient(httpClient *client.Client, err error) (*Client, error) {
 	if err != nil {
 		return nil, convertError(err)
 	}

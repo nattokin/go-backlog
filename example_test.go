@@ -72,3 +72,20 @@ func ExampleNewClient_withDoer() {
 	// Output:
 	// true
 }
+
+// ExampleNewOAuthClient demonstrates client initialization with an OAuth 2.0
+// access token. Obtaining and refreshing the token is up to the caller; create
+// a new Client when the token expires.
+func ExampleNewOAuthClient() {
+	c, err := backlog.NewOAuthClient(
+		"https://example.backlog.com",
+		"accessToken",
+	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println(c != nil)
+	// Output:
+	// true
+}

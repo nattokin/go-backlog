@@ -56,8 +56,8 @@ func (e *APIResponseError) Error() string {
 }
 
 // InternalClientError represents client-side configuration or usage errors.
-// It is distinct from API-level errors and indicates issues like missing Token
-// or malformed base URL.
+// It is distinct from API-level errors and indicates issues like a missing
+// credential or a malformed base URL.
 type InternalClientError struct {
 	msg string
 }
@@ -74,12 +74,28 @@ type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// CredentialType identifies how a credential is sent to the Backlog API.
+type CredentialType int
+
+const (
+	// CredentialAPIKey is an API key sent in the Backlog-API-Key header.
+	CredentialAPIKey CredentialType = iota + 1
+	// CredentialAccessToken is an OAuth 2.0 access token sent in the Authorization header.
+	CredentialAccessToken
+)
+
+// Credential holds the value used to authenticate requests.
+type Credential struct {
+	Type  CredentialType
+	Value string
+}
+
 type Client struct {
-	BaseURL *url.URL
-	Token   string
-	Doer    Doer
-	Wrapper Wrapper
-	Method  *Method
+	BaseURL    *url.URL
+	Credential Credential
+	Doer       Doer
+	Wrapper    Wrapper
+	Method     *Method
 }
 
 // Method holds injected HTTP operation functions.
@@ -95,10 +111,23 @@ type Method struct {
 	Download func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 }
 
+// NewClient creates a Client that authenticates with an API key.
 func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	if apiKey == "" {
-		return nil, NewInternalClientError("missing token")
+		return nil, NewInternalClientError("missing API key")
 	}
+	return newClient(baseURL, Credential{Type: CredentialAPIKey, Value: apiKey}, opts...)
+}
+
+// NewOAuthClient creates a Client that authenticates with an OAuth 2.0 access token.
+func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client, error) {
+	if accessToken == "" {
+		return nil, NewInternalClientError("missing access token")
+	}
+	return newClient(baseURL, Credential{Type: CredentialAccessToken, Value: accessToken}, opts...)
+}
+
+func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*Client, error) {
 	if baseURL == "" {
 		return nil, NewInternalClientError("missing baseURL")
 	}
@@ -120,10 +149,10 @@ func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	}
 
 	c := &Client{
-		BaseURL: u,
-		Doer:    config.Doer,
-		Token:   apiKey,
-		Wrapper: &DefaultWrapper{},
+		BaseURL:    u,
+		Credential: credential,
+		Doer:       config.Doer,
+		Wrapper:    &DefaultWrapper{},
 	}
 
 	c.Method = &Method{
@@ -165,7 +194,12 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	if config.Header != nil {
 		req.Header = config.Header.Clone()
 	}
-	req.Header.Set("Backlog-API-Key", c.Token)
+	switch c.Credential.Type {
+	case CredentialAPIKey:
+		req.Header.Set("Backlog-API-Key", c.Credential.Value)
+	case CredentialAccessToken:
+		req.Header.Set("Authorization", "Bearer "+c.Credential.Value)
+	}
 
 	return req, nil
 }
