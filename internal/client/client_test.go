@@ -29,11 +29,11 @@ func TestNewClient_validation(t *testing.T) {
 		wantError bool
 		errMsg    string
 	}{
-		"missing-token": {
+		"missing-apiKey": {
 			baseURL:   "https://example.com",
 			apiKey:    "",
 			wantError: true,
-			errMsg:    "missing token",
+			errMsg:    "missing API key",
 		},
 		"missing-baseURL": {
 			baseURL:   "",
@@ -70,7 +70,59 @@ func TestNewClient_validation(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, c)
 			assert.Equal(t, tc.baseURL, c.BaseURL.String())
-			assert.Equal(t, tc.apiKey, c.Token)
+			assert.Equal(t, client.Credential{Type: client.CredentialAPIKey, Value: tc.apiKey}, c.Credential)
+		})
+	}
+}
+
+func TestNewOAuthClient_validation(t *testing.T) {
+	cases := map[string]struct {
+		baseURL     string
+		accessToken string
+		wantError   bool
+		errMsg      string
+	}{
+		"missing-accessToken": {
+			baseURL:     "https://example.com",
+			accessToken: "",
+			wantError:   true,
+			errMsg:      "missing access token",
+		},
+		"missing-baseURL": {
+			baseURL:     "",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "missing baseURL",
+		},
+		"invalid-baseURL": {
+			baseURL:     "://invalid-url",
+			accessToken: "accessToken",
+			wantError:   true,
+		},
+		"valid-input": {
+			baseURL:     "https://example.com",
+			accessToken: "accessToken",
+			wantError:   false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			c, err := client.NewOAuthClient(tc.baseURL, tc.accessToken)
+
+			if tc.wantError {
+				assert.Error(t, err)
+				assert.Nil(t, c)
+				if tc.errMsg != "" {
+					assert.Contains(t, err.Error(), tc.errMsg)
+				}
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotNil(t, c)
+			assert.Equal(t, tc.baseURL, c.BaseURL.String())
+			assert.Equal(t, client.Credential{Type: client.CredentialAccessToken, Value: tc.accessToken}, c.Credential)
 		})
 	}
 }
@@ -106,7 +158,7 @@ func TestNewClient_initialization(t *testing.T) {
 		assert.NotNil(t, c)
 
 		assert.Equal(t, baseURL, c.BaseURL.String())
-		assert.Equal(t, apiKey, c.Token)
+		assert.Equal(t, client.Credential{Type: client.CredentialAPIKey, Value: apiKey}, c.Credential)
 		assert.Equal(t, http.DefaultClient, c.Doer)
 		assert.IsType(t, &client.DefaultWrapper{}, c.Wrapper)
 		assert.IsType(t, &client.Method{}, c.Method)
@@ -340,6 +392,39 @@ func TestClient_NewRequest(t *testing.T) {
 
 	}
 
+}
+
+func TestClient_NewRequest_credential(t *testing.T) {
+	cases := map[string]struct {
+		newClient     func() (*client.Client, error)
+		wantAPIKey    string
+		wantAuthorize string
+	}{
+		"api-key": {
+			newClient:  func() (*client.Client, error) { return client.NewClient("https://example.com", "apiKey") },
+			wantAPIKey: "apiKey",
+		},
+		"access-token": {
+			newClient:     func() (*client.Client, error) { return client.NewOAuthClient("https://example.com", "accessToken") },
+			wantAuthorize: "Bearer accessToken",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := tc.newClient()
+			require.NoError(t, err)
+
+			req, err := c.NewRequest(context.Background(), http.MethodGet, "test")
+			require.NoError(t, err)
+
+			assert.Equal(t, tc.wantAPIKey, req.Header.Get("Backlog-API-Key"))
+			assert.Equal(t, tc.wantAuthorize, req.Header.Get("Authorization"))
+			assert.Empty(t, req.URL.Query().Get("apiKey"))
+		})
+	}
 }
 
 func TestClient_method(t *testing.T) {
@@ -929,10 +1014,10 @@ func TestAPIResponseError_errorsAs(t *testing.T) {
 }
 
 func TestInternalClientError_errorsAs(t *testing.T) {
-	err := client.NewInternalClientError("missing token")
+	err := client.NewInternalClientError("missing API key")
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *client.InternalClientError
 	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, "missing token", target.Error())
+	assert.Equal(t, "missing API key", target.Error())
 }

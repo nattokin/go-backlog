@@ -26,7 +26,7 @@ go get github.com/nattokin/go-backlog
 
 ## Examples
 
-The client authenticates with a Backlog [API key](https://developer.nulab.com/docs/backlog/auth/#api-key), which is sent in the `Backlog-API-Key` request header. OAuth 2.0 access tokens are not supported.
+`NewClient` authenticates with a Backlog [API key](https://developer.nulab.com/docs/backlog/auth/#api-key), which is sent in the `Backlog-API-Key` request header.
 
 ```go
 c, err := backlog.NewClient(
@@ -40,6 +40,15 @@ wikis, err := c.Wiki.List(context.Background(), "MYPROJECT")
 // Filter by keyword using an option.
 wikis, err = c.Wiki.List(context.Background(), "MYPROJECT",
     c.Wiki.Option.WithKeyword("design"),
+)
+```
+
+To authenticate with an [OAuth 2.0](https://developer.nulab.com/docs/backlog/auth/) access token, use `NewOAuthClient`. The access token is sent as `Authorization: Bearer <token>`. Obtaining, refreshing and tracking the expiry of access tokens is up to the caller; access tokens expire after one hour, so create a new client with a fresh token when it expires.
+
+```go
+c, err := backlog.NewOAuthClient(
+    os.Getenv("BACKLOG_BASE_URL"),
+    accessToken,
 )
 ```
 
