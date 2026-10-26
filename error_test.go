@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,6 +50,35 @@ func TestAPIResponseError_Errors(t *testing.T) {
 	assert.Equal(t, 6, errs[0].Code)
 }
 
+func TestAPIResponseError_RateLimitStatus(t *testing.T) {
+	header := http.Header{}
+	header.Set("X-RateLimit-Limit", "150")
+	header.Set("X-RateLimit-Remaining", "0")
+	header.Set("X-RateLimit-Reset", "1605484860")
+
+	err := callWikiListWithResponse(t, http.StatusTooManyRequests, header)
+	require.Error(t, err)
+
+	var target *backlog.APIResponseError
+	require.True(t, errors.As(err, &target))
+
+	rl := target.RateLimitStatus()
+	require.NotNil(t, rl)
+	assert.Equal(t, 150, rl.Limit)
+	assert.Equal(t, 0, rl.Remaining)
+	assert.True(t, time.Date(2020, 11, 16, 0, 1, 0, 0, time.UTC).Equal(rl.Reset.Time))
+	assert.Equal(t, time.UTC, rl.Reset.Location())
+}
+
+func TestAPIResponseError_RateLimitStatus_missingHeaders(t *testing.T) {
+	err := callWikiAllWithStatus(t, http.StatusTooManyRequests)
+	require.Error(t, err)
+
+	var target *backlog.APIResponseError
+	require.True(t, errors.As(err, &target))
+	assert.Nil(t, target.RateLimitStatus())
+}
+
 // ──────────────────────────────────────────────────────────────
 //  OAuthError
 // ──────────────────────────────────────────────────────────────
@@ -87,6 +117,28 @@ func TestOAuthError_notReturnedWithoutBearerError(t *testing.T) {
 
 	var apiErr *backlog.APIResponseError
 	assert.True(t, errors.As(err, &apiErr))
+}
+
+func TestOAuthError_rateLimitStatusThroughUnwrap(t *testing.T) {
+	header := http.Header{}
+	header.Set("WWW-Authenticate", `Bearer error="invalid_token"`)
+	header.Set("X-RateLimit-Limit", "600")
+	header.Set("X-RateLimit-Remaining", "599")
+	header.Set("X-RateLimit-Reset", "1605484860")
+
+	err := callWikiListWithResponse(t, http.StatusUnauthorized, header)
+	require.Error(t, err)
+
+	var oauthErr *backlog.OAuthError
+	require.True(t, errors.As(err, &oauthErr))
+
+	var apiErr *backlog.APIResponseError
+	require.True(t, errors.As(err, &apiErr))
+
+	rl := apiErr.RateLimitStatus()
+	require.NotNil(t, rl)
+	assert.Equal(t, 600, rl.Limit)
+	assert.Equal(t, 599, rl.Remaining)
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -243,6 +295,26 @@ func callWikiListWithOAuthError(t *testing.T, statusCode int, wwwAuthenticate st
 		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			header := http.Header{}
 			header.Set("WWW-Authenticate", wwwAuthenticate)
+			return &http.Response{
+				StatusCode: statusCode,
+				Header:     header,
+				Body:       http.NoBody,
+			}, nil
+		}}),
+	)
+	require.NoError(t, err)
+	_, err = c.Wiki.List(context.Background(), "PROJECT")
+	return err
+}
+
+// callWikiListWithResponse runs Wiki.List with a doer that returns the given
+// status code and header with no body, then returns the error.
+func callWikiListWithResponse(t *testing.T, statusCode int, header http.Header) error {
+	t.Helper()
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"apiKey",
+		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: statusCode,
 				Header:     header,
