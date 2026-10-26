@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/model"
@@ -42,8 +43,17 @@ func (e *Error) Error() string {
 
 // APIResponseError represents Error Response of Backlog API.
 type APIResponseError struct {
-	StatusCode int      `json:"-"` // HTTP status code (4xx or 5xx)
-	Errors     []*Error `json:"errors,omitempty"`
+	StatusCode      int              `json:"-"` // HTTP status code (4xx or 5xx)
+	Errors          []*Error         `json:"errors,omitempty"`
+	RateLimitStatus *RateLimitStatus `json:"-"` // nil when the rate limit headers are missing or invalid
+}
+
+// RateLimitStatus represents the rate limit status reported in the
+// X-RateLimit-* response headers. Reset is in UTC epoch seconds.
+type RateLimitStatus struct {
+	Limit     int
+	Remaining int
+	Reset     int64
 }
 
 func (e *APIResponseError) Error() string {
@@ -336,7 +346,7 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 		}
 	}()
 
-	e := &APIResponseError{StatusCode: sc}
+	e := &APIResponseError{StatusCode: sc, RateLimitStatus: parseRateLimitStatus(r.Header)}
 
 	if r.Body != nil {
 		// A body that is not a JSON error response leaves Errors empty.
@@ -382,6 +392,28 @@ func parseBearerError(header http.Header) (code, description string, ok bool) {
 	}
 
 	return "", "", false
+}
+
+// parseRateLimitStatus parses the X-RateLimit-Limit, X-RateLimit-Remaining
+// and X-RateLimit-Reset headers. It returns nil unless all three are present
+// and are non-negative integers.
+func parseRateLimitStatus(header http.Header) *RateLimitStatus {
+	limit, err := strconv.Atoi(strings.TrimSpace(header.Get("X-RateLimit-Limit")))
+	if err != nil || limit < 0 {
+		return nil
+	}
+
+	remaining, err := strconv.Atoi(strings.TrimSpace(header.Get("X-RateLimit-Remaining")))
+	if err != nil || remaining < 0 {
+		return nil
+	}
+
+	reset, err := strconv.ParseInt(strings.TrimSpace(header.Get("X-RateLimit-Reset")), 10, 64)
+	if err != nil || reset < 0 {
+		return nil
+	}
+
+	return &RateLimitStatus{Limit: limit, Remaining: remaining, Reset: reset}
 }
 
 // DecodeResponse decodes the JSON body of resp into v and closes the body.

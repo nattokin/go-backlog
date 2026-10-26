@@ -2,6 +2,7 @@ package backlog
 
 import (
 	"errors"
+	"time"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/option"
@@ -42,6 +43,34 @@ func (e *APIResponseError) Errors() []*Error {
 		}
 	}
 	return out
+}
+
+// RateLimitStatus returns the rate limit status reported in the
+// X-RateLimit-* response headers, or nil when the headers are missing or
+// cannot be parsed. After a 429 response, use Reset to decide how long to wait.
+func (e *APIResponseError) RateLimitStatus() *RateLimitStatus {
+	rl := e.inner.RateLimitStatus
+	if rl == nil {
+		return nil
+	}
+
+	return &RateLimitStatus{
+		Limit:     rl.Limit,
+		Remaining: rl.Remaining,
+		Reset:     Timestamp{time.Unix(rl.Reset, 0).UTC()},
+	}
+}
+
+// RateLimitStatus represents the rate limit status of one request type
+// (read, update, search or icon). The request type is not reported in the
+// response headers; it is implied by the request.
+type RateLimitStatus struct {
+	// Limit is the maximum number of requests accepted per minute.
+	Limit int
+	// Remaining is the number of requests accepted until Reset.
+	Remaining int
+	// Reset is the time at which the request count is reset.
+	Reset Timestamp
 }
 
 // OAuthError is returned when the Backlog API rejects an OAuth 2.0 access token

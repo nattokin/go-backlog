@@ -952,6 +952,106 @@ func TestCheckResponse_oauthError(t *testing.T) {
 	}
 }
 
+func TestCheckResponse_rateLimitStatus(t *testing.T) {
+	documented := map[string]string{
+		"X-RateLimit-Limit":     "150",
+		"X-RateLimit-Remaining": "142",
+		"X-RateLimit-Reset":     "1605484860",
+	}
+
+	with := func(key, value string) map[string]string {
+		h := map[string]string{}
+		for k, v := range documented {
+			h[k] = v
+		}
+		if value == "" {
+			delete(h, key)
+		} else {
+			h[key] = value
+		}
+		return h
+	}
+
+	cases := map[string]struct {
+		statusCode int
+		header     map[string]string
+		wwwAuth    string
+		want       *client.RateLimitStatus
+	}{
+		"documented": {
+			statusCode: http.StatusTooManyRequests,
+			header:     documented,
+			want:       &client.RateLimitStatus{Limit: 150, Remaining: 142, Reset: 1605484860},
+		},
+		"remaining-zero": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Remaining", "0"),
+			want:       &client.RateLimitStatus{Limit: 150, Remaining: 0, Reset: 1605484860},
+		},
+		"surrounding-whitespace": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Limit", " 150 "),
+			want:       &client.RateLimitStatus{Limit: 150, Remaining: 142, Reset: 1605484860},
+		},
+		"with-oauth-error": {
+			statusCode: http.StatusUnauthorized,
+			header:     documented,
+			wwwAuth:    `Bearer error="invalid_token"`,
+			want:       &client.RateLimitStatus{Limit: 150, Remaining: 142, Reset: 1605484860},
+		},
+		"no-headers": {
+			statusCode: http.StatusTooManyRequests,
+			header:     map[string]string{},
+		},
+		"missing-limit": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Limit", ""),
+		},
+		"missing-remaining": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Remaining", ""),
+		},
+		"missing-reset": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Reset", ""),
+		},
+		"non-numeric": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Remaining", "many"),
+		},
+		"negative": {
+			statusCode: http.StatusTooManyRequests,
+			header:     with("X-RateLimit-Reset", "-1"),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			header := http.Header{}
+			for k, v := range tc.header {
+				header.Set(k, v)
+			}
+			if tc.wwwAuth != "" {
+				header.Set("WWW-Authenticate", tc.wwwAuth)
+			}
+			resp := &http.Response{
+				StatusCode: tc.statusCode,
+				Header:     header,
+				Body:       http.NoBody,
+			}
+
+			_, err := client.CheckResponse(resp)
+			require.Error(t, err)
+
+			var apiErr *client.APIResponseError
+			require.True(t, errors.As(err, &apiErr))
+			assert.Equal(t, tc.want, apiErr.RateLimitStatus)
+		})
+	}
+}
+
 func TestOAuthError_Error(t *testing.T) {
 	cases := map[string]struct {
 		err  *client.OAuthError
