@@ -355,7 +355,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path1", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Empty(t, captured.Body)
 				assert.Empty(t, captured.Header.Get("Content-Type"))
@@ -369,7 +370,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "GET", captured.Method)
 				assert.Equal(t, "/api/v2/path-download", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.Body)
 			},
 		},
@@ -383,7 +385,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/path2", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 				assert.Contains(t, string(captured.Body), "k=v")
@@ -399,7 +402,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PATCH", captured.Method)
 				assert.Equal(t, "/api/v2/path3", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=123")
 			},
@@ -414,7 +418,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "PUT", captured.Method)
 				assert.Equal(t, "/api/v2/path4", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Equal(t, "application/x-www-form-urlencoded", captured.Header.Get("Content-Type"))
 				assert.Contains(t, string(captured.Body), "content=hello")
@@ -430,7 +435,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "DELETE", captured.Method)
 				assert.Equal(t, "/api/v2/path5", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 				assert.Contains(t, string(captured.Body), "id=321")
 			},
@@ -444,7 +450,8 @@ func TestClient_method(t *testing.T) {
 			check: func(t *testing.T, captured *mock.Capture) {
 				assert.Equal(t, "POST", captured.Method)
 				assert.Equal(t, "/api/v2/upload-path", captured.URL.Path)
-				assert.Equal(t, "Bearer token", captured.Header.Get("Authorization"))
+				assert.Equal(t, "token", captured.Header.Get("Backlog-API-Key"))
+				assert.Empty(t, captured.Header.Get("Authorization"))
 				assert.Empty(t, captured.URL.Query().Get("apiKey"))
 
 				ct := captured.Header.Get("Content-Type")

@@ -26,6 +26,8 @@ go get github.com/nattokin/go-backlog
 
 ## Examples
 
+The client authenticates with a Backlog [API key](https://developer.nulab.com/docs/backlog/auth/#api-key), which is sent in the `Backlog-API-Key` request header. OAuth 2.0 access tokens are not supported.
+
 ```go
 c, err := backlog.NewClient(
     os.Getenv("BACKLOG_BASE_URL"),
