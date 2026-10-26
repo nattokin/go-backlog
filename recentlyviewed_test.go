@@ -211,7 +211,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := backlog.NewClient("https://example.backlog.com", "token", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
 			require.NoError(t, err)
 			tc.call(t, c)
 		})
@@ -219,7 +219,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 }
 
 func TestUserRecentlyViewedOptionService(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	o := c.RecentlyViewed.Option
 

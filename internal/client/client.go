@@ -95,8 +95,8 @@ type Method struct {
 	Download func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 }
 
-func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
-	if token == "" {
+func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
+	if apiKey == "" {
 		return nil, NewInternalClientError("missing token")
 	}
 	if baseURL == "" {
@@ -122,7 +122,7 @@ func NewClient(baseURL, token string, opts ...*ClientOption) (*Client, error) {
 	c := &Client{
 		BaseURL: u,
 		Doer:    config.Doer,
-		Token:   token,
+		Token:   apiKey,
 		Wrapper: &DefaultWrapper{},
 	}
 
@@ -165,7 +165,7 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	if config.Header != nil {
 		req.Header = config.Header.Clone()
 	}
-	req.Header.Set("Authorization", "Bearer "+c.Token)
+	req.Header.Set("Backlog-API-Key", c.Token)
 
 	return req, nil
 }

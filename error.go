@@ -95,7 +95,7 @@ func (e *ValidationError) Target() string { return e.target }
 func (e *ValidationError) Message() string { return e.message }
 
 // InternalClientError represents client-side configuration or usage errors.
-// It is distinct from API-level errors and indicates issues like a missing token
+// It is distinct from API-level errors and indicates issues like a missing API key
 // or a malformed base URL.
 // Use [errors.As] to check whether a returned error is an *InternalClientError.
 type InternalClientError struct {

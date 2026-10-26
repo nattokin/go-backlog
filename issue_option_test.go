@@ -12,7 +12,7 @@ import (
 )
 
 func TestIssueOptionService(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	s := c.Issue.Option
 

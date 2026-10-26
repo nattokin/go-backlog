@@ -10,7 +10,7 @@ import (
 func ExampleIssueService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleIssueService_List() {
 func ExampleIssueService_All() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueList),
 	)
 
@@ -47,7 +47,7 @@ func ExampleIssueService_All() {
 func ExampleIssueService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueCount),
 	)
 
@@ -60,7 +60,7 @@ func ExampleIssueService_Count() {
 func ExampleIssueService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueSingle),
 	)
 
@@ -73,7 +73,7 @@ func ExampleIssueService_One() {
 func ExampleIssueService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueSingle),
 	)
 
@@ -86,7 +86,7 @@ func ExampleIssueService_Create() {
 func ExampleIssueService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueSingle),
 	)
 
@@ -99,7 +99,7 @@ func ExampleIssueService_Update() {
 func ExampleIssueService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueSingle),
 	)
 
@@ -112,7 +112,7 @@ func ExampleIssueService_Delete() {
 func ExampleIssueService_Participants() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserList),
 	)
 
@@ -125,7 +125,7 @@ func ExampleIssueService_Participants() {
 func ExampleIssueAttachmentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentList),
 	)
 
@@ -138,7 +138,7 @@ func ExampleIssueAttachmentService_List() {
 func ExampleIssueAttachmentService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentDownload),
 	)
 
@@ -151,7 +151,7 @@ func ExampleIssueAttachmentService_Download() {
 func ExampleIssueAttachmentService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentSingle),
 	)
 
@@ -164,7 +164,7 @@ func ExampleIssueAttachmentService_Remove() {
 func ExampleIssueCommentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentList),
 	)
 
@@ -177,7 +177,7 @@ func ExampleIssueCommentService_List() {
 func ExampleIssueCommentService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -190,7 +190,7 @@ func ExampleIssueCommentService_Add() {
 func ExampleIssueCommentService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueCommentCount),
 	)
 
@@ -203,7 +203,7 @@ func ExampleIssueCommentService_Count() {
 func ExampleIssueCommentService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -216,7 +216,7 @@ func ExampleIssueCommentService_Delete() {
 func ExampleIssueCommentService_Notifications() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueCommentNotifications),
 	)
 
@@ -229,7 +229,7 @@ func ExampleIssueCommentService_Notifications() {
 func ExampleIssueCommentService_Notify() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -242,7 +242,7 @@ func ExampleIssueCommentService_Notify() {
 func ExampleIssueCommentService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -255,7 +255,7 @@ func ExampleIssueCommentService_One() {
 func ExampleIssueCommentService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentSingle),
 	)
 
@@ -268,7 +268,7 @@ func ExampleIssueCommentService_Update() {
 func ExampleIssueSharedFileService_Link() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileList),
 	)
 
@@ -281,7 +281,7 @@ func ExampleIssueSharedFileService_Link() {
 func ExampleIssueSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileList),
 	)
 
@@ -294,7 +294,7 @@ func ExampleIssueSharedFileService_List() {
 func ExampleIssueSharedFileService_Unlink() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileSingle),
 	)
 
@@ -307,7 +307,7 @@ func ExampleIssueSharedFileService_Unlink() {
 func ExampleIssueStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 
@@ -324,7 +324,7 @@ func ExampleIssueStarService_Add() {
 func ExampleIssueStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 

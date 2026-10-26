@@ -18,9 +18,9 @@ func main() {
 	if baseURL == "" {
 		log.Fatalln("You need Backlog base url.")
 	}
-	token := os.Getenv("BACKLOG_TOKEN")
-	if token == "" {
-		log.Fatalln("You need Backlog access token.")
+	apiKey := os.Getenv("BACKLOG_API_KEY")
+	if apiKey == "" {
+		log.Fatalln("You need Backlog API key.")
 	}
 
 	target := flag.String("target", "issue", "target type: issue or wiki")
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalf("failed to create output directory: %v", err)
 	}
 
-	c, err := backlog.NewClient(baseURL, token)
+	c, err := backlog.NewClient(baseURL, apiKey)
 	if err != nil {
 		log.Fatalln(err)
 	}

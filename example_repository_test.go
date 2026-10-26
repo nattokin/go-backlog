@@ -10,7 +10,7 @@ import (
 func ExampleRepositoryService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRepositoryList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleRepositoryService_List() {
 func ExampleRepositoryService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRepositorySingle),
 	)
 

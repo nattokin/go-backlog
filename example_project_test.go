@@ -10,7 +10,7 @@ import (
 func ExampleProjectService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleProjectService_List() {
 func ExampleProjectService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectSingle),
 	)
 
@@ -36,7 +36,7 @@ func ExampleProjectService_One() {
 func ExampleProjectService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectSingle),
 	)
 
@@ -49,7 +49,7 @@ func ExampleProjectService_Create() {
 func ExampleProjectService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectSingle),
 	)
 
@@ -64,7 +64,7 @@ func ExampleProjectService_Update() {
 func ExampleProjectService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectSingle),
 	)
 
@@ -77,7 +77,7 @@ func ExampleProjectService_Delete() {
 func ExampleProjectService_DiskUsage() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectDiskUsage),
 	)
 
@@ -90,7 +90,7 @@ func ExampleProjectService_DiskUsage() {
 func ExampleProjectService_Icon() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectIcon),
 	)
 
@@ -103,7 +103,7 @@ func ExampleProjectService_Icon() {
 func ExampleProjectActivityService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -116,7 +116,7 @@ func ExampleProjectActivityService_List() {
 func ExampleProjectCategoryService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCategoryList),
 	)
 
@@ -129,7 +129,7 @@ func ExampleProjectCategoryService_List() {
 func ExampleProjectCategoryService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCategorySingle),
 	)
 
@@ -142,7 +142,7 @@ func ExampleProjectCategoryService_Create() {
 func ExampleProjectCategoryService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCategorySingle),
 	)
 
@@ -155,7 +155,7 @@ func ExampleProjectCategoryService_Update() {
 func ExampleProjectCategoryService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCategorySingle),
 	)
 
@@ -168,7 +168,7 @@ func ExampleProjectCategoryService_Delete() {
 func ExampleProjectCustomFieldService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldList),
 	)
 
@@ -181,7 +181,7 @@ func ExampleProjectCustomFieldService_List() {
 func ExampleProjectCustomFieldService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -194,7 +194,7 @@ func ExampleProjectCustomFieldService_Create() {
 func ExampleProjectCustomFieldService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -212,7 +212,7 @@ func ExampleProjectCustomFieldService_Update() {
 func ExampleProjectCustomFieldService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -225,7 +225,7 @@ func ExampleProjectCustomFieldService_Delete() {
 func ExampleProjectCustomFieldService_AddListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -238,7 +238,7 @@ func ExampleProjectCustomFieldService_AddListItem() {
 func ExampleProjectCustomFieldService_UpdateListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -251,7 +251,7 @@ func ExampleProjectCustomFieldService_UpdateListItem() {
 func ExampleProjectCustomFieldService_DeleteListItem() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -264,7 +264,7 @@ func ExampleProjectCustomFieldService_DeleteListItem() {
 func ExampleProjectIssueTypeService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueTypeList),
 	)
 
@@ -277,7 +277,7 @@ func ExampleProjectIssueTypeService_List() {
 func ExampleProjectIssueTypeService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
@@ -290,7 +290,7 @@ func ExampleProjectIssueTypeService_Create() {
 func ExampleProjectIssueTypeService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
@@ -305,7 +305,7 @@ func ExampleProjectIssueTypeService_Update() {
 func ExampleProjectIssueTypeService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
@@ -318,7 +318,7 @@ func ExampleProjectIssueTypeService_Delete() {
 func ExampleProjectSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileList),
 	)
 
@@ -331,7 +331,7 @@ func ExampleProjectSharedFileService_List() {
 func ExampleProjectSharedFileService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileGetDownload),
 	)
 
@@ -344,7 +344,7 @@ func ExampleProjectSharedFileService_Download() {
 func ExampleProjectUserService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserList),
 	)
 
@@ -357,7 +357,7 @@ func ExampleProjectUserService_List() {
 func ExampleProjectUserService_List_excludeGroupMembers() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserList),
 	)
 
@@ -374,7 +374,7 @@ func ExampleProjectUserService_List_excludeGroupMembers() {
 func ExampleProjectUserService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -387,7 +387,7 @@ func ExampleProjectUserService_Add() {
 func ExampleProjectUserService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -400,7 +400,7 @@ func ExampleProjectUserService_Delete() {
 func ExampleProjectUserService_AddAdmin() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -413,7 +413,7 @@ func ExampleProjectUserService_AddAdmin() {
 func ExampleProjectUserService_AdminList() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserList),
 	)
 
@@ -426,7 +426,7 @@ func ExampleProjectUserService_AdminList() {
 func ExampleProjectUserService_DeleteAdmin() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -439,7 +439,7 @@ func ExampleProjectUserService_DeleteAdmin() {
 func ExampleProjectWebhookService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookList),
 	)
 
@@ -452,7 +452,7 @@ func ExampleProjectWebhookService_List() {
 func ExampleProjectWebhookService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
@@ -471,7 +471,7 @@ func ExampleProjectWebhookService_Create() {
 func ExampleProjectWebhookService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
@@ -484,7 +484,7 @@ func ExampleProjectWebhookService_One() {
 func ExampleProjectWebhookService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
@@ -502,7 +502,7 @@ func ExampleProjectWebhookService_Update() {
 func ExampleProjectWebhookService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookAllEvent),
 	)
 
@@ -515,7 +515,7 @@ func ExampleProjectWebhookService_Delete() {
 func ExampleProjectStatusService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusList),
 	)
 
@@ -528,7 +528,7 @@ func ExampleProjectStatusService_List() {
 func ExampleProjectStatusService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusSingle),
 	)
 
@@ -541,7 +541,7 @@ func ExampleProjectStatusService_Create() {
 func ExampleProjectStatusService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusSingle),
 	)
 
@@ -559,7 +559,7 @@ func ExampleProjectStatusService_Update() {
 func ExampleProjectStatusService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusSingle),
 	)
 
@@ -572,7 +572,7 @@ func ExampleProjectStatusService_Delete() {
 func ExampleProjectStatusService_UpdateOrder() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusList),
 	)
 
@@ -585,7 +585,7 @@ func ExampleProjectStatusService_UpdateOrder() {
 func ExampleProjectVersionService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerVersionList),
 	)
 
@@ -598,7 +598,7 @@ func ExampleProjectVersionService_List() {
 func ExampleProjectVersionService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerVersionSingle),
 	)
 
@@ -615,7 +615,7 @@ func ExampleProjectVersionService_Create() {
 func ExampleProjectVersionService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerVersionSingle),
 	)
 
@@ -633,7 +633,7 @@ func ExampleProjectVersionService_Update() {
 func ExampleProjectVersionService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerVersionSingle),
 	)
 

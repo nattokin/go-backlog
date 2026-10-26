@@ -23,9 +23,9 @@ func main() {
 	if baseURL == "" {
 		log.Fatalln("You need Backlog base url.")
 	}
-	token := os.Getenv("BACKLOG_TOKEN")
-	if token == "" {
-		log.Fatalln("You need Backlog access token.")
+	apiKey := os.Getenv("BACKLOG_API_KEY")
+	if apiKey == "" {
+		log.Fatalln("You need Backlog API key.")
 	}
 
 	statusFlag := flag.String("status", "", "filter by status: open, closed, merged, draft")
@@ -38,7 +38,7 @@ func main() {
 	projectKey := args[0]
 	repoName := args[1]
 
-	c, err := backlog.NewClient(baseURL, token)
+	c, err := backlog.NewClient(baseURL, apiKey)
 	if err != nil {
 		log.Fatalln(err)
 	}

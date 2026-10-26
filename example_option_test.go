@@ -12,7 +12,7 @@ import (
 func ExampleWikiOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiSingle),
 	)
 
@@ -31,7 +31,7 @@ func ExampleWikiOptionService() {
 func ExampleIssueOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueList),
 	)
 
@@ -50,7 +50,7 @@ func ExampleIssueOptionService() {
 func ExampleIssueOptionService_customField() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueSingle),
 	)
 
@@ -104,7 +104,7 @@ func ExampleIssueOptionService_customField() {
 func ExampleIssueCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentList),
 	)
 
@@ -123,7 +123,7 @@ func ExampleIssueCommentOptionService() {
 func ExampleProjectOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerProjectList),
 	)
 
@@ -141,7 +141,7 @@ func ExampleProjectOptionService() {
 func ExampleRecentlyViewedOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
 
@@ -159,7 +159,7 @@ func ExampleRecentlyViewedOptionService() {
 func ExampleUserOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerUserSingle),
 	)
 
@@ -178,7 +178,7 @@ func ExampleUserOptionService() {
 func ExampleUserStarOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStarList),
 	)
 
@@ -197,7 +197,7 @@ func ExampleUserStarOptionService() {
 func ExamplePullRequestOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerPullRequestList),
 	)
 
@@ -217,7 +217,7 @@ func ExamplePullRequestOptionService() {
 func ExamplePullRequestCommentOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCommentList),
 	)
 
@@ -238,7 +238,7 @@ func ExamplePullRequestCommentOptionService() {
 func ExampleStarOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 
@@ -256,7 +256,7 @@ func ExampleStarOptionService() {
 func ExampleActivityOptionService_spaceWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -274,7 +274,7 @@ func ExampleActivityOptionService_spaceWithOptions() {
 func ExampleActivityOptionService_projectWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -293,7 +293,7 @@ func ExampleActivityOptionService_projectWithOptions() {
 func ExampleActivityOptionService_userWithOptions() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerActivityList),
 	)
 
@@ -312,7 +312,7 @@ func ExampleActivityOptionService_userWithOptions() {
 func ExampleProjectCustomFieldOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerCustomFieldSingle),
 	)
 
@@ -333,7 +333,7 @@ func ExampleProjectCustomFieldOptionService() {
 func ExampleProjectIssueTypeOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerIssueTypeSingle),
 	)
 
@@ -353,7 +353,7 @@ func ExampleProjectIssueTypeOptionService() {
 func ExampleProjectStatusOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStatusSingle),
 	)
 
@@ -373,7 +373,7 @@ func ExampleProjectStatusOptionService() {
 func ExampleProjectVersionOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerVersionSingle),
 	)
 
@@ -393,7 +393,7 @@ func ExampleProjectVersionOptionService() {
 func ExampleProjectWebhookOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWebhookAllEvent),
 	)
 

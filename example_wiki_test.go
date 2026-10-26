@@ -10,7 +10,7 @@ import (
 func ExampleWikiService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiList),
 	)
 
@@ -23,7 +23,7 @@ func ExampleWikiService_List() {
 func ExampleWikiService_Count() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiCount),
 	)
 
@@ -36,7 +36,7 @@ func ExampleWikiService_Count() {
 func ExampleWikiService_One() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiSingle),
 	)
 
@@ -49,7 +49,7 @@ func ExampleWikiService_One() {
 func ExampleWikiService_Create() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiSingle),
 	)
 
@@ -62,7 +62,7 @@ func ExampleWikiService_Create() {
 func ExampleWikiService_Update() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiSingle),
 	)
 
@@ -79,7 +79,7 @@ func ExampleWikiService_Update() {
 func ExampleWikiService_Delete() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiSingle),
 	)
 
@@ -92,7 +92,7 @@ func ExampleWikiService_Delete() {
 func ExampleWikiAttachmentService_Attach() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentList),
 	)
 
@@ -105,7 +105,7 @@ func ExampleWikiAttachmentService_Attach() {
 func ExampleWikiAttachmentService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentList),
 	)
 
@@ -118,7 +118,7 @@ func ExampleWikiAttachmentService_List() {
 func ExampleWikiAttachmentService_Download() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiAttachmentDownload),
 	)
 
@@ -131,7 +131,7 @@ func ExampleWikiAttachmentService_Download() {
 func ExampleWikiAttachmentService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerAttachmentSingle),
 	)
 
@@ -144,7 +144,7 @@ func ExampleWikiAttachmentService_Remove() {
 func ExampleWikiHistoryService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerWikiHistoryList),
 	)
 
@@ -157,7 +157,7 @@ func ExampleWikiHistoryService_List() {
 func ExampleWikiSharedFileService_Link() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileList),
 	)
 
@@ -170,7 +170,7 @@ func ExampleWikiSharedFileService_Link() {
 func ExampleWikiSharedFileService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileList),
 	)
 
@@ -183,7 +183,7 @@ func ExampleWikiSharedFileService_List() {
 func ExampleWikiSharedFileService_Unlink() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerSharedFileSingle),
 	)
 
@@ -196,7 +196,7 @@ func ExampleWikiSharedFileService_Unlink() {
 func ExampleWikiStarService_List() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerStarList),
 	)
 
@@ -209,7 +209,7 @@ func ExampleWikiStarService_List() {
 func ExampleWikiStarService_Add() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 
@@ -226,7 +226,7 @@ func ExampleWikiStarService_Add() {
 func ExampleWikiStarService_Remove() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",
-		"token",
+		"apiKey",
 		backlog.WithDoer(doerNoContent),
 	)
 

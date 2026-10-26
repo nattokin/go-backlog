@@ -15,7 +15,7 @@ import (
 )
 
 func TestActivityOptionService(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	o := c.User.Activity.Option
 
@@ -133,7 +133,7 @@ func TestActivityOptionService(t *testing.T) {
 }
 
 func TestRequestOption_Check(t *testing.T) {
-	c, err := backlog.NewClient("https://example.backlog.com", "token")
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	o := c.User.Activity.Option
 
@@ -171,7 +171,7 @@ func Test_toInnerOption_CheckFunc(t *testing.T) {
 	t.Parallel()
 
 	c, err := backlog.NewClient(
-		"https://example.backlog.com", "token",
+		"https://example.backlog.com", "apiKey",
 		backlog.WithDoer(&mock.Doer{DoFunc: mock.NewNotFoundDoFunc()}),
 	)
 	require.NoError(t, err)
