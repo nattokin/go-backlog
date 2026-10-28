@@ -21,23 +21,17 @@ type VersionService struct {
 // List returns versions/milestones in a project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
-func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.Version, error) {
-	query := url.Values{}
-	validTypes := []option.APIParamOptionType{
-		option.ParamArchived,
-		option.ParamAll,
-	}
-
+func (s *VersionService) List(ctx context.Context, projectIDOrKey string) ([]*model.Version, error) {
 	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validTypes, opts...)); err != nil {
-		return nil, err
+	if len(ves) > 0 {
+		return nil, ves
 	}
 
 	spath := client.PathJoin("projects", projectIDOrKey, "versions")
-	resp, err := s.method.Get(ctx, spath, query)
+	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}

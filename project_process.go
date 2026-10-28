@@ -89,13 +89,9 @@ type ProjectVersionService struct {
 
 // List returns a list of versions/milestones in the project.
 //
-// This method supports options returned by methods in "*Client.Project.Version.Option",
-// such as:
-//   - WithArchived
-//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/
-func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toInnerOptions(opts)...)
+func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string) ([]*Version, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return versionsFromModel(v), convertError(err)
 }
 
@@ -167,7 +163,7 @@ type ProjectVersionOptionService struct {
 	base *option.OptionService
 }
 
-// WithArchived sets whether to include archived versions.
+// WithArchived sets whether the version is archived.
 func (s *ProjectVersionOptionService) WithArchived(enabled bool) RequestOption {
 	return &requestOption{opt: s.base.WithArchived(enabled)}
 }
