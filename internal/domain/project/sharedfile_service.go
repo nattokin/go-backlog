@@ -29,7 +29,8 @@ var sharedFileListValidTypes = []option.APIParamOptionType{
 // List returns a list of shared files in the directory of the project.
 //
 // dirPath is the directory path shown in the project's file tree, e.g. "/design/".
-// Use "/" to list the project root.
+// Use "/" to list the project root. The path is always sent with a trailing
+// slash, so "/design" and "/design/" are equivalent.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
 func (s *SharedFileService) List(ctx context.Context, projectIDOrKey, dirPath string, opts ...*option.APIParamOption) ([]*model.SharedFile, error) {
@@ -46,7 +47,9 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey, dirPath st
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "files", "metadata", dirPath)
+	// The directory is sent in its directory form, with a trailing slash:
+	// "/design/" -> files/metadata/design/, "/" -> files/metadata/.
+	spath := path.Join("projects", projectIDOrKey, "files", "metadata", dirPath) + "/"
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err

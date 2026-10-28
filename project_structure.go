@@ -75,7 +75,8 @@ type ProjectSharedFileService struct {
 // List returns a list of shared files in the directory of the project.
 //
 // dirPath is the directory path shown in the project's file tree, e.g. "/design/".
-// Use "/" to list the project root.
+// Use "/" to list the project root. The path is always sent with a trailing
+// slash, so "/design" and "/design/" are equivalent.
 //
 // This method supports options returned by methods in "*Client.Project.SharedFile.Option",
 // such as:
