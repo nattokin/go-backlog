@@ -118,6 +118,9 @@ func issueTypeFromModel(m *model.IssueType) *IssueType {
 		Name:         m.Name,
 		Color:        m.Color,
 		DisplayOrder: m.DisplayOrder,
+
+		TemplateSummary:     m.TemplateSummary,
+		TemplateDescription: m.TemplateDescription,
 	}
 }
 
