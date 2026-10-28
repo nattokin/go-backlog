@@ -40,6 +40,9 @@ type IssueType struct {
 	Name         string `json:"name,omitempty"`
 	Color        string `json:"color,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
+
+	TemplateSummary     string `json:"templateSummary,omitempty"`
+	TemplateDescription string `json:"templateDescription,omitempty"`
 }
 
 // Priority represents the priority of an issue.
