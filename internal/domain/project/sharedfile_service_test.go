@@ -71,6 +71,14 @@ func TestSharedFileService_List(t *testing.T) {
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
+		"success-dirPath-repeated-slashes": {
+			projectIDOrKey: "TEST",
+			dirPath:        "//design//2024/",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata/design/2024/", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
 		"success-with-options": {
 			projectIDOrKey: "TEST",
 			dirPath:        "/design/",
@@ -171,6 +179,36 @@ func TestSharedFileService_List(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
+		})
+	}
+}
+
+func TestSharedFileService_List_pathTraversal(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey string
+		dirPath        string
+	}{
+		"dirPath-parent-directory":  {projectIDOrKey: "TEST", dirPath: "/design/../../../users/1/"},
+		"dirPath-current-directory": {projectIDOrKey: "TEST", dirPath: "/./design/"},
+		"dirPath-backslash":         {projectIDOrKey: "TEST", dirPath: `/..\design/`},
+		"dirPath-control-character": {projectIDOrKey: "TEST", dirPath: "/design\x00/"},
+		"projectIDOrKey-traversal":  {projectIDOrKey: "../users/1", dirPath: "/"},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			// mock.NewMethod fails the test if any request is sent.
+			s := project.NewSharedFileService(mock.NewMethod(t))
+			files, err := s.List(context.Background(), tc.projectIDOrKey, tc.dirPath)
+
+			assert.Nil(t, files)
+			var ve *validation.Error
+			if assert.ErrorAs(t, err, &ve) {
+				assert.Equal(t, "path", ve.Target())
+				assert.Contains(t, ve.Message(), "invalid path segment")
+			}
 		})
 	}
 }

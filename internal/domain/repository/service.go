@@ -4,7 +4,6 @@ package repository
 import (
 	"context"
 	"net/url"
-	"path"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -29,7 +28,10 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Rep
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
@@ -58,7 +60,10 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName)
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName)
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

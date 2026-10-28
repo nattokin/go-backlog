@@ -2,7 +2,6 @@ package pullrequest
 
 import (
 	"context"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -37,7 +36,10 @@ func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, rep
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
+	if err != nil {
+		return nil, err
+	}
 	return s.base.List(ctx, spath)
 }
 
@@ -62,7 +64,10 @@ func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, r
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Remove(ctx, spath)
 }
 
@@ -88,7 +93,10 @@ func (s *AttachmentService) Download(ctx context.Context, projectIDOrKey string,
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Download(ctx, spath)
 }
 
