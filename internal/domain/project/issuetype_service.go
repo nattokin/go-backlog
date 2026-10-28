@@ -28,10 +28,7 @@ func (s *IssueTypeService) List(ctx context.Context, projectIDOrKey string) ([]*
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "issueTypes")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "issueTypes")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -62,10 +59,7 @@ func (s *IssueTypeService) Create(ctx context.Context, projectIDOrKey, name, col
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "issueTypes")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "issueTypes")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -98,10 +92,7 @@ func (s *IssueTypeService) Update(ctx context.Context, projectIDOrKey string, is
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -136,10 +127,7 @@ func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, is
 	form := url.Values{}
 	form.Set("substituteIssueTypeId", strconv.Itoa(substituteIssueTypeID))
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "issueTypes", strconv.Itoa(issueTypeID))
 	resp, err := s.method.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err

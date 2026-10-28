@@ -49,14 +49,10 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey, dirPath st
 
 	// The directory is sent in its directory form, with a trailing slash:
 	// "/design/" -> files/metadata/design/, "/" -> files/metadata/.
-	// Each directory name is validated as its own segment; the empty
-	// segments produced by leading, trailing or repeated slashes are dropped.
+	// Each directory name becomes its own segment; the empty segments
+	// produced by leading, trailing or repeated slashes are dropped.
 	segments := append([]string{"projects", projectIDOrKey, "files", "metadata"}, splitDirPath(dirPath)...)
-	spath, err := client.PathJoin(segments...)
-	if err != nil {
-		return nil, err
-	}
-	spath += "/"
+	spath := client.PathJoin(segments...) + "/"
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -86,10 +82,7 @@ func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string,
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))
 	resp, err := s.method.Download(ctx, spath, nil)
 	if err != nil {
 		return nil, err

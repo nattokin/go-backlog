@@ -29,10 +29,7 @@ func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*m
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "categories")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "categories")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -71,10 +68,7 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 	form := url.Values{}
 	opt.Set(form)
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "categories")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "categories")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -110,10 +104,7 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 	form := url.Values{}
 	opt.Set(form)
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -142,10 +133,7 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
 	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err

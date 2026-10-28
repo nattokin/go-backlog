@@ -31,10 +31,7 @@ func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts 
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "activities")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "activities")
 	return s.base.Fetch(ctx, spath, query)
 }
 

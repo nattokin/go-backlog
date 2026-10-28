@@ -36,10 +36,7 @@ func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts .
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "versions")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "versions")
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -75,10 +72,7 @@ func (s *VersionService) Add(ctx context.Context, projectIDOrKey, name string, o
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "versions")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "versions")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -117,10 +111,7 @@ func (s *VersionService) Update(ctx context.Context, projectIDOrKey string, vers
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -149,10 +140,7 @@ func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, vers
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "versions", strconv.Itoa(versionID))
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
