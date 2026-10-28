@@ -28,10 +28,7 @@ func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHist
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "history")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "history")
 	resp, err := s.method.Get(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err

@@ -42,10 +42,7 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
 	form := url.Values{}
 	for _, id := range attachmentIDs {
 		form.Add("attachmentId[]", strconv.Itoa(id))
@@ -76,10 +73,7 @@ func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Atta
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
 	return s.base.List(ctx, spath)
 }
 
@@ -98,10 +92,7 @@ func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
 	return s.base.Remove(ctx, spath)
 }
 
@@ -121,10 +112,7 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
 	return s.base.Download(ctx, spath)
 }
 

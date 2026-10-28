@@ -27,10 +27,7 @@ func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, erro
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "stars")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "stars")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

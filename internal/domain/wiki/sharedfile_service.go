@@ -30,10 +30,7 @@ func (s *SharedFileService) List(ctx context.Context, wikiID int) ([]*model.Shar
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
 	return s.base.List(ctx, spath)
 }
 
@@ -59,10 +56,7 @@ func (s *SharedFileService) Link(ctx context.Context, wikiID int, fileIDs []int)
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
 	return s.base.Link(ctx, spath, fileIDs)
 }
 
@@ -81,10 +75,7 @@ func (s *SharedFileService) Unlink(ctx context.Context, wikiID, fileID int) (*mo
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles", strconv.Itoa(fileID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles", strconv.Itoa(fileID))
 	return s.base.Unlink(ctx, spath)
 }
 
