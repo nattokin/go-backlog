@@ -19,18 +19,14 @@ import (
 )
 
 func TestVersionService_List(t *testing.T) {
-	o := &option.OptionService{}
-
 	cases := map[string]struct {
 		projectIDOrKey string
-		opts           []*option.APIParamOption
 
 		mockGetFn func(context.Context, string, url.Values) (*http.Response, error)
 
 		wantLen                int
 		wantErrType            error
 		wantValidationErrCount int
-		wantInvalidOptionError bool
 	}{
 		"success": {
 			projectIDOrKey: "TEST",
@@ -49,38 +45,6 @@ func TestVersionService_List(t *testing.T) {
 		"error-validation-projectIDOrKey-zero": {
 			projectIDOrKey:         "0",
 			wantValidationErrCount: 1,
-		},
-
-		"error-nil-option-with-valid-values": {
-			projectIDOrKey:         "TEST",
-			opts:                   []*option.APIParamOption{nil},
-			wantInvalidOptionError: true,
-		},
-		"error-nil-option-with-invalid-values": {
-			projectIDOrKey:         "",
-			opts:                   []*option.APIParamOption{nil},
-			wantInvalidOptionError: true,
-		},
-
-		"error-option-invalid-type-with-valid-values": {
-			projectIDOrKey: "TEST",
-			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &option.InvalidOptionKeyError{},
-		},
-		"error-option-invalid-type-with-invalid-values": {
-			projectIDOrKey: "",
-			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
-			wantErrType:    &option.InvalidOptionKeyError{},
-		},
-		"error-option-archived-not-allowed": {
-			projectIDOrKey: "TEST",
-			opts:           []*option.APIParamOption{o.WithArchived(true)},
-			wantErrType:    &option.InvalidOptionKeyError{},
-		},
-		"error-option-all-not-allowed": {
-			projectIDOrKey: "TEST",
-			opts:           []*option.APIParamOption{o.WithAll(true)},
-			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -107,15 +71,7 @@ func TestVersionService_List(t *testing.T) {
 				m.Get = tc.mockGetFn
 			}
 			s := project.NewVersionService(m)
-			got, err := s.List(context.Background(), tc.projectIDOrKey, tc.opts...)
-
-			if tc.wantInvalidOptionError {
-				assert.Error(t, err)
-				assert.Nil(t, got)
-				var target *option.InvalidOptionError
-				assert.ErrorAs(t, err, &target)
-				return
-			}
+			got, err := s.List(context.Background(), tc.projectIDOrKey)
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)

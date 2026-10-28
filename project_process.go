@@ -90,8 +90,8 @@ type ProjectVersionService struct {
 // List returns a list of versions/milestones in the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/
-func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Version, error) {
-	v, err := s.base.List(ctx, projectIDOrKey, toInnerOptions(opts)...)
+func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string) ([]*Version, error) {
+	v, err := s.base.List(ctx, projectIDOrKey)
 	return versionsFromModel(v), convertError(err)
 }
 
