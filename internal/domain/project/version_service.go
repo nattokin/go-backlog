@@ -23,10 +23,7 @@ type VersionService struct {
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list
 func (s *VersionService) List(ctx context.Context, projectIDOrKey string, opts ...*option.APIParamOption) ([]*model.Version, error) {
 	query := url.Values{}
-	validTypes := []option.APIParamOptionType{
-		option.ParamArchived,
-		option.ParamAll,
-	}
+	validTypes := []option.APIParamOptionType{}
 
 	var ves validation.Errors
 	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {

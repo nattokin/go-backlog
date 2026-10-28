@@ -35,10 +35,9 @@ func TestVersionService_List(t *testing.T) {
 		"success": {
 			projectIDOrKey: "TEST",
 			wantLen:        2,
-			opts:           []*option.APIParamOption{o.WithArchived(true)},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "projects/TEST/versions", spath)
-				assert.Equal(t, "true", query.Get("archived"))
+				assert.Empty(t, query)
 				return mock.NewResponse(fixture.Version.ListJSON), nil
 			},
 		},
@@ -51,20 +50,10 @@ func TestVersionService_List(t *testing.T) {
 			projectIDOrKey:         "0",
 			wantValidationErrCount: 1,
 		},
-		"error-validation-opt": {
-			projectIDOrKey:         "TEST",
-			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamArchived)},
-			wantValidationErrCount: 1,
-		},
-		"error-validation-all": {
-			projectIDOrKey:         "",
-			opts:                   []*option.APIParamOption{mock.NewFailingCheckOption(option.ParamArchived)},
-			wantValidationErrCount: 2,
-		},
 
 		"error-nil-option-with-valid-values": {
 			projectIDOrKey:         "TEST",
-			opts:                   []*option.APIParamOption{o.WithArchived(true), nil},
+			opts:                   []*option.APIParamOption{nil},
 			wantInvalidOptionError: true,
 		},
 		"error-nil-option-with-invalid-values": {
@@ -81,6 +70,16 @@ func TestVersionService_List(t *testing.T) {
 		"error-option-invalid-type-with-invalid-values": {
 			projectIDOrKey: "",
 			opts:           []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType:    &option.InvalidOptionKeyError{},
+		},
+		"error-option-archived-not-allowed": {
+			projectIDOrKey: "TEST",
+			opts:           []*option.APIParamOption{o.WithArchived(true)},
+			wantErrType:    &option.InvalidOptionKeyError{},
+		},
+		"error-option-all-not-allowed": {
+			projectIDOrKey: "TEST",
+			opts:           []*option.APIParamOption{o.WithAll(true)},
 			wantErrType:    &option.InvalidOptionKeyError{},
 		},
 
