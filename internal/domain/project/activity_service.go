@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -32,7 +31,10 @@ func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts 
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "activities")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "activities")
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Fetch(ctx, spath, query)
 }
 

@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -30,7 +29,10 @@ func (s *CategoryService) List(ctx context.Context, projectIDOrKey string) ([]*m
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "categories")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "categories")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +71,10 @@ func (s *CategoryService) Create(ctx context.Context, projectIDOrKey string, nam
 	form := url.Values{}
 	opt.Set(form)
 
-	spath := path.Join("projects", projectIDOrKey, "categories")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "categories")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -105,7 +110,10 @@ func (s *CategoryService) Update(ctx context.Context, projectIDOrKey string, cat
 	form := url.Values{}
 	opt.Set(form)
 
-	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -134,7 +142,10 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "categories", strconv.Itoa(categoryID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
