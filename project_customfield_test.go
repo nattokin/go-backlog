@@ -258,6 +258,69 @@ func TestProjectCustomFieldService_Update(t *testing.T) {
 	}
 }
 
+// TestProjectCustomFieldService_Create_readBack verifies that the type-specific settings
+// sent through options can be read back from the decoded response.
+func TestProjectCustomFieldService_Create_readBack(t *testing.T) {
+	cases := map[string]struct {
+		fieldType backlog.CustomFieldType
+		opts      func(o *backlog.ProjectCustomFieldOptionService) []backlog.RequestOption
+		wantForm  map[string]string
+		respJSON  string
+		want      *backlog.CustomField
+	}{
+		"number": {
+			fieldType: backlog.CustomFieldTypeNumber,
+			opts: func(o *backlog.ProjectCustomFieldOptionService) []backlog.RequestOption {
+				return []backlog.RequestOption{o.WithMin(0), o.WithMax(100), o.WithInitialValue(8), o.WithUnit("h")}
+			},
+			wantForm: map[string]string{"min": "0", "max": "100", "initialValue": "8", "unit": "h"},
+			respJSON: fixture.CustomField.NumberJSON,
+			want:     fixture.CustomField.Number,
+		},
+		"date": {
+			fieldType: backlog.CustomFieldTypeDate,
+			opts: func(o *backlog.ProjectCustomFieldOptionService) []backlog.RequestOption {
+				return []backlog.RequestOption{
+					o.WithMinDate("2024-01-15"), o.WithMaxDate("2024-12-31"), o.WithInitialValueType(2), o.WithInitialShift(7),
+				}
+			},
+			wantForm: map[string]string{"min": "2024-01-15", "max": "2024-12-31", "initialValueType": "2", "initialShift": "7"},
+			respJSON: fixture.CustomField.DateJSON,
+			want:     fixture.CustomField.Date,
+		},
+		"checkbox": {
+			fieldType: backlog.CustomFieldTypeCheckbox,
+			opts: func(o *backlog.ProjectCustomFieldOptionService) []backlog.RequestOption {
+				return []backlog.RequestOption{o.WithItems([]string{"Windows"}), o.WithAllowInput(true), o.WithAllowAddItem(true)}
+			},
+			wantForm: map[string]string{"items[]": "Windows", "allowInput": "true", "allowAddItem": "true"},
+			respJSON: fixture.CustomField.CheckBoxJSON,
+			want:     fixture.CustomField.CheckBox,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			doFunc := func(r *http.Request) (*http.Response, error) {
+				require.NoError(t, r.ParseForm())
+				for k, v := range tc.wantForm {
+					assert.Equal(t, v, r.PostForm.Get(k), k)
+				}
+				return mock.NewResponse(tc.respJSON), nil
+			}
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Project.CustomField.Create(context.Background(), "TEST", tc.fieldType, tc.want.Name, tc.opts(c.Project.CustomField.Option)...)
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestProjectCustomFieldService_Delete(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey         string
