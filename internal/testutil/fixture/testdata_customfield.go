@@ -9,6 +9,13 @@ type customFieldFixtures struct {
 	Single     *backlog.CustomField
 	ListJSON   string
 	List       []*backlog.CustomField
+
+	NumberJSON   string
+	Number       *backlog.CustomField
+	DateJSON     string
+	Date         *backlog.CustomField
+	CheckBoxJSON string
+	CheckBox     *backlog.CustomField
 }
 
 // CustomField provides test fixtures for CustomField-related tests.
@@ -74,5 +81,85 @@ var CustomField = customFieldFixtures{
 				{ID: 11, Name: "Low", DisplayOrder: 1},
 			},
 		},
+	},
+	NumberJSON: `
+{
+    "id": 3,
+    "typeId": 3,
+    "name": "Estimate",
+    "description": "",
+    "required": false,
+    "applicableIssueTypes": [],
+    "min": 0.0,
+    "max": 100.0,
+    "initialValue": 8.0,
+    "unit": "h"
+}
+`,
+	Number: &backlog.CustomField{
+		ID:                     3,
+		TypeID:                 3,
+		Name:                   "Estimate",
+		ApplicableIssueTypeIDs: []int{},
+		Items:                  []*backlog.CustomFieldItem{},
+
+		Min:          ptrFloat64(0),
+		Max:          ptrFloat64(100),
+		InitialValue: ptrFloat64(8),
+		Unit:         "h",
+	},
+	DateJSON: `
+{
+    "id": 4,
+    "typeId": 4,
+    "name": "Deadline",
+    "description": "",
+    "required": false,
+    "applicableIssueTypes": [],
+    "min": "2024-01-14T15:00:00Z",
+    "max": "2024-12-30T15:00:00Z",
+    "initialDate": {
+        "id": 2,
+        "shift": 7
+    }
+}
+`,
+	Date: &backlog.CustomField{
+		ID:                     4,
+		TypeID:                 4,
+		Name:                   "Deadline",
+		ApplicableIssueTypeIDs: []int{},
+		Items:                  []*backlog.CustomFieldItem{},
+
+		MinDate:     mustTimestamp("2024-01-14T15:00:00Z"),
+		MaxDate:     mustTimestamp("2024-12-30T15:00:00Z"),
+		InitialDate: &backlog.CustomFieldInitialDate{InitialValueType: 2, Shift: 7},
+	},
+	CheckBoxJSON: `
+{
+    "id": 5,
+    "typeId": 7,
+    "name": "Platform",
+    "description": "",
+    "required": false,
+    "applicableIssueTypes": [],
+    "allowAddItem": true,
+    "allowInput": true,
+    "items": [
+        {"id": 20, "name": "Windows", "displayOrder": 0}
+    ]
+}
+`,
+	CheckBox: &backlog.CustomField{
+		ID:                     5,
+		TypeID:                 7,
+		Name:                   "Platform",
+		ApplicableIssueTypeIDs: []int{},
+		AllowAddItem:           true,
+		Items: []*backlog.CustomFieldItem{
+			{ID: 20, Name: "Windows"},
+		},
+
+		AllowInput: true,
 	},
 }

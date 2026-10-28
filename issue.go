@@ -56,6 +56,9 @@ type IssueType struct {
 	Name         string
 	Color        string
 	DisplayOrder int
+
+	TemplateSummary     string
+	TemplateDescription string
 }
 
 // Priority represents a priority.
