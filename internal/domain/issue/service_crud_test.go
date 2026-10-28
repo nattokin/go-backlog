@@ -593,3 +593,34 @@ func TestService_Delete(t *testing.T) {
 		})
 	}
 }
+
+func TestService_Delete_pathTraversal(t *testing.T) {
+	cases := map[string]struct {
+		issueIDOrKey string
+	}{
+		"parent-directory":  {issueIDOrKey: ".."},
+		"current-directory": {issueIDOrKey: "."},
+		"traversal":         {issueIDOrKey: "../projects/PRJ"},
+		"sub-resource":      {issueIDOrKey: "PRJ-1/comments/1"},
+		"backslash":         {issueIDOrKey: `..\projects\PRJ`},
+		"control-character": {issueIDOrKey: "PRJ-1\r\n"},
+		"encoded-traversal": {issueIDOrKey: "%2e%2e/projects/PRJ"},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			// mock.NewMethod fails the test if any request is sent.
+			s := issue.NewService(mock.NewMethod(t))
+			got, err := s.Delete(context.Background(), tc.issueIDOrKey)
+
+			assert.Nil(t, got)
+			var ve *validation.Error
+			if assert.ErrorAs(t, err, &ve) {
+				assert.Equal(t, "path", ve.Target())
+				assert.Contains(t, ve.Message(), "invalid path segment")
+			}
+		})
+	}
+}
