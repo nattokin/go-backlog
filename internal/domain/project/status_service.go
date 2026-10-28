@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -30,7 +29,10 @@ func (s *StatusService) List(ctx context.Context, projectIDOrKey string) ([]*mod
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "statuses")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "statuses")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -70,7 +72,10 @@ func (s *StatusService) Create(ctx context.Context, projectIDOrKey, name, color 
 	nameOpt.Set(form)
 	colorOpt.Set(form)
 
-	spath := path.Join("projects", projectIDOrKey, "statuses")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "statuses")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -103,7 +108,10 @@ func (s *StatusService) Update(ctx context.Context, projectIDOrKey string, statu
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -138,7 +146,10 @@ func (s *StatusService) Delete(ctx context.Context, projectIDOrKey string, statu
 	form := url.Values{}
 	form.Set("substituteStatusId", strconv.Itoa(substituteStatusID))
 
-	spath := path.Join("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "statuses", strconv.Itoa(statusID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -178,7 +189,10 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 		form.Add("statusId[]", strconv.Itoa(id))
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "statuses", "updateDisplayOrder")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "statuses", "updateDisplayOrder")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
