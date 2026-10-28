@@ -394,6 +394,42 @@ func TestClient_NewRequest(t *testing.T) {
 
 }
 
+func TestClient_NewRequest_path(t *testing.T) {
+	cases := map[string]struct {
+		spath           string
+		wantEscapedPath string
+	}{
+		"without-trailing-slash": {
+			spath:           "projects/TEST",
+			wantEscapedPath: "/api/v2/projects/TEST",
+		},
+		"trailing-slash-kept": {
+			spath:           "projects/TEST/files/metadata/design/",
+			wantEscapedPath: "/api/v2/projects/TEST/files/metadata/design/",
+		},
+		"trailing-slash-only-segment": {
+			spath:           "projects/TEST/files/metadata/",
+			wantEscapedPath: "/api/v2/projects/TEST/files/metadata/",
+		},
+		"non-ascii-and-space-escaped": {
+			spath:           "projects/TEST/files/metadata/資料/a b/",
+			wantEscapedPath: "/api/v2/projects/TEST/files/metadata/%E8%B3%87%E6%96%99/a%20b/",
+		},
+	}
+
+	for n, tc := range cases {
+		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
+			c := mock.NewClient(t, nil)
+			request, err := c.NewRequest(context.Background(), http.MethodGet, tc.spath)
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantEscapedPath, request.URL.EscapedPath())
+		})
+	}
+}
+
 func TestClient_NewRequest_credential(t *testing.T) {
 	cases := map[string]struct {
 		newClient     func() (*client.Client, error)
