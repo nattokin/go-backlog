@@ -28,10 +28,7 @@ func (s *Service) List(ctx context.Context, projectIDOrKey string) ([]*model.Rep
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories")
 	resp, err := s.method.Get(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
@@ -60,10 +57,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName)
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

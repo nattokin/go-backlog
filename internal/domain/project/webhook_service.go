@@ -29,10 +29,7 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "webhooks")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -75,10 +72,7 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "webhooks")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -107,10 +101,7 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -148,10 +139,7 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -179,10 +167,7 @@ func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webh
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err

@@ -36,10 +36,7 @@ func (s *AttachmentService) List(ctx context.Context, projectIDOrKey string, rep
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments")
 	return s.base.List(ctx, spath)
 }
 
@@ -64,10 +61,7 @@ func (s *AttachmentService) Remove(ctx context.Context, projectIDOrKey string, r
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
 	return s.base.Remove(ctx, spath)
 }
 
@@ -93,10 +87,7 @@ func (s *AttachmentService) Download(ctx context.Context, projectIDOrKey string,
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repositoryIDOrName, "pullRequests", strconv.Itoa(prNumber), "attachments", strconv.Itoa(attachmentID))
 	return s.base.Download(ctx, spath)
 }
 
