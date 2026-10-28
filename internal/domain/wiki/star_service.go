@@ -2,7 +2,6 @@ package wiki
 
 import (
 	"context"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -28,7 +27,10 @@ func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, erro
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "stars")
+	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "stars")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

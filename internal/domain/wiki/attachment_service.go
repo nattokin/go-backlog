@@ -3,7 +3,6 @@ package wiki
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -43,7 +42,10 @@ func (s *AttachmentService) Attach(ctx context.Context, wikiID int, attachmentID
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
+	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
+	if err != nil {
+		return nil, err
+	}
 	form := url.Values{}
 	for _, id := range attachmentIDs {
 		form.Add("attachmentId[]", strconv.Itoa(id))
@@ -74,7 +76,10 @@ func (s *AttachmentService) List(ctx context.Context, wikiID int) ([]*model.Atta
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments")
+	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments")
+	if err != nil {
+		return nil, err
+	}
 	return s.base.List(ctx, spath)
 }
 
@@ -93,7 +98,10 @@ func (s *AttachmentService) Remove(ctx context.Context, wikiID, attachmentID int
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
+	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Remove(ctx, spath)
 }
 
@@ -113,7 +121,10 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
+	spath, err := client.PathJoin("wikis", strconv.Itoa(wikiID), "attachments", strconv.Itoa(attachmentID))
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Download(ctx, spath)
 }
 
