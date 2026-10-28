@@ -110,6 +110,11 @@ func Test_changeLogFromModel(t *testing.T) {
 }
 
 func Test_customFieldFromModel(t *testing.T) {
+	minNumber, maxNumber, initialValue := 0.0, 100.0, 8.0
+	minDate := time.Date(2024, 1, 14, 15, 0, 0, 0, time.UTC)
+	maxDate := time.Date(2024, 12, 30, 15, 0, 0, 0, time.UTC)
+	initialDate := time.Date(2024, 3, 31, 15, 0, 0, 0, time.UTC)
+
 	cases := map[string]struct {
 		input *model.CustomField
 		want  *CustomField
@@ -152,6 +157,55 @@ func Test_customFieldFromModel(t *testing.T) {
 				ID:    2,
 				Name:  "no items",
 				Items: []*CustomFieldItem{},
+			},
+		},
+		"number_type": {
+			input: &model.CustomField{
+				ID:           3,
+				TypeID:       3,
+				Min:          &model.CustomFieldBound{Number: &minNumber},
+				Max:          &model.CustomFieldBound{Number: &maxNumber},
+				InitialValue: &initialValue,
+				Unit:         "h",
+			},
+			want: &CustomField{
+				ID:           3,
+				TypeID:       3,
+				Items:        []*CustomFieldItem{},
+				Min:          &minNumber,
+				Max:          &maxNumber,
+				InitialValue: &initialValue,
+				Unit:         "h",
+			},
+		},
+		"date_type": {
+			input: &model.CustomField{
+				ID:          4,
+				TypeID:      4,
+				Min:         &model.CustomFieldBound{Date: &minDate},
+				Max:         &model.CustomFieldBound{Date: &maxDate},
+				InitialDate: &model.CustomFieldInitialDate{ID: 3, Date: initialDate},
+			},
+			want: &CustomField{
+				ID:          4,
+				TypeID:      4,
+				Items:       []*CustomFieldItem{},
+				MinDate:     Timestamp{minDate},
+				MaxDate:     Timestamp{maxDate},
+				InitialDate: &CustomFieldInitialDate{InitialValueType: 3, Date: Timestamp{initialDate}},
+			},
+		},
+		"list_type_allow_input": {
+			input: &model.CustomField{
+				ID:         5,
+				TypeID:     7,
+				AllowInput: true,
+			},
+			want: &CustomField{
+				ID:         5,
+				TypeID:     7,
+				Items:      []*CustomFieldItem{},
+				AllowInput: true,
 			},
 		},
 	}
@@ -613,6 +667,7 @@ func Test_fromModel_nil(t *testing.T) {
 		"comment":                  {call: func() any { return commentFromModel(nil) }},
 		"custom_field":             {call: func() any { return customFieldFromModel(nil) }},
 		"custom_field_item":        {call: func() any { return customFieldItemFromModel(nil) }},
+		"custom_field_init_date":   {call: func() any { return customFieldInitialDateFromModel(nil) }},
 		"disk_usage_project":       {call: func() any { return diskUsageProjectFromModel(nil) }},
 		"disk_usage_space":         {call: func() any { return diskUsageSpaceFromModel(nil) }},
 		"issue":                    {call: func() any { return issueFromModel(nil) }},
