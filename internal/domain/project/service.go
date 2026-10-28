@@ -51,10 +51,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string) (*model.Projec
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey)
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -113,10 +110,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey)
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -142,10 +136,7 @@ func (s *Service) Delete(ctx context.Context, projectIDOrKey string) (*model.Pro
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey)
 	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
@@ -171,10 +162,7 @@ func (s *Service) DiskUsage(ctx context.Context, projectIDOrKey string) (*model.
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "diskUsage")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "diskUsage")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -201,10 +189,7 @@ func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileD
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("projects", projectIDOrKey, "image")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("projects", projectIDOrKey, "image")
 	resp, err := s.method.Download(ctx, spath, nil)
 	if err != nil {
 		return nil, err

@@ -187,12 +187,13 @@ func TestSharedFileService_List_pathTraversal(t *testing.T) {
 	cases := map[string]struct {
 		projectIDOrKey string
 		dirPath        string
+		wantTarget     string
 	}{
-		"dirPath-parent-directory":  {projectIDOrKey: "TEST", dirPath: "/design/../../../users/1/"},
-		"dirPath-current-directory": {projectIDOrKey: "TEST", dirPath: "/./design/"},
-		"dirPath-backslash":         {projectIDOrKey: "TEST", dirPath: `/..\design/`},
-		"dirPath-control-character": {projectIDOrKey: "TEST", dirPath: "/design\x00/"},
-		"projectIDOrKey-traversal":  {projectIDOrKey: "../users/1", dirPath: "/"},
+		"dirPath-parent-directory":  {projectIDOrKey: "TEST", dirPath: "/design/../../../users/1/", wantTarget: "dirPath"},
+		"dirPath-current-directory": {projectIDOrKey: "TEST", dirPath: "/./design/", wantTarget: "dirPath"},
+		"dirPath-backslash":         {projectIDOrKey: "TEST", dirPath: `/..\design/`, wantTarget: "dirPath"},
+		"dirPath-control-character": {projectIDOrKey: "TEST", dirPath: "/design\x00/", wantTarget: "dirPath"},
+		"projectIDOrKey-traversal":  {projectIDOrKey: "../users/1", dirPath: "/", wantTarget: "projectIDOrKey"},
 	}
 
 	for name, tc := range cases {
@@ -204,10 +205,10 @@ func TestSharedFileService_List_pathTraversal(t *testing.T) {
 			files, err := s.List(context.Background(), tc.projectIDOrKey, tc.dirPath)
 
 			assert.Nil(t, files)
-			var ve *validation.Error
-			if assert.ErrorAs(t, err, &ve) {
-				assert.Equal(t, "path", ve.Target())
-				assert.Contains(t, ve.Message(), "invalid path segment")
+			var ves validation.Errors
+			if assert.ErrorAs(t, err, &ves) && assert.Len(t, ves, 1) {
+				assert.Equal(t, tc.wantTarget, ves[0].Target())
+				assert.Contains(t, ves[0].Message(), "invalid "+tc.wantTarget)
 			}
 		})
 	}
