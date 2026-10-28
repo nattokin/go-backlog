@@ -52,10 +52,7 @@ func (s *Service) Remove(ctx context.Context, id int) error {
 		return ves
 	}
 
-	spath, err := client.PathJoin("stars", strconv.Itoa(id))
-	if err != nil {
-		return err
-	}
+	spath := client.PathJoin("stars", strconv.Itoa(id))
 	if _, err := s.method.Delete(ctx, spath, nil); err != nil {
 		return err
 	}

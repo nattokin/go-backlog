@@ -33,10 +33,7 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*option.
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("users", strconv.Itoa(userID), "activities")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("users", strconv.Itoa(userID), "activities")
 	return s.base.Fetch(ctx, spath, query)
 }
 

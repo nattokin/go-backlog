@@ -38,10 +38,7 @@ func (s *ActivityService) One(ctx context.Context, activityID int) (*model.Activ
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("activities", strconv.Itoa(activityID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("activities", strconv.Itoa(activityID))
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

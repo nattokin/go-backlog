@@ -32,10 +32,7 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("users", strconv.Itoa(userID), "stars")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("users", strconv.Itoa(userID), "stars")
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -61,10 +58,7 @@ func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
 		return 0, ves
 	}
 
-	spath, err := client.PathJoin("users", strconv.Itoa(userID), "stars", "count")
-	if err != nil {
-		return 0, err
-	}
+	spath := client.PathJoin("users", strconv.Itoa(userID), "stars", "count")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return 0, err
