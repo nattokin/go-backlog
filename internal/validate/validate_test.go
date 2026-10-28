@@ -70,6 +70,7 @@ func TestValidateIDOrKey(t *testing.T) {
 		"invalid-empty":      {value: "", wantErr: true},
 		"invalid-whitespace": {value: " \t\n ", wantErr: true},
 		"invalid-zero":       {value: "0", wantErr: true},
+		"invalid-traversal":  {value: "../projects/PRJ", wantErr: true},
 	}
 
 	for name, tc := range cases {
@@ -211,6 +212,53 @@ func TestValidatePassword(t *testing.T) {
 	}
 }
 
+func TestValidatePathSegment(t *testing.T) {
+	cases := map[string]struct {
+		value      string
+		wantErrMsg string
+	}{
+		"valid-key":            {value: "PRJ-1"},
+		"valid-dots-in-name":   {value: "app.v2"},
+		"valid-reserved-chars": {value: "a?b#c%d e"},
+		"invalid-dot": {
+			value:      ".",
+			wantErrMsg: "invalid projectIDOrKey: must not be '.' or '..'",
+		},
+		"invalid-dot-dot": {
+			value:      "..",
+			wantErrMsg: "invalid projectIDOrKey: must not be '.' or '..'",
+		},
+		"invalid-slash": {
+			value:      "PRJ/users",
+			wantErrMsg: `invalid projectIDOrKey: must not contain '/' or '\'`,
+		},
+		"invalid-backslash": {
+			value:      `PRJ\users`,
+			wantErrMsg: `invalid projectIDOrKey: must not contain '/' or '\'`,
+		},
+		"invalid-control-character": {
+			value:      "PRJ\x00",
+			wantErrMsg: "invalid projectIDOrKey: must not contain control characters",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidatePathSegment("projectIDOrKey", tc.value)
+			if tc.wantErrMsg != "" {
+				if assert.NotNil(t, ve) {
+					assert.Equal(t, "projectIDOrKey", ve.Target())
+					assert.Equal(t, tc.wantErrMsg, ve.Message())
+				}
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidatePositiveFloat64(t *testing.T) {
 	cases := map[string]struct {
 		value   float64
@@ -305,6 +353,51 @@ func TestValidateTextFormattingRule(t *testing.T) {
 			ve := validate.ValidateTextFormattingRule("textFormattingRule", tc.format)
 			if tc.wantErr {
 				assert.NotNil(t, ve)
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
+func TestValidateDirPath(t *testing.T) {
+	cases := map[string]struct {
+		dirPath    string
+		wantErrMsg string
+	}{
+		"valid-root":             {dirPath: "/"},
+		"valid-nested":           {dirPath: "/PressRelease/20091130/"},
+		"valid-without-slashes":  {dirPath: "design"},
+		"valid-repeated-slashes": {dirPath: "//design//2024/"},
+		"valid-dots-in-name":     {dirPath: "/v1.2/"},
+		"invalid-empty": {
+			dirPath:    "",
+			wantErrMsg: "invalid dirPath: must not be empty",
+		},
+		"invalid-parent-directory": {
+			dirPath:    "/design/../../users/1/",
+			wantErrMsg: "invalid dirPath: must not be '.' or '..'",
+		},
+		"invalid-backslash": {
+			dirPath:    `/..\design/`,
+			wantErrMsg: `invalid dirPath: must not contain '/' or '\'`,
+		},
+		"invalid-control-character": {
+			dirPath:    "/design\x00/",
+			wantErrMsg: "invalid dirPath: must not contain control characters",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateDirPath(tc.dirPath)
+			if tc.wantErrMsg != "" {
+				if assert.NotNil(t, ve) {
+					assert.Equal(t, "dirPath", ve.Target())
+					assert.Equal(t, tc.wantErrMsg, ve.Message())
+				}
 				return
 			}
 			assert.Nil(t, ve)

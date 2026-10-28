@@ -71,6 +71,14 @@ func TestSharedFileService_List(t *testing.T) {
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
+		"success-dirPath-repeated-slashes": {
+			projectIDOrKey: "TEST",
+			dirPath:        "//design//2024/",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata/design/2024/", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
 		"success-with-options": {
 			projectIDOrKey: "TEST",
 			dirPath:        "/design/",
@@ -171,6 +179,37 @@ func TestSharedFileService_List(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, files)
 			assert.Len(t, files, len(fixture.SharedFile.List))
+		})
+	}
+}
+
+func TestSharedFileService_List_pathTraversal(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey string
+		dirPath        string
+		wantTarget     string
+	}{
+		"dirPath-parent-directory":  {projectIDOrKey: "TEST", dirPath: "/design/../../../users/1/", wantTarget: "dirPath"},
+		"dirPath-current-directory": {projectIDOrKey: "TEST", dirPath: "/./design/", wantTarget: "dirPath"},
+		"dirPath-backslash":         {projectIDOrKey: "TEST", dirPath: `/..\design/`, wantTarget: "dirPath"},
+		"dirPath-control-character": {projectIDOrKey: "TEST", dirPath: "/design\x00/", wantTarget: "dirPath"},
+		"projectIDOrKey-traversal":  {projectIDOrKey: "../users/1", dirPath: "/", wantTarget: "projectIDOrKey"},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			// mock.NewMethod fails the test if any request is sent.
+			s := project.NewSharedFileService(mock.NewMethod(t))
+			files, err := s.List(context.Background(), tc.projectIDOrKey, tc.dirPath)
+
+			assert.Nil(t, files)
+			var ves validation.Errors
+			if assert.ErrorAs(t, err, &ves) && assert.Len(t, ves, 1) {
+				assert.Equal(t, tc.wantTarget, ves[0].Target())
+				assert.Contains(t, ves[0].Message(), "invalid "+tc.wantTarget)
+			}
 		})
 	}
 }

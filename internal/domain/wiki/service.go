@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -89,7 +88,7 @@ func (s *Service) One(ctx context.Context, wikiID int) (*model.Wiki, error) {
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID))
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -162,7 +161,7 @@ func (s *Service) Update(ctx context.Context, wikiID int, opt *option.APIParamOp
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID))
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -191,7 +190,7 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*option.APIPar
 		return nil, err
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID))
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID))
 	resp, err := s.method.Delete(ctx, spath, form)
 	if err != nil {
 		return nil, err

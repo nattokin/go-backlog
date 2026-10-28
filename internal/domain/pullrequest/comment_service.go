@@ -3,7 +3,6 @@ package pullrequest
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -44,7 +43,7 @@ func (s *CommentService) List(ctx context.Context, projectIDOrKey string, repoID
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
 	return s.base.FetchList(ctx, spath, query)
 }
 
@@ -68,7 +67,7 @@ func (s *CommentService) Add(ctx context.Context, projectIDOrKey string, repoIDO
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments")
 	return s.base.FetchAdd(ctx, spath, form)
 }
 
@@ -90,7 +89,7 @@ func (s *CommentService) Count(ctx context.Context, projectIDOrKey string, repoI
 		return 0, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", "count")
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", "count")
 	return s.base.Count(ctx, spath)
 }
 
@@ -120,7 +119,7 @@ func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repo
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", strconv.Itoa(commentID))
+	spath := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber), "comments", strconv.Itoa(commentID))
 	return s.base.FetchUpdate(ctx, spath, form)
 }
 

@@ -4,7 +4,6 @@ package user
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -62,7 +61,7 @@ func (s *Service) One(ctx context.Context, id int) (*model.User, error) {
 		return nil, ves
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := client.PathJoin("users", strconv.Itoa(id))
 	return getUser(ctx, s.method, spath)
 }
 
@@ -124,7 +123,7 @@ func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption
 		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := client.PathJoin("users", strconv.Itoa(id))
 
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
@@ -151,7 +150,7 @@ func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 		return nil, ves
 	}
 
-	spath := path.Join("users", strconv.Itoa(id))
+	spath := client.PathJoin("users", strconv.Itoa(id))
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -178,7 +177,7 @@ func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
 		return nil, ves
 	}
 
-	spath := path.Join("users", strconv.Itoa(id), "icon")
+	spath := client.PathJoin("users", strconv.Itoa(id), "icon")
 	resp, err := s.method.Download(ctx, spath, nil)
 	if err != nil {
 		return nil, err

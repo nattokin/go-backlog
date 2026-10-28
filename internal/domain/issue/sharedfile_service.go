@@ -2,7 +2,6 @@ package issue
 
 import (
 	"context"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -31,7 +30,7 @@ func (s *SharedFileService) List(ctx context.Context, issueIDOrKey string) ([]*m
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "sharedFiles")
+	spath := client.PathJoin("issues", issueIDOrKey, "sharedFiles")
 	return s.base.List(ctx, spath)
 }
 
@@ -57,7 +56,7 @@ func (s *SharedFileService) Link(ctx context.Context, issueIDOrKey string, fileI
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "sharedFiles")
+	spath := client.PathJoin("issues", issueIDOrKey, "sharedFiles")
 	return s.base.Link(ctx, spath, fileIDs)
 }
 
@@ -76,7 +75,7 @@ func (s *SharedFileService) Unlink(ctx context.Context, issueIDOrKey string, fil
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "sharedFiles", strconv.Itoa(fileID))
+	spath := client.PathJoin("issues", issueIDOrKey, "sharedFiles", strconv.Itoa(fileID))
 	return s.base.Unlink(ctx, spath)
 }
 

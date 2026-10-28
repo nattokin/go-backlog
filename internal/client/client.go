@@ -12,12 +12,12 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"path"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 const (
@@ -215,13 +215,22 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 		}
 	}
 
-	u := *c.BaseURL
-	u.Path = path.Join(u.Path, "api", apiVersion, spath)
-	// path.Join drops a trailing slash; keep it for endpoints whose path
-	// parameter is a directory (e.g. the shared file list).
-	if strings.HasSuffix(spath, "/") {
-		u.Path += "/"
+	// Last line of defense: services validate caller-supplied segments, but a
+	// dot segment, backslash or control character must never reach the wire.
+	for _, segment := range strings.Split(spath, "/") {
+		if segment == "" {
+			continue
+		}
+		if ve := validate.ValidatePathSegment("spath", segment); ve != nil {
+			return nil, ve
+		}
 	}
+
+	u := *c.BaseURL
+	// Concatenate rather than path.Join: cleaning would resolve dot segments
+	// and drop the trailing slash of directory paths (e.g. the shared file
+	// list).
+	u.Path = strings.TrimSuffix(u.Path, "/") + "/api/" + apiVersion + "/" + strings.TrimPrefix(spath, "/")
 	if config.Query != nil {
 		u.RawQuery = config.Query.Encode()
 	}

@@ -3,7 +3,6 @@ package wiki
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -29,7 +28,7 @@ func (s *HistorySevice) List(ctx context.Context, wikiID int) ([]*model.WikiHist
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "history")
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "history")
 	resp, err := s.method.Get(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err

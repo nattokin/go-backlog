@@ -6,6 +6,7 @@ import (
 	"net/mail"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/nattokin/go-backlog/internal/validation"
 )
@@ -38,7 +39,8 @@ func ValidateEmail(field, value string) *validation.Error {
 	return nil
 }
 
-// ValidateIDOrKey validates that value is not empty/whitespace-only and not the literal "0".
+// ValidateIDOrKey validates that value is not empty/whitespace-only, not the literal "0",
+// and usable as a single path segment (see ValidatePathSegment).
 func ValidateIDOrKey(field, value string) *validation.Error {
 	if strings.TrimSpace(value) == "" {
 		return validation.NewError(field, fmt.Sprintf("invalid %s: must not be empty", field))
@@ -46,7 +48,7 @@ func ValidateIDOrKey(field, value string) *validation.Error {
 	if value == "0" {
 		return validation.NewError(field, fmt.Sprintf("invalid %s: must not be '0'", field))
 	}
-	return nil
+	return ValidatePathSegment(field, value)
 }
 
 // ValidateIntRange validates that value is within [min, max].
@@ -87,6 +89,21 @@ func ValidateOrder(field, order string) *validation.Error {
 func ValidatePassword(field, password string) *validation.Error {
 	if len(password) < 8 {
 		return validation.NewError(field, fmt.Sprintf("invalid %s: must be at least 8 characters long", field))
+	}
+	return nil
+}
+
+// ValidatePathSegment validates that value can be placed in a request path as
+// a single segment without changing the path structure: it must not be "." or
+// "..", and must not contain "/", "\" or control characters.
+func ValidatePathSegment(field, value string) *validation.Error {
+	switch {
+	case value == "." || value == "..":
+		return validation.NewError(field, fmt.Sprintf("invalid %s: must not be '.' or '..'", field))
+	case strings.ContainsAny(value, `/\`):
+		return validation.NewError(field, fmt.Sprintf("invalid %s: must not contain '/' or '\\'", field))
+	case strings.IndexFunc(value, unicode.IsControl) >= 0:
+		return validation.NewError(field, fmt.Sprintf("invalid %s: must not contain control characters", field))
 	}
 	return nil
 }
@@ -143,8 +160,22 @@ func ValidateCustomFieldID(customFieldID int) *validation.Error {
 	return ValidatePositiveInt("customFieldID", customFieldID)
 }
 
+// ValidateDirPath validates that dirPath is not empty and that each directory
+// name in it is a valid path segment. Empty names from leading, trailing or
+// repeated slashes are allowed, so "/" denotes the root.
 func ValidateDirPath(dirPath string) *validation.Error {
-	return ValidateNonEmptyString("dirPath", dirPath)
+	if ve := ValidateNonEmptyString("dirPath", dirPath); ve != nil {
+		return ve
+	}
+	for _, name := range strings.Split(dirPath, "/") {
+		if name == "" {
+			continue
+		}
+		if ve := ValidatePathSegment("dirPath", name); ve != nil {
+			return ve
+		}
+	}
+	return nil
 }
 
 func ValidateIssueIDOrKey(issueIDOrKey string) *validation.Error {

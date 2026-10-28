@@ -2,7 +2,6 @@ package wiki
 
 import (
 	"context"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -31,7 +30,7 @@ func (s *SharedFileService) List(ctx context.Context, wikiID int) ([]*model.Shar
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "sharedFiles")
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
 	return s.base.List(ctx, spath)
 }
 
@@ -57,7 +56,7 @@ func (s *SharedFileService) Link(ctx context.Context, wikiID int, fileIDs []int)
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "sharedFiles")
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles")
 	return s.base.Link(ctx, spath, fileIDs)
 }
 
@@ -76,7 +75,7 @@ func (s *SharedFileService) Unlink(ctx context.Context, wikiID, fileID int) (*mo
 		return nil, ves
 	}
 
-	spath := path.Join("wikis", strconv.Itoa(wikiID), "sharedFiles", strconv.Itoa(fileID))
+	spath := client.PathJoin("wikis", strconv.Itoa(wikiID), "sharedFiles", strconv.Itoa(fileID))
 	return s.base.Unlink(ctx, spath)
 }
 

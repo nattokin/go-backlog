@@ -2,7 +2,6 @@ package issue
 
 import (
 	"context"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -31,7 +30,7 @@ func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*m
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "attachments")
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments")
 	return s.base.List(ctx, spath)
 }
 
@@ -50,7 +49,7 @@ func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, att
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
 	return s.base.Remove(ctx, spath)
 }
 
@@ -70,7 +69,7 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 		return nil, ves
 	}
 
-	spath := path.Join("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
 	return s.base.Download(ctx, spath)
 }
 

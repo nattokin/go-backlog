@@ -3,8 +3,8 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
+	"strings"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
@@ -49,7 +49,10 @@ func (s *SharedFileService) List(ctx context.Context, projectIDOrKey, dirPath st
 
 	// The directory is sent in its directory form, with a trailing slash:
 	// "/design/" -> files/metadata/design/, "/" -> files/metadata/.
-	spath := path.Join("projects", projectIDOrKey, "files", "metadata", dirPath) + "/"
+	// Each directory name becomes its own segment; the empty segments
+	// produced by leading, trailing or repeated slashes are dropped.
+	segments := append([]string{"projects", projectIDOrKey, "files", "metadata"}, splitDirPath(dirPath)...)
+	spath := client.PathJoin(segments...) + "/"
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -79,13 +82,18 @@ func (s *SharedFileService) Download(ctx context.Context, projectIDOrKey string,
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))
+	spath := client.PathJoin("projects", projectIDOrKey, "files", strconv.Itoa(sharedFileID))
 	resp, err := s.method.Download(ctx, spath, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	return client.DownloadResponse(resp)
+}
+
+// splitDirPath splits dirPath into directory names, dropping empty segments.
+func splitDirPath(dirPath string) []string {
+	return strings.FieldsFunc(dirPath, func(r rune) bool { return r == '/' })
 }
 
 func NewSharedFileService(method *client.Method) *SharedFileService {

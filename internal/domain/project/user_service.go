@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -76,7 +75,7 @@ func (s *UserService) List(ctx context.Context, projectIDOrKey string, opts ...*
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "users")
+	spath := client.PathJoin("projects", projectIDOrKey, "users")
 	return getUserList(ctx, s.method, spath, query)
 }
 
@@ -94,7 +93,7 @@ func (s *UserService) Add(ctx context.Context, projectIDOrKey string, userID int
 	if len(ves) > 0 {
 		return nil, ves
 	}
-	spath := path.Join("projects", projectIDOrKey, "users")
+	spath := client.PathJoin("projects", projectIDOrKey, "users")
 	return addUser(ctx, s.method, spath, userID)
 }
 
@@ -112,7 +111,7 @@ func (s *UserService) Delete(ctx context.Context, projectIDOrKey string, userID 
 	if len(ves) > 0 {
 		return nil, ves
 	}
-	spath := path.Join("projects", projectIDOrKey, "users")
+	spath := client.PathJoin("projects", projectIDOrKey, "users")
 	return deleteUser(ctx, s.method, spath, userID)
 }
 
@@ -130,7 +129,7 @@ func (s *UserService) AddAdmin(ctx context.Context, projectIDOrKey string, userI
 	if len(ves) > 0 {
 		return nil, ves
 	}
-	spath := path.Join("projects", projectIDOrKey, "administrators")
+	spath := client.PathJoin("projects", projectIDOrKey, "administrators")
 	return addUser(ctx, s.method, spath, userID)
 }
 
@@ -145,7 +144,7 @@ func (s *UserService) AdminList(ctx context.Context, projectIDOrKey string) ([]*
 	if len(ves) > 0 {
 		return nil, ves
 	}
-	spath := path.Join("projects", projectIDOrKey, "administrators")
+	spath := client.PathJoin("projects", projectIDOrKey, "administrators")
 	return getUserList(ctx, s.method, spath, nil)
 }
 
@@ -163,7 +162,7 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 	if len(ves) > 0 {
 		return nil, ves
 	}
-	spath := path.Join("projects", projectIDOrKey, "administrators")
+	spath := client.PathJoin("projects", projectIDOrKey, "administrators")
 	return deleteUser(ctx, s.method, spath, userID)
 }
 

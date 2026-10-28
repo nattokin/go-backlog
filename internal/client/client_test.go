@@ -20,6 +20,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestNewClient_validation(t *testing.T) {
@@ -426,6 +427,46 @@ func TestClient_NewRequest_path(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.Equal(t, tc.wantEscapedPath, request.URL.EscapedPath())
+		})
+	}
+}
+
+func TestClient_NewRequest_invalidPathSegment(t *testing.T) {
+	cases := map[string]struct {
+		spath      string
+		wantErrMsg string
+	}{
+		"parent-directory": {
+			spath:      "issues/../projects/PRJ",
+			wantErrMsg: "invalid spath: must not be '.' or '..'",
+		},
+		"current-directory": {
+			spath:      "issues/./PRJ-1",
+			wantErrMsg: "invalid spath: must not be '.' or '..'",
+		},
+		"backslash": {
+			spath:      `issues/..\projects`,
+			wantErrMsg: `invalid spath: must not contain '/' or '\'`,
+		},
+		"control-character": {
+			spath:      "issues/PRJ-1\r\n",
+			wantErrMsg: "invalid spath: must not contain control characters",
+		},
+	}
+
+	for n, tc := range cases {
+		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+
+			c := mock.NewClient(t, nil)
+			request, err := c.NewRequest(context.Background(), http.MethodDelete, tc.spath)
+
+			assert.Nil(t, request)
+			var ve *validation.Error
+			if assert.ErrorAs(t, err, &ve) {
+				assert.Equal(t, "spath", ve.Target())
+				assert.Equal(t, tc.wantErrMsg, ve.Message())
+			}
 		})
 	}
 }
