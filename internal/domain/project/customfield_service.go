@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -29,7 +28,10 @@ func (s *CustomFieldService) List(ctx context.Context, projectIDOrKey string) ([
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "customFields")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -66,7 +68,10 @@ func (s *CustomFieldService) Create(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "customFields")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -105,7 +110,10 @@ func (s *CustomFieldService) Update(ctx context.Context, projectIDOrKey string, 
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -134,7 +142,10 @@ func (s *CustomFieldService) Delete(ctx context.Context, projectIDOrKey string, 
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err
@@ -170,7 +181,10 @@ func (s *CustomFieldService) AddListItem(ctx context.Context, projectIDOrKey str
 	form := url.Values{}
 	opt.Set(form)
 
-	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -209,7 +223,10 @@ func (s *CustomFieldService) UpdateListItem(ctx context.Context, projectIDOrKey 
 	form := url.Values{}
 	opt.Set(form)
 
-	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -241,7 +258,10 @@ func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey 
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "customFields", strconv.Itoa(customFieldID), "items", strconv.Itoa(itemID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Delete(ctx, spath, url.Values{})
 	if err != nil {
 		return nil, err

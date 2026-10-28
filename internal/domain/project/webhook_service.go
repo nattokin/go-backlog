@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -30,7 +29,10 @@ func (s *WebhookService) List(ctx context.Context, projectIDOrKey string) ([]*mo
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "webhooks")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -73,7 +75,10 @@ func (s *WebhookService) Add(ctx context.Context, projectIDOrKey, name, hookURL 
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "webhooks")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -102,7 +107,10 @@ func (s *WebhookService) One(ctx context.Context, projectIDOrKey string, webhook
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -140,7 +148,10 @@ func (s *WebhookService) Update(ctx context.Context, projectIDOrKey string, webh
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -168,7 +179,10 @@ func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webh
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "webhooks", strconv.Itoa(webhookID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
