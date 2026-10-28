@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/nattokin/go-backlog/internal/model"
+	"github.com/nattokin/go-backlog/internal/validate"
 )
 
 const (
@@ -214,10 +215,21 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 		}
 	}
 
+	// Last line of defense: services validate caller-supplied segments, but a
+	// dot segment, backslash or control character must never reach the wire.
+	for _, segment := range strings.Split(spath, "/") {
+		if segment == "" {
+			continue
+		}
+		if ve := validate.ValidatePathSegment("spath", segment); ve != nil {
+			return nil, ve
+		}
+	}
+
 	u := *c.BaseURL
 	// Concatenate rather than path.Join: cleaning would resolve dot segments
 	// and drop the trailing slash of directory paths (e.g. the shared file
-	// list). Segments in spath are validated by PathJoin.
+	// list).
 	u.Path = strings.TrimSuffix(u.Path, "/") + "/api/" + apiVersion + "/" + strings.TrimPrefix(spath, "/")
 	if config.Query != nil {
 		u.RawQuery = config.Query.Encode()
