@@ -217,6 +217,11 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 
 	u := *c.BaseURL
 	u.Path = path.Join(u.Path, "api", apiVersion, spath)
+	// path.Join drops a trailing slash; keep it for endpoints whose path
+	// parameter is a directory (e.g. the shared file list).
+	if strings.HasSuffix(spath, "/") {
+		u.Path += "/"
+	}
 	if config.Query != nil {
 		u.RawQuery = config.Query.Encode()
 	}

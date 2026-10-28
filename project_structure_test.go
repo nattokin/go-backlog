@@ -134,7 +134,7 @@ func TestProjectSharedFileService(t *testing.T) {
 		"List": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
-				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design", req.URL.Path)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design/", req.URL.Path)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 			call: func(t *testing.T, c *backlog.Client) {
@@ -147,10 +147,34 @@ func TestProjectSharedFileService(t *testing.T) {
 				assert.Equal(t, "readme.md", got[1].Name)
 			},
 		},
+		"List/root": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/", req.URL.Path)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.SharedFile.List(ctx, "TEST", "/")
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
+		"List/non-ascii-dirPath": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/%E8%B3%87%E6%96%99/a%20b/", req.URL.EscapedPath())
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Project.SharedFile.List(ctx, "TEST", "/資料/a b/")
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
 		"List/with-options": {
 			doFunc: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodGet, req.Method)
-				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design", req.URL.Path)
+				assert.Equal(t, "/api/v2/projects/TEST/files/metadata/design/", req.URL.Path)
 				assert.Equal(t, "asc", req.URL.Query().Get("order"))
 				assert.Equal(t, "10", req.URL.Query().Get("offset"))
 				assert.Equal(t, "1000", req.URL.Query().Get("count"))

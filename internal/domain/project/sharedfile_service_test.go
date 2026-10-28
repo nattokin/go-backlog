@@ -35,7 +35,7 @@ func TestSharedFileService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/files/metadata/design", spath)
+				assert.Equal(t, "projects/TEST/files/metadata/design/", spath)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
@@ -43,7 +43,7 @@ func TestSharedFileService_List(t *testing.T) {
 			projectIDOrKey: "1234",
 			dirPath:        "/design/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/1234/files/metadata/design", spath)
+				assert.Equal(t, "projects/1234/files/metadata/design/", spath)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
@@ -51,7 +51,7 @@ func TestSharedFileService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			dirPath:        "/PressRelease/20091130/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/files/metadata/PressRelease/20091130", spath)
+				assert.Equal(t, "projects/TEST/files/metadata/PressRelease/20091130/", spath)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
@@ -59,7 +59,15 @@ func TestSharedFileService_List(t *testing.T) {
 			projectIDOrKey: "TEST",
 			dirPath:        "/",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/files/metadata", spath)
+				assert.Equal(t, "projects/TEST/files/metadata/", spath)
+				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
+			},
+		},
+		"success-dirPath-without-trailing-slash": {
+			projectIDOrKey: "TEST",
+			dirPath:        "/design",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "projects/TEST/files/metadata/design/", spath)
 				return mock.NewResponse(fixture.SharedFile.ListJSON), nil
 			},
 		},
@@ -72,7 +80,7 @@ func TestSharedFileService_List(t *testing.T) {
 				o.WithSharedFileCount(1000),
 			},
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
-				assert.Equal(t, "projects/TEST/files/metadata/design", spath)
+				assert.Equal(t, "projects/TEST/files/metadata/design/", spath)
 				assert.Equal(t, "asc", query.Get("order"))
 				assert.Equal(t, "10", query.Get("offset"))
 				assert.Equal(t, "1000", query.Get("count"))
