@@ -6,7 +6,6 @@ import (
 	"iter"
 	"maps"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -35,7 +34,10 @@ type Service struct {
 }
 
 func (s *Service) list(ctx context.Context, projectIDOrKey string, repoIDOrName string, query url.Values) ([]*model.PullRequest, error) {
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -125,7 +127,10 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string, repoIDOrName
 		return 0, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", "count")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", "count")
+	if err != nil {
+		return 0, err
+	}
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return 0, err
@@ -157,7 +162,10 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 		return nil, ves
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -208,7 +216,10 @@ func (s *Service) Create(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -251,7 +262,10 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 		return nil, err
 	}
 
-	spath := path.Join("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))
+	spath, err := client.PathJoin("projects", projectIDOrKey, "git", "repositories", repoIDOrName, "pullRequests", strconv.Itoa(prNumber))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err

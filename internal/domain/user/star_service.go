@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -33,7 +32,10 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(userID), "stars")
+	spath, err := client.PathJoin("users", strconv.Itoa(userID), "stars")
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
@@ -59,7 +61,10 @@ func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
 		return 0, ves
 	}
 
-	spath := path.Join("users", strconv.Itoa(userID), "stars", "count")
+	spath, err := client.PathJoin("users", strconv.Itoa(userID), "stars", "count")
+	if err != nil {
+		return 0, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return 0, err

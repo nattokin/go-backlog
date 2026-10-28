@@ -3,7 +3,6 @@ package space
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -39,7 +38,10 @@ func (s *ActivityService) One(ctx context.Context, activityID int) (*model.Activ
 		return nil, err
 	}
 
-	spath := path.Join("activities", strconv.Itoa(activityID))
+	spath, err := client.PathJoin("activities", strconv.Itoa(activityID))
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

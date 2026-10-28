@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"net/url"
-	"path"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -34,7 +33,10 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*option.
 		return nil, err
 	}
 
-	spath := path.Join("users", strconv.Itoa(userID), "activities")
+	spath, err := client.PathJoin("users", strconv.Itoa(userID), "activities")
+	if err != nil {
+		return nil, err
+	}
 	return s.base.Fetch(ctx, spath, query)
 }
 
