@@ -12,16 +12,26 @@ jobs:
     outputs:
       is-stable: ${{ steps.check.outputs.is-stable }}
     steps:
-      - name: Check if stable release tag
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check if stable release tag on main
         id: check
         run: |
-          if echo "${{ github.ref_name }}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "is-stable=true" >> $GITHUB_OUTPUT
-            echo "Tag ${{ github.ref_name }} is a stable release tag."
-          else
+          if ! echo "${{ github.ref_name }}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "is-stable=false" >> $GITHUB_OUTPUT
             echo "Tag ${{ github.ref_name }} is not a stable release tag. Skipping release."
+            exit 0
           fi
+
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag ${{ github.ref_name }} ($GITHUB_SHA) is not on main."
+            exit 1
+          fi
+
+          echo "is-stable=true" >> $GITHUB_OUTPUT
+          echo "Tag ${{ github.ref_name }} is a stable release tag on main."
 
   release:
     name: Release
