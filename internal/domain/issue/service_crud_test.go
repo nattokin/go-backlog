@@ -616,10 +616,10 @@ func TestService_Delete_pathTraversal(t *testing.T) {
 			got, err := s.Delete(context.Background(), tc.issueIDOrKey)
 
 			assert.Nil(t, got)
-			var ve *validation.Error
-			if assert.ErrorAs(t, err, &ve) {
-				assert.Equal(t, "path", ve.Target())
-				assert.Contains(t, ve.Message(), "invalid path segment")
+			var ves validation.Errors
+			if assert.ErrorAs(t, err, &ves) && assert.Len(t, ves, 1) {
+				assert.Equal(t, "issueIDOrKey", ves[0].Target())
+				assert.Contains(t, ves[0].Message(), "invalid issueIDOrKey")
 			}
 		})
 	}

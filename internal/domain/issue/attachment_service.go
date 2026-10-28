@@ -30,10 +30,7 @@ func (s *AttachmentService) List(ctx context.Context, issueIDOrKey string) ([]*m
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "attachments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments")
 	return s.base.List(ctx, spath)
 }
 
@@ -52,10 +49,7 @@ func (s *AttachmentService) Remove(ctx context.Context, issueIDOrKey string, att
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
 	return s.base.Remove(ctx, spath)
 }
 
@@ -75,10 +69,7 @@ func (s *AttachmentService) Download(ctx context.Context, issueIDOrKey string, a
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "attachments", strconv.Itoa(attachmentID))
 	return s.base.Download(ctx, spath)
 }
 

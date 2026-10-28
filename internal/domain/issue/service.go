@@ -164,10 +164,7 @@ func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, e
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey)
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -234,10 +231,7 @@ func (s *Service) Update(ctx context.Context, issueIDOrKey string, opt *option.A
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey)
 	resp, err := s.method.Patch(ctx, spath, form)
 	if err != nil {
 		return nil, err
@@ -263,10 +257,7 @@ func (s *Service) Delete(ctx context.Context, issueIDOrKey string) (*model.Issue
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey)
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey)
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -292,10 +283,7 @@ func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*mod
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "participants")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "participants")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err

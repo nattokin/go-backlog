@@ -38,10 +38,7 @@ func (s *CommentService) List(ctx context.Context, issueIDOrKey string, opts ...
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments")
 	return s.base.FetchList(ctx, spath, query)
 }
 
@@ -59,10 +56,7 @@ func (s *CommentService) Add(ctx context.Context, issueIDOrKey string, content s
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments")
 	return s.base.FetchAdd(ctx, spath, form)
 }
 
@@ -78,10 +72,7 @@ func (s *CommentService) Count(ctx context.Context, issueIDOrKey string) (int, e
 		return 0, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", "count")
-	if err != nil {
-		return 0, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", "count")
 	return s.base.Count(ctx, spath)
 }
 
@@ -100,10 +91,7 @@ func (s *CommentService) One(ctx context.Context, issueIDOrKey string, commentID
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
 	return s.base.One(ctx, spath)
 }
 
@@ -122,10 +110,7 @@ func (s *CommentService) Delete(ctx context.Context, issueIDOrKey string, commen
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -159,10 +144,7 @@ func (s *CommentService) Update(ctx context.Context, issueIDOrKey string, commen
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID))
 	return s.base.FetchUpdate(ctx, spath, form)
 }
 
@@ -181,10 +163,7 @@ func (s *CommentService) Notifications(ctx context.Context, issueIDOrKey string,
 		return nil, ves
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
 		return nil, err
@@ -219,10 +198,7 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 		return nil, err
 	}
 
-	spath, err := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
-	if err != nil {
-		return nil, err
-	}
+	spath := client.PathJoin("issues", issueIDOrKey, "comments", strconv.Itoa(commentID), "notifications")
 	resp, err := s.method.Post(ctx, spath, form)
 	if err != nil {
 		return nil, err
