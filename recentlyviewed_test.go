@@ -18,7 +18,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-func TestUserRecentlyViewedService(t *testing.T) {
+func TestRecentlyViewedService(t *testing.T) {
 	ctx := context.Background()
 
 	cases := map[string]struct {
@@ -218,7 +218,7 @@ func TestUserRecentlyViewedService(t *testing.T) {
 	}
 }
 
-func TestUserRecentlyViewedOptionService(t *testing.T) {
+func TestRecentlyViewedOptionService(t *testing.T) {
 	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
 	require.NoError(t, err)
 	o := c.RecentlyViewed.Option
