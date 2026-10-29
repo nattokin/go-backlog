@@ -104,7 +104,7 @@ func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey 
 //  ProjectUserService
 // ──────────────────────────────────────────────────────────────
 
-// ProjectUserService has methods for user of project.
+// ProjectUserService handles communication with the project user-related methods of the Backlog API.
 type ProjectUserService struct {
 	base *project.UserService
 

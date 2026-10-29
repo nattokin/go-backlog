@@ -13,7 +13,7 @@ import (
 //  Project models
 // ──────────────────────────────────────────────────────────────
 
-// Project represents a project of Backlog.
+// Project represents a project in Backlog.
 type Project struct {
 	ID                                int
 	ProjectKey                        string
