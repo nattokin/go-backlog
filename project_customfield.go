@@ -23,7 +23,7 @@ import (
 //
 // Min, Max and InitialValue are pointers because 0 is a valid setting.
 // MinDate, MaxDate and InitialDate.Date hold midnight of the date in the space's time zone,
-// expressed in UTC, in the same way as [Version.StartDate].
+// expressed in UTC, in the same way as the StartDate field of [Version].
 type CustomField struct {
 	ID                     int
 	TypeID                 int
