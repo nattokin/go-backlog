@@ -196,7 +196,9 @@ var IssueType = issueTypeFixtures{
     "projectId": 6,
     "name": "Bug",
     "color": "#e30000",
-    "displayOrder": 0
+    "displayOrder": 0,
+    "templateSummary": "default summary",
+    "templateDescription": "default description"
 }
 `,
 	Single: &backlog.IssueType{
@@ -204,6 +206,9 @@ var IssueType = issueTypeFixtures{
 		ProjectID: 6,
 		Name:      "Bug",
 		Color:     "#e30000",
+
+		TemplateSummary:     "default summary",
+		TemplateDescription: "default description",
 	},
 	ListJSON: `
 [
@@ -212,14 +217,18 @@ var IssueType = issueTypeFixtures{
         "projectId": 6,
         "name": "Bug",
         "color": "#e30000",
-        "displayOrder": 0
+        "displayOrder": 0,
+        "templateSummary": "default summary",
+        "templateDescription": "default description"
     },
     {
         "id": 2,
         "projectId": 6,
         "name": "Task",
         "color": "#7ea800",
-        "displayOrder": 1
+        "displayOrder": 1,
+        "templateSummary": null,
+        "templateDescription": null
     }
 ]
 `,
@@ -229,6 +238,9 @@ var IssueType = issueTypeFixtures{
 			ProjectID: 6,
 			Name:      "Bug",
 			Color:     "#e30000",
+
+			TemplateSummary:     "default summary",
+			TemplateDescription: "default description",
 		},
 		{
 			ID:           2,

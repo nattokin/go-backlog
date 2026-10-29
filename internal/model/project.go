@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Project represents a Backlog project.
 type Project struct {
@@ -40,6 +43,38 @@ type CustomField struct {
 	ApplicableIssueTypeIDs []int              `json:"applicableIssueTypes,omitempty"`
 	AllowAddItem           bool               `json:"allowAddItem,omitempty"`
 	Items                  []*CustomFieldItem `json:"items,omitempty"`
+
+	// Type-specific settings. Each appears only for the matching custom field type.
+	Min          *CustomFieldBound       `json:"min,omitempty"`
+	Max          *CustomFieldBound       `json:"max,omitempty"`
+	InitialValue *float64                `json:"initialValue,omitempty"`
+	Unit         string                  `json:"unit,omitempty"`
+	InitialDate  *CustomFieldInitialDate `json:"initialDate,omitempty"`
+	AllowInput   bool                    `json:"allowInput,omitempty"`
+}
+
+// CustomFieldBound is the min or max of a CustomField.
+// The API returns a number for a Number type custom field and a datetime string
+// for a Date type one under the same key.
+type CustomFieldBound struct {
+	Number *float64
+	Date   *time.Time
+}
+
+// UnmarshalJSON decodes a JSON string into Date and anything else into Number.
+func (b *CustomFieldBound) UnmarshalJSON(data []byte) error {
+	if len(data) > 0 && data[0] == '"' {
+		return json.Unmarshal(data, &b.Date)
+	}
+	return json.Unmarshal(data, &b.Number)
+}
+
+// CustomFieldInitialDate represents how the initial value of a Date type CustomField is decided.
+// ID is the initial value type (1: today, 2: today plus Shift days, 3: Date).
+type CustomFieldInitialDate struct {
+	ID    int       `json:"id,omitempty"`
+	Shift int       `json:"shift,omitempty"`
+	Date  time.Time `json:"date,omitempty"`
 }
 
 // CustomFieldItem represents one selectable item in a List type CustomField.

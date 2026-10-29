@@ -26,3 +26,9 @@ func mustTime(s string) time.Time {
 func mustTimestamp(s string) backlog.Timestamp {
 	return backlog.Timestamp{Time: mustTime(s)}
 }
+
+// ptrFloat64 returns a pointer to v.
+// Used only for initializing package-level test fixture variables.
+func ptrFloat64(v float64) *float64 {
+	return &v
+}

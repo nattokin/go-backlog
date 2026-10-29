@@ -14,6 +14,16 @@ import (
 // ──────────────────────────────────────────────────────────────
 
 // CustomField represents a custom field defined in the project.
+//
+// The type-specific settings are set only for the matching custom field type
+// and hold their zero value otherwise:
+//   - Min, Max, InitialValue, Unit: number type
+//   - MinDate, MaxDate, InitialDate: date type
+//   - AllowInput: list types
+//
+// Min, Max and InitialValue are pointers because 0 is a valid setting.
+// MinDate, MaxDate and InitialDate.Date hold midnight of the date in the space's time zone,
+// expressed in UTC, in the same way as [Version.StartDate].
 type CustomField struct {
 	ID                     int
 	TypeID                 int
@@ -23,6 +33,25 @@ type CustomField struct {
 	ApplicableIssueTypeIDs []int
 	AllowAddItem           bool
 	Items                  []*CustomFieldItem
+
+	Min          *float64
+	Max          *float64
+	InitialValue *float64
+	Unit         string
+	MinDate      Timestamp
+	MaxDate      Timestamp
+	InitialDate  *CustomFieldInitialDate
+	AllowInput   bool
+}
+
+// CustomFieldInitialDate represents how the initial value of a date type [CustomField] is decided.
+//
+// InitialValueType is 1 for today, 2 for today plus Shift days, and 3 for Date,
+// matching the value set by WithInitialValueType.
+type CustomFieldInitialDate struct {
+	InitialValueType int
+	Shift            int
+	Date             Timestamp
 }
 
 // CustomFieldItem represents one item in a list type [CustomField].
@@ -270,6 +299,40 @@ func customFieldFromModel(m *model.CustomField) *CustomField {
 		ApplicableIssueTypeIDs: m.ApplicableIssueTypeIDs,
 		AllowAddItem:           m.AllowAddItem,
 		Items:                  items,
+
+		Min:          numberFromCustomFieldBound(m.Min),
+		Max:          numberFromCustomFieldBound(m.Max),
+		InitialValue: m.InitialValue,
+		Unit:         m.Unit,
+		MinDate:      dateFromCustomFieldBound(m.Min),
+		MaxDate:      dateFromCustomFieldBound(m.Max),
+		InitialDate:  customFieldInitialDateFromModel(m.InitialDate),
+		AllowInput:   m.AllowInput,
+	}
+}
+
+func numberFromCustomFieldBound(b *model.CustomFieldBound) *float64 {
+	if b == nil {
+		return nil
+	}
+	return b.Number
+}
+
+func dateFromCustomFieldBound(b *model.CustomFieldBound) Timestamp {
+	if b == nil || b.Date == nil {
+		return Timestamp{}
+	}
+	return Timestamp{*b.Date}
+}
+
+func customFieldInitialDateFromModel(m *model.CustomFieldInitialDate) *CustomFieldInitialDate {
+	if m == nil {
+		return nil
+	}
+	return &CustomFieldInitialDate{
+		InitialValueType: m.ID,
+		Shift:            m.Shift,
+		Date:             Timestamp{m.Date},
 	}
 }
 

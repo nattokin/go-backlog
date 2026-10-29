@@ -34,6 +34,7 @@ func TestProjectIssueTypeService(t *testing.T) {
 				assert.Equal(t, 1, got[0].ID)
 				assert.Equal(t, "Bug", got[0].Name)
 				assert.Equal(t, "#e30000", got[0].Color)
+				assert.Equal(t, fixture.IssueType.List, got)
 			},
 		},
 		"List/error": {
@@ -76,6 +77,8 @@ func TestProjectIssueTypeService(t *testing.T) {
 				)
 				require.NoError(t, err)
 				assert.Equal(t, 1, got.ID)
+				assert.Equal(t, "default summary", got.TemplateSummary)
+				assert.Equal(t, "default description", got.TemplateDescription)
 			},
 		},
 		"Create/error": {
