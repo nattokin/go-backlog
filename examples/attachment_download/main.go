@@ -1,3 +1,5 @@
+// The attachment_download command downloads all attachments from an issue or wiki page
+// to a local directory.
 package main
 
 import (

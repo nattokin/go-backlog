@@ -8,7 +8,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/model"
 )
 
-// Repository represents repository of Backlog git.
+// Repository represents a Git repository in a project.
 type Repository struct {
 	ID           int
 	ProjectID    int

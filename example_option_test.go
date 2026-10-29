@@ -137,7 +137,7 @@ func ExampleProjectOptionService() {
 	// Count: 3, ProjectKey: TEST
 }
 
-// ExampleUserRecentlyViewedOptionService demonstrates listing recently viewed issues with count and order.
+// ExampleRecentlyViewedOptionService demonstrates listing recently viewed issues with count and order.
 func ExampleRecentlyViewedOptionService() {
 	c, _ := backlog.NewClient(
 		"https://example.backlog.com",

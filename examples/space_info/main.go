@@ -1,3 +1,4 @@
+// The space_info command displays space information, disk usage, and recent activity.
 package main
 
 import (
