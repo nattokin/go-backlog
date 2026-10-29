@@ -300,25 +300,25 @@ func customFieldFromModel(m *model.CustomField) *CustomField {
 		AllowAddItem:           m.AllowAddItem,
 		Items:                  items,
 
-		Min:          customFieldBoundNumber(m.Min),
-		Max:          customFieldBoundNumber(m.Max),
+		Min:          numberFromCustomFieldBound(m.Min),
+		Max:          numberFromCustomFieldBound(m.Max),
 		InitialValue: m.InitialValue,
 		Unit:         m.Unit,
-		MinDate:      customFieldBoundDate(m.Min),
-		MaxDate:      customFieldBoundDate(m.Max),
+		MinDate:      dateFromCustomFieldBound(m.Min),
+		MaxDate:      dateFromCustomFieldBound(m.Max),
 		InitialDate:  customFieldInitialDateFromModel(m.InitialDate),
 		AllowInput:   m.AllowInput,
 	}
 }
 
-func customFieldBoundNumber(b *model.CustomFieldBound) *float64 {
+func numberFromCustomFieldBound(b *model.CustomFieldBound) *float64 {
 	if b == nil {
 		return nil
 	}
 	return b.Number
 }
 
-func customFieldBoundDate(b *model.CustomFieldBound) Timestamp {
+func dateFromCustomFieldBound(b *model.CustomFieldBound) Timestamp {
 	if b == nil || b.Date == nil {
 		return Timestamp{}
 	}
