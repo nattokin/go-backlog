@@ -14,7 +14,7 @@ import (
 //  Space models
 // ──────────────────────────────────────────────────────────────
 
-// DiskUsageProject represents project's disk usage.
+// DiskUsageProject represents the disk usage of a single project, in bytes.
 type DiskUsageProject struct {
 	ProjectID  int
 	Issue      int
@@ -25,7 +25,8 @@ type DiskUsageProject struct {
 	GitLFS     int
 }
 
-// DiskUsageSpace represents space's disk usage.
+// DiskUsageSpace represents the disk usage of a space, in bytes.
+// Details holds the breakdown by project.
 type DiskUsageSpace struct {
 	Capacity   int
 	Issue      int
@@ -37,7 +38,7 @@ type DiskUsageSpace struct {
 	Details    []*DiskUsageProject
 }
 
-// Space represents space of Backlog.
+// Space represents a Backlog space.
 type Space struct {
 	SpaceKey           string
 	Name               string
@@ -50,7 +51,7 @@ type Space struct {
 	Updated            Timestamp
 }
 
-// SpaceNotification represents a notification of Space.
+// SpaceNotification represents the notification message set for a space.
 type SpaceNotification struct {
 	Content string
 	Updated Timestamp

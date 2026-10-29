@@ -9,7 +9,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/option"
 )
 
-// User represents user.
+// User represents a user in a Backlog space.
 type User struct {
 	ID          int
 	UserID      string
@@ -23,7 +23,7 @@ type User struct {
 //  UserService
 // ──────────────────────────────────────────────────────────────
 
-// UserService has methods for user.
+// UserService handles communication with the user-related methods of the Backlog API.
 type UserService struct {
 	base *user.Service
 

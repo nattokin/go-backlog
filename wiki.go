@@ -13,7 +13,7 @@ import (
 //  Wiki models
 // ──────────────────────────────────────────────────────────────
 
-// Wiki represents Backlog Wiki.
+// Wiki represents a wiki page in a project.
 type Wiki struct {
 	ID          int
 	ProjectID   int
