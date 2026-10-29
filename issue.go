@@ -14,11 +14,16 @@ import (
 //  Issue models
 // ──────────────────────────────────────────────────────────────
 
-// Issue represents a issue of Backlog.
+// Issue represents an issue in Backlog.
 //
 // StartDate and DueDate hold midnight of the date in the space's time zone, expressed in UTC
 // (e.g. 2024-01-14T15:00:00Z is 2024-01-15 in Asia/Tokyo).
 // Use t.In(loc).Format(time.DateOnly) to get the date, where loc is the space's time zone.
+//
+// Fields the issue has no value for hold their zero value: StartDate and DueDate
+// are the zero [Timestamp], and ParentIssueID is 0 for an issue without a parent.
+// EstimatedHours and ActualHours are 0 both when they are not set and when they
+// are set to 0, so the two cases cannot be told apart.
 type Issue struct {
 	ID             int
 	ProjectID      int
@@ -81,47 +86,52 @@ type Resolution struct {
 type IssueService struct {
 	base *issue.Service
 
+	// Attachment provides access to issue attachment-related API endpoints.
 	Attachment *IssueAttachmentService
-	Comment    *IssueCommentService
+	// Comment provides access to issue comment-related API endpoints.
+	Comment *IssueCommentService
+	// SharedFile provides access to issue shared file-related API endpoints.
 	SharedFile *IssueSharedFileService
-	Star       *IssueStarService
+	// Star provides access to issue star-related API endpoints.
+	Star *IssueStarService
 
+	// Option provides the options accepted by [IssueService] methods.
 	Option *IssueOptionService
 }
 
 // List returns a list of issues.
 //
-// This method supports options returned by methods in "*Client.Issue.Option",
+// This method supports options returned by methods in [IssueOptionService],
 // such as:
-//   - WithProjectIDs
-//   - WithIssueTypeIDs
-//   - WithCategoryIDs
-//   - WithVersionIDs
-//   - WithMilestoneIDs
-//   - WithStatusIDs
-//   - WithPriorityIDs
-//   - WithAssigneeIDs
-//   - WithCreatedUserIDs
-//   - WithResolutionIDs
-//   - WithParentChild
-//   - WithAttachment
-//   - WithSharedFile
-//   - WithIssueSort
-//   - WithOrder
-//   - WithOffset
-//   - WithCount
-//   - WithCreatedSince
-//   - WithCreatedUntil
-//   - WithUpdatedSince
-//   - WithUpdatedUntil
-//   - WithStartDateSince
-//   - WithStartDateUntil
-//   - WithDueDateSince
-//   - WithDueDateUntil
-//   - WithHasDueDate
-//   - WithIDs
-//   - WithParentIssueIDs
-//   - WithKeyword
+//   - [IssueOptionService.WithProjectIDs]
+//   - [IssueOptionService.WithIssueTypeIDs]
+//   - [IssueOptionService.WithCategoryIDs]
+//   - [IssueOptionService.WithVersionIDs]
+//   - [IssueOptionService.WithMilestoneIDs]
+//   - [IssueOptionService.WithStatusIDs]
+//   - [IssueOptionService.WithPriorityIDs]
+//   - [IssueOptionService.WithAssigneeIDs]
+//   - [IssueOptionService.WithCreatedUserIDs]
+//   - [IssueOptionService.WithResolutionIDs]
+//   - [IssueOptionService.WithParentChild]
+//   - [IssueOptionService.WithAttachment]
+//   - [IssueOptionService.WithSharedFile]
+//   - [IssueOptionService.WithIssueSort]
+//   - [IssueOptionService.WithOrder]
+//   - [IssueOptionService.WithOffset]
+//   - [IssueOptionService.WithCount]
+//   - [IssueOptionService.WithCreatedSince]
+//   - [IssueOptionService.WithCreatedUntil]
+//   - [IssueOptionService.WithUpdatedSince]
+//   - [IssueOptionService.WithUpdatedUntil]
+//   - [IssueOptionService.WithStartDateSince]
+//   - [IssueOptionService.WithStartDateUntil]
+//   - [IssueOptionService.WithDueDateSince]
+//   - [IssueOptionService.WithDueDateUntil]
+//   - [IssueOptionService.WithHasDueDate]
+//   - [IssueOptionService.WithIDs]
+//   - [IssueOptionService.WithParentIssueIDs]
+//   - [IssueOptionService.WithKeyword]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issue, error) {
@@ -137,35 +147,35 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 // The caller must not pass WithCount or WithOffset in opts; those are managed
 // internally. If they are passed, an error is returned immediately.
 //
-// This method supports filter options returned by methods in "*Client.Issue.Option",
+// This method supports filter options returned by methods in [IssueOptionService],
 // such as:
-//   - WithProjectIDs
-//   - WithIssueTypeIDs
-//   - WithCategoryIDs
-//   - WithVersionIDs
-//   - WithMilestoneIDs
-//   - WithStatusIDs
-//   - WithPriorityIDs
-//   - WithAssigneeIDs
-//   - WithCreatedUserIDs
-//   - WithResolutionIDs
-//   - WithParentChild
-//   - WithAttachment
-//   - WithSharedFile
-//   - WithIssueSort
-//   - WithOrder
-//   - WithCreatedSince
-//   - WithCreatedUntil
-//   - WithUpdatedSince
-//   - WithUpdatedUntil
-//   - WithStartDateSince
-//   - WithStartDateUntil
-//   - WithDueDateSince
-//   - WithDueDateUntil
-//   - WithHasDueDate
-//   - WithIDs
-//   - WithParentIssueIDs
-//   - WithKeyword
+//   - [IssueOptionService.WithProjectIDs]
+//   - [IssueOptionService.WithIssueTypeIDs]
+//   - [IssueOptionService.WithCategoryIDs]
+//   - [IssueOptionService.WithVersionIDs]
+//   - [IssueOptionService.WithMilestoneIDs]
+//   - [IssueOptionService.WithStatusIDs]
+//   - [IssueOptionService.WithPriorityIDs]
+//   - [IssueOptionService.WithAssigneeIDs]
+//   - [IssueOptionService.WithCreatedUserIDs]
+//   - [IssueOptionService.WithResolutionIDs]
+//   - [IssueOptionService.WithParentChild]
+//   - [IssueOptionService.WithAttachment]
+//   - [IssueOptionService.WithSharedFile]
+//   - [IssueOptionService.WithIssueSort]
+//   - [IssueOptionService.WithOrder]
+//   - [IssueOptionService.WithCreatedSince]
+//   - [IssueOptionService.WithCreatedUntil]
+//   - [IssueOptionService.WithUpdatedSince]
+//   - [IssueOptionService.WithUpdatedUntil]
+//   - [IssueOptionService.WithStartDateSince]
+//   - [IssueOptionService.WithStartDateUntil]
+//   - [IssueOptionService.WithDueDateSince]
+//   - [IssueOptionService.WithDueDateUntil]
+//   - [IssueOptionService.WithHasDueDate]
+//   - [IssueOptionService.WithIDs]
+//   - [IssueOptionService.WithParentIssueIDs]
+//   - [IssueOptionService.WithKeyword]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-list
 func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOption) (iter.Seq2[*Issue, error], error) {
@@ -184,8 +194,8 @@ func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOpti
 
 // Count returns the total count of issues matching the given filters.
 //
-// This method supports the same filter options as All, except WithIssueSort,
-// WithOrder, WithOffset, and WithCount.
+// This method supports the same filter options as [IssueService.All], except
+// [IssueOptionService.WithIssueSort] and [IssueOptionService.WithOrder].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
 func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, error) {
@@ -203,23 +213,25 @@ func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, er
 
 // Create creates a new issue.
 //
-// This method supports options returned by methods in "*Client.Issue.Option",
+// This method supports options returned by methods in [IssueOptionService],
 // such as:
-//   - WithDescription
-//   - WithStartDate
-//   - WithDueDate
-//   - WithEstimatedHours
-//   - WithActualHours
-//   - WithCategoryIDs
-//   - WithVersionIDs
-//   - WithMilestoneIDs
-//   - WithAssigneeID
-//   - WithParentIssueID
-//   - WithNotifiedUserIDs
-//   - WithAttachmentIDs
-//   - WithCustomField
-//   - WithCustomFieldItems
-//   - WithCustomFieldOther
+//   - [IssueOptionService.WithDescription]
+//   - [IssueOptionService.WithStartDate]
+//   - [IssueOptionService.WithDueDate]
+//   - [IssueOptionService.WithEstimatedHours]
+//   - [IssueOptionService.WithActualHours]
+//   - [IssueOptionService.WithCategoryIDs]
+//   - [IssueOptionService.WithVersionIDs]
+//   - [IssueOptionService.WithMilestoneIDs]
+//   - [IssueOptionService.WithAssigneeID]
+//   - [IssueOptionService.WithParentIssueID]
+//   - [IssueOptionService.WithNotifiedUserIDs]
+//   - [IssueOptionService.WithAttachmentIDs]
+//   - [IssueOptionService.WithCustomFieldNum]
+//   - [IssueOptionService.WithCustomFieldString]
+//   - [IssueOptionService.WithCustomFieldTime]
+//   - [IssueOptionService.WithCustomFieldItems]
+//   - [IssueOptionService.WithCustomFieldOther]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue
 func (s *IssueService) Create(ctx context.Context, projectID int, summary string, issueTypeID int, priorityID int, opts ...RequestOption) (*Issue, error) {
@@ -230,28 +242,30 @@ func (s *IssueService) Create(ctx context.Context, projectID int, summary string
 // Update updates an existing issue.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.Issue.Option", such as:
-//   - WithSummary
-//   - WithDescription
-//   - WithIssueTypeID
-//   - WithCategoryIDs
-//   - WithVersionIDs
-//   - WithMilestoneIDs
-//   - WithStartDate
-//   - WithDueDate
-//   - WithEstimatedHours
-//   - WithActualHours
-//   - WithAssigneeID
-//   - WithParentIssueID
-//   - WithPriorityID
-//   - WithStatusID
-//   - WithResolutionID
-//   - WithNotifiedUserIDs
-//   - WithAttachmentIDs
-//   - WithComment
-//   - WithCustomField
-//   - WithCustomFieldItems
-//   - WithCustomFieldOther
+// methods in [IssueOptionService], such as:
+//   - [IssueOptionService.WithSummary]
+//   - [IssueOptionService.WithDescription]
+//   - [IssueOptionService.WithIssueTypeID]
+//   - [IssueOptionService.WithCategoryIDs]
+//   - [IssueOptionService.WithVersionIDs]
+//   - [IssueOptionService.WithMilestoneIDs]
+//   - [IssueOptionService.WithStartDate]
+//   - [IssueOptionService.WithDueDate]
+//   - [IssueOptionService.WithEstimatedHours]
+//   - [IssueOptionService.WithActualHours]
+//   - [IssueOptionService.WithAssigneeID]
+//   - [IssueOptionService.WithParentIssueID]
+//   - [IssueOptionService.WithPriorityID]
+//   - [IssueOptionService.WithStatusID]
+//   - [IssueOptionService.WithResolutionID]
+//   - [IssueOptionService.WithNotifiedUserIDs]
+//   - [IssueOptionService.WithAttachmentIDs]
+//   - [IssueOptionService.WithComment]
+//   - [IssueOptionService.WithCustomFieldNum]
+//   - [IssueOptionService.WithCustomFieldString]
+//   - [IssueOptionService.WithCustomFieldTime]
+//   - [IssueOptionService.WithCustomFieldItems]
+//   - [IssueOptionService.WithCustomFieldOther]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue
 func (s *IssueService) Update(ctx context.Context, issueIDOrKey string, option RequestOption, opts ...RequestOption) (*Issue, error) {

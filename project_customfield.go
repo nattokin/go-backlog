@@ -68,7 +68,8 @@ type CustomFieldItem struct {
 // ProjectCustomFieldService handles communication with the project custom-field-related
 // methods of the Backlog API.
 type ProjectCustomFieldService struct {
-	base   *project.CustomFieldService
+	base *project.CustomFieldService
+	// Option provides the options accepted by [ProjectCustomFieldService] methods.
 	Option *ProjectCustomFieldOptionService
 }
 
@@ -83,23 +84,32 @@ func (s *ProjectCustomFieldService) List(ctx context.Context, projectIDOrKey str
 // Create adds a new custom field to a project.
 //
 // fieldType specifies the custom field type. Use the CustomFieldType constants:
-//   - CustomFieldTypeText
-//   - CustomFieldTypeSentence
-//   - CustomFieldTypeNumber
-//   - CustomFieldTypeDate
-//   - CustomFieldTypeSingleList
-//   - CustomFieldTypeMultipleList
-//   - CustomFieldTypeCheckbox
-//   - CustomFieldTypeRadio
+//   - [CustomFieldTypeText]
+//   - [CustomFieldTypeSentence]
+//   - [CustomFieldTypeNumber]
+//   - [CustomFieldTypeDate]
+//   - [CustomFieldTypeSingleList]
+//   - [CustomFieldTypeMultipleList]
+//   - [CustomFieldTypeCheckbox]
+//   - [CustomFieldTypeRadio]
 //
-// This method supports options returned by methods in "*Client.Project.CustomField.Option",
+// This method supports options returned by methods in [ProjectCustomFieldOptionService],
 // such as:
-//   - WithDescription
-//   - WithRequired
-//   - WithApplicableIssueTypeIDs
-//   - WithMin, WithMax, WithInitialValue, WithUnit (Number type)
-//   - WithInitialValueType, WithInitialDate, WithInitialShift, WithMinDate, WithMaxDate (Date type)
-//   - WithItems, WithAllowInput, WithAllowAddItem (List types)
+//   - [ProjectCustomFieldOptionService.WithDescription]
+//   - [ProjectCustomFieldOptionService.WithRequired]
+//   - [ProjectCustomFieldOptionService.WithApplicableIssueTypeIDs]
+//   - [ProjectCustomFieldOptionService.WithMin] (Number type)
+//   - [ProjectCustomFieldOptionService.WithMax] (Number type)
+//   - [ProjectCustomFieldOptionService.WithInitialValue] (Number type)
+//   - [ProjectCustomFieldOptionService.WithUnit] (Number type)
+//   - [ProjectCustomFieldOptionService.WithInitialValueType] (Date type)
+//   - [ProjectCustomFieldOptionService.WithInitialDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithInitialShift] (Date type)
+//   - [ProjectCustomFieldOptionService.WithMinDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithMaxDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithItems] (List types)
+//   - [ProjectCustomFieldOptionService.WithAllowInput] (List types)
+//   - [ProjectCustomFieldOptionService.WithAllowAddItem] (List types)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-custom-field
 func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey string, fieldType CustomFieldType, name string, opts ...RequestOption) (*CustomField, error) {
@@ -110,14 +120,23 @@ func (s *ProjectCustomFieldService) Create(ctx context.Context, projectIDOrKey s
 // Update updates a custom field in a project.
 //
 // At least one option must be provided. This method supports options returned
-// by methods in "*Client.Project.CustomField.Option", such as:
-//   - WithName
-//   - WithDescription
-//   - WithRequired
-//   - WithApplicableIssueTypeIDs
-//   - WithMin, WithMax, WithInitialValue, WithUnit (Number type)
-//   - WithInitialValueType, WithInitialDate, WithInitialShift, WithMinDate, WithMaxDate (Date type)
-//   - WithItems, WithAllowInput, WithAllowAddItem (List types)
+// by methods in [ProjectCustomFieldOptionService], such as:
+//   - [ProjectCustomFieldOptionService.WithName]
+//   - [ProjectCustomFieldOptionService.WithDescription]
+//   - [ProjectCustomFieldOptionService.WithRequired]
+//   - [ProjectCustomFieldOptionService.WithApplicableIssueTypeIDs]
+//   - [ProjectCustomFieldOptionService.WithMin] (Number type)
+//   - [ProjectCustomFieldOptionService.WithMax] (Number type)
+//   - [ProjectCustomFieldOptionService.WithInitialValue] (Number type)
+//   - [ProjectCustomFieldOptionService.WithUnit] (Number type)
+//   - [ProjectCustomFieldOptionService.WithInitialValueType] (Date type)
+//   - [ProjectCustomFieldOptionService.WithInitialDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithInitialShift] (Date type)
+//   - [ProjectCustomFieldOptionService.WithMinDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithMaxDate] (Date type)
+//   - [ProjectCustomFieldOptionService.WithItems] (List types)
+//   - [ProjectCustomFieldOptionService.WithAllowInput] (List types)
+//   - [ProjectCustomFieldOptionService.WithAllowAddItem] (List types)
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-custom-field
 func (s *ProjectCustomFieldService) Update(ctx context.Context, projectIDOrKey string, customFieldID int, option RequestOption, opts ...RequestOption) (*CustomField, error) {

@@ -13,12 +13,12 @@ type IssueOptionService struct {
 	base *option.OptionService
 }
 
-// WithActualHours returns an option to set the `actualHours` parameter.
+// WithActualHours sets the actual hours of the issue.
 func (s *IssueOptionService) WithActualHours(hours float64) RequestOption {
 	return &requestOption{opt: s.base.WithActualHours(hours)}
 }
 
-// WithAssigneeID returns an option to set the `assigneeId` parameter.
+// WithAssigneeID sets the ID of the user assigned to the issue.
 func (s *IssueOptionService) WithAssigneeID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithAssigneeID(id)}
 }
@@ -33,7 +33,7 @@ func (s *IssueOptionService) WithAttachment(enabled bool) RequestOption {
 	return &requestOption{opt: s.base.WithAttachment(enabled)}
 }
 
-// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+// WithAttachmentIDs sets the IDs of the attachments to attach to the issue.
 func (s *IssueOptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
@@ -43,7 +43,7 @@ func (s *IssueOptionService) WithCategoryIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithCategoryIDs(ids)}
 }
 
-// WithComment returns an option to set the `comment` parameter.
+// WithComment sets the comment added along with the issue update.
 func (s *IssueOptionService) WithComment(comment string) RequestOption {
 	return &requestOption{opt: s.base.WithComment(comment)}
 }
@@ -70,8 +70,8 @@ func (s *IssueOptionService) WithCreatedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithCreatedUserIDs(ids)}
 }
 
-// WithCustomFieldItems returns an option to set predefined item selections for a
-// list-type custom field (Single list, Multiple list, Checkbox, Radio).
+// WithCustomFieldItems sets the selected items of a list-type custom field
+// (Single list, Multiple list, Checkbox, Radio).
 //
 // The parameter name is dynamically generated as "customField_{id}". Multiple
 // item IDs are sent as repeated values under the same key, which the Backlog API
@@ -82,7 +82,7 @@ func (s *IssueOptionService) WithCustomFieldItems(id int, itemIDs []int) Request
 	return &requestOption{opt: issue.WithCustomFieldItems(id, itemIDs)}
 }
 
-// WithCustomFieldNum returns an option to set a Number type custom field value.
+// WithCustomFieldNum sets the value of a Number type custom field.
 //
 // The parameter name is dynamically generated as "customField_{id}".
 // Both integer and fractional values are supported (e.g. 1.0, -3.5).
@@ -92,8 +92,8 @@ func (s *IssueOptionService) WithCustomFieldNum(id int, value float64) RequestOp
 	return &requestOption{opt: issue.WithCustomField(id, value)}
 }
 
-// WithCustomFieldOther returns an option to set the free-text "Other" value for a
-// list-type custom field where allowInput is enabled.
+// WithCustomFieldOther sets the free-text "Other" value of a list-type custom
+// field where allowInput is enabled.
 //
 // The parameter name is dynamically generated as "customField_{id}_otherValue".
 //
@@ -102,8 +102,7 @@ func (s *IssueOptionService) WithCustomFieldOther(id int, value string) RequestO
 	return &requestOption{opt: issue.WithCustomFieldOther(id, value)}
 }
 
-// WithCustomFieldString returns an option to set a Text or Sentence type custom
-// field value.
+// WithCustomFieldString sets the value of a Text or Sentence type custom field.
 //
 // The parameter name is dynamically generated as "customField_{id}".
 //
@@ -112,7 +111,7 @@ func (s *IssueOptionService) WithCustomFieldString(id int, value string) Request
 	return &requestOption{opt: issue.WithCustomField(id, value)}
 }
 
-// WithCustomFieldTime returns an option to set a Date type custom field value.
+// WithCustomFieldTime sets the value of a Date type custom field.
 //
 // The parameter name is dynamically generated as "customField_{id}".
 // The value is formatted as "yyyy-MM-dd".
@@ -122,12 +121,12 @@ func (s *IssueOptionService) WithCustomFieldTime(id int, value time.Time) Reques
 	return &requestOption{opt: issue.WithCustomField(id, value)}
 }
 
-// WithDescription returns an option to set the `description` parameter.
+// WithDescription sets the description of the issue.
 func (s *IssueOptionService) WithDescription(description string) RequestOption {
 	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
-// WithDueDate returns an option to set the `dueDate` parameter.
+// WithDueDate sets the due date of the issue.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
 //
 // On update, passing an empty string clears the due date. On create, an empty
@@ -148,7 +147,7 @@ func (s *IssueOptionService) WithDueDateUntil(date string) RequestOption {
 	return &requestOption{opt: s.base.WithDueDateUntil(date)}
 }
 
-// WithEstimatedHours returns an option to set the `estimatedHours` parameter.
+// WithEstimatedHours sets the estimated hours of the issue.
 func (s *IssueOptionService) WithEstimatedHours(hours float64) RequestOption {
 	return &requestOption{opt: s.base.WithEstimatedHours(hours)}
 }
@@ -169,7 +168,7 @@ func (s *IssueOptionService) WithIssueSort(sort IssueSort) RequestOption {
 	return &requestOption{opt: s.base.WithIssueSort(string(sort))}
 }
 
-// WithIssueTypeID returns an option to set the `issueTypeId` parameter.
+// WithIssueTypeID sets the issue type ID of the issue.
 func (s *IssueOptionService) WithIssueTypeID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithIssueTypeID(id)}
 }
@@ -189,7 +188,7 @@ func (s *IssueOptionService) WithMilestoneIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithMilestoneIDs(ids)}
 }
 
-// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+// WithNotifiedUserIDs sets the IDs of the users to notify of the issue.
 func (s *IssueOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
@@ -212,7 +211,7 @@ func (s *IssueOptionService) WithParentChild(parentChild int) RequestOption {
 	return &requestOption{opt: s.base.WithParentChild(parentChild)}
 }
 
-// WithParentIssueID returns an option to set the `parentIssueId` parameter.
+// WithParentIssueID sets the ID of the parent issue.
 func (s *IssueOptionService) WithParentIssueID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithParentIssueID(id)}
 }
@@ -222,7 +221,7 @@ func (s *IssueOptionService) WithParentIssueIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithParentIssueIDs(ids)}
 }
 
-// WithPriorityID returns an option to set the `priorityId` parameter.
+// WithPriorityID sets the priority ID of the issue.
 func (s *IssueOptionService) WithPriorityID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithPriorityID(id)}
 }
@@ -237,7 +236,7 @@ func (s *IssueOptionService) WithProjectIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithProjectIDs(ids)}
 }
 
-// WithResolutionID returns an option to set the `resolutionId` parameter.
+// WithResolutionID sets the resolution ID of the issue.
 func (s *IssueOptionService) WithResolutionID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithResolutionID(id)}
 }
@@ -252,7 +251,7 @@ func (s *IssueOptionService) WithSharedFile(enabled bool) RequestOption {
 	return &requestOption{opt: s.base.WithSharedFile(enabled)}
 }
 
-// WithStartDate returns an option to set the `startDate` parameter.
+// WithStartDate sets the start date of the issue.
 // The date must be formatted as "yyyy-MM-dd" (e.g. "2024-01-20").
 //
 // On update, passing an empty string clears the start date. On create, an empty
@@ -273,7 +272,7 @@ func (s *IssueOptionService) WithStartDateUntil(date string) RequestOption {
 	return &requestOption{opt: s.base.WithStartDateUntil(date)}
 }
 
-// WithStatusID returns an option to set the `statusId` parameter.
+// WithStatusID sets the status ID of the issue.
 func (s *IssueOptionService) WithStatusID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithStatusID(id)}
 }
@@ -283,7 +282,7 @@ func (s *IssueOptionService) WithStatusIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithStatusIDs(ids)}
 }
 
-// WithSummary returns an option to set the `summary` parameter.
+// WithSummary sets the summary of the issue.
 func (s *IssueOptionService) WithSummary(summary string) RequestOption {
 	return &requestOption{opt: s.base.WithSummary(summary)}
 }
