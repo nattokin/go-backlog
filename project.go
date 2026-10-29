@@ -42,25 +42,35 @@ type Project struct {
 type ProjectService struct {
 	base *project.Service
 
-	Activity    *ProjectActivityService
-	Category    *ProjectCategoryService
+	// Activity provides access to project activity-related API endpoints.
+	Activity *ProjectActivityService
+	// Category provides access to project category-related API endpoints.
+	Category *ProjectCategoryService
+	// CustomField provides access to project custom field-related API endpoints.
 	CustomField *ProjectCustomFieldService
-	IssueType   *ProjectIssueTypeService
-	Status      *ProjectStatusService
-	User        *ProjectUserService
-	SharedFile  *ProjectSharedFileService
-	Webhook     *ProjectWebhookService
-	Version     *ProjectVersionService
+	// IssueType provides access to project issue type-related API endpoints.
+	IssueType *ProjectIssueTypeService
+	// Status provides access to project status-related API endpoints.
+	Status *ProjectStatusService
+	// User provides access to project user-related API endpoints.
+	User *ProjectUserService
+	// SharedFile provides access to project shared file-related API endpoints.
+	SharedFile *ProjectSharedFileService
+	// Webhook provides access to project webhook-related API endpoints.
+	Webhook *ProjectWebhookService
+	// Version provides access to project version-related API endpoints.
+	Version *ProjectVersionService
 
+	// Option provides the options accepted by [ProjectService] methods.
 	Option *ProjectOptionService
 }
 
 // List returns a list of projects.
 //
-// This method supports options returned by methods in "*Client.Project.Option",
+// This method supports options returned by methods in [ProjectOptionService],
 // such as:
-//   - WithQueryAll
-//   - WithQueryArchived
+//   - [ProjectOptionService.WithAll]
+//   - [ProjectOptionService.WithArchived]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-list
 func (s *ProjectService) List(ctx context.Context, opts ...RequestOption) ([]*Project, error) {
@@ -78,12 +88,12 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 
 // Create creates a new project.
 //
-// This method supports options returned by methods in "*Client.Project.Option",
+// This method supports options returned by methods in [ProjectOptionService],
 // such as:
-//   - WithChartEnabled
-//   - WithProjectLeaderCanEditProjectLeader
-//   - WithSubtaskingEnabled
-//   - WithTextFormattingRule
+//   - [ProjectOptionService.WithChartEnabled]
+//   - [ProjectOptionService.WithProjectLeaderCanEditProjectLeader]
+//   - [ProjectOptionService.WithSubtaskingEnabled]
+//   - [ProjectOptionService.WithTextFormattingRule]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project
 func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...RequestOption) (*Project, error) {
@@ -94,14 +104,14 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 // Update updates a project.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.Project.Option", such as:
-//   - WithArchived
-//   - WithChartEnabled
-//   - WithKey
-//   - WithName
-//   - WithProjectLeaderCanEditProjectLeader
-//   - WithSubtaskingEnabled
-//   - WithTextFormattingRule
+// methods in [ProjectOptionService], such as:
+//   - [ProjectOptionService.WithArchived]
+//   - [ProjectOptionService.WithChartEnabled]
+//   - [ProjectOptionService.WithKey]
+//   - [ProjectOptionService.WithName]
+//   - [ProjectOptionService.WithProjectLeaderCanEditProjectLeader]
+//   - [ProjectOptionService.WithSubtaskingEnabled]
+//   - [ProjectOptionService.WithTextFormattingRule]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-project
 func (s *ProjectService) Update(ctx context.Context, projectIDOrKey string, option RequestOption, opts ...RequestOption) (*Project, error) {

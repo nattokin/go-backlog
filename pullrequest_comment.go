@@ -10,18 +10,19 @@ import (
 
 // PullRequestCommentService handles communication with the pull request comment-related methods of the Backlog API.
 type PullRequestCommentService struct {
-	base   *pullrequest.CommentService
+	base *pullrequest.CommentService
+	// Option provides the options accepted by [PullRequestCommentService] methods.
 	Option *PullRequestCommentOptionService
 }
 
 // List returns a list of comments on a pull request.
 //
-// This method supports options returned by methods in "*Client.PullRequest.Comment.Option",
+// This method supports options returned by methods in [PullRequestCommentOptionService],
 // such as:
-//   - WithMinID
-//   - WithMaxID
-//   - WithCount
-//   - WithOrder
+//   - [PullRequestCommentOptionService.WithMinID]
+//   - [PullRequestCommentOptionService.WithMaxID]
+//   - [PullRequestCommentOptionService.WithCount]
+//   - [PullRequestCommentOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment
 func (s *PullRequestCommentService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, opts ...RequestOption) ([]*Comment, error) {
@@ -31,9 +32,9 @@ func (s *PullRequestCommentService) List(ctx context.Context, projectIDOrKey str
 
 // Add adds a comment to a pull request.
 //
-// This method supports options returned by methods in "*Client.PullRequest.Comment.Option",
+// This method supports options returned by methods in [PullRequestCommentOptionService],
 // such as:
-//   - WithNotifiedUserIDs
+//   - [PullRequestCommentOptionService.WithNotifiedUserIDs]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment
 func (s *PullRequestCommentService) Add(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, content string, opts ...RequestOption) (*Comment, error) {
@@ -78,7 +79,7 @@ func (s *PullRequestCommentOptionService) WithMinID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithMinID(id)}
 }
 
-// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+// WithNotifiedUserIDs sets the IDs of the users to notify of the comment.
 func (s *PullRequestCommentOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }

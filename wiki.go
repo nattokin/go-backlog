@@ -47,19 +47,24 @@ type WikiHistory struct {
 type WikiService struct {
 	base *wiki.Service
 
+	// Attachment provides access to wiki attachment-related API endpoints.
 	Attachment *WikiAttachmentService
-	History    *WikiHistoryService
+	// History provides access to wiki history-related API endpoints.
+	History *WikiHistoryService
+	// SharedFile provides access to wiki shared file-related API endpoints.
 	SharedFile *WikiSharedFileService
-	Star       *WikiStarService
+	// Star provides access to wiki star-related API endpoints.
+	Star *WikiStarService
 
+	// Option provides the options accepted by [WikiService] methods.
 	Option *WikiOptionService
 }
 
 // List returns a list of all wiki pages in the project.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option",
+// This method supports options returned by methods in [WikiOptionService],
 // such as:
-//   - WithKeyword
+//   - [WikiOptionService.WithKeyword]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list
 func (s *WikiService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Wiki, error) {
@@ -85,9 +90,9 @@ func (s *WikiService) One(ctx context.Context, wikiID int) (*Wiki, error) {
 
 // Create creates a new wiki page.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option",
+// This method supports options returned by methods in [WikiOptionService],
 // such as:
-//   - WithMailNotify
+//   - [WikiOptionService.WithMailNotify]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-wiki-page
 func (s *WikiService) Create(ctx context.Context, projectID int, name, content string, opts ...RequestOption) (*Wiki, error) {
@@ -97,11 +102,11 @@ func (s *WikiService) Create(ctx context.Context, projectID int, name, content s
 
 // Update updates a wiki page.
 //
-// This method supports options returned by methods in "*Client.Wiki.Option",
+// This method supports options returned by methods in [WikiOptionService],
 // such as:
-//   - WithContent
-//   - WithMailNotify
-//   - WithName
+//   - [WikiOptionService.WithContent]
+//   - [WikiOptionService.WithMailNotify]
+//   - [WikiOptionService.WithName]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-wiki-page
 func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOption, opts ...RequestOption) (*Wiki, error) {
@@ -110,6 +115,10 @@ func (s *WikiService) Update(ctx context.Context, wikiID int, option RequestOpti
 }
 
 // Delete deletes a wiki page.
+//
+// This method supports options returned by methods in [WikiOptionService],
+// such as:
+//   - [WikiOptionService.WithMailNotify]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-wiki-page
 func (s *WikiService) Delete(ctx context.Context, wikiID int, opts ...RequestOption) (*Wiki, error) {

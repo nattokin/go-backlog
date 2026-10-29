@@ -10,9 +10,20 @@ import (
 // RequestOption defines a common interface for all option types.
 // It allows unified validation and application handling across different request-level options.
 // Callers can implement this interface to provide custom options (e.g. for mocking in tests).
+//
+// A method applies its options in order. For each option, it checks Key, then
+// calls Check, and calls Set only when Check reports no error.
 type RequestOption interface {
+	// Key returns the name of the API parameter the option sets, such as
+	// "keyword" or "categoryId[]". If the key is not one the method accepts,
+	// the method returns an *InvalidOptionKeyError without sending a request.
 	Key() string
+	// Check validates the option's value and returns nil if it is valid.
+	// Validation errors from all options are collected and returned together;
+	// use [NewValidationError] to create one.
 	Check() *ValidationError
+	// Set writes the option's value to the request parameters. If Set returns
+	// an error, the method returns it without sending a request.
 	Set(url.Values) error
 }
 
@@ -55,7 +66,7 @@ func (s *ActivityOptionService) WithMaxID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithMaxID(id)}
 }
 
-// WithCount sets the number of activities to retrieve.
+// WithCount sets the number of activities to retrieve (1-100).
 func (s *ActivityOptionService) WithCount(count int) RequestOption {
 	return &requestOption{opt: s.base.WithCount(count)}
 }

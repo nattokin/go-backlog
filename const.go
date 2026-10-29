@@ -26,6 +26,7 @@ const (
 	FormatBacklog  Format = "backlog"
 )
 
+// String returns the name of the format, such as "Markdown".
 func (f Format) String() string {
 	switch f {
 	case FormatMarkdown:
@@ -72,6 +73,7 @@ const (
 	OrderDesc Order = "desc"
 )
 
+// String returns the name of the sort order, such as "Asc".
 func (o Order) String() string {
 	switch o {
 	case OrderAsc:
@@ -96,6 +98,7 @@ const (
 	RoleGuestViewer   Role = 6
 )
 
+// String returns the name of the role, such as "Administrator".
 func (r Role) String() string {
 	switch r {
 	case RoleAdministrator:

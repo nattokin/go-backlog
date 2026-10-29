@@ -134,8 +134,9 @@ func (e *InvalidOptionError) Error() string { return e.opt.Error() }
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
 // Use [errors.As] to check whether a returned error is a *ValidationError.
-// When multiple options fail validation, the error is a joined set of
-// *ValidationError values accessible via [errors.As] or [errors.Join].
+// When multiple arguments or options fail validation, the returned error joins
+// one *ValidationError per failure. [errors.As] finds only the first of them;
+// to get all of them, use the Unwrap() []error method of the returned error.
 type ValidationError struct {
 	target  string
 	message string

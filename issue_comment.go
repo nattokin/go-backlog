@@ -10,18 +10,19 @@ import (
 
 // IssueCommentService handles communication with the issue comment-related methods of the Backlog API.
 type IssueCommentService struct {
-	base   *issue.CommentService
+	base *issue.CommentService
+	// Option provides the options accepted by [IssueCommentService] methods.
 	Option *IssueCommentOptionService
 }
 
 // List returns a list of comments on an issue.
 //
-// This method supports options returned by methods in "*Client.Issue.Comment.Option",
+// This method supports options returned by methods in [IssueCommentOptionService],
 // such as:
-//   - WithMinID
-//   - WithMaxID
-//   - WithCount
-//   - WithOrder
+//   - [IssueCommentOptionService.WithMinID]
+//   - [IssueCommentOptionService.WithMaxID]
+//   - [IssueCommentOptionService.WithCount]
+//   - [IssueCommentOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-comment-list
 func (s *IssueCommentService) List(ctx context.Context, issueIDOrKey string, opts ...RequestOption) ([]*Comment, error) {
@@ -31,10 +32,10 @@ func (s *IssueCommentService) List(ctx context.Context, issueIDOrKey string, opt
 
 // Add adds a comment to an issue.
 //
-// This method supports options returned by methods in "*Client.Issue.Comment.Option",
+// This method supports options returned by methods in [IssueCommentOptionService],
 // such as:
-//   - WithNotifiedUserIDs
-//   - WithAttachmentIDs
+//   - [IssueCommentOptionService.WithNotifiedUserIDs]
+//   - [IssueCommentOptionService.WithAttachmentIDs]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-comment
 func (s *IssueCommentService) Add(ctx context.Context, issueIDOrKey string, content string, opts ...RequestOption) (*Comment, error) {
@@ -116,12 +117,12 @@ func (s *IssueCommentOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
-// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+// WithNotifiedUserIDs sets the IDs of the users to notify of the comment.
 func (s *IssueCommentOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
 
-// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+// WithAttachmentIDs sets the IDs of the attachments to attach to the comment.
 func (s *IssueCommentOptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }

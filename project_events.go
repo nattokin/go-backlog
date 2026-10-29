@@ -31,18 +31,19 @@ type Webhook struct {
 type ProjectActivityService struct {
 	base *project.ActivityService
 
+	// Option provides the options accepted by [ProjectActivityService] methods.
 	Option *ActivityOptionService
 }
 
 // List returns a list of activities in the project.
 //
-// This method supports options returned by methods in "*Client.Project.Activity.Option",
+// This method supports options returned by methods in [ActivityOptionService],
 // such as:
-//   - WithActivityTypeIDs
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
+//   - [ActivityOptionService.WithActivityTypeIDs]
+//   - [ActivityOptionService.WithCount]
+//   - [ActivityOptionService.WithMaxID]
+//   - [ActivityOptionService.WithMinID]
+//   - [ActivityOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates
 func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*Activity, error) {
@@ -56,7 +57,8 @@ func (s *ProjectActivityService) List(ctx context.Context, projectIDOrKey string
 
 // ProjectWebhookService handles communication with the project webhook-related methods of the Backlog API.
 type ProjectWebhookService struct {
-	base   *project.WebhookService
+	base *project.WebhookService
+	// Option provides the options accepted by [ProjectWebhookService] methods.
 	Option *ProjectWebhookOptionService
 }
 
@@ -70,11 +72,11 @@ func (s *ProjectWebhookService) List(ctx context.Context, projectIDOrKey string)
 
 // Create adds a webhook to the project.
 //
-// This method supports options returned by methods in "*Client.Project.Webhook.Option",
+// This method supports options returned by methods in [ProjectWebhookOptionService],
 // such as:
-//   - WithActivityTypeIDs
-//   - WithAllEvent
-//   - WithDescription
+//   - [ProjectWebhookOptionService.WithActivityTypeIDs]
+//   - [ProjectWebhookOptionService.WithAllEvent]
+//   - [ProjectWebhookOptionService.WithDescription]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-webhook
 func (s *ProjectWebhookService) Create(ctx context.Context, projectIDOrKey, name, hookURL string, opts ...RequestOption) (*Webhook, error) {
@@ -93,12 +95,12 @@ func (s *ProjectWebhookService) One(ctx context.Context, projectIDOrKey string, 
 // Update updates a webhook.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.Project.Webhook.Option", such as:
-//   - WithActivityTypeIDs
-//   - WithAllEvent
-//   - WithDescription
-//   - WithHookURL
-//   - WithName
+// methods in [ProjectWebhookOptionService], such as:
+//   - [ProjectWebhookOptionService.WithActivityTypeIDs]
+//   - [ProjectWebhookOptionService.WithAllEvent]
+//   - [ProjectWebhookOptionService.WithDescription]
+//   - [ProjectWebhookOptionService.WithHookURL]
+//   - [ProjectWebhookOptionService.WithName]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-webhook
 func (s *ProjectWebhookService) Update(ctx context.Context, projectIDOrKey string, webhookID int, option RequestOption, opts ...RequestOption) (*Webhook, error) {

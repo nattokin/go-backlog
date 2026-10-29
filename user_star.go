@@ -12,17 +12,18 @@ import (
 type UserStarService struct {
 	base *user.StarService
 
+	// Option provides the options accepted by [UserStarService] methods.
 	Option *UserStarOptionService
 }
 
 // List returns a list of stars received by the user with the given ID.
 //
-// This method supports options returned by methods in "*Client.User.Star.Option",
+// This method supports options returned by methods in [UserStarOptionService],
 // such as:
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
+//   - [UserStarOptionService.WithCount]
+//   - [UserStarOptionService.WithMaxID]
+//   - [UserStarOptionService.WithMinID]
+//   - [UserStarOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-received-star-list
 func (s *UserStarService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*Star, error) {
@@ -44,7 +45,7 @@ type UserStarOptionService struct {
 	base *option.OptionService
 }
 
-// WithCount sets the number of results to return.
+// WithCount sets the number of stars to retrieve (1-100).
 func (s *UserStarOptionService) WithCount(count int) RequestOption {
 	return &requestOption{opt: s.base.WithCount(count)}
 }

@@ -48,23 +48,27 @@ type PullRequest struct {
 type PullRequestService struct {
 	base *pullrequest.Service
 
+	// Attachment provides access to pull request attachment-related API endpoints.
 	Attachment *PullRequestAttachmentService
-	Comment    *PullRequestCommentService
-	Star       *PullRequestStarService
+	// Comment provides access to pull request comment-related API endpoints.
+	Comment *PullRequestCommentService
+	// Star provides access to pull request star-related API endpoints.
+	Star *PullRequestStarService
 
+	// Option provides the options accepted by [PullRequestService] methods.
 	Option *PullRequestOptionService
 }
 
 // List returns a list of pull requests.
 //
-// This method supports options returned by methods in "*Client.PullRequest.Option",
+// This method supports options returned by methods in [PullRequestOptionService],
 // such as:
-//   - WithStatusIDs
-//   - WithAssigneeIDs
-//   - WithIssueIDs
-//   - WithCreatedUserIDs
-//   - WithOffset
-//   - WithCount
+//   - [PullRequestOptionService.WithStatusIDs]
+//   - [PullRequestOptionService.WithAssigneeIDs]
+//   - [PullRequestOptionService.WithIssueIDs]
+//   - [PullRequestOptionService.WithCreatedUserIDs]
+//   - [PullRequestOptionService.WithOffset]
+//   - [PullRequestOptionService.WithCount]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) ([]*PullRequest, error) {
@@ -80,12 +84,12 @@ func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, re
 // The caller must not pass WithCount or WithOffset in opts; those are managed
 // internally. If they are passed, an error is returned immediately.
 //
-// This method supports filter options returned by methods in "*Client.PullRequest.Option",
+// This method supports filter options returned by methods in [PullRequestOptionService],
 // such as:
-//   - WithStatusIDs
-//   - WithAssigneeIDs
-//   - WithIssueIDs
-//   - WithCreatedUserIDs
+//   - [PullRequestOptionService.WithStatusIDs]
+//   - [PullRequestOptionService.WithAssigneeIDs]
+//   - [PullRequestOptionService.WithIssueIDs]
+//   - [PullRequestOptionService.WithCreatedUserIDs]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-pull-request-list
 func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) (iter.Seq2[*PullRequest, error], error) {
@@ -104,12 +108,12 @@ func (s *PullRequestService) All(ctx context.Context, perPage int, projectIDOrKe
 
 // Count returns the number of pull requests.
 //
-// This method supports options returned by methods in "*Client.PullRequest.Option",
+// This method supports options returned by methods in [PullRequestOptionService],
 // such as:
-//   - WithStatusIDs
-//   - WithAssigneeIDs
-//   - WithIssueIDs
-//   - WithCreatedUserIDs
+//   - [PullRequestOptionService.WithStatusIDs]
+//   - [PullRequestOptionService.WithAssigneeIDs]
+//   - [PullRequestOptionService.WithIssueIDs]
+//   - [PullRequestOptionService.WithCreatedUserIDs]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests
 func (s *PullRequestService) Count(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, opts ...RequestOption) (int, error) {
@@ -127,12 +131,12 @@ func (s *PullRequestService) One(ctx context.Context, projectIDOrKey string, rep
 
 // Create creates a new pull request.
 //
-// This method supports options returned by methods in "*Client.PullRequest.Option",
+// This method supports options returned by methods in [PullRequestOptionService],
 // such as:
-//   - WithIssueID
-//   - WithAssigneeID
-//   - WithNotifiedUserIDs
-//   - WithAttachmentIDs
+//   - [PullRequestOptionService.WithIssueID]
+//   - [PullRequestOptionService.WithAssigneeID]
+//   - [PullRequestOptionService.WithNotifiedUserIDs]
+//   - [PullRequestOptionService.WithAttachmentIDs]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-pull-request
 func (s *PullRequestService) Create(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, summary string, description string, base string, branch string, opts ...RequestOption) (*PullRequest, error) {
@@ -143,13 +147,13 @@ func (s *PullRequestService) Create(ctx context.Context, projectIDOrKey string, 
 // Update updates an existing pull request.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.PullRequest.Option", such as:
-//   - WithSummary
-//   - WithDescription
-//   - WithIssueID
-//   - WithAssigneeID
-//   - WithNotifiedUserIDs
-//   - WithComment
+// methods in [PullRequestOptionService], such as:
+//   - [PullRequestOptionService.WithSummary]
+//   - [PullRequestOptionService.WithDescription]
+//   - [PullRequestOptionService.WithIssueID]
+//   - [PullRequestOptionService.WithAssigneeID]
+//   - [PullRequestOptionService.WithNotifiedUserIDs]
+//   - [PullRequestOptionService.WithComment]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-pull-request
 func (s *PullRequestService) Update(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, option RequestOption, opts ...RequestOption) (*PullRequest, error) {
@@ -224,7 +228,7 @@ type PullRequestOptionService struct {
 	base *option.OptionService
 }
 
-// WithAssigneeID returns an option to set the `assigneeId` parameter.
+// WithAssigneeID sets the ID of the user assigned to the pull request.
 func (s *PullRequestOptionService) WithAssigneeID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithAssigneeID(id)}
 }
@@ -234,17 +238,17 @@ func (s *PullRequestOptionService) WithAssigneeIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAssigneeIDs(ids)}
 }
 
-// WithAttachmentIDs returns an option to set multiple `attachmentId[]` parameters.
+// WithAttachmentIDs sets the IDs of the attachments to attach to the pull request.
 func (s *PullRequestOptionService) WithAttachmentIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithAttachmentIDs(ids)}
 }
 
-// WithComment returns an option to set the `comment` parameter.
+// WithComment sets the comment added along with the pull request update.
 func (s *PullRequestOptionService) WithComment(comment string) RequestOption {
 	return &requestOption{opt: s.base.WithComment(comment)}
 }
 
-// WithCount sets the number of pull requests to retrieve.
+// WithCount sets the number of pull requests to retrieve (1-100).
 func (s *PullRequestOptionService) WithCount(count int) RequestOption {
 	return &requestOption{opt: s.base.WithCount(count)}
 }
@@ -254,12 +258,12 @@ func (s *PullRequestOptionService) WithCreatedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithCreatedUserIDs(ids)}
 }
 
-// WithDescription returns an option to set the `description` parameter.
+// WithDescription sets the description of the pull request.
 func (s *PullRequestOptionService) WithDescription(description string) RequestOption {
 	return &requestOption{opt: s.base.WithDescription(description)}
 }
 
-// WithIssueID returns an option to set the `issueId` parameter.
+// WithIssueID sets the ID of the issue related to the pull request.
 func (s *PullRequestOptionService) WithIssueID(id int) RequestOption {
 	return &requestOption{opt: s.base.WithIssueID(id)}
 }
@@ -269,7 +273,7 @@ func (s *PullRequestOptionService) WithIssueIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithIssueIDs(ids)}
 }
 
-// WithNotifiedUserIDs returns an option to set multiple `notifiedUserId[]` parameters.
+// WithNotifiedUserIDs sets the IDs of the users to notify of the pull request.
 func (s *PullRequestOptionService) WithNotifiedUserIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithNotifiedUserIDs(ids)}
 }
@@ -284,7 +288,7 @@ func (s *PullRequestOptionService) WithStatusIDs(ids []int) RequestOption {
 	return &requestOption{opt: s.base.WithStatusIDs(ids)}
 }
 
-// WithSummary returns an option to set the `summary` parameter.
+// WithSummary sets the summary of the pull request.
 func (s *PullRequestOptionService) WithSummary(summary string) RequestOption {
 	return &requestOption{opt: s.base.WithSummary(summary)}
 }

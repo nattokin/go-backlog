@@ -15,7 +15,8 @@ import (
 
 // ProjectIssueTypeService handles communication with the project issue-type-related methods of the Backlog API.
 type ProjectIssueTypeService struct {
-	base   *project.IssueTypeService
+	base *project.IssueTypeService
+	// Option provides the options accepted by [ProjectIssueTypeService] methods.
 	Option *ProjectIssueTypeOptionService
 }
 
@@ -29,10 +30,10 @@ func (s *ProjectIssueTypeService) List(ctx context.Context, projectIDOrKey strin
 
 // Create adds a new issue type to a project.
 //
-// This method supports options returned by methods in "*Client.Project.IssueType.Option",
+// This method supports options returned by methods in [ProjectIssueTypeOptionService],
 // such as:
-//   - WithTemplateDescription
-//   - WithTemplateSummary
+//   - [ProjectIssueTypeOptionService.WithTemplateDescription]
+//   - [ProjectIssueTypeOptionService.WithTemplateSummary]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-issue-type
 func (s *ProjectIssueTypeService) Create(ctx context.Context, projectIDOrKey, name, color string, opts ...RequestOption) (*IssueType, error) {
@@ -42,12 +43,12 @@ func (s *ProjectIssueTypeService) Create(ctx context.Context, projectIDOrKey, na
 
 // Update updates an issue type in a project.
 //
-// This method supports options returned by methods in "*Client.Project.IssueType.Option",
+// This method supports options returned by methods in [ProjectIssueTypeOptionService],
 // such as:
-//   - WithColor
-//   - WithName
-//   - WithTemplateDescription
-//   - WithTemplateSummary
+//   - [ProjectIssueTypeOptionService.WithColor]
+//   - [ProjectIssueTypeOptionService.WithName]
+//   - [ProjectIssueTypeOptionService.WithTemplateDescription]
+//   - [ProjectIssueTypeOptionService.WithTemplateSummary]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-issue-type
 func (s *ProjectIssueTypeService) Update(ctx context.Context, projectIDOrKey string, issueTypeID int, option RequestOption, opts ...RequestOption) (*IssueType, error) {

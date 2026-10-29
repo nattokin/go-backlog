@@ -28,7 +28,8 @@ type Status struct {
 
 // ProjectStatusService handles communication with the project status-related methods of the Backlog API.
 type ProjectStatusService struct {
-	base   *project.StatusService
+	base *project.StatusService
+	// Option provides the options accepted by [ProjectStatusService] methods.
 	Option *ProjectStatusOptionService
 }
 
@@ -51,9 +52,9 @@ func (s *ProjectStatusService) Create(ctx context.Context, projectIDOrKey, name,
 // Update updates a status in a project.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.Project.Status.Option", such as:
-//   - WithColor
-//   - WithName
+// methods in [ProjectStatusOptionService], such as:
+//   - [ProjectStatusOptionService.WithColor]
+//   - [ProjectStatusOptionService.WithName]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-status
 func (s *ProjectStatusService) Update(ctx context.Context, projectIDOrKey string, statusID int, option RequestOption, opts ...RequestOption) (*Status, error) {
@@ -83,7 +84,8 @@ func (s *ProjectStatusService) UpdateOrder(ctx context.Context, projectIDOrKey s
 
 // ProjectVersionService handles communication with the project version/milestone-related methods of the Backlog API.
 type ProjectVersionService struct {
-	base   *project.VersionService
+	base *project.VersionService
+	// Option provides the options accepted by [ProjectVersionService] methods.
 	Option *ProjectVersionOptionService
 }
 
@@ -97,11 +99,11 @@ func (s *ProjectVersionService) List(ctx context.Context, projectIDOrKey string)
 
 // Create adds a version/milestone to the project.
 //
-// This method supports options returned by methods in "*Client.Project.Version.Option",
+// This method supports options returned by methods in [ProjectVersionOptionService],
 // such as:
-//   - WithDescription
-//   - WithReleaseDueDate
-//   - WithStartDate
+//   - [ProjectVersionOptionService.WithDescription]
+//   - [ProjectVersionOptionService.WithReleaseDueDate]
+//   - [ProjectVersionOptionService.WithStartDate]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-version-milestone/
 func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name string, opts ...RequestOption) (*Version, error) {
@@ -112,12 +114,12 @@ func (s *ProjectVersionService) Create(ctx context.Context, projectIDOrKey, name
 // Update updates a version/milestone.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.Project.Version.Option", such as:
-//   - WithArchived
-//   - WithDescription
-//   - WithName
-//   - WithReleaseDueDate
-//   - WithStartDate
+// methods in [ProjectVersionOptionService], such as:
+//   - [ProjectVersionOptionService.WithArchived]
+//   - [ProjectVersionOptionService.WithDescription]
+//   - [ProjectVersionOptionService.WithName]
+//   - [ProjectVersionOptionService.WithReleaseDueDate]
+//   - [ProjectVersionOptionService.WithStartDate]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-version-milestone/
 func (s *ProjectVersionService) Update(ctx context.Context, projectIDOrKey string, versionID int, option RequestOption, opts ...RequestOption) (*Version, error) {

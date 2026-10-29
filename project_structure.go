@@ -69,6 +69,7 @@ func (s *ProjectCategoryService) Delete(ctx context.Context, projectIDOrKey stri
 type ProjectSharedFileService struct {
 	base *project.SharedFileService
 
+	// Option provides the options accepted by [ProjectSharedFileService] methods.
 	Option *ProjectSharedFileOptionService
 }
 
@@ -78,11 +79,11 @@ type ProjectSharedFileService struct {
 // Use "/" to list the project root. The path is always sent with a trailing
 // slash, so "/design" and "/design/" are equivalent.
 //
-// This method supports options returned by methods in "*Client.Project.SharedFile.Option",
+// This method supports options returned by methods in [ProjectSharedFileOptionService],
 // such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
+//   - [ProjectSharedFileOptionService.WithCount]
+//   - [ProjectSharedFileOptionService.WithOffset]
+//   - [ProjectSharedFileOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files
 func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey, dirPath string, opts ...RequestOption) ([]*SharedFile, error) {
@@ -107,14 +108,15 @@ func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey 
 type ProjectUserService struct {
 	base *project.UserService
 
+	// Option provides the options accepted by [ProjectUserService] methods.
 	Option *ProjectUserOptionService
 }
 
 // List returns all users in the project.
 //
-// This method supports options returned by methods in "*Client.Project.User.Option",
+// This method supports options returned by methods in [ProjectUserOptionService],
 // such as:
-//   - WithExcludeGroupMembers
+//   - [ProjectUserOptionService.WithExcludeGroupMembers]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-project-user-list
 func (s *ProjectUserService) List(ctx context.Context, projectIDOrKey string, opts ...RequestOption) ([]*User, error) {
@@ -138,7 +140,7 @@ func (s *ProjectUserService) Delete(ctx context.Context, projectIDOrKey string, 
 	return userFromModel(v), convertError(err)
 }
 
-// AddAdmin adds a admin user to the project.
+// AddAdmin adds an admin user to the project.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-project-administrator
 func (s *ProjectUserService) AddAdmin(ctx context.Context, projectIDOrKey string, userID int) (*User, error) {
