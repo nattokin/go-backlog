@@ -10,13 +10,21 @@ import (
 
 // Example demonstrates basic usage: creating a client and listing wiki pages.
 func Example() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
 		backlog.WithDoer(doerWikiList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wikis, _ := c.Wiki.List(context.Background(), "MYPROJECT")
+	wikis, err := c.Wiki.List(context.Background(), "MYPROJECT")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", wikis[0].ID, wikis[0].Name)
 	// Output:
 	// ID: 112, Name: test1
@@ -24,17 +32,25 @@ func Example() {
 
 // Example_withOptions demonstrates using option methods to filter results.
 func Example_withOptions() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
 		backlog.WithDoer(doerWikiList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wikis, _ := c.Wiki.List(
+	wikis, err := c.Wiki.List(
 		context.Background(),
 		"MYPROJECT",
 		c.Wiki.Option.WithKeyword("test"),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", wikis[0].ID, wikis[0].Name)
 	// Output:
 	// ID: 112, Name: test1
