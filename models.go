@@ -8,8 +8,9 @@ import (
 
 // Attachment represents a file attached to an issue, wiki page, or pull request.
 type Attachment struct {
-	ID          int
-	Name        string
+	ID   int
+	Name string
+	// Size is the file size in bytes.
 	Size        int
 	CreatedUser *User
 	Created     Timestamp
@@ -17,8 +18,11 @@ type Attachment struct {
 
 // Activity represents a recent update or change in the project or space.
 type Activity struct {
-	ID            int
-	Project       *Project
+	ID      int
+	Project *Project
+	// Type is the activity type ID, such as 1 for a created issue.
+	// See the Backlog API docs for the list of IDs:
+	// https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 	Type          int
 	Content       *ActivityContent
 	Notifications []*Notification

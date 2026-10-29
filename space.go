@@ -64,7 +64,9 @@ type SpaceNotification struct {
 type SpaceService struct {
 	base *space.Service
 
-	Activity   *SpaceActivityService
+	// Activity provides access to space activity-related API endpoints.
+	Activity *SpaceActivityService
+	// Attachment provides access to space attachment-related API endpoints.
 	Attachment *SpaceAttachmentService
 }
 
@@ -110,18 +112,19 @@ func (s *SpaceService) UpdateNotification(ctx context.Context, content string) (
 type SpaceActivityService struct {
 	base *space.ActivityService
 
+	// Option provides the options accepted by [SpaceActivityService] methods.
 	Option *ActivityOptionService
 }
 
 // List returns a list of activities in your space.
 //
-// This method supports options returned by methods in "*Client.Space.Activity.Option",
+// This method supports options returned by methods in [ActivityOptionService],
 // such as:
-//   - WithActivityTypeIDs
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
+//   - [ActivityOptionService.WithActivityTypeIDs]
+//   - [ActivityOptionService.WithCount]
+//   - [ActivityOptionService.WithMaxID]
+//   - [ActivityOptionService.WithMinID]
+//   - [ActivityOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-recent-updates
 func (s *SpaceActivityService) List(ctx context.Context, opts ...RequestOption) ([]*Activity, error) {

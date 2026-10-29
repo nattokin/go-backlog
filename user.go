@@ -27,9 +27,12 @@ type User struct {
 type UserService struct {
 	base *user.Service
 
+	// Activity provides access to user activity-related API endpoints.
 	Activity *UserActivityService
-	Star     *UserStarService
+	// Star provides access to user star-related API endpoints.
+	Star *UserStarService
 
+	// Option provides the options accepted by [UserService] methods.
 	Option *UserOptionService
 }
 
@@ -68,11 +71,11 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 // Update updates a user in your space.
 //
 // At least one option is required. This method supports options returned by
-// methods in "*Client.User.Option", such as:
-//   - WithMailAddress
-//   - WithName
-//   - WithPassword
-//   - WithRoleType
+// methods in [UserOptionService], such as:
+//   - [UserOptionService.WithMailAddress]
+//   - [UserOptionService.WithName]
+//   - [UserOptionService.WithPassword]
+//   - [UserOptionService.WithRoleType]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
 func (s *UserService) Update(ctx context.Context, id int, option RequestOption, opts ...RequestOption) (*User, error) {
@@ -105,18 +108,19 @@ func (s *UserService) Icon(ctx context.Context, id int) (*FileData, error) {
 type UserActivityService struct {
 	base *user.ActivityService
 
+	// Option provides the options accepted by [UserActivityService] methods.
 	Option *ActivityOptionService
 }
 
 // List returns a list of user activities.
 //
-// This method supports options returned by methods in "*Client.User.Activity.Option",
+// This method supports options returned by methods in [ActivityOptionService],
 // such as:
-//   - WithActivityTypeIDs
-//   - WithCount
-//   - WithMaxID
-//   - WithMinID
-//   - WithOrder
+//   - [ActivityOptionService.WithActivityTypeIDs]
+//   - [ActivityOptionService.WithCount]
+//   - [ActivityOptionService.WithMaxID]
+//   - [ActivityOptionService.WithMinID]
+//   - [ActivityOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates
 func (s *UserActivityService) List(ctx context.Context, userID int, opts ...RequestOption) ([]*Activity, error) {

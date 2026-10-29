@@ -43,16 +43,17 @@ type RecentlyViewedWiki struct {
 type RecentlyViewedService struct {
 	base *recentlyviewed.Service
 
+	// Option provides the options accepted by [RecentlyViewedService] methods.
 	Option *RecentlyViewedOptionService
 }
 
 // ListIssues returns a list of issues recently viewed by the authenticated user.
 //
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
+// This method supports options returned by methods in [RecentlyViewedOptionService],
 // such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
+//   - [RecentlyViewedOptionService.WithCount]
+//   - [RecentlyViewedOptionService.WithOffset]
+//   - [RecentlyViewedOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues
 func (s *RecentlyViewedService) ListIssues(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedIssue, error) {
@@ -71,11 +72,11 @@ func (s *RecentlyViewedService) AddIssue(ctx context.Context, issueIDOrKey strin
 
 // ListProjects returns a list of projects recently viewed by the authenticated user.
 //
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
+// This method supports options returned by methods in [RecentlyViewedOptionService],
 // such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
+//   - [RecentlyViewedOptionService.WithCount]
+//   - [RecentlyViewedOptionService.WithOffset]
+//   - [RecentlyViewedOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects
 func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedProject, error) {
@@ -85,11 +86,11 @@ func (s *RecentlyViewedService) ListProjects(ctx context.Context, opts ...Reques
 
 // ListWikis returns a list of Wiki pages recently viewed by the authenticated user.
 //
-// This method supports options returned by methods in "*Client.User.RecentlyViewed.Option",
+// This method supports options returned by methods in [RecentlyViewedOptionService],
 // such as:
-//   - WithCount
-//   - WithOffset
-//   - WithOrder
+//   - [RecentlyViewedOptionService.WithCount]
+//   - [RecentlyViewedOptionService.WithOffset]
+//   - [RecentlyViewedOptionService.WithOrder]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis
 func (s *RecentlyViewedService) ListWikis(ctx context.Context, opts ...RequestOption) ([]*RecentlyViewedWiki, error) {
