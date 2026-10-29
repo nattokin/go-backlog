@@ -9,7 +9,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/option"
 )
 
-// Webhook represents webhook of Backlog.
+// Webhook represents a webhook registered in a project.
 type Webhook struct {
 	ID              int
 	Name            string

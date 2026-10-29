@@ -35,7 +35,7 @@ type RecentlyViewedWiki struct {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  UserRecentlyViewedService
+//  RecentlyViewedService
 // ──────────────────────────────────────────────────────────────
 
 // RecentlyViewedService handles communication with the recently-viewed methods of the Backlog API.
@@ -107,11 +107,11 @@ func (s *RecentlyViewedService) AddWiki(ctx context.Context, wikiID int) (*Wiki,
 }
 
 // ──────────────────────────────────────────────────────────────
-//  UserRecentlyViewedOptionService
+//  RecentlyViewedOptionService
 // ──────────────────────────────────────────────────────────────
 
 // RecentlyViewedOptionService provides a domain-specific set of option builders
-// for operations within the UserRecentlyViewedService.
+// for operations within the RecentlyViewedService.
 type RecentlyViewedOptionService struct {
 	base *option.OptionService
 }

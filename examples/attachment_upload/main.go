@@ -1,3 +1,5 @@
+// The attachment_upload command uploads a local file to the space and attaches it
+// to a specified issue.
 package main
 
 import (

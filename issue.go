@@ -54,7 +54,7 @@ type Issue struct {
 	Stars          []*Star
 }
 
-// IssueType represents type of Issue.
+// IssueType represents an issue type defined in a project.
 type IssueType struct {
 	ID           int
 	ProjectID    int

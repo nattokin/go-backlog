@@ -1,3 +1,4 @@
+// The project_list command lists all projects in a space with their issue types and statuses.
 package main
 
 import (

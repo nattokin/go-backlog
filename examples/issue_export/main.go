@@ -1,3 +1,4 @@
+// The issue_export command exports issues in a project to TSV format on stdout.
 package main
 
 import (
