@@ -1,6 +1,8 @@
 package backlog_test
 
 import (
+	"net/http"
+
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
@@ -122,4 +124,24 @@ func newMockBinaryDoer(contentType, filename string, body []byte) *mock.Doer {
 // Used as a lightweight Doer for Example tests, which run without *testing.T.
 var doerNoContent = &mock.Doer{
 	DoFunc: mock.NewNoContentDoFunc(),
+}
+
+// doerNotFound is a *mock.Doer that always responds with HTTP 404 Not Found.
+// Used as a lightweight Doer for Example tests, which run without *testing.T.
+var doerNotFound = &mock.Doer{
+	DoFunc: mock.NewNotFoundDoFunc(),
+}
+
+// doerRateLimited is a *mock.Doer that always responds with HTTP 429 Too Many
+// Requests and the X-RateLimit-* headers.
+// Used as a lightweight Doer for Example tests, which run without *testing.T.
+var doerRateLimited = &mock.Doer{
+	DoFunc: func(_ *http.Request) (*http.Response, error) {
+		resp := mock.NewErrorResponse(http.StatusTooManyRequests, `{"errors":[]}`)
+		resp.Header = http.Header{}
+		resp.Header.Set("X-RateLimit-Limit", "600")
+		resp.Header.Set("X-RateLimit-Remaining", "0")
+		resp.Header.Set("X-RateLimit-Reset", "1735689600")
+		return resp, nil
+	},
 }
