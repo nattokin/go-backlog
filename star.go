@@ -31,18 +31,19 @@ type Star struct {
 type StarService struct {
 	base *star.Service
 
+	// Option provides the options accepted by [StarService] methods.
 	Option *StarOptionService
 }
 
 // Add adds a star to a resource.
 //
-// Exactly one of the following options returned by methods in "*Client.Star.Option"
+// Exactly one of the following options returned by methods in [StarOptionService]
 // must be provided:
-//   - WithIssueID
-//   - WithCommentID
-//   - WithWikiID
-//   - WithPullRequestID
-//   - WithPullRequestCommentID
+//   - [StarOptionService.WithIssueID]
+//   - [StarOptionService.WithCommentID]
+//   - [StarOptionService.WithWikiID]
+//   - [StarOptionService.WithPullRequestID]
+//   - [StarOptionService.WithPullRequestCommentID]
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-star
 func (s *StarService) Add(ctx context.Context, option RequestOption) error {
