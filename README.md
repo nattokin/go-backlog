@@ -10,7 +10,7 @@ go-backlog
 ## Features
 
 - **Type-safe option builders** — Filter and configure requests using strongly-typed option methods (e.g. `WithKeyword`, `WithCount`, `WithOrder`), avoiding raw string/map parameters.
-- **Idiomatic Go structs** — API responses are mapped to Go structs with proper types (`time.Time`, typed constants, etc.) instead of raw JSON.
+- **Idiomatic Go structs** — API responses are mapped to Go structs with proper types (`Timestamp` values that embed `time.Time`, typed constants, etc.) instead of raw JSON.
 - **Context support** — Every API method accepts `context.Context` for cancellation and timeout control.
 - **Structured error types** — Errors are returned as typed values (e.g. `*APIResponseError` for API errors, `*ValidationError` for invalid arguments), enabling precise handling with `errors.As`.
 
@@ -43,7 +43,7 @@ wikis, err = c.Wiki.List(context.Background(), "MYPROJECT",
 )
 ```
 
-To authenticate with an [OAuth 2.0](https://developer.nulab.com/docs/backlog/auth/) access token, use `NewOAuthClient`. The access token is sent as `Authorization: Bearer <token>`. Obtaining, refreshing and tracking the expiry of access tokens is up to the caller; access tokens expire after one hour, so create a new client with a fresh token when it expires. When the API rejects the access token, the returned error is an `*OAuthError`, which carries the error code and description from the `WWW-Authenticate` header.
+To authenticate with an [OAuth 2.0](https://developer.nulab.com/docs/backlog/auth/) access token, use `NewOAuthClient`. The client does not refresh access tokens, so create a new client when the token expires.
 
 ```go
 c, err := backlog.NewOAuthClient(
@@ -52,7 +52,7 @@ c, err := backlog.NewOAuthClient(
 )
 ```
 
-More examples can be found in the [examples/](examples/) directory and on [pkg.go.dev](https://pkg.go.dev/github.com/nattokin/go-backlog).
+The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) explains authentication, options, pagination and error handling, and has an example for every API method. Complete programs can be found in the [examples/](examples/) directory.
 
 ## Supported API endpoints
 
