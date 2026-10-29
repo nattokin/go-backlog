@@ -1,3 +1,5 @@
+// The wiki_backup command backs up all wiki pages in a project to local Markdown files,
+// including attachments and version history.
 package main
 
 import (

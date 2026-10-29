@@ -1,3 +1,4 @@
+// The pr_list command lists pull requests in a repository with comment counts.
 package main
 
 import (

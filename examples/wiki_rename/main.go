@@ -1,3 +1,5 @@
+// The wiki_rename command interactively renames wiki pages in a project by replacing
+// a prefix of their names.
 package main
 
 import (
