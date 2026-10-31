@@ -75,6 +75,11 @@ func TestService_Count(t *testing.T) {
 			wantInvalidOptionError: true,
 		},
 
+		// Count Issue does not document expand[], so it is not in the valid types for Count
+		"error-option-expand": {
+			opts:        []*option.APIParamOption{o.WithIssueExpand([]string{"childIssueSummary"})},
+			wantErrType: &option.InvalidOptionKeyError{},
+		},
 		"error-option-invalid-type": {
 			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
 			wantErrType: &option.InvalidOptionKeyError{},

@@ -20,6 +20,8 @@ var validIssueSorts = []string{
 	"estimatedHours", "actualHours", "childIssue",
 }
 
+var validIssueExpands = []string{"childIssueSummary"}
+
 var validTextFormattingRules = []string{"backlog", "markdown"}
 
 // ValidateDateFormat validates that date is formatted as yyyy-MM-dd.
@@ -57,6 +59,16 @@ func ValidateIntRange(field string, value, min, max int) *validation.Error {
 		return validation.NewError(field, fmt.Sprintf("invalid %s: must be between %d and %d", field, min, max))
 	}
 	return nil
+}
+
+// ValidateIssueExpand validates that expand is one of the Backlog issue expansion fields.
+func ValidateIssueExpand(field, expand string) *validation.Error {
+	for _, v := range validIssueExpands {
+		if expand == v {
+			return nil
+		}
+	}
+	return validation.NewError(field, fmt.Sprintf("invalid %s: must be a valid expand value, got %q", field, expand))
 }
 
 // ValidateIssueSort validates that sort is one of the Backlog issue-list sort keys.

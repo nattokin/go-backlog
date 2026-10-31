@@ -27,6 +27,22 @@ func (s *OptionService) WithAttachmentIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamAttachmentIDs, "attachmentId", ids)
 }
 
+// WithIssueExpand sets `expand[]` for the issue list endpoints.
+func (s *OptionService) WithIssueExpand(expands []string) *APIParamOption {
+	return &APIParamOption{
+		Type: ParamExpand,
+		CheckFunc: func() *validation.Error {
+			for _, expand := range expands {
+				if ve := validate.ValidateIssueExpand(ParamExpand.Value(), expand); ve != nil {
+					return ve
+				}
+			}
+			return nil
+		},
+		SetFunc: addStringFunc(ParamExpand, expands),
+	}
+}
+
 // WithItems sets `items[]` for List type custom fields.
 func (s *OptionService) WithItems(items []string) *APIParamOption {
 	return &APIParamOption{
