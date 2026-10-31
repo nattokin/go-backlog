@@ -99,6 +99,16 @@ func TestOptionService_bool(t *testing.T) {
 			key:       option.ParamExcludeGroupMembers.Value(),
 			wantValue: true,
 		},
+		"WithGrandchildIssueEnabled-false": {
+			option:    o.WithGrandchildIssueEnabled(false),
+			key:       option.ParamGrandchildIssueEnabled.Value(),
+			wantValue: false,
+		},
+		"WithGrandchildIssueEnabled-true": {
+			option:    o.WithGrandchildIssueEnabled(true),
+			key:       option.ParamGrandchildIssueEnabled.Value(),
+			wantValue: true,
+		},
 		"WithHasDueDate-false": {
 			option:    o.WithHasDueDate(false),
 			key:       option.ParamHasDueDate.Value(),

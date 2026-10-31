@@ -37,6 +37,10 @@ func (s *OptionService) WithExcludeGroupMembers(enabled bool) *APIParamOption {
 	return boolOption(ParamExcludeGroupMembers, enabled)
 }
 
+func (s *OptionService) WithGrandchildIssueEnabled(enabled bool) *APIParamOption {
+	return boolOption(ParamGrandchildIssueEnabled, enabled)
+}
+
 func (s *OptionService) WithHasDueDate(enabled bool) *APIParamOption {
 	return boolOption(ParamHasDueDate, enabled)
 }
