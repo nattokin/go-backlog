@@ -52,6 +52,19 @@ type Issue struct {
 	Attachments    []*Attachment
 	SharedFiles    []*SharedFile
 	Stars          []*Star
+
+	// ChildIssueSummary is set only when the issue list is requested with
+	// [IssueOptionService.WithExpand] and [IssueExpandChildIssueSummary].
+	// It is nil otherwise.
+	ChildIssueSummary *ChildIssueSummary
+}
+
+// ChildIssueSummary counts the direct child issues of an issue.
+type ChildIssueSummary struct {
+	// Total is the number of direct child issues.
+	Total int
+	// Closed is the number of direct child issues that are closed.
+	Closed int
 }
 
 // IssueType represents an issue type defined in a project.
@@ -116,6 +129,7 @@ type IssueService struct {
 //   - [IssueOptionService.WithParentChild]
 //   - [IssueOptionService.WithAttachment]
 //   - [IssueOptionService.WithSharedFile]
+//   - [IssueOptionService.WithExpand]
 //   - [IssueOptionService.WithIssueSort]
 //   - [IssueOptionService.WithOrder]
 //   - [IssueOptionService.WithOffset]
@@ -162,6 +176,7 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 //   - [IssueOptionService.WithParentChild]
 //   - [IssueOptionService.WithAttachment]
 //   - [IssueOptionService.WithSharedFile]
+//   - [IssueOptionService.WithExpand]
 //   - [IssueOptionService.WithIssueSort]
 //   - [IssueOptionService.WithOrder]
 //   - [IssueOptionService.WithCreatedSince]
@@ -195,7 +210,8 @@ func (s *IssueService) All(ctx context.Context, perPage int, opts ...RequestOpti
 // Count returns the total count of issues matching the given filters.
 //
 // This method supports the same filter options as [IssueService.All], except
-// [IssueOptionService.WithIssueSort] and [IssueOptionService.WithOrder].
+// [IssueOptionService.WithIssueSort], [IssueOptionService.WithOrder] and
+// [IssueOptionService.WithExpand].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-issue
 func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, error) {
@@ -429,7 +445,16 @@ func issueFromModel(m *model.Issue) *Issue {
 		Attachments:    attachmentsFromModel(m.Attachments),
 		SharedFiles:    sharedFilesFromModel(m.SharedFiles),
 		Stars:          starsFromModel(m.Stars),
+
+		ChildIssueSummary: childIssueSummaryFromModel(m.ChildIssueSummary),
 	}
+}
+
+func childIssueSummaryFromModel(m *model.ChildIssueSummary) *ChildIssueSummary {
+	if m == nil {
+		return nil
+	}
+	return &ChildIssueSummary{Total: m.Total, Closed: m.Closed}
 }
 
 func issuesFromModel(m []*model.Issue) []*Issue {

@@ -54,6 +54,21 @@ func TestIssueService(t *testing.T) {
 				assert.Len(t, got, 2)
 			},
 		},
+		"List/with-expand": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, []string{"childIssueSummary"}, req.URL.Query()["expand[]"])
+				return mock.NewResponse(fixture.Issue.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.List(ctx,
+					c.Issue.Option.WithExpand([]backlog.IssueExpand{backlog.IssueExpandChildIssueSummary}),
+				)
+				require.NoError(t, err)
+				require.Len(t, got, 2)
+				assert.Equal(t, &backlog.ChildIssueSummary{Total: 3, Closed: 1}, got[0].ChildIssueSummary)
+				assert.Nil(t, got[1].ChildIssueSummary)
+			},
+		},
 		"List/error": {
 			doFunc: mock.NewInternalServerErrorDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
