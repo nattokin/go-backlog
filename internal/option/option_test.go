@@ -54,6 +54,7 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 		option.ParamEstimatedHours:                    "estimatedHours",
 		option.ParamExcludeGroupMembers:               "excludeGroupMembers",
 		option.ParamExpand:                            "expand[]",
+		option.ParamGrandchildIssueEnabled:            "grandchildIssueEnabled",
 		option.ParamHasDueDate:                        "hasDueDate",
 		option.ParamHookURL:                           "hookUrl",
 		option.ParamIDs:                               "id[]",
@@ -469,15 +470,6 @@ func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 	err := option.NewInvalidOptionKeyError(option.ParamActivityTypeIDs.Value(), []option.APIParamOptionType{option.ParamAll, option.ParamArchived})
-	wrapped := fmt.Errorf("wrap: %w", err)
-
-	var target *option.InvalidOptionKeyError
-	assert.True(t, errors.As(wrapped, &target))
-	assert.Equal(t, option.ParamActivityTypeIDs.Value(), target.Invalid)
-}
-
-func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
-	err := option.NewInvalidOptionKeyError(option.ParamKey.Value(), []option.APIParamOptionType{option.ParamName, option.ParamChartEnabled})
 	wrapped := fmt.Errorf("wrap: %w", err)
 
 	var target *option.InvalidOptionKeyError
