@@ -31,6 +31,8 @@ type Category struct {
 	ID           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	DisplayOrder int    `json:"displayOrder,omitempty"`
+
+	ProjectID int `json:"projectId,omitempty"`
 }
 
 // CustomField represents a custom field defined in the project.
@@ -51,6 +53,8 @@ type CustomField struct {
 	Unit         string                  `json:"unit,omitempty"`
 	InitialDate  *CustomFieldInitialDate `json:"initialDate,omitempty"`
 	AllowInput   bool                    `json:"allowInput,omitempty"`
+
+	ProjectID int `json:"projectId,omitempty"`
 }
 
 // CustomFieldBound is the min or max of a CustomField.

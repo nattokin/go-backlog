@@ -9,6 +9,11 @@ type commentFixtures struct {
 	Single     *backlog.Comment
 	ListJSON   string
 	List       []*backlog.Comment
+
+	// IssueSingleJSON is a comment on an issue, which carries projectId and issueId.
+	// SingleJSON omits them because pull request comments are returned without them.
+	IssueSingleJSON string
+	IssueSingle     *backlog.Comment
 }
 
 // Comment provides test fixtures for Comment-related tests.
@@ -113,5 +118,46 @@ var Comment = commentFixtures{
 			Created: mustTimestamp("2013-08-06T06:15:06Z"),
 			Updated: mustTimestamp("2013-08-06T06:15:06Z"),
 		},
+	},
+	IssueSingleJSON: `
+{
+    "id": 6586,
+    "projectId": 5,
+    "issueId": 50,
+    "content": "test",
+    "changeLog": [],
+    "createdUser": {
+        "id": 1,
+        "userId": "admin",
+        "name": "admin",
+        "roleType": 1,
+        "lang": "ja",
+        "mailAddress": "eguchi@nulab.example"
+    },
+    "created": "2013-08-05T06:15:06Z",
+    "updated": "2013-08-05T06:15:06Z",
+    "stars": [],
+    "notifications": []
+}
+`,
+	IssueSingle: &backlog.Comment{
+		ID:         6586,
+		Content:    "test",
+		ChangeLogs: []*backlog.ChangeLog{},
+		CreatedUser: &backlog.User{
+			ID:          1,
+			UserID:      "admin",
+			Name:        "admin",
+			RoleType:    backlog.RoleAdministrator,
+			Lang:        "ja",
+			MailAddress: "eguchi@nulab.example",
+		},
+		Created:       mustTimestamp("2013-08-05T06:15:06Z"),
+		Updated:       mustTimestamp("2013-08-05T06:15:06Z"),
+		Stars:         []*backlog.Star{},
+		Notifications: []*backlog.Notification{},
+
+		ProjectID: 5,
+		IssueID:   50,
 	},
 }

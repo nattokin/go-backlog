@@ -85,6 +85,7 @@ var CustomField = customFieldFixtures{
 	NumberJSON: `
 {
     "id": 3,
+    "projectId": 1,
     "typeId": 3,
     "name": "Estimate",
     "description": "",
@@ -107,10 +108,13 @@ var CustomField = customFieldFixtures{
 		Max:          ptrFloat64(100),
 		InitialValue: ptrFloat64(8),
 		Unit:         "h",
+
+		ProjectID: 1,
 	},
 	DateJSON: `
 {
     "id": 4,
+    "projectId": 1,
     "typeId": 4,
     "name": "Deadline",
     "description": "",
@@ -134,10 +138,13 @@ var CustomField = customFieldFixtures{
 		MinDate:     mustTimestamp("2024-01-14T15:00:00Z"),
 		MaxDate:     mustTimestamp("2024-12-30T15:00:00Z"),
 		InitialDate: &backlog.CustomFieldInitialDate{InitialValueType: 2, Shift: 7},
+
+		ProjectID: 1,
 	},
 	CheckBoxJSON: `
 {
     "id": 5,
+    "projectId": 1,
     "typeId": 7,
     "name": "Platform",
     "description": "",
@@ -161,5 +168,7 @@ var CustomField = customFieldFixtures{
 		},
 
 		AllowInput: true,
+
+		ProjectID: 1,
 	},
 }

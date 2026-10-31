@@ -20,7 +20,8 @@ var User = userFixtures{
     "name": "admin",
     "roleType": 1,
     "lang": "ja",
-    "mailAddress": "eguchi@nulab.example"
+    "mailAddress": "eguchi@nulab.example",
+    "lastLoginTime": "2022-09-01T06:35:39Z"
 }
 `,
 	Single: &backlog.User{
@@ -30,6 +31,8 @@ var User = userFixtures{
 		RoleType:    backlog.RoleAdministrator,
 		Lang:        "ja",
 		MailAddress: "eguchi@nulab.example",
+
+		LastLoginTime: mustTimestamp("2022-09-01T06:35:39Z"),
 	},
 	ListJSON: `
 [ 
