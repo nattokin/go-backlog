@@ -56,6 +56,7 @@ func TestProjectCategoryService(t *testing.T) {
 				got, err := c.Project.Category.Create(ctx, "TEST", "Bug")
 				require.NoError(t, err)
 				assert.Equal(t, "Bug", got.Name)
+				assert.Equal(t, fixture.Category.Single, got)
 			},
 		},
 		"Create/error": {

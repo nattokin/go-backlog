@@ -17,6 +17,8 @@ type User struct {
 	RoleType    Role
 	Lang        string
 	MailAddress string
+
+	LastLoginTime Timestamp
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -201,6 +203,8 @@ func userFromModel(m *model.User) *User {
 		RoleType:    Role(m.RoleType),
 		Lang:        m.Lang,
 		MailAddress: m.MailAddress,
+
+		LastLoginTime: Timestamp{m.LastLoginTime},
 	}
 }
 

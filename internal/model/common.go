@@ -51,6 +51,9 @@ type Comment struct {
 	Updated       time.Time       `json:"updated,omitempty"`
 	Stars         []*Star         `json:"stars,omitempty"`
 	Notifications []*Notification `json:"notifications,omitempty"`
+
+	ProjectID int `json:"projectId,omitempty"`
+	IssueID   int `json:"issueId,omitempty"`
 }
 
 // DiskUsageBase holds the common disk usage breakdown shared by space and project.
@@ -135,6 +138,8 @@ type SharedFile struct {
 	Created     time.Time `json:"created,omitempty"`
 	UpdatedUser *User     `json:"updatedUser,omitempty"`
 	Updated     time.Time `json:"updated,omitempty"`
+
+	ProjectID int `json:"projectId,omitempty"`
 }
 
 // Tag represents a tag attached to a wiki page.

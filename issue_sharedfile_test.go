@@ -79,6 +79,7 @@ func TestIssueSharedFileService(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, 454403, got.ID)
 				assert.Equal(t, "01_buz.png", got.Name)
+				assert.Equal(t, fixture.SharedFile.Single, got)
 			},
 		},
 		"Unlink/error": {

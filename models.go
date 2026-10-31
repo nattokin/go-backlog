@@ -58,6 +58,9 @@ type ChangeLog struct {
 }
 
 // Comment represents a comment on an issue or pull request.
+//
+// ProjectID and IssueID are set for comments on an issue. They are 0 for
+// comments on a pull request, which the API returns without them.
 type Comment struct {
 	ID            int
 	Content       string
@@ -67,6 +70,9 @@ type Comment struct {
 	Updated       Timestamp
 	Stars         []*Star
 	Notifications []*Notification
+
+	ProjectID int
+	IssueID   int
 }
 
 // FileData represents a downloaded binary file with its metadata.
@@ -141,6 +147,8 @@ type SharedFile struct {
 	Created     Timestamp
 	UpdatedUser *User
 	Updated     Timestamp
+
+	ProjectID int
 }
 
 // Tag represents a tag attached to a wiki page.
@@ -315,6 +323,9 @@ func commentFromModel(m *model.Comment) *Comment {
 		Updated:       Timestamp{m.Updated},
 		Stars:         starsFromModel(m.Stars),
 		Notifications: notifications,
+
+		ProjectID: m.ProjectID,
+		IssueID:   m.IssueID,
 	}
 }
 
@@ -352,6 +363,8 @@ func sharedFileFromModel(m *model.SharedFile) *SharedFile {
 		Created:     Timestamp{m.Created},
 		UpdatedUser: userFromModel(m.UpdatedUser),
 		Updated:     Timestamp{m.Updated},
+
+		ProjectID: m.ProjectID,
 	}
 }
 
