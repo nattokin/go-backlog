@@ -20,8 +20,11 @@ import (
 )
 
 func TestService_One(t *testing.T) {
+	o := &option.OptionService{}
+
 	cases := map[string]struct {
 		issueIDOrKey string
+		opts         []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
@@ -33,6 +36,7 @@ func TestService_One(t *testing.T) {
 			issueIDOrKey: "PRJ-1",
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "issues/PRJ-1", spath)
+				assert.Empty(t, query)
 				return mock.NewResponse(fixture.Issue.SingleJSON), nil
 			},
 			wantID: 1,
@@ -45,6 +49,16 @@ func TestService_One(t *testing.T) {
 			},
 			wantID: 1,
 		},
+		"success-with-expand": {
+			issueIDOrKey: "PRJ-1",
+			opts:         []*option.APIParamOption{o.WithIssueExpand([]string{"childIssueSummary"})},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "issues/PRJ-1", spath)
+				assert.Equal(t, []string{"childIssueSummary"}, query[option.ParamExpand.Value()])
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
+			},
+			wantID: 1,
+		},
 
 		"error-validation-issueIDOrKey-empty": {
 			issueIDOrKey:           "",
@@ -53,6 +67,21 @@ func TestService_One(t *testing.T) {
 		"error-validation-issueIDOrKey-zero": {
 			issueIDOrKey:           "0",
 			wantValidationErrCount: 1,
+		},
+		"error-validation-expand-invalid": {
+			issueIDOrKey:           "PRJ-1",
+			opts:                   []*option.APIParamOption{o.WithIssueExpand([]string{"invalid"})},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-issueIDOrKey-and-expand": {
+			issueIDOrKey:           "",
+			opts:                   []*option.APIParamOption{o.WithIssueExpand([]string{"invalid"})},
+			wantValidationErrCount: 2,
+		},
+		"error-option-invalid-type": {
+			issueIDOrKey: "PRJ-1",
+			opts:         []*option.APIParamOption{o.WithKeyword("foo")},
+			wantErrType:  &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -87,7 +116,7 @@ func TestService_One(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := issue.NewService(method)
-			got, err := s.One(context.Background(), tc.issueIDOrKey)
+			got, err := s.One(context.Background(), tc.issueIDOrKey, tc.opts...)
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
