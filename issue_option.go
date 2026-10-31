@@ -152,6 +152,16 @@ func (s *IssueOptionService) WithEstimatedHours(hours float64) RequestOption {
 	return &requestOption{opt: s.base.WithEstimatedHours(hours)}
 }
 
+// WithExpand adds extra fields to each issue in the list results,
+// such as [IssueExpandChildIssueSummary].
+func (s *IssueOptionService) WithExpand(expands []IssueExpand) RequestOption {
+	values := make([]string, len(expands))
+	for i, v := range expands {
+		values[i] = string(v)
+	}
+	return &requestOption{opt: s.base.WithIssueExpand(values)}
+}
+
 // WithHasDueDate filters to exclude issues without a due date.
 // Note: Setting this to true is not supported by the Backlog API and will result in an error.
 func (s *IssueOptionService) WithHasDueDate(enabled bool) RequestOption {

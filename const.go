@@ -64,6 +64,15 @@ const (
 	IssueSortChildIssue     IssueSort = "childIssue"
 )
 
+// IssueExpand defines an extra field to include in issue list results.
+type IssueExpand string
+
+// Available expansion fields for issue list operations.
+const (
+	// IssueExpandChildIssueSummary adds [Issue.ChildIssueSummary] to each issue.
+	IssueExpandChildIssueSummary IssueExpand = "childIssueSummary"
+)
+
 // Order defines the sort order (ascending or descending).
 type Order string
 

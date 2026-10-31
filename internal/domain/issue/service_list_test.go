@@ -71,6 +71,7 @@ func TestService_List(t *testing.T) {
 				o.WithKeyword("test"),
 				o.WithIssueSort("created"),
 				o.WithOrder("asc"),
+				o.WithIssueExpand([]string{"childIssueSummary"}),
 				o.WithOffset(10),
 				o.WithCount(50),
 			},
@@ -103,6 +104,7 @@ func TestService_List(t *testing.T) {
 				assert.Equal(t, "test", query.Get("keyword"))
 				assert.Equal(t, "created", query.Get("sort"))
 				assert.Equal(t, "asc", query.Get("order"))
+				assert.Equal(t, []string{"childIssueSummary"}, query["expand[]"])
 				assert.Equal(t, "10", query.Get("offset"))
 				assert.Equal(t, "50", query.Get("count"))
 				return mock.NewResponse(fixture.Issue.ListJSON), nil

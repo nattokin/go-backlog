@@ -113,6 +113,30 @@ func TestValidateIntRange(t *testing.T) {
 	}
 }
 
+func TestValidateIssueExpand(t *testing.T) {
+	cases := map[string]struct {
+		expand  string
+		wantErr bool
+	}{
+		"valid-childIssueSummary": {expand: "childIssueSummary"},
+		"invalid-empty":           {expand: "", wantErr: true},
+		"invalid-other":           {expand: "invalid", wantErr: true},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateIssueExpand("expand", tc.expand)
+			if tc.wantErr {
+				assert.NotNil(t, ve)
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidateIssueSort(t *testing.T) {
 	cases := map[string]struct {
 		sort    string

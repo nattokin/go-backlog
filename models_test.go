@@ -368,6 +368,7 @@ func Test_issueFromModel(t *testing.T) {
 				Stars: []*model.Star{
 					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: user, Created: created},
 				},
+				ChildIssueSummary: &model.ChildIssueSummary{Total: 3, Closed: 1},
 			},
 			want: &Issue{
 				ID:          1,
@@ -413,6 +414,7 @@ func Test_issueFromModel(t *testing.T) {
 				Stars: []*Star{
 					{ID: 75, Comment: "good", URL: "https://example.com", Title: "title", Presenter: wantUser, Created: Timestamp{created}},
 				},
+				ChildIssueSummary: &ChildIssueSummary{Total: 3, Closed: 1},
 			},
 		},
 		"nil_elements": {
@@ -664,6 +666,7 @@ func Test_fromModel_nil(t *testing.T) {
 		"activity_content":         {call: func() any { return activityContentFromModel(nil) }},
 		"attachment":               {call: func() any { return attachmentFromModel(nil) }},
 		"change_log":               {call: func() any { return changeLogFromModel(nil) }},
+		"child_issue_summary":      {call: func() any { return childIssueSummaryFromModel(nil) }},
 		"comment":                  {call: func() any { return commentFromModel(nil) }},
 		"custom_field":             {call: func() any { return customFieldFromModel(nil) }},
 		"custom_field_item":        {call: func() any { return customFieldItemFromModel(nil) }},
