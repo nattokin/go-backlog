@@ -136,6 +136,7 @@ func TestService_Create(t *testing.T) {
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "", form.Get("chartEnabled"))
 				assert.Equal(t, "", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "", form.Get("grandchildIssueEnabled"))
 				assert.Equal(t, "", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "", form.Get("textFormattingRule"))
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
@@ -147,12 +148,14 @@ func TestService_Create(t *testing.T) {
 			opts: []*option.APIParamOption{
 				o.WithChartEnabled(true),
 				o.WithSubtaskingEnabled(true),
+				o.WithGrandchildIssueEnabled(true),
 				o.WithProjectLeaderCanEditProjectLeader(true),
 				o.WithTextFormattingRule("backlog"),
 			},
 			mockPostFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "true", form.Get("chartEnabled"))
 				assert.Equal(t, "true", form.Get("subtaskingEnabled"))
+				assert.Equal(t, "true", form.Get("grandchildIssueEnabled"))
 				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
@@ -313,6 +316,7 @@ func TestService_Update(t *testing.T) {
 				o.WithProjectLeaderCanEditProjectLeader(true),
 				o.WithTextFormattingRule("backlog"),
 				o.WithArchived(true),
+				o.WithGrandchildIssueEnabled(true),
 			},
 			mockPatchFn: func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 				assert.Equal(t, "TEST1", form.Get("key"))
@@ -322,6 +326,7 @@ func TestService_Update(t *testing.T) {
 				assert.Equal(t, "true", form.Get("projectLeaderCanEditProjectLeader"))
 				assert.Equal(t, "backlog", form.Get("textFormattingRule"))
 				assert.Equal(t, "true", form.Get("archived"))
+				assert.Equal(t, "true", form.Get("grandchildIssueEnabled"))
 				return mock.NewResponse(fixture.Project.SingleJSON), nil
 			},
 		},
