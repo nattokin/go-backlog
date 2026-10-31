@@ -24,6 +24,7 @@ type Project struct {
 	UseOriginalImageSizeAtWiki        bool   `json:"useOriginalImageSizeAtWiki,omitempty"`
 	DisplayOrder                      int    `json:"displayOrder,omitempty"`
 	UseDevAttributes                  bool   `json:"useDevAttributes,omitempty"`
+	GrandchildIssueEnabled            bool   `json:"grandchildIssueEnabled,omitempty"`
 }
 
 // Category represents a project category.

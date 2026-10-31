@@ -42,7 +42,8 @@ var Project = projectFixtures{
     "projectKey": "TEST",
     "name": "test",
     "chartEnabled": false,
-    "subtaskingEnabled": false,
+    "subtaskingEnabled": true,
+    "grandchildIssueEnabled": true,
     "projectLeaderCanEditProjectLeader": false,
     "textFormattingRule": "markdown",
     "archived": false,
@@ -61,6 +62,7 @@ var Project = projectFixtures{
 		ID:                  6,
 		ProjectKey:          "TEST",
 		Name:                "test",
+		SubtaskingEnabled:   true,
 		TextFormattingRule:  backlog.FormatMarkdown,
 		UseResolvedForChart: true,
 		UseWiki:             true,
@@ -69,6 +71,8 @@ var Project = projectFixtures{
 		UseGit:              true,
 		DisplayOrder:        2147483646,
 		UseDevAttributes:    true,
+
+		GrandchildIssueEnabled: true,
 	},
 	ListJSON: `
 [

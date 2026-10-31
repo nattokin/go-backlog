@@ -72,7 +72,7 @@ func (s *Service) Create(ctx context.Context, key, name string, opts ...*option.
 	optSvc := &option.OptionService{}
 
 	form := url.Values{}
-	validTypes := []option.APIParamOptionType{option.ParamKey, option.ParamName, option.ParamChartEnabled, option.ParamSubtaskingEnabled, option.ParamProjectLeaderCanEditProjectLeader, option.ParamTextFormattingRule}
+	validTypes := []option.APIParamOptionType{option.ParamKey, option.ParamName, option.ParamChartEnabled, option.ParamSubtaskingEnabled, option.ParamProjectLeaderCanEditProjectLeader, option.ParamTextFormattingRule, option.ParamGrandchildIssueEnabled}
 	options := append([]*option.APIParamOption{optSvc.WithKey(key), optSvc.WithName(name)}, opts...)
 	if err := option.ApplyOptions(form, validTypes, options...); err != nil {
 		return nil, err
@@ -99,6 +99,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, opt *option
 	validTypes := []option.APIParamOptionType{
 		option.ParamKey, option.ParamName, option.ParamChartEnabled, option.ParamSubtaskingEnabled,
 		option.ParamProjectLeaderCanEditProjectLeader, option.ParamTextFormattingRule, option.ParamArchived,
+		option.ParamGrandchildIssueEnabled,
 	}
 	options := append([]*option.APIParamOption{opt}, opts...)
 
