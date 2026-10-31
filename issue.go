@@ -53,8 +53,8 @@ type Issue struct {
 	SharedFiles    []*SharedFile
 	Stars          []*Star
 
-	// ChildIssueSummary is set only when the issue list is requested with
-	// [IssueOptionService.WithExpand] and [IssueExpandChildIssueSummary].
+	// ChildIssueSummary is set only when the issue or issue list is requested
+	// with [IssueOptionService.WithExpand] and [IssueExpandChildIssueSummary].
 	// It is nil otherwise.
 	ChildIssueSummary *ChildIssueSummary
 }
@@ -221,9 +221,13 @@ func (s *IssueService) Count(ctx context.Context, opts ...RequestOption) (int, e
 
 // One returns a single issue by its ID or key.
 //
+// This method supports options returned by methods in [IssueOptionService],
+// such as:
+//   - [IssueOptionService.WithExpand]
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue
-func (s *IssueService) One(ctx context.Context, issueIDOrKey string) (*Issue, error) {
-	v, err := s.base.One(ctx, issueIDOrKey)
+func (s *IssueService) One(ctx context.Context, issueIDOrKey string, opts ...RequestOption) (*Issue, error) {
+	v, err := s.base.One(ctx, issueIDOrKey, toInnerOptions(opts)...)
 	return issueFromModel(v), convertError(err)
 }
 
