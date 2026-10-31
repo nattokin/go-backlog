@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // User represents a Backlog user.
 type User struct {
 	ID          int    `json:"id,omitempty"`
@@ -8,4 +10,6 @@ type User struct {
 	RoleType    int    `json:"roleType,omitempty"`
 	Lang        string `json:"lang,omitempty"`
 	MailAddress string `json:"mailAddress,omitempty"`
+
+	LastLoginTime time.Time `json:"lastLoginTime,omitempty"`
 }

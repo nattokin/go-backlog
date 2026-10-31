@@ -18,6 +18,7 @@ var SharedFile = sharedFileFixtures{
 	SingleJSON: `
 {
     "id": 454403,
+    "projectId": 1,
     "type": "file",
     "dir": "/icon/",
     "name": "01_buz.png",
@@ -66,6 +67,8 @@ var SharedFile = sharedFileFixtures{
 			MailAddress: "takada@nulab.example",
 		},
 		Updated: mustTimestamp("2009-03-03T16:57:47Z"),
+
+		ProjectID: 1,
 	},
 	SingleListJSON: `
 [

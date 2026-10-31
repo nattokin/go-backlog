@@ -42,6 +42,11 @@ type CustomField struct {
 	MaxDate      Timestamp
 	InitialDate  *CustomFieldInitialDate
 	AllowInput   bool
+
+	ProjectID    int
+	UseIssueType bool
+	DisplayOrder int
+	Version      int
 }
 
 // CustomFieldInitialDate represents how the initial value of a date type [CustomField] is decided.
@@ -327,6 +332,11 @@ func customFieldFromModel(m *model.CustomField) *CustomField {
 		MaxDate:      dateFromCustomFieldBound(m.Max),
 		InitialDate:  customFieldInitialDateFromModel(m.InitialDate),
 		AllowInput:   m.AllowInput,
+
+		ProjectID:    m.ProjectID,
+		UseIssueType: m.UseIssueType,
+		DisplayOrder: m.DisplayOrder,
+		Version:      m.Version,
 	}
 }
 

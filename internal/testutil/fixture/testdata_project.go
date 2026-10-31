@@ -157,6 +157,7 @@ var Category = categoryFixtures{
 	SingleJSON: `
 {
     "id": 12,
+    "projectId": 1,
     "name": "Bug",
     "displayOrder": 0
 }
@@ -164,6 +165,8 @@ var Category = categoryFixtures{
 	Single: &backlog.Category{
 		ID:   12,
 		Name: "Bug",
+
+		ProjectID: 1,
 	},
 	ListJSON: `
 [

@@ -137,6 +137,16 @@ func TestIssueCommentService(t *testing.T) {
 				assert.Equal(t, "This is a comment.", got.Content)
 			},
 		},
+		"One/issue-fields": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				return mock.NewResponse(fixture.Comment.IssueSingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Comment.One(ctx, "PRJ-1", 6586)
+				require.NoError(t, err)
+				assert.Equal(t, fixture.Comment.IssueSingle, got)
+			},
+		},
 		"One/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {

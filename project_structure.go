@@ -18,6 +18,8 @@ type Category struct {
 	ID           int
 	Name         string
 	DisplayOrder int
+
+	ProjectID int
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -252,6 +254,8 @@ func categoryFromModel(m *model.Category) *Category {
 		ID:           m.ID,
 		Name:         m.Name,
 		DisplayOrder: m.DisplayOrder,
+
+		ProjectID: m.ProjectID,
 	}
 }
 

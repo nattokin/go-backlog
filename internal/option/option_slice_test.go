@@ -78,6 +78,15 @@ func TestOptionService_slice(t *testing.T) {
 			option:  o.WithItems([]string{""}),
 			wantErr: true,
 		},
+		"WithIssueExpand-valid": {
+			option:   o.WithIssueExpand([]string{"childIssueSummary"}),
+			key:      option.ParamExpand.Value(),
+			wantVals: []string{"childIssueSummary"},
+		},
+		"WithIssueExpand-invalid-value": {
+			option:  o.WithIssueExpand([]string{"childIssueSummary", "invalid"}),
+			wantErr: true,
+		},
 		"WithProjectIDs-valid": {
 			option:   o.WithProjectIDs([]int{1, 2}),
 			key:      option.ParamProjectIDs.Value(),
