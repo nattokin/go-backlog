@@ -47,6 +47,7 @@ var countValidTypes = []option.APIParamOptionType{
 var filterValidTypes = append(countValidTypes,
 	option.ParamSort,
 	option.ParamOrder,
+	option.ParamExpand,
 )
 
 var listValidTypes = append(filterValidTypes,

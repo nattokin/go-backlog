@@ -43,6 +43,7 @@ func TestIssueOptionService(t *testing.T) {
 		"WithDueDateSince":      {option: s.WithDueDateSince(date), wantKey: option.ParamDueDateSince.Value()},
 		"WithDueDateUntil":      {option: s.WithDueDateUntil(date), wantKey: option.ParamDueDateUntil.Value()},
 		"WithEstimatedHours":    {option: s.WithEstimatedHours(1.0), wantKey: option.ParamEstimatedHours.Value()},
+		"WithExpand":            {option: s.WithExpand([]backlog.IssueExpand{backlog.IssueExpandChildIssueSummary}), wantKey: option.ParamExpand.Value()},
 		"WithHasDueDate":        {option: s.WithHasDueDate(false), wantKey: option.ParamHasDueDate.Value()},
 		"WithIDs":               {option: s.WithIDs([]int{1}), wantKey: option.ParamIDs.Value()},
 		"WithIssueSort":         {option: s.WithIssueSort(backlog.IssueSortCreated), wantKey: option.ParamSort.Value()},

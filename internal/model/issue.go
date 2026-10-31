@@ -31,6 +31,15 @@ type Issue struct {
 	Attachments    []*Attachment  `json:"attachments,omitempty"`
 	SharedFiles    []*SharedFile  `json:"sharedFiles,omitempty"`
 	Stars          []*Star        `json:"stars,omitempty"`
+
+	ChildIssueSummary *ChildIssueSummary `json:"childIssueSummary,omitempty"`
+}
+
+// ChildIssueSummary counts the direct child issues of an issue.
+// It is returned only when expand[]=childIssueSummary is requested.
+type ChildIssueSummary struct {
+	Total  int `json:"total,omitempty"`
+	Closed int `json:"closed,omitempty"`
 }
 
 // IssueType represents the type of an issue.
