@@ -55,6 +55,10 @@ var listValidTypes = append(filterValidTypes,
 	option.ParamCount,
 )
 
+var oneValidTypes = []option.APIParamOptionType{
+	option.ParamExpand,
+}
+
 var createValidTypes = []option.APIParamOptionType{
 	option.ParamSummary,
 	option.ParamIssueTypeID,
@@ -156,17 +160,19 @@ func (s *Service) Count(ctx context.Context, opts ...*option.APIParamOption) (in
 // One returns a single issue by its ID or key.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue
-func (s *Service) One(ctx context.Context, issueIDOrKey string) (*model.Issue, error) {
+func (s *Service) One(ctx context.Context, issueIDOrKey string, opts ...*option.APIParamOption) (*model.Issue, error) {
+	query := url.Values{}
+
 	var ves validation.Errors
 	if ve := validate.ValidateIssueIDOrKey(issueIDOrKey); ve != nil {
 		ves = append(ves, ve)
 	}
-	if len(ves) > 0 {
-		return nil, ves
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, oneValidTypes, opts...)); err != nil {
+		return nil, err
 	}
 
 	spath := client.PathJoin("issues", issueIDOrKey)
-	resp, err := s.method.Get(ctx, spath, nil)
+	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return nil, err
 	}
