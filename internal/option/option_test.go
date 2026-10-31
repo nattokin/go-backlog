@@ -53,7 +53,6 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 		option.ParamDueDateUntil:                      "dueDateUntil",
 		option.ParamEstimatedHours:                    "estimatedHours",
 		option.ParamExcludeGroupMembers:               "excludeGroupMembers",
-		option.ParamGrandchildIssueEnabled:            "grandchildIssueEnabled",
 		option.ParamHasDueDate:                        "hasDueDate",
 		option.ParamHookURL:                           "hookUrl",
 		option.ParamIDs:                               "id[]",
