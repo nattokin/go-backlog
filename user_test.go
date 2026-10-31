@@ -56,6 +56,7 @@ func TestUserService(t *testing.T) {
 				got, err := c.User.One(ctx, 1)
 				require.NoError(t, err)
 				assert.Equal(t, "admin", got.UserID)
+				assert.Equal(t, fixture.User.Single, got)
 			},
 		},
 		"One/error": {
