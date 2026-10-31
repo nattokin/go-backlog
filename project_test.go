@@ -55,6 +55,7 @@ func TestProjectService(t *testing.T) {
 				got, err := c.Project.One(ctx, "TEST")
 				require.NoError(t, err)
 				assert.Equal(t, "TEST", got.ProjectKey)
+				assert.Equal(t, fixture.Project.Single, got)
 			},
 		},
 		"One/error": {
@@ -217,6 +218,10 @@ func TestProjectOptionService(t *testing.T) {
 		"WithChartEnabled": {
 			option:  s.WithChartEnabled(true),
 			wantKey: option.ParamChartEnabled.Value(),
+		},
+		"WithGrandchildIssueEnabled": {
+			option:  s.WithGrandchildIssueEnabled(true),
+			wantKey: option.ParamGrandchildIssueEnabled.Value(),
 		},
 		"WithKey": {
 			option:  s.WithKey("TEST"),

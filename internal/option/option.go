@@ -43,6 +43,7 @@ const (
 	ParamDueDateUntil                      APIParamOptionType = "dueDateUntil"
 	ParamEstimatedHours                    APIParamOptionType = "estimatedHours"
 	ParamExcludeGroupMembers               APIParamOptionType = "excludeGroupMembers"
+	ParamGrandchildIssueEnabled            APIParamOptionType = "grandchildIssueEnabled"
 	ParamHasDueDate                        APIParamOptionType = "hasDueDate"
 	ParamHookURL                           APIParamOptionType = "hookUrl"
 	ParamIDs                               APIParamOptionType = "id[]"

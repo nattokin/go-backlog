@@ -32,6 +32,7 @@ type Project struct {
 	UseOriginalImageSizeAtWiki        bool
 	DisplayOrder                      int
 	UseDevAttributes                  bool
+	GrandchildIssueEnabled            bool
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -91,6 +92,7 @@ func (s *ProjectService) One(ctx context.Context, projectIDOrKey string) (*Proje
 // This method supports options returned by methods in [ProjectOptionService],
 // such as:
 //   - [ProjectOptionService.WithChartEnabled]
+//   - [ProjectOptionService.WithGrandchildIssueEnabled]
 //   - [ProjectOptionService.WithProjectLeaderCanEditProjectLeader]
 //   - [ProjectOptionService.WithSubtaskingEnabled]
 //   - [ProjectOptionService.WithTextFormattingRule]
@@ -107,6 +109,7 @@ func (s *ProjectService) Create(ctx context.Context, key, name string, opts ...R
 // methods in [ProjectOptionService], such as:
 //   - [ProjectOptionService.WithArchived]
 //   - [ProjectOptionService.WithChartEnabled]
+//   - [ProjectOptionService.WithGrandchildIssueEnabled]
 //   - [ProjectOptionService.WithKey]
 //   - [ProjectOptionService.WithName]
 //   - [ProjectOptionService.WithProjectLeaderCanEditProjectLeader]
@@ -167,6 +170,12 @@ func (s *ProjectOptionService) WithArchived(enabled bool) RequestOption {
 // WithChartEnabled sets whether the project uses a chart.
 func (s *ProjectOptionService) WithChartEnabled(enabled bool) RequestOption {
 	return &requestOption{opt: s.base.WithChartEnabled(enabled)}
+}
+
+// WithGrandchildIssueEnabled sets whether issues can have a third level of subtasks
+// (grandchild issues). It takes effect only when subtasking is enabled.
+func (s *ProjectOptionService) WithGrandchildIssueEnabled(enabled bool) RequestOption {
+	return &requestOption{opt: s.base.WithGrandchildIssueEnabled(enabled)}
 }
 
 // WithKey sets the project key.
@@ -246,6 +255,7 @@ func projectFromModel(m *model.Project) *Project {
 		UseOriginalImageSizeAtWiki:        m.UseOriginalImageSizeAtWiki,
 		DisplayOrder:                      m.DisplayOrder,
 		UseDevAttributes:                  m.UseDevAttributes,
+		GrandchildIssueEnabled:            m.GrandchildIssueEnabled,
 	}
 }
 
