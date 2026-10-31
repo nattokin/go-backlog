@@ -474,6 +474,15 @@ func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {
 
 	var target *option.InvalidOptionKeyError
 	assert.True(t, errors.As(wrapped, &target))
+	assert.Equal(t, option.ParamActivityTypeIDs.Value(), target.Invalid)
+}
+
+func TestInvalidOptionKeyError_errorsAs_form(t *testing.T) {
+	err := option.NewInvalidOptionKeyError(option.ParamKey.Value(), []option.APIParamOptionType{option.ParamName, option.ParamChartEnabled})
+	wrapped := fmt.Errorf("wrap: %w", err)
+
+	var target *option.InvalidOptionKeyError
+	assert.True(t, errors.As(wrapped, &target))
 	assert.Equal(t, option.ParamKey.Value(), target.Invalid)
 }
 
