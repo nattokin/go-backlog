@@ -152,6 +152,10 @@ var Issue = issueFixtures{
         "estimatedHours": null,
         "actualHours": null,
         "parentIssueId": null,
+        "childIssueSummary": {
+            "total": 3,
+            "closed": 1
+        },
         "createdUser": {
             "id": 1,
             "userId": "admin",
@@ -280,6 +284,8 @@ var Issue = issueFixtures{
 				MailAddress: "admin@example.com",
 			},
 			Updated: mustTimestamp("2024-01-11T10:00:00Z"),
+
+			ChildIssueSummary: &backlog.ChildIssueSummary{Total: 3, Closed: 1},
 		},
 		{
 			ID:        2,
