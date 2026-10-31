@@ -54,7 +54,10 @@ type CustomField struct {
 	InitialDate  *CustomFieldInitialDate `json:"initialDate,omitempty"`
 	AllowInput   bool                    `json:"allowInput,omitempty"`
 
-	ProjectID int `json:"projectId,omitempty"`
+	ProjectID    int  `json:"projectId,omitempty"`
+	UseIssueType bool `json:"useIssueType,omitempty"`
+	DisplayOrder int  `json:"displayOrder,omitempty"`
+	Version      int  `json:"version,omitempty"`
 }
 
 // CustomFieldBound is the min or max of a CustomField.

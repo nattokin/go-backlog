@@ -90,7 +90,10 @@ var CustomField = customFieldFixtures{
     "name": "Estimate",
     "description": "",
     "required": false,
+    "useIssueType": true,
     "applicableIssueTypes": [],
+    "displayOrder": 2,
+    "version": 3,
     "min": 0.0,
     "max": 100.0,
     "initialValue": 8.0,
@@ -109,7 +112,10 @@ var CustomField = customFieldFixtures{
 		InitialValue: ptrFloat64(8),
 		Unit:         "h",
 
-		ProjectID: 1,
+		ProjectID:    1,
+		UseIssueType: true,
+		DisplayOrder: 2,
+		Version:      3,
 	},
 	DateJSON: `
 {
