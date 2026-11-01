@@ -152,7 +152,7 @@ func (s *IssueOptionService) WithEstimatedHours(hours float64) RequestOption {
 	return &requestOption{opt: s.base.WithEstimatedHours(hours)}
 }
 
-// WithExpand adds extra fields to each issue in the list results,
+// WithExpand adds extra fields to the returned issues,
 // such as [IssueExpandChildIssueSummary].
 func (s *IssueOptionService) WithExpand(expands []IssueExpand) RequestOption {
 	values := make([]string, len(expands))

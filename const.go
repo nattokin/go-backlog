@@ -64,12 +64,12 @@ const (
 	IssueSortChildIssue     IssueSort = "childIssue"
 )
 
-// IssueExpand defines an extra field to include in issue list results.
+// IssueExpand defines an extra field to include in issue results.
 type IssueExpand string
 
-// Available expansion fields for issue list operations.
+// Available expansion fields for issue retrieval operations.
 const (
-	// IssueExpandChildIssueSummary adds [Issue.ChildIssueSummary] to each issue.
+	// IssueExpandChildIssueSummary adds [Issue.ChildIssueSummary] to the returned issues.
 	IssueExpandChildIssueSummary IssueExpand = "childIssueSummary"
 )
 

@@ -184,6 +184,20 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, fixture.Issue.Single.DueDate, got.DueDate)
 			},
 		},
+		"One/with-expand": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				assert.Equal(t, []string{"childIssueSummary"}, req.URL.Query()["expand[]"])
+				return mock.NewResponse(`{"id": 1, "childIssueSummary": {"total": 2, "closed": 2}}`), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.One(ctx, "PRJ-1",
+					c.Issue.Option.WithExpand([]backlog.IssueExpand{backlog.IssueExpandChildIssueSummary}),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, &backlog.ChildIssueSummary{Total: 2, Closed: 2}, got.ChildIssueSummary)
+			},
+		},
 		"One/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
