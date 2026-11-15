@@ -9,91 +9,140 @@ import (
 )
 
 func ExampleSpaceService_Info() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerSpaceSpace),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	space, _ := c.Space.Info(context.Background())
+	space, err := c.Space.Info(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("SpaceKey: %s, Name: %s\n", space.SpaceKey, space.Name)
 	// Output:
 	// SpaceKey: nulab, Name: Nulab Inc.
 }
 
 func ExampleSpaceService_DiskUsage() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerSpaceDiskUsage),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	diskUsage, _ := c.Space.DiskUsage(context.Background())
+	diskUsage, err := c.Space.DiskUsage(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Capacity: %d, Issue: %d\n", diskUsage.Capacity, diskUsage.Issue)
 	// Output:
 	// Capacity: 1073741824, Issue: 119511
 }
 
 func ExampleSpaceService_Notification() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerSpaceNotification),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	notification, _ := c.Space.Notification(context.Background())
+	notification, err := c.Space.Notification(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Content: %s\n", notification.Content)
 	// Output:
 	// Content: Backlog is a project management tool.
 }
 
 func ExampleSpaceService_UpdateNotification() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerSpaceNotification),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	notification, _ := c.Space.UpdateNotification(context.Background(), "Backlog is a project management tool.")
+	notification, err := c.Space.UpdateNotification(context.Background(), "Backlog is a project management tool.")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Content: %s\n", notification.Content)
 	// Output:
 	// Content: Backlog is a project management tool.
 }
 
 func ExampleSpaceActivityService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivityList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activities, _ := c.Space.Activity.List(context.Background())
+	activities, err := c.Space.Activity.List(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
 }
 
 func ExampleSpaceActivityService_One() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivitySingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activity, _ := c.Space.Activity.One(context.Background(), 3153)
+	activity, err := c.Space.Activity.One(context.Background(), 3153)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activity.ID, activity.Type)
 	// Output:
 	// ID: 3153, Type: 2
 }
 
 func ExampleSpaceAttachmentService_Upload() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerAttachmentUpload),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	attachment, _ := c.Space.Attachment.Upload(context.Background(), "test.txt", strings.NewReader("hello"))
+	attachment, err := c.Space.Attachment.Upload(context.Background(), "test.txt", strings.NewReader("hello"))
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 1, Name: test.txt
