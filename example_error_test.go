@@ -16,7 +16,6 @@ func Example_errorHandling() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNotFound),
 	)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -73,14 +72,14 @@ func ExampleAPIResponseError_RateLimitStatus() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRateLimited),
 	)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
 	}
 
-	_, err = c.Wiki.List(context.Background(), "MYPROJECT")
+	// The server responds with 429 Too Many Requests.
+	_, err = c.Wiki.One(context.Background(), 2)
 
 	var apiErr *backlog.APIResponseError
 	if errors.As(err, &apiErr) {
