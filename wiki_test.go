@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -315,6 +316,28 @@ func TestWikiHistoryService(t *testing.T) {
 				assert.Equal(t, 1, got[1].Version)
 			},
 		},
+		"List/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, "/api/v2/wikis/34/history", req.URL.Path)
+				q := req.URL.Query()
+				assert.Equal(t, "5", q.Get("count"))
+				assert.Equal(t, "100", q.Get("minId"))
+				assert.Equal(t, "200", q.Get("maxId"))
+				assert.Equal(t, "asc", q.Get("order"))
+				return mock.NewResponse(fixture.WikiHistory.ListJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				o := c.Wiki.History.Option
+				got, err := c.Wiki.History.List(ctx, 34,
+					o.WithCount(5),
+					o.WithMinID(100),
+					o.WithMaxID(200),
+					o.WithOrder(backlog.OrderAsc),
+				)
+				require.NoError(t, err)
+				assert.Len(t, got, 2)
+			},
+		},
 		"List/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
@@ -335,6 +358,79 @@ func TestWikiHistoryService(t *testing.T) {
 			tc.call(t, c)
 		})
 	}
+}
+
+func TestWikiHistoryOptionService(t *testing.T) {
+	c, err := backlog.NewClient("https://example.backlog.com", "apiKey")
+	require.NoError(t, err)
+	o := c.Wiki.History.Option
+
+	// --- Integer options ------------------------------------------------------------
+	t.Run("integer-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    backlog.RequestOption
+			key       string
+			wantValue int
+		}{
+			"with-count": {
+				option:    o.WithCount(20),
+				key:       option.ParamCount.Value(),
+				wantValue: 20,
+			},
+			"with-min-id": {
+				option:    o.WithMinID(10),
+				key:       option.ParamMinID.Value(),
+				wantValue: 10,
+			},
+			"with-max-id": {
+				option:    o.WithMaxID(99),
+				key:       option.ParamMaxID.Value(),
+				wantValue: 99,
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, strconv.Itoa(tc.wantValue), form.Get(tc.key))
+			})
+		}
+	})
+
+	// --- String options -------------------------------------------------------------
+	t.Run("string-options", func(t *testing.T) {
+		cases := map[string]struct {
+			option    backlog.RequestOption
+			key       string
+			wantValue string
+		}{
+			"with-order-asc": {
+				option:    o.WithOrder(backlog.OrderAsc),
+				key:       option.ParamOrder.Value(),
+				wantValue: "asc",
+			},
+			"with-order-desc": {
+				option:    o.WithOrder(backlog.OrderDesc),
+				key:       option.ParamOrder.Value(),
+				wantValue: "desc",
+			},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				form := url.Values{}
+				err := tc.option.Set(form)
+				require.NoError(t, err)
+				assert.Equal(t, tc.wantValue, form.Get(tc.key))
+			})
+		}
+	})
 }
 
 func TestWikiSharedFileService(t *testing.T) {
