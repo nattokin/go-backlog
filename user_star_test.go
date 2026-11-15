@@ -81,6 +81,24 @@ func TestUserStarService(t *testing.T) {
 				assert.Equal(t, 42, got)
 			},
 		},
+		"Count/with-options": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, "/api/v2/users/1/stars/count", req.URL.Path)
+				q := req.URL.Query()
+				assert.Equal(t, "2024-01-01", q.Get("since"))
+				assert.Equal(t, "2024-12-31", q.Get("until"))
+				return mock.NewResponse(fixture.Star.CountJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				o := c.User.Star.Option
+				got, err := c.User.Star.Count(ctx, 1,
+					o.WithSince("2024-01-01"),
+					o.WithUntil("2024-12-31"),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, 42, got)
+			},
+		},
 		"Count/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {
@@ -160,6 +178,16 @@ func TestUserStarOptionService(t *testing.T) {
 				option:    o.WithOrder(backlog.OrderDesc),
 				key:       option.ParamOrder.Value(),
 				wantValue: "desc",
+			},
+			"with-since": {
+				option:    o.WithSince("2024-01-01"),
+				key:       option.ParamSince.Value(),
+				wantValue: "2024-01-01",
+			},
+			"with-until": {
+				option:    o.WithUntil("2024-12-31"),
+				key:       option.ParamUntil.Value(),
+				wantValue: "2024-12-31",
 			},
 		}
 

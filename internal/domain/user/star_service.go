@@ -49,17 +49,20 @@ func (s *StarService) List(ctx context.Context, userID int, opts ...*option.APIP
 // Count returns the number of stars received by the user.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars
-func (s *StarService) Count(ctx context.Context, userID int) (int, error) {
+func (s *StarService) Count(ctx context.Context, userID int, opts ...*option.APIParamOption) (int, error) {
+	query := url.Values{}
+	validOptionKeys := []option.APIParamOptionType{option.ParamSince, option.ParamUntil}
+
 	var ves validation.Errors
 	if ve := validate.ValidateUserID(userID); ve != nil {
 		ves = append(ves, ve)
 	}
-	if len(ves) > 0 {
-		return 0, ves
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(query, validOptionKeys, opts...)); err != nil {
+		return 0, err
 	}
 
 	spath := client.PathJoin("users", strconv.Itoa(userID), "stars", "count")
-	resp, err := s.method.Get(ctx, spath, nil)
+	resp, err := s.method.Get(ctx, spath, query)
 	if err != nil {
 		return 0, err
 	}

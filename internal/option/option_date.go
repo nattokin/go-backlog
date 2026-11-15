@@ -41,6 +41,10 @@ func (s *OptionService) WithReleaseDueDate(date string) *APIParamOption {
 	return clearableDateFormatStringOption(ParamReleaseDueDate, date)
 }
 
+func (s *OptionService) WithSince(date string) *APIParamOption {
+	return dateFormatStringOption(ParamSince, date)
+}
+
 func (s *OptionService) WithStartDate(date string) *APIParamOption {
 	return clearableDateFormatStringOption(ParamStartDate, date)
 }
@@ -51,6 +55,10 @@ func (s *OptionService) WithStartDateSince(date string) *APIParamOption {
 
 func (s *OptionService) WithStartDateUntil(date string) *APIParamOption {
 	return dateFormatStringOption(ParamStartDateUntil, date)
+}
+
+func (s *OptionService) WithUntil(date string) *APIParamOption {
+	return dateFormatStringOption(ParamUntil, date)
 }
 
 func (s *OptionService) WithUpdatedSince(date string) *APIParamOption {

@@ -144,19 +144,38 @@ func TestUserStarService_List(t *testing.T) {
 }
 
 func TestUserStarService_Count(t *testing.T) {
+	o := &option.OptionService{}
+
 	cases := map[string]struct {
 		userID int
+		opts   []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType            error
 		wantValidationErrCount int
+		wantInvalidOptionError bool
 		wantCount              int
 	}{
 		"success": {
 			userID: 1,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "users/1/stars/count", spath)
+				assert.Empty(t, query)
+				return mock.NewResponse(`{"count":42}`), nil
+			},
+			wantCount: 42,
+		},
+		"success-with-options": {
+			userID: 1,
+			opts: []*option.APIParamOption{
+				o.WithSince("2024-01-01"),
+				o.WithUntil("2024-12-31"),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "users/1/stars/count", spath)
+				assert.Equal(t, "2024-01-01", query.Get("since"))
+				assert.Equal(t, "2024-12-31", query.Get("until"))
 				return mock.NewResponse(`{"count":42}`), nil
 			},
 			wantCount: 42,
@@ -169,6 +188,33 @@ func TestUserStarService_Count(t *testing.T) {
 		"error-validation-userID-negative": {
 			userID:                 -1,
 			wantValidationErrCount: 1,
+		},
+		"error-validation-opt-single": {
+			userID:                 1,
+			opts:                   []*option.APIParamOption{o.WithSince("2024/01/01")},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			userID:                 0,
+			opts:                   []*option.APIParamOption{o.WithSince("2024/01/01"), o.WithUntil("20241231")},
+			wantValidationErrCount: 3,
+		},
+
+		"error-nil-option-with-valid-values": {
+			userID:                 1,
+			opts:                   []*option.APIParamOption{o.WithSince("2024-01-01"), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			userID:                 0,
+			opts:                   []*option.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		"error-option-invalid-type": {
+			userID:      1,
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -196,7 +242,15 @@ func TestUserStarService_Count(t *testing.T) {
 				method.Get = tc.mockGetFn
 			}
 			s := user.NewStarService(method)
-			got, err := s.Count(context.Background(), tc.userID)
+			got, err := s.Count(context.Background(), tc.userID, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Equal(t, 0, got)
+				var target *option.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)
