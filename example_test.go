@@ -13,7 +13,6 @@ func Example() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerWikiList),
 	)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -35,7 +34,6 @@ func Example_withOptions() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerWikiList),
 	)
 	if err != nil {
 		fmt.Println("error:", err)
