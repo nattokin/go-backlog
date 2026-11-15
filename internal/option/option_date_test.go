@@ -204,6 +204,32 @@ func TestOptionService_date(t *testing.T) {
 			option:  o.WithMinDate("Jan 1 2024"),
 			wantErr: true,
 		},
+		"WithSince-valid": {
+			option:    o.WithSince("2024-03-15"),
+			key:       option.ParamSince.Value(),
+			wantValue: "2024-03-15",
+		},
+		"WithSince-invalid-empty": {
+			option:  o.WithSince(""),
+			wantErr: true,
+		},
+		"WithSince-invalid-format": {
+			option:  o.WithSince("2024/03/15"),
+			wantErr: true,
+		},
+		"WithUntil-valid": {
+			option:    o.WithUntil("2024-03-15"),
+			key:       option.ParamUntil.Value(),
+			wantValue: "2024-03-15",
+		},
+		"WithUntil-invalid-empty": {
+			option:  o.WithUntil(""),
+			wantErr: true,
+		},
+		"WithUntil-invalid-format": {
+			option:  o.WithUntil("20240315"),
+			wantErr: true,
+		},
 	}
 
 	for name, tc := range cases {
