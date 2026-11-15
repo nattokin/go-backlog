@@ -33,9 +33,14 @@ func (s *UserStarService) List(ctx context.Context, userID int, opts ...RequestO
 
 // Count returns the number of stars received by the user with the given ID.
 //
+// This method supports options returned by methods in [UserStarOptionService],
+// such as:
+//   - [UserStarOptionService.WithSince]
+//   - [UserStarOptionService.WithUntil]
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars
-func (s *UserStarService) Count(ctx context.Context, userID int) (int, error) {
-	v, err := s.base.Count(ctx, userID)
+func (s *UserStarService) Count(ctx context.Context, userID int, opts ...RequestOption) (int, error) {
+	v, err := s.base.Count(ctx, userID, toInnerOptions(opts)...)
 	return v, convertError(err)
 }
 
@@ -63,6 +68,18 @@ func (s *UserStarOptionService) WithMinID(id int) RequestOption {
 // WithOrder sets the sort order of results.
 func (s *UserStarOptionService) WithOrder(order Order) RequestOption {
 	return &requestOption{opt: s.base.WithOrder(string(order))}
+}
+
+// WithSince counts only stars received on or after the given date.
+// The date must be in "yyyy-MM-dd" format.
+func (s *UserStarOptionService) WithSince(date string) RequestOption {
+	return &requestOption{opt: s.base.WithSince(date)}
+}
+
+// WithUntil counts only stars received on or before the given date.
+// The date must be in "yyyy-MM-dd" format.
+func (s *UserStarOptionService) WithUntil(date string) RequestOption {
+	return &requestOption{opt: s.base.WithUntil(date)}
 }
 
 func newUserStarService(method *client.Method, option *option.OptionService) *UserStarService {
