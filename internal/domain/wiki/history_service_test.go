@@ -13,24 +13,47 @@ import (
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/domain/wiki"
+	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/testutil/fixture"
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestWikiHistoryService_List(t *testing.T) {
+	o := &option.OptionService{}
+
 	cases := map[string]struct {
 		wikiID int
+		opts   []*option.APIParamOption
 
 		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
 
 		wantErrType            error
 		wantValidationErrCount int
+		wantInvalidOptionError bool
 	}{
 		"success": {
 			wikiID: 1234,
 			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 				assert.Equal(t, "wikis/1234/history", spath)
+				assert.Empty(t, query)
+				return mock.NewResponse(fixture.WikiHistory.ListJSON), nil
+			},
+		},
+		"success-with-options": {
+			wikiID: 1234,
+			opts: []*option.APIParamOption{
+				o.WithMinID(10),
+				o.WithMaxID(20),
+				o.WithCount(5),
+				o.WithOrder("asc"),
+			},
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/1234/history", spath)
+				assert.Equal(t, "10", query.Get("minId"))
+				assert.Equal(t, "20", query.Get("maxId"))
+				assert.Equal(t, "5", query.Get("count"))
+				assert.Equal(t, "asc", query.Get("order"))
 				return mock.NewResponse(fixture.WikiHistory.ListJSON), nil
 			},
 		},
@@ -42,6 +65,33 @@ func TestWikiHistoryService_List(t *testing.T) {
 		"error-validation-wikiID-negative": {
 			wikiID:                 -1,
 			wantValidationErrCount: 1,
+		},
+		"error-validation-opt-single": {
+			wikiID:                 1234,
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 1,
+		},
+		"error-validation-all": {
+			wikiID:                 0,
+			opts:                   []*option.APIParamOption{o.WithCount(0)},
+			wantValidationErrCount: 2,
+		},
+
+		"error-nil-option-with-valid-values": {
+			wikiID:                 1234,
+			opts:                   []*option.APIParamOption{o.WithCount(5), nil},
+			wantInvalidOptionError: true,
+		},
+		"error-nil-option-with-invalid-values": {
+			wikiID:                 0,
+			opts:                   []*option.APIParamOption{nil},
+			wantInvalidOptionError: true,
+		},
+
+		"error-option-invalid-type": {
+			wikiID:      1234,
+			opts:        []*option.APIParamOption{mock.NewInvalidTypeOption()},
+			wantErrType: &option.InvalidOptionKeyError{},
 		},
 
 		"error-client-network": {
@@ -77,7 +127,15 @@ func TestWikiHistoryService_List(t *testing.T) {
 			}
 			s := wiki.NewHistoryService(method)
 
-			entries, err := s.List(context.Background(), tc.wikiID)
+			entries, err := s.List(context.Background(), tc.wikiID, tc.opts...)
+
+			if tc.wantInvalidOptionError {
+				assert.Error(t, err)
+				assert.Nil(t, entries)
+				var target *option.InvalidOptionError
+				assert.ErrorAs(t, err, &target)
+				return
+			}
 
 			if tc.wantValidationErrCount > 0 {
 				assert.Error(t, err)

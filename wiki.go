@@ -175,14 +175,50 @@ func (s *WikiAttachmentService) Download(ctx context.Context, wikiID, attachment
 // WikiHistoryService handles communication with the wiki history-related methods of the Backlog API.
 type WikiHistoryService struct {
 	base *wiki.HistorySevice
+
+	// Option provides the options accepted by [WikiHistoryService] methods.
+	Option *WikiHistoryOptionService
 }
 
 // List returns the version history of a wiki page.
 //
+// This method supports options returned by methods in [WikiHistoryOptionService],
+// such as:
+//   - [WikiHistoryOptionService.WithCount]
+//   - [WikiHistoryOptionService.WithMaxID]
+//   - [WikiHistoryOptionService.WithMinID]
+//   - [WikiHistoryOptionService.WithOrder]
+//
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
-func (s *WikiHistoryService) List(ctx context.Context, wikiID int) ([]*WikiHistory, error) {
-	v, err := s.base.List(ctx, wikiID)
+func (s *WikiHistoryService) List(ctx context.Context, wikiID int, opts ...RequestOption) ([]*WikiHistory, error) {
+	v, err := s.base.List(ctx, wikiID, toInnerOptions(opts)...)
 	return wikiHistoriesFromModel(v), convertError(err)
+}
+
+// WikiHistoryOptionService provides a domain-specific set of option builders
+// for operations within the WikiHistoryService.
+type WikiHistoryOptionService struct {
+	base *option.OptionService
+}
+
+// WithCount sets the number of history entries to retrieve (1-100).
+func (s *WikiHistoryOptionService) WithCount(count int) RequestOption {
+	return &requestOption{opt: s.base.WithCount(count)}
+}
+
+// WithMaxID sets the maximum ID to filter results.
+func (s *WikiHistoryOptionService) WithMaxID(id int) RequestOption {
+	return &requestOption{opt: s.base.WithMaxID(id)}
+}
+
+// WithMinID sets the minimum ID to filter results.
+func (s *WikiHistoryOptionService) WithMinID(id int) RequestOption {
+	return &requestOption{opt: s.base.WithMinID(id)}
+}
+
+// WithOrder sets the sort order of results.
+func (s *WikiHistoryOptionService) WithOrder(order Order) RequestOption {
+	return &requestOption{opt: s.base.WithOrder(string(order))}
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -288,7 +324,7 @@ func newWikiService(method *client.Method, option *option.OptionService) *WikiSe
 	return &WikiService{
 		base:       wiki.NewService(method),
 		Attachment: newWikiAttachmentService(method),
-		History:    newWikiHistoryService(method),
+		History:    newWikiHistoryService(method, option),
 		Option:     newWikiOptionService(option),
 		SharedFile: newWikiSharedFileService(method),
 		Star:       newWikiStarService(method, option),
@@ -301,9 +337,16 @@ func newWikiAttachmentService(method *client.Method) *WikiAttachmentService {
 	}
 }
 
-func newWikiHistoryService(method *client.Method) *WikiHistoryService {
+func newWikiHistoryService(method *client.Method, option *option.OptionService) *WikiHistoryService {
 	return &WikiHistoryService{
-		base: wiki.NewHistoryService(method),
+		base:   wiki.NewHistoryService(method),
+		Option: newWikiHistoryOptionService(option),
+	}
+}
+
+func newWikiHistoryOptionService(option *option.OptionService) *WikiHistoryOptionService {
+	return &WikiHistoryOptionService{
+		base: option,
 	}
 }
 
