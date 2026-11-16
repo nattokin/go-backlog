@@ -10,18 +10,25 @@ import (
 
 // ExampleWikiOptionService demonstrates updating a wiki page using multiple options.
 func ExampleWikiOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerWikiSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wiki, _ := c.Wiki.Update(
+	wiki, err := c.Wiki.Update(
 		context.Background(),
 		34,
 		c.Wiki.Option.WithName("Minimum Wiki Page"),
 		c.Wiki.Option.WithContent("Updated content."),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", wiki.ID, wiki.Name)
 	// Output:
 	// ID: 34, Name: Minimum Wiki Page
@@ -29,18 +36,25 @@ func ExampleWikiOptionService() {
 
 // ExampleIssueOptionService demonstrates filtering issues using multiple options.
 func ExampleIssueOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerIssueList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	issues, _ := c.Issue.List(
+	issues, err := c.Issue.List(
 		context.Background(),
 		c.Issue.Option.WithProjectIDs([]int{10}),
 		c.Issue.Option.WithKeyword("first"),
 		c.Issue.Option.WithCount(50),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(issues), issues[0].ID, issues[0].Summary)
 	// Output:
 	// Count: 2, ID: 1, Summary: First issue
@@ -48,11 +62,14 @@ func ExampleIssueOptionService() {
 
 // ExampleIssueOptionService_customField demonstrates updating issues with custom fields.
 func ExampleIssueOptionService_customField() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerIssueSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
 	params := map[string]struct {
 		id        int
@@ -83,9 +100,9 @@ func ExampleIssueOptionService_customField() {
 		},
 	}
 
-	issue, _ := c.Issue.Update(
+	issue, err := c.Issue.Update(
 		context.Background(),
-		"Issue-1",
+		"PRJ-1",
 		c.Issue.Option.WithCustomFieldNum(params["Num"].id, params["Num"].numValue),
 		c.Issue.Option.WithCustomFieldString(params["String"].id, params["String"].strValue),
 		c.Issue.Option.WithCustomFieldTime(params["Time"].id, params["Time"].timeValue),
@@ -95,6 +112,10 @@ func ExampleIssueOptionService_customField() {
 		// Set the "Other" text value for the list custom field.
 		c.Issue.Option.WithCustomFieldOther(params["Other"].id, params["Other"].strValue),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Summary: %s\n", issue.ID, issue.Summary)
 	// Output:
 	// ID: 1, Summary: First issue
@@ -102,18 +123,25 @@ func ExampleIssueOptionService_customField() {
 
 // ExampleIssueCommentOptionService demonstrates fetching comments with count and order options.
 func ExampleIssueCommentOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCommentList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	comments, _ := c.Issue.Comment.List(
+	comments, err := c.Issue.Comment.List(
 		context.Background(),
 		"PRJ-1",
 		c.Issue.Comment.Option.WithCount(20),
 		c.Issue.Comment.Option.WithOrder(backlog.OrderDesc),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
 	// Output:
 	// Count: 2, ID: 1, Content: This is a comment.
@@ -121,17 +149,24 @@ func ExampleIssueCommentOptionService() {
 
 // ExampleProjectOptionService demonstrates listing all projects including archived ones.
 func ExampleProjectOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerProjectList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	projects, _ := c.Project.List(
+	projects, err := c.Project.List(
 		context.Background(),
 		c.Project.Option.WithAll(true),
 		c.Project.Option.WithArchived(false),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ProjectKey: %s\n", len(projects), projects[0].ProjectKey)
 	// Output:
 	// Count: 3, ProjectKey: TEST
@@ -139,17 +174,24 @@ func ExampleProjectOptionService() {
 
 // ExampleRecentlyViewedOptionService demonstrates listing recently viewed issues with count and order.
 func ExampleRecentlyViewedOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	issues, _ := c.RecentlyViewed.ListIssues(
+	issues, err := c.RecentlyViewed.ListIssues(
 		context.Background(),
 		c.RecentlyViewed.Option.WithCount(20),
 		c.RecentlyViewed.Option.WithOrder(backlog.OrderDesc),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("IssueKey: %s\n", issues[0].Issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1
@@ -157,18 +199,25 @@ func ExampleRecentlyViewedOptionService() {
 
 // ExampleUserOptionService demonstrates updating a user's name and role type.
 func ExampleUserOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.Update(
+	user, err := c.User.Update(
 		context.Background(),
 		1,
 		c.User.Option.WithName("admin"),
 		c.User.Option.WithRoleType(backlog.RoleAdministrator),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
@@ -176,18 +225,25 @@ func ExampleUserOptionService() {
 
 // ExampleUserStarOptionService demonstrates listing received stars with count and order.
 func ExampleUserStarOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerStarList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	stars, _ := c.User.Star.List(
+	stars, err := c.User.Star.List(
 		context.Background(),
 		1,
 		c.User.Star.Option.WithCount(20),
 		c.User.Star.Option.WithOrder(backlog.OrderDesc),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Title: %s\n", stars[0].ID, stars[0].Title)
 	// Output:
 	// ID: 10, Title: [TEST-1] first issue
@@ -195,19 +251,26 @@ func ExampleUserStarOptionService() {
 
 // ExamplePullRequestOptionService demonstrates filtering pull requests by status and count.
 func ExamplePullRequestOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	prs, _ := c.PullRequest.List(
+	prs, err := c.PullRequest.List(
 		context.Background(),
 		"TEST",
 		"myrepo",
 		c.PullRequest.Option.WithStatusIDs([]int{backlog.PullRequestStatusOpen}),
 		c.PullRequest.Option.WithCount(50),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(prs), prs[0].ID, prs[0].Summary)
 	// Output:
 	// Count: 2, ID: 2, Summary: test PR
@@ -215,13 +278,16 @@ func ExamplePullRequestOptionService() {
 
 // ExamplePullRequestCommentOptionService demonstrates fetching pull request comments with count and order.
 func ExamplePullRequestCommentOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCommentList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	comments, _ := c.PullRequest.Comment.List(
+	comments, err := c.PullRequest.Comment.List(
 		context.Background(),
 		"TEST",
 		"myrepo",
@@ -229,6 +295,10 @@ func ExamplePullRequestCommentOptionService() {
 		c.PullRequest.Comment.Option.WithCount(20),
 		c.PullRequest.Comment.Option.WithOrder(backlog.OrderDesc),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
 	// Output:
 	// Count: 2, ID: 1, Content: This is a comment.
@@ -236,13 +306,16 @@ func ExamplePullRequestCommentOptionService() {
 
 // ExampleStarOptionService demonstrates adding a star to an issue.
 func ExampleStarOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNoContent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	err := c.Star.Add(context.Background(), c.Star.Option.WithIssueID(1))
+	err = c.Star.Add(context.Background(), c.Star.Option.WithIssueID(1))
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -254,17 +327,24 @@ func ExampleStarOptionService() {
 
 // ExampleActivityOptionService_spaceWithOptions demonstrates filtering space activities by type and count.
 func ExampleActivityOptionService_spaceWithOptions() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivityList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activities, _ := c.Space.Activity.List(
+	activities, err := c.Space.Activity.List(
 		context.Background(),
 		c.Space.Activity.Option.WithActivityTypeIDs([]int{1, 2}),
 		c.Space.Activity.Option.WithCount(20),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
@@ -272,18 +352,25 @@ func ExampleActivityOptionService_spaceWithOptions() {
 
 // ExampleActivityOptionService_projectWithOptions demonstrates filtering project activities by type and order.
 func ExampleActivityOptionService_projectWithOptions() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivityList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activities, _ := c.Project.Activity.List(
+	activities, err := c.Project.Activity.List(
 		context.Background(),
-		"MYPROJECT",
+		"TEST",
 		c.Project.Activity.Option.WithActivityTypeIDs([]int{1, 2}),
 		c.Project.Activity.Option.WithOrder(backlog.OrderDesc),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
@@ -291,18 +378,25 @@ func ExampleActivityOptionService_projectWithOptions() {
 
 // ExampleActivityOptionService_userWithOptions demonstrates filtering user activities by type and count.
 func ExampleActivityOptionService_userWithOptions() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivityList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activities, _ := c.User.Activity.List(
+	activities, err := c.User.Activity.List(
 		context.Background(),
 		1,
 		c.User.Activity.Option.WithActivityTypeIDs([]int{1, 2}),
 		c.User.Activity.Option.WithCount(20),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
@@ -310,13 +404,16 @@ func ExampleActivityOptionService_userWithOptions() {
 
 // ExampleProjectCustomFieldOptionService demonstrates updating a custom field using multiple options.
 func ExampleProjectCustomFieldOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCustomFieldSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	field, _ := c.Project.CustomField.Update(
+	field, err := c.Project.CustomField.Update(
 		context.Background(),
 		"TEST",
 		1,
@@ -324,6 +421,10 @@ func ExampleProjectCustomFieldOptionService() {
 		c.Project.CustomField.Option.WithDescription("Sprint number"),
 		c.Project.CustomField.Option.WithRequired(true),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", field.ID, field.Name)
 	// Output:
 	// ID: 1, Name: Sprint
@@ -331,19 +432,26 @@ func ExampleProjectCustomFieldOptionService() {
 
 // ExampleProjectIssueTypeOptionService demonstrates updating an issue type using multiple options.
 func ExampleProjectIssueTypeOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerIssueTypeSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	issueType, _ := c.Project.IssueType.Update(
+	issueType, err := c.Project.IssueType.Update(
 		context.Background(),
 		"TEST",
 		1,
 		c.Project.IssueType.Option.WithName("Bug"),
 		c.Project.IssueType.Option.WithColor("#e30000"),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s, Color: %s\n", issueType.ID, issueType.Name, issueType.Color)
 	// Output:
 	// ID: 1, Name: Bug, Color: #e30000
@@ -351,19 +459,26 @@ func ExampleProjectIssueTypeOptionService() {
 
 // ExampleProjectStatusOptionService demonstrates updating a status using multiple options.
 func ExampleProjectStatusOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerStatusSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	status, _ := c.Project.Status.Update(
+	status, err := c.Project.Status.Update(
 		context.Background(),
 		"TEST",
 		1,
 		c.Project.Status.Option.WithName("Open"),
 		c.Project.Status.Option.WithColor("#ed8077"),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", status.ID, status.Name)
 	// Output:
 	// ID: 1, Name: Open
@@ -371,19 +486,26 @@ func ExampleProjectStatusOptionService() {
 
 // ExampleProjectVersionOptionService demonstrates updating a version using multiple options.
 func ExampleProjectVersionOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerVersionSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	version, _ := c.Project.Version.Update(
+	version, err := c.Project.Version.Update(
 		context.Background(),
 		"TEST",
 		1,
 		c.Project.Version.Option.WithName("Version 1.0"),
 		c.Project.Version.Option.WithDescription("First stable release"),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", version.ID, version.Name)
 	// Output:
 	// ID: 1, Name: Version 1.0
@@ -391,19 +513,26 @@ func ExampleProjectVersionOptionService() {
 
 // ExampleProjectWebhookOptionService demonstrates updating a webhook using multiple options.
 func ExampleProjectWebhookOptionService() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerWebhookAllEvent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wh, _ := c.Project.Webhook.Update(
+	wh, err := c.Project.Webhook.Update(
 		context.Background(),
 		"TEST",
 		1,
 		c.Project.Webhook.Option.WithName("Example Webhook"),
 		c.Project.Webhook.Option.WithAllEvent(true),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", wh.ID, wh.Name)
 	// Output:
 	// ID: 1, Name: Example Webhook
