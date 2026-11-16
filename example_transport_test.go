@@ -75,6 +75,65 @@ var exampleRoutes = map[string]respondFunc{
 	"POST /issues/TEST-1/sharedFiles":          jsonBody(fixture.SharedFile.ListJSON),
 	"DELETE /issues/TEST-1/sharedFiles/454403": jsonBody(fixture.SharedFile.SingleJSON),
 
+	// Project
+	"GET /projects":         jsonBody(fixture.Project.ListJSON),
+	"POST /projects":        jsonBody(fixture.Project.SingleJSON),
+	"GET /projects/TEST":    jsonBody(fixture.Project.SingleJSON),
+	"PATCH /projects/TEST":  jsonBody(fixture.Project.SingleJSON),
+	"DELETE /projects/TEST": jsonBody(fixture.Project.SingleJSON),
+
+	"GET /projects/TEST/activities": jsonBody(fixture.Activity.ListJSON),
+
+	"GET /projects/TEST/administrators":    jsonBody(fixture.User.ListJSON),
+	"POST /projects/TEST/administrators":   jsonBody(fixture.User.SingleJSON),
+	"DELETE /projects/TEST/administrators": jsonBody(fixture.User.SingleJSON),
+
+	"GET /projects/TEST/categories":       jsonBody(fixture.Category.ListJSON),
+	"POST /projects/TEST/categories":      jsonBody(fixture.Category.SingleJSON),
+	"PATCH /projects/TEST/categories/12":  jsonBody(fixture.Category.SingleJSON),
+	"DELETE /projects/TEST/categories/12": jsonBody(fixture.Category.SingleJSON),
+
+	"GET /projects/TEST/customFields":               jsonBody(fixture.CustomField.ListJSON),
+	"POST /projects/TEST/customFields":              jsonBody(fixture.CustomField.SingleJSON),
+	"PATCH /projects/TEST/customFields/1":           jsonBody(fixture.CustomField.SingleJSON),
+	"DELETE /projects/TEST/customFields/1":          jsonBody(fixture.CustomField.SingleJSON),
+	"POST /projects/TEST/customFields/1/items":      jsonBody(fixture.CustomField.SingleJSON),
+	"PATCH /projects/TEST/customFields/1/items/10":  jsonBody(fixture.CustomField.SingleJSON),
+	"DELETE /projects/TEST/customFields/1/items/10": jsonBody(fixture.CustomField.SingleJSON),
+
+	"GET /projects/TEST/diskUsage": jsonBody(fixture.Project.DiskUsageJSON),
+
+	"GET /projects/TEST/files/1":                binary("shared.png"),
+	"GET /projects/TEST/files/metadata/design/": jsonBody(fixture.SharedFile.ListJSON),
+
+	"GET /projects/TEST/image": binary("test.png"),
+
+	"GET /projects/TEST/issueTypes":      jsonBody(fixture.IssueType.ListJSON),
+	"POST /projects/TEST/issueTypes":     jsonBody(fixture.IssueType.SingleJSON),
+	"PATCH /projects/TEST/issueTypes/1":  jsonBody(fixture.IssueType.SingleJSON),
+	"DELETE /projects/TEST/issueTypes/1": jsonBody(fixture.IssueType.SingleJSON),
+
+	"GET /projects/TEST/statuses":                      jsonBody(fixture.Status.ListJSON),
+	"POST /projects/TEST/statuses":                     jsonBody(fixture.Status.SingleJSON),
+	"PATCH /projects/TEST/statuses/1":                  jsonBody(fixture.Status.SingleJSON),
+	"DELETE /projects/TEST/statuses/1":                 jsonBody(fixture.Status.SingleJSON),
+	"PATCH /projects/TEST/statuses/updateDisplayOrder": jsonBody(fixture.Status.ListJSON),
+
+	"GET /projects/TEST/users":    jsonBody(fixture.User.ListJSON),
+	"POST /projects/TEST/users":   jsonBody(fixture.User.SingleJSON),
+	"DELETE /projects/TEST/users": jsonBody(fixture.User.SingleJSON),
+
+	"GET /projects/TEST/versions":      jsonBody(fixture.Version.ListJSON),
+	"POST /projects/TEST/versions":     jsonBody(fixture.Version.SingleJSON),
+	"PATCH /projects/TEST/versions/1":  jsonBody(fixture.Version.SingleJSON),
+	"DELETE /projects/TEST/versions/1": jsonBody(fixture.Version.SingleJSON),
+
+	"GET /projects/TEST/webhooks":      jsonBody(fixture.Webhook.ListJSON),
+	"POST /projects/TEST/webhooks":     jsonBody(fixture.Webhook.AllEventJSON),
+	"GET /projects/TEST/webhooks/1":    jsonBody(fixture.Webhook.AllEventJSON),
+	"PATCH /projects/TEST/webhooks/1":  jsonBody(fixture.Webhook.AllEventJSON),
+	"DELETE /projects/TEST/webhooks/1": jsonBody(fixture.Webhook.AllEventJSON),
+
 	// PullRequest
 	"GET /projects/TEST/git/repositories/myrepo/pullRequests":       jsonBody(fixture.PullRequest.ListJSON),
 	"POST /projects/TEST/git/repositories/myrepo/pullRequests":      jsonBody(fixture.PullRequest.SingleJSON),
