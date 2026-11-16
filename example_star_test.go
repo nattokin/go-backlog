@@ -8,13 +8,16 @@ import (
 )
 
 func ExampleStarService_Add() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNoContent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	err := c.Star.Add(context.Background(), c.Star.Option.WithIssueID(1))
+	err = c.Star.Add(context.Background(), c.Star.Option.WithIssueID(1))
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -25,13 +28,16 @@ func ExampleStarService_Add() {
 }
 
 func ExampleStarService_Remove() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNoContent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	err := c.Star.Remove(context.Background(), 42)
+	err = c.Star.Remove(context.Background(), 42)
 	if err != nil {
 		fmt.Println("error:", err)
 		return

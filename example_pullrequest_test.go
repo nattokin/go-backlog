@@ -8,24 +8,34 @@ import (
 )
 
 func ExamplePullRequestService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	prs, _ := c.PullRequest.List(context.Background(), "TEST", "myrepo")
+	prs, err := c.PullRequest.List(context.Background(), "TEST", "myrepo")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Summary: %s\n", len(prs), prs[0].ID, prs[0].Summary)
 	// Output:
 	// Count: 2, ID: 2, Summary: test PR
 }
 
 func ExamplePullRequestService_All() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
 	seq, err := c.PullRequest.All(context.Background(), 100, "TEST", "myrepo")
 	if err != nil {
@@ -45,156 +55,236 @@ func ExamplePullRequestService_All() {
 }
 
 func ExamplePullRequestService_Count() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestCount),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	count, _ := c.PullRequest.Count(context.Background(), "TEST", "myrepo")
+	count, err := c.PullRequest.Count(context.Background(), "TEST", "myrepo")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d\n", count)
 	// Output:
 	// Count: 2
 }
 
 func ExamplePullRequestService_One() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	pr, _ := c.PullRequest.One(context.Background(), "TEST", "myrepo", 1)
+	pr, err := c.PullRequest.One(context.Background(), "TEST", "myrepo", 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Summary: %s\n", pr.ID, pr.Summary)
 	// Output:
 	// ID: 2, Summary: test PR
 }
 
 func ExamplePullRequestService_Create() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	pr, _ := c.PullRequest.Create(context.Background(), "TEST", "myrepo", "test PR", "test description", "main", "feature/foo")
+	pr, err := c.PullRequest.Create(context.Background(), "TEST", "myrepo", "test PR", "test description", "main", "feature/foo")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Summary: %s\n", pr.ID, pr.Summary)
 	// Output:
 	// ID: 2, Summary: test PR
 }
 
 func ExamplePullRequestService_Update() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	pr, _ := c.PullRequest.Update(context.Background(), "TEST", "myrepo", 1, c.PullRequest.Option.WithSummary("test PR"))
+	pr, err := c.PullRequest.Update(context.Background(), "TEST", "myrepo", 1, c.PullRequest.Option.WithSummary("test PR"))
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Summary: %s\n", pr.ID, pr.Summary)
 	// Output:
 	// ID: 2, Summary: test PR
 }
 
 func ExamplePullRequestAttachmentService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerAttachmentList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	attachments, _ := c.PullRequest.Attachment.List(context.Background(), "TEST", "myrepo", 1)
+	attachments, err := c.PullRequest.Attachment.List(context.Background(), "TEST", "myrepo", 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", attachments[0].ID, attachments[0].Name)
 	// Output:
 	// ID: 2, Name: A.png
 }
 
 func ExamplePullRequestAttachmentService_Download() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerAttachmentDownload),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	file, _ := c.PullRequest.Attachment.Download(context.Background(), "TEST", "myrepo", 1, 2)
+	file, err := c.PullRequest.Attachment.Download(context.Background(), "TEST", "myrepo", 1, 2)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ContentType: %s, FileName: %s\n", file.ContentType, file.Filename)
 	// Output:
 	// ContentType: image/png, FileName: A.png
 }
 
 func ExamplePullRequestAttachmentService_Remove() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerAttachmentSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	attachment, _ := c.PullRequest.Attachment.Remove(context.Background(), "TEST", "myrepo", 1, 8)
+	attachment, err := c.PullRequest.Attachment.Remove(context.Background(), "TEST", "myrepo", 1, 8)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s\n", attachment.ID, attachment.Name)
 	// Output:
 	// ID: 8, Name: IMG0088.png
 }
 
 func ExamplePullRequestCommentService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCommentList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	comments, _ := c.PullRequest.Comment.List(context.Background(), "TEST", "myrepo", 1)
+	comments, err := c.PullRequest.Comment.List(context.Background(), "TEST", "myrepo", 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Content: %s\n", len(comments), comments[0].ID, comments[0].Content)
 	// Output:
 	// Count: 2, ID: 1, Content: This is a comment.
 }
 
 func ExamplePullRequestCommentService_Add() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCommentSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	comment, _ := c.PullRequest.Comment.Add(context.Background(), "TEST", "myrepo", 1, "This is a comment.")
+	comment, err := c.PullRequest.Comment.Add(context.Background(), "TEST", "myrepo", 1, "This is a comment.")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
 	// Output:
 	// ID: 1, Content: This is a comment.
 }
 
 func ExamplePullRequestCommentService_Count() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerPullRequestCommentCount),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	count, _ := c.PullRequest.Comment.Count(context.Background(), "TEST", "myrepo", 1)
+	count, err := c.PullRequest.Comment.Count(context.Background(), "TEST", "myrepo", 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d\n", count)
 	// Output:
 	// Count: 2
 }
 
 func ExamplePullRequestCommentService_Update() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerCommentSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	comment, _ := c.PullRequest.Comment.Update(context.Background(), "TEST", "myrepo", 1, 1, "This is a comment.")
+	comment, err := c.PullRequest.Comment.Update(context.Background(), "TEST", "myrepo", 1, 1, "This is a comment.")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Content: %s\n", comment.ID, comment.Content)
 	// Output:
 	// ID: 1, Content: This is a comment.
 }
 
 func ExamplePullRequestStarService_Add() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNoContent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	err := c.PullRequest.Star.Add(context.Background(), 2)
+	err = c.PullRequest.Star.Add(context.Background(), 2)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -205,13 +295,16 @@ func ExamplePullRequestStarService_Add() {
 }
 
 func ExamplePullRequestStarService_Remove() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerNoContent),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	err := c.PullRequest.Star.Remove(context.Background(), 42)
+	err = c.PullRequest.Star.Remove(context.Background(), 42)
 	if err != nil {
 		fmt.Println("error:", err)
 		return

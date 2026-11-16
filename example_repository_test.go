@@ -8,26 +8,40 @@ import (
 )
 
 func ExampleRepositoryService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRepositoryList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	repos, _ := c.Repository.List(context.Background(), "TEST")
+	repos, err := c.Repository.List(context.Background(), "TEST")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d, ID: %d, Name: %s\n", len(repos), repos[0].ID, repos[0].Name)
 	// Output:
 	// Count: 2, ID: 5, Name: foo
 }
 
 func ExampleRepositoryService_One() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRepositorySingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	repo, _ := c.Repository.One(context.Background(), "TEST", "foo")
+	repo, err := c.Repository.One(context.Background(), "TEST", "foo")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Name: %s, Description: %s\n", repo.ID, repo.Name, repo.Description)
 	// Output:
 	// ID: 5, Name: foo, Description: test repo

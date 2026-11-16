@@ -8,65 +8,100 @@ import (
 )
 
 func ExampleRecentlyViewedService_ListIssues() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedIssueList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	issues, _ := c.RecentlyViewed.ListIssues(context.Background())
+	issues, err := c.RecentlyViewed.ListIssues(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("IssueKey: %s\n", issues[0].Issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1
 }
 
 func ExampleRecentlyViewedService_AddIssue() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedIssueSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	issue, _ := c.RecentlyViewed.AddIssue(context.Background(), "TEST-1")
+	issue, err := c.RecentlyViewed.AddIssue(context.Background(), "TEST-1")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("IssueKey: %s\n", issue.IssueKey)
 	// Output:
 	// IssueKey: TEST-1
 }
 
 func ExampleRecentlyViewedService_ListProjects() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedProjectList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	projects, _ := c.RecentlyViewed.ListProjects(context.Background())
+	projects, err := c.RecentlyViewed.ListProjects(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ProjectKey: %s\n", projects[0].Project.ProjectKey)
 	// Output:
 	// ProjectKey: TEST
 }
 
 func ExampleRecentlyViewedService_ListWikis() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedWikiList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wikis, _ := c.RecentlyViewed.ListWikis(context.Background())
+	wikis, err := c.RecentlyViewed.ListWikis(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Name: %s\n", wikis[0].Page.Name)
 	// Output:
 	// Name: Home
 }
 
 func ExampleRecentlyViewedService_AddWiki() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerRecentlyViewedWikiSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	wiki, _ := c.RecentlyViewed.AddWiki(context.Background(), 10)
+	wiki, err := c.RecentlyViewed.AddWiki(context.Background(), 10)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Name: %s\n", wiki.Name)
 	// Output:
 	// Name: Home

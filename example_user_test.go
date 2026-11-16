@@ -8,52 +8,76 @@ import (
 )
 
 func ExampleUserService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	users, _ := c.User.List(context.Background())
+	users, err := c.User.List(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", users[0].ID, users[0].UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_One() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.One(context.Background(), 1)
+	user, err := c.User.One(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_Me() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.Me(context.Background())
+	user, err := c.User.Me(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_Add() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.Add(
+	user, err := c.User.Add(
 		context.Background(),
 		"admin",
 		"password",
@@ -61,88 +85,134 @@ func ExampleUserService_Add() {
 		"eguchi@nulab.example",
 		backlog.RoleAdministrator,
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_Update() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.Update(
+	user, err := c.User.Update(
 		context.Background(),
 		1,
 		c.User.Option.WithName("admin"),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_Delete() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserSingle),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	user, _ := c.User.Delete(context.Background(), 1)
+	user, err := c.User.Delete(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, UserID: %s\n", user.ID, user.UserID)
 	// Output:
 	// ID: 1, UserID: admin
 }
 
 func ExampleUserService_Icon() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerUserIcon),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	icon, _ := c.User.Icon(context.Background(), 1)
+	icon, err := c.User.Icon(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ContentType: %s, FileName: %s\n", icon.ContentType, icon.Filename)
 	// Output:
 	// ContentType: image/png, FileName: icon.png
 }
 
 func ExampleUserActivityService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerActivityList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	activities, _ := c.User.Activity.List(context.Background(), 1)
+	activities, err := c.User.Activity.List(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Type: %d\n", activities[0].ID, activities[0].Type)
 	// Output:
 	// ID: 3153, Type: 2
 }
 
 func ExampleUserStarService_Count() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerStarCount),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	count, _ := c.User.Star.Count(context.Background(), 1)
+	count, err := c.User.Star.Count(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("Count: %d\n", count)
 	// Output:
 	// Count: 42
 }
 
 func ExampleUserStarService_List() {
-	c, _ := backlog.NewClient(
+	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(doerStarList),
 	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 
-	stars, _ := c.User.Star.List(context.Background(), 1)
+	stars, err := c.User.Star.List(context.Background(), 1)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
 	fmt.Printf("ID: %d, Title: %s\n", stars[0].ID, stars[0].Title)
 	// Output:
 	// ID: 10, Title: [TEST-1] first issue
