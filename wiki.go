@@ -174,7 +174,7 @@ func (s *WikiAttachmentService) Download(ctx context.Context, wikiID, attachment
 
 // WikiHistoryService handles communication with the wiki history-related methods of the Backlog API.
 type WikiHistoryService struct {
-	base *wiki.HistorySevice
+	base *wiki.HistoryService
 
 	// Option provides the options accepted by [WikiHistoryService] methods.
 	Option *WikiHistoryOptionService

@@ -12,15 +12,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
-// HistorySevice handles wiki history-related Backlog API calls.
-type HistorySevice struct {
+// HistoryService handles wiki history-related Backlog API calls.
+type HistoryService struct {
 	method *client.Method
 }
 
 // List returns the version history of a wiki page.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/
-func (s *HistorySevice) List(ctx context.Context, wikiID int, opts ...*option.APIParamOption) ([]*model.WikiHistory, error) {
+func (s *HistoryService) List(ctx context.Context, wikiID int, opts ...*option.APIParamOption) ([]*model.WikiHistory, error) {
 	query := url.Values{}
 	validOptionKeys := []option.APIParamOptionType{option.ParamMinID, option.ParamMaxID, option.ParamCount, option.ParamOrder}
 
@@ -46,6 +46,6 @@ func (s *HistorySevice) List(ctx context.Context, wikiID int, opts ...*option.AP
 	return v, nil
 }
 
-func NewHistoryService(method *client.Method) *HistorySevice {
-	return &HistorySevice{method: method}
+func NewHistoryService(method *client.Method) *HistoryService {
+	return &HistoryService{method: method}
 }
