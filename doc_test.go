@@ -6,7 +6,7 @@ import (
 	"go/doc/comment"
 	"go/parser"
 	"go/token"
-	"io/fs"
+	"os"
 	"strings"
 	"testing"
 )
@@ -23,20 +23,27 @@ func loadPackageDoc(t *testing.T) *doc.Package {
 	t.Helper()
 
 	fset := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fset, ".", func(fi fs.FileInfo) bool {
-		return !strings.HasSuffix(fi.Name(), "_test.go")
-	}, parser.ParseComments)
+	entries, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pkg, ok := pkgs["backlog"]
-	if !ok {
-		t.Fatal("package backlog not found")
+	var files []*ast.File
+	for _, e := range entries {
+		name := e.Name()
+		if e.IsDir() || !strings.HasSuffix(name, ".go") || strings.HasSuffix(name, "_test.go") {
+			continue
+		}
+		f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if f.Name.Name == "backlog" {
+			files = append(files, f)
+		}
 	}
-	files := make([]*ast.File, 0, len(pkg.Files))
-	for _, f := range pkg.Files {
-		files = append(files, f)
+	if len(files) == 0 {
+		t.Fatal("package backlog not found")
 	}
 
 	p, err := doc.NewFromFiles(fset, files, "github.com/nattokin/go-backlog", doc.PreserveAST)

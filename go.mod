@@ -1,6 +1,6 @@
 module github.com/nattokin/go-backlog
 
-go 1.23
+go 1.26
 
 require github.com/stretchr/testify v1.11.1
 
