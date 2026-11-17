@@ -161,6 +161,14 @@ func (s *IssueService) List(ctx context.Context, opts ...RequestOption) ([]*Issu
 // The caller must not pass WithCount or WithOffset in opts; those are managed
 // internally. If they are passed, an error is returned immediately.
 //
+// Pages are fetched with an offset, so the iterator does not see a consistent
+// snapshot of the issues. If issues are created, deleted or updated while
+// iterating, later pages shift, and an issue can be skipped or returned more
+// than once; an updated issue can also move to a page that has already been
+// fetched. When consistency matters, sort by a field that does not change,
+// such as [IssueSortCreated] with [IssueOptionService.WithIssueSort], and
+// de-duplicate the results by their ID field.
+//
 // This method supports filter options returned by methods in [IssueOptionService],
 // such as:
 //   - [IssueOptionService.WithProjectIDs]

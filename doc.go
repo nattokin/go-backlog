@@ -14,7 +14,16 @@
 // when the token expires.
 //
 // Requests are sent with [net/http.DefaultClient] unless another HTTP client is
-// given with [WithDoer].
+// given with [WithDoer]. [net/http.DefaultClient] has no timeout, so set a
+// deadline on the context passed to each method, or give an *http.Client with
+// a Timeout:
+//
+//	c, err := backlog.NewClient("https://example.backlog.com", apiKey,
+//		backlog.WithDoer(&http.Client{Timeout: 30 * time.Second}),
+//	)
+//
+// A [Client] is safe for concurrent use by multiple goroutines, as long as the
+// HTTP client given with [WithDoer] is.
 //
 // # Calling the API
 //
@@ -51,6 +60,12 @@
 //		}
 //		fmt.Println(issue.IssueKey, issue.Summary)
 //	}
+//
+// The iterators fetch pages with an offset and do not see a consistent
+// snapshot of the data. If items are created, deleted or updated while
+// iterating, an item can be skipped or returned more than once. When
+// consistency matters, de-duplicate the results by ID. For issues, also sort
+// by a field that does not change, such as [IssueSortCreated].
 //
 // # Errors
 //
