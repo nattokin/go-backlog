@@ -1307,6 +1307,40 @@ func TestDownloadResponse(t *testing.T) {
 	}
 }
 
+func TestDownloadResponse_noContent(t *testing.T) {
+	cases := map[string]struct {
+		resp *http.Response
+	}{
+		"nil-response": {
+			resp: nil,
+		},
+		"from-CheckResponse-204": {
+			resp: func() *http.Response {
+				r, err := client.CheckResponse(&http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody})
+				if err != nil {
+					panic(err)
+				}
+				return r
+			}(),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			require.NotPanics(t, func() {
+				got, err := client.DownloadResponse(tc.resp)
+
+				assert.Nil(t, got)
+				var target *client.InternalClientError
+				require.ErrorAs(t, err, &target)
+				assert.EqualError(t, err, "no content to download")
+			})
+		})
+	}
+}
+
 func TestError_Error(t *testing.T) {
 	e := &client.Error{
 		Message:  "No project.",
