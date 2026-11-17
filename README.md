@@ -16,7 +16,7 @@ go-backlog
 
 ## Requirements
 
-- Go >= 1.23
+- Go >= 1.26
 
 ## Installation
 
