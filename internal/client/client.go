@@ -105,6 +105,10 @@ func NewInternalClientError(msg string) *InternalClientError {
 	return &InternalClientError{msg: msg}
 }
 
+// ErrNoContent is returned by DownloadResponse when the API responds with
+// 204 No Content, leaving no file to download.
+var ErrNoContent = errors.New("no content to download")
+
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -446,10 +450,10 @@ func DecodeResponse(resp *http.Response, v any) error {
 // It parses the filename from Content-Disposition and the media type from Content-Type.
 // The caller is responsible for closing FileData.Body.
 // A nil resp (as returned by CheckResponse for 204 No Content) has no file to
-// download, so an *InternalClientError is returned.
+// download, so ErrNoContent is returned.
 func DownloadResponse(resp *http.Response) (*model.FileData, error) {
 	if resp == nil {
-		return nil, NewInternalClientError("no content to download")
+		return nil, ErrNoContent
 	}
 
 	filename := ""

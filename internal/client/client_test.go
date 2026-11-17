@@ -1333,8 +1333,7 @@ func TestDownloadResponse_noContent(t *testing.T) {
 				got, err := client.DownloadResponse(tc.resp)
 
 				assert.Nil(t, got)
-				var target *client.InternalClientError
-				require.ErrorAs(t, err, &target)
+				require.ErrorIs(t, err, client.ErrNoContent)
 				assert.EqualError(t, err, "no content to download")
 			})
 		})
