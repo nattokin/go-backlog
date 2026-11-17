@@ -24,6 +24,10 @@ type Doer interface {
 
 // Client represents a Backlog API client.
 // It wraps an underlying HTTP Doer and provides typed services for API access.
+//
+// A Client is safe for concurrent use by multiple goroutines, as long as its
+// [Doer] is. The Client and its services hold no state that changes after the
+// Client is created.
 type Client struct {
 	httpClient *client.Client
 
@@ -146,7 +150,17 @@ type ClientOption struct {
 // WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
 // This is useful for providing a custom *http.Client or a mock implementation during testing.
 //
-// If this option is not provided, http.DefaultClient is used by default.
+// If this option is not provided, [net/http.DefaultClient] is used. It has no
+// timeout, so a request can block indefinitely if the server does not respond.
+// Set a deadline on the context passed to each method, or pass an
+// *http.Client with Timeout set:
+//
+//	c, err := backlog.NewClient(baseURL, apiKey,
+//		backlog.WithDoer(&http.Client{Timeout: 30 * time.Second}),
+//	)
+//
+// To use the Client from multiple goroutines, doer must be safe for
+// concurrent use, as *http.Client is.
 func WithDoer(doer Doer) *ClientOption {
 	return &ClientOption{inner: client.WithDoer(doer)}
 }
