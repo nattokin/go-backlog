@@ -445,7 +445,13 @@ func DecodeResponse(resp *http.Response, v any) error {
 // DownloadResponse extracts FileData from a binary HTTP response.
 // It parses the filename from Content-Disposition and the media type from Content-Type.
 // The caller is responsible for closing FileData.Body.
+// A nil resp (as returned by CheckResponse for 204 No Content) has no file to
+// download, so an *InternalClientError is returned.
 func DownloadResponse(resp *http.Response) (*model.FileData, error) {
+	if resp == nil {
+		return nil, NewInternalClientError("no content to download")
+	}
+
 	filename := ""
 	if cd := resp.Header.Get("Content-Disposition"); cd != "" {
 		_, params, err := mime.ParseMediaType(cd)
