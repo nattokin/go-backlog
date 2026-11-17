@@ -84,6 +84,12 @@ func (s *PullRequestService) List(ctx context.Context, projectIDOrKey string, re
 // The caller must not pass WithCount or WithOffset in opts; those are managed
 // internally. If they are passed, an error is returned immediately.
 //
+// Pages are fetched with an offset, so the iterator does not see a consistent
+// snapshot of the pull requests. If pull requests are created, deleted or
+// updated while iterating, later pages shift, and a pull request can be
+// skipped or returned more than once. When consistency matters, de-duplicate
+// the results by their ID field.
+//
 // This method supports filter options returned by methods in [PullRequestOptionService],
 // such as:
 //   - [PullRequestOptionService.WithStatusIDs]
