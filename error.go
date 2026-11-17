@@ -169,6 +169,12 @@ type InternalClientError struct {
 // Error implements the error interface.
 func (e *InternalClientError) Error() string { return e.inner.Error() }
 
+// ErrNoContent is returned by download methods, such as
+// [WikiAttachmentService.Download] and [ProjectService.Icon], when the API
+// responds with 204 No Content, leaving no file to download.
+// Use [errors.Is] to check whether a returned error is ErrNoContent.
+var ErrNoContent = client.ErrNoContent
+
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
 // leaking into the public API surface.

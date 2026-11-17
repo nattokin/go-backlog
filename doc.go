@@ -68,6 +68,9 @@
 //   - [*InternalClientError]: the client is misconfigured, such as with an
 //     empty API key or a malformed base URL.
 //
+// Download methods return [ErrNoContent] when the API responds with 204 No
+// Content. Use [errors.Is] to check for it.
+//
 // # Dates and times
 //
 // Date and time fields are [Timestamp] values. Fields that hold a date without

@@ -231,6 +231,27 @@ func TestInternalClientError_Error(t *testing.T) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  ErrNoContent
+// ──────────────────────────────────────────────────────────────
+
+func TestErrNoContent(t *testing.T) {
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"apiKey",
+		backlog.WithDoer(&mock.Doer{DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: http.StatusNoContent, Body: http.NoBody}, nil
+		}}),
+	)
+	require.NoError(t, err)
+
+	got, err := c.Wiki.Attachment.Download(context.Background(), 1, 2)
+
+	assert.Nil(t, got)
+	require.ErrorIs(t, err, backlog.ErrNoContent)
+	assert.EqualError(t, err, "no content to download")
+}
+
+// ──────────────────────────────────────────────────────────────
 //  convertError (indirect via service methods)
 // ──────────────────────────────────────────────────────────────
 
