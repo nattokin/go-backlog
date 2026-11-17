@@ -117,14 +117,15 @@ func (s *Service) List(ctx context.Context, opts ...*option.APIParamOption) ([]*
 func (s *Service) All(ctx context.Context, perPage int, opts ...*option.APIParamOption) (iter.Seq2[*model.Issue, error], error) {
 	o := &option.OptionService{}
 
+	var ves validation.Errors
 	countOpt := o.WithCount(perPage)
 	if ve := countOpt.Check(); ve != nil {
-		return nil, validation.Errors{ve}
+		ves = append(ves, ve)
 	}
 
 	baseQuery := url.Values{}
 	countOpt.Set(baseQuery)
-	if err := option.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(baseQuery, filterValidTypes, opts...)); err != nil {
 		return nil, err
 	}
 
