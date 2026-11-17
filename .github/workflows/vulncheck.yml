@@ -1,0 +1,33 @@
+name: Vulnerability Check
+
+# Runs govulncheck independently of code changes, because new vulnerabilities
+# are published regardless of whether the code changes. The vulncheck job in
+# test.yml still checks pull requests before merge.
+
+on:
+  schedule:
+    - cron: "23 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  vulncheck:
+    name: Vulnerability check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run govulncheck
+        uses: golang/govulncheck-action@032d45514ae346b1db93c04b0c90b841c370344f # v1.1.0
+
+  notification:
+    name: Notification
+    needs:
+      - vulncheck
+    if: always() && needs.vulncheck.result == 'failure'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@2e709ce51fd47f02b7221db8547e6e6f49f81f1d # v2.0.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
