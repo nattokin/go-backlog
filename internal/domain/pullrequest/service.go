@@ -79,18 +79,15 @@ func (s *Service) All(ctx context.Context, perPage int, projectIDOrKey string, r
 	if ve := validate.ValidateRepositoryIDOrName(repoIDOrName); ve != nil {
 		ves = append(ves, ve)
 	}
-	if len(ves) > 0 {
-		return nil, ves
-	}
 
 	countOpt := o.WithCount(perPage)
 	if ve := countOpt.Check(); ve != nil {
-		return nil, validation.Errors{ve}
+		ves = append(ves, ve)
 	}
 
 	baseQuery := url.Values{}
 	countOpt.Set(baseQuery)
-	if err := option.ApplyOptions(baseQuery, filterValidTypes, opts...); err != nil {
+	if err := option.MergeValidationErrors(ves, option.ApplyOptions(baseQuery, filterValidTypes, opts...)); err != nil {
 		return nil, err
 	}
 

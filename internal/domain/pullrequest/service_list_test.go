@@ -342,6 +342,18 @@ func TestService_All(t *testing.T) {
 		assert.ErrorAs(t, err, &ves)
 	})
 
+	t.Run("error-validation-all", func(t *testing.T) {
+		t.Parallel()
+
+		o := &option.OptionService{}
+		s := pullrequest.NewService(mock.NewMethod(t))
+		_, err := s.All(ctx, 0, "", "", o.WithStatusIDs([]int{0}))
+		require.Error(t, err)
+		var ves validation.Errors
+		require.ErrorAs(t, err, &ves)
+		assert.Len(t, ves, 4)
+	})
+
 	t.Run("error-invalid-option", func(t *testing.T) {
 		t.Parallel()
 
