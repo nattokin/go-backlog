@@ -52,6 +52,12 @@
 //		fmt.Println(issue.IssueKey, issue.Summary)
 //	}
 //
+// The iterators fetch pages with an offset and do not see a consistent
+// snapshot of the data. If items are created, deleted or updated while
+// iterating, an item can be skipped or returned more than once. When
+// consistency matters, de-duplicate the results by ID. For issues, also sort
+// by a field that does not change, such as [IssueSortCreated].
+//
 // # Errors
 //
 // Errors are returned as the following types. Use [errors.As] to tell them
