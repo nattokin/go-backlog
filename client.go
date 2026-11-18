@@ -61,6 +61,9 @@ type Client struct {
 // The API key is sent in the "Backlog-API-Key" request header.
 // To authenticate with an OAuth 2.0 access token, use [NewOAuthClient].
 //
+// The base URL must use the http or https scheme and include a host.
+// With an http base URL, the API key is sent in plain text.
+//
 // It returns an [*InternalClientError] if the base URL or API key is invalid.
 //
 // Supported options:
@@ -79,6 +82,9 @@ func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 // Access tokens expire after one hour; when a token expires, obtain a new one
 // and create a new Client with NewOAuthClient.
 // When the API rejects the access token, the returned error is an [*OAuthError].
+//
+// The base URL must use the http or https scheme and include a host.
+// With an http base URL, the access token is sent in plain text.
 //
 // It returns an [*InternalClientError] if the base URL or access token is invalid.
 //

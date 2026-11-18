@@ -47,9 +47,45 @@ func TestNewClient_validation(t *testing.T) {
 			baseURL:   "://invalid-url",
 			apiKey:    "apiKey",
 			wantError: true,
+			errMsg:    "invalid baseURL",
+		},
+		"baseURL-without-scheme": {
+			baseURL:   "example.backlog.com",
+			apiKey:    "apiKey",
+			wantError: true,
+			errMsg:    "invalid baseURL",
+		},
+		"relative-baseURL": {
+			baseURL:   "/relative",
+			apiKey:    "apiKey",
+			wantError: true,
+			errMsg:    "scheme must be http or https",
+		},
+		"unsupported-scheme": {
+			baseURL:   "ftp://example.com",
+			apiKey:    "apiKey",
+			wantError: true,
+			errMsg:    "scheme must be http or https",
+		},
+		"missing-host": {
+			baseURL:   "https://",
+			apiKey:    "apiKey",
+			wantError: true,
+			errMsg:    "missing host",
+		},
+		"missing-hostname": {
+			baseURL:   "https://:443",
+			apiKey:    "apiKey",
+			wantError: true,
+			errMsg:    "missing host",
 		},
 		"valid-input": {
 			baseURL:   "https://example.com",
+			apiKey:    "apiKey",
+			wantError: false,
+		},
+		"valid-http": {
+			baseURL:   "http://127.0.0.1:8080",
 			apiKey:    "apiKey",
 			wantError: false,
 		},
@@ -60,7 +96,8 @@ func TestNewClient_validation(t *testing.T) {
 			c, err := client.NewClient(tc.baseURL, tc.apiKey)
 
 			if tc.wantError {
-				assert.Error(t, err)
+				var target *client.InternalClientError
+				assert.ErrorAs(t, err, &target)
 				assert.Nil(t, c)
 				if tc.errMsg != "" {
 					assert.Contains(t, err.Error(), tc.errMsg)
@@ -99,9 +136,45 @@ func TestNewOAuthClient_validation(t *testing.T) {
 			baseURL:     "://invalid-url",
 			accessToken: "accessToken",
 			wantError:   true,
+			errMsg:      "invalid baseURL",
+		},
+		"baseURL-without-scheme": {
+			baseURL:     "example.backlog.com",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "invalid baseURL",
+		},
+		"relative-baseURL": {
+			baseURL:     "/relative",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "scheme must be http or https",
+		},
+		"unsupported-scheme": {
+			baseURL:     "ftp://example.com",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "scheme must be http or https",
+		},
+		"missing-host": {
+			baseURL:     "https://",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "missing host",
+		},
+		"missing-hostname": {
+			baseURL:     "https://:443",
+			accessToken: "accessToken",
+			wantError:   true,
+			errMsg:      "missing host",
 		},
 		"valid-input": {
 			baseURL:     "https://example.com",
+			accessToken: "accessToken",
+			wantError:   false,
+		},
+		"valid-http": {
+			baseURL:     "http://127.0.0.1:8080",
 			accessToken: "accessToken",
 			wantError:   false,
 		},
@@ -112,7 +185,8 @@ func TestNewOAuthClient_validation(t *testing.T) {
 			c, err := client.NewOAuthClient(tc.baseURL, tc.accessToken)
 
 			if tc.wantError {
-				assert.Error(t, err)
+				var target *client.InternalClientError
+				assert.ErrorAs(t, err, &target)
 				assert.Nil(t, c)
 				if tc.errMsg != "" {
 					assert.Contains(t, err.Error(), tc.errMsg)
