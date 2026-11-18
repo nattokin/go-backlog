@@ -26,11 +26,8 @@ func Test_changeLogFromModel(t *testing.T) {
 				AttachmentInfo: &model.AttachmentInfo{ID: 10, Name: "file.txt"},
 			},
 			want: &ChangeLog{
-				Field: "attachment",
-				AttachmentInfo: &struct {
-					ID   int
-					Name string
-				}{ID: 10, Name: "file.txt"},
+				Field:          "attachment",
+				AttachmentInfo: &ChangeLogAttachmentInfo{ID: 10, Name: "file.txt"},
 			},
 		},
 		"with_attribute_info": {
@@ -39,11 +36,8 @@ func Test_changeLogFromModel(t *testing.T) {
 				AttributeInfo: &model.AttributeInfo{ID: 5, TypeID: "text"},
 			},
 			want: &ChangeLog{
-				Field: "attribute",
-				AttributeInfo: &struct {
-					ID     int
-					TypeID string
-				}{ID: 5, TypeID: "text"},
+				Field:         "attribute",
+				AttributeInfo: &ChangeLogAttributeInfo{ID: 5, TypeID: "text"},
 			},
 		},
 		"with_notification_info": {
@@ -52,10 +46,8 @@ func Test_changeLogFromModel(t *testing.T) {
 				NotificationInfo: &model.NotificationInfo{Type: "issueAssigned"},
 			},
 			want: &ChangeLog{
-				Field: "notification",
-				NotificationInfo: &struct {
-					Type string
-				}{Type: "issueAssigned"},
+				Field:            "notification",
+				NotificationInfo: &ChangeLogNotificationInfo{Type: "issueAssigned"},
 			},
 		},
 		"with_all_info_fields": {
@@ -68,20 +60,12 @@ func Test_changeLogFromModel(t *testing.T) {
 				NotificationInfo: &model.NotificationInfo{Type: "issueAssigned"},
 			},
 			want: &ChangeLog{
-				Field:         "status",
-				NewValue:      "4",
-				OriginalValue: "1",
-				AttachmentInfo: &struct {
-					ID   int
-					Name string
-				}{ID: 10, Name: "file.txt"},
-				AttributeInfo: &struct {
-					ID     int
-					TypeID string
-				}{ID: 5, TypeID: "text"},
-				NotificationInfo: &struct {
-					Type string
-				}{Type: "issueAssigned"},
+				Field:            "status",
+				NewValue:         "4",
+				OriginalValue:    "1",
+				AttachmentInfo:   &ChangeLogAttachmentInfo{ID: 10, Name: "file.txt"},
+				AttributeInfo:    &ChangeLogAttributeInfo{ID: 5, TypeID: "text"},
+				NotificationInfo: &ChangeLogNotificationInfo{Type: "issueAssigned"},
 			},
 		},
 		"nil_info_fields_remain_nil": {
