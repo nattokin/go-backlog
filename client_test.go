@@ -55,6 +55,13 @@ func TestNewClient(t *testing.T) {
 		assert.IsType(t, &InternalClientError{}, err)
 		assert.Nil(t, c)
 	})
+
+	t.Run("error-invalid-baseURL", func(t *testing.T) {
+		c, err := NewClient("example.backlog.com", "credential")
+		var target *InternalClientError
+		require.ErrorAs(t, err, &target)
+		assert.Nil(t, c)
+	})
 }
 
 func TestNewOAuthClient(t *testing.T) {
@@ -98,6 +105,13 @@ func TestNewOAuthClient(t *testing.T) {
 		c, err := NewOAuthClient("", "")
 		require.Error(t, err)
 		assert.IsType(t, &InternalClientError{}, err)
+		assert.Nil(t, c)
+	})
+
+	t.Run("error-invalid-baseURL", func(t *testing.T) {
+		c, err := NewOAuthClient("example.backlog.com", "credential")
+		var target *InternalClientError
+		require.ErrorAs(t, err, &target)
 		assert.Nil(t, c)
 	})
 }
