@@ -173,7 +173,15 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 
 	u, err := url.ParseRequestURI(baseURL)
 	if err != nil {
-		return nil, err
+		return nil, NewInternalClientError(fmt.Sprintf("invalid baseURL: %v", err))
+	}
+
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return nil, NewInternalClientError(fmt.Sprintf("invalid baseURL %q: scheme must be http or https", baseURL))
+	}
+
+	if u.Hostname() == "" {
+		return nil, NewInternalClientError(fmt.Sprintf("invalid baseURL %q: missing host", baseURL))
 	}
 
 	config := &clientConfig{}
