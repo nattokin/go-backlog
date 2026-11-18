@@ -41,20 +41,29 @@ type ActivityContent struct {
 
 // ChangeLog represents a history of changes made to an issue.
 type ChangeLog struct {
-	Field          string
-	NewValue       string
-	OriginalValue  string
-	AttachmentInfo *struct {
-		ID   int
-		Name string
-	}
-	AttributeInfo *struct {
-		ID     int
-		TypeID string
-	}
-	NotificationInfo *struct {
-		Type string
-	}
+	Field            string
+	NewValue         string
+	OriginalValue    string
+	AttachmentInfo   *ChangeLogAttachmentInfo
+	AttributeInfo    *ChangeLogAttributeInfo
+	NotificationInfo *ChangeLogNotificationInfo
+}
+
+// ChangeLogAttachmentInfo represents the attachment involved in a change log entry.
+type ChangeLogAttachmentInfo struct {
+	ID   int
+	Name string
+}
+
+// ChangeLogAttributeInfo represents the custom field involved in a change log entry.
+type ChangeLogAttributeInfo struct {
+	ID     int
+	TypeID string
+}
+
+// ChangeLogNotificationInfo represents the notification involved in a change log entry.
+type ChangeLogNotificationInfo struct {
+	Type string
 }
 
 // Comment represents a comment on an issue or pull request.
@@ -251,27 +260,19 @@ func changeLogFromModel(m *model.ChangeLog) *ChangeLog {
 		OriginalValue: m.OriginalValue,
 	}
 	if m.AttachmentInfo != nil {
-		out.AttachmentInfo = &struct {
-			ID   int
-			Name string
-		}{
+		out.AttachmentInfo = &ChangeLogAttachmentInfo{
 			ID:   m.AttachmentInfo.ID,
 			Name: m.AttachmentInfo.Name,
 		}
 	}
 	if m.AttributeInfo != nil {
-		out.AttributeInfo = &struct {
-			ID     int
-			TypeID string
-		}{
+		out.AttributeInfo = &ChangeLogAttributeInfo{
 			ID:     m.AttributeInfo.ID,
 			TypeID: m.AttributeInfo.TypeID,
 		}
 	}
 	if m.NotificationInfo != nil {
-		out.NotificationInfo = &struct {
-			Type string
-		}{
+		out.NotificationInfo = &ChangeLogNotificationInfo{
 			Type: m.NotificationInfo.Type,
 		}
 	}
