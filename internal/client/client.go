@@ -37,13 +37,11 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	msg := fmt.Sprintf("Message:%s, Code:%d", e.Message, e.Code)
-
 	if e.MoreInfo == "" {
-		return msg
+		return fmt.Sprintf("%s (code %d)", e.Message, e.Code)
 	}
 
-	return msg + ", MoreInfo:" + e.MoreInfo
+	return fmt.Sprintf("%s (code %d, more info: %s)", e.Message, e.Code, e.MoreInfo)
 }
 
 // APIResponseError represents Error Response of Backlog API.
@@ -62,13 +60,29 @@ type RateLimitStatus struct {
 }
 
 func (e *APIResponseError) Error() string {
+	msg := "backlog: " + statusLine(e.StatusCode)
+
+	if len(e.Errors) == 0 {
+		return msg
+	}
+
 	msgs := make([]string, len(e.Errors))
 
 	for i, err := range e.Errors {
 		msgs[i] = err.Error()
 	}
 
-	return fmt.Sprintf("Status Code:%d\n%s", e.StatusCode, strings.Join(msgs, "\n"))
+	return msg + ": " + strings.Join(msgs, "; ")
+}
+
+// statusLine returns the status code followed by its status text, such as
+// "404 Not Found", or only the code when the status text is unknown.
+func statusLine(code int) string {
+	if text := http.StatusText(code); text != "" {
+		return fmt.Sprintf("%d %s", code, text)
+	}
+
+	return strconv.Itoa(code)
 }
 
 // OAuthError represents an OAuth 2.0 error reported in the WWW-Authenticate
@@ -81,13 +95,13 @@ type OAuthError struct {
 }
 
 func (e *OAuthError) Error() string {
-	msg := fmt.Sprintf("Status Code:%d\nOAuth Error:%s", e.Response.StatusCode, e.Code)
+	msg := fmt.Sprintf("backlog: %s: oauth error %s", statusLine(e.Response.StatusCode), e.Code)
 
 	if e.Description == "" {
 		return msg
 	}
 
-	return msg + ", Description:" + e.Description
+	return msg + ": " + e.Description
 }
 
 // Unwrap returns the underlying *APIResponseError.
