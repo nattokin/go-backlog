@@ -22,6 +22,11 @@ import (
 
 const (
 	apiVersion = "v2"
+
+	// maxDrainBytes bounds how much of an unread response body is discarded
+	// before it is closed. Beyond this size, dropping the connection is
+	// cheaper than reading the rest of the body.
+	maxDrainBytes = 64 << 10
 )
 
 // Error represents one of Backlog API response errors.
@@ -359,7 +364,7 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 	if 200 <= sc && sc <= 299 {
 		if sc == http.StatusNoContent {
 			if r.Body != nil {
-				r.Body.Close()
+				drainAndClose(r.Body)
 			}
 			return nil, nil
 		}
@@ -368,7 +373,7 @@ func CheckResponse(r *http.Response) (*http.Response, error) {
 
 	defer func() {
 		if r.Body != nil {
-			r.Body.Close()
+			drainAndClose(r.Body)
 		}
 	}()
 
@@ -449,9 +454,18 @@ func DecodeResponse(resp *http.Response, v any) error {
 	if resp == nil || resp.Body == nil {
 		return nil
 	}
-	defer resp.Body.Close()
+	defer drainAndClose(resp.Body)
 
 	return json.NewDecoder(resp.Body).Decode(v)
+}
+
+// drainAndClose discards up to maxDrainBytes of the remaining body and closes
+// it. json.Decoder stops reading at the end of the JSON value, before seeing
+// EOF; net/http reuses a keep-alive connection only when the body was read to
+// EOF before Close.
+func drainAndClose(body io.ReadCloser) {
+	_, _ = io.Copy(io.Discard, io.LimitReader(body, maxDrainBytes))
+	_ = body.Close()
 }
 
 // DownloadResponse extracts FileData from a binary HTTP response.

@@ -1315,6 +1315,115 @@ func TestDecodeResponse_noContent(t *testing.T) {
 	}
 }
 
+// trackingBody is a response body that records whether it was read to EOF
+// and closed.
+type trackingBody struct {
+	r      io.Reader
+	eof    bool
+	closed bool
+}
+
+func (b *trackingBody) Read(p []byte) (int, error) {
+	n, err := b.r.Read(p)
+	if err == io.EOF {
+		b.eof = true
+	}
+	return n, err
+}
+
+func (b *trackingBody) Close() error {
+	b.closed = true
+	return nil
+}
+
+func TestCheckResponse_drainsBody(t *testing.T) {
+	cases := map[string]struct {
+		statusCode int
+		body       string
+		wantEOF    bool
+	}{
+		"no-content-with-body": {
+			statusCode: http.StatusNoContent,
+			body:       `{"data":"ignored"}`,
+			wantEOF:    true,
+		},
+		"json-error-with-trailing-data": {
+			statusCode: http.StatusBadRequest,
+			body:       `{"errors":[{"message":"No project.","code":6}]}` + "\n" + strings.Repeat(" ", 8<<10),
+			wantEOF:    true,
+		},
+		"non-json-error": {
+			statusCode: http.StatusBadGateway,
+			body:       "<html>" + strings.Repeat("x", 8<<10) + "</html>",
+			wantEOF:    true,
+		},
+		"oversized-error": {
+			statusCode: http.StatusBadGateway,
+			body:       "<html>" + strings.Repeat("x", 1<<20) + "</html>",
+			wantEOF:    false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			body := &trackingBody{r: strings.NewReader(tc.body)}
+
+			r, _ := client.CheckResponse(&http.Response{StatusCode: tc.statusCode, Body: body})
+
+			assert.Nil(t, r)
+			assert.Equal(t, tc.wantEOF, body.eof, "body read to EOF")
+			assert.True(t, body.closed, "body closed")
+		})
+	}
+}
+
+func TestDecodeResponse_drainsBody(t *testing.T) {
+	type target struct {
+		Name string `json:"name"`
+	}
+
+	cases := map[string]struct {
+		body    string
+		wantErr bool
+		wantEOF bool
+	}{
+		"trailing-data": {
+			body:    `{"name":"test"}` + "\n" + strings.Repeat(" ", 8<<10),
+			wantEOF: true,
+		},
+		"invalid-json": {
+			body:    `{"name":` + strings.Repeat("x", 8<<10),
+			wantErr: true,
+			wantEOF: true,
+		},
+		"oversized": {
+			body:    `{"name":"test"}` + strings.Repeat(" ", 1<<20),
+			wantEOF: false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			body := &trackingBody{r: strings.NewReader(tc.body)}
+
+			var v target
+			err := client.DecodeResponse(&http.Response{StatusCode: http.StatusOK, Body: body}, &v)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.wantEOF, body.eof, "body read to EOF")
+			assert.True(t, body.closed, "body closed")
+		})
+	}
+}
+
 func TestDownloadResponse(t *testing.T) {
 	cases := map[string]struct {
 		header http.Header
