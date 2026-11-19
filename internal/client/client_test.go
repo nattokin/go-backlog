@@ -862,7 +862,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 
 func TestCheckResponse(t *testing.T) {
 	const apiErrorBody = `{"errors":[{"message": "No project.", "code": 6, "moreInfo": ""}]}`
-	const wantErrorStringFormat = "Status Code:%d\nMessage:No project., Code:6"
+	const wantErrorStringFormat = "backlog: %d %s: No project. (code 6)"
 
 	cases := map[string]struct {
 		statusCode        int
@@ -958,7 +958,7 @@ func TestCheckResponse(t *testing.T) {
 
 					// Validate error message only if a body was provided
 					if !tc.wantEmptyBodyTest {
-						wantMsg := fmt.Sprintf(wantErrorStringFormat, tc.wantErrStatusCode)
+						wantMsg := fmt.Sprintf(wantErrorStringFormat, tc.wantErrStatusCode, http.StatusText(tc.wantErrStatusCode))
 						assert.Equal(t, wantMsg, apiErr.Error(), "Error message mismatch")
 					}
 				}
@@ -1214,14 +1214,14 @@ func TestOAuthError_Error(t *testing.T) {
 				Description: "The access token expired",
 				Response:    &client.APIResponseError{StatusCode: 401},
 			},
-			want: "Status Code:401\nOAuth Error:invalid_token, Description:The access token expired",
+			want: "backlog: 401 Unauthorized: oauth error invalid_token: The access token expired",
 		},
 		"without-description": {
 			err: &client.OAuthError{
 				Code:     "insufficient_scope",
 				Response: &client.APIResponseError{StatusCode: 403},
 			},
-			want: "Status Code:403\nOAuth Error:insufficient_scope",
+			want: "backlog: 403 Forbidden: oauth error insufficient_scope",
 		},
 	}
 
@@ -1524,35 +1524,76 @@ func TestDownloadResponse_noContent(t *testing.T) {
 }
 
 func TestError_Error(t *testing.T) {
-	e := &client.Error{
-		Message:  "No project.",
-		Code:     6,
-		MoreInfo: "more info",
+	cases := map[string]struct {
+		err  *client.Error
+		want string
+	}{
+		"with-more-info": {
+			err:  &client.Error{Message: "No project.", Code: 6, MoreInfo: "more info"},
+			want: "No project. (code 6, more info: more info)",
+		},
+		"without-more-info": {
+			err:  &client.Error{Message: "No project.", Code: 6},
+			want: "No project. (code 6)",
+		},
 	}
-	want := "Message:No project., Code:6, MoreInfo:more info"
 
-	assert.Equal(t, want, e.Error())
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.err.Error())
+		})
+	}
 }
 
 func TestAPIResponseError_Error(t *testing.T) {
-	e := &client.APIResponseError{
-		StatusCode: 404,
-		Errors: []*client.Error{
-			{
-				Message:  "1st error",
-				Code:     5,
-				MoreInfo: "more info 1",
+	cases := map[string]struct {
+		err  *client.APIResponseError
+		want string
+	}{
+		"multiple-errors": {
+			err: &client.APIResponseError{
+				StatusCode: 404,
+				Errors: []*client.Error{
+					{
+						Message:  "1st error",
+						Code:     5,
+						MoreInfo: "more info 1",
+					},
+					{
+						Message:  "2nd error",
+						Code:     9,
+						MoreInfo: "more info 2",
+					},
+				},
 			},
-			{
-				Message:  "2nd error",
-				Code:     9,
-				MoreInfo: "more info 2",
+			want: "backlog: 404 Not Found: 1st error (code 5, more info: more info 1); 2nd error (code 9, more info: more info 2)",
+		},
+		"rate-limited": {
+			err: &client.APIResponseError{
+				StatusCode: 429,
+				Errors:     []*client.Error{{Message: "Too Many", Code: 0}},
 			},
+			want: "backlog: 429 Too Many Requests: Too Many (code 0)",
+		},
+		"no-errors": {
+			err:  &client.APIResponseError{StatusCode: 502},
+			want: "backlog: 502 Bad Gateway",
+		},
+		"unknown-status": {
+			err:  &client.APIResponseError{StatusCode: 599},
+			want: "backlog: 599",
 		},
 	}
-	want := "Status Code:404\nMessage:1st error, Code:5, MoreInfo:more info 1\nMessage:2nd error, Code:9, MoreInfo:more info 2"
 
-	assert.Equal(t, want, e.Error())
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.err.Error())
+		})
+	}
 }
 
 func TestAPIResponseError_errorsAs(t *testing.T) {
