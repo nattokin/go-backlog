@@ -10,9 +10,9 @@ import (
 )
 
 // errPrefix starts the message of every error created by this package, so
-// that log lines show where an error came from. Errors from the API response
-// ([*APIResponseError], [*OAuthError]) and [ErrNoContent] carry the same
-// prefix, added where those errors are built.
+// that log lines show where an error came from. It is added only here, in the
+// root package: internal errors carry no prefix, and every error they return
+// passes through convertError before it reaches the caller.
 const errPrefix = "backlog: "
 
 // Error represents one of the individual error entries in a Backlog API response.
@@ -33,7 +33,7 @@ type APIResponseError struct {
 }
 
 // Error implements the error interface.
-func (e *APIResponseError) Error() string { return e.inner.Error() }
+func (e *APIResponseError) Error() string { return errPrefix + e.inner.Error() }
 
 // StatusCode returns the HTTP status code of the error response.
 func (e *APIResponseError) StatusCode() int { return e.inner.StatusCode }
@@ -97,7 +97,7 @@ type OAuthError struct {
 }
 
 // Error implements the error interface.
-func (e *OAuthError) Error() string { return e.inner.Error() }
+func (e *OAuthError) Error() string { return errPrefix + e.inner.Error() }
 
 // Code returns the error code from the WWW-Authenticate header, such as "invalid_token".
 func (e *OAuthError) Code() string { return e.inner.Code }
@@ -180,14 +180,20 @@ func (e *InternalClientError) Error() string { return errPrefix + e.inner.Error(
 // [WikiAttachmentService.Download] and [ProjectService.Icon], when the API
 // responds with 204 No Content, leaving no file to download.
 // Use [errors.Is] to check whether a returned error is ErrNoContent.
-var ErrNoContent = client.ErrNoContent
+var ErrNoContent = errors.New(errPrefix + "no content to download")
 
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
-// leaking into the public API surface.
+// leaking into the public API surface, and the Error methods of the root types
+// add errPrefix. Errors that do not come from internal packages, such as those
+// returned by the Doer, are returned unchanged.
 func convertError(err error) error {
 	if err == nil {
 		return nil
+	}
+
+	if errors.Is(err, client.ErrNoContent) {
+		return ErrNoContent
 	}
 
 	switch e := err.(type) {

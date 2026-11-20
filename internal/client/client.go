@@ -60,7 +60,7 @@ type RateLimitStatus struct {
 }
 
 func (e *APIResponseError) Error() string {
-	msg := "backlog: " + statusLine(e.StatusCode)
+	msg := statusLine(e.StatusCode)
 
 	if len(e.Errors) == 0 {
 		return msg
@@ -95,7 +95,7 @@ type OAuthError struct {
 }
 
 func (e *OAuthError) Error() string {
-	msg := fmt.Sprintf("backlog: %s: oauth error %s", statusLine(e.Response.StatusCode), e.Code)
+	msg := fmt.Sprintf("%s: oauth error %s", statusLine(e.Response.StatusCode), e.Code)
 
 	if e.Description == "" {
 		return msg
@@ -126,7 +126,7 @@ func NewInternalClientError(msg string) *InternalClientError {
 
 // ErrNoContent is returned by DownloadResponse when the API responds with
 // 204 No Content, leaving no file to download.
-var ErrNoContent = errors.New("backlog: no content to download")
+var ErrNoContent = errors.New("no content to download")
 
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -236,7 +236,7 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 
 func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
-		return nil, errors.New("backlog: spath must not be empty")
+		return nil, NewInternalClientError("spath must not be empty")
 	}
 
 	config := &httpRequestConfig{}
