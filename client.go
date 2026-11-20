@@ -68,6 +68,7 @@ type Client struct {
 //
 // Supported options:
 //   - [WithDoer]
+//   - [WithUserAgent]
 func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	httpClient, err := client.NewClient(baseURL, apiKey, innerClientOptions(opts)...)
 	return newClient(httpClient, err)
@@ -90,6 +91,7 @@ func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 //
 // Supported options:
 //   - [WithDoer]
+//   - [WithUserAgent]
 func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client, error) {
 	httpClient, err := client.NewOAuthClient(baseURL, accessToken, innerClientOptions(opts)...)
 	return newClient(httpClient, err)
@@ -169,4 +171,19 @@ type ClientOption struct {
 // concurrent use, as *http.Client is.
 func WithDoer(doer Doer) *ClientOption {
 	return &ClientOption{inner: client.WithDoer(doer)}
+}
+
+// WithUserAgent returns a ClientOption that sets the product token of the
+// application, such as "myapp/1.2.0". go-backlog appends its own product
+// token after it:
+//
+//	myapp/1.2.0 go-backlog/v0.33.0 (+https://github.com/nattokin/go-backlog)
+//
+// To replace the User-Agent header entirely, set the header in the [Doer]
+// given with [WithDoer].
+//
+// [NewClient] and [NewOAuthClient] return an [*InternalClientError] if
+// userAgent is empty or contains control characters.
+func WithUserAgent(userAgent string) *ClientOption {
+	return &ClientOption{inner: client.WithUserAgent(userAgent)}
 }

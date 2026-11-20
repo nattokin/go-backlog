@@ -16,6 +16,7 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/nattokin/go-backlog/internal/model"
 	"github.com/nattokin/go-backlog/internal/validate"
@@ -32,7 +33,9 @@ const (
 	modulePath = "github.com/nattokin/go-backlog"
 )
 
-// UserAgent is the value of the User-Agent header sent with every request.
+// UserAgent is the product token of go-backlog sent in the User-Agent header
+// of every request. A product token given with WithUserAgent is placed before
+// it.
 var UserAgent = NewUserAgent(readBuildInfo())
 
 func readBuildInfo() *debug.BuildInfo {
@@ -202,6 +205,7 @@ type Client struct {
 	Doer       Doer
 	Wrapper    Wrapper
 	Method     *Method
+	UserAgent  string
 }
 
 // Method holds injected HTTP operation functions.
@@ -262,11 +266,23 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 		config.Doer = http.DefaultClient
 	}
 
+	userAgent := UserAgent
+	if ua := config.UserAgent; ua != nil {
+		switch {
+		case strings.TrimSpace(*ua) == "":
+			return nil, NewInternalClientError(fmt.Sprintf("invalid user agent %q: must not be empty", *ua))
+		case strings.IndexFunc(*ua, unicode.IsControl) >= 0:
+			return nil, NewInternalClientError(fmt.Sprintf("invalid user agent %q: must not contain control characters", *ua))
+		}
+		userAgent = *ua + " " + UserAgent
+	}
+
 	c := &Client{
 		BaseURL:    u,
 		Credential: credential,
 		Doer:       config.Doer,
 		Wrapper:    &DefaultWrapper{},
+		UserAgent:  userAgent,
 	}
 
 	c.Method = &Method{
@@ -322,7 +338,7 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	if config.Header != nil {
 		req.Header = config.Header.Clone()
 	}
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", c.UserAgent)
 	switch c.Credential.Type {
 	case CredentialAPIKey:
 		req.Header.Set("Backlog-API-Key", c.Credential.Value)
