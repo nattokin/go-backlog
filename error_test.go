@@ -24,7 +24,7 @@ import (
 func TestAPIResponseError_Error(t *testing.T) {
 	err := callWikiAllWithStatus(t, 404)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "Status Code:404")
+	assert.Contains(t, err.Error(), "backlog: 404 Not Found")
 	assert.Contains(t, err.Error(), "not found")
 }
 
@@ -94,7 +94,7 @@ func TestOAuthError(t *testing.T) {
 	assert.Equal(t, "invalid_token", target.Code())
 	assert.Equal(t, "The access token expired", target.Description())
 	assert.Equal(t, http.StatusUnauthorized, target.StatusCode())
-	assert.Equal(t, "Status Code:401\nOAuth Error:invalid_token, Description:The access token expired", target.Error())
+	assert.Equal(t, "backlog: 401 Unauthorized: oauth error invalid_token: The access token expired", target.Error())
 }
 
 func TestOAuthError_unwrapsAPIResponseError(t *testing.T) {
