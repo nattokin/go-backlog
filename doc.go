@@ -25,6 +25,10 @@
 // A [Client] is safe for concurrent use by multiple goroutines, as long as the
 // HTTP client given with [WithDoer] is.
 //
+// Every request has a User-Agent header that identifies go-backlog and its
+// version, such as "go-backlog/v1.2.3 (+https://github.com/nattokin/go-backlog)".
+// To send another value, set the header in the [Doer] given with [WithDoer].
+//
 // # Calling the API
 //
 // A [Client] has a service for each group of API endpoints, such as c.Issue,
