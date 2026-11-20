@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 	"strings"
 	"testing"
 	"time"
@@ -574,6 +575,90 @@ func TestClient_NewRequest_credential(t *testing.T) {
 			assert.Equal(t, tc.wantAPIKey, req.Header.Get("Backlog-API-Key"))
 			assert.Equal(t, tc.wantAuthorize, req.Header.Get("Authorization"))
 			assert.Empty(t, req.URL.Query().Get("apiKey"))
+		})
+	}
+}
+
+func TestClient_NewRequest_userAgent(t *testing.T) {
+	cases := map[string]struct {
+		header http.Header
+	}{
+		"without-header": {
+			header: nil,
+		},
+		"with-header": {
+			header: http.Header{"Content-Type": {"application/x-www-form-urlencoded"}},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c := mock.NewClient(t, nil)
+			req, err := c.NewRequest(context.Background(), http.MethodGet, "test", client.WithHeader(tc.header))
+			require.NoError(t, err)
+
+			assert.Equal(t, client.UserAgent, req.Header.Get("User-Agent"))
+		})
+	}
+}
+
+func TestNewUserAgent(t *testing.T) {
+	const modulePath = "github.com/nattokin/go-backlog"
+
+	cases := map[string]struct {
+		info *debug.BuildInfo
+		want string
+	}{
+		"no-build-info": {
+			info: nil,
+			want: "go-backlog (+https://github.com/nattokin/go-backlog)",
+		},
+		"dependency": {
+			info: &debug.BuildInfo{
+				Main: debug.Module{Path: "example.com/app", Version: "v9.9.9"},
+				Deps: []*debug.Module{
+					{Path: "github.com/stretchr/testify", Version: "v1.12.1"},
+					{Path: modulePath, Version: "v1.2.3"},
+				},
+			},
+			want: "go-backlog/v1.2.3 (+https://github.com/nattokin/go-backlog)",
+		},
+		"not-a-dependency": {
+			info: &debug.BuildInfo{
+				Main: debug.Module{Path: "example.com/app", Version: "v9.9.9"},
+				Deps: []*debug.Module{
+					{Path: "github.com/stretchr/testify", Version: "v1.12.1"},
+				},
+			},
+			want: "go-backlog (+https://github.com/nattokin/go-backlog)",
+		},
+		"main-module": {
+			info: &debug.BuildInfo{
+				Main: debug.Module{Path: modulePath, Version: "v1.2.3"},
+			},
+			want: "go-backlog/v1.2.3 (+https://github.com/nattokin/go-backlog)",
+		},
+		"main-module-devel": {
+			info: &debug.BuildInfo{
+				Main: debug.Module{Path: modulePath, Version: "(devel)"},
+			},
+			want: "go-backlog (+https://github.com/nattokin/go-backlog)",
+		},
+		"main-module-without-version": {
+			info: &debug.BuildInfo{
+				Main: debug.Module{Path: modulePath},
+			},
+			want: "go-backlog (+https://github.com/nattokin/go-backlog)",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, client.NewUserAgent(tc.info))
 		})
 	}
 }

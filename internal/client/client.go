@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -27,7 +28,54 @@ const (
 	// before it is closed. Beyond this size, dropping the connection is
 	// cheaper than reading the rest of the body.
 	maxDrainBytes = 64 << 10
+
+	modulePath = "github.com/nattokin/go-backlog"
 )
+
+// UserAgent is the value of the User-Agent header sent with every request.
+var UserAgent = NewUserAgent(readBuildInfo())
+
+func readBuildInfo() *debug.BuildInfo {
+	info, _ := debug.ReadBuildInfo()
+	return info
+}
+
+// NewUserAgent returns a User-Agent header value that identifies go-backlog,
+// such as "go-backlog/v1.2.3 (+https://github.com/nattokin/go-backlog)".
+// The version is taken from info and is omitted when info is nil or records
+// no version of the module.
+func NewUserAgent(info *debug.BuildInfo) string {
+	product := "go-backlog"
+	if v := moduleVersion(info); v != "" {
+		product += "/" + v
+	}
+
+	return product + " (+https://" + modulePath + ")"
+}
+
+// moduleVersion returns the version of the go-backlog module recorded in
+// info, whether it is the main module or a dependency. It returns "" when the
+// version is unknown, such as "(devel)".
+func moduleVersion(info *debug.BuildInfo) string {
+	if info == nil {
+		return ""
+	}
+
+	if info.Main.Path == modulePath {
+		if info.Main.Version == "(devel)" {
+			return ""
+		}
+		return info.Main.Version
+	}
+
+	for _, dep := range info.Deps {
+		if dep.Path == modulePath {
+			return dep.Version
+		}
+	}
+
+	return ""
+}
 
 // Error represents one of Backlog API response errors.
 type Error struct {
@@ -274,6 +322,7 @@ func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*
 	if config.Header != nil {
 		req.Header = config.Header.Clone()
 	}
+	req.Header.Set("User-Agent", UserAgent)
 	switch c.Credential.Type {
 	case CredentialAPIKey:
 		req.Header.Set("Backlog-API-Key", c.Credential.Value)
