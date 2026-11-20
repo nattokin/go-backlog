@@ -86,6 +86,11 @@
 // Download methods return [ErrNoContent] when the API responds with 204 No
 // Content. Use [errors.Is] to check for it.
 //
+// The messages of these errors start with "backlog: ", such as
+// "backlog: 404 Not Found: No project. (code 6)". Errors that come from
+// elsewhere, such as network errors returned by the [Doer] and context
+// errors, are returned unchanged.
+//
 // # Dates and times
 //
 // Date and time fields are [Timestamp] values. Fields that hold a date without

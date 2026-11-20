@@ -1,13 +1,19 @@
 package backlog
 
 import (
-	"errors"
+	"strings"
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/client"
 	"github.com/nattokin/go-backlog/internal/option"
 	"github.com/nattokin/go-backlog/internal/validation"
 )
+
+// errPrefix starts the message of every error created by this package, so
+// that log lines show where an error came from. Errors from the API response
+// ([*APIResponseError], [*OAuthError]) and [ErrNoContent] carry the same
+// prefix, added where those errors are built.
+const errPrefix = "backlog: "
 
 // Error represents one of the individual error entries in a Backlog API response.
 // It is used as an element of [APIResponseError.Errors] and is not an error itself.
@@ -113,7 +119,7 @@ type InvalidOptionKeyError struct {
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionKeyError) Error() string { return e.opt.Error() }
+func (e *InvalidOptionKeyError) Error() string { return errPrefix + e.opt.Error() }
 
 // InvalidKey returns the invalid option key that was provided.
 func (e *InvalidOptionKeyError) InvalidKey() string { return e.opt.Invalid }
@@ -129,14 +135,15 @@ type InvalidOptionError struct {
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionError) Error() string { return e.opt.Error() }
+func (e *InvalidOptionError) Error() string { return errPrefix + e.opt.Error() }
 
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
 // Use [errors.As] to check whether a returned error is a *ValidationError.
 // When multiple arguments or options fail validation, the returned error joins
-// one *ValidationError per failure. [errors.As] finds only the first of them;
-// to get all of them, use the Unwrap() []error method of the returned error.
+// one *ValidationError per failure, and its message lists all of them on one
+// line. [errors.As] finds only the first of them; to get all of them, use the
+// Unwrap() []error method of the returned error.
 type ValidationError struct {
 	target  string
 	message string
@@ -150,13 +157,36 @@ func NewValidationError(target, message string) *ValidationError {
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string { return e.message }
+func (e *ValidationError) Error() string { return errPrefix + e.message }
 
 // Target returns the name of the parameter or argument that failed validation.
 func (e *ValidationError) Target() string { return e.target }
 
-// Message returns the validation error message.
+// Message returns the validation error message, without the "backlog: "
+// prefix that Error adds.
 func (e *ValidationError) Message() string { return e.message }
+
+// validationErrors is returned when several arguments or options fail
+// validation. Its message lists all failures on one line.
+type validationErrors []*ValidationError
+
+// Error implements the error interface.
+func (e validationErrors) Error() string {
+	msgs := make([]string, len(e))
+	for i, ve := range e {
+		msgs[i] = ve.message
+	}
+	return errPrefix + strings.Join(msgs, "; ")
+}
+
+// Unwrap returns the individual *ValidationError values.
+func (e validationErrors) Unwrap() []error {
+	errs := make([]error, len(e))
+	for i, ve := range e {
+		errs[i] = ve
+	}
+	return errs
+}
 
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing API key
@@ -167,7 +197,7 @@ type InternalClientError struct {
 }
 
 // Error implements the error interface.
-func (e *InternalClientError) Error() string { return e.inner.Error() }
+func (e *InternalClientError) Error() string { return errPrefix + e.inner.Error() }
 
 // ErrNoContent is returned by download methods, such as
 // [WikiAttachmentService.Download] and [ProjectService.Icon], when the API
@@ -195,11 +225,11 @@ func convertError(err error) error {
 	case *validation.Error:
 		return &ValidationError{target: e.Target(), message: e.Message()}
 	case validation.Errors:
-		converted := make([]error, len(e))
+		converted := make(validationErrors, len(e))
 		for i, ve := range e {
 			converted[i] = &ValidationError{target: ve.Target(), message: ve.Message()}
 		}
-		return errors.Join(converted...)
+		return converted
 	case *client.InternalClientError:
 		return &InternalClientError{inner: e}
 	default:
