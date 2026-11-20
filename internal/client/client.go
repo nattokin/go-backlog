@@ -126,7 +126,7 @@ func NewInternalClientError(msg string) *InternalClientError {
 
 // ErrNoContent is returned by DownloadResponse when the API responds with
 // 204 No Content, leaving no file to download.
-var ErrNoContent = errors.New("no content to download")
+var ErrNoContent = errors.New("backlog: no content to download")
 
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -236,7 +236,7 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 
 func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
-		return nil, errors.New("spath must not be empty")
+		return nil, errors.New("backlog: spath must not be empty")
 	}
 
 	config := &httpRequestConfig{}
