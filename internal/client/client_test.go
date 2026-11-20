@@ -862,7 +862,7 @@ func TestClient_methodUpload_errors(t *testing.T) {
 
 func TestCheckResponse(t *testing.T) {
 	const apiErrorBody = `{"errors":[{"message": "No project.", "code": 6, "moreInfo": ""}]}`
-	const wantErrorStringFormat = "backlog: %d %s: No project. (code 6)"
+	const wantErrorStringFormat = "%d %s: No project. (code 6)"
 
 	cases := map[string]struct {
 		statusCode        int
@@ -1214,14 +1214,14 @@ func TestOAuthError_Error(t *testing.T) {
 				Description: "The access token expired",
 				Response:    &client.APIResponseError{StatusCode: 401},
 			},
-			want: "backlog: 401 Unauthorized: oauth error invalid_token: The access token expired",
+			want: "401 Unauthorized: oauth error invalid_token: The access token expired",
 		},
 		"without-description": {
 			err: &client.OAuthError{
 				Code:     "insufficient_scope",
 				Response: &client.APIResponseError{StatusCode: 403},
 			},
-			want: "backlog: 403 Forbidden: oauth error insufficient_scope",
+			want: "403 Forbidden: oauth error insufficient_scope",
 		},
 	}
 
@@ -1568,22 +1568,22 @@ func TestAPIResponseError_Error(t *testing.T) {
 					},
 				},
 			},
-			want: "backlog: 404 Not Found: 1st error (code 5, more info: more info 1); 2nd error (code 9, more info: more info 2)",
+			want: "404 Not Found: 1st error (code 5, more info: more info 1); 2nd error (code 9, more info: more info 2)",
 		},
 		"rate-limited": {
 			err: &client.APIResponseError{
 				StatusCode: 429,
 				Errors:     []*client.Error{{Message: "Too Many", Code: 0}},
 			},
-			want: "backlog: 429 Too Many Requests: Too Many (code 0)",
+			want: "429 Too Many Requests: Too Many (code 0)",
 		},
 		"no-errors": {
 			err:  &client.APIResponseError{StatusCode: 502},
-			want: "backlog: 502 Bad Gateway",
+			want: "502 Bad Gateway",
 		},
 		"unknown-status": {
 			err:  &client.APIResponseError{StatusCode: 599},
-			want: "backlog: 599",
+			want: "599",
 		},
 	}
 

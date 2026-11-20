@@ -455,7 +455,7 @@ func TestInvalidOptionKeyError_Error_form(t *testing.T) {
 			option.ParamChartEnabled.Value(),
 		},
 	}
-	assert.EqualError(t, e, "invalid option key:key, allowed option keys:name,key,chartEnabled")
+	assert.EqualError(t, e, `invalid option key "key" (allowed: name, key, chartEnabled)`)
 }
 
 func TestInvalidOptionKeyError_Error_query(t *testing.T) {
@@ -467,7 +467,7 @@ func TestInvalidOptionKeyError_Error_query(t *testing.T) {
 			option.ParamOrder.Value(),
 		},
 	}
-	assert.EqualError(t, e, "invalid option key:activityTypeId[], allowed option keys:all,archived,order")
+	assert.EqualError(t, e, `invalid option key "activityTypeId[]" (allowed: all, archived, order)`)
 }
 
 func TestInvalidOptionKeyError_errorsAs_query(t *testing.T) {

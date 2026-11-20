@@ -9,6 +9,12 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// errPrefix starts the message of every error created by this package, so
+// that log lines show where an error came from. It is added only here, in the
+// root package: internal errors carry no prefix, and every error they return
+// passes through convertError before it reaches the caller.
+const errPrefix = "backlog: "
+
 // Error represents one of the individual error entries in a Backlog API response.
 // It is used as an element of [APIResponseError.Errors] and is not an error itself.
 type Error struct {
@@ -27,7 +33,7 @@ type APIResponseError struct {
 }
 
 // Error implements the error interface.
-func (e *APIResponseError) Error() string { return e.inner.Error() }
+func (e *APIResponseError) Error() string { return errPrefix + e.inner.Error() }
 
 // StatusCode returns the HTTP status code of the error response.
 func (e *APIResponseError) StatusCode() int { return e.inner.StatusCode }
@@ -91,7 +97,7 @@ type OAuthError struct {
 }
 
 // Error implements the error interface.
-func (e *OAuthError) Error() string { return e.inner.Error() }
+func (e *OAuthError) Error() string { return errPrefix + e.inner.Error() }
 
 // Code returns the error code from the WWW-Authenticate header, such as "invalid_token".
 func (e *OAuthError) Code() string { return e.inner.Code }
@@ -113,7 +119,7 @@ type InvalidOptionKeyError struct {
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionKeyError) Error() string { return e.opt.Error() }
+func (e *InvalidOptionKeyError) Error() string { return errPrefix + e.opt.Error() }
 
 // InvalidKey returns the invalid option key that was provided.
 func (e *InvalidOptionKeyError) InvalidKey() string { return e.opt.Invalid }
@@ -129,7 +135,7 @@ type InvalidOptionError struct {
 }
 
 // Error implements the error interface.
-func (e *InvalidOptionError) Error() string { return e.opt.Error() }
+func (e *InvalidOptionError) Error() string { return errPrefix + e.opt.Error() }
 
 // ValidationError is returned when a required argument fails validation
 // (e.g. an empty string where a non-empty value is required).
@@ -150,12 +156,13 @@ func NewValidationError(target, message string) *ValidationError {
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string { return e.message }
+func (e *ValidationError) Error() string { return errPrefix + e.message }
 
 // Target returns the name of the parameter or argument that failed validation.
 func (e *ValidationError) Target() string { return e.target }
 
-// Message returns the validation error message.
+// Message returns the validation error message, without the "backlog: "
+// prefix that Error adds.
 func (e *ValidationError) Message() string { return e.message }
 
 // InternalClientError represents client-side configuration or usage errors.
@@ -167,20 +174,26 @@ type InternalClientError struct {
 }
 
 // Error implements the error interface.
-func (e *InternalClientError) Error() string { return e.inner.Error() }
+func (e *InternalClientError) Error() string { return errPrefix + e.inner.Error() }
 
 // ErrNoContent is returned by download methods, such as
 // [WikiAttachmentService.Download] and [ProjectService.Icon], when the API
 // responds with 204 No Content, leaving no file to download.
 // Use [errors.Is] to check whether a returned error is ErrNoContent.
-var ErrNoContent = client.ErrNoContent
+var ErrNoContent = errors.New(errPrefix + "no content to download")
 
 // convertError converts an error returned from internal packages into the
 // corresponding root-package error type. This prevents internal types from
-// leaking into the public API surface.
+// leaking into the public API surface, and the Error methods of the root types
+// add errPrefix. Errors that do not come from internal packages, such as those
+// returned by the Doer, are returned unchanged.
 func convertError(err error) error {
 	if err == nil {
 		return nil
+	}
+
+	if errors.Is(err, client.ErrNoContent) {
+		return ErrNoContent
 	}
 
 	switch e := err.(type) {

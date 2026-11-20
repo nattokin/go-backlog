@@ -176,7 +176,7 @@ func NewInvalidOptionKeyError(invalid string, validList []APIParamOptionType) *I
 }
 
 func (e *InvalidOptionKeyError) Error() string {
-	return fmt.Sprintf("invalid option key:%s, allowed option keys:%s", e.Invalid, strings.Join(e.ValidList, ","))
+	return fmt.Sprintf("invalid option key %q (allowed: %s)", e.Invalid, strings.Join(e.ValidList, ", "))
 }
 
 // InvalidOptionError represents an error for an invalid option, such as a

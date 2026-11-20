@@ -151,7 +151,7 @@ func TestInvalidOptionKeyError_Error(t *testing.T) {
 
 	var target *backlog.InvalidOptionKeyError
 	require.True(t, errors.As(err, &target))
-	assert.Contains(t, target.Error(), "invalid option key")
+	assert.True(t, strings.HasPrefix(target.Error(), `backlog: invalid option key "content" (allowed: `), target.Error())
 }
 
 func TestInvalidOptionKeyError_InvalidKey(t *testing.T) {
@@ -183,7 +183,7 @@ func TestInvalidOptionError_Error(t *testing.T) {
 
 	var target *backlog.InvalidOptionError
 	require.True(t, errors.As(err, &target))
-	assert.NotEmpty(t, target.Error())
+	assert.Equal(t, "backlog: nil option is not allowed", target.Error())
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -199,7 +199,15 @@ func TestValidationError_Error(t *testing.T) {
 
 	var target *backlog.ValidationError
 	require.True(t, errors.As(err, &target))
-	assert.NotEmpty(t, target.Error())
+	assert.NotEmpty(t, target.Message())
+	assert.Equal(t, "backlog: "+target.Message(), target.Error())
+}
+
+func TestNewValidationError_Error(t *testing.T) {
+	ve := backlog.NewValidationError("count", "must be between 1 and 100")
+
+	assert.Equal(t, "backlog: must be between 1 and 100", ve.Error())
+	assert.Equal(t, "must be between 1 and 100", ve.Message())
 }
 
 func TestValidationErrors_Error(t *testing.T) {
@@ -210,10 +218,24 @@ func TestValidationErrors_Error(t *testing.T) {
 	_, err = c.Issue.Comment.List(context.Background(), "", c.Issue.Comment.Option.WithCount(0))
 	require.Error(t, err)
 
-	// errors.Join result: each element is reachable via errors.As
+	// Each element is reachable via errors.As and Unwrap() []error.
 	var ve *backlog.ValidationError
 	assert.True(t, errors.As(err, &ve))
-	assert.NotEmpty(t, err.Error())
+
+	joined, ok := err.(interface{ Unwrap() []error })
+	require.True(t, ok, "error must implement Unwrap() []error")
+	errs := joined.Unwrap()
+	require.Len(t, errs, 2)
+
+	msgs := make([]string, len(errs))
+	for i, e := range errs {
+		var each *backlog.ValidationError
+		require.True(t, errors.As(e, &each))
+		msgs[i] = each.Message()
+	}
+
+	// errors.Join puts each error on its own line, each with the prefix.
+	assert.Equal(t, "backlog: "+msgs[0]+"\nbacklog: "+msgs[1], err.Error())
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -227,7 +249,7 @@ func TestInternalClientError_Error(t *testing.T) {
 
 	var target *backlog.InternalClientError
 	require.True(t, errors.As(err, &target))
-	assert.NotEmpty(t, target.Error())
+	assert.Equal(t, "backlog: missing baseURL", target.Error())
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -248,7 +270,7 @@ func TestErrNoContent(t *testing.T) {
 
 	assert.Nil(t, got)
 	require.ErrorIs(t, err, backlog.ErrNoContent)
-	assert.EqualError(t, err, "no content to download")
+	assert.EqualError(t, err, "backlog: no content to download")
 }
 
 // ──────────────────────────────────────────────────────────────
