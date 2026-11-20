@@ -1517,7 +1517,7 @@ func TestDownloadResponse_noContent(t *testing.T) {
 
 				assert.Nil(t, got)
 				require.ErrorIs(t, err, client.ErrNoContent)
-				assert.EqualError(t, err, "no content to download")
+				assert.EqualError(t, err, "backlog: no content to download")
 			})
 		})
 	}
