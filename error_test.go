@@ -234,9 +234,8 @@ func TestValidationErrors_Error(t *testing.T) {
 		msgs[i] = each.Message()
 	}
 
-	// One line, one prefix, messages joined with "; ".
-	assert.Equal(t, "backlog: "+strings.Join(msgs, "; "), err.Error())
-	assert.NotContains(t, err.Error(), "\n")
+	// errors.Join puts each error on its own line, each with the prefix.
+	assert.Equal(t, "backlog: "+msgs[0]+"\nbacklog: "+msgs[1], err.Error())
 }
 
 // ──────────────────────────────────────────────────────────────

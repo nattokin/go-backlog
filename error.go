@@ -1,7 +1,7 @@
 package backlog
 
 import (
-	"strings"
+	"errors"
 	"time"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -141,9 +141,8 @@ func (e *InvalidOptionError) Error() string { return errPrefix + e.opt.Error() }
 // (e.g. an empty string where a non-empty value is required).
 // Use [errors.As] to check whether a returned error is a *ValidationError.
 // When multiple arguments or options fail validation, the returned error joins
-// one *ValidationError per failure, and its message lists all of them on one
-// line. [errors.As] finds only the first of them; to get all of them, use the
-// Unwrap() []error method of the returned error.
+// one *ValidationError per failure. [errors.As] finds only the first of them;
+// to get all of them, use the Unwrap() []error method of the returned error.
 type ValidationError struct {
 	target  string
 	message string
@@ -165,28 +164,6 @@ func (e *ValidationError) Target() string { return e.target }
 // Message returns the validation error message, without the "backlog: "
 // prefix that Error adds.
 func (e *ValidationError) Message() string { return e.message }
-
-// validationErrors is returned when several arguments or options fail
-// validation. Its message lists all failures on one line.
-type validationErrors []*ValidationError
-
-// Error implements the error interface.
-func (e validationErrors) Error() string {
-	msgs := make([]string, len(e))
-	for i, ve := range e {
-		msgs[i] = ve.message
-	}
-	return errPrefix + strings.Join(msgs, "; ")
-}
-
-// Unwrap returns the individual *ValidationError values.
-func (e validationErrors) Unwrap() []error {
-	errs := make([]error, len(e))
-	for i, ve := range e {
-		errs[i] = ve
-	}
-	return errs
-}
 
 // InternalClientError represents client-side configuration or usage errors.
 // It is distinct from API-level errors and indicates issues like a missing API key
@@ -225,11 +202,11 @@ func convertError(err error) error {
 	case *validation.Error:
 		return &ValidationError{target: e.Target(), message: e.Message()}
 	case validation.Errors:
-		converted := make(validationErrors, len(e))
+		converted := make([]error, len(e))
 		for i, ve := range e {
 			converted[i] = &ValidationError{target: ve.Target(), message: ve.Message()}
 		}
-		return converted
+		return errors.Join(converted...)
 	case *client.InternalClientError:
 		return &InternalClientError{inner: e}
 	default:
