@@ -13,8 +13,6 @@ type webhookFixtures struct {
 	List              []*backlog.Webhook
 }
 
-// Webhook provides test fixtures for Webhook-related tests.
-
 var webhookAllEvent = &backlog.Webhook{
 	ID:              1,
 	Name:            "Example Webhook",
@@ -68,6 +66,7 @@ var webhookActivityTypes = &backlog.Webhook{
 	Updated: mustTimestamp("2024-01-02T00:00:00Z"),
 }
 
+// Webhook provides test fixtures for Webhook-related tests.
 var Webhook = webhookFixtures{
 	AllEventJSON: `
 {

@@ -15,6 +15,7 @@ type Service struct {
 	method *client.Method
 }
 
+// List returns the attachments at spath.
 func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -29,6 +30,7 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.Attachment, 
 	return v, nil
 }
 
+// Remove deletes the attachment at spath and returns it.
 func (s *Service) Remove(ctx context.Context, spath string) (*model.Attachment, error) {
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
@@ -54,6 +56,7 @@ func (s *Service) Download(ctx context.Context, spath string) (*model.FileData, 
 	return client.DownloadResponse(resp)
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

@@ -10,6 +10,8 @@ type Error struct {
 	message string
 }
 
+// NewError returns an *Error for target, the name of the invalid argument,
+// with the given message.
 func NewError(target, message string) *Error {
 	return &Error{
 		target:  target,
@@ -17,14 +19,21 @@ func NewError(target, message string) *Error {
 	}
 }
 
-func (e *Error) Target() string  { return e.target }
+// Target returns the name of the argument that failed validation.
+func (e *Error) Target() string { return e.target }
+
+// Message returns the validation error message.
 func (e *Error) Message() string { return e.message }
-func (e *Error) Error() string   { return e.message }
+
+// Error implements the error interface.
+func (e *Error) Error() string { return e.message }
 
 // Errors is a collection of Error values returned when
 // multiple options fail validation simultaneously.
 type Errors []*Error
 
+// Error implements the error interface. It joins the messages of all errors
+// with newlines.
 func (es Errors) Error() string {
 	msgs := make([]string, len(es))
 	for i, e := range es {

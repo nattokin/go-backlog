@@ -17,6 +17,7 @@ type Service struct {
 	method *client.Method
 }
 
+// List returns the shared files linked at spath.
 func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -31,6 +32,8 @@ func (s *Service) List(ctx context.Context, spath string) ([]*model.SharedFile, 
 	return v, nil
 }
 
+// Link links the shared files identified by fileIDs at spath and returns
+// the linked files.
 func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*model.SharedFile, error) {
 	form := url.Values{}
 	for _, id := range fileIDs {
@@ -50,6 +53,7 @@ func (s *Service) Link(ctx context.Context, spath string, fileIDs []int) ([]*mod
 	return v, nil
 }
 
+// Unlink removes the shared file link at spath and returns the unlinked file.
 func (s *Service) Unlink(ctx context.Context, spath string) (*model.SharedFile, error) {
 	resp, err := s.method.Delete(ctx, spath, nil)
 	if err != nil {
@@ -64,6 +68,7 @@ func (s *Service) Unlink(ctx context.Context, spath string) (*model.SharedFile, 
 	return v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }

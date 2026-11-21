@@ -47,6 +47,7 @@ func (s *Service) Fetch(ctx context.Context, spath string, query url.Values) ([]
 	return v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
