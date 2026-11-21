@@ -191,6 +191,7 @@ func (s *StatusService) UpdateOrder(ctx context.Context, projectIDOrKey string, 
 	return v, nil
 }
 
+// NewStatusService returns a *StatusService that sends requests through method.
 func NewStatusService(method *client.Method) *StatusService {
 	return &StatusService{method: method}
 }

@@ -147,6 +147,7 @@ func (s *CategoryService) Delete(ctx context.Context, projectIDOrKey string, cat
 	return &v, nil
 }
 
+// NewCategoryService returns a *CategoryService that sends requests through method.
 func NewCategoryService(method *client.Method) *CategoryService {
 	return &CategoryService{method: method}
 }
