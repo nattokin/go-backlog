@@ -9,6 +9,7 @@ type versionFixtures struct {
 	List       []*backlog.Version
 }
 
+// Version provides test fixtures for Version-related tests.
 var Version = versionFixtures{
 	SingleJSON: `{
 		"id": 1,

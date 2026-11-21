@@ -1,3 +1,6 @@
+// Package mock provides test doubles and helpers for the package tests: a
+// mock Doer and Wrapper, canned HTTP responses, stub functions for
+// client.Method, and test clients that capture outgoing requests.
 package mock
 
 import (
@@ -22,11 +25,13 @@ import (
 //  Doer mock
 // ──────────────────────────────────────────────────────────────
 
+// Doer is a client.Doer that delegates to DoFunc.
 type Doer struct {
 	T      *testing.T
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
 
+// Do asserts that req is not nil and calls DoFunc.
 func (m *Doer) Do(req *http.Request) (*http.Response, error) {
 	assert.NotNil(m.T, req)
 	return m.DoFunc(req)
@@ -36,16 +41,21 @@ func (m *Doer) Do(req *http.Request) (*http.Response, error) {
 //  Wrapper mock
 // ──────────────────────────────────────────────────────────────
 
+// Wrapper is a client.Wrapper whose operations fail with the configured
+// errors, for testing upload error paths.
 type Wrapper struct {
 	CreateErr error
 	CopyErr   error
 	CloseErr  error
 }
 
+// NewMultipartWriter returns a client.MultipartWriter that fails with
+// CreateErr or CloseErr when they are set.
 func (w Wrapper) NewMultipartWriter(_ io.Writer) client.MultipartWriter {
 	return &multipartWriter{wrapper: w}
 }
 
+// Copy returns CopyErr without copying anything.
 func (w Wrapper) Copy(_ io.Writer, _ io.Reader) error {
 	return w.CopyErr
 }
