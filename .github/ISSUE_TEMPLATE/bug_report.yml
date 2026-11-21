@@ -1,6 +1,6 @@
 name: Bug report
 description: Report behavior of go-backlog that looks wrong
-labels: ["needs verification"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
