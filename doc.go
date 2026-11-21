@@ -83,6 +83,9 @@
 //   - [*OAuthError]: the API rejected an OAuth 2.0 access token. It wraps an
 //     [*APIResponseError], so check for it first.
 //   - [*ValidationError]: an argument or option is invalid. No request is sent.
+//     When several fail, the returned error joins one *ValidationError per
+//     failure. [errors.As] finds only the first; the Unwrap() []error method
+//     of the returned error gives all of them.
 //   - [*InvalidOptionKeyError]: the method does not accept the option. No
 //     request is sent.
 //   - [*InvalidOptionError]: the option itself is invalid, such as nil.
@@ -94,14 +97,18 @@
 //
 // The messages of these errors start with "backlog: ", such as
 // "backlog: 404 Not Found: No project. (code 6)". Errors that come from
-// elsewhere, such as network errors returned by the [Doer] and context
-// errors, are returned unchanged.
+// elsewhere, such as network errors returned by the [Doer], context errors
+// and errors returned by the Set method of your own [RequestOption], are
+// returned unchanged.
 //
 // # Dates and times
 //
 // Date and time fields are [Timestamp] values. Fields that hold a date without
 // a time, such as the StartDate and DueDate fields of [Issue], hold midnight
 // of the date in the space's time zone, expressed in UTC.
+//
+// A field that has no value, such as the DueDate of an issue without a due
+// date, holds the zero Timestamp. Use [time.Time.IsZero] to check for it.
 //
 // # More examples
 //

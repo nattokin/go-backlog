@@ -29,7 +29,8 @@ func (s *IssueAttachmentService) Remove(ctx context.Context, issueIDOrKey string
 }
 
 // Download downloads a file attached to the issue.
-// The caller is responsible for closing FileData.Body after use.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-issue-attachment
 func (s *IssueAttachmentService) Download(ctx context.Context, issueIDOrKey string, attachmentID int) (*FileData, error) {

@@ -94,7 +94,8 @@ func (s *ProjectSharedFileService) List(ctx context.Context, projectIDOrKey, dir
 }
 
 // Download downloads a shared file from the project.
-// The caller is responsible for closing FileData.Body after use.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-file
 func (s *ProjectSharedFileService) Download(ctx context.Context, projectIDOrKey string, sharedFileID int) (*FileData, error) {
