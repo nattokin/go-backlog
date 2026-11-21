@@ -28,6 +28,7 @@ func getUser(ctx context.Context, m *client.Method, spath string) (*model.User, 
 	return &v, nil
 }
 
+// Service handles user-related Backlog API calls.
 type Service struct {
 	method *client.Method
 }
@@ -186,6 +187,7 @@ func (s *Service) Icon(ctx context.Context, id int) (*model.FileData, error) {
 	return client.DownloadResponse(resp)
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

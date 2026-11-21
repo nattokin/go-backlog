@@ -261,6 +261,7 @@ func (s *Service) Update(ctx context.Context, projectIDOrKey string, repoIDOrNam
 	return &v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

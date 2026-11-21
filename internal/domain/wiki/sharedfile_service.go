@@ -79,6 +79,7 @@ func (s *SharedFileService) Unlink(ctx context.Context, wikiID, fileID int) (*mo
 	return s.base.Unlink(ctx, spath)
 }
 
+// NewSharedFileService returns a *SharedFileService that sends requests through method.
 func NewSharedFileService(method *client.Method) *SharedFileService {
 	return &SharedFileService{base: sharedfile.NewService(method)}
 }

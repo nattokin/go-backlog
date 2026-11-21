@@ -52,6 +52,7 @@ func (s *ActivityService) One(ctx context.Context, activityID int) (*model.Activ
 	return &v, nil
 }
 
+// NewActivityService returns a *ActivityService that sends requests through method.
 func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),

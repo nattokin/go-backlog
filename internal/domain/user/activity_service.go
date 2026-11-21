@@ -37,6 +37,7 @@ func (s *ActivityService) List(ctx context.Context, userID int, opts ...*option.
 	return s.base.Fetch(ctx, spath, query)
 }
 
+// NewActivityService returns a *ActivityService that sends requests through method.
 func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),

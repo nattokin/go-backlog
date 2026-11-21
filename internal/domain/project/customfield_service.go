@@ -12,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// CustomFieldService handles custom field-related Backlog API calls for a project.
 type CustomFieldService struct {
 	method *client.Method
 }
@@ -254,6 +255,7 @@ func (s *CustomFieldService) DeleteListItem(ctx context.Context, projectIDOrKey 
 	return &v, nil
 }
 
+// NewCustomFieldService returns a *CustomFieldService that sends requests through method.
 func NewCustomFieldService(method *client.Method) *CustomFieldService {
 	return &CustomFieldService{method: method}
 }

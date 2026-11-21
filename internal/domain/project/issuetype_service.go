@@ -12,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// IssueTypeService handles issue type-related Backlog API calls for a project.
 type IssueTypeService struct {
 	method *client.Method
 }
@@ -141,6 +142,7 @@ func (s *IssueTypeService) Delete(ctx context.Context, projectIDOrKey string, is
 	return &v, nil
 }
 
+// NewIssueTypeService returns a *IssueTypeService that sends requests through method.
 func NewIssueTypeService(method *client.Method) *IssueTypeService {
 	return &IssueTypeService{method: method}
 }

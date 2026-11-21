@@ -180,6 +180,7 @@ func (s *WebhookService) Delete(ctx context.Context, projectIDOrKey string, webh
 	return v, nil
 }
 
+// NewWebhookService returns a *WebhookService that sends requests through method.
 func NewWebhookService(method *client.Method) *WebhookService {
 	return &WebhookService{method: method}
 }

@@ -96,6 +96,7 @@ func splitDirPath(dirPath string) []string {
 	return strings.FieldsFunc(dirPath, func(r rune) bool { return r == '/' })
 }
 
+// NewSharedFileService returns a *SharedFileService that sends requests through method.
 func NewSharedFileService(method *client.Method) *SharedFileService {
 	return &SharedFileService{method: method}
 }

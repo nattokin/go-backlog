@@ -84,6 +84,7 @@ var updateValidTypes = append(createValidTypes,
 	option.ParamComment,
 )
 
+// Service handles issue-related Backlog API calls.
 type Service struct {
 	method *client.Method
 }
@@ -305,6 +306,7 @@ func (s *Service) Participants(ctx context.Context, issueIDOrKey string) ([]*mod
 	return v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

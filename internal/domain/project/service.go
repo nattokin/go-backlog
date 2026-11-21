@@ -12,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// Service handles project-related Backlog API calls.
 type Service struct {
 	method *client.Method
 }
@@ -199,6 +200,7 @@ func (s *Service) Icon(ctx context.Context, projectIDOrKey string) (*model.FileD
 	return client.DownloadResponse(resp)
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

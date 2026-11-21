@@ -166,6 +166,7 @@ func (s *UserService) DeleteAdmin(ctx context.Context, projectIDOrKey string, us
 	return deleteUser(ctx, s.method, spath, userID)
 }
 
+// NewUserService returns a *UserService that sends requests through method.
 func NewUserService(method *client.Method) *UserService {
 	return &UserService{method: method}
 }
