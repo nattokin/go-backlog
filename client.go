@@ -98,9 +98,11 @@ func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client
 }
 
 func innerClientOptions(opts []*ClientOption) []*client.ClientOption {
-	innerOpts := make([]*client.ClientOption, len(opts))
-	for i, o := range opts {
-		innerOpts[i] = o.inner
+	innerOpts := make([]*client.ClientOption, 0, len(opts))
+	for _, o := range opts {
+		if o != nil {
+			innerOpts = append(innerOpts, o.inner)
+		}
 	}
 	return innerOpts
 }
