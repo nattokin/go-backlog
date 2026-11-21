@@ -74,7 +74,7 @@ func (s *Service) Me(ctx context.Context) (*model.User, error) {
 
 // Add adds a new user to the space.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
+// This endpoint is not listed in the Backlog API documentation.
 func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress string, roleType int) (*model.User, error) {
 	optSvc := &option.OptionService{}
 	form := url.Values{}
@@ -110,7 +110,7 @@ func (s *Service) Add(ctx context.Context, userID, password, name, mailAddress s
 
 // Update updates an existing user.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
+// This endpoint is not listed in the Backlog API documentation.
 func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption, opts ...*option.APIParamOption) (*model.User, error) {
 	form := url.Values{}
 	validTypes := []option.APIParamOptionType{option.ParamName, option.ParamPassword, option.ParamMailAddress, option.ParamRoleType}
@@ -140,7 +140,7 @@ func (s *Service) Update(ctx context.Context, id int, opt *option.APIParamOption
 
 // Delete deletes a user by ID.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
+// This endpoint is not listed in the Backlog API documentation.
 func (s *Service) Delete(ctx context.Context, id int) (*model.User, error) {
 	var ves validation.Errors
 	if ve := validate.ValidateUserID(id); ve != nil {
