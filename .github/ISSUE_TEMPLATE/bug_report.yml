@@ -1,0 +1,44 @@
+name: Bug report
+description: Report behavior of go-backlog that looks wrong
+labels: ["needs verification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please write the issue in English, and use a plain title without prefixes such as `fix:`.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happens, and why you think it is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal Go code that shows the problem. Do not include real API keys or access tokens.
+      render: go
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected instead. Link the relevant page of the Backlog API documentation (https://developer.nulab.com/docs/backlog/) if it applies.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: go-backlog version
+      placeholder: v0.33.1
+    validations:
+      required: true
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version
+      placeholder: go1.23.4
+    validations:
+      required: true
