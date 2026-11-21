@@ -9,8 +9,18 @@ linters:
     - govet
     - ineffassign
     - misspell
+    - revive
     - staticcheck
     - unused
+  settings:
+    revive:
+      rules:
+        # Require doc comments on exported identifiers, including those in
+        # internal packages. The stuttering check is disabled because names
+        # such as validate.ValidateUserID are intentional.
+        - name: exported
+          arguments:
+            - disableStutteringCheck
   exclusions:
     rules:
       - path: _test\.go
