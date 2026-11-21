@@ -72,6 +72,7 @@ func (s *Service) FetchAdd(ctx context.Context, spath string, form url.Values) (
 	return &v, nil
 }
 
+// Count returns the number of comments at spath.
 func (s *Service) Count(ctx context.Context, spath string) (int, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -86,6 +87,7 @@ func (s *Service) Count(ctx context.Context, spath string) (int, error) {
 	return v["count"], nil
 }
 
+// One returns the comment at spath.
 func (s *Service) One(ctx context.Context, spath string) (*model.Comment, error) {
 	resp, err := s.method.Get(ctx, spath, nil)
 	if err != nil {
@@ -126,6 +128,7 @@ func (s *Service) FetchUpdate(ctx context.Context, spath string, form url.Values
 	return &v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }
