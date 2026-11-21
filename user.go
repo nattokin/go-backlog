@@ -64,7 +64,10 @@ func (s *UserService) Me(ctx context.Context) (*User, error) {
 
 // Add adds a user to your space.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/add-user
+// This endpoint is not listed in the Backlog API documentation, although
+// the official Backlog client libraries (backlog-js and backlog4j) still
+// implement it. Whether it is still available is unverified and may depend
+// on the space.
 func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddress string, roleType Role) (*User, error) {
 	v, err := s.base.Add(ctx, userID, password, name, mailAddress, int(roleType))
 	return userFromModel(v), convertError(err)
@@ -79,7 +82,10 @@ func (s *UserService) Add(ctx context.Context, userID, password, name, mailAddre
 //   - [UserOptionService.WithPassword]
 //   - [UserOptionService.WithRoleType]
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/update-user
+// This endpoint is not listed in the Backlog API documentation, although
+// the official Backlog JavaScript client library (backlog-js) still
+// implements it. Whether it is still available is unverified and may depend
+// on the space.
 func (s *UserService) Update(ctx context.Context, id int, option RequestOption, opts ...RequestOption) (*User, error) {
 	v, err := s.base.Update(ctx, id, toInnerOption(option), toInnerOptions(opts)...)
 	return userFromModel(v), convertError(err)
@@ -87,7 +93,10 @@ func (s *UserService) Update(ctx context.Context, id int, option RequestOption, 
 
 // Delete deletes a user from your space.
 //
-// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/delete-user
+// This endpoint is not listed in the Backlog API documentation, although
+// the official Backlog client libraries (backlog-js and backlog4j) still
+// implement it. Whether it is still available is unverified and may depend
+// on the space.
 func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 	v, err := s.base.Delete(ctx, id)
 	return userFromModel(v), convertError(err)
