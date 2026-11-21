@@ -27,7 +27,9 @@
 //
 // Every request has a User-Agent header that identifies go-backlog and its
 // version, such as "go-backlog/v1.2.3 (+https://github.com/nattokin/go-backlog)".
-// To send another value, set the header in the [Doer] given with [WithDoer].
+// To add the product token of your application before it, use
+// [WithUserAgent]. To send another value, set the header in the [Doer] given
+// with [WithDoer].
 //
 // # Calling the API
 //

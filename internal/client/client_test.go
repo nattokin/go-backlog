@@ -604,6 +604,70 @@ func TestClient_NewRequest_userAgent(t *testing.T) {
 	}
 }
 
+func TestNewClient_userAgent(t *testing.T) {
+	cases := map[string]struct {
+		opts       []*client.ClientOption
+		want       string
+		wantErrMsg string
+	}{
+		"without-option": {
+			want: client.UserAgent,
+		},
+		"product-token": {
+			opts: []*client.ClientOption{client.WithUserAgent("myapp/1.2.0")},
+			want: "myapp/1.2.0 " + client.UserAgent,
+		},
+		"product-token-and-comment": {
+			opts: []*client.ClientOption{client.WithUserAgent("myapp/1.2.0 (+https://example.com)")},
+			want: "myapp/1.2.0 (+https://example.com) " + client.UserAgent,
+		},
+		"last-option-wins": {
+			opts: []*client.ClientOption{client.WithUserAgent("first/1.0"), client.WithUserAgent("second/2.0")},
+			want: "second/2.0 " + client.UserAgent,
+		},
+		"empty": {
+			opts:       []*client.ClientOption{client.WithUserAgent("")},
+			wantErrMsg: `invalid user agent "": must not be empty`,
+		},
+		"whitespace-only": {
+			opts:       []*client.ClientOption{client.WithUserAgent("  ")},
+			wantErrMsg: `invalid user agent "  ": must not be empty`,
+		},
+		"crlf": {
+			opts:       []*client.ClientOption{client.WithUserAgent("myapp/1.2.0\r\nX-Injected: 1")},
+			wantErrMsg: `invalid user agent "myapp/1.2.0\r\nX-Injected: 1": must not contain control characters`,
+		},
+		"tab": {
+			opts:       []*client.ClientOption{client.WithUserAgent("myapp/1.2.0\t")},
+			wantErrMsg: `invalid user agent "myapp/1.2.0\t": must not contain control characters`,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := client.NewClient("https://example.com", "apiKey", tc.opts...)
+
+			if tc.wantErrMsg != "" {
+				assert.Nil(t, c)
+				var target *client.InternalClientError
+				if assert.ErrorAs(t, err, &target) {
+					assert.Equal(t, tc.wantErrMsg, target.Error())
+				}
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, c.UserAgent)
+
+			req, err := c.NewRequest(context.Background(), http.MethodGet, "test")
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, req.Header.Get("User-Agent"))
+		})
+	}
+}
+
 func TestNewUserAgent(t *testing.T) {
 	const modulePath = "github.com/nattokin/go-backlog"
 

@@ -11,13 +11,24 @@ type ClientOption struct {
 }
 
 type clientConfig struct {
-	Doer Doer
+	Doer      Doer
+	UserAgent *string
 }
 
 func WithDoer(doer Doer) *ClientOption {
 	return &ClientOption{
 		set: func(config *clientConfig) {
 			config.Doer = doer
+		},
+	}
+}
+
+// WithUserAgent sets the product token of the application, which is placed
+// before UserAgent in the User-Agent header.
+func WithUserAgent(userAgent string) *ClientOption {
+	return &ClientOption{
+		set: func(config *clientConfig) {
+			config.UserAgent = &userAgent
 		},
 	}
 }

@@ -49,6 +49,21 @@ func TestNewClient(t *testing.T) {
 		assert.Same(t, c.httpClient.Doer, mockDoer)
 	})
 
+	t.Run("with-user-agent", func(t *testing.T) {
+		c, err := NewClient(baseURL, apiKey, WithUserAgent("myapp/1.2.0"))
+		require.NoError(t, err)
+		assert.NotNil(t, c)
+
+		assert.Equal(t, "myapp/1.2.0 "+client.UserAgent, c.httpClient.UserAgent)
+	})
+
+	t.Run("error-invalid-user-agent", func(t *testing.T) {
+		c, err := NewClient(baseURL, apiKey, WithUserAgent(""))
+		var target *InternalClientError
+		require.ErrorAs(t, err, &target)
+		assert.Nil(t, c)
+	})
+
 	t.Run("error-client.NewClient", func(t *testing.T) {
 		c, err := NewClient("", "")
 		require.Error(t, err)
@@ -99,6 +114,21 @@ func TestNewOAuthClient(t *testing.T) {
 		assert.NotNil(t, c)
 
 		assert.Same(t, c.httpClient.Doer, mockDoer)
+	})
+
+	t.Run("with-user-agent", func(t *testing.T) {
+		c, err := NewOAuthClient(baseURL, accessToken, WithUserAgent("myapp/1.2.0"))
+		require.NoError(t, err)
+		assert.NotNil(t, c)
+
+		assert.Equal(t, "myapp/1.2.0 "+client.UserAgent, c.httpClient.UserAgent)
+	})
+
+	t.Run("error-invalid-user-agent", func(t *testing.T) {
+		c, err := NewOAuthClient(baseURL, accessToken, WithUserAgent(""))
+		var target *InternalClientError
+		require.ErrorAs(t, err, &target)
+		assert.Nil(t, c)
 	})
 
 	t.Run("error-client.NewOAuthClient", func(t *testing.T) {
