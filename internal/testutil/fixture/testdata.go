@@ -1,3 +1,5 @@
+// Package fixture provides JSON payloads and the matching decoded values
+// used as test data across the package tests.
 package fixture
 
 import (

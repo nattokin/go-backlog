@@ -46,6 +46,7 @@ func (s *HistoryService) List(ctx context.Context, wikiID int, opts ...*option.A
 	return v, nil
 }
 
+// NewHistoryService returns a *HistoryService that sends requests through method.
 func NewHistoryService(method *client.Method) *HistoryService {
 	return &HistoryService{method: method}
 }

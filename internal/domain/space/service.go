@@ -92,6 +92,7 @@ func (s *Service) UpdateNotification(ctx context.Context, content string) (*mode
 	return &v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

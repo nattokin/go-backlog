@@ -148,6 +148,7 @@ func (s *VersionService) Delete(ctx context.Context, projectIDOrKey string, vers
 	return &v, nil
 }
 
+// NewVersionService returns a *VersionService that sends requests through method.
 func NewVersionService(method *client.Method) *VersionService {
 	return &VersionService{method: method}
 }

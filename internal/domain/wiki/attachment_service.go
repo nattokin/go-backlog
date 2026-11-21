@@ -116,6 +116,7 @@ func (s *AttachmentService) Download(ctx context.Context, wikiID, attachmentID i
 	return s.base.Download(ctx, spath)
 }
 
+// NewAttachmentService returns a *AttachmentService that sends requests through method.
 func NewAttachmentService(method *client.Method) *AttachmentService {
 	return &AttachmentService{
 		base:   attachment.NewService(method),

@@ -19,6 +19,7 @@ var commentAddValidTypes = []option.APIParamOptionType{
 	option.ParamAttachmentIDs,
 }
 
+// CommentService handles issue comment-related Backlog API calls.
 type CommentService struct {
 	base   *comment.Service
 	method *client.Method
@@ -212,6 +213,7 @@ func (s *CommentService) Notify(ctx context.Context, issueIDOrKey string, commen
 	return &v, nil
 }
 
+// NewCommentService returns a *CommentService that sends requests through method.
 func NewCommentService(method *client.Method) *CommentService {
 	return &CommentService{
 		base:   comment.NewService(method),

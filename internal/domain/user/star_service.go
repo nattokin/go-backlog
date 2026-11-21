@@ -77,6 +77,7 @@ func (s *StarService) Count(ctx context.Context, userID int, opts ...*option.API
 	return v.Count, nil
 }
 
+// NewStarService returns a *StarService that sends requests through method.
 func NewStarService(method *client.Method) *StarService {
 	return &StarService{method: method}
 }

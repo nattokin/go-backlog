@@ -156,18 +156,22 @@ func ValidateTextFormattingRule(field, format string) *validation.Error {
 	return validation.NewError(field, fmt.Sprintf("invalid %s: must be only 'backlog' or 'markdown'", field))
 }
 
+// ValidateActivityID validates that activityID is at least 1.
 func ValidateActivityID(activityID int) *validation.Error {
 	return ValidatePositiveInt("activityID", activityID)
 }
 
+// ValidateAttachmentID validates that attachmentID is at least 1.
 func ValidateAttachmentID(attachmentID int) *validation.Error {
 	return ValidatePositiveInt("attachmentID", attachmentID)
 }
 
+// ValidateCommentID validates that commentID is at least 1.
 func ValidateCommentID(commentID int) *validation.Error {
 	return ValidatePositiveInt("commentID", commentID)
 }
 
+// ValidateCustomFieldID validates that customFieldID is at least 1.
 func ValidateCustomFieldID(customFieldID int) *validation.Error {
 	return ValidatePositiveInt("customFieldID", customFieldID)
 }
@@ -190,46 +194,57 @@ func ValidateDirPath(dirPath string) *validation.Error {
 	return nil
 }
 
+// ValidateIssueIDOrKey validates issueIDOrKey with ValidateIDOrKey.
 func ValidateIssueIDOrKey(issueIDOrKey string) *validation.Error {
 	return ValidateIDOrKey("issueIDOrKey", issueIDOrKey)
 }
 
+// ValidatePRNumber validates that prNumber is at least 1.
 func ValidatePRNumber(prNumber int) *validation.Error {
 	return ValidatePositiveInt("prNumber", prNumber)
 }
 
+// ValidateProjectID validates that projectID is at least 1.
 func ValidateProjectID(projectID int) *validation.Error {
 	return ValidatePositiveInt("projectID", projectID)
 }
 
+// ValidateProjectIDOrKey validates projectIDOrKey with ValidateIDOrKey.
 func ValidateProjectIDOrKey(projectIDOrKey string) *validation.Error {
 	return ValidateIDOrKey("projectIDOrKey", projectIDOrKey)
 }
 
+// ValidateRepositoryIDOrName validates repositoryIDOrName with ValidateIDOrKey.
 func ValidateRepositoryIDOrName(repositoryIDOrName string) *validation.Error {
 	return ValidateIDOrKey("repositoryIDOrName", repositoryIDOrName)
 }
 
+// ValidateSharedFileID validates that fileID is at least 1.
 func ValidateSharedFileID(fileID int) *validation.Error {
 	return ValidatePositiveInt("fileID", fileID)
 }
 
+// ValidateStarID validates that starID is at least 1.
 func ValidateStarID(starID int) *validation.Error {
 	return ValidatePositiveInt("starID", starID)
 }
 
+// ValidateUserID validates that userID is at least 1.
 func ValidateUserID(userID int) *validation.Error {
 	return ValidatePositiveInt("userID", userID)
 }
 
+// ValidateVersionID validates that versionID is at least 1.
 func ValidateVersionID(versionID int) *validation.Error {
 	return ValidatePositiveInt("versionID", versionID)
 }
 
+// ValidateWebhookID validates that webhookID is at least 1.
 func ValidateWebhookID(webhookID int) *validation.Error {
 	return ValidatePositiveInt("webhookID", webhookID)
 }
 
+// ValidateWikiID validates that wikiID is at least 1.
 func ValidateWikiID(wikiID int) *validation.Error {
 	return ValidatePositiveInt("wikiID", wikiID)
 }

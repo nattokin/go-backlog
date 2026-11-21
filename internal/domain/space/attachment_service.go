@@ -32,6 +32,7 @@ func (s *AttachmentService) Upload(ctx context.Context, fileName string, r io.Re
 	return &v, nil
 }
 
+// NewAttachmentService returns a *AttachmentService that sends requests through method.
 func NewAttachmentService(method *client.Method) *AttachmentService {
 	return &AttachmentService{method: method}
 }
