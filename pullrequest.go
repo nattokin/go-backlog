@@ -193,7 +193,8 @@ func (s *PullRequestAttachmentService) Remove(ctx context.Context, projectIDOrKe
 }
 
 // Download downloads a file attached to the pull request.
-// The caller is responsible for closing FileData.Body after use.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment
 func (s *PullRequestAttachmentService) Download(ctx context.Context, projectIDOrKey string, repositoryIDOrName string, prNumber int, attachmentID int) (*FileData, error) {

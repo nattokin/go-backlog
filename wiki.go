@@ -160,7 +160,8 @@ func (s *WikiAttachmentService) Remove(ctx context.Context, wikiID, attachmentID
 }
 
 // Download downloads a file attached to the wiki page.
-// The caller is responsible for closing FileData.Body after use.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment
 func (s *WikiAttachmentService) Download(ctx context.Context, wikiID, attachmentID int) (*FileData, error) {
