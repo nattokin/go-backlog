@@ -71,6 +71,7 @@ func (s *Service) One(ctx context.Context, projectIDOrKey string, repoIDOrName s
 	return &v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,

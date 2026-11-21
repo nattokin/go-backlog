@@ -123,6 +123,7 @@ func (s *CommentService) Update(ctx context.Context, projectIDOrKey string, repo
 	return s.base.FetchUpdate(ctx, spath, form)
 }
 
+// NewCommentService returns a *CommentService that sends requests through method.
 func NewCommentService(method *client.Method) *CommentService {
 	return &CommentService{
 		base: comment.NewService(method),
