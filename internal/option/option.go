@@ -11,6 +11,8 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// Backlog API request parameter keys. Keys ending in "[]" are array
+// parameters that may be repeated.
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
 	ParamActualHours                       APIParamOptionType = "actualHours"
@@ -111,6 +113,7 @@ const (
 // APIParamOptionType represents a distinct parameter key for Backlog API requests.
 type APIParamOptionType string
 
+// Value returns the parameter key as sent to the Backlog API.
 func (t APIParamOptionType) Value() string {
 	return string(t)
 }
@@ -150,6 +153,8 @@ func (o *APIParamOption) Check() *validation.Error {
 	return nil
 }
 
+// Set writes the option's value into v. It panics if SetFunc is nil, since
+// every option built by OptionService has a setter.
 func (o *APIParamOption) Set(v url.Values) error {
 	if o.SetFunc == nil {
 		panic("option has no setter")
@@ -163,6 +168,8 @@ type InvalidOptionKeyError struct {
 	ValidList []string
 }
 
+// NewInvalidOptionKeyError returns an *InvalidOptionKeyError for the key
+// invalid, listing validList as the keys allowed for the operation.
 func NewInvalidOptionKeyError(invalid string, validList []APIParamOptionType) *InvalidOptionKeyError {
 	validKeys := []string{}
 	for _, v := range validList {
@@ -175,6 +182,7 @@ func NewInvalidOptionKeyError(invalid string, validList []APIParamOptionType) *I
 	}
 }
 
+// Error implements the error interface.
 func (e *InvalidOptionKeyError) Error() string {
 	return fmt.Sprintf("invalid option key %q (allowed: %s)", e.Invalid, strings.Join(e.ValidList, ", "))
 }
@@ -185,10 +193,12 @@ type InvalidOptionError struct {
 	message string
 }
 
+// NewInvalidOptionError returns an *InvalidOptionError with the given message.
 func NewInvalidOptionError(msg string) *InvalidOptionError {
 	return &InvalidOptionError{message: msg}
 }
 
+// Error implements the error interface.
 func (e *InvalidOptionError) Error() string {
 	return e.message
 }
