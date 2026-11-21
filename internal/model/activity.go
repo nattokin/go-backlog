@@ -1,4 +1,3 @@
-// Package model defines the data structures returned by the Backlog API.
 package model
 
 import "time"
