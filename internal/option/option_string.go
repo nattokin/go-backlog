@@ -7,18 +7,25 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// WithBase sets `base`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithBase(base string) *APIParamOption {
 	return nonEmptyStringOption(ParamBase, base)
 }
 
+// WithBranch sets `branch`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithBranch(branch string) *APIParamOption {
 	return nonEmptyStringOption(ParamBranch, branch)
 }
 
+// WithColor sets `color`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithColor(color string) *APIParamOption {
 	return nonEmptyStringOption(ParamColor, color)
 }
 
+// WithComment sets `comment`.
 func (s *OptionService) WithComment(comment string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamComment,
@@ -26,10 +33,13 @@ func (s *OptionService) WithComment(comment string) *APIParamOption {
 	}
 }
 
+// WithContent sets `content`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithContent(content string) *APIParamOption {
 	return nonEmptyStringOption(ParamContent, content)
 }
 
+// WithDescription sets `description`.
 func (s *OptionService) WithDescription(description string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamDescription,
@@ -37,14 +47,19 @@ func (s *OptionService) WithDescription(description string) *APIParamOption {
 	}
 }
 
+// WithHookURL sets `hookUrl`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithHookURL(hookURL string) *APIParamOption {
 	return nonEmptyStringOption(ParamHookURL, hookURL)
 }
 
+// WithKey sets `key`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithKey(key string) *APIParamOption {
 	return nonEmptyStringOption(ParamKey, key)
 }
 
+// WithKeyword sets `keyword`.
 func (s *OptionService) WithKeyword(keyword string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamKeyword,
@@ -52,6 +67,8 @@ func (s *OptionService) WithKeyword(keyword string) *APIParamOption {
 	}
 }
 
+// WithIssueSort sets `sort`.
+// The value must be a sort key accepted by the issue list endpoints.
 func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamSort,
@@ -62,6 +79,8 @@ func (s *OptionService) WithIssueSort(sort string) *APIParamOption {
 	}
 }
 
+// WithMailAddress sets `mailAddress`.
+// The value must be a single, well-formed email address.
 func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamMailAddress,
@@ -72,10 +91,14 @@ func (s *OptionService) WithMailAddress(mailAddress string) *APIParamOption {
 	}
 }
 
+// WithName sets `name`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithName(name string) *APIParamOption {
 	return nonEmptyStringOption(ParamName, name)
 }
 
+// WithOrder sets `order`.
+// The value must be "asc" or "desc".
 func (s *OptionService) WithOrder(order string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOrder,
@@ -86,6 +109,8 @@ func (s *OptionService) WithOrder(order string) *APIParamOption {
 	}
 }
 
+// WithPassword sets `password`.
+// The value must be at least 8 characters long.
 func (s *OptionService) WithPassword(password string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamPassword,
@@ -96,10 +121,13 @@ func (s *OptionService) WithPassword(password string) *APIParamOption {
 	}
 }
 
+// WithSummary sets `summary`.
+// The value must not be empty or whitespace-only.
 func (s *OptionService) WithSummary(summary string) *APIParamOption {
 	return nonEmptyStringOption(ParamSummary, summary)
 }
 
+// WithTemplateDescription sets `templateDescription`.
 func (s *OptionService) WithTemplateDescription(description string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamTemplateDescription,
@@ -107,6 +135,7 @@ func (s *OptionService) WithTemplateDescription(description string) *APIParamOpt
 	}
 }
 
+// WithTemplateSummary sets `templateSummary`.
 func (s *OptionService) WithTemplateSummary(summary string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamTemplateSummary,
@@ -114,6 +143,8 @@ func (s *OptionService) WithTemplateSummary(summary string) *APIParamOption {
 	}
 }
 
+// WithTextFormattingRule sets `textFormattingRule`.
+// The value must be "backlog" or "markdown".
 func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamTextFormattingRule,
@@ -124,6 +155,7 @@ func (s *OptionService) WithTextFormattingRule(format string) *APIParamOption {
 	}
 }
 
+// WithUnit sets `unit` for Number type custom fields.
 func (s *OptionService) WithUnit(unit string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamUnit,

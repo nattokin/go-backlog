@@ -8,10 +8,14 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// WithAssigneeID sets `assigneeId`.
+// The value must be at least 1.
 func (s *OptionService) WithAssigneeID(id int) *APIParamOption {
 	return positiveIntOption(ParamAssigneeID, id)
 }
 
+// WithCommentID sets `commentId`.
+// The value must be at least 1.
 func (s *OptionService) WithCommentID(id int) *APIParamOption {
 	return positiveIntOption(ParamCommentID, id)
 }
@@ -26,6 +30,8 @@ func (s *OptionService) WithSharedFileCount(count int) *APIParamOption {
 	return intRangeOption(ParamCount, count, 1, 1000)
 }
 
+// WithFieldType sets `typeId`, the custom field type ID.
+// The value must be at least 1.
 func (s *OptionService) WithFieldType(fieldType int) *APIParamOption {
 	return positiveIntOption(ParamTypeID, int(fieldType))
 }
@@ -44,22 +50,32 @@ func (s *OptionService) WithInitialValueType(initialValueType int) *APIParamOpti
 	return intRangeOption(ParamInitialValueType, initialValueType, 1, 3)
 }
 
+// WithIssueID sets `issueId`.
+// The value must be at least 1.
 func (s *OptionService) WithIssueID(id int) *APIParamOption {
 	return positiveIntOption(ParamIssueID, id)
 }
 
+// WithIssueTypeID sets `issueTypeId`.
+// The value must be at least 1.
 func (s *OptionService) WithIssueTypeID(id int) *APIParamOption {
 	return positiveIntOption(ParamIssueTypeID, id)
 }
 
+// WithMaxID sets `maxId`.
+// The value must be at least 1.
 func (s *OptionService) WithMaxID(id int) *APIParamOption {
 	return positiveIntOption(ParamMaxID, id)
 }
 
+// WithMinID sets `minId`.
+// The value must be at least 1.
 func (s *OptionService) WithMinID(id int) *APIParamOption {
 	return positiveIntOption(ParamMinID, id)
 }
 
+// WithOffset sets `offset`.
+// The value must not be negative.
 func (s *OptionService) WithOffset(offset int) *APIParamOption {
 	return &APIParamOption{
 		Type: ParamOffset,
@@ -81,22 +97,32 @@ func (s *OptionService) WithParentChild(parentChild int) *APIParamOption {
 	return intRangeOption(ParamParentChild, parentChild, 0, 10)
 }
 
+// WithParentIssueID sets `parentIssueId`.
+// The value must be at least 1.
 func (s *OptionService) WithParentIssueID(id int) *APIParamOption {
 	return positiveIntOption(ParamParentIssueID, id)
 }
 
+// WithPriorityID sets `priorityId`.
+// The value must be at least 1.
 func (s *OptionService) WithPriorityID(id int) *APIParamOption {
 	return positiveIntOption(ParamPriorityID, id)
 }
 
+// WithPullRequestCommentID sets `pullRequestCommentId`.
+// The value must be at least 1.
 func (s *OptionService) WithPullRequestCommentID(id int) *APIParamOption {
 	return positiveIntOption(ParamPullRequestCommentID, id)
 }
 
+// WithPullRequestID sets `pullRequestId`.
+// The value must be at least 1.
 func (s *OptionService) WithPullRequestID(id int) *APIParamOption {
 	return positiveIntOption(ParamPullRequestID, id)
 }
 
+// WithResolutionID sets `resolutionId`.
+// The value must be at least 1.
 func (s *OptionService) WithResolutionID(id int) *APIParamOption {
 	return positiveIntOption(ParamResolutionID, id)
 }
@@ -106,10 +132,14 @@ func (s *OptionService) WithRoleType(roleType int) *APIParamOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
+// WithStatusID sets `statusId`.
+// The value must be at least 1.
 func (s *OptionService) WithStatusID(id int) *APIParamOption {
 	return positiveIntOption(ParamStatusID, id)
 }
 
+// WithWikiID sets `wikiId`.
+// The value must be at least 1.
 func (s *OptionService) WithWikiID(id int) *APIParamOption {
 	return positiveIntOption(ParamWikiID, id)
 }
