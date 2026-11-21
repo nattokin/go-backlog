@@ -1,4 +1,3 @@
-// Package version implements the Backlog Version/Milestone API service.
 package project
 
 import (
