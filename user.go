@@ -103,7 +103,8 @@ func (s *UserService) Delete(ctx context.Context, id int) (*User, error) {
 }
 
 // Icon returns the icon image of a user.
-// The caller is responsible for closing FileData.Body after use.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-user-icon
 func (s *UserService) Icon(ctx context.Context, id int) (*FileData, error) {
