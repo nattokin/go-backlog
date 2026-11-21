@@ -12,6 +12,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// ActivityService handles project activity-related Backlog API calls.
 type ActivityService struct {
 	base   *activity.Service
 	method *client.Method
@@ -35,6 +36,7 @@ func (s *ActivityService) List(ctx context.Context, projectIDOrKey string, opts 
 	return s.base.Fetch(ctx, spath, query)
 }
 
+// NewActivityService returns a *ActivityService that sends requests through method.
 func NewActivityService(method *client.Method) *ActivityService {
 	return &ActivityService{
 		base:   activity.NewService(method),

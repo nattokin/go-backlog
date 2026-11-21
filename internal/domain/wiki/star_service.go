@@ -41,6 +41,7 @@ func (s *StarService) List(ctx context.Context, wikiID int) ([]*model.Star, erro
 	return v, nil
 }
 
+// NewStarService returns a *StarService that sends requests through method.
 func NewStarService(method *client.Method) *StarService {
 	return &StarService{method: method}
 }

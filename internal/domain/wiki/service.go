@@ -14,6 +14,7 @@ import (
 	"github.com/nattokin/go-backlog/internal/validation"
 )
 
+// Service handles wiki-related Backlog API calls.
 type Service struct {
 	method *client.Method
 }
@@ -204,6 +205,7 @@ func (s *Service) Delete(ctx context.Context, wikiID int, opts ...*option.APIPar
 	return &v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{
 		method: method,
