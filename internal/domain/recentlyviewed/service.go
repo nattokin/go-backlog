@@ -133,6 +133,7 @@ func (s *Service) AddWiki(ctx context.Context, wikiID int) (*model.Wiki, error) 
 	return v, nil
 }
 
+// NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{method: method}
 }
