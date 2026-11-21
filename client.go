@@ -11,9 +11,9 @@ import (
 //  Doer interface (HTTP abstraction)
 // ──────────────────────────────────────────────────────────────
 
-// Doer defines the minimal interface required to perform HTTP requests.
-// It is compatible with *http.Client and allows injection of mock clients
-// for unit or integration testing.
+// Doer sends the HTTP requests of a [Client]. *http.Client implements it.
+// Give one with [WithDoer] to configure timeouts, proxies, retries or other
+// transport behavior, or to replace the HTTP layer in tests.
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -23,7 +23,7 @@ type Doer interface {
 // ──────────────────────────────────────────────────────────────
 
 // Client represents a Backlog API client.
-// It wraps an underlying HTTP Doer and provides typed services for API access.
+// Call the API through its service fields, such as Issue and Wiki.
 //
 // A Client is safe for concurrent use by multiple goroutines, as long as its
 // [Doer] is. The Client and its services hold no state that changes after the
