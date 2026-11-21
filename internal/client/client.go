@@ -87,6 +87,7 @@ type Error struct {
 	MoreInfo string `json:"moreInfo,omitempty"`
 }
 
+// Error implements the error interface.
 func (e *Error) Error() string {
 	if e.MoreInfo == "" {
 		return fmt.Sprintf("%s (code %d)", e.Message, e.Code)
@@ -110,6 +111,7 @@ type RateLimitStatus struct {
 	Reset     int64
 }
 
+// Error implements the error interface.
 func (e *APIResponseError) Error() string {
 	msg := statusLine(e.StatusCode)
 
@@ -145,6 +147,7 @@ type OAuthError struct {
 	Response    *APIResponseError
 }
 
+// Error implements the error interface.
 func (e *OAuthError) Error() string {
 	msg := fmt.Sprintf("%s: oauth error %s", statusLine(e.Response.StatusCode), e.Code)
 
@@ -167,10 +170,12 @@ type InternalClientError struct {
 	msg string
 }
 
+// Error implements the error interface.
 func (e *InternalClientError) Error() string {
 	return e.msg
 }
 
+// NewInternalClientError returns an *InternalClientError with the given message.
 func NewInternalClientError(msg string) *InternalClientError {
 	return &InternalClientError{msg: msg}
 }
@@ -179,6 +184,8 @@ func NewInternalClientError(msg string) *InternalClientError {
 // 204 No Content, leaving no file to download.
 var ErrNoContent = errors.New("no content to download")
 
+// Doer sends an HTTP request and returns its response. *http.Client
+// satisfies it, and it is the extension point for a custom transport.
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -199,6 +206,9 @@ type Credential struct {
 	Value string
 }
 
+// Client sends authenticated requests to the Backlog API at BaseURL.
+// Services call it through Method rather than directly, so that tests can
+// replace individual HTTP operations.
 type Client struct {
 	BaseURL    *url.URL
 	Credential Credential
@@ -298,6 +308,9 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 	return c, nil
 }
 
+// NewRequest builds a request for spath, a path relative to /api/v2/, with
+// the User-Agent and credential headers set. It rejects an empty spath and
+// any segment that would change the path structure, such as "..".
 func (c *Client) NewRequest(ctx context.Context, Method, spath string, opts ...*HttpRequestOption) (*http.Request, error) {
 	if spath == "" {
 		return nil, NewInternalClientError("spath must not be empty")
@@ -365,10 +378,12 @@ func (c *Client) Do(ctx context.Context, Method, spath string, opts ...*HttpRequ
 	return CheckResponse(resp)
 }
 
+// Get sends a GET request with query as the query string.
 func (c *Client) Get(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
 }
 
+// Post sends a POST request with form as a URL-encoded body.
 func (c *Client) Post(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -378,6 +393,7 @@ func (c *Client) Post(ctx context.Context, spath string, form url.Values) (*http
 	return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
 }
 
+// Patch sends a PATCH request with form as a URL-encoded body.
 func (c *Client) Patch(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -387,6 +403,7 @@ func (c *Client) Patch(ctx context.Context, spath string, form url.Values) (*htt
 	return c.Do(ctx, http.MethodPatch, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
 }
 
+// Put sends a PUT request with form as a URL-encoded body.
 func (c *Client) Put(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -396,6 +413,7 @@ func (c *Client) Put(ctx context.Context, spath string, form url.Values) (*http.
 	return c.Do(ctx, http.MethodPut, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
 }
 
+// Delete sends a DELETE request with form as a URL-encoded body.
 func (c *Client) Delete(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	header := http.Header{}
 	header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -405,6 +423,8 @@ func (c *Client) Delete(ctx context.Context, spath string, form url.Values) (*ht
 	return c.Do(ctx, http.MethodDelete, spath, WithHeader(header), WithBody(strings.NewReader(form.Encode())))
 }
 
+// Upload sends a POST request with the content of r as a multipart form
+// file named fileName in the "file" field. fileName must not be empty.
 func (c *Client) Upload(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 	if fileName == "" {
 		return nil, NewInternalClientError("fileName is required")
@@ -429,6 +449,8 @@ func (c *Client) Upload(ctx context.Context, spath, fileName string, r io.Reader
 	return c.Do(ctx, http.MethodPost, spath, WithHeader(header), WithBody(&buf))
 }
 
+// Download sends a GET request for a binary resource with query as the
+// query string. Pass the response to DownloadResponse to read the file.
 func (c *Client) Download(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	return c.Do(ctx, http.MethodGet, spath, WithQuery(query))
 }

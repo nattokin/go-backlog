@@ -11,19 +11,25 @@ type Wrapper interface {
 	NewMultipartWriter(w io.Writer) MultipartWriter
 }
 
+// MultipartWriter is the subset of *multipart.Writer used to build an
+// upload body.
 type MultipartWriter interface {
 	CreateFormFile(fieldname, filename string) (io.Writer, error)
 	FormDataContentType() string
 	Close() error
 }
 
+// DefaultWrapper is the Wrapper used outside tests. It delegates to io.Copy
+// and mime/multipart.
 type DefaultWrapper struct{}
 
+// Copy copies src to dst with io.Copy.
 func (*DefaultWrapper) Copy(dst io.Writer, src io.Reader) error {
 	_, err := io.Copy(dst, src)
 	return err
 }
 
+// NewMultipartWriter returns a MultipartWriter backed by multipart.NewWriter(w).
 func (*DefaultWrapper) NewMultipartWriter(w io.Writer) MultipartWriter {
 	return &defaultMultipartWriter{multipart.NewWriter(w)}
 }
