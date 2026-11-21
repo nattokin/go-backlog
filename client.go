@@ -69,6 +69,8 @@ type Client struct {
 // Supported options:
 //   - [WithDoer]
 //   - [WithUserAgent]
+//
+// A nil option is ignored.
 func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	httpClient, err := client.NewClient(baseURL, apiKey, innerClientOptions(opts)...)
 	return newClient(httpClient, err)
@@ -92,6 +94,8 @@ func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 // Supported options:
 //   - [WithDoer]
 //   - [WithUserAgent]
+//
+// A nil option is ignored.
 func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client, error) {
 	httpClient, err := client.NewOAuthClient(baseURL, accessToken, innerClientOptions(opts)...)
 	return newClient(httpClient, err)
