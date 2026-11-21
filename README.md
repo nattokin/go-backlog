@@ -223,9 +223,6 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 
 - [Get User List](https://developer.nulab.com/docs/backlog/api/2/get-user-list) - Returns a list of users in your space.
 - [Get User](https://developer.nulab.com/docs/backlog/api/2/get-user) - Returns information about a specific user.
-- [Add User](https://developer.nulab.com/docs/backlog/api/2/add-user) - Adds new user to the space. "Project Administrator" cannot add "Admin" user. You can't use this API at `backlog.com` space.
-- [Update User](https://developer.nulab.com/docs/backlog/api/2/update-user) - Updates information about a user (Note: Not available at backlog.com).
-- [Delete User](https://developer.nulab.com/docs/backlog/api/2/delete-user) - Deletes a user from the space (Note: Not available at backlog.com).
 - [Get Own User](https://developer.nulab.com/docs/backlog/api/2/get-own-user) - Returns information about the currently authenticated user.
 - [Get User Icon](https://developer.nulab.com/docs/backlog/api/2/get-user-icon/) - Returns the icon of a user.
 
