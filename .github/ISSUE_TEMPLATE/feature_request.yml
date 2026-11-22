@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a new API method or an improvement to go-backlog
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please write the issue in English, and use a plain title without prefixes such as `feat:`.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you want to do and what is missing or inconvenient today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change you propose. For a new API method, link the endpoint in the Backlog API documentation (https://developer.nulab.com/docs/backlog/).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Other approaches you considered, if any.
