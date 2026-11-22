@@ -17,7 +17,6 @@ const { maskInlineCode, splitFooter, stripHtmlComments } = require('./pr-descrip
 const {
   PR_TITLE,
   PR_BODY,
-  PR_LABELS,
   PR_AUTHOR,
   GITHUB_STEP_SUMMARY,
 } = process.env;
@@ -38,7 +37,6 @@ const REFERENCE_FOOTER = /^(?:Closes|Refs) #\d+$/;
 const CLOSING_REFERENCE = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+(?:[\w.-]+\/[\w.-]+#\d+|#\d+|https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+)/i;
 
 const BREAKING_FOOTER = /^BREAKING[ -]CHANGE: \S/;
-const BREAKING_LABEL = 'breaking change';
 
 // ──────────────────────────────────────────────────────────────
 //  Checks
@@ -119,27 +117,22 @@ function checkDescription(description) {
 }
 
 /**
- * The "breaking change" label is added by label-pr.yml with GITHUB_TOKEN,
- * which does not trigger a new run, so a title with "!" and no label yet is
- * accepted. A label without "!" means it was added by hand or left over.
+ * The "breaking change" label is not checked: label-pr.yml keeps it in line
+ * with the title "!", and its edits do not trigger a new run, so the label in
+ * the event can be out of date.
  * @param {string} title
- * @param {string[]} labels
  * @param {boolean} hasBreakingFooter
  * @returns {Result}
  */
-function checkBreakingChange(title, labels, hasBreakingFooter) {
+function checkBreakingChange(title, hasBreakingFooter) {
   const result = { name: 'Breaking change consistency', errors: /** @type {string[]} */ ([]) };
   const hasExclamation = /^[a-z]+!:/.test(title);
-  const hasLabel = labels.includes(BREAKING_LABEL);
 
   if (hasExclamation && !hasBreakingFooter) {
     result.errors.push('The title has "!", but the description has no "BREAKING CHANGE: ..." footer.');
   }
   if (!hasExclamation && hasBreakingFooter) {
     result.errors.push('The description has a "BREAKING CHANGE: ..." footer, but the title has no "!".');
-  }
-  if (hasLabel && !hasExclamation) {
-    result.errors.push(`The "${BREAKING_LABEL}" label is set, but the title has no "!".`);
   }
 
   return result;
@@ -152,7 +145,6 @@ function checkBreakingChange(title, labels, hasBreakingFooter) {
 function main() {
   const title = PR_TITLE ?? '';
   const description = PR_BODY ?? '';
-  const labels = JSON.parse(PR_LABELS || '[]');
 
   /** @type {Result[]} */
   const results = checkTitle(title);
@@ -161,7 +153,7 @@ function main() {
     console.log('PR opened by Dependabot: skipping the description checks.');
   } else {
     const { results: descriptionResults, hasBreakingFooter } = checkDescription(description);
-    results.push(...descriptionResults, checkBreakingChange(title, labels, hasBreakingFooter));
+    results.push(...descriptionResults, checkBreakingChange(title, hasBreakingFooter));
   }
 
   report(results);

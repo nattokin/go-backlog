@@ -2,14 +2,12 @@ name: Check PR
 
 on:
   pull_request_target:
-    types: [opened, edited, reopened, labeled, unlabeled]
+    types: [opened, edited, reopened]
 
 jobs:
   strip-comments:
     name: Strip HTML comments
-    if: |
-      github.event.pull_request.user.login != 'dependabot[bot]' &&
-      contains(fromJSON('["opened", "edited", "reopened"]'), github.event.action)
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -40,5 +38,4 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
-          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
