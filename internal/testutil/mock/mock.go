@@ -249,7 +249,7 @@ func NewInternalServerErrorDoFunc() func(*http.Request) (*http.Response, error) 
 // NewUnexpectedDoFunc returns a doFunc for mock.Doer that fails the test if called.
 // It mirrors NewUnexpectedGetFn and friends, but for the lower-level Doer used by
 // root-package tests (which is not verb-specific, unlike client.Method).
-func NewUnexpectedDoFunc(t *testing.T) func(*http.Request) (*http.Response, error) {
+func NewUnexpectedDoFunc(t testing.TB) func(*http.Request) (*http.Response, error) {
 	t.Helper()
 	return func(*http.Request) (*http.Response, error) {
 		t.Helper()
@@ -351,7 +351,7 @@ func NewCaptureClient(t *testing.T, responseJSON string) (*client.Client, *Captu
 // corresponding NewUnexpected*Fn(t) functions. Tests should replace only the
 // fields they intend to exercise, so that any accidental call to an unintended
 // HTTP method causes an immediate test failure instead of a nil-pointer panic.
-func NewMethod(t *testing.T) *client.Method {
+func NewMethod(t testing.TB) *client.Method {
 	t.Helper()
 	return &client.Method{
 		Get:      NewUnexpectedGetFn(t),
@@ -365,7 +365,7 @@ func NewMethod(t *testing.T) *client.Method {
 }
 
 // NewUnexpectedGetFn returns a mock function for http GET that fails if called.
-func NewUnexpectedGetFn(t *testing.T) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+func NewUnexpectedGetFn(t testing.TB) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		t.Helper()
@@ -375,7 +375,7 @@ func NewUnexpectedGetFn(t *testing.T) func(ctx context.Context, spath string, qu
 }
 
 // NewUnexpectedPostFn returns a mock function for http POST that fails if called.
-func NewUnexpectedPostFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+func NewUnexpectedPostFn(t testing.TB) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
@@ -385,7 +385,7 @@ func NewUnexpectedPostFn(t *testing.T) func(ctx context.Context, spath string, f
 }
 
 // NewUnexpectedPatchFn returns a mock function for http PATCH that fails if called.
-func NewUnexpectedPatchFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+func NewUnexpectedPatchFn(t testing.TB) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
@@ -395,7 +395,7 @@ func NewUnexpectedPatchFn(t *testing.T) func(ctx context.Context, spath string, 
 }
 
 // NewUnexpectedPutFn returns a mock function for http PUT that fails if called.
-func NewUnexpectedPutFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+func NewUnexpectedPutFn(t testing.TB) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
@@ -405,7 +405,7 @@ func NewUnexpectedPutFn(t *testing.T) func(ctx context.Context, spath string, fo
 }
 
 // NewUnexpectedDeleteFn returns a mock function for http DELETE that fails if called.
-func NewUnexpectedDeleteFn(t *testing.T) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
+func NewUnexpectedDeleteFn(t testing.TB) func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, form url.Values) (*http.Response, error) {
 		t.Helper()
@@ -415,7 +415,7 @@ func NewUnexpectedDeleteFn(t *testing.T) func(ctx context.Context, spath string,
 }
 
 // NewUnexpectedUploadFn returns a mock function for http Upload that fails if called.
-func NewUnexpectedUploadFn(t *testing.T) func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
+func NewUnexpectedUploadFn(t testing.TB) func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath, fileName string, r io.Reader) (*http.Response, error) {
 		t.Helper()
@@ -425,7 +425,7 @@ func NewUnexpectedUploadFn(t *testing.T) func(ctx context.Context, spath, fileNa
 }
 
 // NewUnexpectedDownloadFn returns a mock function for Download that fails if called.
-func NewUnexpectedDownloadFn(t *testing.T) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+func NewUnexpectedDownloadFn(t testing.TB) func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 	t.Helper()
 	return func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
 		t.Helper()
