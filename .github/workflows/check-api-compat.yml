@@ -66,8 +66,8 @@ jobs:
 
       # The "breaking change" label is applied by label-pr.yml using GITHUB_TOKEN,
       # which does not trigger a new run. The title "!" is checked as well so the
-      # result does not depend on label timing; check-breaking-change.yml keeps the
-      # two consistent.
+      # result does not depend on label timing; check-pr.yml keeps the two
+      # consistent.
       - name: Require breaking change declaration
         if: steps.apidiff.outputs.incompatible == 'true'
         run: |
