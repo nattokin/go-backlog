@@ -78,9 +78,8 @@ jobs:
 
       - name: Test
         run: |
-          PKGS=$(go list ./... | grep -Ev '/examples/|/internal/testutil')
-          COVERPKGS=$(echo "$PKGS" | tr '\n' ',')
-          go test $PKGS -race -coverpkg=${COVERPKGS%,} -coverprofile=coverage.txt -covermode=atomic
+          go test ./... -race -coverpkg=./... -coverprofile=coverage.txt -covermode=atomic
+          go test ./... -coverprofile=coverage-unit.txt -covermode=atomic
 
       - name: Upload coverage to Codecov
         if: matrix.name == 'stable'
@@ -88,6 +87,17 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.txt
+          flags: integrated
+          disable_search: true
+
+      - name: Upload unit coverage to Codecov
+        if: matrix.name == 'stable'
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage-unit.txt
+          flags: unit
+          disable_search: true
 
 
 # ──────────────────────────────────────────────────────────────
