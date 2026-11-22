@@ -2,6 +2,7 @@
 'use strict';
 
 const https = require('https');
+const { findReferenceFooter } = require('./pr-description');
 
 // ──────────────────────────────────────────────────────────────
 //  Environment variables (injected by the workflow)
@@ -158,7 +159,7 @@ function extractChangesLines(body) {
 
 /**
  * Ensure the body has `## Summary` at the top and `## Changes`
- * before any closing keywords.
+ * before the footer block.
  * @param {string} body
  * @returns {string}
  */
@@ -170,17 +171,16 @@ function normalizeDescription(body) {
     lines = ['## Summary', '', ...lines];
   }
 
-  // Ensure ## Changes exists and is placed before closing keywords
+  // Ensure ## Changes exists and is placed before the footer block
   if (!lines.some(l => /^##\s+Changes\s*$/.test(l))) {
-    const closingPattern = /^(Closes|Fixes|Resolves)\s+#\d+/i;
-    const closingIdx = lines.findIndex(l => closingPattern.test(l));
+    const footerIdx = findReferenceFooter(lines);
 
-    if (closingIdx !== -1) {
-      // Insert before the closing keyword line (with surrounding blank lines)
+    if (footerIdx < lines.length) {
+      // Insert before the footer block (with surrounding blank lines)
       const insert = ['## Changes', ''];
-      const prev = lines[closingIdx - 1];
+      const prev = lines[footerIdx - 1];
       if (prev !== undefined && prev.trim() !== '') insert.unshift('');
-      lines.splice(closingIdx, 0, ...insert);
+      lines.splice(footerIdx, 0, ...insert);
     } else {
       // Insert after ## Summary section
       const summaryIdx = lines.findIndex(l => /^##\s+Summary\s*$/.test(l));
@@ -225,9 +225,9 @@ function upsertChildEntry(body, childNumber, childTitle, childChanges) {
   const changesIdx = lines.findIndex(l => /^##\s+Changes\s*$/.test(l));
   if (changesIdx === -1) return body; // Should not happen after normalize
 
-  // Find the boundary of ## Changes section (next heading or end of file)
-  let sectionEnd = lines.length;
-  for (let i = changesIdx + 1; i < lines.length; i++) {
+  // Find the boundary of ## Changes section (next heading, footer block or end of file)
+  let sectionEnd = findReferenceFooter(lines);
+  for (let i = changesIdx + 1; i < sectionEnd; i++) {
     if (/^##/.test(lines[i])) { sectionEnd = i; break; }
   }
 
@@ -253,12 +253,12 @@ function upsertChildEntry(body, childNumber, childTitle, childChanges) {
     for (let i = sectionEnd - 1; i > changesIdx; i--) {
       if (lines[i].trim() !== '') { insertIdx = i + 1; break; }
     }
-    // Add a blank line before the new entry if the section is not empty
-    if (insertIdx > changesIdx + 1 && lines[insertIdx - 1].trim() !== '') {
-      lines.splice(insertIdx, 0, '', ...newEntry);
-    } else {
-      lines.splice(insertIdx, 0, ...newEntry);
-    }
+    // Add a blank line before the new entry if the section is not empty,
+    // and after it if a line such as the footer block follows directly
+    const insert = [...newEntry];
+    if (insertIdx > changesIdx + 1 && lines[insertIdx - 1].trim() !== '') insert.unshift('');
+    if (insertIdx < lines.length && lines[insertIdx].trim() !== '') insert.push('');
+    lines.splice(insertIdx, 0, ...insert);
   }
 
   return lines.join('\n');
