@@ -1,34 +1,85 @@
 // milestone-sync.js
-// Reads the PR description and sets the milestone on the PR
-// based on the milestone of any linked issue.
+// Keeps the milestone of a PR and the issues it closes in sync.
 //
-// Recognized link patterns (case-insensitive), matched on the LAST LINE only:
-//   Closes #N  /  Fixes #N  /  Resolves #N  /  Part of #N
+// The target issues are those referenced as "Closes #N" in the footer block
+// of the PR description. "Refs #N" is ignored.
+//
+// - An issue has a milestone: the PR is set to it.
+// - No issue has a milestone and the PR has one: the issues are set to it.
+// - The PR and the issues have different milestones, or the issues have
+//   different milestones from each other: the job fails and nothing is changed.
 //
 // Uses Node.js built-in https module (no external dependencies).
 
 'use strict';
 
 const https = require('https');
+const { splitFooter, stripHtmlComments } = require('./pr-description');
 
 const owner = process.env.REPO_OWNER;
 const repo  = process.env.REPO_NAME;
-const prNum = parseInt(process.env.PR_NUMBER, 10);
-const body  = process.env.PR_BODY ?? '';
+const prNum = parseInt(process.env.PR_NUMBER ?? '', 10);
 const token = process.env.GITHUB_TOKEN;
 
-// Extract issue numbers from the last line of the description only.
-// Matches: Closes #N, Fixes #N, Resolves #N, Part of #N (case-insensitive)
-function extractIssueNumbers(text) {
-  const lastLine = text.trimEnd().split('\n').pop() ?? '';
-  const pattern = /(?:closes|fixes|resolves|part\s+of)\s+#(\d+)/gi;
+const CLOSES_FOOTER = /^Closes #(\d+)$/;
+
+/**
+ * Extract the issue numbers referenced as "Closes #N" in the footer block.
+ * @param {string} body
+ * @returns {number[]}
+ */
+function extractClosedIssues(body) {
+  const { lines, footerStart, codeMask } = splitFooter(stripHtmlComments(body));
   const numbers = [];
-  let match;
-  while ((match = pattern.exec(lastLine)) !== null) {
-    const n = parseInt(match[1], 10);
+  for (let i = footerStart; i < lines.length; i++) {
+    if (codeMask[i]) continue;
+    const m = CLOSES_FOOTER.exec(lines[i].trim());
+    if (!m) continue;
+    const n = parseInt(m[1], 10);
     if (!numbers.includes(n)) numbers.push(n);
   }
   return numbers;
+}
+
+/**
+ * @typedef {{ number: number, title: string }} Milestone
+ * @typedef {{ number: number, milestone: Milestone | null }} Issue
+ * @typedef {{ setPR: Milestone | null, setIssues: number[], milestone: Milestone | null, error: string | null }} Plan
+ */
+
+/**
+ * Decide what to change. Nothing is changed when there is an error.
+ * @param {Milestone | null} prMilestone
+ * @param {Issue[]} issues
+ * @returns {Plan}
+ */
+function planSync(prMilestone, issues) {
+  const plan = { setPR: null, setIssues: [], milestone: null, error: null };
+
+  const withMilestone = issues.filter(i => i.milestone);
+  const distinct = [...new Map(withMilestone.map(i => [i.milestone.number, i.milestone])).values()];
+
+  if (distinct.length > 1) {
+    const list = withMilestone.map(i => `#${i.number} "${i.milestone.title}"`).join(', ');
+    plan.error = `The closed issues have different milestones: ${list}. Set the same milestone on them.`;
+    return plan;
+  }
+
+  const target = distinct[0] ?? prMilestone;
+  if (!target) return plan;
+
+  if (prMilestone && prMilestone.number !== target.number) {
+    const list = withMilestone.map(i => `#${i.number}`).join(', ');
+    plan.error =
+      `The PR milestone "${prMilestone.title}" differs from the milestone "${target.title}" of ${list}. ` +
+      'Set the same milestone on the PR and the issues.';
+    return plan;
+  }
+
+  plan.milestone = target;
+  if (!prMilestone) plan.setPR = target;
+  plan.setIssues = issues.filter(i => !i.milestone).map(i => i.number);
+  return plan;
 }
 
 function githubRequest(method, path, data) {
@@ -67,60 +118,63 @@ function githubRequest(method, path, data) {
   });
 }
 
-async function getMilestone(issueNumber) {
-  try {
-    const data = await githubRequest('GET', `/repos/${owner}/${repo}/issues/${issueNumber}`);
-    return data.milestone ?? null;
-  } catch (err) {
-    console.log(`  Failed to fetch issue #${issueNumber}: ${err.message}`);
-    return null;
-  }
+/**
+ * @param {number} number
+ * @param {Milestone} milestone
+ */
+function setMilestone(number, milestone) {
+  return githubRequest('PATCH', `/repos/${owner}/${repo}/issues/${number}`, {
+    milestone: milestone.number,
+  });
 }
 
 async function run() {
-  const issueNumbers = extractIssueNumbers(body);
+  // Read the current PR, as other workflows may have changed it since the event.
+  const pr = await githubRequest('GET', `/repos/${owner}/${repo}/pulls/${prNum}`);
+  const issueNumbers = extractClosedIssues(pr.body ?? '');
 
   if (issueNumbers.length === 0) {
-    console.log('No linked issues found in the last line of PR description. Skipping.');
+    console.log('No "Closes #N" footer in the PR description. Skipping.');
     return;
   }
+  console.log(`Closed issues: ${issueNumbers.map(n => '#' + n).join(', ')}`);
 
-  console.log(`Linked issues (from last line): ${issueNumbers.map(n => '#' + n).join(', ')}`);
-
-  // Use the milestone of the first linked issue that has one.
-  let targetMilestone = null;
+  /** @type {Issue[]} */
+  const issues = [];
   for (const n of issueNumbers) {
-    console.log(`Checking issue #${n}...`);
-    const milestone = await getMilestone(n);
-    if (milestone) {
-      console.log(`  Found milestone: "${milestone.title}" (id=${milestone.number})`);
-      targetMilestone = milestone;
-      break;
-    } else {
-      console.log('  No milestone set.');
-    }
+    const data = await githubRequest('GET', `/repos/${owner}/${repo}/issues/${n}`);
+    issues.push({ number: n, milestone: data.milestone ?? null });
+    console.log(`  #${n}: ${data.milestone ? `"${data.milestone.title}"` : 'no milestone'}`);
   }
 
-  if (!targetMilestone) {
-    console.log('No milestone found on any linked issue. Skipping.');
+  const plan = planSync(pr.milestone ?? null, issues);
+  if (plan.error) {
+    console.log(`::error title=Milestone mismatch::${plan.error}`);
+    process.exit(1);
+  }
+  if (!plan.milestone) {
+    console.log('Neither the PR nor the closed issues have a milestone. Nothing to do.');
     return;
   }
 
-  // Fetch current PR milestone to avoid unnecessary API calls.
-  const pr = await githubRequest('GET', `/repos/${owner}/${repo}/pulls/${prNum}`);
-  if (pr.milestone && pr.milestone.number === targetMilestone.number) {
-    console.log(`PR already has milestone "${targetMilestone.title}". Nothing to do.`);
-    return;
+  if (plan.setPR) {
+    await setMilestone(prNum, plan.setPR);
+    console.log(`Set milestone "${plan.setPR.title}" on PR #${prNum}.`);
   }
-
-  await githubRequest('PATCH', `/repos/${owner}/${repo}/issues/${prNum}`, {
-    milestone: targetMilestone.number,
-  });
-
-  console.log(`Set milestone "${targetMilestone.title}" on PR #${prNum}.`);
+  for (const n of plan.setIssues) {
+    await setMilestone(n, plan.milestone);
+    console.log(`Set milestone "${plan.milestone.title}" on issue #${n}.`);
+  }
+  if (!plan.setPR && plan.setIssues.length === 0) {
+    console.log(`The PR and the closed issues already have milestone "${plan.milestone.title}".`);
+  }
 }
 
-run().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  run().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = { extractClosedIssues, planSync };

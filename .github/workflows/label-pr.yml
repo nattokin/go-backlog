@@ -2,7 +2,7 @@ name: Label PR
 
 on:
   pull_request_target:
-    types: [opened, edited]
+    types: [opened, edited, reopened, labeled, unlabeled]
 
 jobs:
   label:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Apply label based on PR title prefix
+      - name: Sync labels with PR title prefix
         run: node .github/scripts/label-pr.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
