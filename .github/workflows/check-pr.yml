@@ -1,0 +1,44 @@
+name: Check PR
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, labeled, unlabeled]
+
+jobs:
+  strip-comments:
+    name: Strip HTML comments
+    if: |
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      contains(fromJSON('["opened", "edited", "reopened"]'), github.event.action)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Remove HTML comments from the description
+        run: node .github/scripts/strip-pr-comments.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+
+  check:
+    name: Check title and description
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check PR title and description
+        run: node .github/scripts/check-pr.js
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}

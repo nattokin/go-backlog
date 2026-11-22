@@ -12,6 +12,8 @@ Footers go after the last blank line of the description, one per line:
   followed by what breaks and how to migrate. It is used as-is in the release notes.
 For several issues, write one line per issue, e.g. "Closes #12" and "Closes #34".
 Remove the "Closes #" line if there is no related issue.
+
+HTML comments like this one are removed from the description automatically.
 -->
 
 ## Summary
