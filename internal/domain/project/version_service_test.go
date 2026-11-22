@@ -332,6 +332,13 @@ func TestVersionService_Update(t *testing.T) {
 			option:         mock.NewFailingSetOption(option.ParamArchived),
 			wantErrType:    errors.New(""),
 		},
+		"error-client-network": {
+			projectIDOrKey: "TEST",
+			versionID:      1,
+			option:         o.WithName("name"),
+			wantErrType:    errors.New(""),
+			mockPatchFn:    func(context.Context, string, url.Values) (*http.Response, error) { return nil, errors.New("network") },
+		},
 		"error-response-invalid-json": {
 			projectIDOrKey: "TEST",
 			versionID:      1,

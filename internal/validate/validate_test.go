@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/nattokin/go-backlog/internal/validate"
+	"github.com/nattokin/go-backlog/internal/validation"
 )
 
 func TestValidateDateFormat(t *testing.T) {
@@ -510,5 +511,53 @@ func TestValidateRepositoryIDOrName(t *testing.T) {
 			}
 			assert.Nil(t, ve)
 		})
+	}
+}
+
+func TestValidateIntIDs(t *testing.T) {
+	validators := map[string]struct {
+		fn     func(int) *validation.Error
+		target string
+	}{
+		"ValidateActivityID":    {fn: validate.ValidateActivityID, target: "activityID"},
+		"ValidateAttachmentID":  {fn: validate.ValidateAttachmentID, target: "attachmentID"},
+		"ValidateCommentID":     {fn: validate.ValidateCommentID, target: "commentID"},
+		"ValidateCustomFieldID": {fn: validate.ValidateCustomFieldID, target: "customFieldID"},
+		"ValidatePRNumber":      {fn: validate.ValidatePRNumber, target: "prNumber"},
+		"ValidateProjectID":     {fn: validate.ValidateProjectID, target: "projectID"},
+		"ValidateSharedFileID":  {fn: validate.ValidateSharedFileID, target: "fileID"},
+		"ValidateStarID":        {fn: validate.ValidateStarID, target: "starID"},
+		"ValidateUserID":        {fn: validate.ValidateUserID, target: "userID"},
+		"ValidateVersionID":     {fn: validate.ValidateVersionID, target: "versionID"},
+		"ValidateWebhookID":     {fn: validate.ValidateWebhookID, target: "webhookID"},
+		"ValidateWikiID":        {fn: validate.ValidateWikiID, target: "wikiID"},
+	}
+
+	cases := map[string]struct {
+		value   int
+		wantErr bool
+	}{
+		"valid-1":          {value: 1},
+		"valid-large":      {value: 1000000},
+		"invalid-zero":     {value: 0, wantErr: true},
+		"invalid-negative": {value: -1, wantErr: true},
+	}
+
+	for vname, v := range validators {
+		for name, tc := range cases {
+			t.Run(vname+"/"+name, func(t *testing.T) {
+				t.Parallel()
+
+				ve := v.fn(tc.value)
+				if tc.wantErr {
+					if assert.NotNil(t, ve) {
+						assert.Equal(t, v.target, ve.Target())
+						assert.Equal(t, "invalid "+v.target+": must not be less than 1", ve.Message())
+					}
+					return
+				}
+				assert.Nil(t, ve)
+			})
+		}
 	}
 }
