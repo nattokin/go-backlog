@@ -1,0 +1,18 @@
+ignore:
+  - "examples"
+  - "internal/testutil"
+
+coverage:
+  status:
+    project:
+      default:
+        flags: [integrated]
+      unit:
+        flags: [unit]
+        target: 100%
+    patch:
+      default:
+        flags: [integrated]
+
+comment:
+  layout: "condensed_header, diff, flags, files"

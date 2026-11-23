@@ -1,5 +1,6 @@
 .vscode/
 debug.test
 coverage.txt
+coverage-unit.txt
 .py
 .claude/
