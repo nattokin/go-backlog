@@ -105,6 +105,16 @@ func (s *SpaceService) UpdateNotification(ctx context.Context, content string) (
 	return spaceNotificationFromModel(v), convertError(err)
 }
 
+// Icon returns the icon image of a space.
+// The caller is responsible for closing the Body of the returned [FileData].
+// If the API responds with 204 No Content, it returns [ErrNoContent].
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-icon
+func (s *SpaceService) Icon(ctx context.Context) (*FileData, error) {
+	v, err := s.base.Icon(ctx)
+	return fileDataFromModel(v), convertError(err)
+}
+
 // ──────────────────────────────────────────────────────────────
 //  SpaceActivityService
 // ──────────────────────────────────────────────────────────────

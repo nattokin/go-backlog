@@ -202,6 +202,7 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 
 - [Get Space](https://developer.nulab.com/docs/backlog/api/2/get-space) - Returns information about your space.
 - [Get Space Disk Usage](https://developer.nulab.com/docs/backlog/api/2/get-space-disk-usage) - Returns disk usage of your space.
+- [Get Space Icon](https://developer.nulab.com/docs/backlog/api/2/get-space-icon/) - Returns the icon of a space.
 - [Get Space Notification](https://developer.nulab.com/docs/backlog/api/2/get-space-notification) - Returns the space notification.
 - [Update Space Notification](https://developer.nulab.com/docs/backlog/api/2/update-space-notification) - Updates the space notification.
 

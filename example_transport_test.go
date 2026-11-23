@@ -167,6 +167,7 @@ var exampleRoutes = map[string]respondFunc{
 	"GET /space/activities":   jsonBody(fixture.Activity.ListJSON),
 	"POST /space/attachment":  jsonBody(fixture.Attachment.UploadJSON),
 	"GET /space/diskUsage":    jsonBody(fixture.Space.DiskUsageJSON),
+	"GET /space/image":        binary("space.png"),
 	"GET /space/notification": jsonBody(fixture.Space.NotificationJSON),
 	"PUT /space/notification": jsonBody(fixture.Space.NotificationJSON),
 
