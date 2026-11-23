@@ -642,6 +642,35 @@ func Test_versionsFromModel(t *testing.T) {
 	}
 }
 
+func Test_tagsFromModel(t *testing.T) {
+	cases := map[string]struct {
+		input []*model.Tag
+		want  []*Tag
+	}{
+		"with_elements": {
+			input: []*model.Tag{
+				{ID: 1, Name: "tag1"},
+				{ID: 2, Name: "tag2"},
+			},
+			want: []*Tag{
+				{ID: 1, Name: "tag1"},
+				{ID: 2, Name: "tag2"},
+			},
+		},
+		"empty": {
+			input: []*model.Tag{},
+			want:  []*Tag{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tagsFromModel(tc.input))
+		})
+	}
+}
+
 func Test_fromModel_nil(t *testing.T) {
 	cases := map[string]struct {
 		call func() any
@@ -675,6 +704,7 @@ func Test_fromModel_nil(t *testing.T) {
 		"stars":                    {call: func() any { return starsFromModel(nil) }},
 		"status":                   {call: func() any { return statusFromModel(nil) }},
 		"tag":                      {call: func() any { return tagFromModel(nil) }},
+		"tags":                     {call: func() any { return tagsFromModel(nil) }},
 		"user":                     {call: func() any { return userFromModel(nil) }},
 		"version":                  {call: func() any { return versionFromModel(nil) }},
 		"versions":                 {call: func() any { return versionsFromModel(nil) }},

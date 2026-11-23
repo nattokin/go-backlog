@@ -42,6 +42,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := wiki.NewService(m)
 			s.Count(ctx, "TEST") //nolint:errcheck
 		}},
+		{"Service.TagList", func(t *testing.T, m *client.Method) {
+			m.Get = makeMockFn(t)
+			s := wiki.NewService(m)
+			s.TagList(ctx, "TEST") //nolint:errcheck
+		}},
 		{"Service.One", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := wiki.NewService(m)
