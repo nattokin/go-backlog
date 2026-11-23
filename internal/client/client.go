@@ -12,6 +12,7 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"path"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -571,6 +572,8 @@ func drainAndClose(body io.ReadCloser) {
 
 // DownloadResponse extracts FileData from a binary HTTP response.
 // It parses the filename from Content-Disposition and the media type from Content-Type.
+// The filename is reduced to its base name (see sanitizeFilename), since it is
+// chosen by whoever uploaded the file.
 // The caller is responsible for closing FileData.Body.
 // A nil resp (as returned by CheckResponse for 204 No Content) has no file to
 // download, so ErrNoContent is returned.
@@ -583,7 +586,7 @@ func DownloadResponse(resp *http.Response) (*model.FileData, error) {
 	if cd := resp.Header.Get("Content-Disposition"); cd != "" {
 		_, params, err := mime.ParseMediaType(cd)
 		if err == nil {
-			filename = params["filename"]
+			filename = sanitizeFilename(params["filename"])
 		}
 	}
 
@@ -600,4 +603,17 @@ func DownloadResponse(resp *http.Response) (*model.FileData, error) {
 		Filename:    filename,
 		ContentType: contentType,
 	}, nil
+}
+
+// sanitizeFilename reduces name to its last path element, treating both "/"
+// and "\" as separators regardless of the OS. It returns "" when no usable
+// name remains, such as for "", ".", ".." or "/".
+func sanitizeFilename(name string) string {
+	name = path.Base(strings.ReplaceAll(name, `\`, "/"))
+	switch name {
+	case ".", "..", "/":
+		return ""
+	}
+
+	return name
 }
