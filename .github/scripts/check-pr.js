@@ -30,13 +30,18 @@ const TITLE_PATTERN = new RegExp(`^(?:${TYPES.join('|')})!?: \\S`);
 const TITLE_REFERENCE = /#\d+/;
 
 // A footer line that starts with a reference keyword must be one of these.
-const REFERENCE_START = /^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?|refs?|part\s+of)\b:?\s*(?:#|[\w.-]+\/[\w.-]+#|https?:\/\/)/i;
+const REFERENCE_START = /^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?|refs?|references?|part\s+of|related(?:\s+to)?|see(?:\s+also)?|issues?)\b:?\s*(?:#|[\w.-]+\/[\w.-]+#|https?:\/\/)/i;
 const REFERENCE_FOOTER = /^(?:Closes|Refs) #\d+$/;
 
 // GitHub's closing keywords, which link and close issues wherever they appear.
 const CLOSING_REFERENCE = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+(?:[\w.-]+\/[\w.-]+#\d+|#\d+|https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+)/i;
 
 const BREAKING_FOOTER = /^BREAKING[ -]CHANGE: \S/;
+
+// Sections of the PR template, in the order they must appear.
+const SECTIONS = ['Summary', 'Changes'];
+const HEADING = /^ {0,3}(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/;
+const LIST_ITEM = /^\s*(?:[-*+]|\d+[.)])\s+\S/;
 
 // ──────────────────────────────────────────────────────────────
 //  Checks
@@ -117,6 +122,73 @@ function checkDescription(description) {
 }
 
 /**
+ * Checks that the description keeps the sections of the PR template:
+ * it starts with "## Summary", followed later by "## Changes". Each section
+ * runs until the next heading of level 2 or above. Summary must have some
+ * text, and Changes at least one list item. Other sections may follow.
+ * @param {string} description
+ * @returns {Result}
+ */
+function checkSections(description) {
+  const result = { name: 'Template sections', errors: /** @type {string[]} */ ([]) };
+  const { lines, codeMask } = splitFooter(stripHtmlComments(description));
+
+  /** @type {Array<{ index: number, level: number, title: string }>} */
+  const headings = [];
+  lines.forEach((line, i) => {
+    if (codeMask[i]) return;
+    const m = HEADING.exec(line);
+    if (m) headings.push({ index: i, level: m[1].length, title: m[2] });
+  });
+
+  /** @type {Map<string, { index: number, end: number }>} */
+  const found = new Map();
+  for (const name of SECTIONS) {
+    const exact = headings.filter(h => h.level === 2 && h.title === name);
+    if (exact.length === 0) {
+      const similar = headings.find(h => h.title.toLowerCase() === name.toLowerCase());
+      result.errors.push(
+        `The description must have a "## ${name}" section, as in the PR template.` +
+        (similar ? ` Found "${'#'.repeat(similar.level)} ${similar.title}" instead.` : ''),
+      );
+      continue;
+    }
+    if (exact.length > 1) {
+      result.errors.push(`The description must have only one "## ${name}" section.`);
+    }
+    const { index } = exact[0];
+    const next = headings.find(h => h.index > index && h.level <= 2);
+    found.set(name, { index, end: next ? next.index : lines.length });
+  }
+
+  const summary = found.get('Summary');
+  const changes = found.get('Changes');
+
+  if (summary) {
+    if (lines.slice(0, summary.index).some(line => line.trim() !== '')) {
+      result.errors.push('The description must start with the "## Summary" section.');
+    }
+    if (!lines.slice(summary.index + 1, summary.end).some(line => line.trim() !== '')) {
+      result.errors.push('The "## Summary" section is empty. Describe what the PR does and why.');
+    }
+  }
+
+  if (changes) {
+    if (summary && changes.index < summary.index) {
+      result.errors.push('The "## Changes" section must come after the "## Summary" section.');
+    }
+    const hasItem = lines
+      .slice(changes.index + 1, changes.end)
+      .some((line, i) => !codeMask[changes.index + 1 + i] && LIST_ITEM.test(line));
+    if (!hasItem) {
+      result.errors.push('The "## Changes" section must list the changes as list items, e.g. "- Add ...".');
+    }
+  }
+
+  return result;
+}
+
+/**
  * The "breaking change" label is not checked: label-pr.yml keeps it in line
  * with the title "!", and its edits do not trigger a new run, so the label in
  * the event can be out of date.
@@ -153,7 +225,11 @@ function main() {
     console.log('PR opened by Dependabot: skipping the description checks.');
   } else {
     const { results: descriptionResults, hasBreakingFooter } = checkDescription(description);
-    results.push(...descriptionResults, checkBreakingChange(title, hasBreakingFooter));
+    results.push(
+      checkSections(description),
+      ...descriptionResults,
+      checkBreakingChange(title, hasBreakingFooter),
+    );
   }
 
   report(results);
@@ -182,4 +258,4 @@ function report(results) {
 
 if (require.main === module) main();
 
-module.exports = { checkTitle, checkDescription, checkBreakingChange };
+module.exports = { checkTitle, checkSections, checkDescription, checkBreakingChange };
