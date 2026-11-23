@@ -37,6 +37,30 @@ func TestNewClient_validation(t *testing.T) {
 			wantError: true,
 			errMsg:    "missing API key",
 		},
+		"apiKey-with-trailing-newline": {
+			baseURL:   "https://example.com",
+			apiKey:    "apiKey\n",
+			wantError: true,
+			errMsg:    "invalid API key: must not contain control characters",
+		},
+		"apiKey-with-carriage-return": {
+			baseURL:   "https://example.com",
+			apiKey:    "apiKey\r\n",
+			wantError: true,
+			errMsg:    "invalid API key: must not contain control characters",
+		},
+		"apiKey-with-tab": {
+			baseURL:   "https://example.com",
+			apiKey:    "api\tKey",
+			wantError: true,
+			errMsg:    "invalid API key: must not contain control characters",
+		},
+		"apiKey-with-injected-header": {
+			baseURL:   "https://example.com",
+			apiKey:    "apiKey\r\nX-Injected: 1",
+			wantError: true,
+			errMsg:    "invalid API key: must not contain control characters",
+		},
 		"missing-baseURL": {
 			baseURL:   "",
 			apiKey:    "apiKey",
@@ -126,6 +150,24 @@ func TestNewOAuthClient_validation(t *testing.T) {
 			accessToken: "",
 			wantError:   true,
 			errMsg:      "missing access token",
+		},
+		"accessToken-with-trailing-newline": {
+			baseURL:     "https://example.com",
+			accessToken: "accessToken\n",
+			wantError:   true,
+			errMsg:      "invalid access token: must not contain control characters",
+		},
+		"accessToken-with-carriage-return": {
+			baseURL:     "https://example.com",
+			accessToken: "accessToken\r\n",
+			wantError:   true,
+			errMsg:      "invalid access token: must not contain control characters",
+		},
+		"accessToken-with-tab": {
+			baseURL:     "https://example.com",
+			accessToken: "access\tToken",
+			wantError:   true,
+			errMsg:      "invalid access token: must not contain control characters",
 		},
 		"missing-baseURL": {
 			baseURL:     "",

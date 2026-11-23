@@ -232,19 +232,43 @@ type Method struct {
 }
 
 // NewClient creates a Client that authenticates with an API key.
+//
+// The API key must not contain characters that are not allowed in a header
+// field value, such as a trailing newline left by os.ReadFile. Otherwise
+// NewClient returns an *InternalClientError.
 func NewClient(baseURL, apiKey string, opts ...*ClientOption) (*Client, error) {
 	if apiKey == "" {
 		return nil, NewInternalClientError("missing API key")
+	}
+	if err := validateCredentialValue("API key", apiKey); err != nil {
+		return nil, err
 	}
 	return newClient(baseURL, Credential{Type: CredentialAPIKey, Value: apiKey}, opts...)
 }
 
 // NewOAuthClient creates a Client that authenticates with an OAuth 2.0 access token.
+//
+// The access token must not contain characters that are not allowed in a
+// header field value, such as a trailing newline left by os.ReadFile.
+// Otherwise NewOAuthClient returns an *InternalClientError.
 func NewOAuthClient(baseURL, accessToken string, opts ...*ClientOption) (*Client, error) {
 	if accessToken == "" {
 		return nil, NewInternalClientError("missing access token")
 	}
+	if err := validateCredentialValue("access token", accessToken); err != nil {
+		return nil, err
+	}
 	return newClient(baseURL, Credential{Type: CredentialAccessToken, Value: accessToken}, opts...)
+}
+
+// validateCredentialValue rejects a credential that cannot be sent as a header
+// field value. The message names the credential but never includes its value.
+func validateCredentialValue(field, value string) error {
+	if strings.IndexFunc(value, unicode.IsControl) >= 0 {
+		return NewInternalClientError(fmt.Sprintf("invalid %s: must not contain control characters", field))
+	}
+
+	return nil
 }
 
 func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*Client, error) {
