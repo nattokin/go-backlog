@@ -35,7 +35,7 @@ go run . --target wiki <WIKI_ID> <OUTPUT_DIR>
 
 ## Output
 
-Files are saved to `<OUTPUT_DIR>/` using the original filename returned by the API.
+Files are saved to `<OUTPUT_DIR>/` using the base name of the filename returned by the API, or `attachment-<ATTACHMENT_ID>` when the API returns none. Files are written through `os.Root`, so they never land outside `<OUTPUT_DIR>`.
 
 ```
 3 attachment(s) found on issue 100

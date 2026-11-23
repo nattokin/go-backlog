@@ -1648,6 +1648,67 @@ func TestDownloadResponse(t *testing.T) {
 			},
 			wantContentType: "image/png",
 		},
+		"rfc5987-filename": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename*=UTF-8''%E8%B3%87%E6%96%99.pdf`},
+			},
+			wantFilename: "資料.pdf",
+		},
+		"path-traversal": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="../../.bashrc"`},
+			},
+			wantFilename: ".bashrc",
+		},
+		"path-traversal-rfc5987": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename*=UTF-8''..%2F..%2Fetc%2Fx`},
+			},
+			wantFilename: "x",
+		},
+		"backslash-path": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="..\\..\\x.txt"`},
+			},
+			wantFilename: "x.txt",
+		},
+		"absolute-path": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="/etc/passwd"`},
+			},
+			wantFilename: "passwd",
+		},
+		"trailing-slash": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="dir/"`},
+			},
+			wantFilename: "dir",
+		},
+		"dot": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="."`},
+			},
+		},
+		"dot-dot": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename=".."`},
+			},
+		},
+		"dot-dot-backslash": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="..\\"`},
+			},
+		},
+		"slash-only": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename="/"`},
+			},
+		},
+		"empty-filename": {
+			header: http.Header{
+				"Content-Disposition": []string{`attachment; filename=""`},
+			},
+		},
 		"malformed-content-type": {
 			header: http.Header{
 				"Content-Disposition": []string{`attachment; filename="file.png"`},

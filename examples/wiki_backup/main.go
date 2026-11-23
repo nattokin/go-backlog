@@ -86,7 +86,7 @@ func main() {
 					log.Printf("warning: failed to download attachment %s: %v", a.Name, err)
 					continue
 				}
-				if err := saveFile(fd, attachDir); err != nil {
+				if err := saveFile(fd, attachDir, fmt.Sprintf("attachment-%d", a.ID)); err != nil {
 					log.Printf("warning: failed to save attachment %s: %v", a.Name, err)
 				}
 			}
@@ -98,11 +98,22 @@ func main() {
 }
 
 // saveFile writes FileData to a file in outDir and closes the body.
-func saveFile(fd *backlog.FileData, outDir string) error {
+// The file is named fd.Filename, or fallback when it is empty. Writing through
+// os.Root keeps the file inside outDir whatever name the uploader chose.
+func saveFile(fd *backlog.FileData, outDir, fallback string) error {
 	defer fd.Body.Close()
 
-	path := filepath.Join(outDir, fd.Filename)
-	f, err := os.Create(path)
+	root, err := os.OpenRoot(outDir)
+	if err != nil {
+		return fmt.Errorf("open output directory: %w", err)
+	}
+	defer root.Close()
+
+	name := fd.Filename
+	if name == "" {
+		name = fallback
+	}
+	f, err := root.Create(name)
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}

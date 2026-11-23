@@ -86,6 +86,12 @@ type Comment struct {
 
 // FileData represents a downloaded binary file with its metadata.
 // Body must be closed by the caller after use.
+//
+// Filename is the base name taken from the Content-Disposition header, or ""
+// when none is given. It never contains a path separator, but it is chosen by
+// whoever uploaded the file, so it may collide with other files or be reserved
+// on some platforms. When saving the file, open the destination directory with
+// [os.OpenRoot] and create the file through the returned [os.Root].
 type FileData struct {
 	Body        io.ReadCloser
 	Filename    string

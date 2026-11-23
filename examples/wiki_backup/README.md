@@ -29,7 +29,7 @@ OUTPUT_DIR/
       spec.pdf
 ```
 
-Each wiki page is saved as `<OUTPUT_DIR>/<wiki-name>.md`. Attachments are saved under `<OUTPUT_DIR>/attachments/<wiki-id>/`. Characters unsafe for filenames (`/ \ : * ? " < > |`) in wiki names are replaced with `_`.
+Each wiki page is saved as `<OUTPUT_DIR>/<wiki-name>.md`. Attachments are saved under `<OUTPUT_DIR>/attachments/<wiki-id>/`, named after the base name of the filename returned by the API, or `attachment-<ATTACHMENT_ID>` when the API returns none. Characters unsafe for filenames (`/ \ : * ? " < > |`) in wiki names are replaced with `_`.
 
 ```
 3 wiki page(s) found in MYPROJECT
