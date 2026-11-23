@@ -16,8 +16,8 @@ type clientConfig struct {
 	UserAgent *string
 }
 
-// WithDoer sets the Doer that sends requests. http.DefaultClient is used
-// when it is not set.
+// WithDoer sets the Doer that sends requests. DefaultDoer is used when it is
+// not set.
 func WithDoer(doer Doer) *ClientOption {
 	return &ClientOption{
 		set: func(config *clientConfig) {
