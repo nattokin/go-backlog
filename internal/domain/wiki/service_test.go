@@ -333,11 +333,9 @@ func TestService_TagList(t *testing.T) {
 			}
 
 			assert.NoError(t, err)
-			assert.Len(t, tags, tc.wantCount)
-			if tc.wantCount > 0 {
-				assert.Equal(t, 1, tags[0].ID)
-				assert.Equal(t, "tag1", tags[0].Name)
-			}
+			require.Len(t, tags, tc.wantCount)
+			assert.Equal(t, 1, tags[0].ID)
+			assert.Equal(t, "tag1", tags[0].Name)
 		})
 	}
 }
