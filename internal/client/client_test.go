@@ -9,9 +9,11 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"runtime/debug"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -235,10 +237,59 @@ func TestNewClient_initialization(t *testing.T) {
 
 		assert.Equal(t, baseURL, c.BaseURL.String())
 		assert.Equal(t, client.Credential{Type: client.CredentialAPIKey, Value: apiKey}, c.Credential)
-		assert.Equal(t, http.DefaultClient, c.Doer)
+		assert.Same(t, client.DefaultDoer, c.Doer)
 		assert.IsType(t, &client.DefaultWrapper{}, c.Wrapper)
 		assert.IsType(t, &client.Method{}, c.Method)
 	})
+}
+
+func TestDefaultDoer_redirect(t *testing.T) {
+	cases := map[string]struct {
+		method string
+		send   func(c *client.Client) (*http.Response, error)
+	}{
+		"get": {
+			method: http.MethodGet,
+			send: func(c *client.Client) (*http.Response, error) {
+				return c.Get(context.Background(), "test", nil)
+			},
+		},
+		"post": {
+			method: http.MethodPost,
+			send: func(c *client.Client) (*http.Response, error) {
+				return c.Post(context.Background(), "test", url.Values{"name": {"test"}})
+			},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			var targetCalled atomic.Bool
+			target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				targetCalled.Store(true)
+				w.WriteHeader(http.StatusOK)
+			}))
+			defer target.Close()
+
+			origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.method, r.Method)
+				http.Redirect(w, r, target.URL+r.URL.Path, http.StatusFound)
+			}))
+			defer origin.Close()
+
+			c, err := client.NewClient(origin.URL, "apiKey")
+			require.NoError(t, err)
+
+			resp, err := tc.send(c)
+			assert.Nil(t, resp)
+			var apiErr *client.APIResponseError
+			require.ErrorAs(t, err, &apiErr)
+			assert.Equal(t, http.StatusFound, apiErr.StatusCode)
+			assert.False(t, targetCalled.Load(), "redirect must not be followed")
+		})
+	}
 }
 
 func TestClient_Do(t *testing.T) {

@@ -13,10 +13,12 @@
 // The client does not obtain or refresh access tokens; create a new client
 // when the token expires.
 //
-// Requests are sent with [net/http.DefaultClient] unless another HTTP client is
-// given with [WithDoer]. [net/http.DefaultClient] has no timeout, so set a
-// deadline on the context passed to each method, or give an *http.Client with
-// a Timeout:
+// Requests are sent with an *http.Client that uses
+// [net/http.DefaultTransport] unless another HTTP client is given with
+// [WithDoer]. It does not follow redirects, so that the credential is never
+// sent to another host; a 3xx response is returned as an [*APIResponseError].
+// It has no timeout, so set a deadline on the context passed to each method,
+// or give an *http.Client with a Timeout:
 //
 //	c, err := backlog.NewClient("https://example.backlog.com", apiKey,
 //		backlog.WithDoer(&http.Client{Timeout: 30 * time.Second}),
