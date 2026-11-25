@@ -240,6 +240,7 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 
 - [Get Wiki Page List](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list/) - Returns a list of Wiki pages.
 - [Count Wiki Page](https://developer.nulab.com/docs/backlog/api/2/count-wiki-page/) - Returns the number of Wiki pages.
+- [Get Wiki Page Tag List](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-tag-list/) - Returns a list of tags used in the project.
 - [Get Wiki Page](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page/) - Returns information about a Wiki page.
 - [Add Wiki Page](https://developer.nulab.com/docs/backlog/api/2/add-wiki-page/) - Adds a new Wiki page.
 - [Update Wiki Page](https://developer.nulab.com/docs/backlog/api/2/update-wiki-page/) - Updates a Wiki page.

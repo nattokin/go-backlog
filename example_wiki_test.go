@@ -27,6 +27,26 @@ func ExampleWikiService_List() {
 	// ID: 112, Name: test1
 }
 
+func ExampleWikiService_TagList() {
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"apiKey",
+	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	tags, err := c.Wiki.TagList(context.Background(), "MYPROJECT")
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Printf("ID: %d, Name: %s\n", tags[0].ID, tags[0].Name)
+	// Output:
+	// ID: 1, Name: test
+}
+
 func ExampleWikiService_Count() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",

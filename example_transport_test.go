@@ -193,6 +193,7 @@ var exampleRoutes = map[string]respondFunc{
 
 	// Wiki
 	"GET /wikis":       jsonBody(fixture.Wiki.ListJSON),
+	"GET /wikis/tags":  jsonBody(`[{"id": 1, "name": "test"}]`),
 	"POST /wikis":      jsonBody(fixture.Wiki.MinimumJSON),
 	"GET /wikis/count": jsonBody(`{"count": 5}`),
 	"GET /wikis/34":    jsonBody(fixture.Wiki.MinimumJSON),
