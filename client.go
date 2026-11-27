@@ -51,6 +51,8 @@ type Client struct {
 	Star *StarService
 	// User provides access to user-related API endpoints.
 	User *UserService
+	// Watching provides access to watching-related API endpoints.
+	Watching *WatchingService
 	// Wiki provides access to wiki-related API endpoints.
 	Wiki *WikiService
 }
@@ -155,6 +157,8 @@ func initServices(c *Client) {
 	c.Star = newStarService(c.httpClient.Method, baseOptionService)
 
 	c.User = newUserService(c.httpClient.Method, baseOptionService)
+
+	c.Watching = newWatchingService(c.httpClient.Method, baseOptionService)
 
 	c.Wiki = newWikiService(c.httpClient.Method, baseOptionService)
 }
