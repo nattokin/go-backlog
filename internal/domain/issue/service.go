@@ -6,6 +6,7 @@ import (
 	"iter"
 	"maps"
 	"net/url"
+	"slices"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -44,16 +45,18 @@ var countValidTypes = []option.APIParamOptionType{
 	option.ParamKeyword,
 }
 
-var filterValidTypes = append(countValidTypes,
-	option.ParamSort,
-	option.ParamOrder,
-	option.ParamExpand,
-)
+var filterValidTypes = slices.Concat(countValidTypes,
+	[]option.APIParamOptionType{
+		option.ParamSort,
+		option.ParamOrder,
+		option.ParamExpand,
+	})
 
-var listValidTypes = append(filterValidTypes,
-	option.ParamOffset,
-	option.ParamCount,
-)
+var listValidTypes = slices.Concat(filterValidTypes,
+	[]option.APIParamOptionType{
+		option.ParamOffset,
+		option.ParamCount,
+	})
 
 var oneValidTypes = []option.APIParamOptionType{
 	option.ParamExpand,
@@ -78,11 +81,12 @@ var createValidTypes = []option.APIParamOptionType{
 	option.ParamCustomField,
 }
 
-var updateValidTypes = append(createValidTypes,
-	option.ParamStatusID,
-	option.ParamResolutionID,
-	option.ParamComment,
-)
+var updateValidTypes = slices.Concat(createValidTypes,
+	[]option.APIParamOptionType{
+		option.ParamStatusID,
+		option.ParamResolutionID,
+		option.ParamComment,
+	})
 
 // Service handles issue-related Backlog API calls.
 type Service struct {

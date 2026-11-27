@@ -6,6 +6,7 @@ import (
 	"iter"
 	"maps"
 	"net/url"
+	"slices"
 	"strconv"
 
 	"github.com/nattokin/go-backlog/internal/client"
@@ -23,10 +24,11 @@ var filterValidTypes = []option.APIParamOptionType{
 	option.ParamCreatedUserIDs,
 }
 
-var listValidTypes = append(filterValidTypes,
-	option.ParamOffset,
-	option.ParamCount,
-)
+var listValidTypes = slices.Concat(filterValidTypes,
+	[]option.APIParamOptionType{
+		option.ParamOffset,
+		option.ParamCount,
+	})
 
 // Service handles pull request-related Backlog API calls.
 type Service struct {
