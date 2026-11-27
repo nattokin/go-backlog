@@ -191,8 +191,13 @@ func TestOptionService_slice(t *testing.T) {
 			key:      option.ParamResolutionIDs.Value(),
 			wantVals: []string{"1"},
 		},
-		"WithResolutionIDs-invalid-0": {
-			option:  o.WithResolutionIDs([]int{0}),
+		"WithResolutionIDs-valid-0": {
+			option:   o.WithResolutionIDs([]int{0, 1}),
+			key:      option.ParamResolutionIDs.Value(),
+			wantVals: []string{"0", "1"},
+		},
+		"WithResolutionIDs-invalid-neg": {
+			option:  o.WithResolutionIDs([]int{0, -1}),
 			wantErr: true,
 		},
 		"WithIDs-valid": {
