@@ -43,6 +43,8 @@ type Client struct {
 	RecentlyViewed *RecentlyViewedService
 	// Repository provides access to Git repository endpoints.
 	Repository *RepositoryService
+	// Resolution provides access to resolution-related API endpoints.
+	Resolution *ResolutionService
 	// Space provides access to space-related API endpoints.
 	Space *SpaceService
 	// Star provides access to star-related API endpoints.
@@ -145,6 +147,8 @@ func initServices(c *Client) {
 	c.RecentlyViewed = newRecentlyViewedService(c.httpClient.Method, baseOptionService)
 
 	c.Repository = newRepositoryService(c.httpClient.Method)
+
+	c.Resolution = newResolutionService(c.httpClient.Method)
 
 	c.Space = newSpaceService(c.httpClient.Method, baseOptionService)
 
