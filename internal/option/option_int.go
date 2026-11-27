@@ -132,6 +132,12 @@ func (s *OptionService) WithRoleType(roleType int) *APIParamOption {
 	return intRangeOption(ParamRoleType, int(roleType), 1, 6)
 }
 
+// WithSenderID sets `senderId`.
+// The value must be at least 1.
+func (s *OptionService) WithSenderID(id int) *APIParamOption {
+	return positiveIntOption(ParamSenderID, id)
+}
+
 // WithStatusID sets `statusId`.
 // The value must be at least 1.
 func (s *OptionService) WithStatusID(id int) *APIParamOption {
