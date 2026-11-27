@@ -519,18 +519,19 @@ func TestValidateIntIDs(t *testing.T) {
 		fn     func(int) *validation.Error
 		target string
 	}{
-		"ValidateActivityID":    {fn: validate.ValidateActivityID, target: "activityID"},
-		"ValidateAttachmentID":  {fn: validate.ValidateAttachmentID, target: "attachmentID"},
-		"ValidateCommentID":     {fn: validate.ValidateCommentID, target: "commentID"},
-		"ValidateCustomFieldID": {fn: validate.ValidateCustomFieldID, target: "customFieldID"},
-		"ValidatePRNumber":      {fn: validate.ValidatePRNumber, target: "prNumber"},
-		"ValidateProjectID":     {fn: validate.ValidateProjectID, target: "projectID"},
-		"ValidateSharedFileID":  {fn: validate.ValidateSharedFileID, target: "fileID"},
-		"ValidateStarID":        {fn: validate.ValidateStarID, target: "starID"},
-		"ValidateUserID":        {fn: validate.ValidateUserID, target: "userID"},
-		"ValidateVersionID":     {fn: validate.ValidateVersionID, target: "versionID"},
-		"ValidateWebhookID":     {fn: validate.ValidateWebhookID, target: "webhookID"},
-		"ValidateWikiID":        {fn: validate.ValidateWikiID, target: "wikiID"},
+		"ValidateActivityID":     {fn: validate.ValidateActivityID, target: "activityID"},
+		"ValidateAttachmentID":   {fn: validate.ValidateAttachmentID, target: "attachmentID"},
+		"ValidateCommentID":      {fn: validate.ValidateCommentID, target: "commentID"},
+		"ValidateCustomFieldID":  {fn: validate.ValidateCustomFieldID, target: "customFieldID"},
+		"ValidateNotificationID": {fn: validate.ValidateNotificationID, target: "notificationID"},
+		"ValidatePRNumber":       {fn: validate.ValidatePRNumber, target: "prNumber"},
+		"ValidateProjectID":      {fn: validate.ValidateProjectID, target: "projectID"},
+		"ValidateSharedFileID":   {fn: validate.ValidateSharedFileID, target: "fileID"},
+		"ValidateStarID":         {fn: validate.ValidateStarID, target: "starID"},
+		"ValidateUserID":         {fn: validate.ValidateUserID, target: "userID"},
+		"ValidateVersionID":      {fn: validate.ValidateVersionID, target: "versionID"},
+		"ValidateWebhookID":      {fn: validate.ValidateWebhookID, target: "webhookID"},
+		"ValidateWikiID":         {fn: validate.ValidateWikiID, target: "wikiID"},
 	}
 
 	cases := map[string]struct {
