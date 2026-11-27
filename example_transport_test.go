@@ -75,6 +75,12 @@ var exampleRoutes = map[string]respondFunc{
 	"POST /issues/TEST-1/sharedFiles":          jsonBody(fixture.SharedFile.ListJSON),
 	"DELETE /issues/TEST-1/sharedFiles/454403": jsonBody(fixture.SharedFile.SingleJSON),
 
+	// Notification
+	"GET /notifications":                 jsonBody(fixture.Notification.ListJSON),
+	"GET /notifications/count":           jsonBody(fixture.Notification.CountJSON),
+	"POST /notifications/markAsRead":     jsonBody(fixture.Notification.ResetUnreadCountJSON),
+	"POST /notifications/299/markAsRead": noContent(),
+
 	// Priority
 	"GET /priorities": jsonBody(fixture.Priority.ListJSON),
 

@@ -295,6 +295,15 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithRoleType(7),
 			wantErr: true,
 		},
+		"WithSenderID-valid-1": {
+			option:    o.WithSenderID(1),
+			key:       option.ParamSenderID.Value(),
+			wantValue: 1,
+		},
+		"WithSenderID-invalid-0": {
+			option:  o.WithSenderID(0),
+			wantErr: true,
+		},
 		"WithStatusID-valid-1": {
 			option:    o.WithStatusID(1),
 			key:       option.ParamStatusID.Value(),

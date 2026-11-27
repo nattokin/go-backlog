@@ -59,6 +59,16 @@ func TestOptionService_bool(t *testing.T) {
 			key:       option.ParamAllowInput.Value(),
 			wantValue: true,
 		},
+		"WithAlreadyRead-false": {
+			option:    o.WithAlreadyRead(false),
+			key:       option.ParamAlreadyRead.Value(),
+			wantValue: false,
+		},
+		"WithAlreadyRead-true": {
+			option:    o.WithAlreadyRead(true),
+			key:       option.ParamAlreadyRead.Value(),
+			wantValue: true,
+		},
 		"WithArchived-false": {
 			option:    o.WithArchived(false),
 			key:       option.ParamArchived.Value(),
@@ -147,6 +157,16 @@ func TestOptionService_bool(t *testing.T) {
 		"WithRequired-true": {
 			option:    o.WithRequired(true),
 			key:       option.ParamRequired.Value(),
+			wantValue: true,
+		},
+		"WithResourceAlreadyRead-false": {
+			option:    o.WithResourceAlreadyRead(false),
+			key:       option.ParamResourceAlreadyRead.Value(),
+			wantValue: false,
+		},
+		"WithResourceAlreadyRead-true": {
+			option:    o.WithResourceAlreadyRead(true),
+			key:       option.ParamResourceAlreadyRead.Value(),
 			wantValue: true,
 		},
 		"WithSharedFile-false": {

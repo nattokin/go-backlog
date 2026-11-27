@@ -33,6 +33,8 @@ type Client struct {
 
 	// Issue provides access to issue-related API endpoints.
 	Issue *IssueService
+	// Notification provides access to notification-related API endpoints.
+	Notification *NotificationService
 	// Priority provides access to priority-related API endpoints.
 	Priority *PriorityService
 	// Project provides access to project-related API endpoints.
@@ -137,6 +139,8 @@ func initServices(c *Client) {
 	baseOptionService := &option.OptionService{}
 
 	c.Issue = newIssueService(c.httpClient.Method, baseOptionService)
+
+	c.Notification = newNotificationService(c.httpClient.Method, baseOptionService)
 
 	c.Priority = newPriorityService(c.httpClient.Method)
 

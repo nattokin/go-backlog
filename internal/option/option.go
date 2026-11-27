@@ -16,6 +16,7 @@ import (
 const (
 	ParamActivityTypeIDs                   APIParamOptionType = "activityTypeId[]"
 	ParamActualHours                       APIParamOptionType = "actualHours"
+	ParamAlreadyRead                       APIParamOptionType = "alreadyRead"
 	ParamAll                               APIParamOptionType = "all"
 	ParamAllEvent                          APIParamOptionType = "allEvent"
 	ParamAllowAddItem                      APIParamOptionType = "allowAddItem"
@@ -86,7 +87,9 @@ const (
 	ParamRequired                          APIParamOptionType = "required"
 	ParamResolutionID                      APIParamOptionType = "resolutionId"
 	ParamResolutionIDs                     APIParamOptionType = "resolutionId[]"
+	ParamResourceAlreadyRead               APIParamOptionType = "resourceAlreadyRead"
 	ParamRoleType                          APIParamOptionType = "roleType"
+	ParamSenderID                          APIParamOptionType = "senderId"
 	ParamSharedFile                        APIParamOptionType = "sharedFile"
 	ParamSince                             APIParamOptionType = "since"
 	ParamSort                              APIParamOptionType = "sort"

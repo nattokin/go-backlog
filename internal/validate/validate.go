@@ -199,6 +199,11 @@ func ValidateIssueIDOrKey(issueIDOrKey string) *validation.Error {
 	return ValidateIDOrKey("issueIDOrKey", issueIDOrKey)
 }
 
+// ValidateNotificationID validates that notificationID is at least 1.
+func ValidateNotificationID(notificationID int) *validation.Error {
+	return ValidatePositiveInt("notificationID", notificationID)
+}
+
 // ValidatePRNumber validates that prNumber is at least 1.
 func ValidatePRNumber(prNumber int) *validation.Error {
 	return ValidatePositiveInt("prNumber", prNumber)
