@@ -24,6 +24,7 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 	want := map[option.APIParamOptionType]string{
 		option.ParamActivityTypeIDs:                   "activityTypeId[]",
 		option.ParamActualHours:                       "actualHours",
+		option.ParamAlreadyRead:                       "alreadyRead",
 		option.ParamAll:                               "all",
 		option.ParamAllEvent:                          "allEvent",
 		option.ParamAllowAddItem:                      "allowAddItem",
@@ -94,7 +95,9 @@ func TestAPIParamOptionType_Value(t *testing.T) {
 		option.ParamRequired:                          "required",
 		option.ParamResolutionID:                      "resolutionId",
 		option.ParamResolutionIDs:                     "resolutionId[]",
+		option.ParamResourceAlreadyRead:               "resourceAlreadyRead",
 		option.ParamRoleType:                          "roleType",
+		option.ParamSenderID:                          "senderId",
 		option.ParamSharedFile:                        "sharedFile",
 		option.ParamSince:                             "since",
 		option.ParamSort:                              "sort",
