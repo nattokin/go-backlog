@@ -61,7 +61,7 @@ func TestNewClient(t *testing.T) {
 		c, err := NewClient(baseURL, apiKey, nil)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
-		assert.Same(t, http.DefaultClient, c.httpClient.Doer)
+		assert.Same(t, client.DefaultDoer, c.httpClient.Doer)
 		assert.Equal(t, client.UserAgent, c.httpClient.UserAgent)
 	})
 
@@ -69,7 +69,7 @@ func TestNewClient(t *testing.T) {
 		c, err := NewClient(baseURL, apiKey, nil, WithUserAgent("myapp/1.2.0"))
 		require.NoError(t, err)
 		assert.NotNil(t, c)
-		assert.Same(t, http.DefaultClient, c.httpClient.Doer)
+		assert.Same(t, client.DefaultDoer, c.httpClient.Doer)
 		assert.Equal(t, "myapp/1.2.0 "+client.UserAgent, c.httpClient.UserAgent)
 	})
 
@@ -144,7 +144,7 @@ func TestNewOAuthClient(t *testing.T) {
 		c, err := NewOAuthClient(baseURL, accessToken, nil)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
-		assert.Same(t, http.DefaultClient, c.httpClient.Doer)
+		assert.Same(t, client.DefaultDoer, c.httpClient.Doer)
 		assert.Equal(t, client.UserAgent, c.httpClient.UserAgent)
 	})
 
@@ -152,7 +152,7 @@ func TestNewOAuthClient(t *testing.T) {
 		c, err := NewOAuthClient(baseURL, accessToken, nil, WithUserAgent("myapp/1.2.0"))
 		require.NoError(t, err)
 		assert.NotNil(t, c)
-		assert.Same(t, http.DefaultClient, c.httpClient.Doer)
+		assert.Same(t, client.DefaultDoer, c.httpClient.Doer)
 		assert.Equal(t, "myapp/1.2.0 "+client.UserAgent, c.httpClient.UserAgent)
 	})
 

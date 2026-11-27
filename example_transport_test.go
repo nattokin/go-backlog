@@ -11,15 +11,15 @@ import (
 	"github.com/nattokin/go-backlog/internal/testutil/mock"
 )
 
-// TestMain replaces the transport of http.DefaultClient with exampleTransport,
-// so that Example functions can create a client the same way users do (without
-// WithDoer) and still verify their output. No request reaches
-// example.backlog.com.
+// TestMain replaces http.DefaultTransport, which the default client sends
+// requests with, with exampleTransport, so that Example functions can create a
+// client the same way users do (without WithDoer) and still verify their
+// output. No request reaches example.backlog.com.
 //
-// Every test in this package's test binary shares http.DefaultClient. Tests
+// Every test in this package's test binary shares http.DefaultTransport. Tests
 // that send requests pass a mock with WithDoer and do not use it.
 func TestMain(m *testing.M) {
-	http.DefaultClient.Transport = exampleTransport{}
+	http.DefaultTransport = exampleTransport{}
 	os.Exit(m.Run())
 }
 
@@ -167,6 +167,7 @@ var exampleRoutes = map[string]respondFunc{
 	"GET /space/activities":   jsonBody(fixture.Activity.ListJSON),
 	"POST /space/attachment":  jsonBody(fixture.Attachment.UploadJSON),
 	"GET /space/diskUsage":    jsonBody(fixture.Space.DiskUsageJSON),
+	"GET /space/image":        binary("space.png"),
 	"GET /space/notification": jsonBody(fixture.Space.NotificationJSON),
 	"PUT /space/notification": jsonBody(fixture.Space.NotificationJSON),
 
@@ -192,6 +193,7 @@ var exampleRoutes = map[string]respondFunc{
 
 	// Wiki
 	"GET /wikis":       jsonBody(fixture.Wiki.ListJSON),
+	"GET /wikis/tags":  jsonBody(`[{"id": 1, "name": "test"}]`),
 	"POST /wikis":      jsonBody(fixture.Wiki.MinimumJSON),
 	"GET /wikis/count": jsonBody(`{"count": 5}`),
 	"GET /wikis/34":    jsonBody(fixture.Wiki.MinimumJSON),

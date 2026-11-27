@@ -99,7 +99,7 @@ func (e *Error) Error() string {
 
 // APIResponseError represents Error Response of Backlog API.
 type APIResponseError struct {
-	StatusCode      int              `json:"-"` // HTTP status code (4xx or 5xx)
+	StatusCode      int              `json:"-"` // HTTP status code (3xx, 4xx or 5xx)
 	Errors          []*Error         `json:"errors,omitempty"`
 	RateLimitStatus *RateLimitStatus `json:"-"` // nil when the rate limit headers are missing or invalid
 }
@@ -189,6 +189,17 @@ var ErrNoContent = errors.New("no content to download")
 // satisfies it, and it is the extension point for a custom transport.
 type Doer interface {
 	Do(req *http.Request) (*http.Response, error)
+}
+
+// DefaultDoer is the Doer used when none is set with WithDoer. It sends
+// requests with http.DefaultTransport and does not follow redirects, so a 3xx
+// response is returned as an *APIResponseError. Following a redirect would
+// forward the Backlog-API-Key header to the redirect target, and would resend
+// a POST, PATCH or DELETE request as a GET without its body.
+var DefaultDoer Doer = &http.Client{
+	CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
 }
 
 // CredentialType identifies how a credential is sent to the Backlog API.
@@ -298,7 +309,7 @@ func newClient(baseURL string, credential Credential, opts ...*ClientOption) (*C
 	}
 
 	if config.Doer == nil {
-		config.Doer = http.DefaultClient
+		config.Doer = DefaultDoer
 	}
 
 	userAgent := UserAgent

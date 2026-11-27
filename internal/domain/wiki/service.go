@@ -77,6 +77,34 @@ func (s *Service) Count(ctx context.Context, projectIDOrKey string) (int, error)
 	return v["count"], nil
 }
 
+// TagList returns a list of tags used in the project's wiki pages.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-tag-list
+func (s *Service) TagList(ctx context.Context, projectIDOrKey string) ([]*model.Tag, error) {
+	var ves validation.Errors
+	if ve := validate.ValidateProjectIDOrKey(projectIDOrKey); ve != nil {
+		ves = append(ves, ve)
+	}
+	if len(ves) > 0 {
+		return nil, ves
+	}
+
+	query := url.Values{}
+	query.Set("projectIdOrKey", projectIDOrKey)
+
+	resp, err := s.method.Get(ctx, "wikis/tags", query)
+	if err != nil {
+		return nil, err
+	}
+
+	v := []*model.Tag{}
+	if err := client.DecodeResponse(resp, &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
 // One returns a single wiki page by ID.
 //
 // Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-wiki-page

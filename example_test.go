@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	backlog "github.com/nattokin/go-backlog"
 )
@@ -71,12 +72,20 @@ func ExampleNewClient() {
 
 // ExampleNewClient_withDoer demonstrates injecting a custom HTTP client.
 // This is useful for configuring timeouts, transport settings, or providing
-// a mock implementation during testing.
+// a mock implementation during testing. Set CheckRedirect so that the client
+// does not follow redirects, which would forward the API key to another host.
 func ExampleNewClient_withDoer() {
+	httpClient := &http.Client{
+		Timeout: 30 * time.Second,
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",
 		"apiKey",
-		backlog.WithDoer(http.DefaultClient),
+		backlog.WithDoer(httpClient),
 	)
 	if err != nil {
 		fmt.Println("error:", err)

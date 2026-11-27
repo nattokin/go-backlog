@@ -205,6 +205,52 @@ func TestSpaceService_UpdateNotification(t *testing.T) {
 	}
 }
 
+func TestSpaceService_Icon(t *testing.T) {
+	ctx := context.Background()
+
+	cases := map[string]struct {
+		doFunc  func(req *http.Request) (*http.Response, error)
+		wantErr bool
+	}{
+		"success": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodGet, req.Method)
+				assert.Equal(t, "/api/v2/space/image", req.URL.Path)
+				return mock.NewBinaryResponse("space.png", "image/png", []byte("PNG")), nil
+			},
+		},
+		"error": {
+			doFunc:  mock.NewUnauthorizedDoFunc(),
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := backlog.NewClient("https://example.backlog.com", "apiKey", backlog.WithDoer(&mock.Doer{DoFunc: tc.doFunc}))
+			require.NoError(t, err)
+
+			got, err := c.Space.Icon(ctx)
+
+			if tc.wantErr {
+				require.Error(t, err)
+				var target *backlog.APIResponseError
+				assert.True(t, errors.As(err, &target))
+				assert.Nil(t, got)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			defer got.Body.Close()
+			assert.Equal(t, "space.png", got.Filename)
+			assert.Equal(t, "image/png", got.ContentType)
+		})
+	}
+}
+
 func TestSpaceActivityService(t *testing.T) {
 	ctx := context.Background()
 
