@@ -164,6 +164,9 @@ var exampleRoutes = map[string]respondFunc{
 	"GET /projects/TEST/git/repositories":     jsonBody(fixture.Repository.ListJSON),
 	"GET /projects/TEST/git/repositories/foo": jsonBody(fixture.Repository.SingleJSON),
 
+	// Resolution
+	"GET /resolutions": jsonBody(fixture.Resolution.ListJSON),
+
 	// Space
 	"GET /activities/3153":    jsonBody(fixture.Activity.SingleJSON),
 	"GET /space":              jsonBody(fixture.Space.SpaceJSON),

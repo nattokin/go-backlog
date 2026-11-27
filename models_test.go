@@ -700,6 +700,35 @@ func Test_prioritiesFromModel(t *testing.T) {
 	}
 }
 
+func Test_resolutionsFromModel(t *testing.T) {
+	cases := map[string]struct {
+		input []*model.Resolution
+		want  []*Resolution
+	}{
+		"with_elements": {
+			input: []*model.Resolution{
+				{ID: 0, Name: "Fixed"},
+				{ID: 1, Name: "Won't Fix"},
+			},
+			want: []*Resolution{
+				{ID: 0, Name: "Fixed"},
+				{ID: 1, Name: "Won't Fix"},
+			},
+		},
+		"empty": {
+			input: []*model.Resolution{},
+			want:  []*Resolution{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, resolutionsFromModel(tc.input))
+		})
+	}
+}
+
 func Test_fromModel_nil(t *testing.T) {
 	cases := map[string]struct {
 		call func() any
@@ -728,6 +757,7 @@ func Test_fromModel_nil(t *testing.T) {
 		"recently_viewed_wiki":     {call: func() any { return recentlyViewedWikiFromModel(nil) }},
 		"recently_viewed_wikis":    {call: func() any { return recentlyViewedWikisFromModel(nil) }},
 		"resolution":               {call: func() any { return resolutionFromModel(nil) }},
+		"resolutions":              {call: func() any { return resolutionsFromModel(nil) }},
 		"shared_file":              {call: func() any { return sharedFileFromModel(nil) }},
 		"space":                    {call: func() any { return spaceFromModel(nil) }},
 		"space_notification":       {call: func() any { return spaceNotificationFromModel(nil) }},

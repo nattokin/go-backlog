@@ -202,6 +202,10 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 - [Get List of Git Repositories](https://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/) - Returns a list of Git repositories in a project.
 - [Get Git Repository](https://developer.nulab.com/docs/backlog/api/2/get-git-repository/) - Returns information about a specific Git repository.
 
+### Client.[Resolution](https://pkg.go.dev/github.com/nattokin/go-backlog#ResolutionService)
+
+- [Get Resolution List](https://developer.nulab.com/docs/backlog/api/2/get-resolution-list/) - Returns a list of resolutions.
+
 ### Client.[Space](https://pkg.go.dev/github.com/nattokin/go-backlog#SpaceService)
 
 - [Get Space](https://developer.nulab.com/docs/backlog/api/2/get-space) - Returns information about your space.
