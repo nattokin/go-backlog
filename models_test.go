@@ -729,6 +729,35 @@ func Test_resolutionsFromModel(t *testing.T) {
 	}
 }
 
+func Test_watchingsFromModel(t *testing.T) {
+	cases := map[string]struct {
+		input []*model.Watching
+		want  []*Watching
+	}{
+		"with_elements": {
+			input: []*model.Watching{
+				{ID: 1, AlreadyRead: true, Note: "note", Type: "issue"},
+				{ID: 2, Type: "issue"},
+			},
+			want: []*Watching{
+				{ID: 1, AlreadyRead: true, Note: "note", Type: "issue"},
+				{ID: 2, Type: "issue"},
+			},
+		},
+		"empty": {
+			input: []*model.Watching{},
+			want:  []*Watching{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, watchingsFromModel(tc.input))
+		})
+	}
+}
+
 func Test_fromModel_nil(t *testing.T) {
 	cases := map[string]struct {
 		call func() any
@@ -769,6 +798,8 @@ func Test_fromModel_nil(t *testing.T) {
 		"user":                     {call: func() any { return userFromModel(nil) }},
 		"version":                  {call: func() any { return versionFromModel(nil) }},
 		"versions":                 {call: func() any { return versionsFromModel(nil) }},
+		"watching":                 {call: func() any { return watchingFromModel(nil) }},
+		"watchings":                {call: func() any { return watchingsFromModel(nil) }},
 		"wiki":                     {call: func() any { return wikiFromModel(nil) }},
 		"wiki_history":             {call: func() any { return wikiHistoryFromModel(nil) }},
 	}

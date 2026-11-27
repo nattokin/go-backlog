@@ -249,6 +249,33 @@ func ExampleUserStarOptionService() {
 	// ID: 10, Title: [TEST-1] first issue
 }
 
+// ExampleWatchingOptionService demonstrates listing unread watchings sorted by creation time.
+func ExampleWatchingOptionService() {
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"apiKey",
+	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	watchings, err := c.Watching.List(
+		context.Background(),
+		1,
+		c.Watching.Option.WithResourceAlreadyRead(false),
+		c.Watching.Option.WithSort(backlog.WatchingSortCreated),
+		c.Watching.Option.WithOrder(backlog.OrderAsc),
+	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Printf("ID: %d, IssueKey: %s\n", watchings[0].ID, watchings[0].Issue.IssueKey)
+	// Output:
+	// ID: 1, IssueKey: PRJ-1
+}
+
 // ExamplePullRequestOptionService demonstrates filtering pull requests by status and count.
 func ExamplePullRequestOptionService() {
 	c, err := backlog.NewClient(

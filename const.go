@@ -142,3 +142,13 @@ const (
 	PullRequestStatusMerged = 3
 	PullRequestStatusDraft  = 4
 )
+
+// WatchingSort defines the field to sort watching list results by.
+type WatchingSort string
+
+// Available sort fields for [WatchingService.List].
+const (
+	WatchingSortCreated      WatchingSort = "created"
+	WatchingSortUpdated      WatchingSort = "updated"
+	WatchingSortIssueUpdated WatchingSort = "issueUpdated"
+)

@@ -24,6 +24,8 @@ var validIssueExpands = []string{"childIssueSummary"}
 
 var validTextFormattingRules = []string{"backlog", "markdown"}
 
+var validWatchingSorts = []string{"created", "updated", "issueUpdated"}
+
 // ValidateDateFormat validates that date is formatted as yyyy-MM-dd.
 func ValidateDateFormat(field, date string) *validation.Error {
 	if !datePattern.MatchString(date) {
@@ -156,6 +158,16 @@ func ValidateTextFormattingRule(field, format string) *validation.Error {
 	return validation.NewError(field, fmt.Sprintf("invalid %s: must be only 'backlog' or 'markdown'", field))
 }
 
+// ValidateWatchingSort validates that sort is one of the Backlog watching-list sort keys.
+func ValidateWatchingSort(field, sort string) *validation.Error {
+	for _, v := range validWatchingSorts {
+		if sort == v {
+			return nil
+		}
+	}
+	return validation.NewError(field, fmt.Sprintf("invalid %s: must be a valid sort value", field))
+}
+
 // ValidateActivityID validates that activityID is at least 1.
 func ValidateActivityID(activityID int) *validation.Error {
 	return ValidatePositiveInt("activityID", activityID)
@@ -237,6 +249,11 @@ func ValidateUserID(userID int) *validation.Error {
 // ValidateVersionID validates that versionID is at least 1.
 func ValidateVersionID(versionID int) *validation.Error {
 	return ValidatePositiveInt("versionID", versionID)
+}
+
+// ValidateWatchingID validates that watchingID is at least 1.
+func ValidateWatchingID(watchingID int) *validation.Error {
+	return ValidatePositiveInt("watchingID", watchingID)
 }
 
 // ValidateWebhookID validates that webhookID is at least 1.

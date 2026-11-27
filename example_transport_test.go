@@ -197,6 +197,15 @@ var exampleRoutes = map[string]respondFunc{
 
 	"GET /users/myself": jsonBody(fixture.User.SingleJSON),
 
+	// Watching
+	"GET /users/1/watchings":       jsonBody(fixture.Watching.ListJSON),
+	"GET /users/1/watchings/count": jsonBody(fixture.Watching.CountJSON),
+	"POST /watchings":              jsonBody(fixture.Watching.SingleJSON),
+	"GET /watchings/1":             jsonBody(fixture.Watching.SingleJSON),
+	"PATCH /watchings/1":           jsonBody(fixture.Watching.SingleJSON),
+	"DELETE /watchings/1":          jsonBody(fixture.Watching.SingleJSON),
+	"POST /watchings/1/markAsRead": noContent(),
+
 	// Wiki
 	"GET /wikis":       jsonBody(fixture.Wiki.ListJSON),
 	"GET /wikis/tags":  jsonBody(`[{"id": 1, "name": "test"}]`),

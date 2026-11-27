@@ -25,6 +25,11 @@ func (s *OptionService) WithAllowInput(allowInput bool) *APIParamOption {
 	return boolOption(ParamAllowInput, allowInput)
 }
 
+// WithAlreadyRead sets `alreadyRead`.
+func (s *OptionService) WithAlreadyRead(enabled bool) *APIParamOption {
+	return boolOption(ParamAlreadyRead, enabled)
+}
+
 // WithArchived sets `archived`.
 func (s *OptionService) WithArchived(enabled bool) *APIParamOption {
 	return boolOption(ParamArchived, enabled)
@@ -68,6 +73,11 @@ func (s *OptionService) WithProjectLeaderCanEditProjectLeader(enabled bool) *API
 // WithRequired sets `required`.
 func (s *OptionService) WithRequired(required bool) *APIParamOption {
 	return boolOption(ParamRequired, required)
+}
+
+// WithResourceAlreadyRead sets `resourceAlreadyRead`.
+func (s *OptionService) WithResourceAlreadyRead(enabled bool) *APIParamOption {
+	return boolOption(ParamResourceAlreadyRead, enabled)
 }
 
 // WithSharedFile sets `sharedFile`.
