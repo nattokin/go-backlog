@@ -244,6 +244,16 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 - [Get Received Star List](https://developer.nulab.com/docs/backlog/api/2/get-received-star-list) - Returns a list of stars received by a user.
 - [Count User Received Stars](https://developer.nulab.com/docs/backlog/api/2/count-user-received-stars) - Returns the number of stars received by a user.
 
+### Client.[Watching](https://pkg.go.dev/github.com/nattokin/go-backlog#WatchingService)
+
+- [Get Watching List](https://developer.nulab.com/docs/backlog/api/2/get-watching-list/) - Returns a list of watchings for a user.
+- [Count Watching](https://developer.nulab.com/docs/backlog/api/2/count-watching/) - Returns the number of watchings for a user.
+- [Get Watching](https://developer.nulab.com/docs/backlog/api/2/get-watching/) - Returns information about a specific watching.
+- [Add Watching](https://developer.nulab.com/docs/backlog/api/2/add-watching/) - Adds a watching.
+- [Update Watching](https://developer.nulab.com/docs/backlog/api/2/update-watching/) - Updates a watching.
+- [Delete Watching](https://developer.nulab.com/docs/backlog/api/2/delete-watching/) - Deletes a watching.
+- [Mark Watching as Read](https://developer.nulab.com/docs/backlog/api/2/mark-watching-as-read/) - Marks a watching as read.
+
 ### Client.[Wiki](https://pkg.go.dev/github.com/nattokin/go-backlog#WikiService)
 
 - [Get Wiki Page List](https://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list/) - Returns a list of Wiki pages.
