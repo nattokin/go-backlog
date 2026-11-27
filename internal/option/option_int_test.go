@@ -15,10 +15,11 @@ func TestOptionService_int(t *testing.T) {
 	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option    *option.APIParamOption
-		key       string
-		wantValue int
-		wantErr   bool
+		option     *option.APIParamOption
+		key        string
+		wantValue  int
+		wantErr    bool
+		wantErrMsg string
 	}{
 		"WithActualHours-valid-1": {
 			option:    o.WithActualHours(1),
@@ -268,14 +269,20 @@ func TestOptionService_int(t *testing.T) {
 			option:  o.WithPullRequestID(0),
 			wantErr: true,
 		},
+		"WithResolutionID-valid-0": {
+			option:    o.WithResolutionID(0),
+			key:       option.ParamResolutionID.Value(),
+			wantValue: 0,
+		},
 		"WithResolutionID-valid-1": {
 			option:    o.WithResolutionID(1),
 			key:       option.ParamResolutionID.Value(),
 			wantValue: 1,
 		},
-		"WithResolutionID-invalid-0": {
-			option:  o.WithResolutionID(0),
-			wantErr: true,
+		"WithResolutionID-invalid-neg": {
+			option:     o.WithResolutionID(-1),
+			wantErr:    true,
+			wantErrMsg: "invalid resolutionId: must not be less than 0",
 		},
 		"WithRoleType-valid-1": {
 			option:    o.WithRoleType(1),
@@ -323,6 +330,9 @@ func TestOptionService_int(t *testing.T) {
 			ve := tc.option.Check()
 			if tc.wantErr {
 				assert.NotNil(t, ve)
+				if tc.wantErrMsg != "" {
+					assert.Equal(t, tc.wantErrMsg, ve.Error())
+				}
 				return
 			}
 			require.Nil(t, ve)

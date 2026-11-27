@@ -290,6 +290,22 @@ func TestIssueService(t *testing.T) {
 				assert.Equal(t, 1, got.ID)
 			},
 		},
+		"Update/with-resolution-zero": {
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				assert.Equal(t, http.MethodPatch, req.Method)
+				assert.Equal(t, "/api/v2/issues/PRJ-1", req.URL.Path)
+				require.NoError(t, req.ParseForm())
+				assert.Equal(t, "0", req.PostForm.Get("resolutionId"))
+				return mock.NewResponse(fixture.Issue.SingleJSON), nil
+			},
+			call: func(t *testing.T, c *backlog.Client) {
+				got, err := c.Issue.Update(ctx, "PRJ-1",
+					c.Issue.Option.WithResolutionID(0),
+				)
+				require.NoError(t, err)
+				assert.Equal(t, 1, got.ID)
+			},
+		},
 		"Update/error": {
 			doFunc: mock.NewNotFoundDoFunc(),
 			call: func(t *testing.T, c *backlog.Client) {

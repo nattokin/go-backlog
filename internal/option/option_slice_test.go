@@ -14,10 +14,11 @@ func TestOptionService_slice(t *testing.T) {
 	o := &option.OptionService{}
 
 	cases := map[string]struct {
-		option   *option.APIParamOption
-		key      string
-		wantVals []string
-		wantErr  bool
+		option     *option.APIParamOption
+		key        string
+		wantVals   []string
+		wantErr    bool
+		wantErrMsg string
 	}{
 		"WithActivityTypeIDs-valid": {
 			option:   o.WithActivityTypeIDs([]int{1, 2, 26}),
@@ -186,14 +187,20 @@ func TestOptionService_slice(t *testing.T) {
 			option:  o.WithCreatedUserIDs([]int{0}),
 			wantErr: true,
 		},
-		"WithResolutionIDs-valid": {
+		"WithResolutionIDs-valid-0": {
+			option:   o.WithResolutionIDs([]int{0}),
+			key:      option.ParamResolutionIDs.Value(),
+			wantVals: []string{"0"},
+		},
+		"WithResolutionIDs-valid-1": {
 			option:   o.WithResolutionIDs([]int{1}),
 			key:      option.ParamResolutionIDs.Value(),
 			wantVals: []string{"1"},
 		},
-		"WithResolutionIDs-invalid-0": {
-			option:  o.WithResolutionIDs([]int{0}),
-			wantErr: true,
+		"WithResolutionIDs-invalid-neg": {
+			option:     o.WithResolutionIDs([]int{-1}),
+			wantErr:    true,
+			wantErrMsg: "invalid resolutionId: -1 must not be less than 0",
 		},
 		"WithIDs-valid": {
 			option:   o.WithIDs([]int{1, 2, 3}),
@@ -223,6 +230,9 @@ func TestOptionService_slice(t *testing.T) {
 			ve := tc.option.Check()
 			if tc.wantErr {
 				assert.NotNil(t, ve)
+				if tc.wantErrMsg != "" {
+					assert.Equal(t, tc.wantErrMsg, ve.Error())
+				}
 				return
 			}
 			require.Nil(t, ve)

@@ -309,6 +309,61 @@ func TestValidatePositiveFloat64(t *testing.T) {
 	}
 }
 
+func TestValidateNonNegativeInt(t *testing.T) {
+	cases := map[string]struct {
+		value      int
+		wantErr    bool
+		wantErrMsg string
+	}{
+		"valid-0":     {value: 0},
+		"valid-1":     {value: 1},
+		"invalid-neg": {value: -1, wantErr: true, wantErrMsg: "invalid resolutionId: must not be less than 0"},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateNonNegativeInt("resolutionId", tc.value)
+			if tc.wantErr {
+				assert.NotNil(t, ve)
+				assert.Equal(t, "resolutionId", ve.Target())
+				assert.Equal(t, tc.wantErrMsg, ve.Error())
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
+func TestValidateNonNegativeInts(t *testing.T) {
+	cases := map[string]struct {
+		values     []int
+		wantErr    bool
+		wantErrMsg string
+	}{
+		"valid-empty": {values: []int{}},
+		"valid-all-0": {values: []int{0}},
+		"valid-mix":   {values: []int{0, 1, 2}},
+		"invalid-neg": {values: []int{0, -1, 2}, wantErr: true, wantErrMsg: "invalid resolutionId: -1 must not be less than 0"},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateNonNegativeInts("resolutionId", tc.values)
+			if tc.wantErr {
+				assert.NotNil(t, ve)
+				assert.Equal(t, "resolutionId", ve.Target())
+				assert.Equal(t, tc.wantErrMsg, ve.Error())
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidatePositiveInt(t *testing.T) {
 	cases := map[string]struct {
 		value   int
