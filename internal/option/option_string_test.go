@@ -229,6 +229,16 @@ func TestOptionService_string(t *testing.T) {
 			key:       option.ParamUnit.Value(),
 			wantValue: "kg",
 		},
+		"WithNote-empty": {
+			option:    o.WithNote(""),
+			key:       option.ParamNote.Value(),
+			wantValue: "",
+		},
+		"WithNote-non-empty": {
+			option:    o.WithNote("check later"),
+			key:       option.ParamNote.Value(),
+			wantValue: "check later",
+		},
 		"WithOrder-asc": {
 			option:    o.WithOrder("asc"),
 			key:       option.ParamOrder.Value(),
@@ -342,6 +352,38 @@ func TestOptionService_string(t *testing.T) {
 				t.Parallel()
 
 				opt := o.WithIssueSort(tc.sort)
+				q := url.Values{}
+				ve := opt.Check()
+				if tc.wantErr {
+					assert.NotNil(t, ve)
+					return
+				}
+				require.Nil(t, ve)
+				_ = opt.Set(q)
+				assert.Equal(t, tc.sort, q.Get(option.ParamSort.Value()))
+			})
+		}
+	})
+
+	// --- WatchingSort option ------------------------------------------------------
+	t.Run("WithWatchingSort", func(t *testing.T) {
+		cases := map[string]struct {
+			sort    string
+			wantErr bool
+		}{
+			"created":      {sort: "created"},
+			"issueUpdated": {sort: "issueUpdated"},
+			"updated":      {sort: "updated"},
+
+			"empty":      {sort: "", wantErr: true},
+			"issue-sort": {sort: "summary", wantErr: true},
+		}
+
+		for name, tc := range cases {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				opt := o.WithWatchingSort(tc.sort)
 				q := url.Values{}
 				ve := opt.Check()
 				if tc.wantErr {
