@@ -385,6 +385,35 @@ func TestValidateTextFormattingRule(t *testing.T) {
 	}
 }
 
+func TestValidateWatchingSort(t *testing.T) {
+	cases := map[string]struct {
+		sort    string
+		wantErr bool
+	}{
+		"valid-created":      {sort: "created"},
+		"valid-updated":      {sort: "updated"},
+		"valid-issueUpdated": {sort: "issueUpdated"},
+		"invalid-empty":      {sort: "", wantErr: true},
+		"invalid-issue-sort": {sort: "summary", wantErr: true},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateWatchingSort("sort", tc.sort)
+			if tc.wantErr {
+				if assert.NotNil(t, ve) {
+					assert.Equal(t, "sort", ve.Target())
+					assert.Equal(t, "invalid sort: must be a valid sort value", ve.Message())
+				}
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidateDirPath(t *testing.T) {
 	cases := map[string]struct {
 		dirPath    string
@@ -529,6 +558,7 @@ func TestValidateIntIDs(t *testing.T) {
 		"ValidateStarID":        {fn: validate.ValidateStarID, target: "starID"},
 		"ValidateUserID":        {fn: validate.ValidateUserID, target: "userID"},
 		"ValidateVersionID":     {fn: validate.ValidateVersionID, target: "versionID"},
+		"ValidateWatchingID":    {fn: validate.ValidateWatchingID, target: "watchingID"},
 		"ValidateWebhookID":     {fn: validate.ValidateWebhookID, target: "webhookID"},
 		"ValidateWikiID":        {fn: validate.ValidateWikiID, target: "wikiID"},
 	}
