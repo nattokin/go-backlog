@@ -89,6 +89,13 @@ The [package documentation](https://pkg.go.dev/github.com/nattokin/go-backlog) e
 - [Link Shared Files to Issue](https://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue) - Links shared files to an issue.
 - [Remove Link to Shared File from Issue](https://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue) - Removes a shared file link from an issue.
 
+### Client.[Notification](https://pkg.go.dev/github.com/nattokin/go-backlog#NotificationService)
+
+- [Get Notification](https://developer.nulab.com/docs/backlog/api/2/get-notification/) - Returns a list of notifications for the authenticated user.
+- [Count Notification](https://developer.nulab.com/docs/backlog/api/2/count-notification/) - Returns the number of notifications for the authenticated user.
+- [Reset Unread Notification Count](https://developer.nulab.com/docs/backlog/api/2/reset-unread-notification-count/) - Resets the unread notification count.
+- [Read Notification](https://developer.nulab.com/docs/backlog/api/2/read-notification/) - Marks a notification as read.
+
 ### Client.[Priority](https://pkg.go.dev/github.com/nattokin/go-backlog#PriorityService)
 
 - [Get Priority List](https://developer.nulab.com/docs/backlog/api/2/get-priority-list/) - Returns a list of priorities.
