@@ -260,3 +260,52 @@ func TestService_UpdateNotification(t *testing.T) {
 		})
 	}
 }
+
+func TestService_Icon(t *testing.T) {
+	cases := map[string]struct {
+		mockDownloadFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType     error
+		wantFilename    string
+		wantContentType string
+	}{
+		"success": {
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "space/image", spath)
+				return mock.NewBinaryResponse("space.png", "image/png", []byte("PNG")), nil
+			},
+			wantFilename:    "space.png",
+			wantContentType: "image/png",
+		},
+		"error-client-network": {
+			mockDownloadFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockDownloadFn != nil {
+				method.Download = tc.mockDownloadFn
+			}
+			s := space.NewService(method)
+			got, err := s.Icon(context.Background())
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, got)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tc.wantFilename, got.Filename)
+			assert.Equal(t, tc.wantContentType, got.ContentType)
+		})
+	}
+}

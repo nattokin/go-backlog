@@ -57,6 +57,11 @@ func Test_contextPropagation(t *testing.T) {
 			s := space.NewService(m)
 			s.UpdateNotification(ctx, "content") //nolint:errcheck
 		}},
+		{"Service.Icon", func(t *testing.T, m *client.Method) {
+			m.Download = makeMockFn(t)
+			s := space.NewService(m)
+			s.Icon(ctx) //nolint:errcheck
+		}},
 		{"ActivityService.List", func(t *testing.T, m *client.Method) {
 			m.Get = makeMockFn(t)
 			s := space.NewActivityService(m)

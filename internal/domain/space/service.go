@@ -92,6 +92,19 @@ func (s *Service) UpdateNotification(ctx context.Context, content string) (*mode
 	return &v, nil
 }
 
+// Icon returns the icon image of a space.
+// The caller is responsible for closing FileData.Body after use.
+//
+// Backlog API docs: https://developer.nulab.com/docs/backlog/api/2/get-space-icon
+func (s *Service) Icon(ctx context.Context) (*model.FileData, error) {
+	resp, err := s.method.Download(ctx, "space/image", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.DownloadResponse(resp)
+}
+
 // NewService returns a *Service that sends requests through method.
 func NewService(method *client.Method) *Service {
 	return &Service{

@@ -248,3 +248,94 @@ func TestService_Count(t *testing.T) {
 		})
 	}
 }
+
+func TestService_TagList(t *testing.T) {
+	cases := map[string]struct {
+		projectIDOrKey string
+
+		mockGetFn func(ctx context.Context, spath string, query url.Values) (*http.Response, error)
+
+		wantErrType            error
+		wantValidationErrCount int
+		wantCount              int
+	}{
+		"success-id": {
+			projectIDOrKey: "103",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/tags", spath)
+				assert.Equal(t, "103", query.Get("projectIdOrKey"))
+				return mock.NewResponse(`[{"id": 1, "name": "tag1"}, {"id": 2, "name": "tag2"}]`), nil
+			},
+			wantCount: 2,
+		},
+		"success-key": {
+			projectIDOrKey: "PRJ_KEY",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				assert.Equal(t, "wikis/tags", spath)
+				assert.Equal(t, "PRJ_KEY", query.Get("projectIdOrKey"))
+				return mock.NewResponse(`[{"id": 1, "name": "tag1"}]`), nil
+			},
+			wantCount: 1,
+		},
+
+		"error-validation-projectIDOrKey-empty": {
+			projectIDOrKey:         "",
+			wantValidationErrCount: 1,
+		},
+		"error-validation-projectIDOrKey-zero": {
+			projectIDOrKey:         "0",
+			wantValidationErrCount: 1,
+		},
+
+		"error-client-network": {
+			projectIDOrKey: "1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return nil, errors.New("network error")
+			},
+			wantErrType: errors.New(""),
+		},
+		"error-response-invalid-json": {
+			projectIDOrKey: "1",
+			mockGetFn: func(ctx context.Context, spath string, query url.Values) (*http.Response, error) {
+				return mock.NewResponse(fixture.InvalidJSON), nil
+			},
+			wantErrType: &json.SyntaxError{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			method := mock.NewMethod(t)
+			if tc.mockGetFn != nil {
+				method.Get = tc.mockGetFn
+			}
+
+			s := wiki.NewService(method)
+			tags, err := s.TagList(context.Background(), tc.projectIDOrKey)
+
+			if tc.wantValidationErrCount > 0 {
+				assert.Error(t, err)
+				assert.Nil(t, tags)
+				var ves validation.Errors
+				if assert.ErrorAs(t, err, &ves) {
+					assert.Len(t, ves, tc.wantValidationErrCount)
+				}
+				return
+			}
+
+			if tc.wantErrType != nil {
+				assert.Error(t, err)
+				assert.Nil(t, tags)
+				assert.ErrorAs(t, err, &tc.wantErrType)
+				return
+			}
+
+			assert.NoError(t, err)
+			require.Len(t, tags, tc.wantCount)
+			assert.Equal(t, 1, tags[0].ID)
+			assert.Equal(t, "tag1", tags[0].Name)
+		})
+	}
+}

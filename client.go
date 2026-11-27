@@ -164,14 +164,29 @@ type ClientOption struct {
 // WithDoer returns a ClientOption that sets the HTTP client (Doer) for the Client.
 // This is useful for providing a custom *http.Client or a mock implementation during testing.
 //
-// If this option is not provided, [net/http.DefaultClient] is used. It has no
-// timeout, so a request can block indefinitely if the server does not respond.
-// Set a deadline on the context passed to each method, or pass an
-// *http.Client with Timeout set:
+// If this option is not provided, an *http.Client that uses
+// [net/http.DefaultTransport] and does not follow redirects is used. A 3xx
+// response is returned as an [*APIResponseError]. It has no timeout, so a
+// request can block indefinitely if the server does not respond. Set a
+// deadline on the context passed to each method, or pass an *http.Client with
+// Timeout set:
 //
 //	c, err := backlog.NewClient(baseURL, apiKey,
 //		backlog.WithDoer(&http.Client{Timeout: 30 * time.Second}),
 //	)
+//
+// An *http.Client follows redirects unless its CheckRedirect says otherwise.
+// On a redirect to another host, it drops the Authorization header but sends
+// the Backlog-API-Key header of a [NewClient] client to that host. It also
+// resends a POST, PATCH or DELETE request as a GET without its body on a 301,
+// 302 or 303 response. To stop following redirects, set CheckRedirect:
+//
+//	&http.Client{
+//		Timeout: 30 * time.Second,
+//		CheckRedirect: func(*http.Request, []*http.Request) error {
+//			return http.ErrUseLastResponse
+//		},
+//	}
 //
 // To use the Client from multiple goroutines, doer must be safe for
 // concurrent use, as *http.Client is.

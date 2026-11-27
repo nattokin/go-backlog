@@ -88,6 +88,28 @@ func ExampleSpaceService_UpdateNotification() {
 	// Content: Backlog is a project management tool.
 }
 
+func ExampleSpaceService_Icon() {
+	c, err := backlog.NewClient(
+		"https://example.backlog.com",
+		"apiKey",
+	)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	icon, err := c.Space.Icon(context.Background())
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	defer icon.Body.Close()
+
+	fmt.Printf("ContentType: %s, FileName: %s\n", icon.ContentType, icon.Filename)
+	// Output:
+	// ContentType: image/png, FileName: space.png
+}
+
 func ExampleSpaceActivityService_List() {
 	c, err := backlog.NewClient(
 		"https://example.backlog.com",

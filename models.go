@@ -396,6 +396,17 @@ func tagFromModel(m *model.Tag) *Tag {
 	}
 }
 
+func tagsFromModel(ms []*model.Tag) []*Tag {
+	if ms == nil {
+		return nil
+	}
+	result := make([]*Tag, len(ms))
+	for i, v := range ms {
+		result[i] = tagFromModel(v)
+	}
+	return result
+}
+
 func fileDataFromModel(m *model.FileData) *FileData {
 	if m == nil {
 		return nil
