@@ -97,6 +97,14 @@ func (s *OptionService) WithName(name string) *APIParamOption {
 	return nonEmptyStringOption(ParamName, name)
 }
 
+// WithNote sets `note`.
+func (s *OptionService) WithNote(note string) *APIParamOption {
+	return &APIParamOption{
+		Type:    ParamNote,
+		SetFunc: setStringFunc(ParamNote, note),
+	}
+}
+
 // WithOrder sets `order`.
 // The value must be "asc" or "desc".
 func (s *OptionService) WithOrder(order string) *APIParamOption {
@@ -160,6 +168,18 @@ func (s *OptionService) WithUnit(unit string) *APIParamOption {
 	return &APIParamOption{
 		Type:    ParamUnit,
 		SetFunc: setStringFunc(ParamUnit, unit),
+	}
+}
+
+// WithWatchingSort sets `sort`.
+// The value must be a sort key accepted by the watching list endpoint.
+func (s *OptionService) WithWatchingSort(sort string) *APIParamOption {
+	return &APIParamOption{
+		Type: ParamSort,
+		CheckFunc: func() *validation.Error {
+			return validate.ValidateWatchingSort(ParamSort.Value(), sort)
+		},
+		SetFunc: setStringFunc(ParamSort, sort),
 	}
 }
 
