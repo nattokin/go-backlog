@@ -671,6 +671,35 @@ func Test_tagsFromModel(t *testing.T) {
 	}
 }
 
+func Test_prioritiesFromModel(t *testing.T) {
+	cases := map[string]struct {
+		input []*model.Priority
+		want  []*Priority
+	}{
+		"with_elements": {
+			input: []*model.Priority{
+				{ID: 2, Name: "High"},
+				{ID: 3, Name: "Normal"},
+			},
+			want: []*Priority{
+				{ID: 2, Name: "High"},
+				{ID: 3, Name: "Normal"},
+			},
+		},
+		"empty": {
+			input: []*model.Priority{},
+			want:  []*Priority{},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, prioritiesFromModel(tc.input))
+		})
+	}
+}
+
 func Test_fromModel_nil(t *testing.T) {
 	cases := map[string]struct {
 		call func() any
@@ -688,6 +717,8 @@ func Test_fromModel_nil(t *testing.T) {
 		"disk_usage_space":         {call: func() any { return diskUsageSpaceFromModel(nil) }},
 		"issue":                    {call: func() any { return issueFromModel(nil) }},
 		"notification":             {call: func() any { return notificationFromModel(nil) }},
+		"priorities":               {call: func() any { return prioritiesFromModel(nil) }},
+		"priority":                 {call: func() any { return priorityFromModel(nil) }},
 		"project":                  {call: func() any { return projectFromModel(nil) }},
 		"pull_request":             {call: func() any { return pullRequestFromModel(nil) }},
 		"recently_viewed_issue":    {call: func() any { return recentlyViewedIssueFromModel(nil) }},
