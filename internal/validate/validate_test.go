@@ -187,6 +187,60 @@ func TestValidateNonEmptyString(t *testing.T) {
 	}
 }
 
+func TestValidateNonNegativeInt(t *testing.T) {
+	cases := map[string]struct {
+		value   int
+		wantErr bool
+	}{
+		"valid-0":     {value: 0},
+		"valid-1":     {value: 1},
+		"invalid-neg": {value: -1, wantErr: true},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateNonNegativeInt("resolutionId", tc.value)
+			if tc.wantErr {
+				if assert.NotNil(t, ve) {
+					assert.Equal(t, "resolutionId", ve.Target())
+					assert.Equal(t, "invalid resolutionId: must not be less than 0", ve.Message())
+				}
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
+func TestValidateNonNegativeInts(t *testing.T) {
+	cases := map[string]struct {
+		values  []int
+		wantErr bool
+	}{
+		"valid-empty":     {values: []int{}},
+		"valid-has-0":     {values: []int{0, 1, 2}},
+		"invalid-has-neg": {values: []int{0, -1}, wantErr: true},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ve := validate.ValidateNonNegativeInts("resolutionId", tc.values)
+			if tc.wantErr {
+				if assert.NotNil(t, ve) {
+					assert.Equal(t, "resolutionId", ve.Target())
+					assert.Equal(t, "invalid resolutionId: -1 must not be less than 0", ve.Message())
+				}
+				return
+			}
+			assert.Nil(t, ve)
+		})
+	}
+}
+
 func TestValidateOrder(t *testing.T) {
 	cases := map[string]struct {
 		order   string

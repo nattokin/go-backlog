@@ -273,8 +273,13 @@ func TestOptionService_int(t *testing.T) {
 			key:       option.ParamResolutionID.Value(),
 			wantValue: 1,
 		},
-		"WithResolutionID-invalid-0": {
-			option:  o.WithResolutionID(0),
+		"WithResolutionID-valid-0": {
+			option:    o.WithResolutionID(0),
+			key:       option.ParamResolutionID.Value(),
+			wantValue: 0,
+		},
+		"WithResolutionID-invalid-neg": {
+			option:  o.WithResolutionID(-1),
 			wantErr: true,
 		},
 		"WithRoleType-valid-1": {

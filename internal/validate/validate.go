@@ -89,6 +89,24 @@ func ValidateNonEmptyString(field, value string) *validation.Error {
 	return nil
 }
 
+// ValidateNonNegativeInt validates that value is not less than 0.
+func ValidateNonNegativeInt(field string, value int) *validation.Error {
+	if value < 0 {
+		return validation.NewError(field, fmt.Sprintf("invalid %s: must not be less than 0", field))
+	}
+	return nil
+}
+
+// ValidateNonNegativeInts validates that every element of values is not less than 0.
+func ValidateNonNegativeInts(field string, values []int) *validation.Error {
+	for _, v := range values {
+		if v < 0 {
+			return validation.NewError(field, fmt.Sprintf("invalid %s: %d must not be less than 0", field, v))
+		}
+	}
+	return nil
+}
+
 // ValidateOrder validates that order is "asc" or "desc".
 func ValidateOrder(field, order string) *validation.Error {
 	if order != "asc" && order != "desc" {

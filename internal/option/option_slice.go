@@ -130,9 +130,9 @@ func (s *OptionService) WithCreatedUserIDs(ids []int) *APIParamOption {
 }
 
 // WithResolutionIDs sets `resolutionId[]`.
-// Each ID must be at least 1.
+// Each ID must be at least 0.
 func (s *OptionService) WithResolutionIDs(ids []int) *APIParamOption {
-	return positiveIntSliceOption(ParamResolutionIDs, "resolutionId", ids)
+	return nonNegativeIntSliceOption(ParamResolutionIDs, "resolutionId", ids)
 }
 
 // WithIDs sets `id[]`.
@@ -145,6 +145,16 @@ func (s *OptionService) WithIDs(ids []int) *APIParamOption {
 // Each ID must be at least 1.
 func (s *OptionService) WithParentIssueIDs(ids []int) *APIParamOption {
 	return positiveIntSliceOption(ParamParentIssueIDs, "parentIssueId", ids)
+}
+
+func nonNegativeIntSliceOption(paramType APIParamOptionType, paramName string, values []int) *APIParamOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() *validation.Error {
+			return validate.ValidateNonNegativeInts(paramName, values)
+		},
+		SetFunc: addIntFunc(paramType, values),
+	}
 }
 
 func positiveIntSliceOption(paramType APIParamOptionType, paramName string, values []int) *APIParamOption {

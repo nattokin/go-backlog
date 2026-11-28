@@ -122,9 +122,9 @@ func (s *OptionService) WithPullRequestID(id int) *APIParamOption {
 }
 
 // WithResolutionID sets `resolutionId`.
-// The value must be at least 1.
+// The value must be at least 0.
 func (s *OptionService) WithResolutionID(id int) *APIParamOption {
-	return positiveIntOption(ParamResolutionID, id)
+	return nonNegativeIntOption(ParamResolutionID, id)
 }
 
 // WithRoleType sets `roleType`. Valid range: 1–6.
@@ -150,6 +150,17 @@ func intRangeOption(paramType APIParamOptionType, value, min, max int) *APIParam
 		Type: paramType,
 		CheckFunc: func() *validation.Error {
 			return validate.ValidateIntRange(paramType.Value(), value, min, max)
+		},
+		SetFunc: setIntFunc(paramType, value),
+	}
+}
+
+// nonNegativeIntOption builds a *APIParamOption that validates an int is >= 0.
+func nonNegativeIntOption(paramType APIParamOptionType, value int) *APIParamOption {
+	return &APIParamOption{
+		Type: paramType,
+		CheckFunc: func() *validation.Error {
+			return validate.ValidateNonNegativeInt(paramType.Value(), value)
 		},
 		SetFunc: setIntFunc(paramType, value),
 	}
